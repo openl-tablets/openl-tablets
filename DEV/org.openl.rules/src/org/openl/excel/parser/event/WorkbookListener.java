@@ -60,7 +60,7 @@ public class WorkbookListener implements HSSFListener {
                 break;
             case BoundSheetRecord.sid:
                 BoundSheetRecord bsr = (BoundSheetRecord) record;
-                sheets.add(new EventSheetDescriptor(bsr.getSheetname(), bsr.getPositionOfBof()));
+                sheets.add(new EventSheetDescriptor(bsr.getSheetname(), sheets.size(), bsr.getPositionOfBof()));
                 break;
             case BOFRecord.sid:
                 BOFRecord bof = (BOFRecord) record;

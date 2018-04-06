@@ -1,4 +1,4 @@
-/**
+/*
  *  OpenL Tablets,  2006
  *  https://sourceforge.net/projects/openl-tablets/
  */
@@ -79,6 +79,8 @@ public class TableEditorModel {
         while (actions.hasUndo()) {
             undo();
         }
+
+        gridTable.stopEditing();
     }
 
     public IOpenLTable getTable() {
@@ -105,13 +107,13 @@ public class TableEditorModel {
         return getOriginalGridTable().getRegion();
     }
 
-    public synchronized void insertColumns(int nCols, int beforeCol, int row) throws Exception {
+    public synchronized void insertColumns(int nCols, int beforeCol, int row) {
         IUndoableGridTableAction insertColumnsAction = new UndoableInsertColumnsAction(nCols, beforeCol, row);
         insertColumnsAction.doAction(gridTable);
         actions.addNewAction(insertColumnsAction);
     }
 
-    public synchronized void insertRows(int nRows, int beforeRow, int col) throws Exception {
+    public synchronized void insertRows(int nRows, int beforeRow, int col) {
         IUndoableGridTableAction insertRowsAction = new UndoableInsertRowsAction(nRows, beforeRow, col);
         insertRowsAction.doAction(gridTable);
         actions.addNewAction(insertRowsAction);
@@ -138,11 +140,11 @@ public class TableEditorModel {
     /**
      * @return New table id on the sheet where it was saved. It is needed for tables that were moved
      * to new place during adding new rows and columns on editing. We need to know new destination of the table.
-     * @throws IOException
      */
     public synchronized String save() throws IOException {
         XlsSheetGridModel xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
         xlsgrid.getSheetSource().getWorkbookSource().save();
+        gridTable.stopEditing();
         actions = new UndoableActions();
         String uri = getOriginalGridTable().getUri();
         return TableUtils.makeTableId(uri);
@@ -191,7 +193,7 @@ public class TableEditorModel {
     }
 
     public synchronized void setProperty(String name, Object value) throws Exception {
-        List<IUndoableGridTableAction> createdActions = new ArrayList<IUndoableGridTableAction>();
+        List<IUndoableGridTableAction> createdActions = new ArrayList<>();
         int nColsToInsert = 0;
 
         IGridTable fullTable = getOriginalGridTable();

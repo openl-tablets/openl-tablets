@@ -7,6 +7,7 @@ import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.CollectionUtils;
 
 public class TableModel {
@@ -17,7 +18,7 @@ public class TableModel {
 
     private int numRowsToDisplay = -1;
     
-    private boolean showHeader = true;
+    private final boolean showHeader;
 
     public static TableModel initializeTableModel(IGridTable table) {
         return initializeTableModel(table, null);
@@ -36,7 +37,11 @@ public class TableModel {
         if (table == null) {
             return null;
         }
-
+        boolean editing = Constants.MODE_EDIT.equals(mode);
+        if (editing) {
+            // Prepare workbook for edit (load it to memory before editing starts)
+            table.edit();
+        }
         IGrid grid;
 
         if (CollectionUtils.isNotEmpty(filters)) {

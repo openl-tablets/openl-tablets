@@ -17,6 +17,7 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.tableeditor.model.CellEditorSelector;
 import org.openl.rules.tableeditor.model.ICellEditor;
 import org.openl.rules.tableeditor.model.TableEditorModel;
+import org.openl.rules.tableeditor.renderkit.TableEditor;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.BooleanUtils;
 import org.openl.util.StringUtils;
@@ -112,9 +113,20 @@ public class TableEditorController extends BaseTableEditorController {
             String initValue = getCellEditorInitValue(editorType, cell);
             editorResponse.setInitValue(initValue);
 
+            prepareForEdit(editorModel);
+
             return pojo2json(editorResponse);
         }
         return "";
+    }
+
+    private void prepareForEdit(TableEditorModel editorModel) {
+        TableEditor tableEditor = editorModel.getTableEditor();
+        String mode = tableEditor.getMode();
+        if ((mode == null || Constants.MODE_EDIT.equals(mode)) && tableEditor.isEditable()) {
+            // Prepare workbook for edit (load it to memory before editing starts)
+            editorModel.getGridTable().edit();
+        }
     }
 
     private String getCellEditorInitValue(String editorType, ICell cell) {

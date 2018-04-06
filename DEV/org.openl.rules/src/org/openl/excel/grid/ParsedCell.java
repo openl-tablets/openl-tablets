@@ -12,6 +12,8 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsUtil;
+import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
+import org.openl.util.StringUtils;
 import org.openl.util.formatters.IFormatter;
 
 public class ParsedCell implements ICell {
@@ -84,13 +86,43 @@ public class ParsedCell implements ICell {
 
     @Override
     public String getFormattedValue() {
-        String value = getStringValue();
-        return value == null ? "" : value;
+        // TODO: Remove this method from ICell. Formatting should be occurred in UI code only, not in core.
+        // Copied from XlsCell
+
+        String formattedValue = null;
+
+        Object value = getObjectValue();
+
+        if (value != null) {
+            IFormatter cellDataFormatter = getDataFormatter();
+
+            if (cellDataFormatter == null && value instanceof Date) {
+                // Cell type is unknown but in Excel it's stored as a Date.
+                // We can't override getDataFormatter() or XlsDataFormatterFactory.getFormatter() to support this case
+                // because they are also invoked when editing a cell. When editing cells with unknown type null must be
+                // returned to be able to edit such cell as if it can contain any text.
+                // But we can safely format it's value when just viewing it's value.
+                cellDataFormatter = XlsDataFormatterFactory.getDateFormatter(this);
+            }
+
+            if (cellDataFormatter != null) {
+                formattedValue = cellDataFormatter.format(value);
+            }
+        }
+
+        if (formattedValue == null) {
+            formattedValue = getStringValue();
+            if (formattedValue == null) {
+                formattedValue = StringUtils.EMPTY;
+            }
+        }
+
+        return formattedValue;
     }
 
     @Override
     public ICellFont getFont() {
-        return null;
+        return grid.retrieveFont(row, column);
     }
 
     @Override
@@ -100,7 +132,7 @@ public class ParsedCell implements ICell {
 
     @Override
     public String getFormula() {
-        return getStringValue();
+        return null;
     }
 
     @SuppressWarnings("deprecation")
@@ -121,7 +153,7 @@ public class ParsedCell implements ICell {
 
     @Override
     public String getUri() {
-        return XlsUtil.xlsCellPresentation(grid.getFirstColNum() + column, grid.getFirstRowNum() + row);
+        return XlsUtil.xlsCellPresentation(column, row);
     }
 
     @Override
@@ -186,12 +218,13 @@ public class ParsedCell implements ICell {
 
     @Override
     public ICellComment getComment() {
-        return null;
+        return grid.retrieveComment(row, column);
     }
 
     @Override
     public IFormatter getDataFormatter() {
-        return null;
+        // TODO: Remove this method from ICell. Formatting should be occurred in UI code only, not in core.
+        return XlsDataFormatterFactory.getFormatter(this);
     }
 
     @Override

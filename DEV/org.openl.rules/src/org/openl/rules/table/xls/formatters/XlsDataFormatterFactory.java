@@ -3,13 +3,12 @@ package org.openl.rules.table.xls.formatters;
 import java.util.Date;
 import java.util.Locale;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.formatters.ArrayFormatter;
 import org.openl.rules.table.formatters.FormulaFormatter;
-import org.openl.rules.table.xls.XlsCell;
+import org.openl.rules.table.ui.ICellStyle;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
@@ -25,7 +24,7 @@ public class XlsDataFormatterFactory {
     private static Locale locale = Locale.US;
     private static DataFormatter dataFormatter = new DataFormatter(locale);
 
-    public static IFormatter getFormatter(XlsCell cell) {
+    public static IFormatter getFormatter(ICell cell) {
         IFormatter formatter = null;
         CellMetaInfo cellMetaInfo = cell.getMetaInfo();
         IOpenClass dataType = cellMetaInfo == null ? null : cellMetaInfo.getDataType();
@@ -74,15 +73,14 @@ public class XlsDataFormatterFactory {
         return formatter;
     }
 
-    private static IFormatter getNumberFormatter(XlsCell cell) {
+    private static IFormatter getNumberFormatter(ICell cell) {
         IFormatter formatter = null;
 
-        Cell xlsCell = cell.getXlsCell();
-        CellStyle xlsStyle = xlsCell != null ? xlsCell.getCellStyle() : null;
+        ICellStyle xlsStyle = cell == null ? null : cell.getStyle();
 
         if (xlsStyle != null) {
-            short formatIndex = xlsStyle.getDataFormat();
-            String format = xlsStyle.getDataFormatString();
+            short formatIndex = xlsStyle.getFormatIndex();
+            String format = xlsStyle.getFormatString();
             if (format.contains("#\" \"")) {
                 format = format.replaceAll("#\" \"", "# ");
             }
@@ -92,14 +90,13 @@ public class XlsDataFormatterFactory {
         return formatter;
     }
 
-    public static IFormatter getDateFormatter(XlsCell cell) {
+    public static IFormatter getDateFormatter(ICell cell) {
         IFormatter formatter = null;
 
-        Cell xlsCell = cell.getXlsCell();
-        CellStyle xlsStyle = xlsCell != null ? xlsCell.getCellStyle() : null;
+        ICellStyle xlsStyle = cell == null ? null : cell.getStyle();
 
         if (xlsStyle != null) {
-            String format = xlsStyle.getDataFormatString();
+            String format = xlsStyle.getFormatString();
             if (StringUtils.isBlank(format) || format.equals(GENERAL_FORMAT)) {
                 format = XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT;
             }

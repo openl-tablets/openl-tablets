@@ -97,6 +97,16 @@ public class XlsCellStyle implements ICellStyle {
         return xlsStyle.getWrapText();
     }
 
+    @Override
+    public short getFormatIndex() {
+        return xlsStyle.getDataFormat();
+    }
+
+    @Override
+    public String getFormatString() {
+        return xlsStyle.getDataFormatString();
+    }
+
     public CellStyle getXlsStyle() {
         return xlsStyle;
     }

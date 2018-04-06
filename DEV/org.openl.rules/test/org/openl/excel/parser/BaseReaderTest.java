@@ -41,6 +41,10 @@ public abstract class BaseReaderTest {
         assertEquals("Main", sheets.get(0).getName());
         assertEquals("Second", sheets.get(1).getName());
         assertEquals("Sheet3", sheets.get(2).getName());
+
+        assertEquals(0, sheets.get(0).getIndex());
+        assertEquals(1, sheets.get(1).getIndex());
+        assertEquals(2, sheets.get(2).getIndex());
     }
 
     @Test

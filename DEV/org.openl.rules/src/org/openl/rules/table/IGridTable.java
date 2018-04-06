@@ -10,6 +10,10 @@ public interface IGridTable extends ITable<IGridTable> {
 
     IGrid getGrid();
 
+    void edit();
+
+    void stopEditing();
+
     int getGridRow(int column, int row);
 
     int getGridColumn(int column, int row);

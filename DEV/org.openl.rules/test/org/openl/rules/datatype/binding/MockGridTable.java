@@ -30,9 +30,9 @@ public class MockGridTable extends AGridTable {
         // not null cell
         //
         boolean notNullCell = false;
-        for (int i = 0; i < cells.length; i++) {
-            for (int j = 0; j < cells[i].length; j++) {
-                if (cells[i][j] != null) {
+        for (Object[] row : cells) {
+            for (Object cell : row) {
+                if (cell != null) {
                     // Found the not null cell
                     //
                     notNullCell = true;
@@ -45,7 +45,7 @@ public class MockGridTable extends AGridTable {
                         nullCell = false;
                     }
                 }
-                if (cells[i][j] == null) {
+                if (cell == null) {
                     if (!notNullCell) {
                         throw new IllegalArgumentException("There should be any not null value before the null");
                     }
@@ -153,6 +153,16 @@ public class MockGridTable extends AGridTable {
     @Override
     public IGrid getGrid() {
         return grid;
+    }
+
+    @Override
+    public void edit() {
+
+    }
+
+    @Override
+    public void stopEditing() {
+
     }
 
     @Override

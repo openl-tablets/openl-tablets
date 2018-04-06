@@ -388,9 +388,12 @@ public class TableBean {
             final WebStudio studio = WebStudioUtils.getWebStudio();
             IGridTable gridTable = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
 
+            gridTable.edit();
             new TableServiceImpl().removeTable(gridTable);
             XlsSheetGridModel sheetModel = (XlsSheetGridModel) gridTable.getGrid();
             sheetModel.getSheetSource().getWorkbookSource().save();
+            gridTable.stopEditing();
+
             studio.compile();
             RecentlyVisitedTables visitedTables = studio.getModel().getRecentlyVisitedTables();
             visitedTables.remove(table);

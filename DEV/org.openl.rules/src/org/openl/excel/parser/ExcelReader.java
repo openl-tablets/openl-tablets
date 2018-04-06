@@ -2,6 +2,8 @@ package org.openl.excel.parser;
 
 import java.util.List;
 
+import org.openl.rules.table.IGridRegion;
+
 public interface ExcelReader extends AutoCloseable {
     /**
      * Get all sheet descriptors
@@ -25,6 +27,15 @@ public interface ExcelReader extends AutoCloseable {
      * @return The setting for a given workbook
      */
     boolean isUse1904Windowing() throws ExcelParseException;
+
+    /**
+     * Get styles for a given table
+     *
+     * @param sheet sheet containing the table
+     * @param tableRegion region needed to get styles for a given table
+     * @return Cell styles
+     */
+    TableStyles getTableStyles(SheetDescriptor sheet, IGridRegion tableRegion);
 
     /**
      * Close ExcelReader and release resources.

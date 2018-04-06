@@ -15,6 +15,16 @@ public abstract class AGridTableDecorator extends AGridTable {
         return table.getGrid();
     }
 
+    @Override
+    public void edit() {
+        table.edit();
+    }
+
+    @Override
+    public void stopEditing() {
+        table.stopEditing();
+    }
+
     /**
      * @return Original table which includes this delegated table
      */

@@ -8,6 +8,12 @@ public interface SheetDescriptor {
     String getName();
 
     /**
+     * Get index of the sheet in workbook
+     * @return sheet index
+     */
+    int getIndex();
+
+    /**
      * Get the first row on physical sheet.
      * Is available after sheet cells are parsed.
      */

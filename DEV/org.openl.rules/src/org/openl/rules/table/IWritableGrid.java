@@ -1,5 +1,7 @@
 package org.openl.rules.table;
 
+import java.io.IOException;
+
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.openl.rules.table.ui.ICellStyle;
 
@@ -30,6 +32,8 @@ public interface IWritableGrid extends IGrid {
     IGridRegion findEmptyRect(int width, int height);
 
     void removeMergedRegion(IGridRegion to);
+
+    void removeMergedRegion(int x, int y);
 
     void setCellStyle(int col, int row, ICellStyle style);
     

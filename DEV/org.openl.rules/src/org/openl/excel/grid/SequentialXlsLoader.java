@@ -43,15 +43,11 @@ public class SequentialXlsLoader extends XlsLoader {
 
             for (int i = 0; i < nsheets; i++) {
                 final SheetDescriptor sheet = sheets.get(i);
-                XlsSheetSourceCodeModule sheetSource = new SequentialXlsSheetSourceCodeModule(i,
+                XlsSheetSourceCodeModule sheetSource = new SequentialXlsSheetSourceCodeModule(
                         workbookSourceModule,
                         sheet);
                 Object[][] cells = excelReader.getCells(sheet);
-                IGridTable[] tables = new ParsedGrid(cells,
-                        sheetSource.getUri(),
-                        sheet.getFirstRowNum(),
-                        sheet.getFirstColNum(),
-                        use1904Windowing).getTables();
+                IGridTable[] tables = new ParsedGrid(path, sheetSource, sheet, cells, use1904Windowing).getTables();
                 sheetNodes[i] = createWorksheetSyntaxNode(tablePartProcessor, sheetSource, tables);
             }
 

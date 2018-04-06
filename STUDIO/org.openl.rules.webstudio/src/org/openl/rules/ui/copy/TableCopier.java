@@ -186,6 +186,7 @@ public class TableCopier extends TableCreationWizard {
     protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule, ProjectModel model)
             throws CreateTableException {
         IGridTable originalTable = model.getGridTable(table.getUri());
+        originalTable.edit();
         TableSyntaxNode baseNode = model.getNode(table.getUri());
         String baseTableType = baseNode.getType();
         XlsSheetGridModel gridModel = new XlsSheetGridModel(sourceCodeModule);

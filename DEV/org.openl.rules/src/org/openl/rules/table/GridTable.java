@@ -30,6 +30,16 @@ public class GridTable extends AGridTable {
         return grid;
     }
 
+    @Override
+    public void edit() {
+        // Do nothing
+    }
+
+    @Override
+    public void stopEditing() {
+        // Do nothing
+    }
+
     public int getGridColumn(int column, int row) {
         return region.getLeft() + column;
     }

@@ -16,6 +16,8 @@ import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.openl.excel.parser.ExcelParseException;
 import org.openl.excel.parser.ExcelReader;
 import org.openl.excel.parser.SheetDescriptor;
+import org.openl.excel.parser.TableStyles;
+import org.openl.rules.table.IGridRegion;
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 import org.xml.sax.InputSource;
@@ -78,7 +80,6 @@ public class SAXReader implements ExcelReader {
             SheetHandler handler = new SheetHandler(r.getSharedStringsTable(), use1904Windowing, styleTable);
             parser.setContentHandler(handler);
 
-            // process the first sheet
             try (InputStream sheetData = r.getSheet(saxSheet.getRelationId())) {
                 parser.parse(new InputSource(sheetData));
             }
@@ -101,6 +102,29 @@ public class SAXReader implements ExcelReader {
         }
 
         return use1904Windowing;
+    }
+
+    @Override
+    public TableStyles getTableStyles(SheetDescriptor sheet, IGridRegion tableRegion) {
+        SAXSheetDescriptor saxSheet = (SAXSheetDescriptor) sheet;
+        try (OPCPackage pkg = OPCPackage.open(fileName, PackageAccess.READ)) {
+
+            XSSFReader r = new XSSFReader(pkg);
+
+            initializeNeededData(r);
+
+            XMLReader parser = SAXHelper.newXMLReader();
+            StyleIndexHandler styleIndexHandler = new StyleIndexHandler(tableRegion);
+            parser.setContentHandler(styleIndexHandler);
+
+            try (InputStream sheetData = r.getSheet(saxSheet.getRelationId())) {
+                parser.parse(new InputSource(sheetData));
+            }
+
+            return new SAXTableStyles(tableRegion, styleIndexHandler.getCellIndexes(), r.getStylesTable());
+        } catch (IOException | OpenXML4JException | SAXException | ParserConfigurationException e) {
+            throw new ExcelParseException(e);
+        }
     }
 
     @Override

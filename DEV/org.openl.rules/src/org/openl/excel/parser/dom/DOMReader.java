@@ -12,6 +12,13 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.excel.parser.*;
+import org.openl.rules.table.ICellComment;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.ui.ICellFont;
+import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.xls.XlsCellComment;
+import org.openl.rules.table.xls.XlsCellFont;
+import org.openl.rules.table.xls.XlsCellStyle;
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 import org.openl.util.NumberUtils;
@@ -42,7 +49,7 @@ public class DOMReader implements ExcelReader {
             int numberOfSheets = workbook.getNumberOfSheets();
             List<DOMSheetDescriptor> sheets = new ArrayList<>(numberOfSheets);
             for (int i = 0; i < numberOfSheets; i++) {
-                sheets.add(new DOMSheetDescriptor(workbook.getSheetName(i)));
+                sheets.add(new DOMSheetDescriptor(workbook.getSheetName(i), i));
             }
 
             return sheets;
@@ -152,6 +159,43 @@ public class DOMReader implements ExcelReader {
             }
 
             throw new UnsupportedOperationException("Unsupported workbook type");
+        } catch (IOException | InvalidFormatException e) {
+            throw new ExcelParseException(e);
+        }
+    }
+
+    @Override
+    public TableStyles getTableStyles(final SheetDescriptor sheet, final IGridRegion tableRegion) {
+        try {
+            initializeWorkbook();
+
+            // This is not optimal implementation. But because this class is used for comparing purposes only, it's ok.
+            return new TableStyles() {
+                @Override
+                public IGridRegion getRegion() {
+                    return tableRegion;
+                }
+
+                @Override
+                public ICellStyle getStyle(int row, int column) {
+                    return new XlsCellStyle(getCell(row, column).getCellStyle(), workbook);
+                }
+
+                @Override
+                public ICellFont getFont(int row, int column) {
+                    Font font = workbook.getFontAt(getCell(row, column).getCellStyle().getFontIndex());
+                    return new XlsCellFont(font, workbook);
+                }
+
+                @Override
+                public ICellComment getComment(int row, int column) {
+                    return new XlsCellComment(getCell(row, column).getCellComment());
+                }
+
+                private Cell getCell(int row, int column) {
+                    return workbook.getSheet(sheet.getName()).getRow(row).getCell(column);
+                }
+            };
         } catch (IOException | InvalidFormatException e) {
             throw new ExcelParseException(e);
         }

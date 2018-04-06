@@ -7,6 +7,7 @@
 package org.openl.rules.table.xls;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -282,6 +283,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         removeMergedRegion(remove.getLeft(), remove.getTop());
     }
 
+    @Override
     public void removeMergedRegion(int x, int y) {
         Sheet sheet = getSheet();
         getMergedRegionsPool().remove(x, y);

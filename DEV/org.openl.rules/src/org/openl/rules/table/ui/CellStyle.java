@@ -33,6 +33,8 @@ public class CellStyle implements ICellStyle {
     private boolean wrappedText;
 
     private int rotation;
+    private short formatIndex;
+    private String formatString;
 
     public CellStyle(ICellStyle cellStyle) {
         if (cellStyle == null) {
@@ -58,6 +60,9 @@ public class CellStyle implements ICellStyle {
         wrappedText = cellStyle.isWrappedText();
 
         rotation = cellStyle.getRotation();
+
+        formatIndex = cellStyle.getFormatIndex();
+        formatString = cellStyle.getFormatString();
     }
 
     public short[][] getBorderRGB() {
@@ -124,4 +129,13 @@ public class CellStyle implements ICellStyle {
         return fillPattern;
     }
 
+    @Override
+    public short getFormatIndex() {
+        return formatIndex;
+    }
+
+    @Override
+    public String getFormatString() {
+        return formatString;
+    }
 }
