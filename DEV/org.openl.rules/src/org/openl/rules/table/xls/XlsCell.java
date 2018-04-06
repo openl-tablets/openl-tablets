@@ -17,7 +17,6 @@ import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.table.xls.writers.AXlsCellWriter;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringPool;
@@ -148,10 +147,6 @@ public class XlsCell implements ICell {
 
     public void setStringValue(String value) {
         getCell().setCellValue(value);
-    }
-
-    public String getFormattedValue() {
-        return XlsDataFormatterFactory.getFormattedValue(this);
     }
 
     @Override

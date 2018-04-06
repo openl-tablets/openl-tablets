@@ -44,8 +44,6 @@ public interface ICell {
 
     String getStringValue();
 
-    String getFormattedValue();
-
     // TODO: move this method to ICellStyle
     ICellFont getFont();
     

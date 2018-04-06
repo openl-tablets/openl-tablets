@@ -71,11 +71,6 @@ public class CellDelegate implements ICell {
     }
 
     @Override
-    public String getFormattedValue() {
-        return delegate.getFormattedValue();
-    }
-
-    @Override
     public ICellFont getFont() {
         return delegate.getFont();
     }

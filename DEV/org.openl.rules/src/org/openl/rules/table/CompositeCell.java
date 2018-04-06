@@ -75,10 +75,6 @@ class CompositeCell implements ICell {
         return delegate.getStringValue();
     }
 
-    public String getFormattedValue() {
-        return delegate.getFormattedValue();
-    }
-
     public int getWidth() {
         if (region == null){
             return delegate.getWidth();

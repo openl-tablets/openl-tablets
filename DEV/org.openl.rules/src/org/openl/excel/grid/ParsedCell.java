@@ -12,9 +12,6 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsUtil;
-import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
-import org.openl.util.StringUtils;
-import org.openl.util.formatters.IFormatter;
 
 public class ParsedCell implements ICell {
     private final int row;
@@ -82,13 +79,6 @@ public class ParsedCell implements ICell {
     public String getStringValue() {
         Object value = getObjectValue();
         return value == null ? null : String.valueOf(value);
-    }
-
-    @Override
-    public String getFormattedValue() {
-        // TODO: Remove this method from ICell. Formatting should be occurred in UI code only, not in core.
-        // Copied from XlsCell
-        return XlsDataFormatterFactory.getFormattedValue(this);
     }
 
     @Override

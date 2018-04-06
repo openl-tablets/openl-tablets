@@ -17,6 +17,9 @@ import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.EnumFormatter;
 import org.openl.util.formatters.IFormatter;
 
+/**
+ * TODO: Move this class to WebStudio
+ */
 public class XlsDataFormatterFactory {
 
     public static final String GENERAL_FORMAT = "General";
@@ -24,6 +27,14 @@ public class XlsDataFormatterFactory {
     private static Locale locale = Locale.US;
     private static DataFormatter dataFormatter = new DataFormatter(locale);
 
+    /**
+     * Determine formatter depending on type retrieved from Excel.
+     * Warning! Don't invoke this method from core. It can be memory and time consuming operation. Formatting values
+     * only from UI is allowed.
+     *
+     * @param cell formatting cell
+     * @return found formatter
+     */
     public static IFormatter getFormatter(ICell cell) {
         IFormatter formatter = null;
         CellMetaInfo cellMetaInfo = cell.getMetaInfo();
@@ -106,6 +117,14 @@ public class XlsDataFormatterFactory {
         return formatter;
     }
 
+    /**
+     * Get formatted value in a user-friendly format
+     * Warning! Don't invoke this method from core. It can be memory and time consuming operation. Formatting values
+     * only from UI is allowed.
+     *
+     * @param cell formatting cell
+     * @return Formatted string value
+     */
     public static String getFormattedValue(ICell cell) {
         Object value = cell.getObjectValue();
 

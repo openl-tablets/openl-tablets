@@ -70,10 +70,6 @@ class GridTableCell implements ICell {
         return cell.getStringValue();
     }
 
-    public String getFormattedValue() {
-        return cell.getFormattedValue();
-    }
-
     public int getWidth() {
         return table.isNormalOrientation() ? cell.getWidth() : cell.getHeight();
     }

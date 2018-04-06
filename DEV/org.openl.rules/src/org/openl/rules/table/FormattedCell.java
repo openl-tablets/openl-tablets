@@ -10,6 +10,7 @@ import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.xls.IncorrectFormulaException;
+import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public class FormattedCell implements ICell {
             //logged in XlsCell.getObjectValue() method.
             this.objectValue = ERROR_VALUE;
         }
-        this.formattedValue = this.delegate.getFormattedValue();
+        this.formattedValue = XlsDataFormatterFactory.getFormattedValue(delegate);
 
         this.font = new CellFont(delegate.getFont());
         this.style = new CellStyle(delegate.getStyle());

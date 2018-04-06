@@ -7,6 +7,7 @@ import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.Point;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.ui.filters.AGridFilter;
+import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.testmethod.IParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestStatus;
 import org.openl.rules.testmethod.result.ComparedResult;
@@ -27,7 +28,7 @@ class ExpectedResultFilter extends AGridFilter {
             StringBuilder formattedValue = new StringBuilder(60);
             boolean isOk = (result.getStatus() == TestStatus.TR_OK);
             if (isOk) {
-                formattedValue.append("<i class=\"case-success\"></i> ").append(cell.getFormattedValue());
+                formattedValue.append("<i class=\"case-success\"></i> ").append(XlsDataFormatterFactory.getFormattedValue(cell));
             } else {
                 Object expectedValue = result.getExpectedValue();
                 if (expectedValue instanceof IParameterWithValueDeclaration) {

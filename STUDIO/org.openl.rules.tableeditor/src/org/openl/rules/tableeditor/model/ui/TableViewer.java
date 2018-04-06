@@ -10,6 +10,7 @@ import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.Log;
 import org.openl.util.StringUtils;
@@ -110,7 +111,7 @@ public class TableViewer {
             cm.setWidth(getWidth(cell));
         }
 
-        String formattedValue = cell.getFormattedValue();
+        String formattedValue = XlsDataFormatterFactory.getFormattedValue(cell);
         if (StringUtils.isNotBlank(formattedValue)) {
             String content;
             if (Constants.MODE_EDIT.equals(mode)) {
