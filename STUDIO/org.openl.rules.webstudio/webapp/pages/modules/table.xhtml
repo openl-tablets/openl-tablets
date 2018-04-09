@@ -587,6 +587,7 @@
                                beforeSaveAction="#{tableBean.beforeSaveAction}" afterSaveAction="#{tableBean.afterSaveAction}"
                                onBeforeEdit="return onBeforeEdit();"
                                onBeforeSave="javascript:onBeforeSave();" onAfterSave="javascript:onAfterSave(data);"
+                               onRequestStart="ws.ui.showLoader();" onRequestEnd="ws.ui.hideLoader();"
                                onError="javascript:onError(data);" excludeScripts="prototype">
 
                 <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
