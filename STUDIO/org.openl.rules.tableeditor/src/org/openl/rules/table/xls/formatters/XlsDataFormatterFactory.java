@@ -5,6 +5,7 @@ import java.util.Locale;
 
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.formatters.ArrayFormatter;
 import org.openl.rules.table.formatters.FormulaFormatter;
@@ -121,6 +122,10 @@ public class XlsDataFormatterFactory {
      * @return Formatted string value
      */
     public static String getFormattedValue(ICell cell) {
+        if (cell instanceof FormattedCell) {
+            return ((FormattedCell) cell).getFormattedValue();
+        }
+
         Object value = cell.getObjectValue();
 
         String formattedValue = null;
