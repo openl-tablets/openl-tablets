@@ -57,6 +57,7 @@ public final class FieldUsageSearcher {
             if (boundField instanceof NodeDescriptionHolder) {
                 NodeDescriptionHolder nodeDescriptionHolder = (NodeDescriptionHolder) boundField;
                 description = nodeDescriptionHolder.getDescription();
+                syntaxNode = getIdentifierSyntaxNode(syntaxNode);
             } else if (type instanceof XlsModuleOpenClass && boundField instanceof DataOpenField) {
                 final ITable foreignTable = ((DataOpenField) boundField).getTable();
                 TableSyntaxNode tableSyntaxNode = foreignTable.getTableSyntaxNode();
@@ -68,11 +69,7 @@ public final class FieldUsageSearcher {
                     type = type.getComponentClass();
                     metaInfo = type.getMetaInfo();
                 }
-                if (!(syntaxNode instanceof IdentifierNode)) {
-                    if ("function".equals(syntaxNode.getType())) {
-                        syntaxNode = syntaxNode.getChild(syntaxNode.getNumberOfChildren() - 1);
-                    }
-                }
+                syntaxNode = getIdentifierSyntaxNode(syntaxNode);
                 description = MethodUtil.printType(boundField.getType()) + " " + boundField.getName();
                 if (metaInfo != null) {
                     uri = metaInfo.getSourceUrl();
@@ -93,6 +90,15 @@ public final class FieldUsageSearcher {
                 fields.add(new SimpleNodeUsage(start, end, description, uri, NodeType.FIELD));
             }
         }
+    }
+
+    private static ISyntaxNode getIdentifierSyntaxNode(ISyntaxNode syntaxNode) {
+        if (!(syntaxNode instanceof IdentifierNode)) {
+            if ("function".equals(syntaxNode.getType())) {
+                syntaxNode = syntaxNode.getChild(syntaxNode.getNumberOfChildren() - 1);
+            }
+        }
+        return syntaxNode;
     }
 
 }
