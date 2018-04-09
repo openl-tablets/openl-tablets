@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -97,10 +96,18 @@ public class HTMLRenderer {
                 String beforeSave = getEditorJSAction(editor.getOnBeforeSave());
                 String afterSave = getEditorJSAction(editor.getOnAfterSave());
                 String error = getEditorJSAction(editor.getOnError());
+                String requestStart = getEditorJSAction(editor.getOnRequestStart());
+                String requestEnd = getEditorJSAction(editor.getOnRequestEnd());
 
                 String relativeCellToEdit = getRelativeCellToEdit(cellToEdit, table, tableModel);
-                
-                String actions = "{beforeEdit:" + beforeEdit + ",beforeSave:" + beforeSave + ",afterSave:" + afterSave + ",error:" + error + "}";
+
+                String actions = "{beforeEdit:" + beforeEdit
+                        + ",beforeSave:" + beforeSave
+                        + ",afterSave:" + afterSave
+                        + ",error:" + error
+                        + ",requestStart:" + requestStart
+                        + ",requestEnd:" + requestEnd
+                        + "}";
 
                 result.append(renderJSBody("var " + editorJsVar + " = initTableEditor(\"" + editor.getId() + "\", \""
                         + internalPath("ajax/") + "\",\"" + relativeCellToEdit + "\"," + actions + ","
