@@ -28,7 +28,11 @@ public class ParsedGrid extends AGrid {
     private transient IGridTable[] tables;
     private transient TableStyles currentTableStyles;
 
-    ParsedGrid(String workbookPath, XlsSheetSourceCodeModule sheetSource, SheetDescriptor sheet, Object[][] cells, boolean use1904Windowing) {
+    ParsedGrid(String workbookPath,
+            XlsSheetSourceCodeModule sheetSource,
+            SheetDescriptor sheet,
+            Object[][] cells,
+            boolean use1904Windowing) {
         this.workbookPath = workbookPath;
         this.cells = cells;
         this.sheetSource = sheetSource;
@@ -224,18 +228,16 @@ public class ParsedGrid extends AGrid {
         TableStyles styles = null;
         for (IGridTable table : tables) {
             IGridRegion region = table.getRegion();
-            if (IGridRegion.Tool.contains(region, column, row) ||
-                    IGridRegion.Tool.contains(region, column - 1, row) ||
-                    IGridRegion.Tool.contains(region, column, row - 1) ||
-                    IGridRegion.Tool.contains(region, column - 1, row - 1)) {
-                // Sometimes we need extra column and row to show the border of a table
-                IGridRegion regionToGet = new GridRegion(region.getTop(),
-                        region.getLeft(),
-                        region.getBottom() + 1,
-                        region.getRight() + 1);
 
+            // Sometimes we need extra column and row to show the border of a table.
+            // We need to know the styles of the cells lefter, above, righter and below the table.
+            int left = region.getLeft() == 0 ? 0 : region.getLeft() - 1;
+            int top = region.getTop() == 0 ? 0 : region.getTop() - 1;
+            IGridRegion extendedRegion = new GridRegion(top, left, region.getBottom() + 1, region.getRight() + 1);
+
+            if (IGridRegion.Tool.contains(extendedRegion, column, row)) {
                 try (ExcelReader excelReader = ExcelReaderFactory.sequentialFactory().create(workbookPath)) {
-                    styles = excelReader.getTableStyles(sheetDescriptor, regionToGet);
+                    styles = excelReader.getTableStyles(sheetDescriptor, extendedRegion);
                 }
 
                 break;
