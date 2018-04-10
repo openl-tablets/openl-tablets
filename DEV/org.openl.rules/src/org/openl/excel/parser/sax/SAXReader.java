@@ -7,12 +7,14 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.openxml4j.opc.PackageAccess;
+import org.apache.poi.openxml4j.opc.*;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.util.SAXHelper;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
+import org.apache.poi.xssf.model.CommentsTable;
+import org.apache.poi.xssf.usermodel.XSSFRelation;
 import org.openl.excel.parser.ExcelParseException;
 import org.openl.excel.parser.ExcelReader;
 import org.openl.excel.parser.SheetDescriptor;
@@ -121,7 +123,10 @@ public class SAXReader implements ExcelReader {
                 parser.parse(new InputSource(sheetData));
             }
 
-            return new SAXTableStyles(tableRegion, styleIndexHandler.getCellIndexes(), r.getStylesTable());
+            return new SAXTableStyles(tableRegion,
+                    styleIndexHandler.getCellIndexes(),
+                    r.getStylesTable(),
+                    getSheetComments(pkg, saxSheet));
         } catch (IOException | OpenXML4JException | SAXException | ParserConfigurationException e) {
             throw new ExcelParseException(e);
         }
@@ -157,6 +162,33 @@ public class SAXReader implements ExcelReader {
             styleTable = styleHandler.getStyleTable();
         } catch (IOException | OpenXML4JException | SAXException | ParserConfigurationException e) {
             throw new ExcelParseException(e);
+        }
+    }
+
+    private CommentsTable getSheetComments(OPCPackage pkg, SAXSheetDescriptor sheet) {
+        try {
+            // Get workbook part
+            PackageRelationship workbookRel = pkg.getRelationshipsByType(
+                    PackageRelationshipTypes.CORE_DOCUMENT
+            ).getRelationship(0);
+            PackagePart workbookPart = pkg.getPart(workbookRel);
+
+            // Find sheet part by relation id
+            PackageRelationship sheetRel = workbookPart.getRelationship(sheet.getRelationId());
+            PackagePart sheetPart = pkg.getPart(PackagingURIHelper.createPartName(sheetRel.getTargetURI()));
+
+            PackageRelationshipCollection commentRelList = sheetPart.getRelationshipsByType(XSSFRelation.SHEET_COMMENTS.getRelation());
+            if (commentRelList.size() > 0) {
+                // Comments have only one relationship
+                PackageRelationship commentRel = commentRelList.getRelationship(0);
+                PackagePart commentPart = pkg.getPart(PackagingURIHelper.createPartName(commentRel.getTargetURI()));
+
+                return new CommentsTable(commentPart);
+            }
+
+            return null;
+        } catch (InvalidFormatException | IOException e) {
+            return null;
         }
     }
 }

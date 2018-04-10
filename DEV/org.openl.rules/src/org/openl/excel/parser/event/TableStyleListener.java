@@ -7,12 +7,17 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.poi.ddf.EscherContainerRecord;
 import org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
 import org.apache.poi.hssf.eventusermodel.HSSFRequest;
 import org.apache.poi.hssf.record.*;
+import org.apache.poi.hssf.usermodel.HSSFComment;
+import org.apache.poi.hssf.usermodel.HSSFShapeFactory;
+import org.apache.poi.poifs.filesystem.DirectoryNode;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.openl.excel.parser.TableStyles;
+import org.openl.excel.parser.event.style.CommentsCollector;
 import org.openl.excel.parser.event.style.EventTableStyles;
 import org.openl.rules.table.IGridRegion;
 
@@ -20,12 +25,15 @@ public class TableStyleListener implements HSSFListener {
     private final EventSheetDescriptor sheet;
     private final IGridRegion tableRegion;
     private TableStyles tableStyles;
+    private List<HSSFComment> comments;
 
     private final List<EventSheetDescriptor> sheets = new ArrayList<>();
     private int sheetIndex = -1;
     private boolean sheetsSorted = false;
     private final int[][] cellIndexes;
     private PaletteRecord palette;
+    private DirectoryNode directory;
+    private List<RecordBase> shapeRecords = new ArrayList<>();
 
     public TableStyleListener(EventSheetDescriptor sheet, IGridRegion tableRegion) {
         this.sheet = sheet;
@@ -35,21 +43,27 @@ public class TableStyleListener implements HSSFListener {
 
     void process(String fileName) throws IOException {
         try (POIFSFileSystem poifs = new POIFSFileSystem(new File(fileName))) {
+            this.directory = poifs.getRoot();
+
             StyleTrackingListener formatListener = new StyleTrackingListener(this);
             HSSFEventFactory factory = new HSSFEventFactory();
             HSSFRequest request = new HSSFRequest();
             request.addListenerForAllRecords(formatListener);
             factory.processWorkbookEvents(request, poifs);
+
             if (palette == null) {
                 palette = new PaletteRecord();
             }
+            collectComments();
+
             tableStyles = new EventTableStyles(
                     tableRegion,
                     cellIndexes,
                     formatListener.getExtendedFormats(),
                     formatListener.getCustomFormats(),
                     palette,
-                    formatListener.getFonts()
+                    formatListener.getFonts(),
+                    comments
             );
         }
     }
@@ -108,11 +122,51 @@ public class TableStyleListener implements HSSFListener {
                 }
 
                 break;
-
+            case NoteRecord.sid:
+            case ContinueRecord.sid:
+            case ObjRecord.sid:
+            case TextObjectRecord.sid:
+            case DrawingRecord.sid:
+                if (isNeededSheet()) {
+                    shapeRecords.add(record);
+                }
+                break;
         }
     }
 
     private boolean isNeededSheet() {
         return sheetIndex == sheet.getIndex();
+    }
+
+    private void collectComments() {
+        int loc = findFirstDrawingRecord();
+        if (loc >= 0) {
+            EscherAggregate r = EscherAggregate.createAggregate(shapeRecords, loc);
+            EscherContainerRecord dgContainer = r.getEscherContainer();
+            if (dgContainer == null) {
+                return;
+            }
+
+            EscherContainerRecord spgrContainer = dgContainer.getChildContainers().get(0);
+            List<EscherContainerRecord> spgrChildren = spgrContainer.getChildContainers();
+
+            CommentsCollector commentCollector = new CommentsCollector();
+            for (int i = 1; i < spgrChildren.size(); i++) {
+                EscherContainerRecord spContainer = spgrChildren.get(i);
+                HSSFShapeFactory.createShapeTree(spContainer, r, commentCollector, directory);
+            }
+            comments = commentCollector.getComments();
+        }
+    }
+
+    private int findFirstDrawingRecord() {
+        int size = shapeRecords.size();
+        for (int i = 0; i < size; i++) {
+            RecordBase rb = shapeRecords.get(i);
+            if (rb instanceof Record && ((Record) rb).getSid() == DrawingRecord.sid) {
+                return i;
+            }
+        }
+        return -1;
     }
 }
