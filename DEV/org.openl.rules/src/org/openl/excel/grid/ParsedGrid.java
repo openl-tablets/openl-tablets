@@ -195,28 +195,12 @@ public class ParsedGrid extends AGrid {
         return new IndentedStyle(indent, this, row, column);
     }
 
-    protected ICellStyle retrieveStyle(int row, int column) {
+    protected TableStyles getTableStyles(int row, int column) {
         if (currentTableStyles == null || !IGridRegion.Tool.contains(currentTableStyles.getRegion(), column, row)) {
             currentTableStyles = readTableStyles(row, column);
         }
 
-        return currentTableStyles == null ? null : currentTableStyles.getStyle(row, column);
-    }
-
-    protected ICellFont retrieveFont(int row, int column) {
-        if (currentTableStyles == null || !IGridRegion.Tool.contains(currentTableStyles.getRegion(), column, row)) {
-            currentTableStyles = readTableStyles(row, column);
-        }
-
-        return currentTableStyles == null ? null : currentTableStyles.getFont(row, column);
-    }
-
-    protected ICellComment retrieveComment(int row, int column) {
-        if (currentTableStyles == null || !IGridRegion.Tool.contains(currentTableStyles.getRegion(), column, row)) {
-            currentTableStyles = readTableStyles(row, column);
-        }
-
-        return currentTableStyles == null ? null : currentTableStyles.getComment(row, column);
+        return currentTableStyles;
     }
 
     private TableStyles readTableStyles(int row, int column) {
