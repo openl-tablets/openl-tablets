@@ -2,20 +2,19 @@ package org.openl.excel.parser.event;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import org.apache.poi.ddf.EscherContainerRecord;
 import org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
 import org.apache.poi.hssf.eventusermodel.HSSFRequest;
+import org.apache.poi.hssf.model.HSSFFormulaParser;
 import org.apache.poi.hssf.record.*;
 import org.apache.poi.hssf.usermodel.HSSFComment;
 import org.apache.poi.hssf.usermodel.HSSFShapeFactory;
 import org.apache.poi.poifs.filesystem.DirectoryNode;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.util.CellAddress;
 import org.openl.excel.parser.TableStyles;
 import org.openl.excel.parser.event.style.CommentsCollector;
 import org.openl.excel.parser.event.style.EventTableStyles;
@@ -26,6 +25,7 @@ public class TableStyleListener implements HSSFListener {
     private final IGridRegion tableRegion;
     private TableStyles tableStyles;
     private List<HSSFComment> comments;
+    private final Map<CellAddress, String> formulas = new HashMap<>();
 
     private final List<EventSheetDescriptor> sheets = new ArrayList<>();
     private int sheetIndex = -1;
@@ -63,7 +63,8 @@ public class TableStyleListener implements HSSFListener {
                     formatListener.getCustomFormats(),
                     palette,
                     formatListener.getFonts(),
-                    comments
+                    comments,
+                    formulas
             );
         }
     }
@@ -100,9 +101,23 @@ public class TableStyleListener implements HSSFListener {
             case PaletteRecord.sid:
                 palette = (PaletteRecord) record;
                 break;
+            case FormulaRecord.sid: // Cell value from a formula
+                if (isNeededSheet()) {
+                    FormulaRecord r = (FormulaRecord) record;
+                    int row = r.getRow();
+                    short column = r.getColumn();
+
+                    if (IGridRegion.Tool.contains(tableRegion, column, row)) {
+                        String formula = HSSFFormulaParser.toFormulaString(null, r.getParsedExpression());
+                        formulas.put(new CellAddress(row, column), formula);
+
+                        // Don't forget to save style index
+                        saveStyleIndex(r, row, column);
+                    }
+                }
+                break;
             case SSTRecord.sid: // Holds all the strings for LabelSSTRecords
             case BoolErrRecord.sid:
-            case FormulaRecord.sid: // Cell value from a formula
             case LabelRecord.sid: // Strings stored directly in the cell
             case LabelSSTRecord.sid: // String in the shared string table
             case NumberRecord.sid: // Numeric cell value
@@ -114,10 +129,7 @@ public class TableStyleListener implements HSSFListener {
                     short column = r.getColumn();
 
                     if (IGridRegion.Tool.contains(tableRegion, column, row)) {
-                        short styleIndex = r.getXFIndex();
-                        int internalRow = row - tableRegion.getTop();
-                        int internalCol = column - tableRegion.getLeft();
-                        cellIndexes[internalRow][internalCol] = styleIndex;
+                        saveStyleIndex(r, row, column);
                     }
                 }
 
@@ -132,6 +144,13 @@ public class TableStyleListener implements HSSFListener {
                 }
                 break;
         }
+    }
+
+    private void saveStyleIndex(CellValueRecordInterface r, int row, short column) {
+        short styleIndex = r.getXFIndex();
+        int internalRow = row - tableRegion.getTop();
+        int internalCol = column - tableRegion.getLeft();
+        cellIndexes[internalRow][internalCol] = styleIndex;
     }
 
     private boolean isNeededSheet() {

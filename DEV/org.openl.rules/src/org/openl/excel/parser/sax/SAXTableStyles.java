@@ -1,5 +1,7 @@
 package org.openl.excel.parser.sax;
 
+import java.util.Map;
+
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.xssf.model.StylesTable;
@@ -19,15 +21,18 @@ public class SAXTableStyles implements TableStyles {
     private final int[][] cellIndexes;
     private final StylesTable stylesTable;
     private final CommentsTable sheetComments;
+    private final Map<CellAddress, String> formulas;
 
     public SAXTableStyles(IGridRegion region,
             int[][] cellIndexes,
             StylesTable stylesTable,
-            CommentsTable sheetComments) {
+            CommentsTable sheetComments,
+            Map<CellAddress, String> formulas) {
         this.region = region;
         this.cellIndexes = cellIndexes;
         this.stylesTable = stylesTable;
         this.sheetComments = sheetComments;
+        this.formulas = formulas;
     }
 
     @Override
@@ -63,6 +68,11 @@ public class SAXTableStyles implements TableStyles {
         CTRst rst = comment.getText();
         String text = rst == null ? null : new XSSFRichTextString(rst).getString();
         return new SAXCellComment(text, sheetComments.getAuthor(comment.getAuthorId()));
+    }
+
+    @Override
+    public String getFormula(int row, int column) {
+        return formulas.get(new CellAddress(row, column));
     }
 
     private static class SAXCellComment implements ICellComment {

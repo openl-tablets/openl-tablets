@@ -193,6 +193,13 @@ public class DOMReader implements ExcelReader {
                     return new XlsCellComment(getCell(row, column).getCellComment());
                 }
 
+                @SuppressWarnings("deprecation")
+                @Override
+                public String getFormula(int row, int column) {
+                    Cell cell = getCell(row, column);
+                    return cell.getCellType() == CellType.FORMULA.getCode() ? cell.getCellFormula() : null;
+                }
+
                 private Cell getCell(int row, int column) {
                     return workbook.getSheet(sheet.getName()).getRow(row).getCell(column);
                 }

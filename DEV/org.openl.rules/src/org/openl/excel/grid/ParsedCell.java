@@ -97,7 +97,8 @@ public class ParsedCell implements ICell {
 
     @Override
     public String getFormula() {
-        return null;
+        initializeStyles();
+        return tableStyles == null ? null : tableStyles.getFormula(row, column);
     }
 
     @SuppressWarnings("deprecation")

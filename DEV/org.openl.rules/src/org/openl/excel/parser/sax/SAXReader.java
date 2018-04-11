@@ -126,7 +126,8 @@ public class SAXReader implements ExcelReader {
             return new SAXTableStyles(tableRegion,
                     styleIndexHandler.getCellIndexes(),
                     r.getStylesTable(),
-                    getSheetComments(pkg, saxSheet));
+                    getSheetComments(pkg, saxSheet),
+                    styleIndexHandler.getFormulas());
         } catch (IOException | OpenXML4JException | SAXException | ParserConfigurationException e) {
             throw new ExcelParseException(e);
         }
