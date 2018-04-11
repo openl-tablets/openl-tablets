@@ -10,12 +10,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.extension.xmlrules.model.ExtensionModule;
-import org.openl.rules.lang.xls.load.LazyWorkbookLoader;
+import org.openl.rules.lang.xls.load.UnloadableLazyWorkbookLoader;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LazyXmlRulesWorkbookLoader extends LazyWorkbookLoader {
+public class LazyXmlRulesWorkbookLoader extends UnloadableLazyWorkbookLoader {
     private final Logger log = LoggerFactory.getLogger(LazyXmlRulesWorkbookLoader.class);
     private final ExtensionModule extensionModule;
     private final File folder;

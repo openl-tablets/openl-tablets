@@ -406,7 +406,7 @@ public class WebStudio {
         }
     }
 
-    private boolean isAutoCompile() {
+    boolean isAutoCompile() {
         return OpenLSystemProperties.isAutoCompile(getSystemConfigManager().getProperties());
     }
 

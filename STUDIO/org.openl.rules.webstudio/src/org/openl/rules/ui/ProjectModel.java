@@ -966,13 +966,6 @@ public class ProjectModel {
         
         if (moduleInfo != this.moduleInfo) {
             moduleInfoWasChanged = true;
-            // Current module changed - mark the previous one as read only
-            XlsModuleSyntaxNode moduleSyntaxNode = xlsModuleSyntaxNode;
-            if (moduleSyntaxNode != null) {
-                for (WorkbookSyntaxNode workbookSyntaxNode : moduleSyntaxNode.getWorkbookSyntaxNodes()) {
-                    workbookSyntaxNode.getWorkbookSourceCodeModule().getWorkbookLoader().setCanUnload(true);
-                }
-            }
         }
 
         if (reloadType != ReloadType.NO) {
@@ -1028,8 +1021,11 @@ public class ProjectModel {
         }
         instantiationStrategy.setExternalParameters(externalParameters);
         instantiationStrategy.setServiceClass(SimpleProjectDependencyLoader.EmptyInterface.class);
-        
-        LazyWorkbookLoaderFactory factory = new LazyWorkbookLoaderFactory();
+
+        // If autoCompile is false we can't unload workbook during editing because we must show to a user latest edited
+        // data (not parsed and compiled data).
+        boolean canUnload = studio.isAutoCompile();
+        LazyWorkbookLoaderFactory factory = new LazyWorkbookLoaderFactory(canUnload);
 
         try {
             if (reloadType == ReloadType.FORCED) {
@@ -1040,7 +1036,6 @@ public class ProjectModel {
             }
 
             WorkbookLoaders.setCurrentFactory(factory);
-            factory.disallowUnload();
 
             // Find all dependent XlsModuleSyntaxNode-s
             final String moduleName = moduleInfo.getName();
@@ -1068,20 +1063,7 @@ public class ProjectModel {
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(webStudioWorkspaceDependencyManager);
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
 
-            factory.allowUnload();
             WorkbookLoaders.resetCurrentFactory();
-
-            // Edit current module, others should be read only
-            // TODO Set edit mode only when actually editing: cell edit, table creating wizards etc
-            WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
-            if (workbookNodes != null) {
-                for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
-                    XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
-                    boolean currentModule = this.moduleInfo.getRulesRootPath() == null ||
-                            module.getSourceFile().getName().equals(FileUtils.getName(this.moduleInfo.getRulesRootPath().getPath()));
-                    module.getWorkbookLoader().setCanUnload(!currentModule);
-                }
-            }
         } catch (Throwable t) {
             Log.error("Problem Loading OpenLWrapper", t);
             List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
@@ -1093,7 +1075,6 @@ public class ProjectModel {
             compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages, new SyntaxNodeException[0],
                     new SyntaxNodeException[0]);
 
-            factory.allowUnload();
             WorkbookLoaders.resetCurrentFactory();
         }
 
