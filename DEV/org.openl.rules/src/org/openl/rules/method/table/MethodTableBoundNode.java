@@ -9,7 +9,6 @@ package org.openl.rules.method.table;
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
@@ -56,7 +55,7 @@ public class MethodTableBoundNode extends AMethodBasedNode {
             String errorMessage = "Method table must contain a body section";
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage, tsn);
             tsn.addError(error);
-            BindHelper.processError(error);
+            bindingContext.addError(error);
         } else {
             int height = bodyTable.getHeight();
 

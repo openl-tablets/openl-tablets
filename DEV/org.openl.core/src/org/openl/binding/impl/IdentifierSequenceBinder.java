@@ -39,8 +39,8 @@ public class IdentifierSequenceBinder extends ANodeBinder {
 
             return bindTargetNode(newNode, bindingContext, target);
 
-        } catch (Throwable t) {
-            return makeErrorNode("Cannot bind node", t, node, bindingContext);
+        } catch (Exception e) {
+            return makeErrorNode("Cannot bind node", e, node, bindingContext);
         }
     }
 

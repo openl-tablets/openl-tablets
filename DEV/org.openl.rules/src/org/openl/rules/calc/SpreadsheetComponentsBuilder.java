@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.DuplicatedVarException;
-import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.NodeType;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.StringValue;
@@ -108,7 +107,7 @@ public class SpreadsheetComponentsBuilder {
             buildReturnCells(spreadsheetHeaderType);
         } catch (SyntaxNodeException e) {            
             getTableSyntaxNode().addError(e);
-            BindHelper.processError(e, getBindingContext());    
+            getBindingContext().addError(e);
         }
     }
     
@@ -126,7 +125,7 @@ public class SpreadsheetComponentsBuilder {
             resultBuilder = getResultBuilderInternal(spreadsheet);
         } catch (SyntaxNodeException e) {
             tableSyntaxNode.addError(e);
-            BindHelper.processError(e, bindingContext); 
+            bindingContext.addError(e);
         }
         return resultBuilder;
     }
@@ -186,8 +185,8 @@ public class SpreadsheetComponentsBuilder {
             header.addVarHeader(parsed);
         } catch (SyntaxNodeException error) {
             tableSyntaxNode.addError(error);
-            BindHelper.processError(error, bindingContext);
-        } catch (Throwable t) {
+            bindingContext.addError(error);
+        } catch (Exception t) {
             SyntaxNodeException error;
             try {
                 error = SyntaxNodeExceptionUtils.createError("Cannot parse spreadsheet header definition", t, parseHeaderElement(value).getName());
@@ -196,7 +195,7 @@ public class SpreadsheetComponentsBuilder {
             }
 
             tableSyntaxNode.addError(error);
-            BindHelper.processError(error, bindingContext);
+            bindingContext.addError(error);
         }
     }
     
@@ -272,7 +271,7 @@ public class SpreadsheetComponentsBuilder {
                     }
                     if (error != null) {
                         tableSyntaxNode.addError(error);
-                        BindHelper.processError(error, bindingContext);
+                        bindingContext.addError(error);
                     }
                 }
             }
@@ -323,7 +322,7 @@ public class SpreadsheetComponentsBuilder {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Cannot parse header",
                     typeIdentifierNode);
             getTableSyntaxNode().addError(error);
-            BindHelper.processError(error, getBindingContext());
+            getBindingContext().addError(error);
         }
 
         return null;

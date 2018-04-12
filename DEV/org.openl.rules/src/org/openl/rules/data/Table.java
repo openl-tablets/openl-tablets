@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.BindHelper;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.OpenlToolAdaptor;
@@ -293,7 +292,7 @@ public class Table implements ITable {
         int startRow = getStartRowForData();
 
         dataArray = Array.newInstance(dataModel.getInstanceClass(), rows - startRow);
-
+        
         for (int rowNum = startRow; rowNum < rows; rowNum++) {
             processRow(openlAdapter, startRow, rowNum);
         }
@@ -370,7 +369,7 @@ public class Table implements ITable {
                     }
                 } catch (SyntaxNodeException ex) {
                     tableSyntaxNode.addError(ex);
-                    BindHelper.processError(ex);
+                    openlAdapter.getBindingContext().addError(ex);
                 }
             }
         }

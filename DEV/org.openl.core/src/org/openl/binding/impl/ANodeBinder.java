@@ -25,8 +25,8 @@ public abstract class ANodeBinder implements INodeBinder {
 
         try {
             return binder.bind(node, bindingContext);
-        } catch (Throwable t) {
-            return makeErrorNode(t, node, bindingContext);
+        } catch (Exception e) {
+            return makeErrorNode(e, node, bindingContext);
         }
     }
 
@@ -49,8 +49,8 @@ public abstract class ANodeBinder implements INodeBinder {
 
         try {
             return binder.bindTarget(node, bindingContext, targetNode);
-        } catch (Throwable t) {
-            return makeErrorNode(t, node, bindingContext);
+        } catch (Exception e) {
+            return makeErrorNode(e, node, bindingContext);
         }
     }
 
@@ -60,7 +60,7 @@ public abstract class ANodeBinder implements INodeBinder {
 
         try {
             return binder.bindType(node, bindingContext, type);
-        } catch (Throwable t) {
+        } catch (Exception t) {
             return makeErrorNode(t, node, bindingContext);
         }
     }
@@ -217,13 +217,13 @@ public abstract class ANodeBinder implements INodeBinder {
         return new ErrorBoundNode(node);
     }
 
-    protected static IBoundNode makeErrorNode(Throwable exception, ISyntaxNode node, IBindingContext bindingContext) {
+    protected static IBoundNode makeErrorNode(Exception exception, ISyntaxNode node, IBindingContext bindingContext) {
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(exception, node);
         bindingContext.addError(error);
         return new ErrorBoundNode(node);
     }
 
-    protected static IBoundNode makeErrorNode(String message, Throwable exception, ISyntaxNode node, IBindingContext bindingContext) {
+    protected static IBoundNode makeErrorNode(String message, Exception exception, ISyntaxNode node, IBindingContext bindingContext) {
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, exception, node);
         bindingContext.addError(error);
         return new ErrorBoundNode(node);

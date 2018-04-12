@@ -43,11 +43,11 @@ public class ModuleNodeBinder extends ANodeBinder {
         return new ModuleNode(node, moduleContext.getModule());
     }
 
-    private void processErrors(List<Throwable> errors, ISyntaxNode node, IBindingContext bindingContext) {
+    private void processErrors(List<Exception> errors, ISyntaxNode node, IBindingContext bindingContext) {
         if (errors != null) {
-            for (Throwable error : errors) {
+            for (Exception error : errors) {
                 if (error instanceof SyntaxNodeException) {
-                    BindHelper.processError((SyntaxNodeException) error, bindingContext);
+                    bindingContext.addError((SyntaxNodeException) error);
                 } else if (error instanceof CompositeSyntaxNodeException) {
                     BindHelper.processError((CompositeSyntaxNodeException) error, bindingContext);
                 } else {

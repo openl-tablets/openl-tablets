@@ -45,7 +45,7 @@ public class TestParser extends TestCase {
 
         for (int i = 0; i < err.length; i++) {
             // don`t need to print stack trace during tests!
-//            printSyntaxError(err[i]);
+            // printSyntaxError(err[i]);
         }
 
         return err.length;
@@ -60,7 +60,7 @@ public class TestParser extends TestCase {
         SyntaxNodeException[] err = pc.getErrors();
 
         for (int i = 0; i < err.length; i++) {
-//            printSyntaxError(err[i]);
+            // printSyntaxError(err[i]);
         }
 
         IOpenBinder binder = openl.getBinder();
@@ -69,7 +69,7 @@ public class TestParser extends TestCase {
         err = bc.getErrors();
 
         for (int i = 0; i < err.length; i++) {
-//            printSyntaxError(err[i]);
+            // printSyntaxError(err[i]);
         }
 
         return err.length;
@@ -88,25 +88,25 @@ public class TestParser extends TestCase {
     }
 
     public void testOpenlParse1() throws Exception {
-        
+
         URL url1 = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test1.xls");
         URL url2 = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test2.xls");
-        
+
         Assert.assertEquals(0, testOpenlParse(url1));
         Assert.assertEquals(0, testOpenlParse(url2));
     }
 
     public void testOpenlParse2() throws Exception {
-        
+
         URL url1 = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test1.xls");
         URL url2 = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test2-2.xls");
-        
+
         Assert.assertEquals(0, testOpenlParse(url1));
         Assert.assertEquals(0, testOpenlParse(url2));
     }
 
     public void testOpenlBind1() throws Exception {
-        
+
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test2.xls");
         Assert.assertEquals(0, testOpenlBind(url));
     }
@@ -116,30 +116,21 @@ public class TestParser extends TestCase {
         Assert.assertEquals(0, testOpenlBind(url));
     }
 
-//    public void testOpenlBind3() throws Exception {
-//        
-//        URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/IndexLogic.xls");
-//        
-//        Assert.assertEquals(5, testOpenlBind(url.getPath()));
-//    }
-
     public void testOpenlRun1() throws Exception {
-        
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test2.xls");
         aTestMethodFile(url, OpenL.OPENL_JAVA_RULE_NAME, "hello", new Object[] { new Integer(14) }, "Y5");
     }
 
     public void testOpenlRun2() throws Exception {
-        
+
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test2-2.xls");
-        aTestMethodFile(url,
-                OpenL.OPENL_JAVA_RULE_NAME,
-                "hello",
-                new Object[] { new Integer(10) },
-                null);
+        aTestMethodFile(url, OpenL.OPENL_JAVA_RULE_NAME, "hello", new Object[] { new Integer(10) }, null);
     }
 
-    private void aTestMethodFile(URL moduleFile, String openl, String methodName, Object[] params,
+    private void aTestMethodFile(URL moduleFile,
+            String openl,
+            String methodName,
+            Object[] params,
             Object expected) throws Exception {
 
         OpenL op = OpenL.getInstance(openl);
@@ -152,10 +143,8 @@ public class TestParser extends TestCase {
             }
         }
 
-        Object res = OpenLManager.runMethod(op,
-                new URLSourceCodeModule(moduleFile),
-                methodName, JavaOpenClass.getOpenClasses(cc),
-                params);
+        Object res = OpenLManager
+            .runMethod(op, new URLSourceCodeModule(moduleFile), methodName, JavaOpenClass.getOpenClasses(cc), params);
 
         Assert.assertEquals(expected, res);
 

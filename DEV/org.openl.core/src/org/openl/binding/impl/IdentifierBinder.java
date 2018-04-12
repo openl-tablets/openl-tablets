@@ -84,11 +84,11 @@ public class IdentifierBinder extends ANodeBinder {
                 BindHelper.checkOnDeprecation(node, bindingContext, field);
                 return new FieldBoundNode(node, field, target, dims);
 
-            } catch (Throwable t) {
-                return makeErrorNode(t, node, bindingContext);
+            } catch (Exception e) {
+                return makeErrorNode(e, node, bindingContext);
             }
-        } catch (Throwable t) {
-            return makeErrorNode(t, node, bindingContext);
+        } catch (Exception e) {
+            return makeErrorNode(e, node, bindingContext);
         }
     }
 

@@ -13,6 +13,7 @@ import org.openl.binding.impl.module.MethodBindingContext;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
 import org.openl.syntax.code.ProcessedCode;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
@@ -158,7 +159,11 @@ public class OpenLCodeManager extends OpenLHolder {
             header.setTypeClass(retType);
 
             IBoundMethodNode boundMethodNode = bindManager.bindMethod(boundCode, header, bindingContext);
-
+            
+            if (bindingContext.getErrors().length > 0) {
+                throw new CompositeSyntaxNodeException("Parsing Error:", bindingContext.getErrors());
+            }
+            
             return new CompositeMethod(header, boundMethodNode);
         } finally {
             bindingContext.popErrors();

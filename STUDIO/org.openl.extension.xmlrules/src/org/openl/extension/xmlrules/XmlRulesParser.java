@@ -361,13 +361,13 @@ public class XmlRulesParser extends BaseParser {
         if (type.equals(XlsNodeTypes.XLS_TABLEPART.toString())) {
             try {
                 tablePartProcessor.register(table, source);
-            } catch (Throwable t) {
+            } catch (Exception e) {
                 tsn = new TableSyntaxNode(XlsNodeTypes.XLS_OTHER.toString(),
                     tsn.getGridLocation(),
                     source,
                     table,
                     tsn.getHeader());
-                SyntaxNodeException sne = SyntaxNodeExceptionUtils.createError(t, tsn);
+                SyntaxNodeException sne = SyntaxNodeExceptionUtils.createError(e, tsn);
                 tsn.addError(sne);
                 OpenLMessagesUtils.addError(sne);
             }

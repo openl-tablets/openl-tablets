@@ -237,6 +237,8 @@ public class OpenLSourceManager extends OpenLHolder {
 
         if (!ignoreErrors && bindingErrors.length > 0) {
             throw new CompositeSyntaxNodeException("Binding Error:", bindingErrors);
+        } else {
+            OpenLMessagesUtils.addErrors(bindingErrors);
         }
 
         ProcessedCode processedCode = new ProcessedCode();

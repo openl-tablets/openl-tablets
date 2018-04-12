@@ -39,7 +39,6 @@ import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.prebind.ILazyMember;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.property.PropertiesOpenField;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
@@ -533,7 +532,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     @Override
-    public void addError(Throwable error) {
+    public void addError(Exception error) {
         if (error instanceof DuplicatedMethodException || error instanceof DuplicatedVarException || error instanceof DuplicatedTableException || error instanceof DuplicatedFieldException || error instanceof SyntaxNodeException) {
             if (VirtualSourceCodeModule.SOURCE_URI.equals(metaInfo.getSourceUrl())) {
                 // Avoid duplication of error messages. This error was defined

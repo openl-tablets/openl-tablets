@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.BindHelper;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.datatype.binding.TopologicalSort.TopoGraphNode;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -27,7 +26,7 @@ public class DatatypesSorter {
             return null;
         }
 
-        Map<String, TableSyntaxNode> datatypes = createTypesMap(datatypeNodes);
+        Map<String, TableSyntaxNode> datatypes = createTypesMap(bindingContext, datatypeNodes);
 
         List<TopoGraphNode<TableSyntaxNode>> nodes = wrapAll(datatypes, bindingContext);
         Set<TopoGraphNode<TableSyntaxNode>> sorted = new TopologicalSort<TableSyntaxNode>().sort(nodes);
@@ -95,7 +94,7 @@ public class DatatypesSorter {
 
     }
 
-    private Map<String, TableSyntaxNode> createTypesMap(TableSyntaxNode[] nodes) {
+    private Map<String, TableSyntaxNode> createTypesMap(IBindingContext bindingContext, TableSyntaxNode[] nodes) {
 
         Map<String, TableSyntaxNode> map = new LinkedHashMap<String, TableSyntaxNode>();
 
@@ -111,7 +110,7 @@ public class DatatypesSorter {
                             String message = String.format("Type with name '%s' already exists", datatypeName);
                             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tsn);
                             tsn.addError(error);
-                            BindHelper.processError(error);
+                            bindingContext.addError(error);
                         } else {
                             map.put(datatypeName, tsn);
                         }
@@ -119,13 +118,13 @@ public class DatatypesSorter {
                         String message = "Cannot recognize type name";
                         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tsn);
                         tsn.addError(error);
-                        BindHelper.processError(error);
+                        bindingContext.addError(error);
                     }
                 } catch (OpenLCompilationException e) {
                     String message = "An error has occurred during compilation";
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, tsn);
                     tsn.addError(error);
-                    BindHelper.processError(error);
+                    bindingContext.addError(error);
                 }
             }
         }
