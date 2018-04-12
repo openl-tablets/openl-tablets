@@ -19,8 +19,12 @@ import org.openl.excel.parser.TableStyles;
 import org.openl.excel.parser.event.style.CommentsCollector;
 import org.openl.excel.parser.event.style.EventTableStyles;
 import org.openl.rules.table.IGridRegion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TableStyleListener implements HSSFListener {
+    private final Logger log = LoggerFactory.getLogger(TableStyleListener.class);
+
     private final EventSheetDescriptor sheet;
     private final IGridRegion tableRegion;
     private TableStyles tableStyles;
@@ -160,7 +164,15 @@ public class TableStyleListener implements HSSFListener {
     private void collectComments() {
         int loc = findFirstDrawingRecord();
         if (loc >= 0) {
-            EscherAggregate r = EscherAggregate.createAggregate(shapeRecords, loc);
+            EscherAggregate r;
+            try {
+                r = EscherAggregate.createAggregate(shapeRecords, loc);
+            } catch (Exception e) {
+                // TODO: Investigate such a cases and find a solution to read comments from such files.
+                log.error(e.getMessage(), e);
+                comments = Collections.emptyList();
+                return;
+            }
             EscherContainerRecord dgContainer = r.getEscherContainer();
             if (dgContainer == null) {
                 return;
