@@ -1,6 +1,7 @@
 package org.openl.message;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -34,14 +35,14 @@ public class OpenLMessagesUtils {
 
     public static void addError(Throwable exception) {
         String errorMessage = exception.getMessage();
-        
+
         if (StringUtils.isBlank(errorMessage)) {
             Throwable cause = exception.getCause();
             if (cause != null) {
                 errorMessage = cause.getMessage();
             }
         }
-        
+
         addError(errorMessage);
     }
 
@@ -58,8 +59,8 @@ public class OpenLMessagesUtils {
     public static void addWarn(String message) {
         addMessage(message, Severity.WARN);
     }
-    
-    public static void addWarn(String message, ISyntaxNode source){
+
+    public static void addWarn(String message, ISyntaxNode source) {
         OpenLWarnMessage warn = new OpenLWarnMessage(message, source);
         addMessage(warn);
     }
@@ -70,7 +71,7 @@ public class OpenLMessagesUtils {
         addMessage(openlMessage);
     }
 
-    private static void addMessage(OpenLMessage message) {
+    public static void addMessage(OpenLMessage message) {
         OpenLMessages.getCurrentInstance().addMessage(message);
     }
 
@@ -111,32 +112,33 @@ public class OpenLMessagesUtils {
         return messages;
     }
 
-    public static Map<Severity, List<OpenLMessage>> groupMessagesBySeverity(List<OpenLMessage> messages) {
-        Map<Severity, List<OpenLMessage>> groupedMessagesMap = new HashMap<Severity, List<OpenLMessage>>();
+    public static Map<Severity, Collection<OpenLMessage>> groupMessagesBySeverity(Collection<OpenLMessage> messages) {
+        Map<Severity, Collection<OpenLMessage>> groupedMessagesMap = new HashMap<Severity, Collection<OpenLMessage>>();
 
         for (OpenLMessage message : messages) {
             Severity severity = message.getSeverity();
-            List<OpenLMessage> groupedMessages = groupedMessagesMap.get(severity);
-     
+            Collection<OpenLMessage> groupedMessages = groupedMessagesMap.get(severity);
+
             if (groupedMessages == null) {
                 groupedMessages = new ArrayList<OpenLMessage>();
                 groupedMessagesMap.put(severity, groupedMessages);
             }
-            
+
             groupedMessages.add(message);
         }
 
         return groupedMessagesMap;
     }
 
-    public static List<OpenLMessage> filterMessagesBySeverity(List<OpenLMessage> messages, Severity severity) {
-        Map<Severity, List<OpenLMessage>> groupedMessagesMap = groupMessagesBySeverity(messages);
-        List<OpenLMessage> groupedMessages = groupedMessagesMap.get(severity);
-        
+    public static Collection<OpenLMessage> filterMessagesBySeverity(Collection<OpenLMessage> messages,
+            Severity severity) {
+        Map<Severity, Collection<OpenLMessage>> groupedMessagesMap = groupMessagesBySeverity(messages);
+        Collection<OpenLMessage> groupedMessages = groupedMessagesMap.get(severity);
+
         if (groupedMessages != null) {
             return groupedMessages;
         }
-        
+
         return Collections.emptyList();
     }
 
@@ -149,7 +151,8 @@ public class OpenLMessagesUtils {
                     if (exception.getMessage() != null && exception.getMessage().equals(error.getMessage())) {
                         String existingLocation = exception.getSourceLocation();
                         String checkingLocation = error.getSourceLocation();
-                        if (checkingLocation == existingLocation || checkingLocation != null && checkingLocation.equals(existingLocation)) {
+                        if (checkingLocation == existingLocation || checkingLocation != null && checkingLocation
+                            .equals(existingLocation)) {
                             return true;
                         }
                     }

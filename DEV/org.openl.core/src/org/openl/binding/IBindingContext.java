@@ -16,6 +16,7 @@ import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.message.IOpenLMessages;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodCaller;
@@ -29,7 +30,9 @@ import org.openl.types.IOpenField;
 public interface IBindingContext extends ICastFactory {
 
     void addAlias(String name, String value);
-
+    
+    IOpenLMessages getOpenLMessages();
+    
     void addError(SyntaxNodeException error);
 
     ILocalVar addParameter(String namespace, String name, IOpenClass type) throws DuplicatedVarException;
@@ -125,6 +128,8 @@ public interface IBindingContext extends ICastFactory {
      */
     void setReturnType(IOpenClass type);
 
+    void setExecutionMode(boolean executionMode);
+    
     /**
      * @return <code>true</code> if it is execution mode binding.
      */

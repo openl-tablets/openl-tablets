@@ -1,6 +1,8 @@
 package org.openl.rules.validation;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,10 +10,9 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.message.IOpenLMessages;
 import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
-import org.openl.message.Severity;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.ISyntaxNode;
@@ -28,10 +29,9 @@ public class DispatcherTableBuildingTest extends BaseOpenlBuilderHelper {
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_JAVA);
     }
 
-    private static List<OpenLMessage> getWarningsForTable(List<OpenLMessage> allMessages, TableSyntaxNode tsn) {
-        List<OpenLMessage> warningMessages = OpenLMessagesUtils.filterMessagesBySeverity(allMessages, Severity.WARN);
+    private static List<OpenLMessage> getWarningsForTable(IOpenLMessages allMessages, TableSyntaxNode tsn) {
         List<OpenLMessage> warningsForTable = new ArrayList<OpenLMessage>();
-        for (OpenLMessage message : warningMessages) {
+        for (OpenLMessage message : allMessages.getWarnings()) {
             if (message instanceof OpenLWarnMessage) {// there can be simple
                                                       // OpenLMessages with
                                                       // severity WARN
@@ -50,7 +50,7 @@ public class DispatcherTableBuildingTest extends BaseOpenlBuilderHelper {
         TableSyntaxNode dispatcherTable = findDispatcherForMethod("arraysTest");
         assertNotNull(dispatcherTable);
         assertFalse(dispatcherTable.hasErrors());
-        assertTrue(getWarningsForTable(getCompiledOpenClass().getMessages(), dispatcherTable).size() == 0);
+        assertTrue(getWarningsForTable(getCompiledOpenClass().getOpenLMessages(), dispatcherTable).size() == 0);
     }
 
     @Test
@@ -58,6 +58,6 @@ public class DispatcherTableBuildingTest extends BaseOpenlBuilderHelper {
         TableSyntaxNode dispatcherTable = findDispatcherForMethod("keywordsTest");
         assertNotNull(dispatcherTable);
         assertFalse(dispatcherTable.hasErrors());
-        assertTrue(getWarningsForTable(getCompiledOpenClass().getMessages(), dispatcherTable).size() == 0);
+        assertTrue(getWarningsForTable(getCompiledOpenClass().getOpenLMessages(), dispatcherTable).size() == 0);
     }
 }

@@ -10,6 +10,7 @@ import java.util.List;
 import org.openl.OpenL;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.tbasic.compile.ConversionRuleBean;
 
@@ -63,7 +64,9 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
         
         // add to the current messages instance old messages
         //
-        OpenLMessages.getCurrentInstance().addMessages(oldMessages);
+        for (OpenLMessage message : oldMessages) {
+            OpenLMessagesUtils.addMessage(message);
+        }
     }
 
     private ConversionRuleBean[] fixBrokenValues(ConversionRuleBean[] conversionRules) {

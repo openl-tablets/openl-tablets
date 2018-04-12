@@ -198,7 +198,7 @@ public class PropertiesLoader {
             if (moduleProperties != null) {
                 for (String key : externalProperties.getAllProperties().keySet()) {
                     if (moduleProperties.getAllProperties().keySet().contains(key)) {
-                        OpenLMessagesUtils.addError("Property '" + key + "' has already defined via external properties! Remove it from module properties.");
+                        cxt.getOpenLMessages().addError("Property '" + key + "' has already defined via external properties! Remove it from module properties.");
                     }
                 }
             }

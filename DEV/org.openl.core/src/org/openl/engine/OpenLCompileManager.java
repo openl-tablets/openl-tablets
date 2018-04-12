@@ -1,6 +1,5 @@
 package org.openl.engine;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.CompiledOpenClass;
@@ -14,6 +13,7 @@ import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.binding.impl.module.MethodBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.IDependencyManager;
+import org.openl.message.IOpenLMessages;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.source.IOpenSourceCodeModule;
@@ -50,21 +50,26 @@ public class OpenLCompileManager extends OpenLHolder {
      * Compiles module. As a result a module open class will be returned by engine.
      * 
      * @param source source
-     * @param executionMode <code>true</code> if module should be compiled in
-     *            memory optimized mode for only execution
+     * @param executionMode <code>true</code> if module should be compiled in memory optimized mode for only execution
      * @return {@link IOpenClass} instance
      */
-    public IOpenClass compileModule(IOpenSourceCodeModule source, boolean executionMode, IDependencyManager dependencyManager) {
+    public IOpenClass compileModule(IOpenSourceCodeModule source,
+            boolean executionMode,
+            IDependencyManager dependencyManager) {
         ProcessedCode processedCode;
-        if(executionMode){
-            processedCode = sourceManager.processSource(source, SourceType.MODULE, new ExecutionModeBindingContextDelegator(null), false, dependencyManager);
-        }else{
+        if (executionMode) {
+            processedCode = sourceManager.processSource(source,
+                SourceType.MODULE,
+                new ExecutionModeBindingContextDelegator(null),
+                false,
+                dependencyManager);
+        } else {
             processedCode = sourceManager.processSource(source, SourceType.MODULE, dependencyManager);
         }
 
         IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
         if (executionMode) {
-            ((ModuleOpenClass)openClass).clearOddDataForExecutionMode();
+            ((ModuleOpenClass) openClass).clearOddDataForExecutionMode();
         }
 
         return openClass;
@@ -75,39 +80,42 @@ public class OpenLCompileManager extends OpenLHolder {
      * compilation are suppressed.
      * 
      * @param source source
-     * @param executionMode <code>true</code> if module should be compiled in
-     *            memory optimized mode for only execution
+     * @param executionMode <code>true</code> if module should be compiled in memory optimized mode for only execution
      * @return {@link CompiledOpenClass} instance
      */
-    public CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule source, boolean executionMode,
-        IDependencyManager dependencyManager) {    	
+    public CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule source,
+            boolean executionMode,
+            IDependencyManager dependencyManager) {
         IBindingContextDelegator context = null;
         if (executionMode) {
             context = new ExecutionModeBindingContextDelegator(null);
         }
-        ProcessedCode processedCode = sourceManager.processSource(source, SourceType.MODULE, context, true, dependencyManager);
+        ProcessedCode processedCode = sourceManager
+            .processSource(source, SourceType.MODULE, context, true, dependencyManager);
         IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
         SyntaxNodeException[] parsingErrors = processedCode.getParsingErrors();
         SyntaxNodeException[] bindingErrors = processedCode.getBindingErrors();
+        IOpenLMessages messages = new OpenLMessages();
         if (!executionMode) {
             // for WebStudio
             List<ValidationResult> validationResults = validationManager.validate(openClass);
 
-            List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
-
             for (ValidationResult result : validationResults) {
-                messages.addAll(result.getMessages());
+                messages.addMessages(result.getOpenLMessages().getMessages());
             }
-            OpenLMessages.getCurrentInstance().addMessages(messages);
         }
-        OpenLMessages messages = OpenLMessages.getCurrentInstance();
-        messages.addMessages(processedCode.getMessagesFromDependencies());
+
+        messages.addMessages(processedCode.getMessagesFromDependencies().getMessages());
+
         if (executionMode && openClass instanceof ComponentOpenClass) {
             ((ComponentOpenClass) openClass).clearOddDataForExecutionMode();
         }
-        return new CompiledOpenClass(openClass, messages.getMessages(), parsingErrors, bindingErrors);
+
+        messages.addMessages(OpenLMessages.getCurrentInstance().getMessages());
+
+        return new CompiledOpenClass(openClass, messages, parsingErrors, bindingErrors);
     }
-   
+
     /**
      * Compiles a method.
      * 
@@ -116,8 +124,8 @@ public class OpenLCompileManager extends OpenLHolder {
      * @param bindingContext binding context
      */
     public void compileMethod(IOpenSourceCodeModule source,
-                              CompositeMethod compositeMethod,
-                              IBindingContext bindingContext) {
+            CompositeMethod compositeMethod,
+            IBindingContext bindingContext) {
 
         try {
 
@@ -126,16 +134,13 @@ public class OpenLCompileManager extends OpenLHolder {
             MethodBindingContext methodBindingContext = new MethodBindingContext(compositeMethod.getHeader(),
                 bindingContext);
 
-            ProcessedCode processedCode = sourceManager.processSource(source,
-                SourceType.METHOD_BODY,
-                methodBindingContext,
-                false, null);
+            ProcessedCode processedCode = sourceManager
+                .processSource(source, SourceType.METHOD_BODY, methodBindingContext, false, null);
 
             IBoundCode boundCode = processedCode.getBoundCode();
 
-            IBoundMethodNode boundMethodNode = bindManager.bindMethod(boundCode,
-                compositeMethod.getHeader(),
-                bindingContext);
+            IBoundMethodNode boundMethodNode = bindManager
+                .bindMethod(boundCode, compositeMethod.getHeader(), bindingContext);
 
             compositeMethod.setMethodBodyBoundNode(boundMethodNode);
         } finally {

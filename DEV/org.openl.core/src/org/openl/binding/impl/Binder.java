@@ -119,20 +119,19 @@ public class Binder implements IOpenBinder {
         }
     }
 
-    private IBoundNode bindNode(ISyntaxNode syntaxNode, IParsedCode parsedCode, IBindingContext bindingContext)
-                                                                                                               throws Exception {
+    private IBoundNode bindNode(ISyntaxNode syntaxNode,
+            IParsedCode parsedCode,
+            IBindingContext bindingContext) throws Exception {
         INodeBinder nodeBinder = bindingContext.findBinder(syntaxNode);
 
         if (nodeBinder == null) {
-            throw new OpenlNotCheckedException(String.format("Binder is not found for node '%s'", syntaxNode.getType()));
+            throw new OpenlNotCheckedException(
+                String.format("Binder is not found for node '%s'", syntaxNode.getType()));
         }
 
         return nodeBinder.bind(syntaxNode, bindingContext);
     }
     
-    
-    
     Map<MethodKey, Object> methodCache = new HashMap<MethodKey, Object>();
-    
 
 }

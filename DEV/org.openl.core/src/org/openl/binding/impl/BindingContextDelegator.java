@@ -20,6 +20,7 @@ import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.message.IOpenLMessages;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodCaller;
@@ -179,6 +180,11 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     public boolean isExecutionMode() {
         return delegate.isExecutionMode();
     }
+    
+    @Override
+    public void setExecutionMode(boolean exectionMode) {
+        delegate.setExecutionMode(exectionMode);
+    }
 
     public Map<String, Object> getExternalParams() {
         return delegate.getExternalParams();
@@ -187,4 +193,10 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     public void setExternalParams(Map<String, Object> params) {
         delegate.setExternalParams(params);
     }
+    
+    @Override
+    public IOpenLMessages getOpenLMessages() {
+        return delegate.getOpenLMessages();
+    }
+    
 }

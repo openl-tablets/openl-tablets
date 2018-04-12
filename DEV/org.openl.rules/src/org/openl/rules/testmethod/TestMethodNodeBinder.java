@@ -4,6 +4,7 @@
 package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -15,6 +16,7 @@ import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.MethodNotFoundException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.DataTableBindHelper;
@@ -122,10 +124,10 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         SyntaxNodeException[] bestCaseErrors = null;
         TestMethodOpenClass bestTestMethodOpenClass = null;
         ITable bestDataTable = null;
-        List<OpenLMessage> bestMessages = Collections.emptyList();
+        Collection<OpenLMessage> bestMessages = Collections.emptyList();
 
         boolean hasNoErrorBinding = false;
-        List<OpenLMessage> messages = OpenLMessages.getCurrentInstance().getMessages();
+        Collection<OpenLMessage> messages = OpenLMessages.getCurrentInstance().getMessages();
         SyntaxNodeException[] errors = tableSyntaxNode.getErrors();
         for (IOpenMethod testedMethod : testedMethods) {
             OpenLMessages.getCurrentInstance().clear();
@@ -199,7 +201,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             tableSyntaxNode.clearErrors();
             OpenLMessages.getCurrentInstance().clear();
             for (OpenLMessage message : messages) {
-                OpenLMessages.getCurrentInstance().addMessage(message);
+                OpenLMessagesUtils.addMessage(message);
             }
             for (OpenLMessage message : bestMessages) {
                 OpenLMessages.getCurrentInstance().addMessage(message);

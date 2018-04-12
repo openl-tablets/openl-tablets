@@ -7,7 +7,7 @@ import org.openl.validation.ValidationStatus;
 public class ValidationUtils {
 
     public static void addValidationMessage(ValidationResult validationResult, OpenLMessage message) {
-        validationResult.getMessages().add(message);
+        validationResult.getOpenLMessages().addMessage(message);
     }
 
     public static ValidationResult validationSuccess() {

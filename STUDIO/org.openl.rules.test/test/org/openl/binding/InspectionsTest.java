@@ -2,7 +2,7 @@ package org.openl.binding;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.junit.Test;
 import org.openl.OpenL;
@@ -44,9 +44,12 @@ public class InspectionsTest {
 
         // Deep field access
         Object result;
-        result = checkWarning("java.io.File f = new java.io.File(\"/some/fictional/path/\"); f.parentFile.parentFile.name == f.parentFile.parentFile.name ? 1 : 2", ALWAYS_TRUE);
+        result = checkWarning(
+            "java.io.File f = new java.io.File(\"/some/fictional/path/\"); f.parentFile.parentFile.name == f.parentFile.parentFile.name ? 1 : 2",
+            ALWAYS_TRUE);
         assertEquals(1, result);
-        result = checkNoMessage("java.io.File f = new java.io.File(\"/some/fictional/path/\"); f.parentFile.name == f.parentFile.parentFile.name ? 1 : 2");
+        result = checkNoMessage(
+            "java.io.File f = new java.io.File(\"/some/fictional/path/\"); f.parentFile.name == f.parentFile.parentFile.name ? 1 : 2");
         assertEquals(2, result);
 
         checkWarning("Integer[] arr = {1, 0, 2, 3}; arr[(a) select first having a == a]", ALWAYS_TRUE);
@@ -58,10 +61,12 @@ public class InspectionsTest {
     public void testNoWarning() {
         Object result;
 
-        result = checkNoMessage("Integer[] arr = {1, 0, 2, 3}; arr[(a) @ a == 0] == arr ? \"All zero\" : \"Has non zero values\"");
+        result = checkNoMessage(
+            "Integer[] arr = {1, 0, 2, 3}; arr[(a) @ a == 0] == arr ? \"All zero\" : \"Has non zero values\"");
         assertEquals("Has non zero values", result);
 
-        result = checkNoMessage("Integer[] arr = {0, 0, 0}; arr[(a) @ a == 0] == arr ? \"All zero\" : \"Has non zero values\"");
+        result = checkNoMessage(
+            "Integer[] arr = {0, 0, 0}; arr[(a) @ a == 0] == arr ? \"All zero\" : \"Has non zero values\"");
         assertEquals("All zero", result);
 
         result = checkNoMessage("String[] arr1 = {\"bb\"}; String[] arr2 = {\"bb\"}; arr1 == arr2 ? \"1\" : \"2\"");
@@ -78,14 +83,16 @@ public class InspectionsTest {
 
         @SuppressWarnings("unchecked")
         T result = (T) OpenLManager.run(OpenL.getInstance(OpenL.OPENL_J_NAME),
-                new StringSourceCodeModule(expression, null),
-                SourceType.METHOD_BODY);
+            new StringSourceCodeModule(expression, null),
+            SourceType.METHOD_BODY);
 
-        List<OpenLMessage> messages = OpenLMessages.getCurrentInstance().getMessages();
+        Collection<OpenLMessage> messages = OpenLMessages.getCurrentInstance().getMessages();
         assertEquals(expectedMessage.length, messages.size());
-        for(int i = 0; i < expectedMessage.length; i++) {
-            assertEquals(Severity.WARN, messages.get(i).getSeverity());
-            assertEquals(expectedMessage[i], messages.get(i).getSummary());
+        int i = 0;
+        for (OpenLMessage message : messages) {
+            assertEquals(Severity.WARN, message.getSeverity());
+            assertEquals(expectedMessage[i], message.getSummary());
+            i++;
         }
 
         OpenLMessages.removeCurrentInstance();
@@ -97,10 +104,10 @@ public class InspectionsTest {
 
         @SuppressWarnings("unchecked")
         T result = (T) OpenLManager.run(OpenL.getInstance(OpenL.OPENL_J_NAME),
-                new StringSourceCodeModule(expression, null),
-                SourceType.METHOD_BODY);
+            new StringSourceCodeModule(expression, null),
+            SourceType.METHOD_BODY);
 
-        List<OpenLMessage> messages = OpenLMessages.getCurrentInstance().getMessages();
+        Collection<OpenLMessage> messages = OpenLMessages.getCurrentInstance().getMessages();
         assertEquals(0, messages.size());
 
         OpenLMessages.removeCurrentInstance();

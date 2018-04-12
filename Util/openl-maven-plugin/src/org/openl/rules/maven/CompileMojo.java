@@ -2,6 +2,7 @@ package org.openl.rules.maven;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -10,9 +11,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.CompiledOpenClass;
+import org.openl.message.IOpenLMessages;
 import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessagesUtils;
-import org.openl.message.Severity;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.types.IOpenClass;
 
@@ -52,8 +52,8 @@ public final class CompileMojo extends BaseOpenLMojo {
 
             CompiledOpenClass openLRules = factory.getCompiledOpenClass();
             IOpenClass openClass = openLRules.getOpenClass();
-            List<OpenLMessage> messages = openLRules.getMessages();
-            List<OpenLMessage> warnings = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
+            IOpenLMessages messages = openLRules.getOpenLMessages();
+            Collection<OpenLMessage> warnings = messages.getWarnings();
             info("Compilation has finished.");
             info("DataTypes: " + openClass.getTypes().size());
             info("Methods  : " + openClass.getMethods().size());

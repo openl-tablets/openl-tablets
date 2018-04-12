@@ -4,6 +4,9 @@
 
 package org.openl.binding.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.method.MethodSearch;
@@ -14,9 +17,6 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author snshor
