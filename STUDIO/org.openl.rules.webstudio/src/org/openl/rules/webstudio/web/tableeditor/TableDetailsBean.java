@@ -243,6 +243,7 @@ public class TableDetailsBean {
 
     public void save() throws Exception {
         IOpenLTable table = getTable();
+        table.getGridTable().edit();
 
         WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectModel model = studio.getModel();
@@ -283,6 +284,8 @@ public class TableDetailsBean {
             this.newTableId = tableEditorModel.save();
             studio.compile();
         }
+
+        table.getGridTable().stopEditing();
     }
 
     /*for (Constraint constraint : constraints.getAll()) {
