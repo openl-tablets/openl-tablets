@@ -1,9 +1,7 @@
 package org.openl.syntax.code;
 
-import java.util.List;
-
 import org.openl.binding.IBoundCode;
-import org.openl.message.OpenLMessage;
+import org.openl.message.IOpenLMessages;
 import org.openl.syntax.exception.SyntaxNodeException;
 
 /**
@@ -85,7 +83,7 @@ public class ProcessedCode {
         return boundCode.getErrors();
     }
 
-    public List<OpenLMessage> getMessagesFromDependencies() {
+    public IOpenLMessages getMessagesFromDependencies() {
         return parsedCode.getMessagesFromDependencies();
     }
 }

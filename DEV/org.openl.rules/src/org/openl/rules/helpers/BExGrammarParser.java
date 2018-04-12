@@ -1,11 +1,12 @@
 package org.openl.rules.helpers;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.source.SourceType;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.util.RangeWithBounds;
@@ -28,7 +29,7 @@ final public class BExGrammarParser implements RangeParser {
         // appropriate table. Reason: input string doesn't contain required
         // information about source.
         //
-        List<OpenLMessage> oldMessages = OpenLMessages.getCurrentInstance().getMessages();
+        Collection<OpenLMessage> oldMessages = OpenLMessages.getCurrentInstance().getMessages();
 
         try {
             OpenLMessages.getCurrentInstance().clear();
@@ -38,7 +39,9 @@ final public class BExGrammarParser implements RangeParser {
             // Load old openl messages list.
             //
             OpenLMessages.getCurrentInstance().clear();
-            OpenLMessages.getCurrentInstance().addMessages(oldMessages);
+            for (OpenLMessage message : oldMessages) {
+                OpenLMessagesUtils.addMessage(message);
+            }
         }
         return res;
     }

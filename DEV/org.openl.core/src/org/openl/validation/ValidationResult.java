@@ -1,17 +1,13 @@
 package org.openl.validation;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.openl.message.OpenLMessage;
+import org.openl.message.IOpenLMessages;
+import org.openl.message.OpenLMessages;
 
 /**
- * The <code>ValidationResult</code> defines contract that used in validation
- * process.
+ * The <code>ValidationResult</code> defines contract that used in validation process.
  * 
- * While OpenL engine base concept is rules sets the validation process used
- * list of {@link OpenlMessage} as a container to accumulate problems of each
- * rule.
+ * While OpenL engine base concept is rules sets the validation process used list of {@link OpenlMessage} as a container
+ * to accumulate problems of each rule.
  * 
  */
 public class ValidationResult {
@@ -24,7 +20,7 @@ public class ValidationResult {
     /**
      * Messages of validation process.
      */
-    private List<OpenLMessage> messages;
+    private IOpenLMessages messages;
 
     /**
      * Creates new instance of validation result.
@@ -34,16 +30,20 @@ public class ValidationResult {
     public ValidationResult(ValidationStatus status) {
         this(status, null);
     }
-    
+
     /**
      * Creates new instance of validation result.
      * 
      * @param status status value
      * @param messages list of validation messages
      */
-    public ValidationResult(ValidationStatus status, List<OpenLMessage> messages) {
+    public ValidationResult(ValidationStatus status, IOpenLMessages messages) {
         this.status = status;
-        this.messages = messages;
+        if (messages == null) {
+            this.messages = new OpenLMessages();
+        } else {
+            this.messages = messages;
+        }
     }
 
     /**
@@ -55,21 +55,12 @@ public class ValidationResult {
         return status;
     }
 
-    public boolean hasMessages() {
-        return !(messages == null || messages.isEmpty());
-    }
-
     /**
      * Gets validation messages.
      * 
      * @return list of messages
      */
-    public List<OpenLMessage> getMessages() {
-
-        if (messages == null) {
-            messages = new ArrayList<OpenLMessage>();
-        }
-
+    public IOpenLMessages getOpenLMessages() {
         return messages;
     }
 }

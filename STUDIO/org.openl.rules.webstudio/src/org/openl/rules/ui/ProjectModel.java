@@ -7,7 +7,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -25,6 +24,7 @@ import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.extension.ExtensionWrapperGrid;
+import org.openl.message.IOpenLMessages;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
@@ -581,12 +581,12 @@ public class ProjectModel {
         return compiledOpenClass;
     }
 
-    public List<OpenLMessage> getModuleMessages() {
+    public IOpenLMessages getModuleMessages() {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
         if (compiledOpenClass != null) {
-            return compiledOpenClass.getMessages();
+            return compiledOpenClass.getOpenLMessages();
         }
-        return Collections.emptyList();
+        return OpenLMessages.empty();
     }
 
     /**
@@ -1088,10 +1088,10 @@ public class ProjectModel {
             }
         } catch (Throwable t) {
             Log.error("Problem Loading OpenLWrapper", t);
-            List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
+            IOpenLMessages messages = new OpenLMessages();
             for (OpenLMessage openLMessage : OpenLMessagesUtils.newMessages(t)) {
                 String message = String.format("Can't load the module: %s", openLMessage.getSummary());
-                messages.add(new OpenLMessage(message, Severity.ERROR));
+                messages.addMessage(new OpenLMessage(message, Severity.ERROR));
             }
 
             compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages, new SyntaxNodeException[0],
@@ -1141,7 +1141,7 @@ public class ProjectModel {
      * have to clear previous OpenLMessages instance if it was created from
      * another thread(due to running as web application).
      */
-    private OpenLMessages previousUsedMessages;
+    private IOpenLMessages previousUsedMessages;
 
     private void clearOpenLMessages() {
         if (previousUsedMessages != null) {

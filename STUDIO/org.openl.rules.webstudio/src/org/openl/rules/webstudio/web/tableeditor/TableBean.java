@@ -1,9 +1,19 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.*;
+import static org.openl.rules.security.Privileges.BENCHMARK;
+import static org.openl.rules.security.Privileges.CREATE_TABLES;
+import static org.openl.rules.security.Privileges.EDIT_TABLES;
+import static org.openl.rules.security.Privileges.REMOVE_TABLES;
+import static org.openl.rules.security.Privileges.RUN;
+import static org.openl.rules.security.Privileges.TRACE;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
@@ -11,6 +21,7 @@ import javax.faces.bean.RequestScoped;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.message.IOpenLMessages;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
@@ -30,9 +41,18 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.testmethod.*;
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
+import org.openl.rules.testmethod.ProjectHelper;
+import org.openl.rules.testmethod.TestDescription;
+import org.openl.rules.testmethod.TestMethodBoundNode;
+import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.testmethod.TestUtils;
 import org.openl.rules.types.IUriMember;
-import org.openl.rules.ui.*;
+import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.RecentlyVisitedTables;
+import org.openl.rules.ui.TableSyntaxNodeUtils;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.util.XSSFOptimizer;
 import org.openl.rules.webstudio.web.test.TestDescriptionWithPreview;
@@ -70,8 +90,8 @@ public class TableBean {
     private boolean canBeOpenInExcel;
     private boolean copyable;
 
-    private List<OpenLMessage> errors;
-    private List<OpenLMessage> warnings;
+    private Collection<OpenLMessage> errors;
+    private Collection<OpenLMessage> warnings;
     // Errors + Warnings
     private List<OpenLMessage> problems;
 
@@ -158,7 +178,7 @@ public class TableBean {
     }
 
     private void initErrors() {
-        List<OpenLMessage> messages = table.getMessages();
+        Collection<OpenLMessage> messages = table.getMessages();
         errors = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
     }
 
@@ -182,10 +202,9 @@ public class TableBean {
 
         ProjectModel model = WebStudioUtils.getProjectModel();
 
-        List<OpenLMessage> messages = model.getModuleMessages();
+        IOpenLMessages openLMessages = model.getModuleMessages();
 
-        List<OpenLMessage> warningMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
-        for (OpenLMessage message : warningMessages) {
+        for (OpenLMessage message : openLMessages.getWarnings()) {
             if (message instanceof OpenLWarnMessage) {//there can be simple OpenLMessages with severity WARN
                 OpenLWarnMessage warning = (OpenLWarnMessage) message;
                 ISyntaxNode syntaxNode = warning.getSource();
@@ -237,11 +256,11 @@ public class TableBean {
         return table;
     }
 
-    public List<OpenLMessage> getErrors() {
+    public Collection<OpenLMessage> getErrors() {
         return errors;
     }
 
-    public List<OpenLMessage> getWarnings() {
+    public Collection<OpenLMessage> getWarnings() {
         return warnings;
     }
 

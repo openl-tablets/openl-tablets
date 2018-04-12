@@ -1,11 +1,11 @@
 package org.openl.syntax.exception;
 
-import org.openl.message.OpenLMessage;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+
+import org.openl.message.OpenLMessage;
 
 /**
  * Added possibility to handle list of {@link OpenLMessage}.
@@ -15,9 +15,9 @@ public class CompositeOpenlException extends CompositeSyntaxNodeException {
    
     private static final long serialVersionUID = 5130142151601932536L;
     
-    private List<OpenLMessage> errorMessages = new ArrayList<OpenLMessage>();
+    private Collection<OpenLMessage> errorMessages = new ArrayList<OpenLMessage>();
     
-    public CompositeOpenlException(String message, SyntaxNodeException[] errors, List<OpenLMessage> errorMessages) {
+    public CompositeOpenlException(String message, SyntaxNodeException[] errors, Collection<OpenLMessage> errorMessages) {
         super(message, errors);
         if (errorMessages != null) {
             this.errorMessages = new ArrayList<OpenLMessage>(errorMessages); 

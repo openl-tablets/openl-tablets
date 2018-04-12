@@ -1,11 +1,9 @@
 package org.openl;
 
 import java.util.Collection;
-import java.util.List;
 
+import org.openl.message.IOpenLMessages;
 import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessagesUtils;
-import org.openl.message.Severity;
 import org.openl.syntax.exception.CompositeOpenlException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
@@ -22,14 +20,14 @@ public class CompiledOpenClass {
 
     private SyntaxNodeException[] bindingErrors;
 
-    private List<OpenLMessage> messages;
+    private IOpenLMessages messages;
 
     private IOpenClass openClass;
     
     private ClassLoader classLoader;
 
     public CompiledOpenClass(IOpenClass openClass,
-            List<OpenLMessage> messages,
+            IOpenLMessages messages,
             SyntaxNodeException[] parsingErrors,
             SyntaxNodeException[] bindingErrors) {
         
@@ -60,31 +58,27 @@ public class CompiledOpenClass {
     }
 
     public boolean hasErrors() {
-        List<OpenLMessage> errorMessages = getErrorMessages();
+        Collection<OpenLMessage> errorMessages = getOpenLMessages().getErrors();
         return (parsingErrors.length > 0) || (bindingErrors.length > 0) || 
             (errorMessages != null && !errorMessages.isEmpty());
     }
 
-    private List<OpenLMessage> getErrorMessages() {
-        return OpenLMessagesUtils.filterMessagesBySeverity(getMessages(), Severity.ERROR);
-    }
-
     public void throwErrorExceptionsIfAny() {
         if (parsingErrors.length > 0) {
-            throw new CompositeOpenlException("Parsing Error(s):", parsingErrors, getErrorMessages());
+            throw new CompositeOpenlException("Parsing Error(s):", parsingErrors, getOpenLMessages().getErrors());
         }
 
         if (bindingErrors.length > 0) {
-            throw new CompositeOpenlException("Binding Error(s):", bindingErrors, getErrorMessages());
+            throw new CompositeOpenlException("Binding Error(s):", bindingErrors, getOpenLMessages().getErrors());
         }
         
-        if (getErrorMessages().size() > 0) {
-        	throw new CompositeOpenlException("Module contains critical errors", null, getErrorMessages());
+        if (getOpenLMessages().hasErrors()) {
+        	throw new CompositeOpenlException("Module contains critical errors", null, getOpenLMessages().getErrors());
         }
 
     }
 
-    public List<OpenLMessage> getMessages() {
+    public IOpenLMessages getOpenLMessages() {
         return messages;
     }
     

@@ -10,17 +10,17 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.TimeZone;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.CompiledOpenClass;
+import org.openl.message.IOpenLMessages;
 import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessages;
 import org.openl.message.Severity;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
@@ -188,11 +188,11 @@ public final class OpenLTest {
                         error(errors++, sourceFile, "Cannot read a file {}", msgFile, exc);
                     }
 
-                    List<OpenLMessage> actualMessages = compiledOpenClass.getMessages();
-                    List<OpenLMessage> missedMessages = new ArrayList<>();
+                    IOpenLMessages actualMessages = compiledOpenClass.getOpenLMessages();
+                    IOpenLMessages missedMessages = new OpenLMessages();
                     List<String> restMessages = new ArrayList<>(expectedMessages.size());
                     restMessages.addAll(expectedMessages);
-                    for (OpenLMessage msg : actualMessages) {
+                    for (OpenLMessage msg : actualMessages.getMessages()) {
                         String actual = msg.getSeverity() + ": " + msg.getSummary();
                         if (msg.getSeverity().equals(Severity.ERROR) || msg.getSeverity().equals(Severity.FATAL)) {
                             success = false;
@@ -207,13 +207,13 @@ public final class OpenLTest {
                             }
                         }
                         if (!found) {
-                            missedMessages.add(msg);
+                            missedMessages.addMessage(msg);
                         }
                     }
-                    if (!missedMessages.isEmpty()) {
+                    if (missedMessages.hasMessages()) {
                         success = false;
                         error(errors++, sourceFile, "  UNEXPECTED messages:");
-                        for (OpenLMessage msg : missedMessages) {
+                        for (OpenLMessage msg : missedMessages.getMessages()) {
                             error(errors++,
                                 sourceFile,
                                 "   {}: {}    at {}",
@@ -234,8 +234,8 @@ public final class OpenLTest {
 
             // Check compilation
             if (success && compiledOpenClass.hasErrors()) {
-                List<OpenLMessage> messages = compiledOpenClass.getMessages();
-                for (OpenLMessage msg : messages) {
+                IOpenLMessages messages = compiledOpenClass.getOpenLMessages();
+                for (OpenLMessage msg : messages.getMessages()) {
                     error(errors++,
                         sourceFile,
                         "   {}: {}    at {}",

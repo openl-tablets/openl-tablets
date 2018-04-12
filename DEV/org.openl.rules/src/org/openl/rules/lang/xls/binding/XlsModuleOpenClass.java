@@ -26,8 +26,6 @@ import org.openl.dependency.CompiledDependency;
 import org.openl.engine.ExtendableModuleOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessagesUtils;
-import org.openl.message.Severity;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.data.DataOpenField;
@@ -538,8 +536,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 // Avoid duplication of error messages. This error was defined
                 // in dependent module already.
                 for (CompiledDependency dependency : getDependencies()) {
-                    List<OpenLMessage> errors = OpenLMessagesUtils
-                        .filterMessagesBySeverity(dependency.getCompiledOpenClass().getMessages(), Severity.ERROR);
+                    Collection<OpenLMessage> errors = dependency.getCompiledOpenClass().getOpenLMessages().getErrors();
                     for (OpenLMessage message : errors) {
                         if (message.getSummary() != null && message.getSummary().equals(error.getMessage())) {
                             return;

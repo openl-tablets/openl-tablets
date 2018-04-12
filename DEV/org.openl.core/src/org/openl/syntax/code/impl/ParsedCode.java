@@ -4,14 +4,12 @@
 
 package org.openl.syntax.code.impl;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.openl.dependency.CompiledDependency;
-import org.openl.message.OpenLMessage;
+import org.openl.message.IOpenLMessages;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IDependency;
@@ -31,7 +29,7 @@ public class ParsedCode implements IParsedCode {
     private Map<String, Object> params;
     private IDependency[] dependencies;
     
-    List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
+    IOpenLMessages messagesFromDependencies;
     
     private Set<CompiledDependency> compiledDependencies = new HashSet<CompiledDependency>();
     
@@ -74,12 +72,12 @@ public class ParsedCode implements IParsedCode {
         this.compiledDependencies = new HashSet<CompiledDependency>(compiledDependencies);
     }
     
-    public void setMessagesFromDependencies(List<OpenLMessage> messages){
-        this.messages = messages;
+    public void setMessagesFromDependencies(IOpenLMessages messagesFromDependencies){
+        this.messagesFromDependencies = messagesFromDependencies;
     }
     
-    public List<OpenLMessage> getMessagesFromDependencies(){
-        return messages;
+    public IOpenLMessages getMessagesFromDependencies(){
+        return messagesFromDependencies;
     }
 
     public IDependency[] getDependencies() {
