@@ -106,6 +106,8 @@ public class TableEditorController extends BaseTableEditorController {
                 }
             }
 
+            prepareForEdit(editorModel);
+
             ICell cell = editorModel.getOriginalGridTable().getCell(getCol(), getRow());
             ICellEditor editor = new CellEditorSelector().selectEditor(cell);
             EditorTypeResponse editorResponse = editor.getEditorTypeAndMetadata();
@@ -113,8 +115,6 @@ public class TableEditorController extends BaseTableEditorController {
             String editorType = editorResponse.getEditor();
             String initValue = getCellEditorInitValue(editorType, cell);
             editorResponse.setInitValue(initValue);
-
-            prepareForEdit(editorModel);
 
             return pojo2json(editorResponse);
         }
