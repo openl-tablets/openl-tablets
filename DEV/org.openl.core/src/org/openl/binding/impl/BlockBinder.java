@@ -28,7 +28,7 @@ public class BlockBinder extends ANodeBinder {
             bindingContext.pushLocalVarContext();
             children = bindChildren(node, bindingContext);
         } catch (SyntaxNodeException error) {
-            BindHelper.processError(error);
+            bindingContext.addError(error);
         } finally {
             bindingContext.popLocalVarContext();
         }

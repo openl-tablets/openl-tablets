@@ -1,7 +1,6 @@
 package org.openl.rules.testmethod;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.data.DataTableBoundNode;
 import org.openl.rules.data.ITable;
@@ -55,7 +54,7 @@ public class TestMethodBoundNode extends DataTableBoundNode {
                         "Ambiguous expectation in the test case. Both expected result and expected error have been declared.",
                         cellSourceCodeModule);
                 getTableSyntaxNode().addError(error);
-                BindHelper.processError(error, cxt);
+                cxt.addError(error);
             }
         }
     }

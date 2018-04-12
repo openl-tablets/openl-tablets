@@ -91,13 +91,13 @@ public class IdentifierBinder extends ANodeBinder {
                 BindHelper.checkOnDeprecation(node, bindingContext, field);
                 return new FieldBoundNode(node, field, target, dims);
 
-            } catch (Throwable t) {
-                BindHelper.processError(node, t, bindingContext);
+            } catch (Exception e) {
+                BindHelper.processError(node, e, bindingContext);
 
                 return new ErrorBoundNode(node);
             }
-        } catch (Throwable t) {
-            BindHelper.processError(node, t, bindingContext);
+        } catch (Exception e) {
+            BindHelper.processError(node, e, bindingContext);
 
             return new ErrorBoundNode(node);
         }

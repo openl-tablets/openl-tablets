@@ -7,13 +7,10 @@ import org.openl.OpenL;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
-import org.openl.binding.exception.DuplicatedMethodException;
-import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -80,7 +77,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         openClass.addMethod(method);
         getTableSyntaxNode().setMember(method);
         if (hasServiceName()) {
-            addServiceMethod(openClass, method);
+            openClass.addMethod(getServiceMethod(method));
         }
     }
 
@@ -117,24 +114,6 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         public String getDisplayName(int mode) {
             return serviceMethodName;
         }
-    }
-
-    /**
-     * Add auxiliary method with name specified in property "id" for direct call
-     * for this rule.
-     *
-     * @param openClass Module open class
-     * @param originalMethod original method
-     */
-    protected void addServiceMethod(ModuleOpenClass openClass, IOpenMethod originalMethod) {
-        try {
-            openClass.addMethod(getServiceMethod(originalMethod));
-        } catch (DuplicatedMethodException e) {
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, getTableSyntaxNode());
-            getTableSyntaxNode().addError(error);
-            OpenLMessagesUtils.addError(error);
-        }
-
     }
 
     protected abstract ExecutableRulesMethod createMethodShell();
@@ -182,7 +161,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
                     metaInfo.getSourceUrl(),
                     NodeType.DATATYPE));
                 if (type.getInstanceClass() == null) {
-                    addTypeError(type, typeLocation, headerSyntaxNode);
+                    addTypeError(bindingContext, type, typeLocation, headerSyntaxNode);
                 }
             }
 
@@ -208,7 +187,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
                             NodeType.DATATYPE));
 
                         if (parameterType.getInstanceClass() == null) {
-                            addTypeError(parameterType, sourceLocation, headerSyntaxNode);
+                            addTypeError(bindingContext, parameterType, sourceLocation, headerSyntaxNode);
                         }
                     }
                 }
@@ -221,11 +200,11 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         }
     }
 
-    protected void addTypeError(IOpenClass type, ILocation location, IOpenSourceCodeModule syntaxNode) {
+    protected void addTypeError(IBindingContext bindingContext, IOpenClass type, ILocation location, IOpenSourceCodeModule syntaxNode) {
         String message = String.format("Type '%s' was defined with errors", type.getName());
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, null, location, syntaxNode);
         getTableSyntaxNode().addError(error);
-        BindHelper.processError(error);
+        bindingContext.addError(error);
     }
 
     protected int getSignatureStartIndex() {

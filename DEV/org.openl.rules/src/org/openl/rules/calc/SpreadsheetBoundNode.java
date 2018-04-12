@@ -79,7 +79,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                     type != null ? type.getName() : spreadsheet.getName());
                 SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());
                 getTableSyntaxNode().addError(exception);
-                BindHelper.processError(exception, bindingContext);
+                bindingContext.addError(exception);
             }
         }
 

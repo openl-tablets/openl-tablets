@@ -64,13 +64,13 @@ public class OpenLMessagesUtils {
         addMessage(warn);
     }
 
-    public static void addMessage(String message, Severity severity) {
+    private static void addMessage(String message, Severity severity) {
 
         OpenLMessage openlMessage = new OpenLMessage(message, severity);
         addMessage(openlMessage);
     }
 
-    public static void addMessage(OpenLMessage message) {
+    private static void addMessage(OpenLMessage message) {
         OpenLMessages.getCurrentInstance().addMessage(message);
     }
 

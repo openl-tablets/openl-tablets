@@ -12,6 +12,7 @@ import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.engine.OpenLCellExpressionsCompiler;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.IMetaInfo;
@@ -218,7 +219,7 @@ public class SpreadsheetStructureBuilder {
 
     private void checkAndAddProcessingLoop(SpreadsheetCell cell) {
         if (processingCells.contains(cell)) {
-            throw new RuntimeException("Spreadsheet Expression Loop:" + processingCells.toString());
+            throw new OpenlNotCheckedException("Spreadsheet Expression Loop:" + processingCells.toString());
         }
         processingCells.add(cell);
     }
@@ -276,16 +277,18 @@ public class SpreadsheetStructureBuilder {
                         declaringClass,
                         columnBindingContext);
                     spreadsheetCell.setType(method.getType());
-                } else
+                } else {
                     method = OpenLCellExpressionsCompiler.makeMethod(openl, srcCode, header, columnBindingContext);
+                }
                 spreadsheetCell.setValue(method);
             } catch (CompositeSyntaxNodeException e) {
                 componentsBuilder.getTableSyntaxNode().addError(e);
                 BindHelper.processError(e, spreadsheetBindingContext);
-            } catch (Throwable t) {
+            } catch (Exception e) {
                 String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
+                
                 addError(SyntaxNodeExceptionUtils
-                    .createError(message, t, LocationUtils.createTextInterval(source.getCode()), source));
+                    .createError(message, e, LocationUtils.createTextInterval(source.getCode()), source));
             }
 
         } else if (spreadsheetCell.isConstantCell()) {
@@ -335,7 +338,7 @@ public class SpreadsheetStructureBuilder {
 
     private void addError(SyntaxNodeException e) {
         componentsBuilder.getTableSyntaxNode().addError(e);
-        BindHelper.processError(e, spreadsheetBindingContext);
+        spreadsheetBindingContext.addError(e);
     }
 
     /**

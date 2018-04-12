@@ -48,8 +48,10 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                     String propertyName = propertyNames.get(i);
                     setProperty(propertyName, group, props, dateFormats.get(propertyName));
                 }
-            }catch(NoMatchFileNameException e){
-                throw new NoMatchFileNameException("Module '" + fileName + "' doesn't match file name pattern! File name pattern: " + fileNamePattern + ". " + e.getMessage());
+            } catch (NoMatchFileNameException e) {
+                throw new NoMatchFileNameException(
+                    "Module '" + fileName + "' doesn't match file name pattern! File name pattern: " + fileNamePattern + ". " + e
+                        .getMessage());
             }
         } else {
             throw new NoMatchFileNameException("Module '" + fileName + "' doesn't match file name pattern! File name pattern: " + fileNamePattern);

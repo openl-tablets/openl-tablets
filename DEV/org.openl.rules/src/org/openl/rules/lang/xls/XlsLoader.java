@@ -179,7 +179,7 @@ public class XlsLoader {
                         String newURL = PathTool.mergePath(sheetSource.getWorkbookSource().getUri(),
                                 StringTool.encodeURL(include));
                         src = new URLSourceCodeModule(new URL(newURL));
-                    } catch (Throwable t) {
+                    } catch (Exception t) {
                         registerIncludeError(tableSyntaxNode, table, i, include, t);
                         continue;
                     }
@@ -187,7 +187,7 @@ public class XlsLoader {
 
                 try {
                     preprocessWorkbook(src);
-                } catch (Throwable t) {
+                } catch (Exception t) {
                     registerIncludeError(tableSyntaxNode, table, i, include, t);
                 }
             }
@@ -198,7 +198,7 @@ public class XlsLoader {
             IGridTable table,
             int i,
             String include,
-            Throwable t) {
+            Exception t) {
         SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include '" + include + "' is not found",
                 t,
                 LocationUtils.createTextInterval(include),
@@ -228,7 +228,7 @@ public class XlsLoader {
         } else if (type.equals(XlsNodeTypes.XLS_TABLEPART.toString())) {
             try {
                 tablePartProcessor.register(table, source);
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 tsn = new TableSyntaxNode(XlsNodeTypes.XLS_OTHER.toString(),
                         tsn.getGridLocation(),
                         source,

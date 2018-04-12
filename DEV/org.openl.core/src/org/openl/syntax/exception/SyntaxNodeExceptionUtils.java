@@ -35,35 +35,35 @@ public class SyntaxNodeExceptionUtils {
     }
 
     public static SyntaxNodeException createError(String message,
-            Throwable throwable,
+            Exception ex,
             ILocation location,
             IOpenSourceCodeModule source) {
         Logger logger = LoggerFactory.getLogger(SyntaxNodeExceptionUtils.class);
-        logger.debug(message, throwable);
-        return new SyntaxNodeException(message, throwable, location, source);
+        logger.debug(message, ex);
+        return new SyntaxNodeException(message, ex, location, source);
     }
 
-    public static SyntaxNodeException createError(Throwable throwable,
+    public static SyntaxNodeException createError(Exception ex,
             ILocation location,
             IOpenSourceCodeModule source) {
-        return createError(formatErrorMessage(throwable), throwable, location, source);
+        return createError(formatErrorMessage(ex), ex, location, source);
     }
 
-    public static SyntaxNodeException createError(String message, Throwable throwable, ISyntaxNode syntaxNode) {
+    public static SyntaxNodeException createError(String message, Exception ex, ISyntaxNode syntaxNode) {
         Logger logger = LoggerFactory.getLogger(SyntaxNodeExceptionUtils.class);
-        logger.debug(message, throwable);
-        return new SyntaxNodeException(message, throwable, syntaxNode);
+        logger.debug(message, ex);
+        return new SyntaxNodeException(message, ex, syntaxNode);
     }
 
-    public static SyntaxNodeException createError(Throwable throwable, ISyntaxNode syntaxNode) {
-        return createError(formatErrorMessage(throwable), throwable, syntaxNode);
+    public static SyntaxNodeException createError(Exception ex, ISyntaxNode syntaxNode) {
+        return createError(formatErrorMessage(ex), ex, syntaxNode);
     }
 
-    private static String formatErrorMessage(Throwable throwable) {
-        String formattedMessage = throwable.getMessage();
-        ExceptionMessageFormatter filter = formatters.get(throwable.getClass());
+    private static String formatErrorMessage(Exception ex) {
+        String formattedMessage = ex.getMessage();
+        ExceptionMessageFormatter filter = formatters.get(ex.getClass());
         if (filter != null) {
-            formattedMessage = filter.format(throwable);
+            formattedMessage = filter.format(ex);
         }
         return formattedMessage;
     }

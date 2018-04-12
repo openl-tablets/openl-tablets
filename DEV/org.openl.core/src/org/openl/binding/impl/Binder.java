@@ -108,7 +108,7 @@ public class Binder implements IOpenBinder {
 
             return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), bindingContext.getLocalVarFrameSize());
 
-        } catch (Throwable cause) {
+        } catch (Exception cause) {
             // Process error/exception at first.
             //
             bindingContext.addError(SyntaxNodeExceptionUtils.createError(cause, syntaxNode));

@@ -44,7 +44,7 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
 			IBoundNode boundNode = createBoundNode(node, targetNode, children[0], localVar);
 			return boundNode;
 		} catch (SyntaxNodeException error) {
-			BindHelper.processError(error);
+			bindingContext.addError(error);
 			return new ErrorBoundNode(node);
 		} finally {
 			bindingContext.popLocalVarContext();

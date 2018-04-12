@@ -31,8 +31,8 @@ public abstract class ANodeBinder implements INodeBinder {
 
         try {
             return binder.bind(node, bindingContext);
-        } catch (Throwable t) {
-            BindHelper.processError(t, node, bindingContext, false);
+        } catch (Exception e) {
+            BindHelper.processError(e, node, bindingContext, false);
 
             return new ErrorBoundNode(node);
         }
@@ -61,8 +61,8 @@ public abstract class ANodeBinder implements INodeBinder {
 
         try {
             return binder.bindTarget(node, bindingContext, targetNode);
-        } catch (Throwable t) {
-            BindHelper.processError(node, t, bindingContext);
+        } catch (Exception e) {
+            BindHelper.processError(node, e, bindingContext);
 
             return new ErrorBoundNode(node);
         }
@@ -78,7 +78,7 @@ public abstract class ANodeBinder implements INodeBinder {
 
         try {
             return binder.bindType(node, bindingContext, type);
-        } catch (Throwable t) {
+        } catch (Exception t) {
             BindHelper.processError(t, node, bindingContext, false);
 
             return new ErrorBoundNode(node);

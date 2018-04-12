@@ -35,42 +35,35 @@ public class BindHelper {
 	}
 
 	public static void processError(ISyntaxNode syntaxNode,
-			Throwable throwable, IBindingContext bindingContext) {
+			Exception throwable, IBindingContext bindingContext) {
 
 		SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
 				throwable, syntaxNode);
-		processError(error, bindingContext);
+		bindingContext.addError(error);
 	}
 
 	public static void processError(String message, ISyntaxNode syntaxNode,
-			Throwable throwable, IBindingContext bindingContext) {
+	        Exception throwable, IBindingContext bindingContext) {
 
 		SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
 				message, throwable, syntaxNode);
-		processError(error, bindingContext);
+		bindingContext.addError(error);
 	}
 
 	public static void processError(CompositeSyntaxNodeException error,
 			IBindingContext bindingContext) {
 		SyntaxNodeException[] errors = error.getErrors();
 		for (SyntaxNodeException e : errors) {
-			processError(e, bindingContext);
+		    bindingContext.addError(e);
 		}
 	}
 
-	public static void processError(SyntaxNodeException error,
-			IBindingContext bindingContext) {
-
-		bindingContext.addError(error);
-		processError(error);
-	}
-
-	public static void processError(Throwable error, ISyntaxNode syntaxNode,
+	public static void processError(Exception error, ISyntaxNode syntaxNode,
 			IBindingContext bindingContext) {
 		processError(error, syntaxNode, bindingContext, true);
 	}
 
-	public static void processError(Throwable error, ISyntaxNode syntaxNode,
+	public static void processError(Exception error, ISyntaxNode syntaxNode,
 			IBindingContext bindingContext, boolean storeGlobal) {
 		SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils
 				.createError(error, syntaxNode);
@@ -94,27 +87,8 @@ public class BindHelper {
 			boolean storeGlobal, IBindingContext bindingContext) {
 		bindingContext.addError(error);
 		if (storeGlobal) {
-			processError(error);
+		    bindingContext.addError(error);
 		}
-	}
-
-	public static void processError(String message, ISyntaxNode syntaxNode,
-			Throwable throwable) {
-
-		SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
-				message, throwable, syntaxNode);
-		processError(error);
-	}
-
-	public static void processError(String message, ISyntaxNode syntaxNode) {
-
-		SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
-				message, syntaxNode);
-		processError(error);
-	}
-
-	public static void processError(SyntaxNodeException error) {
-		OpenLMessagesUtils.addError(error);
 	}
 
 	public static final String CONDITION_TYPE_MESSAGE = "Condition must have boolean type";

@@ -74,7 +74,7 @@ public class PropertiesLoader {
             String tableType = tableSyntaxNode.getType();
             Set<String> propertyNamesToCheck = propertiesInstance.getPropertiesDefinedInTable().keySet();
 
-            PropertiesChecker.checkProperties(propertyNamesToCheck, tableSyntaxNode, InheritanceLevel.TABLE);
+            PropertiesChecker.checkProperties(cxt, propertyNamesToCheck, tableSyntaxNode, InheritanceLevel.TABLE);
 
             propertiesInstance.setCurrentTableType(tableType);
 
