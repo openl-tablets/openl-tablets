@@ -35,12 +35,14 @@ public class DOMReader implements ExcelReader {
 
     public DOMReader(String fileName) {
         this.fileName = fileName;
+        ExcelUtils.configureZipBombDetection();
     }
 
     public DOMReader(InputStream is) {
         // Save to temp file because using an InputStream has a higher memory footprint than using a File. See POI javadocs.
         tempFile = FileTool.toTempFile(is, "stream.xls");
         this.fileName = tempFile.getAbsolutePath();
+        ExcelUtils.configureZipBombDetection();
     }
 
     @Override

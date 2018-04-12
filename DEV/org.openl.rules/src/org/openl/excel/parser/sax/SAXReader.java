@@ -15,10 +15,7 @@ import org.apache.poi.util.SAXHelper;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.xssf.usermodel.XSSFRelation;
-import org.openl.excel.parser.ExcelParseException;
-import org.openl.excel.parser.ExcelReader;
-import org.openl.excel.parser.SheetDescriptor;
-import org.openl.excel.parser.TableStyles;
+import org.openl.excel.parser.*;
 import org.openl.rules.table.IGridRegion;
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
@@ -36,12 +33,14 @@ public class SAXReader implements ExcelReader {
 
     public SAXReader(String fileName) {
         this.fileName = fileName;
+        ExcelUtils.configureZipBombDetection();
     }
 
     public SAXReader(InputStream is) {
         // Save to temp file because using an InputStream has a higher memory footprint than using a File. See POI javadocs.
         tempFile = FileTool.toTempFile(is, "stream.xlsx");
         this.fileName = tempFile.getAbsolutePath();
+        ExcelUtils.configureZipBombDetection();
     }
 
     @Override
