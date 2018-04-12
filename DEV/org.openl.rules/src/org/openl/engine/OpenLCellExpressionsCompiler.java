@@ -21,6 +21,8 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Compiles OpenL expressions from the cells and sets meta info about used
@@ -137,7 +139,7 @@ public class OpenLCellExpressionsCompiler {
             if (module instanceof GridCellSourceCodeModule) {
                 GridCellSourceCodeModule cellSource = (GridCellSourceCodeModule) module;
                 // find all methods used in current cell
-                List<NodeUsage> currentCellMethodUsages = new ArrayList<NodeUsage>();
+                List<NodeUsage> currentCellMethodUsages = new ArrayList<>();
                 for (NodeUsage usage : nodeUsages) {
                     if (usage.getStart() >= moduleStart && usage.getEnd() <= moduleEnd) {
                         if (usage instanceof MethodUsage) {
@@ -163,7 +165,20 @@ public class OpenLCellExpressionsCompiler {
         if (CollectionUtils.isNotEmpty(methodUsages) && cell != null) {
             CellMetaInfo oldMetaInfo = cell.getMetaInfo();
             if (oldMetaInfo != null && oldMetaInfo.getUsedNodes() != null) {
-                methodUsages.addAll(oldMetaInfo.getUsedNodes());
+                for (NodeUsage nodeUsage : oldMetaInfo.getUsedNodes()) {
+                    if (methodUsages.contains(nodeUsage)) {
+                        Logger log = LoggerFactory.getLogger(OpenLCellExpressionsCompiler.class);
+                        log.warn(
+                                "Trying to add meta info node usage that already exists.\nUri: {}\nRange: {}-{}\nDescription: {}",
+                                nodeUsage.getUri(),
+                                nodeUsage.getStart(),
+                                nodeUsage.getEnd(),
+                                nodeUsage.getDescription()
+                        );
+                    } else {
+                        methodUsages.add(nodeUsage);
+                    }
+                }
             }
             Collections.sort(methodUsages, new NodeUsageComparator());
             cell.setMetaInfo(new CellMetaInfo(Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, methodUsages));
