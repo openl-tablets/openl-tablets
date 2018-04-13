@@ -1,17 +1,22 @@
 package org.openl.binding;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 
 import org.junit.Test;
 import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
+import org.openl.engine.OpenLSourceManager;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.message.Severity;
 import org.openl.source.SourceType;
 import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.syntax.code.ProcessedCode;
+import org.openl.syntax.code.impl.ParsedCode;
 
 public class InspectionsTest {
     private static final String ALWAYS_TRUE = "Condition is always true";
@@ -78,39 +83,32 @@ public class InspectionsTest {
         assertEquals("2", result);
     }
 
+    @SuppressWarnings("unchecked")
     private <T> T checkWarning(String expression, String... expectedMessage) {
-        OpenLMessages.removeCurrentInstance();
-
-        @SuppressWarnings("unchecked")
-        T result = (T) OpenLManager.run(OpenL.getInstance(OpenL.OPENL_J_NAME),
-            new StringSourceCodeModule(expression, null),
-            SourceType.METHOD_BODY);
-
-        Collection<OpenLMessage> messages = OpenLMessages.getCurrentInstance().getMessages();
-        assertEquals(expectedMessage.length, messages.size());
+        ProcessedCode processedCode = new OpenLSourceManager(OpenL.getInstance(OpenL.OPENL_J_NAME))
+            .processSource(new StringSourceCodeModule(expression, null), SourceType.METHOD_BODY);
+        assertEquals(expectedMessage.length, processedCode.getMessages().getMessages().size());
         int i = 0;
-        for (OpenLMessage message : messages) {
+        for (OpenLMessage message : processedCode.getMessages().getMessages()) {
             assertEquals(Severity.WARN, message.getSeverity());
             assertEquals(expectedMessage[i], message.getSummary());
             i++;
         }
 
-        OpenLMessages.removeCurrentInstance();
-        return result;
-    }
-
-    private <T> T checkNoMessage(String expression) {
-        OpenLMessages.removeCurrentInstance();
-
-        @SuppressWarnings("unchecked")
-        T result = (T) OpenLManager.run(OpenL.getInstance(OpenL.OPENL_J_NAME),
+        return (T) OpenLManager.run(OpenL.getInstance(OpenL.OPENL_J_NAME),
             new StringSourceCodeModule(expression, null),
             SourceType.METHOD_BODY);
+    }
 
-        Collection<OpenLMessage> messages = OpenLMessages.getCurrentInstance().getMessages();
-        assertEquals(0, messages.size());
+    @SuppressWarnings("unchecked")
+    private <T> T checkNoMessage(String expression) {
+        ProcessedCode processedCode = new OpenLSourceManager(OpenL.getInstance(OpenL.OPENL_J_NAME))
+            .processSource(new StringSourceCodeModule(expression, null), SourceType.METHOD_BODY);
 
-        OpenLMessages.removeCurrentInstance();
-        return result;
+        assertFalse(processedCode.getMessages().hasMessages());
+
+        return (T) OpenLManager.run(OpenL.getInstance(OpenL.OPENL_J_NAME),
+            new StringSourceCodeModule(expression, null),
+            SourceType.METHOD_BODY);
     }
 }

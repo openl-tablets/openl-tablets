@@ -17,6 +17,7 @@ import org.openl.extension.xmlrules.model.single.node.expression.ExpressionConte
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
 import org.openl.extension.xmlrules.utils.CellReference;
 import org.openl.extension.xmlrules.utils.RulesTableReference;
+import org.openl.message.IOpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.util.CollectionUtils;
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ public final class ArrayCellExpressionGridBuilder {
     private ArrayCellExpressionGridBuilder() {
     }
 
-    public static void build(StringGridBuilder gridBuilder, Sheet sheet, List<ParseError> parseErrors) {
+    public static void build(StringGridBuilder gridBuilder, Sheet sheet, List<ParseError> parseErrors, IOpenLMessages messages) {
         try {
             if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
                 sheet = ((SheetHolder) sheet).getInternalSheet();
@@ -55,7 +56,7 @@ public final class ArrayCellExpressionGridBuilder {
         } catch (RuntimeException e) {
             Logger log = LoggerFactory.getLogger(ArrayCellExpressionGridBuilder.class);
             log.error(e.getMessage(), e);
-            OpenLMessagesUtils.addError(e);
+            messages.addMessages(OpenLMessagesUtils.newErrorMessages(e));
             gridBuilder.nextRow();
         }
     }

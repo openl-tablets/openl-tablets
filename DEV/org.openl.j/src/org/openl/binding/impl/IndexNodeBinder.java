@@ -60,7 +60,7 @@ public class IndexNodeBinder extends ANodeBinder {
                 "Index operator %s[%s] is not found", targetNode.getType(), indexExprType.getName());
         return makeErrorNode(message, node, bindingContext);
     }
-
+   
     private IOpenIndex getMethodBasedIndex(IOpenClass[] types, IBindingContext bindingContext) {
 
         IMethodCaller reader = BinaryOperatorNodeBinder.findBinaryOperatorMethodCaller(INDEX_METHOD_NAME,

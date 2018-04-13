@@ -1,6 +1,6 @@
 package org.openl.rules.lang.xls.syntax;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 
 import org.openl.message.OpenLMessage;
@@ -49,9 +49,9 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
         return tsn.getType();
     }
 
-    public List<OpenLMessage> getMessages() {
+    public Collection<OpenLMessage> getMessages() {
         SyntaxNodeException[] errors = tsn.getErrors();
-        return OpenLMessagesUtils.newMessages(errors);
+        return OpenLMessagesUtils.newErrorMessages(errors);
     }
 
     public String getName() {

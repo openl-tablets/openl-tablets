@@ -1,15 +1,37 @@
 package org.openl.extension.xmlrules.parsing;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.openl.extension.xmlrules.ProjectData;
-import org.openl.extension.xmlrules.model.*;
-import org.openl.extension.xmlrules.model.single.*;
+import org.openl.extension.xmlrules.model.Condition;
+import org.openl.extension.xmlrules.model.Expression;
+import org.openl.extension.xmlrules.model.ExtensionModule;
+import org.openl.extension.xmlrules.model.Parameter;
+import org.openl.extension.xmlrules.model.Segment;
+import org.openl.extension.xmlrules.model.Sheet;
+import org.openl.extension.xmlrules.model.Table;
+import org.openl.extension.xmlrules.model.single.Attribute;
+import org.openl.extension.xmlrules.model.single.Cell;
+import org.openl.extension.xmlrules.model.single.ConditionImpl;
+import org.openl.extension.xmlrules.model.single.ExpressionImpl;
+import org.openl.extension.xmlrules.model.single.ParameterImpl;
+import org.openl.extension.xmlrules.model.single.Range;
+import org.openl.extension.xmlrules.model.single.ReturnRow;
+import org.openl.extension.xmlrules.model.single.SegmentImpl;
+import org.openl.extension.xmlrules.model.single.SheetHolder;
+import org.openl.extension.xmlrules.model.single.TableImpl;
+import org.openl.extension.xmlrules.model.single.TableRanges;
 import org.openl.extension.xmlrules.model.single.node.Node;
 import org.openl.extension.xmlrules.model.single.node.ValueHolder;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
 import org.openl.extension.xmlrules.utils.CellReference;
 import org.openl.extension.xmlrules.utils.HelperFunctions;
+import org.openl.message.IOpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -21,7 +43,7 @@ public final class TableGridBuilder {
     private TableGridBuilder() {
     }
 
-    public static void build(StringGridBuilder gridBuilder, ExtensionModule module, Sheet sheet) {
+    public static void build(StringGridBuilder gridBuilder, ExtensionModule module, Sheet sheet, IOpenLMessages messages) {
         try {
             if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
                 sheet = ((SheetHolder) sheet).getInternalSheet();
@@ -38,7 +60,7 @@ public final class TableGridBuilder {
             }
 
             for (Table table : sheet.getTables()) {
-                table = prepareTable(table);
+                table = prepareTable(table, messages);
                 Segment segment = table.getSegment();
                 if (segment != null && (segment.getTotalSegments() == 1 || tablesNamesWithAttributes.contains(table.getName()))) {
                     segment = null;
@@ -81,7 +103,7 @@ public final class TableGridBuilder {
                 int simpleRulesStartColumn = gridBuilder.getColumn() + table.getVerticalConditions().size();
 
                 int maxRow = writeVerticalColumnExpressions(gridBuilder, table);
-                writeReturnValues(gridBuilder, module, sheet, table, isSimpleRules, tableRow, returnType, headerSize, startColumn, simpleRulesStartColumn);
+                writeReturnValues(gridBuilder, module, sheet, table, isSimpleRules, tableRow, returnType, headerSize, startColumn, simpleRulesStartColumn, messages);
 
                 gridBuilder.setRow(Math.max(gridBuilder.getRow(), maxRow));
 
@@ -91,7 +113,7 @@ public final class TableGridBuilder {
         } catch (RuntimeException e) {
             Logger log = LoggerFactory.getLogger(TableGridBuilder.class);
             log.error(e.getMessage(), e);
-            OpenLMessagesUtils.addError(e);
+            messages.addMessages(OpenLMessagesUtils.newErrorMessages(e));
             gridBuilder.nextRow();
         }
     }
@@ -236,7 +258,8 @@ public final class TableGridBuilder {
             String returnType,
             Size headerSize,
             int startColumn,
-            int simpleRulesStartColumn) {
+            int simpleRulesStartColumn,
+            IOpenLMessages messages) {
         // Return values
         String workbookName = sheet.getWorkbookName();
         String sheetName = sheet.getName();
@@ -281,7 +304,7 @@ public final class TableGridBuilder {
                 } catch (RuntimeException e) {
                     Logger log = LoggerFactory.getLogger(TableGridBuilder.class);
                     log.error(e.getMessage(), e);
-                    OpenLMessagesUtils.addError(e);
+                    messages.addMessages(OpenLMessagesUtils.newErrorMessages(e));
                     gridBuilder.addCell("Error: " + e.getMessage());
                 }
             }
@@ -421,11 +444,11 @@ public final class TableGridBuilder {
         return parameter.getName().startsWith("dim");
     }
 
-    private static Table prepareTable(Table source) {
-        return sortReturnCells(sortConditionsOrder(removeGapsFromReturnRows(source)));
+    private static Table prepareTable(Table source, IOpenLMessages messages) {
+        return sortReturnCells(sortConditionsOrder(removeGapsFromReturnRows(source, messages), messages), messages);
     }
 
-    private static Table removeGapsFromReturnRows(Table source) {
+    private static Table removeGapsFromReturnRows(Table source, IOpenLMessages messages) {
         List<ConditionImpl> horizontalConditions = source.getHorizontalConditions();
         List<ConditionImpl> verticalConditions = source.getVerticalConditions();
         if (horizontalConditions.isEmpty() || verticalConditions.isEmpty()) {
@@ -474,7 +497,7 @@ public final class TableGridBuilder {
                     skipColumns + " columns were skipped";
             Logger log = LoggerFactory.getLogger(TableGridBuilder.class);
             log.warn(message);
-            OpenLMessagesUtils.addWarn(message);
+            messages.addWarning(message);
         }
 
         List<ReturnRow> newReturnValues = new ArrayList<ReturnRow>();
@@ -500,7 +523,7 @@ public final class TableGridBuilder {
         return table;
     }
 
-    private static Table sortConditionsOrder(Table source) {
+    private static Table sortConditionsOrder(Table source, IOpenLMessages messages) {
         Logger log = LoggerFactory.getLogger(TableGridBuilder.class);
         try {
             boolean sortedConditions = true;
@@ -613,7 +636,7 @@ public final class TableGridBuilder {
             return table;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            OpenLMessagesUtils.addError(e);
+            messages.addMessages(OpenLMessagesUtils.newErrorMessages(e));
             return source;
         }
     }
@@ -646,7 +669,7 @@ public final class TableGridBuilder {
         }
     }
 
-    private static Table sortReturnCells(Table source) {
+    private static Table sortReturnCells(Table source, IOpenLMessages messages) {
         try {
             TableImpl table = new TableImpl();
             table.setSegment((SegmentImpl) source.getSegment());
@@ -718,7 +741,7 @@ public final class TableGridBuilder {
         } catch (Exception e) {
             Logger log = LoggerFactory.getLogger(TableGridBuilder.class);
             log.error(e.getMessage(), e);
-            OpenLMessagesUtils.addError(e);
+            messages.addMessages(OpenLMessagesUtils.newErrorMessages(e));
             return source;
         }
     }

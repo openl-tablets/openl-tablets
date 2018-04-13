@@ -3,13 +3,12 @@ package org.openl.message;
 import org.openl.util.StringUtils;
 
 /**
- * The <code>OpenLMessage</code> class defines a message abstraction. Messages
- * used in the OpenL engine as warnings, errors or information statements to
- * ease communication between engine and end user.
+ * The <code>OpenLMessage</code> class defines a message abstraction. Messages used in the OpenL engine as warnings,
+ * errors or information statements to ease communication between engine and end user.
  * 
  */
 public class OpenLMessage {
-    
+
     /**
      * Message's brief information.
      */
@@ -58,6 +57,22 @@ public class OpenLMessage {
         return severity;
     }
 
+    public boolean isError() {
+        return Severity.ERROR.equals(getSeverity());
+    }
+
+    public boolean isWarn() {
+        return Severity.WARN.equals(getSeverity());
+    }
+
+    public boolean isFatal() {
+        return Severity.FATAL.equals(getSeverity());
+    }
+
+    public boolean isInfo() {
+        return Severity.INFO.equals(getSeverity());
+    }
+
     @Override
     public String toString() {
         return summary == null ? StringUtils.EMPTY : summary;
@@ -66,4 +81,33 @@ public class OpenLMessage {
     public String getSourceLocation() {
         return null;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((severity == null) ? 0 : severity.hashCode());
+        result = prime * result + ((summary == null) ? 0 : summary.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        OpenLMessage other = (OpenLMessage) obj;
+        if (severity != other.severity)
+            return false;
+        if (summary == null) {
+            if (other.summary != null)
+                return false;
+        } else if (!summary.equals(other.summary))
+            return false;
+        return true;
+    }
+
 }

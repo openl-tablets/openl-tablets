@@ -1,6 +1,6 @@
 package org.openl.rules.validation.properties.dimentional;
 
-import org.openl.message.OpenLMessagesUtils;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 import org.openl.util.StringUtils;
@@ -30,7 +30,7 @@ public class SimpleParameterColumn extends ADispatcherTableColumn {
             result = getMatchByDefaultCodeExpression(matchExpression) + matchExpression.getMatchExpression().getCodeExpression(parameterName);
         } else {
             String message = String.format("Can`t create expression for \"%s\" property validation.", propertyName);
-            OpenLMessagesUtils.addWarn(message);
+            throw new OpenlNotCheckedException(message);
         }
         return result;        
     }

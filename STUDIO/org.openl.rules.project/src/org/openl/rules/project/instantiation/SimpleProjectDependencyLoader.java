@@ -9,7 +9,6 @@ import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.engine.OpenLValidationManager;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
 import org.slf4j.Logger;
@@ -87,8 +86,7 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
 
             try {
                 if (isCircularDependency) {
-                    OpenLMessagesUtils.addError("Circular dependency has been detected in module: " + dependencyName);
-                    return null;
+                    throw new OpenLCompilationException("Circular dependency has been detected in module: " + dependencyName);
                 }
                 
                 return compileDependency(dependencyName, dependencyManager);

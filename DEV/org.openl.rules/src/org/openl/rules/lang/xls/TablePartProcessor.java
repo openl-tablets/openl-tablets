@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.openl.exception.OpenLCompilationException;
+import org.openl.message.IOpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.GridTable;
@@ -21,6 +22,12 @@ import org.openl.source.IOpenSourceCodeModule;
 
 public class TablePartProcessor {
 
+    private IOpenLMessages messages;
+    
+    public TablePartProcessor(IOpenLMessages messages) {
+        this.messages = messages;
+    }
+    
     /**
      * 
      * @return a list of TableParts with tables merged
@@ -32,7 +39,7 @@ public class TablePartProcessor {
                 TablePart mergedTable = validateAndMerge(set);
                 tables.add(mergedTable);
             } catch (OpenLCompilationException e) {
-                OpenLMessagesUtils.addError(e);
+                messages.addMessage(OpenLMessagesUtils.newErrorMessage(e));
             }
         }
 
@@ -95,7 +102,7 @@ public class TablePartProcessor {
                     if (vertical) {
                         throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
                     } else {
-                        OpenLMessagesUtils.addWarn(message);
+                        messages.addWarning(message);
                     }
                 }
             }

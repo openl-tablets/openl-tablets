@@ -339,8 +339,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
             if (type == null) {
                 BindHelper.processError("Can't find type " + parameterType,
                         methodNode,
-                        bindingContext,
-                        false);
+                        bindingContext);
             } else if (dimensions > 0) {
                 type = type.getAggregateInfo().getIndexedAggregateType(type, dimensions);
             }

@@ -26,8 +26,8 @@ public class BinaryOperatorOrNodeBinder extends BinaryOperatorNodeBinder {
         IBoundNode[] children = bindChildren(node, bindingContext);
         IOpenClass[] types = getTypes(children);
 
-        if ((types[0].getInstanceClass() == boolean.class || types[0].getInstanceClass() == Boolean.class)
-            && (types[1].getInstanceClass() == boolean.class || types[1].getInstanceClass() == Boolean.class)) {
+        if ((types[0].getInstanceClass() == boolean.class || types[0].getInstanceClass() == Boolean.class) && (types[1]
+            .getInstanceClass() == boolean.class || types[1].getInstanceClass() == Boolean.class)) {
 
             return new BinaryOpNodeOr(node, children);
         }

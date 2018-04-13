@@ -12,7 +12,6 @@ import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
@@ -72,8 +71,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         IPrebindHandler prebindHandler = LazyBinderInvocationHandler.getPrebindHandler();
         try {
             if (dependencyManager.getCompilationStack().contains(dependencyName)) {
-                OpenLMessagesUtils.addError("Circular dependency has been detected in module: " + dependencyName);
-                return null;
+                throw new OpenLCompilationException("Circular dependency has been detected in module: " + dependencyName);
             }
             RulesInstantiationStrategy rulesInstantiationStrategy = null;
             final ClassLoader classLoader = dependencyManager.getClassLoader(modules.iterator().next().getProject());

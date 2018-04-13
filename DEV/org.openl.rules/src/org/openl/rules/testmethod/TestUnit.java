@@ -90,7 +90,7 @@ public class TestUnit extends BaseTestUnit {
     public List<OpenLMessage> getErrors() {
         Throwable actualError = getActualError();
         if (actualError != null) {
-            return OpenLMessagesUtils.newMessages(actualError);
+            return OpenLMessagesUtils.newErrorMessages(actualError);
         } else {
             return Collections.emptyList();
         }

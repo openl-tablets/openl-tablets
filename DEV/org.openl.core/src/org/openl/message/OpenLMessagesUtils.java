@@ -13,70 +13,27 @@ import org.openl.exception.OpenLException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.util.CollectionUtils;
-import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class OpenLMessagesUtils {
 
-    public static void addError(String message) {
-        addMessage(message, Severity.ERROR);
-    }
-
-    public static void addError(OpenLCompilationException error) {
-        OpenLErrorMessage message = new OpenLErrorMessage(error);
-        if (errorExists(error)) {
-            Logger log = LoggerFactory.getLogger(OpenLMessagesUtils.class);
-            log.warn("Skip duplicated message: " + error.getMessage(), error);
-            return;
-        }
-        addMessage(message);
-    }
-
-    public static void addError(Throwable exception) {
-        String errorMessage = exception.getMessage();
-
-        if (StringUtils.isBlank(errorMessage)) {
-            Throwable cause = exception.getCause();
-            if (cause != null) {
-                errorMessage = cause.getMessage();
-            }
-        }
-
-        addError(errorMessage);
-    }
-
-    public static void addErrors(OpenLCompilationException[] errors) {
-
+    public static Collection<OpenLMessage> newErrorMessages(OpenLCompilationException[] errors) {
         if (errors != null) {
-
+            Collection<OpenLMessage> messages = new ArrayList<OpenLMessage>();    
             for (OpenLCompilationException error : errors) {
-                addError(error);
+                OpenLMessage message = newErrorMessage(error);
+                messages.add(message);
             }
+            return messages;
         }
+        return Collections.emptyList();
     }
 
-    public static void addWarn(String message) {
-        addMessage(message, Severity.WARN);
+    public static OpenLMessage newWarnMessage(String message, ISyntaxNode source) {
+        return new OpenLWarnMessage(message, source);
     }
-
-    public static void addWarn(String message, ISyntaxNode source) {
-        OpenLWarnMessage warn = new OpenLWarnMessage(message, source);
-        addMessage(warn);
-    }
-
-    private static void addMessage(String message, Severity severity) {
-
-        OpenLMessage openlMessage = new OpenLMessage(message, severity);
-        addMessage(openlMessage);
-    }
-
-    public static void addMessage(OpenLMessage message) {
-        OpenLMessages.getCurrentInstance().addMessage(message);
-    }
-
-    public static List<OpenLMessage> newMessages(OpenLException[] exceptions) {
-        List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
+    
+    public static Collection<OpenLMessage> newMessages(OpenLException[] exceptions) {
+        Collection<OpenLMessage> messages = new ArrayList<OpenLMessage>();
 
         if (CollectionUtils.isNotEmpty(exceptions)) {
             for (OpenLException error : exceptions) {
@@ -87,8 +44,12 @@ public class OpenLMessagesUtils {
 
         return messages;
     }
+    
+    public static OpenLMessage newErrorMessage(OpenLCompilationException error) {
+        return new OpenLErrorMessage(error);
+    }
 
-    public static List<OpenLMessage> newMessages(Throwable exception) {
+    public static List<OpenLMessage> newErrorMessages(Throwable exception) {
         List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
 
         if (exception instanceof CompositeSyntaxNodeException) {
@@ -112,7 +73,7 @@ public class OpenLMessagesUtils {
         return messages;
     }
 
-    public static Map<Severity, Collection<OpenLMessage>> groupMessagesBySeverity(Collection<OpenLMessage> messages) {
+    private static Map<Severity, Collection<OpenLMessage>> groupMessagesBySeverity(Collection<OpenLMessage> messages) {
         Map<Severity, Collection<OpenLMessage>> groupedMessagesMap = new HashMap<Severity, Collection<OpenLMessage>>();
 
         for (OpenLMessage message : messages) {
@@ -140,25 +101,5 @@ public class OpenLMessagesUtils {
         }
 
         return Collections.emptyList();
-    }
-
-    private static boolean errorExists(OpenLCompilationException error) {
-        for (OpenLMessage existingMessage : OpenLMessages.getCurrentInstance().getMessages()) {
-            if (existingMessage instanceof OpenLErrorMessage) {
-                OpenLException existingError = ((OpenLErrorMessage) existingMessage).getError();
-                if (existingError instanceof OpenLCompilationException) {
-                    OpenLCompilationException exception = (OpenLCompilationException) existingError;
-                    if (exception.getMessage() != null && exception.getMessage().equals(error.getMessage())) {
-                        String existingLocation = exception.getSourceLocation();
-                        String checkingLocation = error.getSourceLocation();
-                        if (checkingLocation == existingLocation || checkingLocation != null && checkingLocation
-                            .equals(existingLocation)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
     }
 }

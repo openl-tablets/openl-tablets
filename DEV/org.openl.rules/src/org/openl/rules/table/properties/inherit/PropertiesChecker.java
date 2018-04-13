@@ -37,7 +37,7 @@ public class PropertiesChecker {
     public static void checkProperties(IBindingContext bindingContext, Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode,
                                        InheritanceLevel level) {
         checkForErrors(bindingContext, propertyNamesToCheck, tableSyntaxNode, level);
-        checkForDeprecation(propertyNamesToCheck, tableSyntaxNode);
+        checkForDeprecation(bindingContext, propertyNamesToCheck, tableSyntaxNode);
     }
 
     /**
@@ -74,13 +74,12 @@ public class PropertiesChecker {
     /**
      * Checks if properties were deprecated.
      */
-    private static void checkForDeprecation(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode) {
+    private static void checkForDeprecation(IBindingContext bindingContext, Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode) {
         for (String propertyNameToCheck : propertyNamesToCheck) {
             TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(propertyNameToCheck);
             if (propertyDefinition != null && propertyDefinition.getDeprecation() != null && !propertyDefinition.getDeprecation().isEmpty()) {
                 String message = String.format("Property '%s' was deprecated. Please remove it!", propertyNameToCheck);
-
-                OpenLMessagesUtils.addWarn(message, tableSyntaxNode);
+                bindingContext.getOpenLMessages().addMessage(OpenLMessagesUtils.newWarnMessage(message, tableSyntaxNode));
             }
         }
     }

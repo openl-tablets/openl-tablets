@@ -25,27 +25,38 @@ public class ParsedCode implements IParsedCode {
     private ISyntaxNode topNode;
     private SyntaxNodeException[] syntaxErrors;
     private IOpenSourceCodeModule source;
-    
+
     private Map<String, Object> params;
     private IDependency[] dependencies;
-    
-    IOpenLMessages messagesFromDependencies;
-    
+    private IOpenLMessages messages;
+
     private Set<CompiledDependency> compiledDependencies = new HashSet<CompiledDependency>();
-    
-    public ParsedCode(ISyntaxNode topnode, IOpenSourceCodeModule source, SyntaxNodeException[] syntaxErrors) {
-        this(topnode, source, syntaxErrors, new IDependency[0]);
+
+    public ParsedCode(ISyntaxNode topnode,
+            IOpenSourceCodeModule source,
+            SyntaxNodeException[] syntaxErrors,
+            IOpenLMessages messages) {
+        this(topnode, source, syntaxErrors, messages, new IDependency[0]);
     }
-    
-    public ParsedCode(ISyntaxNode topNode, IOpenSourceCodeModule source, SyntaxNodeException[] syntaxErrors, IDependency[] dependencies) {
+
+    public ParsedCode(ISyntaxNode topNode,
+            IOpenSourceCodeModule source,
+            SyntaxNodeException[] syntaxErrors,
+            IOpenLMessages messages,
+            IDependency[] dependencies) {
         this.topNode = topNode;
         this.syntaxErrors = syntaxErrors;
         this.source = source;
+        this.messages = messages;
         this.dependencies = dependencies;
     }
 
     public SyntaxNodeException[] getErrors() {
         return syntaxErrors;
+    }
+
+    public IOpenLMessages getOpenLMessages() {
+        return messages;
     }
 
     public IOpenSourceCodeModule getSource() {
@@ -63,21 +74,13 @@ public class ParsedCode implements IParsedCode {
     public void setExternalParams(Map<String, Object> params) {
         this.params = params;
     }
-    
-    public Set<CompiledDependency> getCompiledDependencies() {        
+
+    public Set<CompiledDependency> getCompiledDependencies() {
         return new HashSet<CompiledDependency>(compiledDependencies);
     }
 
     public void setCompiledDependencies(Set<CompiledDependency> compiledDependencies) {
         this.compiledDependencies = new HashSet<CompiledDependency>(compiledDependencies);
-    }
-    
-    public void setMessagesFromDependencies(IOpenLMessages messagesFromDependencies){
-        this.messagesFromDependencies = messagesFromDependencies;
-    }
-    
-    public IOpenLMessages getMessagesFromDependencies(){
-        return messagesFromDependencies;
     }
 
     public IDependency[] getDependencies() {

@@ -8,7 +8,6 @@ import java.util.Map;
 import org.openl.CompiledOpenClass;
 import org.openl.conf.IUserContext;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.message.OpenLMessages;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
@@ -150,7 +149,6 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
 
     public CompiledOpenClass getCompiledOpenClass() {
         if (compiledOpenClass == null) {
-            OpenLMessages.getCurrentInstance().clear();
             compiledOpenClass = initializeOpenClass();
         }
         return compiledOpenClass;

@@ -50,6 +50,7 @@ public class BindingContext implements IBindingContext {
     private Map<String, Object> externalParams;
 
     private IOpenLMessages messages = new OpenLMessages();
+    private Stack<IOpenLMessages> messagesStack = new Stack<>();
 
     private boolean executionMode = false;
 
@@ -227,6 +228,12 @@ public class BindingContext implements IBindingContext {
         return tmp;
     }
 
+    public IOpenLMessages popOpenLMessages() {
+        IOpenLMessages tmp = messages;
+        messages = messagesStack.pop();
+        return tmp;
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -241,6 +248,11 @@ public class BindingContext implements IBindingContext {
         errors = new ArrayList<SyntaxNodeException>();
     }
 
+    public void pushOpenLMessages() {
+        messagesStack.push(messages);
+        messages = new OpenLMessages();
+    }
+    
     /*
      * (non-Javadoc)
      * 

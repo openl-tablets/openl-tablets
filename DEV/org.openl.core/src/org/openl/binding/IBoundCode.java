@@ -6,6 +6,7 @@
 
 package org.openl.binding;
 
+import org.openl.message.IOpenLMessages;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 
@@ -24,6 +25,8 @@ public interface IBoundCode {
      * @return syntax errors
      */
     SyntaxNodeException[] getErrors();
+    
+    IOpenLMessages getOpenLMessages();
 
     /**
      * Gets link to parsed code that was used in binding process.

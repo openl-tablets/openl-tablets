@@ -7,6 +7,7 @@ import org.openl.extension.xmlrules.model.Sheet;
 import org.openl.extension.xmlrules.model.Type;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
 import org.openl.extension.xmlrules.utils.HelperFunctions;
+import org.openl.message.IOpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,7 @@ public final class TypeGridBuilder {
     private TypeGridBuilder() {
     }
 
-    public static void build(StringGridBuilder gridBuilder, Sheet sheet) {
+    public static void build(StringGridBuilder gridBuilder, Sheet sheet, IOpenLMessages messages) {
         try {
             if (sheet.getTypes() == null) {
                 return;
@@ -41,7 +42,7 @@ public final class TypeGridBuilder {
         } catch (RuntimeException e) {
             Logger log = LoggerFactory.getLogger(TypeGridBuilder.class);
             log.error(e.getMessage(), e);
-            OpenLMessagesUtils.addError(e);
+            messages.addMessages(OpenLMessagesUtils.newErrorMessages(e));
             gridBuilder.nextRow();
         }
     }

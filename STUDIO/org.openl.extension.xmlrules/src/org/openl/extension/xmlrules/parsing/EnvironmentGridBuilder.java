@@ -5,6 +5,7 @@ import java.util.List;
 import org.openl.extension.xmlrules.ExtensionDescriptor;
 import org.openl.extension.xmlrules.project.XmlRulesModuleSourceCodeModule;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
+import org.openl.message.IOpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,7 @@ public final class EnvironmentGridBuilder {
     private EnvironmentGridBuilder() {
     }
 
-    public static void build(StringGridBuilder gridBuilder, XmlRulesModuleSourceCodeModule sourceCodeModule) {
+    public static void build(StringGridBuilder gridBuilder, XmlRulesModuleSourceCodeModule sourceCodeModule, IOpenLMessages messages) {
         try {
             gridBuilder.addCell("Environment", 2).nextRow();
 
@@ -41,7 +42,7 @@ public final class EnvironmentGridBuilder {
         } catch (RuntimeException e) {
             Logger log = LoggerFactory.getLogger(EnvironmentGridBuilder.class);
             log.error(e.getMessage(), e);
-            OpenLMessagesUtils.addError(e);
+            messages.addMessages(OpenLMessagesUtils.newErrorMessages(e));
             gridBuilder.nextRow();
         }
     }

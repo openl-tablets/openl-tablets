@@ -102,7 +102,7 @@ public final class WizardUtils {
                 IOpenClass openType;
                 try {
                     openType = JavaOpenClass.getOpenClass(type);
-                } catch (Throwable e) {
+                } catch (Exception e) {
                     // For example NoClassDefFoundError when the class for some of the fields is absent.
                     final Logger log = LoggerFactory.getLogger(WizardUtils.class);
                     log.debug("Can't load the class, skip it because it's not valid. Cause: {}", e.getMessage(), e);
