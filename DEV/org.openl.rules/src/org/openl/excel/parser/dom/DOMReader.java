@@ -35,12 +35,14 @@ public class DOMReader implements ExcelReader {
 
     public DOMReader(String fileName) {
         this.fileName = fileName;
+        ExcelUtils.configureZipBombDetection();
     }
 
     public DOMReader(InputStream is) {
         // Save to temp file because using an InputStream has a higher memory footprint than using a File. See POI javadocs.
         tempFile = FileTool.toTempFile(is, "stream.xls");
         this.fileName = tempFile.getAbsolutePath();
+        ExcelUtils.configureZipBombDetection();
     }
 
     @Override
@@ -191,6 +193,13 @@ public class DOMReader implements ExcelReader {
                 @Override
                 public ICellComment getComment(int row, int column) {
                     return new XlsCellComment(getCell(row, column).getCellComment());
+                }
+
+                @SuppressWarnings("deprecation")
+                @Override
+                public String getFormula(int row, int column) {
+                    Cell cell = getCell(row, column);
+                    return cell.getCellType() == CellType.FORMULA.getCode() ? cell.getCellFormula() : null;
                 }
 
                 private Cell getCell(int row, int column) {

@@ -16,4 +16,6 @@ public interface TableStyles {
     ICellFont getFont(int row, int column);
 
     ICellComment getComment(int row, int column);
+
+    String getFormula(int row, int column);
 }

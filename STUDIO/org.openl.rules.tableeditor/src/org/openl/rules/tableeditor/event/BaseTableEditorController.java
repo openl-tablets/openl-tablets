@@ -24,7 +24,37 @@ public class BaseTableEditorController {
         return null;
     }
 
-    protected TableModel initializeTableModel(String editorId) {
+    protected TableEditorModel startEditing(String editorId) {
+        TableEditorModel editorModel = getEditorModel(editorId);
+        if (editorModel != null) {
+            String beforeEditAction = editorModel.getBeforeEditAction();
+            if (beforeEditAction != null) {
+                boolean successful = (Boolean) FacesUtils.invokeMethodExpression(beforeEditAction);
+                if (!successful) {
+                    return null;
+                }
+            }
+
+            prepareForEdit(editorModel);
+        }
+
+        return editorModel;
+    }
+
+    private void prepareForEdit(TableEditorModel editorModel) {
+        TableEditor tableEditor = editorModel.getTableEditor();
+        String mode = tableEditor.getMode();
+        if ((mode == null || Constants.MODE_EDIT.equals(mode)) && tableEditor.isEditable()) {
+            // Prepare workbook for edit (load it to memory before editing starts)
+            editorModel.getGridTable().edit();
+        }
+    }
+
+    protected void removeEditorModel() {
+        FacesUtils.removeSessionParam(Constants.TABLE_EDITOR_MODEL_NAME);
+    }
+
+    private TableModel initializeTableModel(String editorId) {
         TableEditorModel editorModel = getEditorModel(editorId);
         IGridTable table = editorModel.getGridTable();
 

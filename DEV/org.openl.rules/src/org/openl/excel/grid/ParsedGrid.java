@@ -8,7 +8,6 @@ import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.*;
-import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.util.StringUtils;
@@ -195,28 +194,21 @@ public class ParsedGrid extends AGrid {
         return new IndentedStyle(indent, this, row, column);
     }
 
-    protected ICellStyle retrieveStyle(int row, int column) {
+    protected TableStyles getTableStyles(int row, int column) {
+        int internalRow = row - getFirstRowNum();
+        int internalCol = column - getFirstColNum();
+
+        if (internalRow >= 0 && internalCol >= 0 && cells.length > internalRow && cells[internalRow].length > internalCol) {
+            CellRowCol topLeft = findTopLeft(internalRow, internalCol);
+            row -= internalRow - topLeft.row;
+            column -= internalCol - topLeft.col;
+        }
+
         if (currentTableStyles == null || !IGridRegion.Tool.contains(currentTableStyles.getRegion(), column, row)) {
             currentTableStyles = readTableStyles(row, column);
         }
 
-        return currentTableStyles == null ? null : currentTableStyles.getStyle(row, column);
-    }
-
-    protected ICellFont retrieveFont(int row, int column) {
-        if (currentTableStyles == null || !IGridRegion.Tool.contains(currentTableStyles.getRegion(), column, row)) {
-            currentTableStyles = readTableStyles(row, column);
-        }
-
-        return currentTableStyles == null ? null : currentTableStyles.getFont(row, column);
-    }
-
-    protected ICellComment retrieveComment(int row, int column) {
-        if (currentTableStyles == null || !IGridRegion.Tool.contains(currentTableStyles.getRegion(), column, row)) {
-            currentTableStyles = readTableStyles(row, column);
-        }
-
-        return currentTableStyles == null ? null : currentTableStyles.getComment(row, column);
+        return currentTableStyles;
     }
 
     private TableStyles readTableStyles(int row, int column) {

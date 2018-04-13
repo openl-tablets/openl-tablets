@@ -206,6 +206,20 @@
             </deferred-value>
         </attribute>
         <attribute>
+            <description>Before http request JS action.</description>
+            <name>onRequestStart</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
+            <description>After http request JS action.</description>
+            <name>onRequestEnd</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
             <description>
                 Comma-separated list of javascript libraries to exclude from TableEditor html
                 to prevent conflicts with already used on page another versions of this libraries.

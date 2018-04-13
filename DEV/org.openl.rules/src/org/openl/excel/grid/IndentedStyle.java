@@ -1,6 +1,7 @@
 package org.openl.excel.grid;
 
 import org.apache.poi.ss.usermodel.*;
+import org.openl.excel.parser.TableStyles;
 import org.openl.rules.table.ui.ICellStyle;
 
 class IndentedStyle implements ICellStyle {
@@ -105,7 +106,8 @@ class IndentedStyle implements ICellStyle {
     private ICellStyle getDelegate() {
         if (delegate == null) {
             // Lazy load
-            delegate = parsedGrid.retrieveStyle(row, column);
+            TableStyles tableStyles = parsedGrid.getTableStyles(row, column);
+            delegate = tableStyles == null ? null : tableStyles.getStyle(row, column);
         }
         return delegate;
     }

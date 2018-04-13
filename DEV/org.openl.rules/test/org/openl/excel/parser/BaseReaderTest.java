@@ -11,6 +11,8 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.ICellComment;
 
 public abstract class BaseReaderTest {
     protected ExcelReader reader;
@@ -20,7 +22,7 @@ public abstract class BaseReaderTest {
     @Before
     public void setUp() {
         try {
-            reader  = createReader();
+            reader = createReader();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -149,5 +151,24 @@ public abstract class BaseReaderTest {
         assertEquals(1, cells.length);
         assertEquals(1, cells[0].length);
         assertNull(cells[0][0]);
+    }
+
+    @Test
+    public void getComments() {
+        TableStyles tableStyles = reader.getTableStyles(reader.getSheets().get(0), new GridRegion(17, 1, 17, 1));
+
+        ICellComment comment = tableStyles.getComment(17, 1);
+        assertNotNull(comment);
+        assertEquals("OpenL User:\nThis cell contains spaces only.", comment.getText());
+    }
+
+    @Test
+    public void getFormulas() {
+        TableStyles tableStyles = reader.getTableStyles(reader.getSheets().get(0), new GridRegion(10, 1, 13, 1));
+
+        assertEquals("B7/2", tableStyles.getFormula(10, 1));
+        assertEquals("B10", tableStyles.getFormula(11, 1));
+        assertEquals("\"Concat\"&B5", tableStyles.getFormula(12, 1));
+        assertEquals("5>4", tableStyles.getFormula(13, 1));
     }
 }

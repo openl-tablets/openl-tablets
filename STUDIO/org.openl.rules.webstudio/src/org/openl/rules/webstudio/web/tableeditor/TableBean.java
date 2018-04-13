@@ -412,6 +412,7 @@ public class TableBean {
             XlsSheetGridModel sheetModel = (XlsSheetGridModel) gridTable.getGrid();
             sheetModel.getSheetSource().getWorkbookSource().save();
             gridTable.stopEditing();
+            FacesUtils.removeSessionParam(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
 
             studio.compile();
             RecentlyVisitedTables visitedTables = studio.getModel().getRecentlyVisitedTables();

@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
+import org.openl.excel.parser.TableStyles;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
@@ -17,6 +18,8 @@ public class ParsedCell implements ICell {
     private final int row;
     private final int column;
     private final ParsedGrid grid;
+
+    private transient TableStyles tableStyles;
 
     ParsedCell(int row, int column, ParsedGrid grid) {
         this.row = row;
@@ -83,7 +86,8 @@ public class ParsedCell implements ICell {
 
     @Override
     public ICellFont getFont() {
-        return grid.retrieveFont(row, column);
+        initializeStyles();
+        return tableStyles == null ? null : tableStyles.getFont(row, column);
     }
 
     @Override
@@ -93,7 +97,8 @@ public class ParsedCell implements ICell {
 
     @Override
     public String getFormula() {
-        return null;
+        initializeStyles();
+        return tableStyles == null ? null : tableStyles.getFormula(row, column);
     }
 
     @SuppressWarnings("deprecation")
@@ -179,12 +184,19 @@ public class ParsedCell implements ICell {
 
     @Override
     public ICellComment getComment() {
-        return grid.retrieveComment(row, column);
+        initializeStyles();
+        return tableStyles == null ? null : tableStyles.getComment(row, column);
     }
 
     @Override
     public ICell getTopLeftCellFromRegion() {
         IGridRegion region = getRegion();
         return region == null ? this : grid.getCell(region.getLeft(), region.getTop());
+    }
+
+    private void initializeStyles() {
+        if (tableStyles == null) {
+            tableStyles = grid.getTableStyles(row, column);
+        }
     }
 }

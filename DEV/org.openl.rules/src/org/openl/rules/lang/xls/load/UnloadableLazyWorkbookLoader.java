@@ -14,17 +14,17 @@ import java.lang.ref.WeakReference;
  * If you want to prevent garbage collecting loaded Workbook instance, invoke
  * {@link #setCanUnload(boolean) setCanUnload(false)}.
  */
-public class LazyWorkbookLoader implements WorkbookLoader {
+public class UnloadableLazyWorkbookLoader implements WorkbookLoader {
 
     private final IOpenSourceCodeModule fileSource;
 
     private boolean canUnload = true;
     private Workbook workbook; // Strong reference to workbook in edit mode. Do not remove it
 
-    private WeakReference<Workbook> workbookCache = new WeakReference<Workbook>(null);
+    private WeakReference<Workbook> workbookCache = new WeakReference<>(null);
     private Integer numberOfSheetsCache;
 
-    public LazyWorkbookLoader(IOpenSourceCodeModule fileSource) {
+    public UnloadableLazyWorkbookLoader(IOpenSourceCodeModule fileSource) {
         this.fileSource = fileSource;
     }
 
@@ -44,7 +44,7 @@ public class LazyWorkbookLoader implements WorkbookLoader {
         }
 
         Workbook wb = workbook != null ? workbook : loadWorkbook();
-        workbookCache = new WeakReference<Workbook>(wb);
+        workbookCache = new WeakReference<>(wb);
         if (!canUnload) {
             // Store the strong reference to the workbook, so it will not garbage collected until setCanUnload(true) invocation
             workbook = wb;

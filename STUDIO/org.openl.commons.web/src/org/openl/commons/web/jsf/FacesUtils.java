@@ -177,6 +177,10 @@ public abstract class FacesUtils {
         return getSessionMap().get(name);
     }
 
+    public static void removeSessionParam(String name) {
+        getSessionMap().remove(name);
+    }
+
     public static ExternalContext getExternalContext() {
         return getFacesContext().getExternalContext();
     }

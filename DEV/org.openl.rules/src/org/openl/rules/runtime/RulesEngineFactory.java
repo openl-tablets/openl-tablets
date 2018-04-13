@@ -169,15 +169,6 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
     }
 
     @Override
-    public void setExecutionMode(boolean executionMode) {
-        super.setExecutionMode(executionMode);
-
-        if (executionMode && RULES_XLS_OPENL_NAME.equals(getOpenlName())) {
-            setOpenlName(OpenL.OPENL_JAVA_SEQUENTIAL_NAME);
-        }
-    }
-
-    @Override
     protected Class<?>[] prepareInstanceInterfaces() {
         return new Class[]{getInterfaceClass(), IEngineWrapper.class, IRulesRuntimeContextProvider.class};
     }
