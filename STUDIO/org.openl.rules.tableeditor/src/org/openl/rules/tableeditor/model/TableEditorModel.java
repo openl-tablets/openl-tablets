@@ -4,6 +4,10 @@
  */
 package org.openl.rules.tableeditor.model;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -28,10 +32,6 @@ import org.openl.rules.tableeditor.renderkit.TableEditor;
 import org.openl.util.StringUtils;
 import org.openl.util.formatters.IFormatter;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author snshor
  */
@@ -40,7 +40,7 @@ public class TableEditorModel {
     /**
      * Number of columns in Properties section
      */
-    public static final int NUMBER_PROPERTIES_COLUMNS = 3;
+    private static final int NUMBER_PROPERTIES_COLUMNS = 3;
 
     private IOpenLTable table;
 
@@ -145,7 +145,6 @@ public class TableEditorModel {
     public synchronized String save() throws IOException {
         XlsSheetGridModel xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
         xlsgrid.getSheetSource().getWorkbookSource().save();
-        gridTable.stopEditing();
         actions = new UndoableActions();
         String uri = getOriginalGridTable().getUri();
         return TableUtils.makeTableId(uri);

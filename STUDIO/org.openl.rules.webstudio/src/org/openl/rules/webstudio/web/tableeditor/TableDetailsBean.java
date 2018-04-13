@@ -286,6 +286,7 @@ public class TableDetailsBean {
         }
 
         table.getGridTable().stopEditing();
+        FacesUtils.removeSessionParam(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
     }
 
     /*for (Constraint constraint : constraints.getAll()) {

@@ -592,6 +592,7 @@ public class TableEditorController extends BaseTableEditorController {
         TableEditorModel editorModel = getEditorModel(getEditorId());
         if (editorModel != null) {
             editorModel.cancel();
+            removeEditorModel();
         }
     }
 
@@ -613,6 +614,8 @@ public class TableEditorController extends BaseTableEditorController {
                     StringUtils.isNotBlank(newId) ? new String[]{newId} : null,
                     StringUtils.isNotBlank(newId) ? new Class[]{String.class} : null);
         }
+
+        removeEditorModel();
     }
 
     private static String pojo2json(Object pojo) {

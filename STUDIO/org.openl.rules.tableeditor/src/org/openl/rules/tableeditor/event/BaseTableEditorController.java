@@ -24,6 +24,10 @@ public class BaseTableEditorController {
         return null;
     }
 
+    protected void removeEditorModel() {
+        FacesUtils.removeSessionParam(Constants.TABLE_EDITOR_MODEL_NAME);
+    }
+
     protected TableModel initializeTableModel(String editorId) {
         TableEditorModel editorModel = getEditorModel(editorId);
         IGridTable table = editorModel.getGridTable();
