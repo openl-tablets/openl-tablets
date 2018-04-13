@@ -44,7 +44,7 @@ public class RangeNodeBinder extends ANodeBinder {
 
         if (range == null) {
             String message = String.format("Unsupported range type: %s", type);
-            BindHelper.processError(message, node, bindingContext, false);
+            BindHelper.processError(message, node, bindingContext);
             return new ErrorBoundNode(node);
         }
 

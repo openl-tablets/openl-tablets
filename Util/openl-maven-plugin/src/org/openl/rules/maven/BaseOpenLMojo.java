@@ -192,7 +192,5 @@ abstract class BaseOpenLMojo extends AbstractMojo {
         OpenL.reset();
         OpenLConfiguration.reset();
         ClassLoaderFactory.reset();
-
-        OpenLMessages.removeCurrentInstance();
     }
 }

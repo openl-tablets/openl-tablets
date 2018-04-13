@@ -43,7 +43,7 @@ public class IdentifierBinder extends ANodeBinder {
         }
 
         String message = String.format("Field not found: '%s'", fieldName);
-        BindHelper.processError(message, node, bindingContext, false);
+        BindHelper.processError(message, node, bindingContext);
 
         return new ErrorBoundNode(node);
     }
@@ -71,7 +71,7 @@ public class IdentifierBinder extends ANodeBinder {
 
                 if (field == null) {
                     String message = String.format("Field not found: '%s' inside '%s' type", fieldName, type);
-                    BindHelper.processError(message, node, bindingContext, false);
+                    BindHelper.processError(message, node, bindingContext);
 
                     return new ErrorBoundNode(node);
                 }
@@ -82,7 +82,7 @@ public class IdentifierBinder extends ANodeBinder {
                         BindHelper.processWarn("Access of a static field from non-static object", node, bindingContext);
                     } else {
                         BindHelper
-                            .processError("Access non-static field from a static object", node, bindingContext, false);
+                            .processError("Access non-static field from a static object", node, bindingContext);
 
                         return new ErrorBoundNode(node);
                     }

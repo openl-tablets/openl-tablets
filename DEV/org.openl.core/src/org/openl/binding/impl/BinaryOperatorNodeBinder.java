@@ -43,7 +43,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
         if (methodCaller == null) {
         	if (!NullOpenClass.isAnyNull(types)){
         		String message = errorMsg(operatorName, types[0], types[1]);
-        		BindHelper.processError(message, node, bindingContext, false);
+        		BindHelper.processError(message, node, bindingContext);
         	}	
 
             return new ErrorBoundNode(node);

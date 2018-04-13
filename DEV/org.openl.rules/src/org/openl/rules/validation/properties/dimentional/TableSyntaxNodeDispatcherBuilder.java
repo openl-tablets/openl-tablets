@@ -122,7 +122,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
             try {
                 tsn = XlsHelper.createTableSyntaxNode(decisionTableSource, sheetSource);
             } catch (OpenLCompilationException e) {
-                OpenLMessagesUtils.addError(e);
+                moduleContext.getOpenLMessages().addMessages(OpenLMessagesUtils.newErrorMessages(e));
                 return null;
             }
 
@@ -420,7 +420,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
             dtLoader.loadAndBind(tsn, decisionTable, moduleOpenClass.getOpenl(), null, createContextWithAuxiliaryMethods());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            OpenLMessagesUtils.addWarn(e.getMessage(), tsn);
+            moduleContext.getOpenLMessages().addMessages(OpenLMessagesUtils.newErrorMessages(e));
         }
         return tsn;
     }

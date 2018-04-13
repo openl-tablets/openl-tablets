@@ -27,7 +27,7 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
 
         if (node.getNumberOfChildren() != 2) {
             
-            BindHelper.processError("Assign node must have 2 subnodes", node, bindingContext, false);
+            BindHelper.processError("Assign node must have 2 subnodes", node, bindingContext);
        
             return new ErrorBoundNode(node);
             //            throw new BoundError("Assign node must have 2 subnodes", node);
@@ -40,7 +40,7 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
         if (!children[0].isLvalue()) {
 
             String message = String.format("The node '%s' is not an Lvalue", children[0].getClass().getName());
-            BindHelper.processError(message, node, bindingContext, false);
+            BindHelper.processError(message, node, bindingContext);
 
             return new ErrorBoundNode(node);
             //            throw new BoundError(message,                children[0].getSyntaxNode());
@@ -57,7 +57,7 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
             if (methodCaller == null) {
 
                 String message = BinaryOperatorNodeBinder.errorMsg(methodName, types[0], types[1]);
-                BindHelper.processError(message, node, bindingContext, false);
+                BindHelper.processError(message, node, bindingContext);
 
                 return new ErrorBoundNode(node);
                 //throw new BoundError(BinaryOperatorNodeBinder.errorMsg(methodName, types[0], types[1]), node);
@@ -77,7 +77,7 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
             	{	
             		String message = String.format("Can not convert from '%s' to '%s'",
                         rightType.getName(), leftType.getName());
-                	BindHelper.processError(message, node, bindingContext, false);
+                	BindHelper.processError(message, node, bindingContext);
             	}	
 
                 return new ErrorBoundNode(node);

@@ -53,7 +53,7 @@ public class UnaryOperatorNodeBinder extends ANodeBinder {
 
         if (node.getNumberOfChildren() != 1) {
 
-            BindHelper.processError("Unary node should have 1 subnode", node, bindingContext, false);
+            BindHelper.processError("Unary node should have 1 subnode", node, bindingContext);
 
             return new ErrorBoundNode(node);
         }
@@ -69,7 +69,7 @@ public class UnaryOperatorNodeBinder extends ANodeBinder {
         if (methodCaller == null) {
 
             String message = errorMsg(methodName, types[0]);
-            BindHelper.processError(message, node, bindingContext, false);
+            BindHelper.processError(message, node, bindingContext);
 
             return new ErrorBoundNode(node);
         }

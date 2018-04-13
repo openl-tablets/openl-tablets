@@ -106,7 +106,7 @@ public class Binder implements IOpenBinder {
 
             bindingContext.popLocalVarContext();
 
-            return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), bindingContext.getLocalVarFrameSize());
+            return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), bindingContext.getOpenLMessages(), bindingContext.getLocalVarFrameSize());
 
         } catch (Exception cause) {
             // Process error/exception at first.

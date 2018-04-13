@@ -14,7 +14,6 @@ import org.openl.binding.impl.module.MethodBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.message.IOpenLMessages;
-import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
@@ -105,13 +104,11 @@ public class OpenLCompileManager extends OpenLHolder {
             }
         }
 
-        messages.addMessages(processedCode.getMessagesFromDependencies().getMessages());
+        messages.addMessages(processedCode.getMessages().getMessages());
 
         if (executionMode && openClass instanceof ComponentOpenClass) {
             ((ComponentOpenClass) openClass).clearOddDataForExecutionMode();
         }
-
-        messages.addMessages(OpenLMessages.getCurrentInstance().getMessages());
 
         return new CompiledOpenClass(openClass, messages, parsingErrors, bindingErrors);
     }

@@ -32,7 +32,7 @@ public abstract class ANodeBinder implements INodeBinder {
         try {
             return binder.bind(node, bindingContext);
         } catch (Exception e) {
-            BindHelper.processError(e, node, bindingContext, false);
+            BindHelper.processError(e, node, bindingContext);
 
             return new ErrorBoundNode(node);
         }
@@ -79,7 +79,7 @@ public abstract class ANodeBinder implements INodeBinder {
         try {
             return binder.bindType(node, bindingContext, type);
         } catch (Exception t) {
-            BindHelper.processError(t, node, bindingContext, false);
+            BindHelper.processError(t, node, bindingContext);
 
             return new ErrorBoundNode(node);
         }

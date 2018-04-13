@@ -41,7 +41,7 @@ public class TypeCastBinder extends ANodeBinder {
 						.getChild(0)).getIdentifier();
 
 				String message = String.format("Type '%s' is not found", code);
-				BindHelper.processError(message, node, bindingContext, false);
+				BindHelper.processError(message, node, bindingContext);
 
 				return new ErrorBoundNode(node);
 			}
@@ -60,7 +60,7 @@ public class TypeCastBinder extends ANodeBinder {
 				String message = String.format(
 						"Can not convert from '%s' to '%s'", from.getName(),
 						to.getName());
-				BindHelper.processError(message, node, bindingContext, false);
+				BindHelper.processError(message, node, bindingContext);
 			}
 
 			return new ErrorBoundNode(node);

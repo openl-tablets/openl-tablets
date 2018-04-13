@@ -147,6 +147,16 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     public void pushErrors() {
         delegate.pushErrors();
     }
+    
+    @Override
+    public void pushOpenLMessages() {
+        delegate.pushOpenLMessages();
+    }
+    
+    @Override
+    public IOpenLMessages popOpenLMessages() {
+        return delegate.popOpenLMessages();
+    }
 
     public void pushLocalVarContext() {
         delegate.pushLocalVarContext();

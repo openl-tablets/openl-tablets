@@ -21,7 +21,7 @@ public class BinaryOperatorAndNodeBinder extends BinaryOperatorNodeBinder {
 
         if (node.getNumberOfChildren() != 2) {
 
-            BindHelper.processError("Binary node must have 2 subnodes", node, bindingContext, false);
+            BindHelper.processError("Binary node must have 2 subnodes", node, bindingContext);
 
             return new ErrorBoundNode(node);
             //            throw new BoundError("Binary node must have 2 subnodes", null, node);
@@ -43,7 +43,7 @@ public class BinaryOperatorAndNodeBinder extends BinaryOperatorNodeBinder {
         if (methodCaller == null) {
 
             String message = errorMsg(methodName, types[0], types[1]);
-            BindHelper.processError(message, node, bindingContext, false);
+            BindHelper.processError(message, node, bindingContext);
 
             return new ErrorBoundNode(node);
             //            throw new BoundError(errorMsg(methodName, types[0], types[1]), node);

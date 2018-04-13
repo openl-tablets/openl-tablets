@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openl.dependency.CompiledDependency;
-import org.openl.message.IOpenLMessages;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -52,15 +51,6 @@ public interface IParsedCode {
     Map<String, Object> getExternalParams();
     
     void setCompiledDependencies(Set<CompiledDependency> compliedDependencies);
-    
-    void setMessagesFromDependencies(IOpenLMessages messagesFromDependencies);
-    
-    /**
-     * Gets messages from dependent modules
-     * 
-     * @return messages from dependencies
-     */
-    public IOpenLMessages getMessagesFromDependencies();
     
     /**
      * Returns set of compiled dependency modules.

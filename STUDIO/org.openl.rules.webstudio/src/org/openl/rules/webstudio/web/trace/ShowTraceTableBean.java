@@ -134,9 +134,9 @@ public class ShowTraceTableBean {
             if (error != null) {
                 Throwable cause = error.getCause();
                 if (cause != null) {
-                    return OpenLMessagesUtils.newMessages(cause);
+                    return OpenLMessagesUtils.newErrorMessages(cause);
                 }
-                return OpenLMessagesUtils.newMessages(error);
+                return OpenLMessagesUtils.newErrorMessages(error);
             }
         }
 

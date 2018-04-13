@@ -1,14 +1,13 @@
 package org.openl.rules.dt.type.domains;
 
-import org.openl.message.OpenLMessagesUtils;
-import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.validation.properties.dimentional.ADispatcherTableColumn;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.rules.validation.properties.dimentional.ADispatcherTableColumn;
 
 /**
  * Collect domains for all dimension properties.
@@ -143,7 +142,7 @@ public class DimensionPropertiesDomainsCollector {
                 String message = String.format(
                         "Can`t find domain for property \"%s\" of type \"%s\"",
                         propertyName, propertyType.getSimpleName());
-                OpenLMessagesUtils.addWarn(message);
+                //Need to add warn when this functionality uses
             }
         }        
         return result;

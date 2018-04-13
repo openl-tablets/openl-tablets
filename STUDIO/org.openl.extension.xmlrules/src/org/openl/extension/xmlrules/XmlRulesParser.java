@@ -31,6 +31,8 @@ import org.openl.extension.xmlrules.project.XmlRulesModule;
 import org.openl.extension.xmlrules.project.XmlRulesModuleSourceCodeModule;
 import org.openl.extension.xmlrules.project.XmlRulesModuleSyntaxNode;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
+import org.openl.message.IOpenLMessages;
+import org.openl.message.OpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.BaseParser;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -91,7 +93,8 @@ public class XmlRulesParser extends BaseParser {
             LazyWorkbook workbook,
             Sheet sheet,
             XmlRulesModuleSourceCodeModule sourceCodeModule,
-            List<ParseError> parseErrors) {
+            List<ParseError> parseErrors,
+            IOpenLMessages messages) {
         String uri = sheetSource.getUri();
         LazyXmlRulesWorkbookLoader workbookLoader = (LazyXmlRulesWorkbookLoader) sheetSource.getWorkbookSource()
             .getWorkbookLoader();
@@ -99,23 +102,23 @@ public class XmlRulesParser extends BaseParser {
         StringGridBuilder gridBuilder = new StringGridBuilder(uri, workbookLoader.getExtensionModule().getFileName());
 
         if (workbook.getXlsFileName().equals(ExtensionDescriptor.TYPES_WORKBOOK)) {
-            TypeGridBuilder.build(gridBuilder, sheet);
+            TypeGridBuilder.build(gridBuilder, sheet, messages);
         } else {
-            DataInstanceGridBuilder.build(gridBuilder, module, sheet);
-            TableGridBuilder.build(gridBuilder, module, sheet);
-            FunctionGridBuilder.build(gridBuilder, module, sheet);
-            CellExpressionGridBuilder.build(sheetSource, gridBuilder, sheet, parseErrors);
-            ArrayCellExpressionGridBuilder.build(gridBuilder, sheet, parseErrors);
+            DataInstanceGridBuilder.build(gridBuilder, module, sheet, messages);
+            TableGridBuilder.build(gridBuilder, module, sheet, messages);
+            FunctionGridBuilder.build(gridBuilder, module, sheet, messages);
+            CellExpressionGridBuilder.build(sheetSource, gridBuilder, sheet, parseErrors, messages);
+            ArrayCellExpressionGridBuilder.build(gridBuilder, sheet, parseErrors, messages);
 
             if (sheet.getId() == ExtensionDescriptor.MAIN_SHEET_NUMBER) {
-                EnvironmentGridBuilder.build(gridBuilder, sourceCodeModule);
+                EnvironmentGridBuilder.build(gridBuilder, sourceCodeModule, messages);
             }
         }
 
         return gridBuilder.build().getTables();
     }
 
-    private void initNamedRanges(Sheet sheet) {
+    private void initNamedRanges(Sheet sheet, IOpenLMessages messages) {
         try {
             if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
                 sheet = ((SheetHolder) sheet).getInternalSheet();
@@ -132,7 +135,7 @@ public class XmlRulesParser extends BaseParser {
             }
         } catch (RuntimeException e) {
             log.error(e.getMessage(), e);
-            OpenLMessagesUtils.addError(e);
+            messages.addMessages(OpenLMessagesUtils.newErrorMessages(e));
         }
     }
 
@@ -145,6 +148,7 @@ public class XmlRulesParser extends BaseParser {
 
         ISyntaxNode syntaxNode = null;
         List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
+        IOpenLMessages messages = new OpenLMessages();
 
         ProjectData projectData = new ProjectData();
         ProjectData.setCurrentInstance(projectData);
@@ -155,7 +159,7 @@ public class XmlRulesParser extends BaseParser {
 
             initTypes(module);
 
-            WorkbookSyntaxNode[] workbooksArray = getWorkbooks(module, workbookSourceCodeModule, sourceCodeModule);
+            WorkbookSyntaxNode[] workbooksArray = getWorkbooks(module, workbookSourceCodeModule, sourceCodeModule, messages);
             syntaxNode = new XmlRulesModuleSyntaxNode(workbooksArray,
                 workbookSourceCodeModule,
                 null,
@@ -170,7 +174,6 @@ public class XmlRulesParser extends BaseParser {
                 e.getMessage());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, null);
             errors.add(error);
-            OpenLMessagesUtils.addError(error);
 
             syntaxNode = new XmlRulesModuleSyntaxNode(new WorkbookSyntaxNode[0],
                 sourceCodeModule,
@@ -202,6 +205,7 @@ public class XmlRulesParser extends BaseParser {
         return new ParsedCode(syntaxNode,
             source,
             parsingErrors,
+            messages,
             dependencies.toArray(new IDependency[dependencies.size()]));
     }
 
@@ -232,8 +236,8 @@ public class XmlRulesParser extends BaseParser {
 
     protected WorkbookSyntaxNode[] getWorkbooks(ExtensionModule module,
             XlsWorkbookSourceCodeModule workbookSourceCodeModule,
-            XmlRulesModuleSourceCodeModule sourceCodeModule) {
-        TablePartProcessor tablePartProcessor = new TablePartProcessor();
+            XmlRulesModuleSourceCodeModule sourceCodeModule, IOpenLMessages messages) {
+        TablePartProcessor tablePartProcessor = new TablePartProcessor(messages);
 
         List<WorkbookSyntaxNode> workbookSyntaxNodes = new ArrayList<WorkbookSyntaxNode>();
         List<WorksheetSyntaxNode> sheetNodeList = new ArrayList<WorksheetSyntaxNode>();
@@ -277,7 +281,7 @@ public class XmlRulesParser extends BaseParser {
             List<Sheet> sheets = workbook.getSheets();
 
             for (Sheet sheet : sheets) {
-                initNamedRanges(sheet);
+                initNamedRanges(sheet, messages);
             }
 
             for (int i = 0; i < sheets.size(); i++) {
@@ -287,7 +291,7 @@ public class XmlRulesParser extends BaseParser {
                     workbookSourceCodeModule,
                     workbook);
                 sheetNodeList
-                    .add(getWorksheet(sheetSource, workbook, sheet, module, tablePartProcessor, sourceCodeModule));
+                    .add(getWorksheet(sheetSource, workbook, sheet, module, tablePartProcessor, sourceCodeModule, messages));
             }
         }
 
@@ -301,10 +305,10 @@ public class XmlRulesParser extends BaseParser {
             for (int i = 0; i < n; i++) {
                 mergedNodes[i] = preprocessTable(tableParts.get(i).getTable(),
                     tableParts.get(i).getSource(),
-                    tablePartProcessor);
+                    tablePartProcessor, messages);
             }
         } catch (OpenLCompilationException e) {
-            OpenLMessagesUtils.addError(e);
+            messages.addMessage(OpenLMessagesUtils.newErrorMessage(e));
         }
 
         workbookSyntaxNodes.add(new WorkbookSyntaxNode(sheetNodes, mergedNodes, workbookSourceCodeModule));
@@ -317,16 +321,17 @@ public class XmlRulesParser extends BaseParser {
             Sheet sheet,
             ExtensionModule module,
             TablePartProcessor tablePartProcessor,
-            XmlRulesModuleSourceCodeModule sourceCodeModule) {
+            XmlRulesModuleSourceCodeModule sourceCodeModule,
+            IOpenLMessages messages) {
         List<ParseError> parseErrors = new ArrayList<ParseError>();
-        IGridTable[] tables = getAllGridTables(sheetSource, module, workbook, sheet, sourceCodeModule, parseErrors);
+        IGridTable[] tables = getAllGridTables(sheetSource, module, workbook, sheet, sourceCodeModule, parseErrors, messages);
         List<TableSyntaxNode> tableNodes = new ArrayList<TableSyntaxNode>();
 
         for (IGridTable table : tables) {
             try {
-                tableNodes.add(preprocessTable(table, sheetSource, tablePartProcessor));
+                tableNodes.add(preprocessTable(table, sheetSource, tablePartProcessor, messages));
             } catch (OpenLCompilationException e) {
-                OpenLMessagesUtils.addError(e);
+                messages.addMessage(OpenLMessagesUtils.newErrorMessage(e));
             }
         }
 
@@ -344,7 +349,7 @@ public class XmlRulesParser extends BaseParser {
                 if (top <= row && bottom >= row && left <= column && right >= column) {
                     SyntaxNodeException sne = SyntaxNodeExceptionUtils.createError(parseError.getMessage(), tsn);
                     tsn.addError(sne);
-                    OpenLMessagesUtils.addError(sne);
+                    messages.addMessage(OpenLMessagesUtils.newErrorMessage(sne));
                     break;
                 }
             }
@@ -355,7 +360,7 @@ public class XmlRulesParser extends BaseParser {
 
     private TableSyntaxNode preprocessTable(IGridTable table,
             XlsSheetSourceCodeModule source,
-            TablePartProcessor tablePartProcessor) throws OpenLCompilationException {
+            TablePartProcessor tablePartProcessor, IOpenLMessages messages) throws OpenLCompilationException {
         TableSyntaxNode tsn = XlsHelper.createTableSyntaxNode(table, source);
         String type = tsn.getType();
         if (type.equals(XlsNodeTypes.XLS_TABLEPART.toString())) {
@@ -369,7 +374,7 @@ public class XmlRulesParser extends BaseParser {
                     tsn.getHeader());
                 SyntaxNodeException sne = SyntaxNodeExceptionUtils.createError(e, tsn);
                 tsn.addError(sne);
-                OpenLMessagesUtils.addError(sne);
+                messages.addMessage(OpenLMessagesUtils.newErrorMessage(sne));
             }
         }
         return tsn;

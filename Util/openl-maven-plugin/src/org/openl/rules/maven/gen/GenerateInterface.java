@@ -31,9 +31,6 @@ import org.openl.engine.OpenLManager;
 import org.openl.main.OpenLProjectPropertiesLoader;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessages;
-import org.openl.message.OpenLMessagesUtils;
-import org.openl.message.Severity;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
@@ -91,7 +88,6 @@ public class GenerateInterface {
             IDependencyManager dependencyManager) {
         IOpenSourceCodeModule source = new URLSourceCodeModule(filename);
         OpenL openl = OpenL.getInstance(openlName, userContext);
-        OpenLMessages.getCurrentInstance().clear();
         CompiledOpenClass openClass = OpenLManager.compileModuleWithErrors(openl, source, false, dependencyManager);
 
         return openClass;

@@ -32,7 +32,7 @@ public class NewArrayNodeBinder extends ANodeBinder {
         int childrenCount = node.getNumberOfChildren();
 
         if (childrenCount != 1) {
-            BindHelper.processError("New array node must have 1 subnode", node, bindingContext, false);
+            BindHelper.processError("New array node must have 1 subnode", node, bindingContext);
 
             return new ErrorBoundNode(node);
         }
@@ -76,7 +76,7 @@ public class NewArrayNodeBinder extends ANodeBinder {
         if (componentType == null) {
 
             String message = String.format("Type '%s' is not found", typeName);
-            BindHelper.processError(message, typeNode, bindingContext, false);
+            BindHelper.processError(message, typeNode, bindingContext);
 
             return new ErrorBoundNode(node);
         }

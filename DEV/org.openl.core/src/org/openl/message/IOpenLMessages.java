@@ -5,23 +5,26 @@ import java.util.Collection;
 public interface IOpenLMessages {
 
     void addError(String message);
-
+    
     void addMessage(OpenLMessage message);
+
+    void addMessage(String message, Severity severity);
 
     void addMessages(Collection<OpenLMessage> messages);
 
-    Collection<OpenLMessage> getMessages();
+    void addWarning(String message);
 
-    boolean hasErrors();
+    void clear();
 
     Collection<OpenLMessage> getErrors();
     
-    boolean hasWarnings();
+    Collection<OpenLMessage> getMessages();
     
     Collection<OpenLMessage> getWarnings();
     
-    boolean hasMessages();
+    boolean hasErrors();
     
-    void clear();
+    boolean hasMessages();
 
+    boolean hasWarnings();
 }

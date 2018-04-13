@@ -144,8 +144,7 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
         if (type != NullOpenClass.the) {
             BindHelper.processError("Order By expression must be Comparable",
                     expressionNode.getSyntaxNode(),
-                    bindingContext,
-                    false);
+                    bindingContext);
         }
         return new ErrorBoundNode(expressionNode.getSyntaxNode());
 

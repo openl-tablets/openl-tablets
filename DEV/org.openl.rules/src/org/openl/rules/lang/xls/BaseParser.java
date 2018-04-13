@@ -1,7 +1,7 @@
 package org.openl.rules.lang.xls;
 
 import org.openl.IOpenParser;
-import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.OpenLMessages;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.code.impl.ParsedCode;
@@ -46,12 +46,9 @@ public abstract class BaseParser implements IOpenParser {
     }
 
     protected IParsedCode getInvalidCode(String message, IOpenSourceCodeModule source) {
-
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, source);
-        OpenLMessagesUtils.addError(error);
-
         SyntaxNodeException[] errors = new SyntaxNodeException[] { error };
 
-        return new ParsedCode(null, source, errors);
+        return new ParsedCode(null, source, errors, OpenLMessages.empty());
     }
 }

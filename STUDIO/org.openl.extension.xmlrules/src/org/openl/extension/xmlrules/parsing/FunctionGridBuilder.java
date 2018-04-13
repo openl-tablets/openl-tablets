@@ -11,6 +11,7 @@ import org.openl.extension.xmlrules.model.single.SheetHolder;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
 import org.openl.extension.xmlrules.utils.CellReference;
 import org.openl.extension.xmlrules.utils.HelperFunctions;
+import org.openl.message.IOpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ public final class FunctionGridBuilder {
     private FunctionGridBuilder() {
     }
 
-    public static void build(StringGridBuilder gridBuilder, ExtensionModule module, Sheet sheet) {
+    public static void build(StringGridBuilder gridBuilder, ExtensionModule module, Sheet sheet, IOpenLMessages messages) {
         Logger log = LoggerFactory.getLogger(FunctionGridBuilder.class);
         if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
             sheet = ((SheetHolder) sheet).getInternalSheet();
@@ -43,7 +44,7 @@ public final class FunctionGridBuilder {
                 if (segment != null && !functionNamesWithAttributes.contains(function.getName())) {
                     String message = "Function " + function.getName() + " with several segments but without attributes";
                     log.warn(message);
-                    OpenLMessagesUtils.addWarn(message);
+                    messages.addWarning(message);
                 }
 
                 String cellAddress = function.getCellAddress();
@@ -60,12 +61,12 @@ public final class FunctionGridBuilder {
                 List<Attribute> attributes = function.getAttributes();
                 GridBuilderUtils.addAttributes(gridBuilder, attributes);
 
-                writeBody(gridBuilder, module, cellAddress, isRange, returnType, parameters, workbookName, sheetName);
+                writeBody(gridBuilder, module, cellAddress, isRange, returnType, parameters, workbookName, sheetName, messages);
 
                 gridBuilder.nextRow();
             } catch (RuntimeException e) {
                 log.error(e.getMessage(), e);
-                OpenLMessagesUtils.addError(e);
+                messages.addMessages(OpenLMessagesUtils.newErrorMessages(e));
                 gridBuilder.nextRow();
             }
         }
@@ -111,7 +112,7 @@ public final class FunctionGridBuilder {
             String cellAddress,
             boolean isRange,
             String returnType,
-            List<ParameterImpl> parameters, String workbookName, String sheetName) {
+            List<ParameterImpl> parameters, String workbookName, String sheetName, IOpenLMessages messages) {
         for (ParameterImpl parameter : parameters) {
             CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
             String cell;
@@ -147,7 +148,7 @@ public final class FunctionGridBuilder {
             } catch (RuntimeException e) {
                 Logger log = LoggerFactory.getLogger(FunctionGridBuilder.class);
                 log.error(e.getMessage(), e);
-                OpenLMessagesUtils.addError(e);
+                messages.addMessages(OpenLMessagesUtils.newErrorMessages(e));
                 cellRetrieveString = String.format("Cell(\"%s\", \"%s\", %d, %d)",
                         cellReference.getWorkbook(),
                         cellReference.getSheet(),

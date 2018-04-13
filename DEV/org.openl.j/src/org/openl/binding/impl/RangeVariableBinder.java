@@ -41,7 +41,7 @@ public class RangeVariableBinder extends ANodeBinder {
     }
 
     private IBoundNode error(String message, ISyntaxNode node, IBindingContext bindingContext) {
-        BindHelper.processError(message, node, bindingContext, false);
+        BindHelper.processError(message, node, bindingContext);
         return new ErrorBoundNode(node);
     }
 

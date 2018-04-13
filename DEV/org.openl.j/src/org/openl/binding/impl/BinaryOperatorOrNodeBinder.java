@@ -21,17 +21,17 @@ public class BinaryOperatorOrNodeBinder extends BinaryOperatorNodeBinder {
 
         if (node.getNumberOfChildren() != 2) {
 
-            BindHelper.processError("Binary node must have 2 subnodes", node, bindingContext, false);
+            BindHelper.processError("Binary node must have 2 subnodes", node, bindingContext);
 
             return new ErrorBoundNode(node);
-            //            throw new BoundError("Binary node must have 2 subnodes", null, node);
+            // throw new BoundError("Binary node must have 2 subnodes", null, node);
         }
 
         IBoundNode[] children = bindChildren(node, bindingContext);
         IOpenClass[] types = getTypes(children);
 
-        if ((types[0].getInstanceClass() == boolean.class || types[0].getInstanceClass() == Boolean.class)
-            && (types[1].getInstanceClass() == boolean.class || types[1].getInstanceClass() == Boolean.class)) {
+        if ((types[0].getInstanceClass() == boolean.class || types[0].getInstanceClass() == Boolean.class) && (types[1]
+            .getInstanceClass() == boolean.class || types[1].getInstanceClass() == Boolean.class)) {
 
             return new BinaryOpNodeOr(node, children);
         }
@@ -43,10 +43,10 @@ public class BinaryOperatorOrNodeBinder extends BinaryOperatorNodeBinder {
         if (methodCaller == null) {
 
             String message = errorMsg(methodName, types[0], types[1]);
-            BindHelper.processError(message, node, bindingContext, false);
+            BindHelper.processError(message, node, bindingContext);
 
             return new ErrorBoundNode(node);
-            //            throw new BoundError(errorMsg(methodName, types[0], types[1]), node);
+            // throw new BoundError(errorMsg(methodName, types[0], types[1]), node);
         }
 
         return new BinaryOpNode(node, children, methodCaller);

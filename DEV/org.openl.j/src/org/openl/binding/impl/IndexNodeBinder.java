@@ -63,31 +63,11 @@ public class IndexNodeBinder extends ANodeBinder {
 
         String message = String.format(
                 "Index operator %s[%s] is not found", targetNode.getType(), indexExprType.getName());
-        BindHelper.processError(message, node, bindingContext, false);
+        BindHelper.processError(message, node, bindingContext);
 
         return new ErrorBoundNode(node);
     }
-
-    //   private IOpenIndex getMethodBasedIndex(IOpenClass indexExprType, IOpenClass componentType, IBindingContext cxt) {
-    //
-    //        IMethodCaller reader = MethodSearch.getMethodCaller(INDEX_METHOD_NAME,
-    //            new IOpenClass[] { indexExprType },
-    //            cxt,
-    //            componentType);
-    //
-    //        if (reader == null) {
-    //            return null;
-    //        }
-    //
-    //        IOpenClass returnType = reader.getMethod().getType();
-    //
-    //        IMethodCaller writer = MethodSearch.getMethodCaller(INDEX_METHOD_NAME, new IOpenClass[] {
-    //                indexExprType,
-    //                returnType }, cxt, componentType);
-    //
-    //        return new MethodBasedIndex(reader, writer);
-    //    }
-
+   
     private IOpenIndex getMethodBasedIndex(IOpenClass[] types, IBindingContext bindingContext) {
 
         IMethodCaller reader = BinaryOperatorNodeBinder.findBinaryOperatorMethodCaller(INDEX_METHOD_NAME,

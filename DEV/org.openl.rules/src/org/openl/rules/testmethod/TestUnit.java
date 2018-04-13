@@ -159,7 +159,7 @@ public class TestUnit {
 
     public List<OpenLMessage> getErrors() {
         if (actualError != null) {
-            return OpenLMessagesUtils.newMessages(actualError);
+            return OpenLMessagesUtils.newErrorMessages(actualError);
         } else {
             return Collections.emptyList();
         }

@@ -38,6 +38,7 @@ import org.openl.dependency.CompiledDependency;
 import org.openl.engine.OpenLManager;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.message.OpenLMessages;
 import org.openl.rules.binding.RecursiveOpenMethodPreBinder;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.SpreadsheetNodeBinder;
@@ -180,7 +181,7 @@ public class XlsBinder implements IOpenBinder {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Error Creating OpenL", ex, syntaxNode);
             bindingContextDelegator.addError(error);
 
-            return BindHelper.makeInvalidCode(parsedCode, syntaxNode, new SyntaxNodeException[] { error });
+            return BindHelper.makeInvalidCode(parsedCode, syntaxNode, new SyntaxNodeException[] { error }, OpenLMessages.empty());
         }
 
         IOpenBinder openlBinder = openl.getBinder();
@@ -221,7 +222,7 @@ public class XlsBinder implements IOpenBinder {
 
         topNode = processBinding(moduleNode, openl, moduleContext, moduleOpenClass, bindingContext);
 
-        return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), 0);
+        return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), bindingContext.getOpenLMessages(), 0);
     }
 
     protected IDataBase getModuleDatabase() {

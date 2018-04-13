@@ -2,6 +2,7 @@ package org.openl.syntax.code;
 
 import org.openl.binding.IBoundCode;
 import org.openl.message.IOpenLMessages;
+import org.openl.message.OpenLMessages;
 import org.openl.syntax.exception.SyntaxNodeException;
 
 /**
@@ -18,6 +19,8 @@ public class ProcessedCode {
      * {@link IBoundCode} instance.
      */
     private IBoundCode boundCode;
+
+    private IOpenLMessages messages = new OpenLMessages();
 
     /**
      * Gets parsed code.
@@ -83,7 +86,12 @@ public class ProcessedCode {
         return boundCode.getErrors();
     }
 
-    public IOpenLMessages getMessagesFromDependencies() {
-        return parsedCode.getMessagesFromDependencies();
+    public IOpenLMessages getMessages() {
+        return messages;
     }
+
+    public void setMessages(IOpenLMessages messages) {
+        this.messages = messages;
+    }
+
 }

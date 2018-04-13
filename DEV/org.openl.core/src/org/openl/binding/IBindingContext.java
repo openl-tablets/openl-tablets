@@ -113,6 +113,8 @@ public interface IBindingContext extends ICastFactory {
     IOpenClass getReturnType();
 
     List<SyntaxNodeException> popErrors();
+    
+    IOpenLMessages popOpenLMessages();
 
     void popLocalVarContext();
 
@@ -120,6 +122,8 @@ public interface IBindingContext extends ICastFactory {
      * Used for doing temporary processing within current context
      */
     void pushErrors();
+    
+    void pushOpenLMessages();
 
     void pushLocalVarContext();
 

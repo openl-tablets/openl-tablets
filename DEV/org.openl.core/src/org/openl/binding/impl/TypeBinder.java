@@ -41,7 +41,7 @@ public class TypeBinder extends ANodeBinder {
             if (varType == null) {
                 String message = String
                     .format("Can't bind node: '%s'. Can't find type: '%s'.", node.getModule().getCode(), typeName);
-                BindHelper.processError(message, node, bindingContext, false);
+                BindHelper.processError(message, node, bindingContext);
 
                 return new ErrorBoundNode(node);
             }
@@ -52,7 +52,7 @@ public class TypeBinder extends ANodeBinder {
             BindHelper.checkOnDeprecation(node, bindingContext, varType);
             return new TypeBoundNode(node, varType);
         } catch (RuntimeException e) {
-            BindHelper.processError(e.getMessage(), node, bindingContext, false);
+            BindHelper.processError(e.getMessage(), node, bindingContext);
             return new ErrorBoundNode(node);
         }
     }

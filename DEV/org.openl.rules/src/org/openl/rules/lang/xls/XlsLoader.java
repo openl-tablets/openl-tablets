@@ -1,11 +1,21 @@
 package org.openl.rules.lang.xls;
 
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 
 import org.openl.exception.OpenLCompilationException;
+import org.openl.message.IOpenLMessages;
+import org.openl.message.OpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
-import org.openl.rules.lang.xls.syntax.*;
+import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
+import org.openl.rules.lang.xls.syntax.WorksheetSyntaxNode;
+import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -43,6 +53,8 @@ public class XlsLoader {
     private OpenlSyntaxNode openl;
 
     private List<SyntaxNodeException> errors = new ArrayList<>();
+    
+    private IOpenLMessages messages = new OpenLMessages();
 
     private HashSet<String> preprocessedWorkBooks = new HashSet<>();
 
@@ -66,17 +78,17 @@ public class XlsLoader {
 
         WorkbookSyntaxNode[] workbooksArray = workbookNodes.toArray(new WorkbookSyntaxNode[workbookNodes.size()]);
         XlsModuleSyntaxNode syntaxNode = new XlsModuleSyntaxNode(workbooksArray,
-                source,
-                openl,
-                Collections.unmodifiableCollection(imports)
-        );
+            source,
+            openl,
+            Collections.unmodifiableCollection(imports));
 
         SyntaxNodeException[] parsingErrors = errors.toArray(new SyntaxNodeException[errors.size()]);
 
         return new ParsedCode(syntaxNode,
-                source,
-                parsingErrors,
-                dependencies.toArray(new IDependency[dependencies.size()]));
+            source,
+            parsingErrors,
+            messages,
+            dependencies.toArray(new IDependency[dependencies.size()]));
     }
 
     private void preprocessEnvironmentTable(TableSyntaxNode tableSyntaxNode, XlsSheetSourceCodeModule source) {
@@ -108,8 +120,7 @@ public class XlsLoader {
                 log.debug("Comment: {}", value);
             } else {
                 String message = String.format("Error in Environment table: unrecognized keyword '%s'", value);
-                log.warn(message);
-                OpenLMessagesUtils.addWarn(message, tableSyntaxNode);
+                messages.addMessage(OpenLMessagesUtils.newWarnMessage(message, tableSyntaxNode));
             }
         }
     }
@@ -124,9 +135,9 @@ public class XlsLoader {
                 dependency = dependency.trim();
 
                 IdentifierNode node = new IdentifierNode(IXlsTableNames.DEPENDENCY,
-                        LocationUtils.createTextInterval(dependency),
-                        dependency,
-                        new GridCellSourceCodeModule(gridTable, 1, i, null));
+                    LocationUtils.createTextInterval(dependency),
+                    dependency,
+                    new GridCellSourceCodeModule(gridTable, 1, i, null));
                 node.setParent(tableSyntaxNode);
                 Dependency moduleDependency = new Dependency(DependencyType.MODULE, node);
                 dependencies.add(moduleDependency);
@@ -165,11 +176,15 @@ public class XlsLoader {
 
             if (StringUtils.isNotBlank(include)) {
                 include = include.trim();
-                IOpenSourceCodeModule src;
+                IOpenSourceCodeModule src = null;
 
                 if (include.startsWith("<")) {
-                    src = includeSeeker.findInclude(StringTool.openBrackets(include, '<', '>', "")[0]);
-
+                    try {
+                        src = includeSeeker.findInclude(StringTool.openBrackets(include, '<', '>', "")[0]);
+                    }catch (Exception e) {
+                        messages.addMessages(OpenLMessagesUtils.newErrorMessages(e));
+                        
+                    }
                     if (src == null) {
                         registerIncludeError(tableSyntaxNode, table, i, include, null);
                         continue;
@@ -177,7 +192,7 @@ public class XlsLoader {
                 } else {
                     try {
                         String newURL = PathTool.mergePath(sheetSource.getWorkbookSource().getUri(),
-                                StringTool.encodeURL(include));
+                            StringTool.encodeURL(include));
                         src = new URLSourceCodeModule(new URL(newURL));
                     } catch (Exception t) {
                         registerIncludeError(tableSyntaxNode, table, i, include, t);
@@ -200,12 +215,11 @@ public class XlsLoader {
             String include,
             Exception t) {
         SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include '" + include + "' is not found",
-                t,
-                LocationUtils.createTextInterval(include),
-                new GridCellSourceCodeModule(table, 1, i, null));
+            t,
+            LocationUtils.createTextInterval(include),
+            new GridCellSourceCodeModule(table, 1, i, null));
         addError(se);
         tableSyntaxNode.addError(se);
-        OpenLMessagesUtils.addError(se);
     }
 
     private void preprocessOpenlTable(IGridTable table, XlsSheetSourceCodeModule source) {
@@ -229,15 +243,11 @@ public class XlsLoader {
             try {
                 tablePartProcessor.register(table, source);
             } catch (Exception t) {
-                tsn = new TableSyntaxNode(XlsNodeTypes.XLS_OTHER.toString(),
-                        tsn.getGridLocation(),
-                        source,
-                        table,
-                        tsn.getHeader());
+                tsn = new TableSyntaxNode(XlsNodeTypes.XLS_OTHER
+                    .toString(), tsn.getGridLocation(), source, table, tsn.getHeader());
                 SyntaxNodeException sne = SyntaxNodeExceptionUtils.createError(t, tsn);
                 addError(sne);
                 tsn.addError(sne);
-                OpenLMessagesUtils.addError(sne);
             }
         }
 
@@ -254,7 +264,7 @@ public class XlsLoader {
 
         preprocessedWorkBooks.add(uri);
 
-        TablePartProcessor tablePartProcessor = new TablePartProcessor();
+        TablePartProcessor tablePartProcessor = new TablePartProcessor(messages);
         XlsWorkbookSourceCodeModule workbookSourceModule = new XlsWorkbookSourceCodeModule(source);
         WorksheetSyntaxNode[] sheetNodes = createWorksheetNodes(tablePartProcessor, workbookSourceModule);
 
@@ -275,7 +285,8 @@ public class XlsLoader {
     }
 
     private WorkbookSyntaxNode createWorkbookNode(TablePartProcessor tablePartProcessor,
-            XlsWorkbookSourceCodeModule workbookSourceModule, WorksheetSyntaxNode[] sheetNodes) {
+            XlsWorkbookSourceCodeModule workbookSourceModule,
+            WorksheetSyntaxNode[] sheetNodes) {
         TableSyntaxNode[] mergedNodes = {};
         try {
             List<TablePart> tableParts = tablePartProcessor.mergeAllNodes();
@@ -283,11 +294,11 @@ public class XlsLoader {
             mergedNodes = new TableSyntaxNode[n];
             for (int i = 0; i < n; i++) {
                 mergedNodes[i] = preprocessTable(tableParts.get(i).getTable(),
-                        tableParts.get(i).getSource(),
-                        tablePartProcessor);
+                    tableParts.get(i).getSource(),
+                    tablePartProcessor);
             }
         } catch (OpenLCompilationException e) {
-            OpenLMessagesUtils.addError(e);
+            messages.addMessage(OpenLMessagesUtils.newErrorMessage(e));
         }
 
         return new WorkbookSyntaxNode(sheetNodes, mergedNodes, workbookSourceModule);
@@ -306,12 +317,11 @@ public class XlsLoader {
                 tsn = preprocessTable(table, sheetSource, tablePartProcessor);
                 tableNodes.add(tsn);
             } catch (OpenLCompilationException e) {
-                OpenLMessagesUtils.addError(e);
+                messages.addMessage(OpenLMessagesUtils.newErrorMessage(e));
             }
         }
 
-        return new WorksheetSyntaxNode(tableNodes.toArray(new TableSyntaxNode[tableNodes
-                .size()]), sheetSource);
+        return new WorksheetSyntaxNode(tableNodes.toArray(new TableSyntaxNode[tableNodes.size()]), sheetSource);
     }
 
     private void setOpenl(OpenlSyntaxNode openl) {
@@ -320,10 +330,8 @@ public class XlsLoader {
             this.openl = openl;
         } else {
             if (!this.openl.getOpenlName().equals(openl.getOpenlName())) {
-                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Only one openl statement is allowed",
-                        null,
-                        openl);
-                OpenLMessagesUtils.addError(error);
+                SyntaxNodeException error = SyntaxNodeExceptionUtils
+                    .createError("Only one openl statement is allowed", null, openl);
                 addError(error);
             }
         }

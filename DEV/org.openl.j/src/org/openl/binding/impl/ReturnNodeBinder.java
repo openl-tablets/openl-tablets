@@ -35,7 +35,7 @@ public class ReturnNodeBinder extends ANodeBinder {
 
         } else if (bindingContext.getReturnType() != JavaOpenClass.VOID) {
 
-            BindHelper.processError("The method must return a value", node, bindingContext, false);
+            BindHelper.processError("The method must return a value", node, bindingContext);
 
             return new ErrorBoundNode(node);
         }

@@ -933,9 +933,6 @@ public class ProjectModel {
     public void clearModuleInfo() {
         this.moduleInfo = null;
 
-        // Clear project messages (errors, warnings)
-        clearOpenLMessages();
-
         clearModuleResources(); // prevent memory leak
 
         compiledOpenClass = null;
@@ -996,9 +993,6 @@ public class ProjectModel {
             this.moduleInfo = moduleInfo;
         }
         
-
-        // Clear project messages (errors, warnings)
-        clearOpenLMessages();
 
         clearModuleResources(); // prevent memory leak
 
@@ -1085,7 +1079,7 @@ public class ProjectModel {
         } catch (Throwable t) {
             Log.error("Problem Loading OpenLWrapper", t);
             IOpenLMessages messages = new OpenLMessages();
-            for (OpenLMessage openLMessage : OpenLMessagesUtils.newMessages(t)) {
+            for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(t)) {
                 String message = String.format("Can't load the module: %s", openLMessage.getSummary());
                 messages.addMessage(new OpenLMessage(message, Severity.ERROR));
             }
@@ -1127,20 +1121,6 @@ public class ProjectModel {
                 openedInSingleModuleMode = singleModuleMode;
             }
         }
-    }
-
-    /**
-     * To prevent memory leaks. OpenLMessages instance is ThreadLocal and we
-     * have to clear previous OpenLMessages instance if it was created from
-     * another thread(due to running as web application).
-     */
-    private IOpenLMessages previousUsedMessages;
-
-    private void clearOpenLMessages() {
-        if (previousUsedMessages != null) {
-            previousUsedMessages.clear();
-        }
-        previousUsedMessages = OpenLMessages.getCurrentInstance();
     }
 
     public void traceElement(TestSuite testSuite) {

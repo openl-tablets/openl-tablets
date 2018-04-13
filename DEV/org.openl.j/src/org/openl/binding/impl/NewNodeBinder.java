@@ -30,7 +30,7 @@ public class NewNodeBinder extends ANodeBinder {
 
         if (childrenCount < 1) {
 
-            BindHelper.processError("New node must have at least one subnode", node, bindingContext, false);
+            BindHelper.processError("New node must have at least one subnode", node, bindingContext);
 
             return new ErrorBoundNode(node);
         }
@@ -42,7 +42,7 @@ public class NewNodeBinder extends ANodeBinder {
         if (type == null) {
 
             String message = String.format("Type '%s' is not found", typeName);
-            BindHelper.processError(message, typeNode, bindingContext, false);
+            BindHelper.processError(message, typeNode, bindingContext);
 
             return new ErrorBoundNode(node);
         }
@@ -59,7 +59,7 @@ public class NewNodeBinder extends ANodeBinder {
         if (methodCaller == null) {
 
             String errMsg = "Constructor is not found: " + MethodUtil.printMethod(type.getName(), types);
-            BindHelper.processError(errMsg, typeNode, bindingContext, false);
+            BindHelper.processError(errMsg, typeNode, bindingContext);
 
             return new ErrorBoundNode(node);
         }

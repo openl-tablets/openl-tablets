@@ -48,7 +48,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
         int childrenCount = node.getNumberOfChildren();
 
         if (childrenCount < 1) {
-            BindHelper.processError("Method node should have at least one subnode", node, bindingContext, false);
+            BindHelper.processError("Method node should have at least one subnode", node, bindingContext);
 
             return new ErrorBoundNode(node);
         }
@@ -341,8 +341,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
             if (type == null) {
                 BindHelper.processError("Can't find type " + parameterType,
                         methodNode,
-                        bindingContext,
-                        false);
+                        bindingContext);
             } else if (dimensions > 0) {
                 type = type.getAggregateInfo().getIndexedAggregateType(type, dimensions);
             }
