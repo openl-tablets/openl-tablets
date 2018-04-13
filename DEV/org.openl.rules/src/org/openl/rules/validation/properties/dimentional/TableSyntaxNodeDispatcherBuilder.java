@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.binding.IBindingContextDelegator;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.BindingContextDelegator;
@@ -19,13 +19,13 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableHelper;
 import org.openl.rules.dt.DecisionTableLoader;
+import org.openl.rules.dt.IBaseAction;
+import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dt.builder.ConditionsBuilder;
 import org.openl.rules.dt.builder.DecisionTableBuilder;
 import org.openl.rules.dt.builder.ReturnColumnBuilder;
 import org.openl.rules.dt.builder.TableHeaderBuilder;
-import org.openl.rules.dt.IBaseAction;
-import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -446,7 +446,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         return new InternalMethodDelegator(originalMethod, auxiliaryMethodName);
     }
     
-    private static class InternalBindingContextDelegator extends BindingContextDelegator{
+    private static class InternalBindingContextDelegator extends BindingContextDelegator {
         
         private Map<MethodKey, IOpenMethod> auxiliaryMethods;
         
@@ -466,7 +466,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         }
     }
 
-    private IBindingContextDelegator createContextWithAuxiliaryMethods() {
+    private IBindingContext createContextWithAuxiliaryMethods() {
         List<IOpenMethod> candidates = dispatcher.getCandidates();
         final Map<MethodKey, IOpenMethod> auxiliaryMethods = new HashMap<MethodKey, IOpenMethod>(candidates.size());
         for (int i = 0; i < candidates.size(); i++) {

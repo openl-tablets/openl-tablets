@@ -7,7 +7,7 @@ package org.openl.rules.dt;
 
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
-import org.openl.binding.IBindingContextDelegator;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
@@ -20,9 +20,6 @@ import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
-import org.openl.rules.dt.IBaseAction;
-import org.openl.rules.dt.IBaseCondition;
-import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
@@ -153,18 +150,18 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
             RuleRow ruleRow,
             OpenL openl,
             ComponentOpenClass componentOpenClass,
-            IBindingContextDelegator cxtd,
+            IBindingContext bindingContext,
             int columns) throws Exception {
 
         this.conditionRows = conditionRows;
         this.actionRows = actionRows;
 
-        if (!cxtd.isExecutionMode()) {
+        if (!bindingContext.isExecutionMode()) {
             this.ruleRow = ruleRow;
         }
         this.columns = columns;
 
-        prepare(getHeader(), openl, componentOpenClass, cxtd);
+        prepare(getHeader(), openl, componentOpenClass, bindingContext);
     }
 
     public BindingDependencies getDependencies() {
@@ -197,18 +194,18 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
     private void prepare(IOpenMethodHeader header,
             OpenL openl,
             ComponentOpenClass module,
-            IBindingContextDelegator bindingContextDelegator) throws Exception {
+            IBindingContext bindingContext) throws Exception {
 
-        algorithm = getAlgorithmBuilder(header, openl, module, bindingContextDelegator).prepareAndBuildAlgorithm();
+        algorithm = getAlgorithmBuilder(header, openl, module, bindingContext).prepareAndBuildAlgorithm();
 
     }
 
     private IAlgorithmBuilder getAlgorithmBuilder(IOpenMethodHeader header,
             OpenL openl,
             ComponentOpenClass module,
-            IBindingContextDelegator bindingContextDelegator) {
-        return ALG2 ? new DecisionTableAlgorithmBuilder2(this, header, openl, module, bindingContextDelegator)
-                    : new DecisionTableAlgorithmBuilder(this, header, openl, module, bindingContextDelegator);
+            IBindingContext bindingContext) {
+        return ALG2 ? new DecisionTableAlgorithmBuilder2(this, header, openl, module, bindingContext)
+                    : new DecisionTableAlgorithmBuilder(this, header, openl, module, bindingContext);
     }
 
     @Override

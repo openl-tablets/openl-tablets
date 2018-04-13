@@ -4,16 +4,16 @@ import java.util.Map;
 
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
-import org.openl.binding.IBindingContextDelegator;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.dt.DTInfo;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.IBaseAction;
+import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
-import org.openl.rules.dt.IBaseAction;
-import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -166,9 +166,9 @@ public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodW
             RuleRow ruleRow,
             OpenL openl,
             ComponentOpenClass componentOpenClass,
-            IBindingContextDelegator cxtd,
+            IBindingContext bindingContext,
             int columns) throws Exception {
-        delegate.bindTable(conditionRows, actionRows, ruleRow, openl, componentOpenClass, cxtd, columns);
+        delegate.bindTable(conditionRows, actionRows, ruleRow, openl, componentOpenClass, bindingContext, columns);
     }
 
     @Override

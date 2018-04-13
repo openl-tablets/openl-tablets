@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
-import org.openl.binding.IBindingContextDelegator;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundCode;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
@@ -135,7 +135,7 @@ public class OpenLSourceManager extends OpenLHolder {
      */
     public ProcessedCode processSource(IOpenSourceCodeModule source,
             SourceType sourceType,
-            IBindingContextDelegator bindingContextDelegator,
+            IBindingContext bindingContext,
             boolean ignoreErrors,
             IDependencyManager dependencyManager) {
 
@@ -221,9 +221,9 @@ public class OpenLSourceManager extends OpenLHolder {
 
         // Requires to support java packages. BEX grammar doesn't support to use binding context to define java
         // packages.
-        FullClassnameSupport.transformIdentifierBindersWithBindingContextInfo(bindingContextDelegator, parsedCode);
+        FullClassnameSupport.transformIdentifierBindersWithBindingContextInfo(bindingContext, parsedCode);
 
-        IBoundCode boundCode = bindManager.bindCode(bindingContextDelegator, parsedCode);
+        IBoundCode boundCode = bindManager.bindCode(bindingContext, parsedCode);
         for (OpenLMessage message : boundCode.getOpenLMessages().getMessages()) {
             openLMessages.addMessage(message);
         }

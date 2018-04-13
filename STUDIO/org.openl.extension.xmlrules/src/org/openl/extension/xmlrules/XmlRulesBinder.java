@@ -4,7 +4,6 @@ import java.util.Set;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.conf.IUserContext;
@@ -40,11 +39,11 @@ public class XmlRulesBinder extends XlsBinder {
     }
 
     @Override
-    public IBoundCode bind(IParsedCode parsedCode, IBindingContextDelegator bindingContextDelegator) {
+    public IBoundCode bind(IParsedCode parsedCode, IBindingContext bindingContext) {
         try {
             XmlRulesModuleSyntaxNode topNode = (XmlRulesModuleSyntaxNode) parsedCode.getTopNode();
             ProjectData.setCurrentInstance(topNode.getProjectData());
-            return super.bind(parsedCode, bindingContextDelegator);
+            return super.bind(parsedCode, bindingContext);
         } finally {
             ProjectData.removeCurrentInstance();
         }

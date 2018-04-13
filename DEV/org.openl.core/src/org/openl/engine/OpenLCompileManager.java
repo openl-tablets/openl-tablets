@@ -5,10 +5,8 @@ import java.util.List;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundMethodNode;
-import org.openl.binding.impl.ExecutionModeBindingContextDelegator;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.binding.impl.module.MethodBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -57,11 +55,9 @@ public class OpenLCompileManager extends OpenLHolder {
             IDependencyManager dependencyManager) {
         ProcessedCode processedCode;
         if (executionMode) {
-            processedCode = sourceManager.processSource(source,
-                SourceType.MODULE,
-                new ExecutionModeBindingContextDelegator(null),
-                false,
-                dependencyManager);
+            IBindingContext bindingContext = sourceManager.getOpenL().getBinder().makeBindingContext();
+            bindingContext.setExecutionMode(true);
+            processedCode = sourceManager.processSource(source, SourceType.MODULE, bindingContext, false, dependencyManager);
         } else {
             processedCode = sourceManager.processSource(source, SourceType.MODULE, dependencyManager);
         }
@@ -85,12 +81,14 @@ public class OpenLCompileManager extends OpenLHolder {
     public CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule source,
             boolean executionMode,
             IDependencyManager dependencyManager) {
-        IBindingContextDelegator context = null;
+        ProcessedCode processedCode; 
         if (executionMode) {
-            context = new ExecutionModeBindingContextDelegator(null);
+            IBindingContext bindingContext = sourceManager.getOpenL().getBinder().makeBindingContext();
+            bindingContext.setExecutionMode(true);
+            processedCode = sourceManager.processSource(source, SourceType.MODULE, bindingContext, true, dependencyManager);
+        } else {
+            processedCode = sourceManager.processSource(source, SourceType.MODULE, null, true, dependencyManager);
         }
-        ProcessedCode processedCode = sourceManager
-            .processSource(source, SourceType.MODULE, context, true, dependencyManager);
         IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
         SyntaxNodeException[] parsingErrors = processedCode.getParsingErrors();
         SyntaxNodeException[] bindingErrors = processedCode.getBindingErrors();

@@ -78,10 +78,10 @@ public class Binder implements IOpenBinder {
      *
      * @see org.openl.IOpenBinder#bind(org.openl.syntax.IParsedCode)
      */
-    public IBoundCode bind(IParsedCode parsedCode, IBindingContextDelegator delegator) {
-
-        IBindingContext bindingContext = makeBindingContext();
-        bindingContext = BindHelper.delegateContext(bindingContext, delegator);
+    public IBoundCode bind(IParsedCode parsedCode, IBindingContext bindingContext) {
+        if (bindingContext == null) {
+            bindingContext = makeBindingContext();
+        }
 
         ISyntaxNode syntaxNode = parsedCode.getTopNode();
 

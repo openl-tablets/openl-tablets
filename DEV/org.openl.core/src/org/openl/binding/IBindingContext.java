@@ -145,8 +145,7 @@ public interface IBindingContext extends ICastFactory {
 
     // context properties
 
-    public String getContextProperty(String name);
+    String getContextProperty(String name);
 
-    public void setContextProperty(String name, String value);
-
+    void setContextProperty(String name, String value);
 }

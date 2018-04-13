@@ -9,7 +9,6 @@ import java.lang.reflect.Method;
 import java.util.Calendar;
 
 import org.junit.Test;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.cmatch.ColumnMatch;
@@ -19,12 +18,10 @@ import org.openl.rules.overload.OverloadTest.ITestI;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.vm.IRuntimeEnv;
 
 public class ExecutionModeTest {
     @Test

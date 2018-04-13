@@ -3,10 +3,11 @@ package org.openl.rules.dt.algorithm2;
 import java.util.Iterator;
 
 import org.openl.OpenL;
-import org.openl.binding.IBindingContextDelegator;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.domain.IIntIterator;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.DecisionTableAlgorithmBuilder;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dt.algorithm.IndexInfo;
@@ -21,7 +22,6 @@ import org.openl.rules.dt.algorithm2.nodes.EqualsNodeBuilder;
 import org.openl.rules.dt.algorithm2.nodes.RangeNodeBuilder;
 import org.openl.rules.dt.algorithm2.nodes.SpecialNodeBuilder;
 import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.dt.IBaseCondition;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenMethodHeader;
 
@@ -30,8 +30,8 @@ public class DecisionTableAlgorithmBuilder2 extends
 
 	public DecisionTableAlgorithmBuilder2(DecisionTable decisionTable,
 			IOpenMethodHeader header, OpenL openl, ComponentOpenClass module,
-			IBindingContextDelegator bindingContextDelegator) {
-		super(decisionTable, header, openl, module, bindingContextDelegator);
+			IBindingContext bindingContext) {
+		super(decisionTable, header, openl, module, bindingContext);
 	}
 
 	protected DecisionTableSearchTree buildSearchTree(IndexInfo info)

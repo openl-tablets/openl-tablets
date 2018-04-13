@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentOpenClass;
@@ -495,7 +494,7 @@ public class SpreadsheetStructureBuilder {
         return context;
     }
 
-    private IBindingContextDelegator makeColumnContext(int columnIndex, IBindingContext rowBindingContext) {
+    private IBindingContext makeColumnContext(int columnIndex, IBindingContext rowBindingContext) {
         /** create name for the column open class */
         String columnOpenClassName = String.format("%sColType%d", spreadsheetHeader.getName(), columnIndex);
 
@@ -508,7 +507,7 @@ public class SpreadsheetStructureBuilder {
         return new ComponentOpenClass(openClassName, openl);
     }
 
-    private IBindingContextDelegator makeRowContext(int rowIndex) {
+    private IBindingContext makeRowContext(int rowIndex) {
 
         /** create name for the row open class */
         String rowOpenClassName = String.format("%sRowType%d", spreadsheetHeader.getName(), rowIndex);
