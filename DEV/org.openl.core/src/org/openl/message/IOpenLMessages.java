@@ -4,7 +4,7 @@ import java.util.Collection;
 
 public interface IOpenLMessages {
 
-    void addError(String message);
+    void addErrorMessage(String message);
     
     void addMessage(OpenLMessage message);
 
@@ -12,19 +12,17 @@ public interface IOpenLMessages {
 
     void addMessages(Collection<OpenLMessage> messages);
 
-    void addWarning(String message);
+    void addWarningMessage(String message);
 
-    void clear();
-
-    Collection<OpenLMessage> getErrors();
+    Collection<OpenLMessage> getErrorMessages();
     
     Collection<OpenLMessage> getMessages();
     
-    Collection<OpenLMessage> getWarnings();
+    Collection<OpenLMessage> getWarningMessages();
     
-    boolean hasErrors();
+    boolean hasErrorMessages();
     
     boolean hasMessages();
 
-    boolean hasWarnings();
+    boolean hasWarningMessages();
 }

@@ -1,8 +1,12 @@
 package org.openl.rules.validation;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.openl.OpenL;
-import org.openl.message.OpenLErrorMessage;
-import org.openl.message.OpenLWarnMessage;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
@@ -12,11 +16,6 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationStatus;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Validator that checks correctness of "active" property. Only one active table
@@ -62,22 +61,21 @@ public class ActivePropertyValidator extends TablesValidator {
                     validationResult = new ValidationResult(ValidationStatus.FAIL);
                 }
                 for (TableSyntaxNode executableMethodTable : activeExecutableMethodTable) {
-                    SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(ODD_ACTIVE_TABLE_MESSAGE,
+                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(ODD_ACTIVE_TABLE_MESSAGE,
                         executableMethodTable);
-                    executableMethodTable.addError(exception);
-                    ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(exception));
+                    executableMethodTable.addError(error);
+                    validationResult.addMessage(OpenLMessagesUtils.newErrorMessage(error));
                 }
             }
 
             if (activeTableFoundCount == 0) {
                 if (validationResult == null) {
-                    validationResult = new ValidationResult(ValidationStatus.SUCCESS);
+                    validationResult = ValidationUtils.validationSuccess();
                 }
                 // warning is attached to all table syntax node
 
                 for (TableSyntaxNode tsn : methodsGroup) {
-                    ValidationUtils.addValidationMessage(validationResult,
-                        new OpenLWarnMessage(NO_ACTIVE_TABLE_MESSAGE, tsn));
+                    validationResult.addMessage(OpenLMessagesUtils.newWarnMessage(NO_ACTIVE_TABLE_MESSAGE, tsn));
                 }
             }
         }

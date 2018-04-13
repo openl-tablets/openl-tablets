@@ -26,6 +26,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.CompiledOpenClass;
 import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.Severity;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.model.Module;
@@ -271,7 +273,7 @@ public final class TestMojo extends BaseOpenLMojo {
         if (openLRules.hasErrors()) {
             error("");
             error("There are compilation errors. It can affect test execution.");
-            Collection<OpenLMessage> errorMessages = openLRules.getOpenLMessages().getErrors();
+            Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(openLRules.getMessages(), Severity.ERROR);
             int i = 0;
             for (OpenLMessage message : errorMessages) {
                 String location = message.getSourceLocation() == null ? "" : " at " + message.getSourceLocation();

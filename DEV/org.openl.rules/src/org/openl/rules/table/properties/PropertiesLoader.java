@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openl.OpenL;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.ITable;
@@ -33,12 +32,12 @@ public class PropertiesLoader {
     private static final String PROPERTIES_SECTION_NAME = "Properties_Section";
 
     private OpenL openl;
-    private RulesModuleBindingContext cxt;
+    private RulesModuleBindingContext bindingContext;
     private XlsModuleOpenClass module;
 
     public PropertiesLoader(OpenL openl, RulesModuleBindingContext cxt, XlsModuleOpenClass module) {
         this.openl = openl;
-        this.cxt = cxt;
+        this.bindingContext = cxt;
         this.module = module;
     }
 
@@ -64,7 +63,7 @@ public class PropertiesLoader {
                 propertiesSection,
                 propertySectionName,
                 propetiesClass,
-                cxt,
+                bindingContext,
                 openl,
                 false);
 
@@ -74,7 +73,7 @@ public class PropertiesLoader {
             String tableType = tableSyntaxNode.getType();
             Set<String> propertyNamesToCheck = propertiesInstance.getPropertiesDefinedInTable().keySet();
 
-            PropertiesChecker.checkProperties(cxt, propertyNamesToCheck, tableSyntaxNode, InheritanceLevel.TABLE);
+            PropertiesChecker.checkProperties(bindingContext, propertyNamesToCheck, tableSyntaxNode, InheritanceLevel.TABLE);
 
             propertiesInstance.setCurrentTableType(tableType);
 
@@ -91,7 +90,7 @@ public class PropertiesLoader {
 
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
         String category = getCategory(tableSyntaxNode);
-        TableSyntaxNode categoryPropertiesTsn = cxt.getTableSyntaxNode(RulesModuleBindingContext.CATEGORY_PROPERTIES_KEY + category);
+        TableSyntaxNode categoryPropertiesTsn = bindingContext.getTableSyntaxNode(RulesModuleBindingContext.CATEGORY_PROPERTIES_KEY + category);
 
         if (categoryPropertiesTsn != null) {
             ITableProperties categoryProperties = categoryPropertiesTsn.getTableProperties();
@@ -120,7 +119,7 @@ public class PropertiesLoader {
     private void loadModuleProperties(TableSyntaxNode tableSyntaxNode) {
 
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
-        TableSyntaxNode modulePropertiesTsn = cxt.getTableSyntaxNode(RulesModuleBindingContext.MODULE_PROPERTIES_KEY);
+        TableSyntaxNode modulePropertiesTsn = bindingContext.getTableSyntaxNode(RulesModuleBindingContext.MODULE_PROPERTIES_KEY);
 
         if (tableProperties != null && modulePropertiesTsn != null) {
             ITableProperties moduleProperties = modulePropertiesTsn.getTableProperties();
@@ -179,13 +178,13 @@ public class PropertiesLoader {
     private void loadExternalProperties(TableSyntaxNode tsn) {
 
         ITableProperties tableProperties = tsn.getTableProperties();
-        TableSyntaxNode modulePropertiesTsn = cxt.getTableSyntaxNode(RulesModuleBindingContext.MODULE_PROPERTIES_KEY);
+        TableSyntaxNode modulePropertiesTsn = bindingContext.getTableSyntaxNode(RulesModuleBindingContext.MODULE_PROPERTIES_KEY);
         ITableProperties moduleProperties = null;
         if (tableProperties != null && modulePropertiesTsn != null) {
             moduleProperties = modulePropertiesTsn.getTableProperties();
         }
 
-        Map<String, Object> externalParams = cxt.getExternalParams();
+        Map<String, Object> externalParams = bindingContext.getExternalParams();
 
         if (externalParams != null && externalParams.containsKey(EXTERNAL_MODULE_PROPERTIES_KEY) && externalParams.get(EXTERNAL_MODULE_PROPERTIES_KEY) instanceof ITableProperties) {
 
@@ -198,7 +197,7 @@ public class PropertiesLoader {
             if (moduleProperties != null) {
                 for (String key : externalProperties.getAllProperties().keySet()) {
                     if (moduleProperties.getAllProperties().keySet().contains(key)) {
-                        cxt.getOpenLMessages().addError("Property '" + key + "' has already defined via external properties! Remove it from module properties.");
+                        bindingContext.getOpenLMessages().addErrorMessage("Property '" + key + "' has already defined via external properties! Remove it from module properties.");
                     }
                 }
             }

@@ -44,7 +44,7 @@ public final class FunctionGridBuilder {
                 if (segment != null && !functionNamesWithAttributes.contains(function.getName())) {
                     String message = "Function " + function.getName() + " with several segments but without attributes";
                     log.warn(message);
-                    messages.addWarning(message);
+                    messages.addWarningMessage(message);
                 }
 
                 String cellAddress = function.getCellAddress();

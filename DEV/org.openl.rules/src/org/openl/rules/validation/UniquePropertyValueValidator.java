@@ -81,11 +81,11 @@ public class UniquePropertyValueValidator extends TablesValidator {
                 OpenLMessage message2 = getMessage(message, errorSeverity, method.getSyntaxNode());
                 
                 if (validationResult == null) {
-                    validationResult = new ValidationResult(ValidationStatus.FAIL, null);
-                    ValidationUtils.addValidationMessage(validationResult, message1);
-                    ValidationUtils.addValidationMessage(validationResult, message2);
+                    validationResult = new ValidationResult(ValidationStatus.FAIL);
+                    validationResult.addMessage(message1);
+                    validationResult.addMessage(message2);
                 } else {
-                    ValidationUtils.addValidationMessage(validationResult, message2);
+                    validationResult.addMessage(message2);
                 }
             } else {
                 values.put(value, method);

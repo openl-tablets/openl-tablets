@@ -180,7 +180,7 @@ public class OpenLSourceManager extends OpenLHolder {
                                 extendableModuleOpenClass.applyToDependentParsedCode(parsedCode);
                             }
 
-                            for (OpenLMessage message : compiledOpenClass.getOpenLMessages().getMessages()) { // Save
+                            for (OpenLMessage message : compiledOpenClass.getMessages()) { // Save
                                                                                                               // messages
                                                                                                               // from
                                 // dependencies
@@ -192,7 +192,7 @@ public class OpenLSourceManager extends OpenLHolder {
                         }
                     }
                 } else {
-                    openLMessages.addError("Can't load dependencies. Dependency manager is not defined.");
+                    openLMessages.addErrorMessage("Can't load dependencies. Dependency manager is not defined.");
                 }
             }
 
@@ -207,14 +207,14 @@ public class OpenLSourceManager extends OpenLHolder {
                 @SuppressWarnings("unchecked")
                 Set<String> warnMessages = (Set<String>) externalParams.get(ADDITIONAL_WARN_MESSAGES_KEY);
                 for (String message : warnMessages) {
-                    openLMessages.addWarning(message);
+                    openLMessages.addWarningMessage(message);
                 }
             }
             if (externalParams.containsKey(ADDITIONAL_ERROR_MESSAGES_KEY)) {
                 @SuppressWarnings("unchecked")
                 Set<String> errorMessage = (Set<String>) externalParams.get(ADDITIONAL_ERROR_MESSAGES_KEY);
                 for (String message : errorMessage) {
-                    openLMessages.addError(message);
+                    openLMessages.addErrorMessage(message);
                 }
             }
         }
@@ -248,7 +248,7 @@ public class OpenLSourceManager extends OpenLHolder {
         if (compiledDependency.getCompiledOpenClass().hasErrors()) {
             String message = String.format("Dependency module '%s' has critical errors",
                 compiledDependency.getDependencyName());
-            openLMessages.addError(message);
+            openLMessages.addErrorMessage(message);
         }
     }
 

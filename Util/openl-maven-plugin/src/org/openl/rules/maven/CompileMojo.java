@@ -11,8 +11,9 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.CompiledOpenClass;
-import org.openl.message.IOpenLMessages;
 import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.Severity;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.types.IOpenClass;
 
@@ -52,13 +53,12 @@ public final class CompileMojo extends BaseOpenLMojo {
 
             CompiledOpenClass openLRules = factory.getCompiledOpenClass();
             IOpenClass openClass = openLRules.getOpenClass();
-            IOpenLMessages messages = openLRules.getOpenLMessages();
-            Collection<OpenLMessage> warnings = messages.getWarnings();
+            Collection<OpenLMessage> warnMessages = OpenLMessagesUtils.filterMessagesBySeverity(openLRules.getMessages(), Severity.WARN); 
             info("Compilation has finished.");
             info("DataTypes: " + openClass.getTypes().size());
             info("Methods  : " + openClass.getMethods().size());
             info("Fields   : " + openClass.getFields().size());
-            info("Warnings : " + warnings.size());
+            info("Warnings : " + warnMessages.size());
         } finally {
             releaseResources(classLoader);
         }

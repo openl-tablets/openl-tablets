@@ -14,8 +14,7 @@ import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationStatus;
 
 /**
- * Validator for string properties that have to correspond to some regexp
- * pattern
+ * Validator for string properties that have to correspond to some regexp pattern
  * 
  * @author PUdalau
  */
@@ -32,18 +31,20 @@ public class RegexpPropertyValidator extends TablesValidator {
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
         ValidationResult validationResult = null;
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
-            if (PropertiesChecker.isPropertySuitableForTableType(propertyName, tsn.getType()) && ( tsn.getTableProperties() != null && tsn.getTableProperties()
-                .getPropertyLevelDefinedOn(propertyName) == InheritanceLevel.TABLE)) {
+            if (PropertiesChecker.isPropertySuitableForTableType(propertyName,
+                tsn.getType()) && (tsn.getTableProperties() != null && tsn.getTableProperties()
+                    .getPropertyLevelDefinedOn(propertyName) == InheritanceLevel.TABLE)) {
                 String propertyValue = (String) tsn.getTableProperties().getPropertyValue(propertyName);
                 if (propertyValue == null || !propertyValue.matches(constraintsStr)) {
                     if (validationResult == null) {
                         validationResult = new ValidationResult(ValidationStatus.FAIL);
                     }
-                    SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(String.format(
-                            "Incorrect value \"%s\" for property \"%s\"", propertyValue,
+                    SyntaxNodeException exception = SyntaxNodeExceptionUtils
+                        .createError(String.format("Incorrect value \"%s\" for property \"%s\"",
+                            propertyValue,
                             TablePropertyDefinitionUtils.getPropertyDisplayName(propertyName)), tsn);
                     tsn.addError(exception);
-                    ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(exception));
+                    validationResult.addMessage(new OpenLErrorMessage(exception));
                 }
             }
         }

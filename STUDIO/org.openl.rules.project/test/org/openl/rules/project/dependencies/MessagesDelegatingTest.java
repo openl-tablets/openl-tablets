@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Before;
@@ -14,6 +15,8 @@ import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.Severity;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
@@ -63,24 +66,15 @@ public class MessagesDelegatingTest {
     @Test
     public void testMessagesDelegatingFromDependencies() throws Exception {
         CompiledOpenClass compiledRules = getCompiledOpenClassForModule("Rules");
-        assertTrue(compiledRules.getOpenLMessages().getMessages().size() > 0);
+        assertTrue(compiledRules.getMessages().size() > 0);
         CompiledOpenClass compiledRules2 = getCompiledOpenClassForModule("Rules2");
-        assertTrue(compiledRules2.getOpenLMessages().getMessages().size() > compiledRules.getOpenLMessages()
-            .getMessages()
-            .size());
-        assertTrue(compiledRules2.getOpenLMessages().getMessages().containsAll(
-            compiledRules.getOpenLMessages().getMessages()));
+        assertTrue(compiledRules2.getMessages().size() > compiledRules.getMessages().size());
+        assertTrue(compiledRules2.getMessages().containsAll(compiledRules.getMessages()));
         CompiledOpenClass compiledRules3 = getCompiledOpenClassForModule("Rules3");
-        assertTrue(compiledRules3.getOpenLMessages().getMessages().size() > compiledRules.getOpenLMessages()
-            .getMessages()
-            .size());
-        assertTrue(compiledRules3.getOpenLMessages().getMessages().containsAll(
-            compiledRules.getOpenLMessages().getMessages()));
-        assertTrue(compiledRules3.getOpenLMessages().getMessages().size() > compiledRules2.getOpenLMessages()
-            .getMessages()
-            .size());
-        assertTrue(compiledRules3.getOpenLMessages().getMessages().containsAll(
-            compiledRules2.getOpenLMessages().getMessages()));
+        assertTrue(compiledRules3.getMessages().size() > compiledRules.getMessages().size());
+        assertTrue(compiledRules3.getMessages().containsAll(compiledRules.getMessages()));
+        assertTrue(compiledRules3.getMessages().size() > compiledRules2.getMessages().size());
+        assertTrue(compiledRules3.getMessages().containsAll(compiledRules2.getMessages()));
     }
 
     @Test
@@ -93,8 +87,7 @@ public class MessagesDelegatingTest {
         CompiledOpenClass compiledMultiModule = strategy.compile();
         for (Module module : modules) {
             CompiledOpenClass compiledModule = getCompiledOpenClassForModule(module.getName());
-            compiledMultiModule.getOpenLMessages().getMessages().containsAll(
-                compiledModule.getOpenLMessages().getMessages());
+            compiledMultiModule.getMessages().containsAll(compiledModule.getMessages());
         }
 
         assertFalse("During compilation DuplicatedMethodException must not be thrown",
@@ -112,17 +105,18 @@ public class MessagesDelegatingTest {
         CompiledOpenClass compiledMultiModule = strategy.compile();
         for (Module module : modules) {
             CompiledOpenClass compiledModule = getCompiledOpenClassForModule(module.getName());
-            compiledMultiModule.getOpenLMessages().getMessages().containsAll(
-                compiledModule.getOpenLMessages().getMessages());
+            compiledMultiModule.getMessages().containsAll(compiledModule.getMessages());
         }
 
         assertTrue("During compilation DuplicatedMethodException must be thrown",
             hasDuplicatedMethodException(compiledMultiModule));
     }
 
-    private boolean hasDuplicatedMethodException(CompiledOpenClass compiledMultiModule) {
+    private boolean hasDuplicatedMethodException(CompiledOpenClass compiledOpenClass) {
         boolean hasDuplicatedMethodException = false;
-        for (OpenLMessage error : compiledMultiModule.getOpenLMessages().getErrors()) {
+        
+        Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(compiledOpenClass.getMessages(), Severity.ERROR);
+        for (OpenLMessage error : errorMessages) {
             if (error instanceof OpenLErrorMessage) {
                 Throwable cause = ((OpenLErrorMessage) error).getError().getCause();
                 if (cause instanceof DuplicatedMethodException) {

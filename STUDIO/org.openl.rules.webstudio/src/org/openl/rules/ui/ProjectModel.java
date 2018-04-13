@@ -9,9 +9,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -589,12 +591,12 @@ public class ProjectModel {
         return compiledOpenClass;
     }
 
-    public IOpenLMessages getModuleMessages() {
+    public Collection<OpenLMessage> getModuleMessages() {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
         if (compiledOpenClass != null) {
-            return compiledOpenClass.getOpenLMessages();
+            return compiledOpenClass.getMessages();
         }
-        return OpenLMessages.empty();
+        return Collections.emptyList();
     }
 
     /**
@@ -1060,10 +1062,10 @@ public class ProjectModel {
             WorkbookLoaders.resetCurrentFactory();
         } catch (Throwable t) {
             Log.error("Problem Loading OpenLWrapper", t);
-            IOpenLMessages messages = new OpenLMessages();
+            Collection<OpenLMessage> messages = new LinkedHashSet<>();
             for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(t)) {
                 String message = String.format("Can't load the module: %s", openLMessage.getSummary());
-                messages.addMessage(new OpenLMessage(message, Severity.ERROR));
+                messages.add(new OpenLMessage(message, Severity.ERROR));
             }
 
             compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages, new SyntaxNodeException[0],

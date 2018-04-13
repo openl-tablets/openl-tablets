@@ -98,7 +98,7 @@ public class OpenLCompileManager extends OpenLHolder {
             List<ValidationResult> validationResults = validationManager.validate(openClass);
 
             for (ValidationResult result : validationResults) {
-                messages.addMessages(result.getOpenLMessages().getMessages());
+                messages.addMessages(result.getMessages());
             }
         }
 
@@ -108,7 +108,7 @@ public class OpenLCompileManager extends OpenLHolder {
             ((ComponentOpenClass) openClass).clearOddDataForExecutionMode();
         }
 
-        return new CompiledOpenClass(openClass, messages, parsingErrors, bindingErrors);
+        return new CompiledOpenClass(openClass, messages.getMessages(), parsingErrors, bindingErrors);
     }
 
     /**

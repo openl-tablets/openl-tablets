@@ -5,8 +5,9 @@ import java.util.Collection;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.openl.message.IOpenLMessages;
 import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.Severity;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
@@ -41,19 +42,21 @@ public class ProblemsBean {
         if (studio.getCurrentProject() != null) {
             ProjectModel model = studio.getModel();
 
-            IOpenLMessages openLMessages = model.getModuleMessages();
-
             TreeNode root = new TreeNode();
+            Collection<OpenLMessage> messages = model.getModuleMessages();
+            
+            Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
 
-            if (openLMessages.hasErrors()) {
-                TreeNode errorsRoot = createMessagesRoot(ERRORS_ROOT_NAME, openLMessages.getErrors().size());
-                addMessageNodes(errorsRoot, ERROR_NODE_NAME, openLMessages.getErrors(), model);
+            if (!errorMessages.isEmpty()) {
+                TreeNode errorsRoot = createMessagesRoot(ERRORS_ROOT_NAME, errorMessages.size());
+                addMessageNodes(errorsRoot, ERROR_NODE_NAME, errorMessages, model);
                 root.addChild(nodeCount++, errorsRoot);
             }
 
-            if (openLMessages.hasWarnings()) {
-                TreeNode warningsRoot = createMessagesRoot(WARNINGS_ROOT_NAME, openLMessages.getWarnings().size());
-                addMessageNodes(warningsRoot, WARNING_NODE_NAME, openLMessages.getWarnings(), model);
+            Collection<OpenLMessage> warnMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
+            if (!warnMessages.isEmpty()) {
+                TreeNode warningsRoot = createMessagesRoot(WARNINGS_ROOT_NAME, warnMessages.size());
+                addMessageNodes(warningsRoot, WARNING_NODE_NAME, warnMessages, model);
                 root.addChild(nodeCount++, warningsRoot);
             }
 
@@ -64,7 +67,7 @@ public class ProblemsBean {
 
     public boolean isHasProblems() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        return studio.getCurrentProject() != null && studio.getModel().getModuleMessages().hasMessages();
+        return studio.getCurrentProject() != null && !studio.getModel().getModuleMessages().isEmpty();
     }
 
     private TreeNode createMessagesRoot(String rootName, int messagesNumber) {

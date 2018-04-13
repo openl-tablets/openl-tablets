@@ -1,7 +1,10 @@
 package org.openl.validation;
 
-import org.openl.message.IOpenLMessages;
-import org.openl.message.OpenLMessages;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+
+import org.openl.message.OpenLMessage;
 
 /**
  * The <code>ValidationResult</code> defines contract that used in validation process.
@@ -20,7 +23,7 @@ public class ValidationResult {
     /**
      * Messages of validation process.
      */
-    private IOpenLMessages messages;
+    private Collection<OpenLMessage> messages;
 
     /**
      * Creates new instance of validation result.
@@ -28,22 +31,7 @@ public class ValidationResult {
      * @param status status value
      */
     public ValidationResult(ValidationStatus status) {
-        this(status, null);
-    }
-
-    /**
-     * Creates new instance of validation result.
-     * 
-     * @param status status value
-     * @param messages list of validation messages
-     */
-    public ValidationResult(ValidationStatus status, IOpenLMessages messages) {
         this.status = status;
-        if (messages == null) {
-            this.messages = new OpenLMessages();
-        } else {
-            this.messages = messages;
-        }
     }
 
     /**
@@ -60,7 +48,17 @@ public class ValidationResult {
      * 
      * @return list of messages
      */
-    public IOpenLMessages getOpenLMessages() {
-        return messages;
+    public Collection<OpenLMessage> getMessages() {
+        if (messages == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableCollection(messages);
+    }
+    
+    public void addMessage(OpenLMessage message) {
+        if (messages == null) {
+            messages = new LinkedHashSet<>();
+        }
+        messages.add(message);
     }
 }

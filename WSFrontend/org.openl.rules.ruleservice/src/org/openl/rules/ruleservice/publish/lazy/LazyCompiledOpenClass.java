@@ -6,6 +6,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.IOpenLMessages;
+import org.openl.message.OpenLMessage;
 import org.openl.rules.ruleservice.core.LazyRuleServiceDependencyLoader;
 import org.openl.rules.ruleservice.core.RuleServiceDeploymentRelatedDependencyManager;
 import org.openl.syntax.code.IDependency;
@@ -80,10 +81,10 @@ public class LazyCompiledOpenClass extends CompiledOpenClass {
     }
 
     @Override
-    public IOpenLMessages getOpenLMessages() {
-        return getCompiledOpenClass().getOpenLMessages();
+    public Collection<OpenLMessage> getMessages() {
+        return getCompiledOpenClass().getMessages();
     }
-
+    
     @Override
     public Collection<IOpenClass> getTypes() {
         return getCompiledOpenClass().getTypes();
