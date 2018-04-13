@@ -1,13 +1,12 @@
 package org.openl.rules.webstudio.dependencies;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.message.IOpenLMessages;
 import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.project.instantiation.AbstractProjectDependencyManager;
@@ -31,12 +30,12 @@ final class WebStudioDependencyLoader extends SimpleProjectDependencyLoader {
     private CompiledDependency createFailedCompiledDependency(String dependencyName,
             ClassLoader classLoader,
             Exception ex) {
-        IOpenLMessages messages = new OpenLMessages();
+        Collection<OpenLMessage> messages = new LinkedHashSet<>();
         for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(ex)) {
             String message = String.format("Failed to load dependent module '%s': %s",
                 dependencyName,
                 openLMessage.getSummary());
-            messages.addMessage(new OpenLMessage(message, Severity.ERROR));
+            messages.add(new OpenLMessage(message, Severity.ERROR));
         }
 
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();

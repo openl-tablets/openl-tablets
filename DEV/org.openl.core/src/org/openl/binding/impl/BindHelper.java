@@ -185,7 +185,7 @@ public class BindHelper {
 
     public static void processWarn(String message, ISyntaxNode source, IBindingContext bindingContext) {
         if (bindingContext.isExecutionMode()) {
-            bindingContext.getOpenLMessages().addWarning(message);
+            bindingContext.getOpenLMessages().addWarningMessage(message);
         } else {
             bindingContext.getOpenLMessages().addMessage(OpenLMessagesUtils.newWarnMessage(message, source));
         }

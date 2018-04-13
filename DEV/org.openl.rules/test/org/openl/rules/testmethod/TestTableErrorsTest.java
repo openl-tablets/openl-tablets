@@ -45,7 +45,7 @@ public class TestTableErrorsTest extends BaseOpenlBuilderHelper {
     public void testAllErrorsHaveSyntaxNodes() {
         TableSyntaxNode[] syntaxNodes = getTableSyntaxNodes();
 
-        for (OpenLMessage message : getCompiledOpenClass().getOpenLMessages().getMessages()) {
+        for (OpenLMessage message : getCompiledOpenClass().getMessages()) {
             // Search syntax node with same error message
             boolean found = false;
             for (TableSyntaxNode node : syntaxNodes) {

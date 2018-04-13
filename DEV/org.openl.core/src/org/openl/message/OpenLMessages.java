@@ -16,7 +16,7 @@ public class OpenLMessages implements IOpenLMessages {
     private Collection<OpenLMessage> messages = new LinkedHashSet<>();
 
     @Override
-    public void addError(String message) {
+    public void addErrorMessage(String message) {
         addMessage(message, Severity.ERROR);
     }
 
@@ -49,20 +49,12 @@ public class OpenLMessages implements IOpenLMessages {
     }
 
     @Override
-    public void addWarning(String message) {
+    public void addWarningMessage(String message) {
         addMessage(message, Severity.WARN);
     }
     
-    /**
-     * Removes all entries from OpenL messages.
-     * 
-     */
-    public void clear() {
-        messages = new LinkedHashSet<>();
-    }
-
     @Override
-    public Collection<OpenLMessage> getErrors() {
+    public Collection<OpenLMessage> getErrorMessages() {
         return OpenLMessagesUtils.filterMessagesBySeverity(getMessages(), Severity.ERROR);
     }
 
@@ -77,7 +69,7 @@ public class OpenLMessages implements IOpenLMessages {
     }
 
     @Override
-    public Collection<OpenLMessage> getWarnings() {
+    public Collection<OpenLMessage> getWarningMessages() {
         return OpenLMessagesUtils.filterMessagesBySeverity(getMessages(), Severity.WARN);
     }
 
@@ -91,7 +83,7 @@ public class OpenLMessages implements IOpenLMessages {
     }
 
     @Override
-    public boolean hasErrors() {
+    public boolean hasErrorMessages() {
         return hasBySeverity(Severity.ERROR);
     }
 
@@ -101,7 +93,7 @@ public class OpenLMessages implements IOpenLMessages {
     }
 
     @Override
-    public boolean hasWarnings() {
+    public boolean hasWarningMessages() {
         return hasBySeverity(Severity.WARN);
     }
 

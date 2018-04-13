@@ -497,7 +497,7 @@ public final class TableGridBuilder {
                     skipColumns + " columns were skipped";
             Logger log = LoggerFactory.getLogger(TableGridBuilder.class);
             log.warn(message);
-            messages.addWarning(message);
+            messages.addWarningMessage(message);
         }
 
         List<ReturnRow> newReturnValues = new ArrayList<ReturnRow>();

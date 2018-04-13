@@ -202,9 +202,8 @@ public class TableBean {
 
         ProjectModel model = WebStudioUtils.getProjectModel();
 
-        IOpenLMessages openLMessages = model.getModuleMessages();
-
-        for (OpenLMessage message : openLMessages.getWarnings()) {
+        Collection<OpenLMessage> warnMessages = OpenLMessagesUtils.filterMessagesBySeverity(model.getModuleMessages(), Severity.WARN);
+        for (OpenLMessage message : warnMessages) {
             if (message instanceof OpenLWarnMessage) {//there can be simple OpenLMessages with severity WARN
                 OpenLWarnMessage warning = (OpenLWarnMessage) message;
                 ISyntaxNode syntaxNode = warning.getSource();

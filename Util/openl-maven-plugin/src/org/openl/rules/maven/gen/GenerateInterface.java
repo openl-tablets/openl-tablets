@@ -31,6 +31,8 @@ import org.openl.engine.OpenLManager;
 import org.openl.main.OpenLProjectPropertiesLoader;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.Severity;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
@@ -645,7 +647,8 @@ public class GenerateInterface {
             }
         }
 
-        Collection<OpenLMessage> errorMessages = compiledOpenClass.getOpenLMessages().getErrors();
+        Collection<OpenLMessage> errorMessages = OpenLMessagesUtils
+            .filterMessagesBySeverity(compiledOpenClass.getMessages(), Severity.ERROR);
         if (errorMessages != null && !errorMessages.isEmpty()) {
             String message = getErrorMessage(errorMessages);
             // throw new OpenLCompilationException(message);

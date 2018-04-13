@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openl.OpenL;
-import org.openl.message.OpenLWarnMessage;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
@@ -235,8 +235,8 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
         IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) method;
         if (memberMetaInfo.getSyntaxNode() != null) {
             if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
-                ValidationUtils.addValidationMessage(validationResult,
-                    new OpenLWarnMessage("Ambiguous definition of properties values. Details: " + message,
+                validationResult.addMessage(
+                    OpenLMessagesUtils.newWarnMessage("Ambiguous definition of properties values. Details: " + message,
                         memberMetaInfo.getSyntaxNode()));
             }
         }

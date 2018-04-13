@@ -6,16 +6,15 @@ import java.util.Map;
 
 import org.openl.OpenL;
 import org.openl.domain.IDomain;
-import org.openl.message.OpenLErrorMessage;
-import org.openl.message.OpenLWarnMessage;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.dt.type.domains.DomainAdaptorFactory;
 import org.openl.rules.dt.type.domains.IDomainAdaptor;
 import org.openl.rules.dt.validator.DecisionTableAnalyzer;
+import org.openl.rules.dt.validator.DecisionTableValidationResult;
 import org.openl.rules.dt.validator.DecisionTableValidator;
 import org.openl.rules.enumeration.ValidateDTEnum;
-import org.openl.rules.dt.validator.DecisionTableValidationResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -158,16 +157,14 @@ public class GapOverlapValidator extends TablesValidator {
         }
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, sourceNode);
         sourceNode.addError(error);
-        ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(error));
+        validationResult.addMessage(OpenLMessagesUtils.newErrorMessage(error));
     }
 
     private void addWarning(TableSyntaxNode sourceNode, String message) {
         if (validationResult == null) {
             validationResult = new ValidationResult(ValidationStatus.FAIL);
         }
-//        SyntaxNodeException error = new SyntaxNodeException(message, null, sourceNode);
-//        sourceNode.addError(error);
-        ValidationUtils.addValidationMessage(validationResult, new OpenLWarnMessage(message, sourceNode));
+        validationResult.addMessage(OpenLMessagesUtils.newWarnMessage(message, sourceNode));
     }
     
     

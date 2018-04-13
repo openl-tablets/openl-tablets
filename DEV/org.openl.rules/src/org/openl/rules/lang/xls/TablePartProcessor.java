@@ -102,7 +102,7 @@ public class TablePartProcessor {
                     if (vertical) {
                         throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
                     } else {
-                        messages.addWarning(message);
+                        messages.addWarningMessage(message);
                     }
                 }
             }

@@ -5,10 +5,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Test;
-import org.openl.message.IOpenLMessages;
+import org.openl.message.OpenLMessage;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
@@ -178,8 +179,8 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
     @Test
     public void testDataTableWithClass() {
         //TODO: Fix it. There should be no error messages
-        IOpenLMessages messages = getCompiledOpenClass().getOpenLMessages();
-        assertEquals(1, messages.getMessages().size());
-        assertEquals("Cannot parse cell value '1 < 2'. Expected value of type 'ClassForStringConstructorLoadingTests'.", messages.getMessages().iterator().next().getSummary());
+        Collection<OpenLMessage> messages = getCompiledOpenClass().getMessages();
+        assertEquals(1, messages.size());
+        assertEquals("Cannot parse cell value '1 < 2'. Expected value of type 'ClassForStringConstructorLoadingTests'.", messages.iterator().next().getSummary());
     }
 }
