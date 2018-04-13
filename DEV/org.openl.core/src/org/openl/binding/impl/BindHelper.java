@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundNode;
 import org.openl.message.IOpenLMessages;
@@ -213,18 +212,6 @@ public class BindHelper {
         ErrorBoundNode boundNode = new ErrorBoundNode(syntaxNode);
 
         return new BoundCode(parsedCode, boundNode, errors, messages, 0);
-    }
-
-    public static IBindingContext delegateContext(IBindingContext context, IBindingContextDelegator delegator) {
-
-        if (delegator != null) {
-
-            delegator.setTopDelegate(context);
-
-            return delegator;
-        }
-
-        return context;
     }
 
     /**

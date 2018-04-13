@@ -7,7 +7,7 @@
 package org.openl.rules.dt.element;
 
 import org.openl.OpenL;
-import org.openl.binding.IBindingContextDelegator;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.dt.IBaseDecisionRow;
 import org.openl.source.IOpenSourceCodeModule;
@@ -63,7 +63,7 @@ public interface IDecisionRow  extends IBaseDecisionRow{
             IMethodSignature signature,
             OpenL openl,
             ComponentOpenClass componentModule,
-            IBindingContextDelegator bindingContextDelegator,
+            IBindingContext bindingContext,
             RuleRow ruleRow) throws Exception;
 
 	void loadValues(Object[] dest, int offset, int ruleN, Object target,

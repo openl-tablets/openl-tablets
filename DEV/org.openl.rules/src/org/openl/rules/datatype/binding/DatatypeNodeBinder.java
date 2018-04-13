@@ -41,7 +41,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tsn,
             OpenL openl,
-            IBindingContext cxt,
+            IBindingContext bindingContext,
             XlsModuleOpenClass module) throws Exception {
 
         ILogicalTable table = tsn.getTable();
@@ -51,7 +51,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
         String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
 
-        if (cxt.findType(ISyntaxConstants.THIS_NAMESPACE, typeName) != null) {
+        if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName) != null) {
             String message = "Duplicate type definition: " + typeName;
             throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
         }
@@ -70,7 +70,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
             // Load data part of table (part where domain values are defined).
             //
-            ILogicalTable dataPart = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
+            ILogicalTable dataPart = DatatypeHelper.getNormalizedDataPartTable(table, openl, bindingContext);
 
             // Get type name.
             //
@@ -82,9 +82,9 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             if (dataPart != null) {
                 IOpenSourceCodeModule arrayAliasTypeSource = new StringSourceCodeModule(type + "[]", tableSource.getUri());
                 IOpenClass arrayOpenClass = OpenLManager
-                        .makeType(openl, arrayAliasTypeSource, (IBindingContextDelegator) cxt);
+                        .makeType(openl, arrayAliasTypeSource, bindingContext);
 
-                OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, cxt);
+                OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext);
 
                 Object values = RuleRowHelper.loadParam(dataPart, arrayOpenClass, "Values", "", openlAdaptor, true);
 
@@ -103,7 +103,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             
             // Create appropriate OpenL class for type definition.
             //
-            IOpenClass baseOpenClass = OpenLManager.makeType(openl, aliasTypeSource, (IBindingContextDelegator) cxt);
+            IOpenClass baseOpenClass = OpenLManager.makeType(openl, aliasTypeSource, bindingContext);
             
             // Create domain class definition which will be used by OpenL engine at runtime.
             //
@@ -114,7 +114,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
             // Add domain class definition to biding context as internal type.
             //
-            cxt.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
+            bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
 
             // Return bound node.
             //
@@ -137,7 +137,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
             // Add domain class definition to biding context as internal type.
             //
-            cxt.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
+            bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
 
             if (parsedHeader.length == 4) {
                 return new DatatypeTableBoundNode(tsn,

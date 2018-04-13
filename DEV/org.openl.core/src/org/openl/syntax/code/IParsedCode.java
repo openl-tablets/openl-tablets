@@ -48,6 +48,7 @@ public interface IParsedCode {
     IDependency[] getDependencies();
     
     void setExternalParams(Map<String, Object> params);
+    
     Map<String, Object> getExternalParams();
     
     void setCompiledDependencies(Set<CompiledDependency> compliedDependencies);

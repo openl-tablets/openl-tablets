@@ -10,7 +10,6 @@ import java.util.Map;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ICastFactory;
@@ -90,10 +89,10 @@ public class Binder implements IOpenBinder {
      * (non-Javadoc)
      * @see org.openl.IOpenBinder#bind(org.openl.syntax.IParsedCode)
      */
-    public IBoundCode bind(IParsedCode parsedCode, IBindingContextDelegator delegator) {
-
-        IBindingContext bindingContext = makeBindingContext();
-        bindingContext = BindHelper.delegateContext(bindingContext, delegator);
+    public IBoundCode bind(IParsedCode parsedCode, IBindingContext bindingContext) {
+        if (bindingContext == null) {
+            bindingContext = makeBindingContext();
+        }
 
         ISyntaxNode syntaxNode = parsedCode.getTopNode();
 

@@ -14,7 +14,6 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.text.WordUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.NodeType;
@@ -491,11 +490,11 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return defaultValue;
     }
 
-    private IOpenClass getFieldType(IBindingContext cxt,
+    private IOpenClass getFieldType(IBindingContext bindingContext,
             ILogicalTable row,
             GridCellSourceCodeModule tableSrc) throws SyntaxNodeException {
 
-        IOpenClass fieldType = OpenLManager.makeType(openl, tableSrc, (IBindingContextDelegator) cxt);
+        IOpenClass fieldType = OpenLManager.makeType(openl, tableSrc, bindingContext);
 
         if (fieldType == null || fieldType instanceof NullOpenClass) {
             String errorMessage = String.format("Type %s is not found", tableSrc.getCode());

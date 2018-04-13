@@ -85,11 +85,11 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
         }
     }
 
-    private IOpenClass getConstantType(IBindingContext cxt,
+    private IOpenClass getConstantType(IBindingContext bindingContext,
             ILogicalTable row,
             GridCellSourceCodeModule tableSrc) throws SyntaxNodeException {
 
-        IOpenClass fieldType = OpenLManager.makeType(openl, tableSrc, (IBindingContextDelegator) cxt);
+        IOpenClass fieldType = OpenLManager.makeType(openl, tableSrc, bindingContext);
 
         if (fieldType == null || fieldType instanceof NullOpenClass) {
             String errorMessage = String.format("Type %s is not found", tableSrc.getCode());

@@ -19,7 +19,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ICastFactory;
@@ -29,6 +28,7 @@ import org.openl.binding.INameSpacedTypeFactory;
 import org.openl.binding.INameSpacedVarFactory;
 import org.openl.binding.INodeBinderFactory;
 import org.openl.binding.impl.BindHelper;
+import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.BoundCode;
 import org.openl.binding.impl.module.ModuleNode;
 import org.openl.conf.IUserContext;
@@ -77,6 +77,7 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.OpenMethodHeader;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ASelector;
 import org.openl.util.ASelector.StringValueSelector;
 import org.openl.util.ISelector;
@@ -159,14 +160,14 @@ public class XlsBinder implements IOpenBinder {
      * @see org.openl.IOpenBinder#makeBindingContext()
      */
     public IBindingContext makeBindingContext() {
-        throw new UnsupportedOperationException("XlsBinder is top level Binder");
+        return new BindingContext(null, JavaOpenClass.VOID, null);
     }
 
     public IBoundCode bind(IParsedCode parsedCode) {
         return bind(parsedCode, null);
     }
 
-    public IBoundCode bind(IParsedCode parsedCode, IBindingContextDelegator bindingContextDelegator) {
+    public IBoundCode bind(IParsedCode parsedCode, IBindingContext bindingContext) {
 
         XlsModuleSyntaxNode moduleNode = (XlsModuleSyntaxNode) parsedCode.getTopNode();
 
@@ -175,18 +176,25 @@ public class XlsBinder implements IOpenBinder {
         try {
             openl = makeOpenL(moduleNode);
         } catch (OpenConfigurationException ex) {
-
             OpenlSyntaxNode syntaxNode = moduleNode.getOpenlNode();
-
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Error Creating OpenL", ex, syntaxNode);
-            bindingContextDelegator.addError(error);
 
-            return BindHelper.makeInvalidCode(parsedCode, syntaxNode, new SyntaxNodeException[] { error }, OpenLMessages.empty());
+            return BindHelper
+                .makeInvalidCode(parsedCode, syntaxNode, new SyntaxNodeException[] { error }, OpenLMessages.empty());
         }
 
-        IOpenBinder openlBinder = openl.getBinder();
-        IBindingContext bindingContext = openlBinder.makeBindingContext();
-        bindingContext = BindHelper.delegateContext(bindingContext, bindingContextDelegator);
+        if (bindingContext == null) {
+            IOpenBinder openlBinder = openl.getBinder();
+            bindingContext = openlBinder.makeBindingContext();
+        } else {
+            if (bindingContext instanceof BindingContext) {
+                BindingContext bc = (BindingContext) bindingContext;
+                if (bc.getOpenL() == null || bc.getBinder() == null) { // Workaround
+                    bc.setOpenl(openl);
+                    bc.setBinder(openl.getBinder());
+                }
+            }
+        }
 
         if (parsedCode.getExternalParams() != null) {
             bindingContext.setExternalParams(parsedCode.getExternalParams());

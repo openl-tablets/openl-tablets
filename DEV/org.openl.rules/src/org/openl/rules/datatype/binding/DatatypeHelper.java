@@ -119,11 +119,11 @@ public class DatatypeHelper {
         return count;
     }
 
-    private static IOpenClass makeType(ILogicalTable table, OpenL openl, IBindingContext cxt) {
+    private static IOpenClass makeType(ILogicalTable table, OpenL openl, IBindingContext bindingContext) {
 
-        GridCellSourceCodeModule source = new GridCellSourceCodeModule(table.getSource(), cxt);
+        GridCellSourceCodeModule source = new GridCellSourceCodeModule(table.getSource(), bindingContext);
 
-        return OpenLManager.makeType(openl, source, (IBindingContextDelegator) cxt);
+        return OpenLManager.makeType(openl, source, bindingContext);
     }
 
     /**

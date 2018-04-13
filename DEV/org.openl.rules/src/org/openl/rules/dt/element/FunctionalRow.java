@@ -11,7 +11,6 @@ import java.util.Set;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.engine.OpenLCellExpressionsCompiler;
@@ -191,19 +190,19 @@ public abstract class FunctionalRow implements IDecisionRow {
             IMethodSignature signature,
             OpenL openl,
             ComponentOpenClass componentOpenClass,
-            IBindingContextDelegator bindingContextDelegator,
+            IBindingContext bindingContext,
             RuleRow ruleRow) throws Exception {
 
-        method = generateMethod(signature, openl, bindingContextDelegator, componentOpenClass, methodType);
+        method = generateMethod(signature, openl, bindingContext, componentOpenClass, methodType);
 
-        OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContextDelegator);
+        OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext);
 
         IOpenMethodHeader header = new OpenMethodHeader(name, null, signature, componentOpenClass);
         openlAdaptor.setHeader(header);
 
         prepareParamValues(method, openlAdaptor, ruleRow);
 
-        if (bindingContextDelegator.isExecutionMode()) {
+        if (bindingContext.isExecutionMode()) {
             decisionTable = null;
             paramsTable = null;
             codeTable = null;
@@ -377,11 +376,11 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     protected final CompositeMethod generateMethod(IMethodSignature signature,
             OpenL openl,
-            IBindingContextDelegator bindingContextDelegator,
+            IBindingContext bindingContext,
             IOpenClass declaringClass,
             IOpenClass methodType) throws Exception {
 
-        IOpenSourceCodeModule source = getExpressionSource(bindingContextDelegator,
+        IOpenSourceCodeModule source = getExpressionSource(bindingContext,
             openl,
             declaringClass,
             signature,
@@ -392,11 +391,11 @@ public abstract class FunctionalRow implements IDecisionRow {
             declaringClass,
             methodType,
             openl,
-            bindingContextDelegator);
+            bindingContext);
         IMethodSignature newSignature = ((MethodSignature) signature).merge(methodParams);
         OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, newSignature, declaringClass);
 
-        return OpenLCellExpressionsCompiler.makeMethod(openl, source, methodHeader, bindingContextDelegator);
+        return OpenLCellExpressionsCompiler.makeMethod(openl, source, methodHeader, bindingContext);
     }
 
     protected IOpenSourceCodeModule getExpressionSource(IBindingContext bindingContext,

@@ -315,5 +315,12 @@ public class BindingContext implements IBindingContext {
     public IOpenLMessages getOpenLMessages() {
         return messages;
     }
-
+    
+    public void setOpenl(OpenL openl) {
+        this.openl = openl;
+    }
+    
+    public void setBinder(IOpenBinder binder) {
+        this.binder = binder;
+    }
 }

@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.data.RuleExecutionObject;
@@ -122,7 +121,7 @@ public class Action extends FunctionalRow implements IAction {
             IMethodSignature signature,
             OpenL openl,
             ComponentOpenClass componentOpenClass,
-            IBindingContextDelegator bindingContextDelegator,
+            IBindingContext bindingContext,
             RuleRow ruleRow, IOpenClass ruleExecutionType) throws Exception {
         
         this.returnType = header.getType();
@@ -140,7 +139,7 @@ public class Action extends FunctionalRow implements IAction {
             }
         }
         
-        prepare(methodType, signature, openl, componentOpenClass, bindingContextDelegator, ruleRow);
+        prepare(methodType, signature, openl, componentOpenClass, bindingContext, ruleRow);
         this.ruleExecutionType = ruleExecutionType;
 
         IParameterDeclaration[] params = getParams();
