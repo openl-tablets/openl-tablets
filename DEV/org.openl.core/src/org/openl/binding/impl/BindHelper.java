@@ -12,7 +12,7 @@ import java.util.Collections;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundNode;
-import org.openl.message.IOpenLMessages;
+import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
@@ -189,9 +189,9 @@ public class BindHelper {
 
     public static void processWarn(String message, ISyntaxNode source, IBindingContext bindingContext) {
         if (bindingContext.isExecutionMode()) {
-            bindingContext.getOpenLMessages().addWarningMessage(message);
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message));
         } else {
-            bindingContext.getOpenLMessages().addMessage(OpenLMessagesUtils.newWarnMessage(message, source));
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, source));
         }
     }
 
@@ -201,13 +201,13 @@ public class BindHelper {
 
         ErrorBoundNode boundNode = new ErrorBoundNode(syntaxNode);
 
-        return new BoundCode(parsedCode, boundNode, bindingContext.getErrors(), bindingContext.getOpenLMessages(), bindingContext.getLocalVarFrameSize());
+        return new BoundCode(parsedCode, boundNode, bindingContext.getErrors(), bindingContext.getMessages(), bindingContext.getLocalVarFrameSize());
     }
 
     public static IBoundCode makeInvalidCode(IParsedCode parsedCode,
             ISyntaxNode syntaxNode,
             SyntaxNodeException[] errors,
-            IOpenLMessages messages) {
+            Collection<OpenLMessage> messages) {
 
         ErrorBoundNode boundNode = new ErrorBoundNode(syntaxNode);
 

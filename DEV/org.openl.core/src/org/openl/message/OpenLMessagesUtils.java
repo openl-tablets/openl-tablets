@@ -16,9 +16,17 @@ import org.openl.util.CollectionUtils;
 
 public class OpenLMessagesUtils {
 
+    public static OpenLMessage newErrorMessage(String summary) {
+        return new OpenLMessage(summary, Severity.ERROR);
+    }
+
+    public static OpenLMessage newWarnMessage(String summary) {
+        return new OpenLMessage(summary, Severity.WARN);
+    }
+
     public static Collection<OpenLMessage> newErrorMessages(OpenLCompilationException[] errors) {
         if (errors != null) {
-            Collection<OpenLMessage> messages = new ArrayList<OpenLMessage>();    
+            Collection<OpenLMessage> messages = new ArrayList<OpenLMessage>();
             for (OpenLCompilationException error : errors) {
                 OpenLMessage message = newErrorMessage(error);
                 messages.add(message);
@@ -31,7 +39,7 @@ public class OpenLMessagesUtils {
     public static OpenLMessage newWarnMessage(String message, ISyntaxNode source) {
         return new OpenLWarnMessage(message, source);
     }
-    
+
     public static Collection<OpenLMessage> newMessages(OpenLException[] exceptions) {
         Collection<OpenLMessage> messages = new ArrayList<OpenLMessage>();
 
@@ -44,7 +52,7 @@ public class OpenLMessagesUtils {
 
         return messages;
     }
-    
+
     public static OpenLMessage newErrorMessage(OpenLCompilationException error) {
         return new OpenLErrorMessage(error);
     }

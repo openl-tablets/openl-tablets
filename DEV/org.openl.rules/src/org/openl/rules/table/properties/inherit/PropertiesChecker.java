@@ -79,7 +79,7 @@ public class PropertiesChecker {
             TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(propertyNameToCheck);
             if (propertyDefinition != null && propertyDefinition.getDeprecation() != null && !propertyDefinition.getDeprecation().isEmpty()) {
                 String message = String.format("Property '%s' was deprecated. Please remove it!", propertyNameToCheck);
-                bindingContext.getOpenLMessages().addMessage(OpenLMessagesUtils.newWarnMessage(message, tableSyntaxNode));
+                bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, tableSyntaxNode));
             }
         }
     }

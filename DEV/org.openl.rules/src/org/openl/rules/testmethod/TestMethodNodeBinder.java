@@ -4,6 +4,7 @@
 package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -12,7 +13,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.MethodNotFoundException;
-import org.openl.message.IOpenLMessages;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.DataNodeBinder;
@@ -124,7 +124,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
 
         boolean hasNoErrorBinding = false;
         SyntaxNodeException[] errors = tableSyntaxNode.getErrors();
-        IOpenLMessages bestMessages = null;
+        Collection<OpenLMessage> bestMessages = null;
         SyntaxNodeException[] bestBindingContextErrors = null;
         
         for (IOpenMethod testedMethod : testedMethods) {
@@ -147,7 +147,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             }
             try {
                 bindingContext.pushErrors();
-                bindingContext.pushOpenLMessages();
+                bindingContext.pushMessages();
                 ITable dataTable = makeTable(module,
                     tableSyntaxNode,
                     tableName,
@@ -163,7 +163,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                     bestCaseOpenMethod = testedMethod;
                     bestTestMethodOpenClass = testMethodOpenClass;
                     bestDataTable = dataTable;
-                    bestMessages = bindingContext.getOpenLMessages();
+                    bestMessages = bindingContext.getMessages();
                     bestBindingContextErrors = bindingContext.getErrors();
                 } else {
                     if (!testMethodBoundNode.getTableSyntaxNode().hasErrors()) {
@@ -173,7 +173,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                             bestTestMethodOpenClass = testMethodOpenClass;
                             hasNoErrorBinding = true;
                             bestDataTable = dataTable;
-                            bestMessages = bindingContext.getOpenLMessages();
+                            bestMessages = bindingContext.getMessages();
                             bestBindingContextErrors = bindingContext.getErrors();
                         } else {
                             List<IOpenMethod> list = new ArrayList<IOpenMethod>();
@@ -193,7 +193,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                 throw e;
             } finally {
                 bindingContext.popErrors();
-                bindingContext.popOpenLMessages();
+                bindingContext.popMessages();
             }
         }
 
@@ -212,8 +212,8 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                 tableSyntaxNode.addError(error);
             }
             
-            for (OpenLMessage message : bestMessages.getMessages()) {
-                bindingContext.getOpenLMessages().addMessage(message);
+            for (OpenLMessage message : bestMessages) {
+                bindingContext.addMessage(message);
             }
             
             for (SyntaxNodeException syntaxNodeException : bestBindingContextErrors) {

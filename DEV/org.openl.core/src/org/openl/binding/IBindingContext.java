@@ -6,6 +6,7 @@
 
 package org.openl.binding;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +17,7 @@ import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.message.IOpenLMessages;
+import org.openl.message.OpenLMessage;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodCaller;
@@ -31,7 +32,11 @@ public interface IBindingContext extends ICastFactory {
 
     void addAlias(String name, String value);
     
-    IOpenLMessages getOpenLMessages();
+    Collection<OpenLMessage> getMessages();
+    
+    void addMessage(OpenLMessage message);
+    
+    void addMessages(Collection<OpenLMessage> messages);
     
     void addError(SyntaxNodeException error);
 
@@ -114,7 +119,7 @@ public interface IBindingContext extends ICastFactory {
 
     List<SyntaxNodeException> popErrors();
     
-    IOpenLMessages popOpenLMessages();
+    Collection<OpenLMessage> popMessages();
 
     void popLocalVarContext();
 
@@ -123,7 +128,7 @@ public interface IBindingContext extends ICastFactory {
      */
     void pushErrors();
     
-    void pushOpenLMessages();
+    void pushMessages();
 
     void pushLocalVarContext();
 

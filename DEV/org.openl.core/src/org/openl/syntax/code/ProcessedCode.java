@@ -1,8 +1,10 @@
 package org.openl.syntax.code;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.openl.binding.IBoundCode;
-import org.openl.message.IOpenLMessages;
-import org.openl.message.OpenLMessages;
+import org.openl.message.OpenLMessage;
 import org.openl.syntax.exception.SyntaxNodeException;
 
 /**
@@ -20,7 +22,7 @@ public class ProcessedCode {
      */
     private IBoundCode boundCode;
 
-    private IOpenLMessages messages = new OpenLMessages();
+    private Collection<OpenLMessage> messages;
 
     /**
      * Gets parsed code.
@@ -86,11 +88,14 @@ public class ProcessedCode {
         return boundCode.getErrors();
     }
 
-    public IOpenLMessages getMessages() {
-        return messages;
+    public Collection<OpenLMessage> getMessages() {
+        if (messages != null) {
+            return Collections.unmodifiableCollection(messages);
+        }
+        return Collections.emptyList();
     }
 
-    public void setMessages(IOpenLMessages messages) {
+    public void setMessages(Collection<OpenLMessage> messages) {
         this.messages = messages;
     }
 

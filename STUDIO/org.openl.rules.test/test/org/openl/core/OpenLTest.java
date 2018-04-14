@@ -20,7 +20,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.CompiledOpenClass;
-import org.openl.message.IOpenLMessages;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 import org.openl.rules.project.instantiation.RulesInstantiationException;

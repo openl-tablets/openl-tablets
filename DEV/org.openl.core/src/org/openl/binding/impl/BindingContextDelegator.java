@@ -6,6 +6,7 @@
 
 package org.openl.binding.impl;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +21,7 @@ import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.message.IOpenLMessages;
+import org.openl.message.OpenLMessage;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodCaller;
@@ -147,15 +148,15 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     public void pushErrors() {
         delegate.pushErrors();
     }
-    
+
     @Override
-    public void pushOpenLMessages() {
-        delegate.pushOpenLMessages();
+    public Collection<OpenLMessage> popMessages() {
+        return delegate.popMessages();
     }
-    
+
     @Override
-    public IOpenLMessages popOpenLMessages() {
-        return delegate.popOpenLMessages();
+    public void pushMessages() {
+        delegate.pushMessages();
     }
 
     public void pushLocalVarContext() {
@@ -173,8 +174,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     /*
      * (non-Javadoc)
      * 
-     * @see org.openl.binding.IBindingContextDelegator#setTopDelegate(org.openl.
-     * binding .IBindingContext)
+     * @see org.openl.binding.IBindingContextDelegator#setTopDelegate(org.openl. binding .IBindingContext)
      */
     public void setTopDelegate(IBindingContext delegate) {
         if (this.delegate == null) {
@@ -190,7 +190,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     public boolean isExecutionMode() {
         return delegate.isExecutionMode();
     }
-    
+
     @Override
     public void setExecutionMode(boolean exectionMode) {
         delegate.setExecutionMode(exectionMode);
@@ -203,10 +203,19 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     public void setExternalParams(Map<String, Object> params) {
         delegate.setExternalParams(params);
     }
-    
+
     @Override
-    public IOpenLMessages getOpenLMessages() {
-        return delegate.getOpenLMessages();
+    public Collection<OpenLMessage> getMessages() {
+        return delegate.getMessages();
     }
-    
+
+    @Override
+    public void addMessage(OpenLMessage message) {
+        delegate.addMessage(message);
+    }
+
+    @Override
+    public void addMessages(Collection<OpenLMessage> messages) {
+        delegate.addMessages(messages);
+    }
 }
