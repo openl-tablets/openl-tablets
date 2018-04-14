@@ -7,11 +7,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.openl.exception.OpenLCompilationException;
-import org.openl.message.IOpenLMessages;
-import org.openl.message.OpenLMessages;
+import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -59,9 +60,9 @@ public class XlsLoader {
 
     private List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
     
-    private IOpenLMessages messages = new OpenLMessages();
+    private Collection<OpenLMessage> messages = new LinkedHashSet<>();
 
-    private HashSet<String> preprocessedWorkBooks = new HashSet<>();
+    private Set<String> preprocessedWorkBooks = new HashSet<>();
 
     private List<WorkbookSyntaxNode> workbookNodes = new ArrayList<WorkbookSyntaxNode>();
 
@@ -128,7 +129,7 @@ public class XlsLoader {
                 // ignore comment
             } else {
                 String message = String.format("Error in Environment table: unrecognized keyword '%s'", value);
-                messages.addMessage(OpenLMessagesUtils.newWarnMessage(message, tableSyntaxNode));
+                messages.add(OpenLMessagesUtils.newWarnMessage(message, tableSyntaxNode));
             }
         }
     }
@@ -190,7 +191,7 @@ public class XlsLoader {
                     try {
                         src = includeSeeker.findInclude(StringTool.openBrackets(include, '<', '>', "")[0]);
                     }catch (Exception e) {
-                        messages.addMessages(OpenLMessagesUtils.newErrorMessages(e));
+                        messages.addAll(OpenLMessagesUtils.newErrorMessages(e));
                         
                     }
                     if (src == null) {
@@ -273,6 +274,7 @@ public class XlsLoader {
         preprocessedWorkBooks.add(uri);
 
         XlsWorkbookSourceCodeModule workbookSourceModule = new XlsWorkbookSourceCodeModule(source);
+        messages.addAll(tablePartProcessor.getMessages());
         int nsheets = workbookSourceModule.getWorkbookLoader().getNumberOfSheets();
         WorksheetSyntaxNode[] sheetNodes = new WorksheetSyntaxNode[nsheets];
         TablePartProcessor tablePartProcessor = new TablePartProcessor(messages);
@@ -293,7 +295,7 @@ public class XlsLoader {
                     tablePartProcessor);
             }
         } catch (OpenLCompilationException e) {
-            messages.addMessage(OpenLMessagesUtils.newErrorMessage(e));
+            messages.add(OpenLMessagesUtils.newErrorMessage(e));
         }
 
         WorkbookSyntaxNode workbookNode = new WorkbookSyntaxNode(sheetNodes, mergedNodes, workbookSourceModule);
@@ -315,7 +317,7 @@ public class XlsLoader {
                 tsn = preprocessTable(table, sheetSource, tablePartProcessor);
                 tableNodes.add(tsn);
             } catch (OpenLCompilationException e) {
-                messages.addMessage(OpenLMessagesUtils.newErrorMessage(e));
+                messages.add(OpenLMessagesUtils.newErrorMessage(e));
             }
         }
 

@@ -7,7 +7,10 @@
 package org.openl.binding.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -22,8 +25,7 @@ import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.impl.cast.IOpenCast;
-import org.openl.message.IOpenLMessages;
-import org.openl.message.OpenLMessages;
+import org.openl.message.OpenLMessage;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodCaller;
@@ -44,13 +46,14 @@ public class BindingContext implements IBindingContext {
 
     private LocalFrameBuilder localFrame = new LocalFrameBuilder();
     private List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
-    private Map<String, String> aliases = new HashMap<String, String>();
     private Stack<List<SyntaxNodeException>> errorStack = new Stack<List<SyntaxNodeException>>();
+    
+    private Map<String, String> aliases = new HashMap<String, String>();
 
     private Map<String, Object> externalParams;
 
-    private IOpenLMessages messages = new OpenLMessages();
-    private Stack<IOpenLMessages> messagesStack = new Stack<>();
+    private Collection<OpenLMessage> messages = new LinkedHashSet<>();
+    private Stack<Collection<OpenLMessage>> messagesStack = new Stack<>();
 
     private boolean executionMode = false;
 
@@ -228,8 +231,8 @@ public class BindingContext implements IBindingContext {
         return tmp;
     }
 
-    public IOpenLMessages popOpenLMessages() {
-        IOpenLMessages tmp = messages;
+    public Collection<OpenLMessage> popMessages() {
+        Collection<OpenLMessage> tmp = messages;
         messages = messagesStack.pop();
         return tmp;
     }
@@ -248,9 +251,9 @@ public class BindingContext implements IBindingContext {
         errors = new ArrayList<SyntaxNodeException>();
     }
 
-    public void pushOpenLMessages() {
+    public void pushMessages() {
         messagesStack.push(messages);
-        messages = new OpenLMessages();
+        messages = new LinkedHashSet<>();
     }
     
     /*
@@ -312,8 +315,20 @@ public class BindingContext implements IBindingContext {
         contextProperties.setProperty(name, value);
     }
 
-    public IOpenLMessages getOpenLMessages() {
-        return messages;
+    public Collection<OpenLMessage> getMessages() {
+        return Collections.unmodifiableCollection(messages);
+    }
+    
+    @Override
+    public void addMessage(OpenLMessage message) {
+        messages.add(message);
+    }
+    
+    @Override
+    public void addMessages(Collection<OpenLMessage> messages) {
+        for (OpenLMessage message : messages) {
+            addMessage(message);
+        }
     }
     
     public void setOpenl(OpenL openl) {

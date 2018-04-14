@@ -5,7 +5,6 @@
 package org.openl.syntax.impl;
 
 import org.openl.IOpenParser;
-import org.openl.message.OpenLMessages;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
@@ -109,7 +108,7 @@ public abstract class AParser implements IOpenParser {
 
         ISyntaxNode node = grammar.getTopNode();
 
-        return new ParsedCode(node, source, grammar.getErrors(), OpenLMessages.empty());
+        return new ParsedCode(node, source, grammar.getErrors(), null);
     }
 
 }

@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openl.OpenL;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.ITable;
@@ -197,7 +198,7 @@ public class PropertiesLoader {
             if (moduleProperties != null) {
                 for (String key : externalProperties.getAllProperties().keySet()) {
                     if (moduleProperties.getAllProperties().keySet().contains(key)) {
-                        bindingContext.getOpenLMessages().addErrorMessage("Property '" + key + "' has already defined via external properties! Remove it from module properties.");
+                        bindingContext.addMessage(OpenLMessagesUtils.newErrorMessage("Property '" + key + "' has already defined via external properties! Remove it from module properties."));
                     }
                 }
             }

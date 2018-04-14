@@ -15,9 +15,7 @@ import org.openl.binding.IBoundCode;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
-import org.openl.message.IOpenLMessages;
 import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
@@ -146,7 +144,7 @@ public class OpenLSourceManager extends OpenLHolder {
             throw new CompositeSyntaxNodeException("Parsing Error:", parsingErrors);
         }
 
-        IOpenLMessages openLMessages = new OpenLMessages();
+        Collection<OpenLMessage> messages = new LinkedHashSet<>();
 
         // compile source dependencies
         if (SourceType.MODULE.equals(sourceType)) {
@@ -165,7 +163,7 @@ public class OpenLSourceManager extends OpenLHolder {
                     for (IDependency dependency : dependencies) {
                         try {
                             CompiledDependency loadedDependency = dependencyManager.loadDependency(dependency);
-                            validateDependency(openLMessages, loadedDependency);
+                            validateDependency(messages, loadedDependency);
                             OpenLBundleClassLoader currentClassLoader = (OpenLBundleClassLoader) Thread.currentThread()
                                 .getContextClassLoader();
                             if (loadedDependency.getClassLoader() != currentClassLoader) {
@@ -184,15 +182,15 @@ public class OpenLSourceManager extends OpenLHolder {
                                                                                                               // messages
                                                                                                               // from
                                 // dependencies
-                                openLMessages.addMessage(message);
+                                messages.add(message);
                             }
 
                         } catch (Exception e) {
-                            openLMessages.addMessages(OpenLMessagesUtils.newErrorMessages(e));
+                            messages.addAll(OpenLMessagesUtils.newErrorMessages(e));
                         }
                     }
                 } else {
-                    openLMessages.addErrorMessage("Can't load dependencies. Dependency manager is not defined.");
+                    messages.add(OpenLMessagesUtils.newErrorMessage("Can't load dependencies. Dependency manager is not defined."));
                 }
             }
 
@@ -207,14 +205,14 @@ public class OpenLSourceManager extends OpenLHolder {
                 @SuppressWarnings("unchecked")
                 Set<String> warnMessages = (Set<String>) externalParams.get(ADDITIONAL_WARN_MESSAGES_KEY);
                 for (String message : warnMessages) {
-                    openLMessages.addWarningMessage(message);
+                    messages.add(OpenLMessagesUtils.newWarnMessage(message));
                 }
             }
             if (externalParams.containsKey(ADDITIONAL_ERROR_MESSAGES_KEY)) {
                 @SuppressWarnings("unchecked")
                 Set<String> errorMessage = (Set<String>) externalParams.get(ADDITIONAL_ERROR_MESSAGES_KEY);
                 for (String message : errorMessage) {
-                    openLMessages.addErrorMessage(message);
+                    messages.add(OpenLMessagesUtils.newErrorMessage(message));
                 }
             }
         }
@@ -224,8 +222,8 @@ public class OpenLSourceManager extends OpenLHolder {
         FullClassnameSupport.transformIdentifierBindersWithBindingContextInfo(bindingContext, parsedCode);
 
         IBoundCode boundCode = bindManager.bindCode(bindingContext, parsedCode);
-        for (OpenLMessage message : boundCode.getOpenLMessages().getMessages()) {
-            openLMessages.addMessage(message);
+        for (OpenLMessage message : boundCode.getMessages()) {
+            messages.add(message);
         }
 
         SyntaxNodeException[] bindingErrors = boundCode.getErrors();
@@ -233,22 +231,22 @@ public class OpenLSourceManager extends OpenLHolder {
         if (!ignoreErrors && bindingErrors.length > 0) {
             throw new CompositeSyntaxNodeException("Binding Error:", bindingErrors);
         } else {
-            openLMessages.addMessages(OpenLMessagesUtils.newErrorMessages(bindingErrors));
+            messages.addAll(OpenLMessagesUtils.newErrorMessages(bindingErrors));
         }
 
         ProcessedCode processedCode = new ProcessedCode();
         processedCode.setParsedCode(parsedCode);
         processedCode.setBoundCode(boundCode);
-        processedCode.setMessages(openLMessages);
+        processedCode.setMessages(messages);
 
         return processedCode;
     }
 
-    private void validateDependency(IOpenLMessages openLMessages, CompiledDependency compiledDependency) {
+    private void validateDependency(Collection<OpenLMessage> messages, CompiledDependency compiledDependency) {
         if (compiledDependency.getCompiledOpenClass().hasErrors()) {
             String message = String.format("Dependency module '%s' has critical errors",
                 compiledDependency.getDependencyName());
-            openLMessages.addErrorMessage(message);
+            messages.add(OpenLMessagesUtils.newErrorMessage(message));
         }
     }
 
