@@ -316,6 +316,9 @@ var TableEditor = Class.create({
         }
 
         this.setCellValue();
+        if (elt && elt.hasClassName("title")) {
+            elt = elt.parentNode;
+        }
         if (this.isCell(elt)) {
             this.selectElement(elt);
             this.isFormated(elt);
