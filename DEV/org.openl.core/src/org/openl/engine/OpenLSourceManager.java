@@ -163,7 +163,6 @@ public class OpenLSourceManager extends OpenLHolder {
                     for (IDependency dependency : dependencies) {
                         try {
                             CompiledDependency loadedDependency = dependencyManager.loadDependency(dependency);
-                            validateDependency(messages, loadedDependency);
                             OpenLBundleClassLoader currentClassLoader = (OpenLBundleClassLoader) Thread.currentThread()
                                 .getContextClassLoader();
                             if (loadedDependency.getClassLoader() != currentClassLoader) {
@@ -240,14 +239,6 @@ public class OpenLSourceManager extends OpenLHolder {
         processedCode.setMessages(messages);
 
         return processedCode;
-    }
-
-    private void validateDependency(Collection<OpenLMessage> messages, CompiledDependency compiledDependency) {
-        if (compiledDependency.getCompiledOpenClass().hasErrors()) {
-            String message = String.format("Dependency module '%s' has critical errors",
-                compiledDependency.getDependencyName());
-            messages.add(OpenLMessagesUtils.newErrorMessage(message));
-        }
     }
 
     private List<IDependency> getExternalDependencies(IOpenSourceCodeModule source) {
