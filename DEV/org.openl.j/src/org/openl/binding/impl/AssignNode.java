@@ -47,7 +47,7 @@ public class AssignNode extends MethodBoundNode {
         if (boundMethod != null) {
             return super.getType();
         }
-        return children[1].getType();
+        return children[0].getType();
     }
 
     @Override
