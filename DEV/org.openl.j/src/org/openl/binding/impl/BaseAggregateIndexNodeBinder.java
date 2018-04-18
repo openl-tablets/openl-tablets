@@ -3,6 +3,7 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
+import org.openl.binding.impl.IndexParameterDeclarationBinder.IndexParameterNode;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -12,126 +13,102 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 
 /**
- * 
- * @author snshor
- * 
- *         This the base class for a set of classes providing aggregate
- *         functions like SELECT FIRST, SELECT ALL, ORDER BY etc
+ * This the base class for a set of classes providing aggregate functions like SELECT FIRST, SELECT ALL, ORDER BY etc
+ *
+ * @author Yury Molchan
  */
 public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
 
-	public abstract String getDefaultTempVarName(IBindingContext bindingContext);
+    public abstract String getDefaultTempVarName(IBindingContext bindingContext);
 
-	@Override
-	public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
-			throws Exception {
-		BindHelper.processError("This node always binds  with target", node,
-				bindingContext);
+    @Override
+    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
+        BindHelper.processError("This node always binds  with target", node, bindingContext);
 
-		return new ErrorBoundNode(node);
-	}
+        return new ErrorBoundNode(node);
+    }
 
-	@Override
-	public IBoundNode bindTarget(ISyntaxNode node,
-			IBindingContext bindingContext, IBoundNode targetNode)
-			throws Exception {
+    @Override
+    public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode) {
 
-		try {
-			bindingContext.pushLocalVarContext();
-			ILocalVar localVar = prepareLocalVar(node, bindingContext, targetNode);
-			IBoundNode[] children = bindAndValidateChildren(node,
-					bindingContext, localVar);
-			IBoundNode boundNode = createBoundNode(node, targetNode, children[0], localVar);
-			return boundNode;
-		} catch (SyntaxNodeException error) {
-			BindHelper.processError(error);
-			return new ErrorBoundNode(node);
-		} finally {
-			bindingContext.popLocalVarContext();
-		}
+        try {
+            bindingContext.pushLocalVarContext();
 
-	}
+            IOpenClass containerType = targetNode.getType();
+            IAggregateInfo info = containerType.getAggregateInfo();
+            IOpenClass componentType = info.getComponentType(containerType);
+            if (componentType == null) {
+                String typeName = containerType.getName();
+                throw SyntaxNodeExceptionUtils.createError(
+                    "An array or a collection is expected, but " + typeName + " type has been defined.",
+                    targetNode.getSyntaxNode());
+            }
 
-	protected abstract IBoundNode createBoundNode(ISyntaxNode node,
-			IBoundNode targetNode, IBoundNode expressionNode, ILocalVar localVar);
+            // there could be 1 or 2 syntax nodes as children
+            // If there is one syntax node, we use auto-generated local variable
+            // if there is two syntax nodes, the first defines new local variable
 
-	protected ILocalVar prepareLocalVar(ISyntaxNode node,
-			IBindingContext bindingContext, IBoundNode targetNode) throws SyntaxNodeException {
+            String varName;
+            IOpenClass varType;
+            ISyntaxNode expressionNode;
+            switch (node.getNumberOfChildren()) {
+                case 1:
+                    expressionNode = node.getChild(0);
 
-		// there could be 1 or 2 syntax nodes as children
-		// If there is one syntax node, we use auto-generated local variable
-		// if there is two syntax nodes, the first defines new local variable
+                    String defaultName = getDefaultTempVarName(bindingContext);
+                    varName = BindHelper
+                        .getTemporaryVarName(bindingContext, ISyntaxConstants.THIS_NAMESPACE, defaultName);
+                    varType = componentType;
 
-		switch (node.getNumberOfChildren()) {
-		case 1:
-			return prepareDefaultLocalVar(node, bindingContext, targetNode);
-		case 2:
-			return prepareDefinedLocalVar(node, bindingContext, targetNode);
-		default:
-			throw SyntaxNodeExceptionUtils.createError("Aggregate node can have either 1 or 2 childen nodes", node);
-			
-		}
+                    break;
+                case 2:
+                    expressionNode = node.getChild(1);
+                    ISyntaxNode varNode = node.getChild(0);
 
-	}
+                    IBoundNode localVarDefinitionBoundNode = bindChildNode(varNode, bindingContext);
 
-	private ILocalVar prepareDefinedLocalVar(ISyntaxNode node,
-			IBindingContext bindingContext, IBoundNode targetNode) throws SyntaxNodeException {
+                    IndexParameterNode pnode = (IndexParameterNode) localVarDefinitionBoundNode;
 
-		IOpenClass containerType = targetNode.getType();
-		IAggregateInfo info = containerType.getAggregateInfo();
-		IOpenClass componentType = info.getComponentType(containerType);	
+                    varName = pnode.getName();
+                    varType = pnode.getType() == null ? componentType : pnode.getType();
 
-		IBoundNode localVarDefinitionBoundNode = bindChildNode(node.getChild(0), bindingContext);
-		
-		IndexParameterDeclarationBinder.IndexParameterNode pnode = (IndexParameterDeclarationBinder.IndexParameterNode)localVarDefinitionBoundNode;
-		
-		String varName = pnode.getName();
-		IOpenClass varType = pnode.getType() == null ? componentType : pnode.getType();
-		
-		if (varType != componentType)
-		{
-			IOpenCast cast = bindingContext.getCast(componentType, varType);
-			if (cast == null)
-	            BindHelper.processError("Can not cast " + componentType + " to " + varType, node.getChild(0), bindingContext, false);
+                    if (varType != componentType) {
+                        IOpenCast cast = bindingContext.getCast(componentType, varType);
+                        if (cast == null) {
+                            throw SyntaxNodeExceptionUtils
+                                .createError("Can not cast " + componentType + " to " + varType, varNode);
+                        }
+                    }
 
-		}	
+                    break;
+                default:
+                    throw SyntaxNodeExceptionUtils.createError("Aggregate node can have either 1 or 2 childen nodes",
+                        node);
 
-		ILocalVar var = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE,
-				varName, varType);
-		
-		return var;
-	
-	}
+            }
 
-	protected ILocalVar prepareDefaultLocalVar(ISyntaxNode node,
-			IBindingContext bindingContext, IBoundNode targetNode) {
-		IOpenClass containerType = targetNode.getType();
-		IAggregateInfo info = containerType.getAggregateInfo();
+            ILocalVar localVar = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE, varName, varType);
+            TypeBindingContext varBindingContext = TypeBindingContext.create(bindingContext, localVar);
+            IBoundNode boundExpressionNode = bindChildNode(expressionNode, varBindingContext);
 
-		String varName = BindHelper.getTemporaryVarName(bindingContext,
-				ISyntaxConstants.THIS_NAMESPACE, getDefaultTempVarName(bindingContext));
-		ILocalVar var = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE,
-				varName, info.getComponentType(containerType));
+            boundExpressionNode = validateExpressionNode(boundExpressionNode, bindingContext);
 
-		return var;
+            IBoundNode boundNode = createBoundNode(node, targetNode, boundExpressionNode, localVar);
+            return boundNode;
+        } catch (SyntaxNodeException error) {
+            bindingContext.addError(error);
+            return new ErrorBoundNode(node);
+        } finally {
+            bindingContext.popLocalVarContext();
+        }
 
-	}
+    }
 
-	private IBoundNode[] bindAndValidateChildren(ISyntaxNode node,
-			IBindingContext bindingContext, ILocalVar localVar)
-			throws SyntaxNodeException {
+    protected abstract IBoundNode createBoundNode(ISyntaxNode node,
+            IBoundNode targetNode,
+            IBoundNode expressionNode,
+            ILocalVar localVar);
 
-		
-		ISyntaxNode expressionNode =  node.getNumberOfChildren() == 1 ? node.getChild(0) : node.getChild(1);
-			
-		IBoundNode boundExpressionNode = bindChildNode(expressionNode,  TypeBindingContext.create(
-				bindingContext, localVar));
-
-		boundExpressionNode = validateExpressionNode(boundExpressionNode, bindingContext);
-		
-		return new IBoundNode[]{boundExpressionNode};
-	}
-
-	protected abstract IBoundNode validateExpressionNode(IBoundNode expressionNode, IBindingContext bindingContext);
+    protected abstract IBoundNode validateExpressionNode(IBoundNode expressionNode, IBindingContext bindingContext);
 
 }
