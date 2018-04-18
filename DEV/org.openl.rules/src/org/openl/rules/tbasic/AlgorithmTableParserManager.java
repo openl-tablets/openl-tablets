@@ -16,7 +16,8 @@ import org.openl.rules.tbasic.compile.ConversionRuleBean;
 public final class AlgorithmTableParserManager implements IAlgorithmTableParserManager {
     // To make class serializable, change synchronization
 
-    private static volatile AlgorithmTableParserManager instance;
+    private static volatile AlgorithmTableParserManager INSTANCE;
+    
     private static Object synchObjectForInstance = new Object();
 
     private final IAlgorithmTableParserManager rulesWrapperInstance;
@@ -29,16 +30,16 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
 
     private Object synchObjectForFixedConvertionRules = new Object();
 
-    public static AlgorithmTableParserManager instance() {
+    public static AlgorithmTableParserManager getInstance() {
         lazyLoadInstance();
-        return instance;
+        return INSTANCE;
     }
 
     private static void lazyLoadInstance() {
-        if (instance == null) {
+        if (INSTANCE == null) {
             synchronized (synchObjectForInstance) {
-                if (instance == null) {
-                    instance = new AlgorithmTableParserManager();
+                if (INSTANCE == null) {
+                    INSTANCE = new AlgorithmTableParserManager();
                 }
             }
         }

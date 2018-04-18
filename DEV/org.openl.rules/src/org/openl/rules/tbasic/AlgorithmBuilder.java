@@ -56,7 +56,7 @@ public class AlgorithmBuilder {
 
     static {
         try {
-            AlgorithmTableParserManager tbasicParser = AlgorithmTableParserManager.instance();
+            AlgorithmTableParserManager tbasicParser = AlgorithmTableParserManager.getInstance();
             TableParserSpecificationBean[] algSpecifications = tbasicParser.getAlgorithmSpecification();
 
             Set<String> algorithmOperations = new LinkedHashSet<String>();
@@ -118,7 +118,7 @@ public class AlgorithmBuilder {
         // parse data, row=2..*
         List<AlgorithmRow> algorithmRows = buildRows(tableBody);
 
-        RowParser rowParser = new RowParser(algorithmRows, AlgorithmTableParserManager.instance()
+        RowParser rowParser = new RowParser(algorithmRows, AlgorithmTableParserManager.getInstance()
                 .getAlgorithmSpecification());
 
         List<AlgorithmTreeNode> parsedNodes = rowParser.parse();

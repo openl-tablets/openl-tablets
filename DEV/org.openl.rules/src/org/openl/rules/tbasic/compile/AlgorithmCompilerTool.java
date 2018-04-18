@@ -129,7 +129,7 @@ public class AlgorithmCompilerTool {
         AlgorithmTreeNode currentNodeToProcess = nodesToProcess.get(firstNodeIndex);
         String currentNodeKeyword = currentNodeToProcess.getSpecificationKeyword();
 
-        String[] operationNamesToGroup = AlgorithmTableParserManager.instance().whatOperationsToGroup(
+        String[] operationNamesToGroup = AlgorithmTableParserManager.getInstance().whatOperationsToGroup(
                 currentNodeKeyword);
 
         if (operationNamesToGroup != null) {
