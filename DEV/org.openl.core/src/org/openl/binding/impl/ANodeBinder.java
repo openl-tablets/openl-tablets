@@ -23,10 +23,6 @@ public abstract class ANodeBinder implements INodeBinder {
 
         INodeBinder binder = findBinder(node, bindingContext);
 
-        if (binder == null) {
-            return makeErrorNode("DEV: No binders have found for this node!", node, bindingContext);
-        }
-
         try {
             return binder.bind(node, bindingContext);
         } catch (Throwable t) {
@@ -51,10 +47,6 @@ public abstract class ANodeBinder implements INodeBinder {
 
         INodeBinder binder = findBinder(node, bindingContext);
 
-        if (binder == null) {
-            return makeErrorNode("DEV: No binders have found for this node!", node, bindingContext);
-        }
-
         try {
             return binder.bindTarget(node, bindingContext, targetNode);
         } catch (Throwable t) {
@@ -65,10 +57,6 @@ public abstract class ANodeBinder implements INodeBinder {
     public static IBoundNode bindTypeNode(ISyntaxNode node, IBindingContext bindingContext, IOpenClass type) {
 
         INodeBinder binder = findBinder(node, bindingContext);
-
-        if (binder == null) {
-            return makeErrorNode("DEV: No binders have found for this node!", node, bindingContext);
-        }
 
         try {
             return binder.bindType(node, bindingContext, type);
@@ -165,14 +153,7 @@ public abstract class ANodeBinder implements INodeBinder {
 
     private static INodeBinder findBinder(ISyntaxNode node, IBindingContext bindingContext) {
 
-        INodeBinder binder = bindingContext.findBinder(node);
-
-        if (binder == null) {
-            String message = String.format("Can not find binder for node type '%s'", node.getType());
-            BindHelper.processError(message, node, bindingContext);
-        }
-
-        return binder;
+        return bindingContext.findBinder(node);
     }
 
     private static IBoundNode convertType(IBoundNode node,
