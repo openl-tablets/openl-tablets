@@ -5,14 +5,6 @@ import java.text.DecimalFormat;
 class String2FloatConvertor extends String2NumberConverter<Float> {
 
     @Override
-    public String format(Float data, String format) {
-        if (data == null) return null;
-        // Restore decimal precision
-        double number = Double.parseDouble(Float.toString(data));
-        return getFormatter(format).format(number);
-    }
-
-    @Override
     Float convert(Number number, String data) {
         float value = number.floatValue();
         double dValue = number.doubleValue();

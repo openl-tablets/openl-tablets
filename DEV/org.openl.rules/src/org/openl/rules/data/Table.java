@@ -1,10 +1,7 @@
 package org.openl.rules.data;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.binding.IBindingContext;
 import org.openl.exception.OpenLCompilationException;
@@ -23,16 +20,16 @@ import org.openl.vm.IRuntimeEnv;
 
 public class Table implements ITable {
 
-    protected ILogicalTable logicalTable;
-    protected ITableModel dataModel;
+    private ILogicalTable logicalTable;
+    private ITableModel dataModel;
 
-    protected String tableName;
-    protected TableSyntaxNode tableSyntaxNode;
+    private String tableName;
+    private TableSyntaxNode tableSyntaxNode;
 
-    protected Object dataArray;
+    private Object dataArray;
 
-    protected BiMap<Integer, Object> rowIndexMap;
-    protected BiMap<Integer, String> primaryIndexMap;
+    private BiMap<Integer, Object> rowIndexMap;
+    private BiMap<Integer, String> primaryIndexMap;
 
     public Table(ITableModel dataModel, ILogicalTable data) {
         this.dataModel = dataModel;
@@ -155,7 +152,7 @@ public class Table implements ITable {
 
     public Map<String, Integer> makeUniqueIndex(int colIdx) throws SyntaxNodeException {
 
-        Map<String, Integer> index = new HashMap<String, Integer>();
+        Map<String, Integer> index = new HashMap<>();
 
         int rows = logicalTable.getHeight();
 
@@ -182,6 +179,34 @@ public class Table implements ITable {
         return index;
     }
 
+    @Override
+    public List<Object> getUniqueValues(int colIdx) throws SyntaxNodeException {
+
+        List<Object> values = new ArrayList<>();
+
+        int rows = logicalTable.getHeight();
+
+        for (int i = 1; i < rows; i++) {
+
+            IGridTable gridTable = logicalTable.getSubtable(colIdx, i, 1, 1).getSource();
+            Object value = gridTable.getCell(0, 0).getObjectValue();
+
+            if (value == null) {
+                throw SyntaxNodeExceptionUtils.createError("Empty key in an unique index",
+                    new GridCellSourceCodeModule(gridTable));
+            }
+
+            if (values.contains(value)) {
+                throw SyntaxNodeExceptionUtils.createError("Duplicated key in an unique index: " + value,
+                    new GridCellSourceCodeModule(gridTable));
+            }
+
+            values.add(value);
+        }
+
+        return values;
+    }
+
     public void populate(IDataBase dataBase, IBindingContext bindingContext) throws Exception {
 
         int rows = logicalTable.getHeight();
@@ -189,13 +214,13 @@ public class Table implements ITable {
 
         int startRow = 1;
 
-        Collection<SyntaxNodeException> errorSyntaxNodeExceptions = new ArrayList<SyntaxNodeException>(0);
+        Collection<SyntaxNodeException> errorSyntaxNodeExceptions = new ArrayList<>(0);
 
         if (!bindingContext.isExecutionMode()) {
             for (int j = 0; j < columns; j++) {
                 ColumnDescriptor descriptor = dataModel.getDescriptor()[j];
 
-                if (descriptor != null && (descriptor instanceof ForeignKeyColumnDescriptor)) {
+                if (descriptor instanceof ForeignKeyColumnDescriptor) {
                     ForeignKeyColumnDescriptor fkDescriptor = (ForeignKeyColumnDescriptor) descriptor;
 
                     if (fkDescriptor.isReference()) {
@@ -213,7 +238,7 @@ public class Table implements ITable {
 
                 ColumnDescriptor descriptor = dataModel.getDescriptor()[j];
 
-                if (descriptor != null && (descriptor instanceof ForeignKeyColumnDescriptor)) {
+                if (descriptor instanceof ForeignKeyColumnDescriptor) {
                     ForeignKeyColumnDescriptor fkDescriptor = (ForeignKeyColumnDescriptor) descriptor;
 
                     if (fkDescriptor.isReference()) {
@@ -246,7 +271,7 @@ public class Table implements ITable {
         }
         if (!errorSyntaxNodeExceptions.isEmpty()) {
             throw new CompositeSyntaxNodeException("Parsing Error:",
-                errorSyntaxNodeExceptions.toArray(new SyntaxNodeException[errorSyntaxNodeExceptions.size()]));
+                errorSyntaxNodeExceptions.toArray(new SyntaxNodeException[0]));
         }
     }
 
@@ -262,7 +287,7 @@ public class Table implements ITable {
         }
     }
 
-    protected void processRow(OpenlToolAdaptor openlAdapter,
+    private void processRow(OpenlToolAdaptor openlAdapter,
             int startRow,
             int rowNum) throws OpenLCompilationException {
 
@@ -305,7 +330,7 @@ public class Table implements ITable {
         Array.set(dataArray, rowNum - startRow, literal);
     }
 
-    protected Object processColumn(OpenlToolAdaptor openlAdapter,
+    private Object processColumn(OpenlToolAdaptor openlAdapter,
             boolean constructor,
             int rowNum,
             Object literal,
@@ -343,7 +368,7 @@ public class Table implements ITable {
 
     public synchronized void setPrimaryIndexKey(int row, String value) {
         if (primaryIndexMap == null){
-            primaryIndexMap = new BiMap<Integer, String>();
+            primaryIndexMap = new BiMap<>();
         }
         Integer oldRow = primaryIndexMap.getKey(value);
         if (oldRow != null && row != oldRow) {
@@ -367,7 +392,7 @@ public class Table implements ITable {
 
     private void addToRowIndex(int rowIndex, Object target) {
         if (rowIndexMap == null){
-            rowIndexMap = new BiMap<Integer, Object>();
+            rowIndexMap = new BiMap<>();
         }
         rowIndexMap.put(rowIndex, target);
     }
@@ -376,7 +401,7 @@ public class Table implements ITable {
      * @return Start row for data rows from Data_With_Titles rows. It depends on
      *         if table has or no column title row.
      */
-    protected int getStartRowForData() {
+    private int getStartRowForData() {
 
         if (dataModel.hasColumnTitleRow()) {
             return 1;

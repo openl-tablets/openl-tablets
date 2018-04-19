@@ -3,12 +3,6 @@ package org.openl.rules.convertor;
 class String2CharConvertor implements IString2DataConvertor<Character> {
 
     @Override
-    public String format(Character data, String format) {
-        if (data == null) return null;
-        return data.toString();
-    }
-
-    @Override
     public Character parse(String data, String format) {
         if (data == null) return null;
         if (data.length() != 1) {

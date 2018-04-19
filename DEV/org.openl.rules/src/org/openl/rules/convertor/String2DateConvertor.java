@@ -15,15 +15,6 @@ class String2DateConvertor implements IString2DataConvertor<Date> {
     private final Logger log = LoggerFactory.getLogger(String2DateConvertor.class);
 
     @Override
-    public String format(Date data, String format) {
-        if (data == null) {
-            return null;
-        }
-        DateFormat df = format == null ? DateFormat.getDateInstance(DateFormat.SHORT) : new SimpleDateFormat(format);
-        return df.format(data);
-    }
-    
-    @Override
     public Date parse(String data, String format) {
         if (data == null) {
             return null;

@@ -2,12 +2,8 @@ package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +16,8 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
 import org.openl.rules.binding.RuleRowHelper;
+import org.openl.rules.convertor.IObjectToDataConvertor;
+import org.openl.rules.convertor.ObjectToDataConvertorFactory;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
@@ -108,7 +106,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
         int valuesHeight = valuesTable.getHeight();
 
-        ArrayList<Object> values = new ArrayList<Object>(valuesHeight);
+        ArrayList<Object> values = new ArrayList<>(valuesHeight);
 
         if (valuesHeight == 1) {
 
@@ -177,7 +175,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             ILogicalTable valueTable,
             String key) throws SyntaxNodeException {
 
-        Object result = null;
+        Object result;
 
         try {
             if (foreignKeyColumnChainTokens.length == 0) {
@@ -191,29 +189,29 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             }
             result = foreignTable.findObject(foreignKeyIndex, key, bindingContext);
             if (result == null) {
-                throwIndexNotFound(foreignTable, valueTable, key, null, bindingContext);
+                throw createIndexNotFoundError(foreignTable, valueTable, key, null, bindingContext);
             }
 
             if (!ArrayUtils.isEmpty(foreignKeyTableAccessorChainTokens)) {
                 ResultChainObject chainRes = getChainObject(bindingContext, result, foreignKeyTableAccessorChainTokens);
                 if (chainRes == null) {
-                    throwIndexNotFound(foreignTable, valueTable, key, null, bindingContext);
+                    throw createIndexNotFoundError(foreignTable, valueTable, key, null, bindingContext);
                 }
                 result = chainRes.getValue();
             }
 
         } catch (SyntaxNodeException ex) {
-            throwIndexNotFound(foreignTable, valueTable, key, ex, bindingContext);
+            throw createIndexNotFoundError(foreignTable, valueTable, key, ex, bindingContext);
         }
        
         return result;
     }
 
-    private void throwIndexNotFound(ITable foreignTable, ILogicalTable valuesTable, String src, Exception ex, IBindingContext bindingContext) throws SyntaxNodeException {
+    private SyntaxNodeException createIndexNotFoundError(ITable foreignTable, ILogicalTable valuesTable, String src, Exception ex, IBindingContext bindingContext) {
 
         String message = String.format("Index Key %s is not found in the foreign table %s", src, foreignTable.getName());
 
-        throw SyntaxNodeExceptionUtils.createError(message,
+        return SyntaxNodeExceptionUtils.createError(message,
             ex,
             null,
             new GridCellSourceCodeModule(valuesTable.getSource(), bindingContext));
@@ -233,13 +231,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         ITable foreignTable = db.getTable(foreignKeyTableName);
         Object result = null;
 
-        if (foreignTable == null) {
-            String message = String.format("Table '%s' is not found", foreignKeyTableName);
-            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-        } else if (foreignTable.getTableSyntaxNode().hasErrors()) {
-            String message = String.format("Foreign table '%s' has errors", foreignKeyTableName);
-            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-        }
+        validateForeignTable(foreignTable, foreignKeyTableName);
 
         int foreignKeyIndex = 0;
         String columnName = NOT_INITIALIZED;
@@ -266,7 +258,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
         } else {
 
-            List<Object> values = new ArrayList<Object>();
+            List<Object> values = new ArrayList<>();
             int valuesHeight = valuesTable.getHeight();
 
             for (int i = 0; i < valuesHeight; i++) {
@@ -317,13 +309,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 ITable foreignTable = db.getTable(foreignKeyTableName);
                 //foreignTable.findObject(columnIndex, key, bindingContext)
 
-                if (foreignTable == null) {
-                    String message = String.format("Table '%s' is not found", foreignKeyTableName);
-                    throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-                } else if (foreignTable.getTableSyntaxNode().hasErrors()) {
-                    String message = String.format("Foreign table '%s' has errors", foreignKeyTableName);
-                    throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-                }
+                validateForeignTable(foreignTable, foreignKeyTableName);
 
                 int foreignKeyIndex = 0;
                 String columnName = NOT_INITIALIZED;
@@ -338,23 +324,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
                 }
 
-                final Map<String, Integer> index = foreignTable.getUniqueIndex(foreignKeyIndex);
-                Set<String> strings = index.keySet();
-                String[] domainStrings = strings.toArray(new String[strings.size()]);
-                Arrays.sort(domainStrings, new Comparator<String>() {
-                    @Override
-                    public int compare(String ds1, String ds2) {
-                        return index.get(ds1).compareTo(index.get(ds2));
-                    }
-                });
-
-                IOpenClass columnType = foreignTable.getColumnType(foreignKeyIndex);
-                EnumDomain<String> domain = new EnumDomain<String>(domainStrings);
-                DomainOpenClass domainClass = new DomainOpenClass(getField().getName(),
-                    columnType != null ? columnType : JavaOpenClass.STRING,
-                    domain,
-                    null);
-
                 // table will have 1xN size
                 //
                 valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
@@ -366,16 +335,16 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 IOpenClass resType = foreignTable.getDataModel().getType();
                 String s = getCellStringValue(valuesTable);
                 if (!StringUtils.isEmpty(s)) {
-                    Object result = null;
+                    Object result;
                     try {
                         result = foreignTable.findObject(foreignKeyIndex, s, cxt);
                     } catch (SyntaxNodeException ex) {
-                        throwIndexNotFound(foreignTable, valuesTable, s, ex, cxt);
+                        throw createIndexNotFoundError(foreignTable, valuesTable, s, ex, cxt);
                     }
                     if (result != null) {
                         ResultChainObject chainRes = getChainObject(cxt, result, foreignKeyTableAccessorChainTokens);
                         if (chainRes == null) {
-                            throwIndexNotFound(foreignTable, valuesTable, s, null, cxt);
+                            throw createIndexNotFoundError(foreignTable, valuesTable, s, null, cxt);
                         }
                         Class<?> instanceClass = chainRes.instanceClass;
                         int dim = 0;
@@ -386,18 +355,22 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         resType = JavaOpenClass.getOpenClass(instanceClass);
                         if (dim > 0) {
                             resType = resType.getArrayType(dim);
-                        } 
+                        }
                     }
                 }
-                
+
                 if (!(fieldType.isArray() && fieldType.getComponentClass().getInstanceClass().equals(resType.getInstanceClass()))) {
                     if (StringUtils.isEmpty(s)) {
                         // Set meta info for empty cells
-                        if(!cxt.isExecutionMode())
+                        if (!cxt.isExecutionMode()) {
+                            DomainOpenClass domainClass = getDomainClass(foreignTable, foreignKeyIndex, cxt);
                             RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
+                        }
                     } else {
-                        if (!cxt.isExecutionMode())
+                        if (!cxt.isExecutionMode()) {
+                            DomainOpenClass domainClass = getDomainClass(foreignTable, foreignKeyIndex, cxt);
                             RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
+                        }
                         Object res = getValueByForeignKeyIndex(cxt,
                             foreignTable,
                             foreignKeyIndex,
@@ -416,8 +389,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         getField().set(target, cast.convert(res), getRuntimeEnv());
                     }
                 } else {
-                    
                     // processing array or list values.
+                    DomainOpenClass domainClass = cxt.isExecutionMode() ? null : getDomainClass(foreignTable, foreignKeyIndex, cxt);
                     List<Object> cellValues = getArrayValuesByForeignKey(valuesTable, cxt, foreignTable,
                         foreignKeyIndex,
                         foreignKeyTableAccessorChainTokens,
@@ -455,7 +428,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     if (isList) {
                         int len = Array.getLength(array);
 
-                        List<Object> list = new ArrayList<Object>(len);
+                        List<Object> list = new ArrayList<>(len);
 
                         for (int i = 0; i < len; i++) {
                             list.add(Array.get(array, i));
@@ -468,7 +441,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 }
             }
         } else {
-            /**
+            /*
              * field == null, in this case don`t do anything. The appropriate information why it is null would have been
              * processed during preparing column descriptor.
              * See {@link DataTableBindHelper#makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type,
@@ -477,8 +450,48 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
              */
         }
     }
-    
-    private ResultChainObject getChainObject(IBindingContext bindingContext, Object parentObj, IdentifierNode[] fieldChainTokens) throws SyntaxNodeException {
+
+    private void validateForeignTable(ITable foreignTable, String foreignKeyTableName) throws SyntaxNodeException {
+        if (foreignTable == null) {
+            String message = String.format("Table '%s' is not found", foreignKeyTableName);
+            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+        } else if (foreignTable.getTableSyntaxNode().hasErrors()) {
+            String message = String.format("Foreign table '%s' has errors", foreignKeyTableName);
+            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+        }
+    }
+
+    private DomainOpenClass getDomainClass(ITable foreignTable, int foreignKeyIndex, IBindingContext cxt) throws
+                                                                                                          SyntaxNodeException {
+        final List<Object> foreignTableValues = foreignTable.getUniqueValues(foreignKeyIndex);
+
+        IOpenClass columnType = foreignTable.getColumnType(foreignKeyIndex);
+        if (columnType == null || !columnType.isSimple()) {
+            columnType = JavaOpenClass.OBJECT;
+        }
+        Object[] foreignArray = new Object[foreignTableValues.size()];
+        for (int i = 0; i < foreignTableValues.size(); i++) {
+            Object foreignValue = foreignTableValues.get(i);
+            foreignArray[i] = foreignValue;
+
+            // If String - no need to convert to Object and later format back. Otherwise will be formatted later.
+            if (foreignValue != null && !(foreignValue instanceof String)) {
+                IObjectToDataConvertor convertor = ObjectToDataConvertorFactory.getConvertor(columnType.getInstanceClass(),
+                        foreignValue.getClass());
+                if (convertor != ObjectToDataConvertorFactory.NO_Convertor) {
+                    foreignArray[i] = convertor.convert(foreignValue, cxt);
+                }
+            }
+
+        }
+        EnumDomain<Object> domain = new EnumDomain<>(foreignArray);
+        return new DomainOpenClass(getField().getName(),
+            columnType,
+            domain,
+            null);
+    }
+
+    private ResultChainObject getChainObject(IBindingContext bindingContext, Object parentObj, IdentifierNode[] fieldChainTokens) {
         Object resObj = parentObj;
         Class<?> resInctClass = parentObj.getClass();
         if (fieldChainTokens.length > 1) {

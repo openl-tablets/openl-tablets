@@ -1,14 +1,13 @@
 package org.openl.rules.convertor;
 
-import org.openl.binding.IBindingContext;
-import org.openl.util.StringTool;
-import org.openl.util.StringUtils;
-
 import java.lang.reflect.Array;
 
+import org.openl.binding.IBindingContext;
+import org.openl.util.StringTool;
+
 /**
- * A converter for arrays. It converts strings to an array of a specified type and vice versa.
- * E.g. for int[]: "1,2,4,8" <==> int[]{1,2,4,8}
+ * A converter for arrays. It converts strings to an array of a specified type.
+ * E.g. for int[]: "1,2,4,8" ==> int[]{1,2,4,8}
  *
  * @author Yury Molchan
  */
@@ -63,31 +62,6 @@ class String2ArrayConvertor<C, T> implements IString2DataConvertor<T> , IString2
         }
 
         return resultArray;
-    }
-    
-    /**
-     * Converts an input array of elements to <code>{@link String}</code>. Elements in the return value will separated by
-     * {@link #ARRAY_ELEMENTS_SEPARATOR}. Null safety.
-     *
-     * @param data array of elements that should be represented as <code>{@link String}</code>.
-     * @return <code>{@link String}</code> representation of the income array. <code>NULL</code> if the income value is
-     * <code>NULL</code> or if income value is not an array.
-     */
-    @Override
-    public String format(T data, String format) {
-        if (data == null) return null;
-
-        IString2DataConvertor<C> converter = String2DataConvertorFactory.getConvertor(componentType);
-
-        int length = Array.getLength(data);
-        String[] elementResults = new String[length];
-        for (int i = 0; i < length; i++) {
-            C element = (C) Array.get(data, i);;
-            elementResults[i] = converter.format(element, format);
-        }
-
-        String result = StringUtils.join(elementResults, ARRAY_ELEMENTS_SEPARATOR);
-        return result;
     }
 
     /**

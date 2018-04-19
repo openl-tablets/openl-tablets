@@ -39,20 +39,6 @@ public class String2DateConvertorTest {
         assertEquals(new Date(114, 5, 17), result);
     }
 
-    @Test
-    public void testFormat() {
-        String2DateConvertor converter = new String2DateConvertor();
-        String result = converter.format(new Date(114, 5, 17), null);
-        assertEquals("6/17/14", result);
-    }
-
-    @Test
-    public void testFormatByPattern() {
-        String2DateConvertor converter = new String2DateConvertor();
-        String result = converter.format(new Date(114, 5, 17), "MM/dd/yyyy");
-        assertEquals("06/17/2014", result);
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void testParseEmpty() {
         String2DateConvertor converter = new String2DateConvertor();
@@ -71,9 +57,4 @@ public class String2DateConvertorTest {
         assertNull(converter.parse(null, null));
     }
 
-    @Test
-    public void testFormatNull() {
-        String2DateConvertor converter = new String2DateConvertor();
-        assertNull(converter.format(null, null));
-    }
 }

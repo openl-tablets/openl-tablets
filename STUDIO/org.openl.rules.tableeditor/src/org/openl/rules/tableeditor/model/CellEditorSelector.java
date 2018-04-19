@@ -4,19 +4,19 @@ import java.util.Date;
 
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
-import org.openl.rules.convertor.IString2DataConvertor;
-import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.EnumUtils;
 import org.openl.util.IntegerValuesUtils;
 import org.openl.util.NumberUtils;
+import org.openl.util.formatters.IFormatter;
 
 // TODO Reimplement
 public class CellEditorSelector {
@@ -27,12 +27,13 @@ public class CellEditorSelector {
         if (cell.getFormula() != null) {
             return factory.makeFormulaEditor();
         }
-        CellMetaInfo cellMetaInfo = cell.getMetaInfo();
-        ICellEditor editor = selectEditor(cellMetaInfo, cell.getStringValue());
+        ICellEditor editor = selectEditor(cell, cell.getStringValue());
         return editor == null ? defaultEditor(cell) : editor;
     }
 
-    private ICellEditor selectEditor(CellMetaInfo meta, String initialValue) {
+    private ICellEditor selectEditor(ICell cell, String initialValue) {
+        CellMetaInfo meta = cell.getMetaInfo();
+
         ICellEditor result = null;
         IOpenClass dataType = meta == null ? null : meta.getDataType();
         if (dataType != null) {
@@ -51,19 +52,12 @@ public class CellEditorSelector {
                         return factory.makeComboboxEditor(allObjectValues);
                     }
                 } else if (allObjects != null) {
-                    @SuppressWarnings("unchecked")
-                    Class<Object> componentType = (Class<Object>) allObjects.getClass().getComponentType();
-                    IString2DataConvertor<Object> convertor = String2DataConvertorFactory.getConvertor(componentType);
+                    IFormatter formatter = XlsDataFormatterFactory.getFormatter(cell);
+
                     String[] allObjectValues = new String[allObjects.length];
-                    boolean convertToNumber = Number.class.isAssignableFrom(componentType);
                     for (int i = 0; i < allObjects.length; i++) {
-                        String stringValue = convertor.format(allObjects[i], null);
-                        if (convertToNumber && stringValue.endsWith(".0")) {
-                            // Doubles like 2015 in domain are implicitly formatted as 2015.0 but cell values not.
-                            // TODO Format behavior for cells and domain values in combobox must be same
-                            stringValue = stringValue.replace(".0", "");
-                        }
-                        allObjectValues[i] = stringValue;
+                        Object value = allObjects[i];
+                        allObjectValues[i] = value instanceof  String ? (String) value : formatter.format(value);
                     }
 
                     if (meta.isMultiValue()) {
