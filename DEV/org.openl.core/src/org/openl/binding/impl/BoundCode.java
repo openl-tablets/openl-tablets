@@ -26,20 +26,14 @@ public class BoundCode implements IBoundCode {
     private IBoundNode topNode;
     private SyntaxNodeException[] error;
     private Collection<OpenLMessage> messages;
-    // TODO this mekes sense only in context of a single method, once we move
-    // further into more sophisticated types of code
-    // bound code will be split int class hierarchy
-    private int localFrameSize;
 
     public BoundCode(IParsedCode parsedCode,
-            IBoundNode topNode,
-            SyntaxNodeException[] error,
-            Collection<OpenLMessage> messages,
-            int localFrameSize) {
+                     IBoundNode topNode,
+                     SyntaxNodeException[] error,
+                     Collection<OpenLMessage> messages) {
         this.parsedCode = parsedCode;
         this.topNode = topNode;
         this.error = error;
-        this.localFrameSize = localFrameSize;
         if (messages == null) {
             this.messages = Collections.emptyList();
         } else {
@@ -58,13 +52,6 @@ public class BoundCode implements IBoundCode {
 
     public Collection<OpenLMessage> getMessages() {
         return Collections.unmodifiableCollection(messages);
-    }
-
-    /**
-     * @return
-     */
-    public int getLocalFrameSize() {
-        return localFrameSize;
     }
 
     /*

@@ -95,7 +95,7 @@ public class Binder implements IOpenBinder {
         return new BoundCode(parsedCode,
             boundNode,
             bindingContext.getErrors(),
-            bindingContext.getMessages(),
-            bindingContext.getLocalVarFrameSize());
+            bindingContext.getMessages()
+        );
     }
 }

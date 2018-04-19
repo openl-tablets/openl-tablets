@@ -181,7 +181,7 @@ public class XlsBinder implements IOpenBinder {
 
             ErrorBoundNode boundNode = new ErrorBoundNode(syntaxNode);
 
-            return new BoundCode(parsedCode, boundNode, new SyntaxNodeException[] { error }, null, 0);
+            return new BoundCode(parsedCode, boundNode, new SyntaxNodeException[] { error }, null);
         }
 
         if (bindingContext == null) {
@@ -231,7 +231,7 @@ public class XlsBinder implements IOpenBinder {
 
         topNode = processBinding(moduleNode, openl, moduleContext, moduleOpenClass, bindingContext);
 
-        return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), bindingContext.getMessages(), 0);
+        return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), bindingContext.getMessages());
     }
 
     protected IDataBase getModuleDatabase() {

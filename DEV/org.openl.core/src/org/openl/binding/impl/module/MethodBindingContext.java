@@ -1,9 +1,3 @@
-/*
- * Created on Jul 25, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl.module;
 
 import org.openl.binding.IBindingContext;
@@ -26,17 +20,11 @@ import org.openl.util.RuntimeExceptionWrapper;
  */
 public class MethodBindingContext extends BindingContextDelegator {
 
-    static final int STATUS_ADDING_PARAMS = 0, STATUS_ADDING_LOCAL_VARS = 1;
-
     public static final boolean DEFAULT_SEARCH_IN_CONTEXT = true;
 
     public static final int DEFAULT_CONTEXT_LEVEL = 1;
 
     LocalFrameBuilder localFrame = new LocalFrameBuilder();
-
-    int paramFrameSize = 0;
-
-    int status = STATUS_ADDING_PARAMS;
 
     IOpenClass returnType;
     IOpenMethodHeader header;
@@ -48,26 +36,18 @@ public class MethodBindingContext extends BindingContextDelegator {
 
     VariableInContextFinder rootContext;
 
-    /**
-     * @param delegate
-     */
     public MethodBindingContext(IOpenMethodHeader header, IBindingContext delegate) {
-        this(header, delegate, DEFAULT_SEARCH_IN_CONTEXT, DEFAULT_CONTEXT_LEVEL);
-    }
-
-    public MethodBindingContext(IOpenMethodHeader header, IBindingContext delegate, boolean searchInParameterContext,
-            int parameterContextDepthLevel) {
         super(delegate);
         this.header = header;
-        this.searchInParameterContext = searchInParameterContext;
-        this.parameterContextDepthLevel = parameterContextDepthLevel;
+        this.searchInParameterContext = DEFAULT_SEARCH_IN_CONTEXT;
+        this.parameterContextDepthLevel = DEFAULT_CONTEXT_LEVEL;
 
         pushLocalVarContext();
         IMethodSignature signature = header.getSignature();
         IOpenClass[] params = signature.getParameterTypes();
         for (int i = 0; i < params.length; i++) {
             try {
-                addParameter(ISyntaxConstants.THIS_NAMESPACE, signature.getParameterName(i), params[i]);
+                localFrame.addVar(ISyntaxConstants.THIS_NAMESPACE, signature.getParameterName(i), params[i]);
             } catch (DuplicatedVarException e) {
                 throw RuntimeExceptionWrapper.wrap(e.getMessage(), e);
             }
@@ -75,16 +55,6 @@ public class MethodBindingContext extends BindingContextDelegator {
 
         paramVars = localFrame.getTopFrame().toArray(new ILocalVar[0]);
 
-    }
-
-    @Override
-    public ILocalVar addParameter(String namespace, String name, IOpenClass type) throws DuplicatedVarException {
-        if (status != STATUS_ADDING_PARAMS) {
-            throw new IllegalStateException();
-        }
-        paramFrameSize++;
-
-        return localFrame.addVar(namespace, name, type);
     }
 
     /*
@@ -95,7 +65,6 @@ public class MethodBindingContext extends BindingContextDelegator {
      */
     @Override
     public ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException {
-        status = STATUS_ADDING_LOCAL_VARS;
         return localFrame.addVar(namespace, name, type);
     }
 
@@ -130,16 +99,6 @@ public class MethodBindingContext extends BindingContextDelegator {
         return localFrame.getLocalVarFrameSize();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBindingContext#getParamFrameSize()
-     */
-    @Override
-    public int getParamFrameSize() {
-        return paramFrameSize;
-    }
-
     @Override
     public IOpenClass getReturnType() {
         return returnType == null ? header.getType() : returnType;
@@ -152,11 +111,6 @@ public class MethodBindingContext extends BindingContextDelegator {
         return rootContext;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBindingContext#popLocalVarcontext()
-     */
     @Override
     public void popLocalVarContext() {
         localFrame.popLocalVarcontext();

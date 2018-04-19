@@ -21,7 +21,6 @@ public class SpreadsheetContext extends ComponentBindingContext {
 
     @Override
     public IOpenField findRange(String namespace, String rangeStartName, String rangeEndName) throws AmbiguousVarException,
-                                                                                             FieldNotFoundException,
                                                                                              OpenLCompilationException {
 
         String key = namespace + ":" + rangeStartName + ":" + rangeEndName;

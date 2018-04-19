@@ -1,9 +1,3 @@
-/*
- * Created on May 19, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding;
 
 import java.util.Collection;
@@ -14,7 +8,6 @@ import org.openl.OpenL;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedVarException;
-import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
@@ -30,8 +23,6 @@ import org.openl.types.IOpenField;
  */
 public interface IBindingContext extends ICastFactory {
 
-    void addAlias(String name, String value);
-    
     Collection<OpenLMessage> getMessages();
     
     void addMessage(OpenLMessage message);
@@ -39,8 +30,6 @@ public interface IBindingContext extends ICastFactory {
     void addMessages(Collection<OpenLMessage> messages);
     
     void addError(SyntaxNodeException error);
-
-    ILocalVar addParameter(String namespace, String name, IOpenClass type) throws DuplicatedVarException;
 
     /**
      * Adds new type to binding context.
@@ -74,34 +63,20 @@ public interface IBindingContext extends ICastFactory {
     IOpenClass findType(String namespace, String typeName);
 
     /**
-     * 
-     * @param namespace
-     * @param name
-     * @param strictMatch
-     * @return
-     * @throws AmbiguousVarException
      * @see {@link IOpenClass#getField(String, boolean)}
      */
     IOpenField findVar(String namespace, String vname, boolean strictMatch) throws AmbiguousVarException;
 
     /**
-     * 
-     * @param namespace
-     * @param rangeStartName
-     * @param rangeEndName
      * @return reference to the variable holding a range object. The specifics
      *         of the range object is that it is defined by a pair of the
      *         variables called start and end. There is no common range
      *         interface, the details must be contained in the implementation of
      *         a particular range type
-     * @throws AmbiguousVarException
      */
 
     IOpenField findRange(String namespace, String rangeStartName, String rangeEndName) throws AmbiguousVarException,
-                                                                                       FieldNotFoundException,
                                                                                        OpenLCompilationException;
-
-    String getAlias(String name);
 
     IOpenCast getCast(IOpenClass from, IOpenClass to);
 
@@ -109,11 +84,7 @@ public interface IBindingContext extends ICastFactory {
 
     int getLocalVarFrameSize();
 
-    int getNumberOfErrors();
-
     OpenL getOpenL();
-
-    int getParamFrameSize();
 
     IOpenClass getReturnType();
 
@@ -132,9 +103,6 @@ public interface IBindingContext extends ICastFactory {
 
     void pushLocalVarContext();
 
-    /**
-     * @param type
-     */
     void setReturnType(IOpenClass type);
 
     void setExecutionMode(boolean executionMode);
@@ -147,10 +115,4 @@ public interface IBindingContext extends ICastFactory {
     void setExternalParams(Map<String, Object> params);
 
     Map<String, Object> getExternalParams();
-
-    // context properties
-
-    String getContextProperty(String name);
-
-    void setContextProperty(String name, String value);
 }
