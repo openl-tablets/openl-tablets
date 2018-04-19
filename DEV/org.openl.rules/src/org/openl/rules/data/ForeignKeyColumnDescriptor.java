@@ -231,13 +231,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         ITable foreignTable = db.getTable(foreignKeyTableName);
         Object result = null;
 
-        if (foreignTable == null) {
-            String message = String.format("Table '%s' is not found", foreignKeyTableName);
-            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-        } else if (foreignTable.getTableSyntaxNode().hasErrors()) {
-            String message = String.format("Foreign table '%s' has errors", foreignKeyTableName);
-            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-        }
+        validateForeignTable(foreignTable, foreignKeyTableName);
 
         int foreignKeyIndex = 0;
         String columnName = NOT_INITIALIZED;
@@ -315,13 +309,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 ITable foreignTable = db.getTable(foreignKeyTableName);
                 //foreignTable.findObject(columnIndex, key, bindingContext)
 
-                if (foreignTable == null) {
-                    String message = String.format("Table '%s' is not found", foreignKeyTableName);
-                    throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-                } else if (foreignTable.getTableSyntaxNode().hasErrors()) {
-                    String message = String.format("Foreign table '%s' has errors", foreignKeyTableName);
-                    throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-                }
+                validateForeignTable(foreignTable, foreignKeyTableName);
 
                 int foreignKeyIndex = 0;
                 String columnName = NOT_INITIALIZED;
@@ -367,10 +355,10 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         resType = JavaOpenClass.getOpenClass(instanceClass);
                         if (dim > 0) {
                             resType = resType.getArrayType(dim);
-                        } 
+                        }
                     }
                 }
-                
+
                 if (!(fieldType.isArray() && fieldType.getComponentClass().getInstanceClass().equals(resType.getInstanceClass()))) {
                     if (StringUtils.isEmpty(s)) {
                         // Set meta info for empty cells
@@ -401,7 +389,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         getField().set(target, cast.convert(res), getRuntimeEnv());
                     }
                 } else {
-                    
                     // processing array or list values.
                     DomainOpenClass domainClass = cxt.isExecutionMode() ? null : getDomainClass(foreignTable, foreignKeyIndex, cxt);
                     List<Object> cellValues = getArrayValuesByForeignKey(valuesTable, cxt, foreignTable,
@@ -461,6 +448,16 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
              * OpenL openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow,
              * boolean hasColumnTytleRow)}
              */
+        }
+    }
+
+    private void validateForeignTable(ITable foreignTable, String foreignKeyTableName) throws SyntaxNodeException {
+        if (foreignTable == null) {
+            String message = String.format("Table '%s' is not found", foreignKeyTableName);
+            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+        } else if (foreignTable.getTableSyntaxNode().hasErrors()) {
+            String message = String.format("Foreign table '%s' has errors", foreignKeyTableName);
+            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
         }
     }
 
