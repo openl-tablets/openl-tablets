@@ -7,10 +7,12 @@ import java.util.LinkedHashSet;
 import org.openl.message.OpenLMessage;
 
 /**
- * The <code>ValidationResult</code> defines contract that used in validation process.
+ * The <code>ValidationResult</code> defines contract that used in validation
+ * process.
  * 
- * While OpenL engine base concept is rules sets the validation process used list of {@link OpenlMessage} as a container
- * to accumulate problems of each rule.
+ * While OpenL engine base concept is rules sets the validation process used
+ * list of {@link OpenlMessage} as a container to accumulate problems of each
+ * rule.
  * 
  */
 public class ValidationResult {
@@ -34,6 +36,15 @@ public class ValidationResult {
         this.status = status;
     }
 
+    public ValidationResult(ValidationStatus status, Collection<OpenLMessage> messages) {
+        this.status = status;
+        if (messages == null) {
+            this.messages = Collections.emptyList();
+        } else {
+            this.messages = new LinkedHashSet<>(messages);
+        }
+    }
+
     /**
      * Gets status of validation.
      * 
@@ -53,12 +64,5 @@ public class ValidationResult {
             return Collections.emptyList();
         }
         return Collections.unmodifiableCollection(messages);
-    }
-    
-    public void addMessage(OpenLMessage message) {
-        if (messages == null) {
-            messages = new LinkedHashSet<>();
-        }
-        messages.add(message);
     }
 }
