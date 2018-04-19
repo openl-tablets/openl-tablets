@@ -9,14 +9,6 @@ class String2EnumConvertor<E extends Enum<E>> implements IString2DataConvertor<E
     }
 
     @Override
-    public String format(E data, String format) {
-        if (data == null) return null;
-        // An enum can override toString() method to display user-friendly
-        // values
-        return data.name();
-    }
-
-    @Override
     public E parse(String data, String format) {
         if (data == null) return null;
 

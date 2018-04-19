@@ -4,13 +4,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 class String2CalendarConvertor implements IString2DataConvertor<Calendar> {
-
-    @Override
-    public String format(Calendar data, String format) {
-        if (data == null) return null;
-        return new String2DateConvertor().format(data.getTime(), format);
-    }
-
     @Override
     public Calendar parse(String data, String format) {
         if (data == null) return null;

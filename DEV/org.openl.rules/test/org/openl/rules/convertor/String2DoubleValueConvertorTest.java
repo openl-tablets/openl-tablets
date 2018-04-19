@@ -12,9 +12,4 @@ public class String2DoubleValueConvertorTest {
         assertNull(converter.parse(null, null));
     }
 
-    @Test
-    public void testFormatNull() {
-        String2DoubleValueConvertor converter = new String2DoubleValueConvertor();
-        assertNull(converter.format(null, null));
-    }
 }

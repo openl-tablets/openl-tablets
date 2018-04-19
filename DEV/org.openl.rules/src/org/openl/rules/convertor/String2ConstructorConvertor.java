@@ -17,12 +17,6 @@ class String2ConstructorConvertor<T> implements IString2DataConvertor<T> {
     }
 
     @Override
-    public String format(Object data, String format) {
-        if (data == null) return null;
-        return data.toString();
-    }
-
-    @Override
     public T parse(String data, String format) {
         if (data == null) return null;
 

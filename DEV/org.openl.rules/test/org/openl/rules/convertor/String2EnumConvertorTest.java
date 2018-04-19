@@ -16,13 +16,6 @@ public class String2EnumConvertorTest {
     }
 
     @Test
-    public void testFormat() {
-        String2EnumConvertor<EnumVal> converter = new String2EnumConvertor<EnumVal>(EnumVal.class);
-        String result = converter.format(EnumVal.Val3, null);
-        assertEquals("Val3", result);
-    }
-
-    @Test
     public void testParseCaseInsensetive() {
         String2EnumConvertor<?> converter = new String2EnumConvertor<EnumVal>(EnumVal.class);
         Enum<?> result = converter.parse("vAl3", null);
@@ -46,12 +39,6 @@ public class String2EnumConvertorTest {
     public void testParseNull() {
         String2EnumConvertor<?> converter = new String2EnumConvertor<EnumRes>(null);
         assertNull(converter.parse(null, null));
-    }
-
-    @Test
-    public void testFormatNull() {
-        String2EnumConvertor<EnumRes> converter = new String2EnumConvertor<EnumRes>(null);
-        assertNull(converter.format(null, null));
     }
 
     private enum EnumVal { VAL1, val2, Val3 }

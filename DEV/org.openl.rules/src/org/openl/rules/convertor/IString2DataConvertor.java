@@ -8,15 +8,12 @@ package org.openl.rules.convertor;
 
 
 /**
- * A converter to parse and to format data from/to String.
+ * A converter to parse data from String.
  *
  * @param <T> type of converted data
  * @author Yury Molchan
  * @author snshor
  */
 public interface IString2DataConvertor<T> {
-
-    String format(T data, String format);
-
     T parse(String data, String format);
 }

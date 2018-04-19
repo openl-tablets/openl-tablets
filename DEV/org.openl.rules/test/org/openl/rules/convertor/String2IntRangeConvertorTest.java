@@ -12,9 +12,4 @@ public class String2IntRangeConvertorTest {
         assertNull(converter.parse(null, null));
     }
 
-    @Test
-    public void testFormatNull() {
-        String2IntRangeConvertor converter = new String2IntRangeConvertor();
-        assertNull(converter.format(null, null));
-    }
 }

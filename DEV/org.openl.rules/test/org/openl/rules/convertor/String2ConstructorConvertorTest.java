@@ -15,22 +15,9 @@ public class String2ConstructorConvertorTest {
     }
 
     @Test
-    public void testFormat() {
-        String2ConstructorConvertor<?> converter = new String2ConstructorConvertor<Integer>(Integer.class);
-        String result = converter.format(456, null);
-        assertEquals("456", result);
-    }
-
-    @Test
     public void testParseNull() {
         String2ConstructorConvertor<?> converter = new String2ConstructorConvertor<Integer>(Integer.class);
         assertNull(converter.parse(null, null));
-    }
-
-    @Test
-    public void testFormatNull() {
-        String2ConstructorConvertor<?> converter = new String2ConstructorConvertor<Integer>(Integer.class);
-        assertNull(converter.format(null, null));
     }
 
     @Test(expected = IllegalArgumentException.class)

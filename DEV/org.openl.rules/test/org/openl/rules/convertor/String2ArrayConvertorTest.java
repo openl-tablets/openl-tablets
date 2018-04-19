@@ -16,24 +16,10 @@ public class String2ArrayConvertorTest {
     }
 
     @Test
-    public void testFormatEmpty() {
-        String2ArrayConvertor<Integer, Integer[]> converter = new String2ArrayConvertor(Integer.class);
-        String result = converter.format(new Integer[]{}, null);
-        assertEquals("", result);
-    }
-
-    @Test
     public void testParseSingleElement() {
         String2ArrayConvertor<Integer, Integer[]> converter = new String2ArrayConvertor(Integer.class);
         Integer[] result = converter.parse("123", null);
         assertArrayEquals(new Integer[]{123}, result);
-    }
-
-    @Test
-    public void testFormatSingleElement() {
-        String2ArrayConvertor<Integer, Integer[]> converter = new String2ArrayConvertor(Integer.class);
-        String result = converter.format(new Integer[]{456}, null);
-        assertEquals("456", result);
     }
 
     @Test
@@ -51,13 +37,6 @@ public class String2ArrayConvertorTest {
     }
 
     @Test
-    public void testFormatTwoElements() {
-        String2ArrayConvertor<Integer, Integer[]> converter = new String2ArrayConvertor(Integer.class);
-        String result = converter.format(new Integer[]{45,6}, null);
-        assertEquals("45,6", result);
-    }
-
-    @Test
     public void testParseWithNullElement() {
         String2ArrayConvertor<Integer, Integer[]> converter = new String2ArrayConvertor(Integer.class);
         Integer[] result = converter.parse("1,,3", null);
@@ -65,22 +44,9 @@ public class String2ArrayConvertorTest {
     }
 
     @Test
-    public void testFormatWithNullElement() {
-        String2ArrayConvertor<Integer, Integer[]> converter = new String2ArrayConvertor(Integer.class);
-        String result = converter.format(new Integer[]{4,null,6}, null);
-        assertEquals("4,,6", result);
-    }
-
-    @Test
     public void testParseNull() {
         String2ArrayConvertor converter = new String2ArrayConvertor(null);
         assertNull(converter.parse(null, null));
-    }
-
-    @Test
-    public void testFormatNull() {
-        String2ArrayConvertor converter = new String2ArrayConvertor(null);
-        assertNull(converter.format(null, null));
     }
 
     @Test(expected = NumberFormatException.class)

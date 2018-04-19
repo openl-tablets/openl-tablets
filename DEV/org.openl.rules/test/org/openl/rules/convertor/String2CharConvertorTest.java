@@ -14,13 +14,6 @@ public class String2CharConvertorTest {
         assertEquals(new Character('X'), result);
     }
 
-    @Test
-    public void testFormat() {
-        String2CharConvertor converter = new String2CharConvertor();
-        String result = converter.format('@', null);
-        assertEquals("@", result);
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void testParseEmpty() {
         String2BooleanConvertor converter = new String2BooleanConvertor();
@@ -39,9 +32,4 @@ public class String2CharConvertorTest {
         assertNull(converter.parse(null, null));
     }
 
-    @Test
-    public void testFormatNull() {
-        String2CharConvertor converter = new String2CharConvertor();
-        assertNull(converter.format(null, null));
-    }
 }
