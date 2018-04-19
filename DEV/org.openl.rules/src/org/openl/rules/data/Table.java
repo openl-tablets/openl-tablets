@@ -152,7 +152,7 @@ public class Table implements ITable {
 
     public Map<String, Integer> makeUniqueIndex(int colIdx) throws SyntaxNodeException {
 
-        Map<String, Integer> index = new HashMap<String, Integer>();
+        Map<String, Integer> index = new HashMap<>();
 
         int rows = logicalTable.getHeight();
 
@@ -214,13 +214,13 @@ public class Table implements ITable {
 
         int startRow = 1;
 
-        Collection<SyntaxNodeException> errorSyntaxNodeExceptions = new ArrayList<SyntaxNodeException>(0);
+        Collection<SyntaxNodeException> errorSyntaxNodeExceptions = new ArrayList<>(0);
 
         if (!bindingContext.isExecutionMode()) {
             for (int j = 0; j < columns; j++) {
                 ColumnDescriptor descriptor = dataModel.getDescriptor()[j];
 
-                if (descriptor != null && (descriptor instanceof ForeignKeyColumnDescriptor)) {
+                if (descriptor instanceof ForeignKeyColumnDescriptor) {
                     ForeignKeyColumnDescriptor fkDescriptor = (ForeignKeyColumnDescriptor) descriptor;
 
                     if (fkDescriptor.isReference()) {
@@ -238,7 +238,7 @@ public class Table implements ITable {
 
                 ColumnDescriptor descriptor = dataModel.getDescriptor()[j];
 
-                if (descriptor != null && (descriptor instanceof ForeignKeyColumnDescriptor)) {
+                if (descriptor instanceof ForeignKeyColumnDescriptor) {
                     ForeignKeyColumnDescriptor fkDescriptor = (ForeignKeyColumnDescriptor) descriptor;
 
                     if (fkDescriptor.isReference()) {
@@ -271,7 +271,7 @@ public class Table implements ITable {
         }
         if (!errorSyntaxNodeExceptions.isEmpty()) {
             throw new CompositeSyntaxNodeException("Parsing Error:",
-                errorSyntaxNodeExceptions.toArray(new SyntaxNodeException[errorSyntaxNodeExceptions.size()]));
+                errorSyntaxNodeExceptions.toArray(new SyntaxNodeException[0]));
         }
     }
 
@@ -368,7 +368,7 @@ public class Table implements ITable {
 
     public synchronized void setPrimaryIndexKey(int row, String value) {
         if (primaryIndexMap == null){
-            primaryIndexMap = new BiMap<Integer, String>();
+            primaryIndexMap = new BiMap<>();
         }
         Integer oldRow = primaryIndexMap.getKey(value);
         if (oldRow != null && row != oldRow) {
@@ -392,7 +392,7 @@ public class Table implements ITable {
 
     private void addToRowIndex(int rowIndex, Object target) {
         if (rowIndexMap == null){
-            rowIndexMap = new BiMap<Integer, Object>();
+            rowIndexMap = new BiMap<>();
         }
         rowIndexMap.put(rowIndex, target);
     }
