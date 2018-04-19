@@ -30,6 +30,7 @@ import org.openl.binding.INodeBinderFactory;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.BoundCode;
+import org.openl.binding.impl.ErrorBoundNode;
 import org.openl.binding.impl.module.ModuleNode;
 import org.openl.conf.IUserContext;
 import org.openl.conf.OpenConfigurationException;
@@ -178,8 +179,9 @@ public class XlsBinder implements IOpenBinder {
             OpenlSyntaxNode syntaxNode = moduleNode.getOpenlNode();
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Error Creating OpenL", ex, syntaxNode);
 
-            return BindHelper
-                .makeInvalidCode(parsedCode, syntaxNode, new SyntaxNodeException[] { error }, null);
+            ErrorBoundNode boundNode = new ErrorBoundNode(syntaxNode);
+
+            return new BoundCode(parsedCode, boundNode, new SyntaxNodeException[] { error }, null, 0);
         }
 
         if (bindingContext == null) {

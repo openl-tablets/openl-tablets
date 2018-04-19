@@ -27,10 +27,7 @@ public class IndexNodeBinder extends ANodeBinder {
      * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext)
      */
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
-
-        BindHelper.processError("This node always binds  with target", node, bindingContext);
-
-        return new ErrorBoundNode(node);
+        return makeErrorNode("This node always binds  with target", node, bindingContext);
     }
 
     @Override
@@ -38,9 +35,7 @@ public class IndexNodeBinder extends ANodeBinder {
         throws Exception {
 
         if (node.getNumberOfChildren() != 1) {
-            BindHelper.processError("Index node must have  exactly 1 subnode", node, bindingContext);
-
-            return new ErrorBoundNode(node);
+            return makeErrorNode("Index node must have  exactly 1 subnode", node, bindingContext);
         }
 
         IBoundNode[] children = bindChildren(node, bindingContext);
@@ -63,9 +58,7 @@ public class IndexNodeBinder extends ANodeBinder {
 
         String message = String.format(
                 "Index operator %s[%s] is not found", targetNode.getType(), indexExprType.getName());
-        BindHelper.processError(message, node, bindingContext);
-
-        return new ErrorBoundNode(node);
+        return makeErrorNode(message, node, bindingContext);
     }
    
     private IOpenIndex getMethodBasedIndex(IOpenClass[] types, IBindingContext bindingContext) {

@@ -37,10 +37,7 @@ public class LiteralNodeBinder extends ANodeBinder {
             return new LiteralBoundNode(node, s.charAt(0), JavaOpenClass.CHAR);
         }
 
-        String message = String.format("Literal <%s> can not be resolved", s);
-        BindHelper.processError(message, node, bindingContext);
-
-        return new ErrorBoundNode(node);
+        return makeErrorNode("Literal <" + s + "> can not be resolved", node, bindingContext);
     }
 
 }

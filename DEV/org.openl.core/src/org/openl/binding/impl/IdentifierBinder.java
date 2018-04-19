@@ -42,10 +42,7 @@ public class IdentifierBinder extends ANodeBinder {
             return new TypeBoundNode(node, type);
         }
 
-        String message = String.format("Field not found: '%s'", fieldName);
-        BindHelper.processError(message, node, bindingContext);
-
-        return new ErrorBoundNode(node);
+        return makeErrorNode("Field not found: '" + fieldName + "'", node, bindingContext);
     }
 
     @Override
@@ -70,10 +67,9 @@ public class IdentifierBinder extends ANodeBinder {
                 IOpenField field = bindingContext.findFieldFor(type, fieldName, false);
 
                 if (field == null) {
-                    String message = String.format("Field not found: '%s' inside '%s' type", fieldName, type);
-                    BindHelper.processError(message, node, bindingContext);
-
-                    return new ErrorBoundNode(node);
+                    return makeErrorNode("Field not found: '" + fieldName + "' inside '" + type + "' type",
+                        node,
+                        bindingContext);
                 }
 
                 if (target.isStaticTarget() != field.isStatic()) {
@@ -81,10 +77,7 @@ public class IdentifierBinder extends ANodeBinder {
                     if (field.isStatic()) {
                         BindHelper.processWarn("Access of a static field from non-static object", node, bindingContext);
                     } else {
-                        BindHelper
-                            .processError("Access non-static field from a static object", node, bindingContext);
-
-                        return new ErrorBoundNode(node);
+                        return makeErrorNode("Access non-static field from a static object", node, bindingContext);
                     }
                 }
 
@@ -92,14 +85,10 @@ public class IdentifierBinder extends ANodeBinder {
                 return new FieldBoundNode(node, field, target, dims);
 
             } catch (Exception e) {
-                BindHelper.processError(node, e, bindingContext);
-
-                return new ErrorBoundNode(node);
+                return makeErrorNode(e, node, bindingContext);
             }
         } catch (Exception e) {
-            BindHelper.processError(node, e, bindingContext);
-
-            return new ErrorBoundNode(node);
+            return makeErrorNode(e, node, bindingContext);
         }
     }
 

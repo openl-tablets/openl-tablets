@@ -10,12 +10,9 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundNode;
-import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -193,25 +190,6 @@ public class BindHelper {
         } else {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, source));
         }
-    }
-
-    public static IBoundCode makeInvalidCode(IParsedCode parsedCode,
-            ISyntaxNode syntaxNode,
-            IBindingContext bindingContext) {
-
-        ErrorBoundNode boundNode = new ErrorBoundNode(syntaxNode);
-
-        return new BoundCode(parsedCode, boundNode, bindingContext.getErrors(), bindingContext.getMessages(), bindingContext.getLocalVarFrameSize());
-    }
-
-    public static IBoundCode makeInvalidCode(IParsedCode parsedCode,
-            ISyntaxNode syntaxNode,
-            SyntaxNodeException[] errors,
-            Collection<OpenLMessage> messages) {
-
-        ErrorBoundNode boundNode = new ErrorBoundNode(syntaxNode);
-
-        return new BoundCode(parsedCode, boundNode, errors, messages, 0);
     }
 
     /**

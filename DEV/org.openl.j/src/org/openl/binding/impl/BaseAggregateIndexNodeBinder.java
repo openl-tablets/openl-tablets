@@ -6,8 +6,6 @@ import org.openl.binding.ILocalVar;
 import org.openl.binding.impl.IndexParameterDeclarationBinder.IndexParameterNode;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -23,26 +21,23 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
 
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
-        BindHelper.processError("This node always binds  with target", node, bindingContext);
-
-        return new ErrorBoundNode(node);
+        return makeErrorNode("This node always binds with target", node, bindingContext);
     }
 
     @Override
     public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode) {
 
+        IOpenClass containerType = targetNode.getType();
+        IAggregateInfo info = containerType.getAggregateInfo();
+        IOpenClass componentType = info.getComponentType(containerType);
+        if (componentType == null) {
+            String typeName = containerType.getName();
+            return makeErrorNode("An array or a collection is expected, but " + typeName + " type has been defined.", targetNode.getSyntaxNode(), bindingContext);
+        }
+
         try {
             bindingContext.pushLocalVarContext();
 
-            IOpenClass containerType = targetNode.getType();
-            IAggregateInfo info = containerType.getAggregateInfo();
-            IOpenClass componentType = info.getComponentType(containerType);
-            if (componentType == null) {
-                String typeName = containerType.getName();
-                throw SyntaxNodeExceptionUtils.createError(
-                    "An array or a collection is expected, but " + typeName + " type has been defined.",
-                    targetNode.getSyntaxNode());
-            }
 
             // there could be 1 or 2 syntax nodes as children
             // If there is one syntax node, we use auto-generated local variable
@@ -75,15 +70,13 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
                     if (varType != componentType) {
                         IOpenCast cast = bindingContext.getCast(componentType, varType);
                         if (cast == null) {
-                            throw SyntaxNodeExceptionUtils
-                                .createError("Can not cast " + componentType + " to " + varType, varNode);
+                            return makeErrorNode("Can not cast " + componentType + " to " + varType, varNode, bindingContext);
                         }
                     }
 
                     break;
                 default:
-                    throw SyntaxNodeExceptionUtils.createError("Aggregate node can have either 1 or 2 childen nodes",
-                        node);
+                    return makeErrorNode("Aggregate node can have either 1 or 2 childen nodes", node, bindingContext);
 
             }
 
@@ -93,11 +86,7 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
 
             boundExpressionNode = validateExpressionNode(boundExpressionNode, bindingContext);
 
-            IBoundNode boundNode = createBoundNode(node, targetNode, boundExpressionNode, localVar);
-            return boundNode;
-        } catch (SyntaxNodeException error) {
-            bindingContext.addError(error);
-            return new ErrorBoundNode(node);
+            return createBoundNode(node, targetNode, boundExpressionNode, localVar);
         } finally {
             bindingContext.popLocalVarContext();
         }

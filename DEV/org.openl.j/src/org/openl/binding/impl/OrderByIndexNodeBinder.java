@@ -12,7 +12,6 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
-import org.openl.types.NullOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -52,7 +51,7 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 
 			Iterator<Object> elementsIterator = aggregateInfo.getIterator(container);
 
-			TreeMap<Comparable<?>, Object> map = new TreeMap<Comparable<?>, Object>();
+			TreeMap<Comparable<?>, Object> map = new TreeMap<>();
 
 			int size = 0;
 			while (elementsIterator.hasNext()) {
@@ -84,9 +83,8 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 				if (element.getClass() != OrderList.class) {
                     index.setValue(result, nextIdx(idx++, size), element);
                 } else {
-					OrderList list = (OrderList) element;
-					for (int i = 0; i < list.size(); i++) {
-						index.setValue(result, nextIdx(idx++, size), list.get(i));
+					for (Object item : (OrderList) element) {
+						index.setValue(result, nextIdx(idx++, size), item);
 					}
 				}
 			}
@@ -141,12 +139,6 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
         if (instanceClass.isPrimitive() && instanceClass != void.class) {
             return expressionNode;
         }
-        if (type != NullOpenClass.the) {
-            BindHelper.processError("Order By expression must be Comparable",
-                    expressionNode.getSyntaxNode(),
-                    bindingContext);
-        }
-        return new ErrorBoundNode(expressionNode.getSyntaxNode());
-
+        return makeErrorNode("Order By expression must be Comparable", expressionNode.getSyntaxNode(), bindingContext);
     }
 }
