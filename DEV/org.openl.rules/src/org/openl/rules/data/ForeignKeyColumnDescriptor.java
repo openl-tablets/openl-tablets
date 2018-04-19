@@ -336,8 +336,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
                 }
 
-                DomainOpenClass domainClass = getDomainClass(foreignTable, foreignKeyIndex, cxt);
-
                 // table will have 1xN size
                 //
                 valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
@@ -376,11 +374,15 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 if (!(fieldType.isArray() && fieldType.getComponentClass().getInstanceClass().equals(resType.getInstanceClass()))) {
                     if (StringUtils.isEmpty(s)) {
                         // Set meta info for empty cells
-                        if(!cxt.isExecutionMode())
+                        if (!cxt.isExecutionMode()) {
+                            DomainOpenClass domainClass = getDomainClass(foreignTable, foreignKeyIndex, cxt);
                             RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
+                        }
                     } else {
-                        if (!cxt.isExecutionMode())
+                        if (!cxt.isExecutionMode()) {
+                            DomainOpenClass domainClass = getDomainClass(foreignTable, foreignKeyIndex, cxt);
                             RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
+                        }
                         Object res = getValueByForeignKeyIndex(cxt,
                             foreignTable,
                             foreignKeyIndex,
@@ -401,6 +403,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 } else {
                     
                     // processing array or list values.
+                    DomainOpenClass domainClass = cxt.isExecutionMode() ? null : getDomainClass(foreignTable, foreignKeyIndex, cxt);
                     List<Object> cellValues = getArrayValuesByForeignKey(valuesTable, cxt, foreignTable,
                         foreignKeyIndex,
                         foreignKeyTableAccessorChainTokens,
