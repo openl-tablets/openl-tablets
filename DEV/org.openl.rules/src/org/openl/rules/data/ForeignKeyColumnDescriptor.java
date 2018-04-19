@@ -2,12 +2,8 @@ package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +16,8 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
 import org.openl.rules.binding.RuleRowHelper;
+import org.openl.rules.convertor.IObjectToDataConvertor;
+import org.openl.rules.convertor.ObjectToDataConvertorFactory;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
@@ -338,20 +336,30 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
                 }
 
-                final Map<String, Integer> index = foreignTable.getUniqueIndex(foreignKeyIndex);
-                Set<String> strings = index.keySet();
-                String[] domainStrings = strings.toArray(new String[strings.size()]);
-                Arrays.sort(domainStrings, new Comparator<String>() {
-                    @Override
-                    public int compare(String ds1, String ds2) {
-                        return index.get(ds1).compareTo(index.get(ds2));
-                    }
-                });
+                final List<Object> foreignTableValues = foreignTable.getUniqueValues(foreignKeyIndex);
 
                 IOpenClass columnType = foreignTable.getColumnType(foreignKeyIndex);
-                EnumDomain<String> domain = new EnumDomain<String>(domainStrings);
+                if (columnType == null || !columnType.isSimple()) {
+                    columnType = JavaOpenClass.OBJECT;
+                }
+                Object[] foreignArray = new Object[foreignTableValues.size()];
+                for (int i = 0; i < foreignTableValues.size(); i++) {
+                    Object foreignValue = foreignTableValues.get(i);
+                    foreignArray[i] = foreignValue;
+
+                    // If String - no need to convert to Object and later format back. Otherwise will be formatted later.
+                    if (foreignValue != null && !(foreignValue instanceof String)) {
+                        IObjectToDataConvertor convertor = ObjectToDataConvertorFactory.getConvertor(columnType.getInstanceClass(),
+                                foreignValue.getClass());
+                        if (convertor != ObjectToDataConvertorFactory.NO_Convertor) {
+                            foreignArray[i] = convertor.convert(foreignValue, cxt);
+                        }
+                    }
+
+                }
+                EnumDomain<Object> domain = new EnumDomain<>(foreignArray);
                 DomainOpenClass domainClass = new DomainOpenClass(getField().getName(),
-                    columnType != null ? columnType : JavaOpenClass.STRING,
+                    columnType,
                     domain,
                     null);
 

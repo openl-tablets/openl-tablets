@@ -240,7 +240,7 @@ public class ObjectToDataConvertorFactory {
             // at first try to find static initialization method, for some numeric classes(e.g. Integer, Double, etc)
             // there are predefined cached values(see Integer.valueOf(int a)).
             //
-            Method method = MethodUtils.getAccessibleMethod(toClass, "valueOf", fromClass);
+            Method method = getValueOfMethod(toClass, fromClass);
             if (method != null) {
                 convertor = new StaticMethodConvertor(method);
             } else {
@@ -259,6 +259,14 @@ public class ObjectToDataConvertorFactory {
             convertor = convertors.get(pair);
         }
         return convertor;
+    }
+
+    private static Method getValueOfMethod(Class<?> toClass, Class<?> fromClass) {
+        if (fromClass == null) {
+            return null;
+        }
+        Method method = MethodUtils.getAccessibleMethod(toClass, "valueOf", fromClass);
+        return method == null ? MethodUtils.getAccessibleMethod(toClass, "valueOf", Object.class) : method;
     }
 
     public static IObjectToDataConvertor registerConvertor(Class<?> toClass, Class<?> fromClass,

@@ -1,10 +1,7 @@
 package org.openl.rules.data;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.binding.IBindingContext;
 import org.openl.exception.OpenLCompilationException;
@@ -180,6 +177,34 @@ public class Table implements ITable {
         }
 
         return index;
+    }
+
+    @Override
+    public List<Object> getUniqueValues(int colIdx) throws SyntaxNodeException {
+
+        List<Object> values = new ArrayList<>();
+
+        int rows = logicalTable.getHeight();
+
+        for (int i = 1; i < rows; i++) {
+
+            IGridTable gridTable = logicalTable.getSubtable(colIdx, i, 1, 1).getSource();
+            Object value = gridTable.getCell(0, 0).getObjectValue();
+
+            if (value == null) {
+                throw SyntaxNodeExceptionUtils.createError("Empty key in an unique index",
+                    new GridCellSourceCodeModule(gridTable));
+            }
+
+            if (values.contains(value)) {
+                throw SyntaxNodeExceptionUtils.createError("Duplicated key in an unique index: " + value,
+                    new GridCellSourceCodeModule(gridTable));
+            }
+
+            values.add(value);
+        }
+
+        return values;
     }
 
     public void populate(IDataBase dataBase, IBindingContext bindingContext) throws Exception {
