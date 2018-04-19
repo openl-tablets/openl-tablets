@@ -1,9 +1,3 @@
-/*
- * Created on Jul 25, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import java.util.Collection;
@@ -18,7 +12,6 @@ import org.openl.binding.INodeBinder;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedVarException;
-import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
@@ -36,34 +29,18 @@ public class BindingContextDelegator implements IBindingContextDelegator {
 
     protected IBindingContext delegate;
 
-    public String getContextProperty(String name) {
-        return delegate.getContextProperty(name);
-    }
-
-    public void setContextProperty(String name, String value) {
-        delegate.setContextProperty(name, value);
-    }
-
     public BindingContextDelegator(IBindingContext delegate) {
         this.delegate = delegate;
     }
 
-    public void addAlias(String name, String value) {
-        delegate.addAlias(name, value);
-    }
-
     public IOpenField findRange(String namespace,
             String rangeStartName,
-            String rangeEndName) throws AmbiguousVarException, FieldNotFoundException, OpenLCompilationException {
+            String rangeEndName) throws AmbiguousVarException, OpenLCompilationException {
         return delegate.findRange(namespace, rangeStartName, rangeEndName);
     }
 
     public void addError(SyntaxNodeException error) {
         delegate.addError(error);
-    }
-
-    public ILocalVar addParameter(String namespace, String name, IOpenClass type) throws DuplicatedVarException {
-        return delegate.addParameter(namespace, name, type);
     }
 
     public void addType(String namespace, IOpenClass type) throws OpenLCompilationException {
@@ -96,10 +73,6 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         return delegate.findVar(namespace, name, strictMatch);
     }
 
-    public String getAlias(String name) {
-        return delegate.getAlias(name);
-    }
-
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {
         return delegate.getCast(from, to);
     }
@@ -121,16 +94,8 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         return delegate.getLocalVarFrameSize();
     }
 
-    public int getNumberOfErrors() {
-        return delegate.getNumberOfErrors();
-    }
-
     public OpenL getOpenL() {
         return delegate.getOpenL();
-    }
-
-    public int getParamFrameSize() {
-        return delegate.getParamFrameSize();
     }
 
     public IOpenClass getReturnType() {

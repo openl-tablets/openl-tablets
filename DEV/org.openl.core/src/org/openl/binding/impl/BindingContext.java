@@ -1,19 +1,11 @@
-/*
- * Created on May 28, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Stack;
 
 import org.openl.IOpenBinder;
@@ -45,11 +37,9 @@ public class BindingContext implements IBindingContext {
     private OpenL openl;
 
     private LocalFrameBuilder localFrame = new LocalFrameBuilder();
-    private List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
-    private Stack<List<SyntaxNodeException>> errorStack = new Stack<List<SyntaxNodeException>>();
+    private List<SyntaxNodeException> errors = new ArrayList<>();
+    private Stack<List<SyntaxNodeException>> errorStack = new Stack<>();
     
-    private Map<String, String> aliases = new HashMap<String, String>();
-
     private Map<String, Object> externalParams;
 
     private Collection<OpenLMessage> messages = new LinkedHashSet<>();
@@ -69,15 +59,6 @@ public class BindingContext implements IBindingContext {
         this.openl = openl;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openl.binding.IBindingContext#addAlias(java.lang.String, java.lang.String)
-     */
-    public synchronized void addAlias(String name, String value) {
-        aliases.put(name, value);
-    }
-
     public void addError(SyntaxNodeException error) {
         errors.add(error);
     }
@@ -87,10 +68,6 @@ public class BindingContext implements IBindingContext {
     }
 
     public void addType(String namespace, IOpenClass type) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void removeType(String namespace, IOpenClass type) {
         throw new UnsupportedOperationException();
     }
 
@@ -116,7 +93,7 @@ public class BindingContext implements IBindingContext {
         return type.getField(fieldName, strictMatch);
     }
 
-    static final Object NOT_FOUND = "NOT_FOUND";
+    private static final Object NOT_FOUND = "NOT_FOUND";
 
     public IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes) {
         MethodKey key = new MethodKey(namespace + ':' + name, parTypes, false, true);
@@ -156,10 +133,6 @@ public class BindingContext implements IBindingContext {
         return binder.getVarFactory().getVar(namespace, name, strictMatch);
     }
 
-    public synchronized String getAlias(String name) {
-        return aliases.get(name);
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -181,44 +154,18 @@ public class BindingContext implements IBindingContext {
 
     }
 
-    static final SyntaxNodeException[] NO_ERRORS = {};
+    private static final SyntaxNodeException[] NO_ERRORS = {};
 
     public SyntaxNodeException[] getErrors() {
-        return errors.size() == 0 ? NO_ERRORS : ((SyntaxNodeException[]) errors.toArray(new SyntaxNodeException[0]));
+        return errors.size() == 0 ? NO_ERRORS : errors.toArray(new SyntaxNodeException[0]);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openl.binding.IBindingContext#getError(int)
-     */
-    public SyntaxNodeException getError(int i) {
-        return errors.get(i);
-    }
-
-    /**
-     * @return
-     */
     public int getLocalVarFrameSize() {
         return localFrame.getLocalVarFrameSize();
     }
 
-    public int getNumberOfErrors() {
-        return errors == null ? 0 : errors.size();
-    }
-
     public OpenL getOpenL() {
         return openl;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.openl.binding.IBindingContext#getParamFrameSize()
-     */
-    public int getParamFrameSize() {
-        // TODO Auto-generated method stub
-        return 0;
     }
 
     public IOpenClass getReturnType() {
@@ -248,7 +195,7 @@ public class BindingContext implements IBindingContext {
 
     public void pushErrors() {
         errorStack.push(errors);
-        errors = new ArrayList<SyntaxNodeException>();
+        errors = new ArrayList<>();
     }
 
     public void pushMessages() {
@@ -293,26 +240,6 @@ public class BindingContext implements IBindingContext {
             String rangeStartName,
             String rangeEndName) throws AmbiguousVarException, FieldNotFoundException {
         throw new FieldNotFoundException("Range:", rangeStartName + ":" + rangeEndName, null);
-    }
-
-    // NOTE: A temporary implementation of multi-module feature.
-    /*
-     * public void addImport(IOpenClass type) { imports.add(type); }
-     * 
-     * public Collection<IOpenClass> getImports() { return imports; }
-     */
-
-    Properties contextProperties = new Properties();
-
-    // TODO the implementation must be more context-like, i.e. context should search for properties on it's level, and
-    // if not found delegate the search to the higher-level context
-    public String getContextProperty(String name) {
-        return contextProperties == null ? null : contextProperties.getProperty(name);
-    }
-
-    public void setContextProperty(String name, String value) {
-
-        contextProperties.setProperty(name, value);
     }
 
     public Collection<OpenLMessage> getMessages() {

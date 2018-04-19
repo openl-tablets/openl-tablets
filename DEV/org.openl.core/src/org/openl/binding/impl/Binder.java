@@ -89,7 +89,11 @@ public class Binder implements IOpenBinder {
         IBoundNode boundNode = ANodeBinder.bindChildNode(syntaxNode, bindingContext);
         bindingContext.popLocalVarContext();
 
-        return new BoundCode(parsedCode, boundNode, bindingContext.getErrors(), bindingContext.getMessages(), bindingContext.getLocalVarFrameSize());
+        return new BoundCode(parsedCode,
+            boundNode,
+            bindingContext.getErrors(),
+            bindingContext.getMessages()
+        );
     }
 
 }
