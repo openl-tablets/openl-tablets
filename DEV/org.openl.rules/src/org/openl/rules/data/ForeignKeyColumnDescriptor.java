@@ -106,7 +106,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
         int valuesHeight = valuesTable.getHeight();
 
-        ArrayList<Object> values = new ArrayList<Object>(valuesHeight);
+        ArrayList<Object> values = new ArrayList<>(valuesHeight);
 
         if (valuesHeight == 1) {
 
@@ -175,7 +175,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             ILogicalTable valueTable,
             String key) throws SyntaxNodeException {
 
-        Object result = null;
+        Object result;
 
         try {
             if (foreignKeyColumnChainTokens.length == 0) {
@@ -189,29 +189,29 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             }
             result = foreignTable.findObject(foreignKeyIndex, key, bindingContext);
             if (result == null) {
-                throwIndexNotFound(foreignTable, valueTable, key, null, bindingContext);
+                throw createIndexNotFoundError(foreignTable, valueTable, key, null, bindingContext);
             }
 
             if (!ArrayUtils.isEmpty(foreignKeyTableAccessorChainTokens)) {
                 ResultChainObject chainRes = getChainObject(bindingContext, result, foreignKeyTableAccessorChainTokens);
                 if (chainRes == null) {
-                    throwIndexNotFound(foreignTable, valueTable, key, null, bindingContext);
+                    throw createIndexNotFoundError(foreignTable, valueTable, key, null, bindingContext);
                 }
                 result = chainRes.getValue();
             }
 
         } catch (SyntaxNodeException ex) {
-            throwIndexNotFound(foreignTable, valueTable, key, ex, bindingContext);
+            throw createIndexNotFoundError(foreignTable, valueTable, key, ex, bindingContext);
         }
        
         return result;
     }
 
-    private void throwIndexNotFound(ITable foreignTable, ILogicalTable valuesTable, String src, Exception ex, IBindingContext bindingContext) throws SyntaxNodeException {
+    private SyntaxNodeException createIndexNotFoundError(ITable foreignTable, ILogicalTable valuesTable, String src, Exception ex, IBindingContext bindingContext) {
 
         String message = String.format("Index Key %s is not found in the foreign table %s", src, foreignTable.getName());
 
-        throw SyntaxNodeExceptionUtils.createError(message,
+        return SyntaxNodeExceptionUtils.createError(message,
             ex,
             null,
             new GridCellSourceCodeModule(valuesTable.getSource(), bindingContext));
@@ -264,7 +264,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
         } else {
 
-            List<Object> values = new ArrayList<Object>();
+            List<Object> values = new ArrayList<>();
             int valuesHeight = valuesTable.getHeight();
 
             for (int i = 0; i < valuesHeight; i++) {
@@ -347,16 +347,16 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 IOpenClass resType = foreignTable.getDataModel().getType();
                 String s = getCellStringValue(valuesTable);
                 if (!StringUtils.isEmpty(s)) {
-                    Object result = null;
+                    Object result;
                     try {
                         result = foreignTable.findObject(foreignKeyIndex, s, cxt);
                     } catch (SyntaxNodeException ex) {
-                        throwIndexNotFound(foreignTable, valuesTable, s, ex, cxt);
+                        throw createIndexNotFoundError(foreignTable, valuesTable, s, ex, cxt);
                     }
                     if (result != null) {
                         ResultChainObject chainRes = getChainObject(cxt, result, foreignKeyTableAccessorChainTokens);
                         if (chainRes == null) {
-                            throwIndexNotFound(foreignTable, valuesTable, s, null, cxt);
+                            throw createIndexNotFoundError(foreignTable, valuesTable, s, null, cxt);
                         }
                         Class<?> instanceClass = chainRes.instanceClass;
                         int dim = 0;
@@ -441,7 +441,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     if (isList) {
                         int len = Array.getLength(array);
 
-                        List<Object> list = new ArrayList<Object>(len);
+                        List<Object> list = new ArrayList<>(len);
 
                         for (int i = 0; i < len; i++) {
                             list.add(Array.get(array, i));
@@ -454,7 +454,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 }
             }
         } else {
-            /**
+            /*
              * field == null, in this case don`t do anything. The appropriate information why it is null would have been
              * processed during preparing column descriptor.
              * See {@link DataTableBindHelper#makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type,
@@ -494,7 +494,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             null);
     }
 
-    private ResultChainObject getChainObject(IBindingContext bindingContext, Object parentObj, IdentifierNode[] fieldChainTokens) throws SyntaxNodeException {
+    private ResultChainObject getChainObject(IBindingContext bindingContext, Object parentObj, IdentifierNode[] fieldChainTokens) {
         Object resObj = parentObj;
         Class<?> resInctClass = parentObj.getClass();
         if (fieldChainTokens.length > 1) {
