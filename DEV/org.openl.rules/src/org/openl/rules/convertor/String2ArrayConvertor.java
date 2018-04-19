@@ -1,10 +1,9 @@
 package org.openl.rules.convertor;
 
+import java.lang.reflect.Array;
+
 import org.openl.binding.IBindingContext;
 import org.openl.util.StringTool;
-import org.openl.util.StringUtils;
-
-import java.lang.reflect.Array;
 
 /**
  * A converter for arrays. It converts strings to an array of a specified type.
@@ -64,7 +63,7 @@ class String2ArrayConvertor<C, T> implements IString2DataConvertor<T> , IString2
 
         return resultArray;
     }
-    
+
     /**
      * @param data <code>{@link String}</code> representation of the array.
      * @return array of elements. <code>NULL</code> if input is empty or can`t get the component type of the array.
