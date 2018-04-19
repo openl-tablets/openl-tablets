@@ -9,9 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.openl.domain.EnumDomain;
+import org.openl.domain.IDomain;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableUtils;
+import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.*;
 import org.openl.rules.table.actions.*;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
@@ -29,6 +32,8 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.tableeditor.renderkit.TableEditor;
+import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaEnumDomain;
 import org.openl.util.StringUtils;
 import org.openl.util.formatters.IFormatter;
 
@@ -173,6 +178,24 @@ public class TableEditorModel {
         } else {
             ICell cell = gridTable.getGrid().getCell(gcol, grow);
             dataFormatter = XlsDataFormatterFactory.getFormatter(cell);
+
+            // Don't reformat value if value is belong to domain
+            CellMetaInfo metaInfo = cell.getMetaInfo();
+            IOpenClass dataType = metaInfo == null ? null : metaInfo.getDataType();
+            if (value != null && dataType != null) {
+                IDomain<?> domain = dataType.getDomain();
+                if (domain instanceof EnumDomain || domain instanceof JavaEnumDomain) {
+                    for (Object domainValue : domain) {
+                        if (value.equals(domainValue)) {
+                            // Found exact match. Don't use formatter.
+                            // This is needed to support the case: In domain exists value 1.230 but formatter tries
+                            // to write it as 1.23 so we write incorrect domain value when use formatter.
+                            dataFormatter = null;
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         Object result;
