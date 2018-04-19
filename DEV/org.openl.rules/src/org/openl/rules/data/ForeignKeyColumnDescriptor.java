@@ -336,32 +336,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
                 }
 
-                final List<Object> foreignTableValues = foreignTable.getUniqueValues(foreignKeyIndex);
-
-                IOpenClass columnType = foreignTable.getColumnType(foreignKeyIndex);
-                if (columnType == null || !columnType.isSimple()) {
-                    columnType = JavaOpenClass.OBJECT;
-                }
-                Object[] foreignArray = new Object[foreignTableValues.size()];
-                for (int i = 0; i < foreignTableValues.size(); i++) {
-                    Object foreignValue = foreignTableValues.get(i);
-                    foreignArray[i] = foreignValue;
-
-                    // If String - no need to convert to Object and later format back. Otherwise will be formatted later.
-                    if (foreignValue != null && !(foreignValue instanceof String)) {
-                        IObjectToDataConvertor convertor = ObjectToDataConvertorFactory.getConvertor(columnType.getInstanceClass(),
-                                foreignValue.getClass());
-                        if (convertor != ObjectToDataConvertorFactory.NO_Convertor) {
-                            foreignArray[i] = convertor.convert(foreignValue, cxt);
-                        }
-                    }
-
-                }
-                EnumDomain<Object> domain = new EnumDomain<>(foreignArray);
-                DomainOpenClass domainClass = new DomainOpenClass(getField().getName(),
-                    columnType,
-                    domain,
-                    null);
+                DomainOpenClass domainClass = getDomainClass(foreignTable, foreignKeyIndex, cxt);
 
                 // table will have 1xN size
                 //
@@ -485,7 +460,37 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
              */
         }
     }
-    
+
+    private DomainOpenClass getDomainClass(ITable foreignTable, int foreignKeyIndex, IBindingContext cxt) throws
+                                                                                                          SyntaxNodeException {
+        final List<Object> foreignTableValues = foreignTable.getUniqueValues(foreignKeyIndex);
+
+        IOpenClass columnType = foreignTable.getColumnType(foreignKeyIndex);
+        if (columnType == null || !columnType.isSimple()) {
+            columnType = JavaOpenClass.OBJECT;
+        }
+        Object[] foreignArray = new Object[foreignTableValues.size()];
+        for (int i = 0; i < foreignTableValues.size(); i++) {
+            Object foreignValue = foreignTableValues.get(i);
+            foreignArray[i] = foreignValue;
+
+            // If String - no need to convert to Object and later format back. Otherwise will be formatted later.
+            if (foreignValue != null && !(foreignValue instanceof String)) {
+                IObjectToDataConvertor convertor = ObjectToDataConvertorFactory.getConvertor(columnType.getInstanceClass(),
+                        foreignValue.getClass());
+                if (convertor != ObjectToDataConvertorFactory.NO_Convertor) {
+                    foreignArray[i] = convertor.convert(foreignValue, cxt);
+                }
+            }
+
+        }
+        EnumDomain<Object> domain = new EnumDomain<>(foreignArray);
+        return new DomainOpenClass(getField().getName(),
+            columnType,
+            domain,
+            null);
+    }
+
     private ResultChainObject getChainObject(IBindingContext bindingContext, Object parentObj, IdentifierNode[] fieldChainTokens) throws SyntaxNodeException {
         Object resObj = parentObj;
         Class<?> resInctClass = parentObj.getClass();
