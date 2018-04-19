@@ -17,6 +17,7 @@ import java.util.Set;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.impl.NotExistNodeBinder;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.method.MethodSearch;
@@ -248,7 +249,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         if (binder != null) {
             return binder;
         }
-        return parent == null ? null : parent.getNodeBinder(node);
+        return parent == null ? NotExistNodeBinder.the : parent.getNodeBinder(node);
     }
 
     public IOpenFactory getOpenFactory(String name) {
