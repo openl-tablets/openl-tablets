@@ -20,16 +20,16 @@ import org.openl.vm.IRuntimeEnv;
 
 public class Table implements ITable {
 
-    protected ILogicalTable logicalTable;
-    protected ITableModel dataModel;
+    private ILogicalTable logicalTable;
+    private ITableModel dataModel;
 
-    protected String tableName;
-    protected TableSyntaxNode tableSyntaxNode;
+    private String tableName;
+    private TableSyntaxNode tableSyntaxNode;
 
-    protected Object dataArray;
+    private Object dataArray;
 
-    protected BiMap<Integer, Object> rowIndexMap;
-    protected BiMap<Integer, String> primaryIndexMap;
+    private BiMap<Integer, Object> rowIndexMap;
+    private BiMap<Integer, String> primaryIndexMap;
 
     public Table(ITableModel dataModel, ILogicalTable data) {
         this.dataModel = dataModel;
@@ -287,7 +287,7 @@ public class Table implements ITable {
         }
     }
 
-    protected void processRow(OpenlToolAdaptor openlAdapter,
+    private void processRow(OpenlToolAdaptor openlAdapter,
             int startRow,
             int rowNum) throws OpenLCompilationException {
 
@@ -330,7 +330,7 @@ public class Table implements ITable {
         Array.set(dataArray, rowNum - startRow, literal);
     }
 
-    protected Object processColumn(OpenlToolAdaptor openlAdapter,
+    private Object processColumn(OpenlToolAdaptor openlAdapter,
             boolean constructor,
             int rowNum,
             Object literal,
@@ -401,7 +401,7 @@ public class Table implements ITable {
      * @return Start row for data rows from Data_With_Titles rows. It depends on
      *         if table has or no column title row.
      */
-    protected int getStartRowForData() {
+    private int getStartRowForData() {
 
         if (dataModel.hasColumnTitleRow()) {
             return 1;
