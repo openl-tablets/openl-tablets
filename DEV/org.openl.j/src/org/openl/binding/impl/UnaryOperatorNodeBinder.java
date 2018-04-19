@@ -52,10 +52,7 @@ public class UnaryOperatorNodeBinder extends ANodeBinder {
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         if (node.getNumberOfChildren() != 1) {
-
-            BindHelper.processError("Unary node should have 1 subnode", node, bindingContext, false);
-
-            return new ErrorBoundNode(node);
+            return makeErrorNode("Unary node should have 1 subnode", node, bindingContext);
         }
 
         int index = node.getType().lastIndexOf('.');
@@ -69,9 +66,7 @@ public class UnaryOperatorNodeBinder extends ANodeBinder {
         if (methodCaller == null) {
 
             String message = errorMsg(methodName, types[0]);
-            BindHelper.processError(message, node, bindingContext, false);
-
-            return new ErrorBoundNode(node);
+            return makeErrorNode(message, node, bindingContext);
         }
 
         return new UnaryOpNode(node, children, methodCaller);

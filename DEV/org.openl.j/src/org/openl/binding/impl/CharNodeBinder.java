@@ -83,9 +83,7 @@ public class CharNodeBinder extends ANodeBinder {
             }
 
         } catch (Exception ex) {
-            BindHelper.processError(node, ex, bindingContext);
-
-            return new ErrorBoundNode(node);
+            return makeErrorNode(ex, node, bindingContext);
         }
 
         return new LiteralBoundNode(node, new Character(c), JavaOpenClass.CHAR);

@@ -20,11 +20,7 @@ public class BinaryOperatorAndNodeBinder extends BinaryOperatorNodeBinder {
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         if (node.getNumberOfChildren() != 2) {
-
-            BindHelper.processError("Binary node must have 2 subnodes", node, bindingContext, false);
-
-            return new ErrorBoundNode(node);
-            //            throw new BoundError("Binary node must have 2 subnodes", null, node);
+            return makeErrorNode("Binary node must have 2 subnodes", node, bindingContext);
         }
 
         IBoundNode[] children = bindChildren(node, bindingContext);
@@ -41,12 +37,8 @@ public class BinaryOperatorAndNodeBinder extends BinaryOperatorNodeBinder {
         IMethodCaller methodCaller = findBinaryOperatorMethodCaller(methodName, types, bindingContext);
 
         if (methodCaller == null) {
-
             String message = errorMsg(methodName, types[0], types[1]);
-            BindHelper.processError(message, node, bindingContext, false);
-
-            return new ErrorBoundNode(node);
-            //            throw new BoundError(errorMsg(methodName, types[0], types[1]), node);
+            return makeErrorNode(message, node, bindingContext);
         }
 
         return new BinaryOpNode(node, children, methodCaller);

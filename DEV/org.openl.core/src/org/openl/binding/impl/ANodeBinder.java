@@ -1,7 +1,3 @@
-/*
- * Created on May 20, 2003 Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
@@ -10,13 +6,15 @@ import org.openl.binding.INodeBinder;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 
 /**
- * @author snshor
+ * A base node binder with a bunch of utility methods.
  * 
+ * @author Yury Molchan
  */
 public abstract class ANodeBinder implements INodeBinder {
     private static final IBoundNode[] EMPTY = new IBoundNode[0];
@@ -26,21 +24,19 @@ public abstract class ANodeBinder implements INodeBinder {
         INodeBinder binder = findBinder(node, bindingContext);
 
         if (binder == null) {
-            return new ErrorBoundNode(node);
+            return makeErrorNode("DEV: No binders have found for this node!", node, bindingContext);
         }
 
         try {
             return binder.bind(node, bindingContext);
         } catch (Throwable t) {
-            BindHelper.processError(t, node, bindingContext, false);
-
-            return new ErrorBoundNode(node);
+            return makeErrorNode(t, node, bindingContext);
         }
     }
-    
-    protected static boolean hasErrorBoundNode(IBoundNode[] boundNodes){
-        for (IBoundNode boundNode : boundNodes){
-            if (boundNode instanceof ErrorBoundNode){
+
+    protected static boolean hasErrorBoundNode(IBoundNode[] boundNodes) {
+        for (IBoundNode boundNode : boundNodes) {
+            if (boundNode instanceof ErrorBoundNode) {
                 return true;
             }
         }
@@ -48,23 +44,21 @@ public abstract class ANodeBinder implements INodeBinder {
     }
 
     public static IBoundNode bindTargetNode(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode) {
-    	
-    	if (targetNode instanceof ErrorBoundNode){
+
+        if (targetNode instanceof ErrorBoundNode) {
             return new ErrorBoundNode(node);
-    	}
+        }
 
         INodeBinder binder = findBinder(node, bindingContext);
 
         if (binder == null) {
-            return new ErrorBoundNode(node);
+            return makeErrorNode("DEV: No binders have found for this node!", node, bindingContext);
         }
 
         try {
             return binder.bindTarget(node, bindingContext, targetNode);
         } catch (Throwable t) {
-            BindHelper.processError(node, t, bindingContext);
-
-            return new ErrorBoundNode(node);
+            return makeErrorNode(t, node, bindingContext);
         }
     }
 
@@ -73,25 +67,26 @@ public abstract class ANodeBinder implements INodeBinder {
         INodeBinder binder = findBinder(node, bindingContext);
 
         if (binder == null) {
-            return new ErrorBoundNode(node);
+            return makeErrorNode("DEV: No binders have found for this node!", node, bindingContext);
         }
 
         try {
             return binder.bindType(node, bindingContext, type);
         } catch (Throwable t) {
-            BindHelper.processError(t, node, bindingContext, false);
-
-            return new ErrorBoundNode(node);
+            return makeErrorNode(t, node, bindingContext);
         }
     }
 
-    public static IBoundNode[] bindChildren(ISyntaxNode parentNode, IBindingContext bindingContext) throws SyntaxNodeException {
+    public static IBoundNode[] bindChildren(ISyntaxNode parentNode,
+            IBindingContext bindingContext) throws SyntaxNodeException {
 
         return bindChildren(parentNode, bindingContext, 0, parentNode.getNumberOfChildren());
     }
 
-    public static IBoundNode[] bindChildren(ISyntaxNode parentNode, IBindingContext bindingContext, int from, int to)
-        throws SyntaxNodeException {
+    public static IBoundNode[] bindChildren(ISyntaxNode parentNode,
+            IBindingContext bindingContext,
+            int from,
+            int to) throws SyntaxNodeException {
 
         int n = to - from;
 
@@ -117,25 +112,23 @@ public abstract class ANodeBinder implements INodeBinder {
         }
 
         if (boundNodesCount != n) {
-            String message = "Can not bind node";
-            BindHelper.processError(message, parentNode, bindingContext);
-
-            ErrorBoundNode errorBoundNode = new ErrorBoundNode(parentNode);
-            return new IBoundNode[] { errorBoundNode };
+            return new IBoundNode[] { makeErrorNode("Can not bind node", parentNode, bindingContext) };
         }
 
         return children;
     }
 
-    public static IBoundNode[] bindTypeChildren(ISyntaxNode parentNode, IBindingContext bindingContext, IOpenClass type) {
+    public static IBoundNode[] bindTypeChildren(ISyntaxNode parentNode,
+            IBindingContext bindingContext,
+            IOpenClass type) {
         return bindTypeChildren(parentNode, bindingContext, type, 0, parentNode.getNumberOfChildren());
     }
 
     public static IBoundNode[] bindTypeChildren(ISyntaxNode parentNode,
-                                                IBindingContext bindingContext,
-                                                IOpenClass type,
-                                                int from,
-                                                int to) {
+            IBindingContext bindingContext,
+            IOpenClass type,
+            int from,
+            int to) {
 
         int n = to - from;
 
@@ -182,8 +175,9 @@ public abstract class ANodeBinder implements INodeBinder {
         return binder;
     }
 
-    private static IBoundNode convertType(IBoundNode node, IBindingContext bindingContext, IOpenClass type)
-        throws Exception {
+    private static IBoundNode convertType(IBoundNode node,
+            IBindingContext bindingContext,
+            IOpenClass type) throws Exception {
 
         IOpenCast cast = getCast(node, type, bindingContext);
 
@@ -194,13 +188,16 @@ public abstract class ANodeBinder implements INodeBinder {
         return new CastNode(null, node, cast, type);
     }
 
-    public static IOpenCast getCast(IBoundNode node, IOpenClass to, IBindingContext bindingContext)
-            throws TypeCastException {
+    public static IOpenCast getCast(IBoundNode node,
+            IOpenClass to,
+            IBindingContext bindingContext) throws TypeCastException {
         return getCast(node, to, bindingContext, true);
     }
 
-    public static IOpenCast getCast(IBoundNode node, IOpenClass to, IBindingContext bindingContext, boolean implicitOnly)
-            throws TypeCastException {
+    public static IOpenCast getCast(IBoundNode node,
+            IOpenClass to,
+            IBindingContext bindingContext,
+            boolean implicitOnly) throws TypeCastException {
         IOpenClass from = node.getType();
 
         if (from == null) {
@@ -214,10 +211,9 @@ public abstract class ANodeBinder implements INodeBinder {
         IOpenCast cast = bindingContext.getCast(from, to);
 
         if (cast == null || (implicitOnly && !cast.isImplicit())) {
-        	if (!NullOpenClass.isAnyNull(from, to))
-        	{	
-        		throw new TypeCastException(node.getSyntaxNode(), from, to);
-        	}	
+            if (!NullOpenClass.isAnyNull(from, to)) {
+                throw new TypeCastException(node.getSyntaxNode(), from, to);
+            }
         }
 
         return cast;
@@ -227,22 +223,44 @@ public abstract class ANodeBinder implements INodeBinder {
         return ((IdentifierNode) node).getIdentifier();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.openl.binding.INodeBinder#bindTarget(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext,
-     * org.openl.types.IOpenClass)
-     */
-    public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode)
-        throws Exception {
+    protected static IOpenClass[] replace(int index, IOpenClass[] oldArray, IOpenClass newValue) {
+        IOpenClass[] newArray = new IOpenClass[oldArray.length];
+        System.arraycopy(oldArray, 0, newArray, 0, oldArray.length);
+        newArray[index] = newValue;
+        return newArray;
+    }
 
-        BindHelper.processError("This node does not support target binding", node, bindingContext);
-
+    protected static IBoundNode makeErrorNode(String message, ISyntaxNode node, IBindingContext bindingContext) {
+        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, node);
+        bindingContext.addError(error);
         return new ErrorBoundNode(node);
-        //        throw new UnsupportedOperationException("This node does not support target binding");
+    }
+
+    protected static IBoundNode makeErrorNode(Throwable exception, ISyntaxNode node, IBindingContext bindingContext) {
+        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(exception, node);
+        bindingContext.addError(error);
+        return new ErrorBoundNode(node);
+    }
+
+    protected static IBoundNode makeErrorNode(String message, Throwable exception, ISyntaxNode node, IBindingContext bindingContext) {
+        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, exception, node);
+        bindingContext.addError(error);
+        return new ErrorBoundNode(node);
     }
 
     /*
      * (non-Javadoc)
+     *
+     * @see org.openl.binding.INodeBinder#bindTarget(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext,
+     * org.openl.types.IOpenClass)
+     */
+    public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode) throws Exception {
+        return makeErrorNode("This node does not support target binding", node, bindingContext);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
      * @see org.openl.binding.INodeBinder#bindType(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext,
      * org.openl.types.IOpenClass)
      */
@@ -251,12 +269,5 @@ public abstract class ANodeBinder implements INodeBinder {
         IBoundNode boundNode = bindChildNode(node, bindingContext);
 
         return convertType(boundNode, bindingContext, type);
-    }
-
-    protected static IOpenClass[] replace(int index, IOpenClass[] oldArray, IOpenClass newValue) {
-        IOpenClass[] newArray = new IOpenClass[oldArray.length];
-        System.arraycopy(oldArray, 0, newArray, 0, oldArray.length);
-        newArray[index] = newValue;
-        return newArray;
     }
 }

@@ -25,10 +25,7 @@ public class PrefixOperatorNodeBinder extends ANodeBinder {
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         if (node.getNumberOfChildren() != 1) {
-
-            BindHelper.processError("Prefix node must have 1 subnode", node, bindingContext, false);
-
-            return new ErrorBoundNode(node);
+            return makeErrorNode("Prefix node must have 1 subnode", node, bindingContext);
         }
 
         int index = node.getType().lastIndexOf('.');
@@ -37,10 +34,7 @@ public class PrefixOperatorNodeBinder extends ANodeBinder {
         IBoundNode[] children = bindChildren(node, bindingContext);
 
         if (!children[0].isLvalue()) {
-
-            BindHelper.processError("The node is not an Lvalue", children[0].getSyntaxNode(), bindingContext, false);
-
-            return new ErrorBoundNode(node);
+            return makeErrorNode("The node is not an Lvalue", children[0].getSyntaxNode(), bindingContext);
         }
 
         IOpenClass[] types = getTypes(children);
@@ -49,19 +43,14 @@ public class PrefixOperatorNodeBinder extends ANodeBinder {
             bindingContext);
 
         if (methodCaller == null) {
-
             String message = UnaryOperatorNodeBinder.errorMsg(methodName, types[0]);
-            BindHelper.processError(message, node, bindingContext, false);
-
-            return new ErrorBoundNode(node);
+            return makeErrorNode(message, node, bindingContext);
         }
 
         IOpenClass methodType = methodCaller.getMethod().getType();
 
         if (ClassUtils.primitiveToWrapper(methodType.getInstanceClass()) != ClassUtils.primitiveToWrapper(types[0].getInstanceClass())) {
-            BindHelper.processError("Prefix operator must return the same type as an argument", node, bindingContext, false);
-
-            return new ErrorBoundNode(node);
+            return makeErrorNode("Prefix operator must return the same type as an argument", node, bindingContext);
         }
 
         return new PrefixNode(node, children, methodCaller);

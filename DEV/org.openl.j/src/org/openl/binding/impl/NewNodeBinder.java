@@ -29,10 +29,7 @@ public class NewNodeBinder extends ANodeBinder {
         int childrenCount = node.getNumberOfChildren();
 
         if (childrenCount < 1) {
-
-            BindHelper.processError("New node must have at least one subnode", node, bindingContext, false);
-
-            return new ErrorBoundNode(node);
+            return makeErrorNode("New node must have at least one subnode", node, bindingContext);
         }
 
         ISyntaxNode typeNode = node.getChild(0);
@@ -40,11 +37,7 @@ public class NewNodeBinder extends ANodeBinder {
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
 
         if (type == null) {
-
-            String message = String.format("Type '%s' is not found", typeName);
-            BindHelper.processError(message, typeNode, bindingContext, false);
-
-            return new ErrorBoundNode(node);
+            return makeErrorNode("Type '" + typeName + "' is not found", typeNode, bindingContext);
         }
 
         IBoundNode[] children = bindChildren(node, bindingContext, 1, childrenCount);
@@ -57,11 +50,8 @@ public class NewNodeBinder extends ANodeBinder {
         BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
 
         if (methodCaller == null) {
-
             String errMsg = "Constructor is not found: " + MethodUtil.printMethod(type.getName(), types);
-            BindHelper.processError(errMsg, typeNode, bindingContext, false);
-
-            return new ErrorBoundNode(node);
+            return makeErrorNode(errMsg, typeNode, bindingContext);
         }
 
         return new MethodBoundNode(node, children, methodCaller);

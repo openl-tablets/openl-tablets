@@ -48,9 +48,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
         int childrenCount = node.getNumberOfChildren();
 
         if (childrenCount < 1) {
-            BindHelper.processError("Method node should have at least one subnode", node, bindingContext, false);
-
-            return new ErrorBoundNode(node);
+            return makeErrorNode("Method node should have at least one subnode", node, bindingContext);
         }
 
         ISyntaxNode lastNode = node.getChild(childrenCount - 1);

@@ -40,10 +40,7 @@ public class TypeCastBinder extends ANodeBinder {
 				String code = ((IdentifierNode) nullNode.getSyntaxNode()
 						.getChild(0)).getIdentifier();
 
-				String message = String.format("Type '%s' is not found", code);
-				BindHelper.processError(message, node, bindingContext, false);
-
-				return new ErrorBoundNode(node);
+                return makeErrorNode("Type '" + code + "' is not found", node, bindingContext);
 			}
 		}
 
@@ -54,16 +51,9 @@ public class TypeCastBinder extends ANodeBinder {
 		IOpenCast cast = bindingContext.getCast(from, to);
 
 		if (cast == null) {
-
-			if (!NullOpenClass.isAnyNull(from, to)) {
-
-				String message = String.format(
-						"Can not convert from '%s' to '%s'", from.getName(),
-						to.getName());
-				BindHelper.processError(message, node, bindingContext, false);
-			}
-
-			return new ErrorBoundNode(node);
+            return makeErrorNode("Can not convert from '" + from.getName() + "' to '" + to.getName() + "'",
+                node,
+                bindingContext);
 		}
 
 		return new CastNode(node, children[1], cast, to);

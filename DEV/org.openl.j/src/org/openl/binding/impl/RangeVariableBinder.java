@@ -26,7 +26,7 @@ public class RangeVariableBinder extends ANodeBinder {
         IdentifierNode[] rangeParts = Tokenizer.tokenize(sourceModule, ":");
 
         if (rangeParts.length != 2){
-            return error("Wrong Range format: " + sourceModule.getCode(), node, bindingContext);
+            return makeErrorNode("Wrong Range format: " + sourceModule.getCode(), node, bindingContext);
         }
         
         IOpenField om = bindingContext.findRange(ISyntaxConstants.THIS_NAMESPACE,
@@ -39,10 +39,4 @@ public class RangeVariableBinder extends ANodeBinder {
 
         return null;
     }
-
-    private IBoundNode error(String message, ISyntaxNode node, IBindingContext bindingContext) {
-        BindHelper.processError(message, node, bindingContext, false);
-        return new ErrorBoundNode(node);
-    }
-
 }

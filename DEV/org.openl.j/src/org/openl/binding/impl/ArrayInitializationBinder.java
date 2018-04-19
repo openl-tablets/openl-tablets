@@ -26,11 +26,7 @@ public class ArrayInitializationBinder extends ANodeBinder {
      *      org.openl.binding.IBindingContext)
      */
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
-        
-        BindHelper.processError("Array has always to be initialized with a type", node, bindingContext);
-        
-        return new ErrorBoundNode(node);
-//        throw new UnsupportedOperationException("Array has always to be initialized with a type");
+        return makeErrorNode("Array has always to be initialized with a type", node, bindingContext);
     }
 
     /*
@@ -45,8 +41,7 @@ public class ArrayInitializationBinder extends ANodeBinder {
         IOpenClass componentType = type.getAggregateInfo().getComponentType(type);
         if (componentType == null) {
             String message = String.format("Cannot convert an array into '%s'", type.getDisplayName(INamedThing.SHORT));
-            BindHelper.processError(message, node, bindingContext, false);
-            return new ErrorBoundNode(node);
+            return makeErrorNode(message, node, bindingContext);
         }
 
         IBoundNode[] nodes = bindTypeChildren(node, bindingContext, componentType);

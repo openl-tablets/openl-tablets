@@ -212,12 +212,13 @@ public class MethodNodeBinder extends ANodeBinder {
             if (methodIsStatic) {
                 BindHelper.processWarn("Access of a static method from non-static object", node, bindingContext);
             } else {
-                BindHelper.processError("Access of a non-static method from a static object", node, bindingContext, false);
-                return new ErrorBoundNode(node);
+                return makeErrorNode("Access of a non-static method from a static object", node, bindingContext);
             }
         }
         return null;
     }
+
+
 
     private IBoundNode methodNotFoundError(ISyntaxNode node, IBindingContext bindingContext, String methodName, IOpenClass[] types, IOpenClass target) {
         StringBuilder buf = new StringBuilder("Method '");
@@ -226,14 +227,12 @@ public class MethodNodeBinder extends ANodeBinder {
         if (target != null) {
             buf.append("in '").append(target.getName()).append("'");
         }
-        BindHelper.processError(buf.toString(), node, bindingContext, false);
-        return new ErrorBoundNode(node);
+        return makeErrorNode(buf.toString(), node, bindingContext);
     }
 
     private IBoundNode validateNode(ISyntaxNode node, IBindingContext bindingContext) {
         if (node.getNumberOfChildren() < 1) {
-            BindHelper.processError("New node should have at least one subnode", node, bindingContext, false);
-            return new ErrorBoundNode(node);
+            return makeErrorNode("New node should have at least one subnode", node, bindingContext);
         }
         return null;
     }

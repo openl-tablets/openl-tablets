@@ -147,13 +147,8 @@ public class BindHelper {
 	 */
 	public static IBoundNode checkConditionBoundNode(IBoundNode conditionNode,
 			IBindingContext bindingContext) {
-		if (conditionNode != null
-				&& !isBooleanType(conditionNode.getType())) {
-			if (conditionNode.getType() != NullOpenClass.the) {
-				BindHelper.processError(CONDITION_TYPE_MESSAGE,
-						conditionNode.getSyntaxNode(), bindingContext, false);
-			}
-			return new ErrorBoundNode(conditionNode.getSyntaxNode());
+		if (conditionNode != null && !isBooleanType(conditionNode.getType())) {
+            return ANodeBinder.makeErrorNode(CONDITION_TYPE_MESSAGE, conditionNode.getSyntaxNode(), bindingContext);
 		} else {
 			if (conditionNode != null) {
 				checkForSameLeftAndRightExpression(conditionNode, bindingContext);
@@ -259,24 +254,7 @@ public class BindHelper {
 		}
 	}
 
-	public static IBoundCode makeInvalidCode(IParsedCode parsedCode,
-			ISyntaxNode syntaxNode, IBindingContext bindingContext) {
-
-		ErrorBoundNode boundNode = new ErrorBoundNode(syntaxNode);
-
-		return new BoundCode(parsedCode, boundNode, bindingContext.getErrors(),
-				bindingContext.getLocalVarFrameSize());
-	}
-
-	public static IBoundCode makeInvalidCode(IParsedCode parsedCode,
-			ISyntaxNode syntaxNode, SyntaxNodeException[] errors) {
-
-		ErrorBoundNode boundNode = new ErrorBoundNode(syntaxNode);
-
-		return new BoundCode(parsedCode, boundNode, errors, 0);
-	}
-
-	public static IBindingContext delegateContext(IBindingContext context,
+    public static IBindingContext delegateContext(IBindingContext context,
 			IBindingContextDelegator delegator) {
 
 		if (delegator != null) {

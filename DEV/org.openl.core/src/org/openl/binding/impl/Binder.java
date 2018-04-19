@@ -22,7 +22,6 @@ import org.openl.binding.INodeBinderFactory;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
 
@@ -111,11 +110,12 @@ public class Binder implements IOpenBinder {
         } catch (Throwable cause) {
             // Process error/exception at first.
             //
-            bindingContext.addError(SyntaxNodeExceptionUtils.createError(cause, syntaxNode));
+            IBoundNode boundNode = ANodeBinder.makeErrorNode(cause, syntaxNode, bindingContext);
 
             // Return bound code with errors.
             //
-            return BindHelper.makeInvalidCode(parsedCode, syntaxNode, bindingContext);
+
+            return new BoundCode(parsedCode, boundNode, bindingContext.getErrors(), bindingContext.getLocalVarFrameSize());
         }
     }
 
