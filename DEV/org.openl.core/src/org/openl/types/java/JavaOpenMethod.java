@@ -16,7 +16,6 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 
@@ -142,7 +141,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
             String msg = "Failure in the method: " + method + " on the target: " + String
                 .valueOf(target) + " with values: [" + StringUtils.join(params, "], [") + "]. Cause: " + t.getTargetException().getMessage();
             throw new OpenLRuntimeException(msg, t);
-        } catch (Throwable t) {
+        } catch (Exception t) {
             String msg = "Failure in the method: " + method + " on the target: " + String
                 .valueOf(target) + " with values: [" + StringUtils.join(params, "], [") + "]. Cause: " + t.getMessage();
             throw new OpenLRuntimeException(msg, t);
