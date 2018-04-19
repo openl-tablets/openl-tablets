@@ -268,21 +268,6 @@ public class BindHelper {
 	}
 
 	/**
-	 * Analyzes the binding context and returns the name for
-	 * internal/temporary/service variable with the name: varNamePrefix + '$' +
-	 * available_index.
-	 */
-	public static String getTemporaryVarName(IBindingContext bindingContext,
-			String namespace, String varNamePrefix) {
-		int index = 0;
-		while (bindingContext.findVar(namespace, varNamePrefix + "$" + index,
-				true) != null) {
-			index++;
-		}
-		return varNamePrefix + "$" + index;
-	}
-
-	/**
      * Checks given type that it is boolean type.
      *
      * @param type {@link IOpenClass} instance
