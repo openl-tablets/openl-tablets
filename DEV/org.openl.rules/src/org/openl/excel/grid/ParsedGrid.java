@@ -21,7 +21,7 @@ public class ParsedGrid extends AGrid {
     private final boolean use1904Windowing;
     private final List<IGridRegion> regions = new ArrayList<>();
 
-    private Map<CellKey, CellMetaInfo> metaInfoMap = new HashMap<>();
+    private CellMetaInfo[][] metaInfoArray;
     private XlsSheetGridModel writableGrid;
 
     private transient IGridTable[] tables;
@@ -250,17 +250,30 @@ public class ParsedGrid extends AGrid {
     }
 
     protected CellMetaInfo getCellMetaInfo(int col, int row) {
-        CellKey ck = CellKey.CellKeyFactory.getCellKey(col, row);
-        return metaInfoMap.get(ck);
+        if (metaInfoArray == null) {
+            return null;
+        }
+
+        int internalRow = row - getFirstRowNum();
+        int internalCol = col - getFirstColNum();
+
+        if (internalRow >= metaInfoArray.length || internalCol >= metaInfoArray[internalRow].length) {
+            return null;
+        }
+
+        return metaInfoArray[internalRow][internalCol];
     }
 
     protected synchronized void setCellMetaInfo(int col, int row, CellMetaInfo meta) {
-        CellKey ck = CellKey.CellKeyFactory.getCellKey(col, row);
-        if (meta == null) {
-            metaInfoMap.remove(ck);
-        } else {
-            metaInfoMap.put(ck, meta);
+        if (metaInfoArray == null) {
+            int columns = cells.length == 0 ? 0 : cells[0].length;
+            metaInfoArray = new CellMetaInfo[cells.length][columns];
         }
+
+        int internalRow = row - getFirstRowNum();
+        int internalCol = col - getFirstColNum();
+
+        metaInfoArray[internalRow][internalCol] = meta;
     }
 
     protected Object[][] getCells() {
