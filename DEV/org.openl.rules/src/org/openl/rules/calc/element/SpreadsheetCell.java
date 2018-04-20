@@ -103,8 +103,7 @@ public class SpreadsheetCell implements Invokable {
             if (formattedValue != null && formattedValue.startsWith("=")) {
                 CellMetaInfo metaInfo = sourceCell.getMetaInfo();
                 if (metaInfo == null) {
-                    metaInfo = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
-                            null,
+                    metaInfo = new CellMetaInfo(
                             JavaOpenClass.STRING,
                             false,
                             Collections.<NodeUsage>emptyList());

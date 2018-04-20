@@ -125,7 +125,7 @@ public class RuleRowHelper {
                     //
                     //
                     if (!openlAdaptor.getBindingContext().isExecutionMode()) {
-                        setCellMetaInfo(cell, paramName, paramType, true);
+                        setCellMetaInfo(cell, paramType, true);
                     }
                 }
 
@@ -141,7 +141,7 @@ public class RuleRowHelper {
         } else {
             arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { 0 });
             if (!openlAdaptor.getBindingContext().isExecutionMode()) {
-                setCellMetaInfo(cell, paramName, paramType, true);
+                setCellMetaInfo(cell, paramType, true);
             }
         }
 
@@ -248,7 +248,7 @@ public class RuleRowHelper {
                 if (res != null) {
                     validateValue(res, paramType);
                     if (!openlAdapter.getBindingContext().isExecutionMode()) {
-                        setCellMetaInfo(table, paramName, paramType, false);
+                        setCellMetaInfo(table, paramType, false);
                     }
                     return res;
                 }
@@ -339,9 +339,8 @@ public class RuleRowHelper {
             ConstantOpenField constantOpenField = (ConstantOpenField) openField;
             CellMetaInfo metaInfo = sourceCell.getMetaInfo();
             if (metaInfo == null) {
-                metaInfo = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
-                    null,
-                    JavaOpenClass.STRING,
+                metaInfo = new CellMetaInfo(
+                        JavaOpenClass.STRING,
                     false,
                     Collections.<NodeUsage> emptyList());
             }
@@ -429,7 +428,7 @@ public class RuleRowHelper {
             // Set cell meta information at first.
             //
             if (!openlAdapter.getBindingContext().isExecutionMode()) {
-                setCellMetaInfo(cell, paramName, paramType, isPartOfArray);
+                setCellMetaInfo(cell, paramType, isPartOfArray);
             }
 
             // Try to get cell object value with appropriate string parser.
@@ -502,7 +501,7 @@ public class RuleRowHelper {
             // Set meta info for empty cells. To suggest an appropriate editor
             // according to cell type.
             if (!openlAdapter.getBindingContext().isExecutionMode())
-                setCellMetaInfo(cell, paramName, paramType, false);
+                setCellMetaInfo(cell, paramType, false);
         }
 
         return null;
@@ -555,10 +554,9 @@ public class RuleRowHelper {
     }
 
     public static void setCellMetaInfo(ILogicalTable logicalCell,
-            String paramName,
             IOpenClass paramType,
             boolean isMultiValue) {
-        CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, isMultiValue);
+        CellMetaInfo meta = new CellMetaInfo(paramType, isMultiValue);
         ICell cell = logicalCell.getSource().getCell(0, 0);
 
         if (cell.getMetaInfo() != null && cell.getMetaInfo().getUsedNodes() != null) {
@@ -577,9 +575,8 @@ public class RuleRowHelper {
                 metaInfo.getDisplayName(INamedThing.SHORT),
                 metaInfo.getSourceUrl(),
                 nodeType);
-            CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
-                null,
-                JavaOpenClass.STRING,
+            CellMetaInfo meta = new CellMetaInfo(
+                    JavaOpenClass.STRING,
                 false,
                 Collections.singletonList(nodeUsage));
             ICell cell = logicalCell.getSource().getCell(0, 0);
@@ -648,16 +645,15 @@ public class RuleRowHelper {
     }
 
     private static Object loadEmptyCellParams(ILogicalTable dataTable,
-            String paramName,
             String ruleName,
             OpenlToolAdaptor openlAdaptor,
             IOpenClass paramType) {
         if (!openlAdaptor.getBindingContext().isExecutionMode()) {
             if (paramType.isArray()) {
                 IOpenClass arrayType = paramType.getAggregateInfo().getComponentType(paramType);
-                setCellMetaInfo(dataTable, paramName, arrayType, true);
+                setCellMetaInfo(dataTable, arrayType, true);
             } else {
-                setCellMetaInfo(dataTable, paramName, paramType, false);
+                setCellMetaInfo(dataTable, paramType, false);
             }
         }
         return null;
@@ -681,7 +677,7 @@ public class RuleRowHelper {
         boolean oneCellTable = height == 1;
 
         if (height == 0) {
-            return loadEmptyCellParams(dataTable, paramName, ruleName, openlAdaptor, paramType);
+            return loadEmptyCellParams(dataTable, ruleName, openlAdaptor, paramType);
         }
 
         // If data table contains one cell and parameter type is not array type

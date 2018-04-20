@@ -6,7 +6,6 @@ import java.util.Date;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
@@ -113,7 +112,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
             IOpenClass constantType = getConstantType(cxt, row, rowSrc);
 
             String value = DatatypeTableBoundNode.getDefaultValue(row, cxt);
-            Object objectValue = null;
+            Object objectValue;
 
             try {
                 if (constantType.getName().startsWith("[[")) {
@@ -131,7 +130,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                     }
                 }
                 if (Date.class.equals(constantType.getInstanceClass())) {
-                    RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, constantType, false);
+                    RuleRowHelper.setCellMetaInfo(row.getColumn(2), constantType, false);
                 }
             } catch (RuntimeException e) {
                 String message = String.format("Can't parse cell value '%s'", value);
@@ -216,7 +215,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
     }
 
     @Override
-    public void removeDebugInformation(IBindingContext cxt) throws Exception {
+    public void removeDebugInformation(IBindingContext cxt) {
         if (cxt.isExecutionMode()) {
             for (ConstantOpenField constantOpenField : constantOpenFields) {
                 constantOpenField.setMemberMetaInfo(null);

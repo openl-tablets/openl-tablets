@@ -465,9 +465,8 @@ public class DecisionTableHelper {
                     description,
                     null,
                     NodeType.OTHER);
-                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
-                    null,
-                    JavaOpenClass.STRING,
+                CellMetaInfo meta = new CellMetaInfo(
+                        JavaOpenClass.STRING,
                     false,
                     Collections.singletonList(simpleNodeUsage));
                 cell.setMetaInfo(meta);
@@ -822,8 +821,7 @@ public class DecisionTableHelper {
                             text,
                             null,
                             NodeType.OTHER);
-                    CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
-                            null,
+                    CellMetaInfo meta = new CellMetaInfo(
                             JavaOpenClass.STRING,
                             false,
                             Collections.singletonList(simpleNodeUsage));
@@ -847,9 +845,8 @@ public class DecisionTableHelper {
         String text = String.format("Condition for %s: %s", parameterName, typeOfValue);
         ICell cell = originalTable.getSource().getCell(column, 0);
         SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0, cellValue.length() - 1, text, null, NodeType.OTHER);
-        CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
-            null,
-            JavaOpenClass.STRING,
+        CellMetaInfo meta = new CellMetaInfo(
+                JavaOpenClass.STRING,
             false,
             Collections.singletonList(simpleNodeUsage));
         cell.setMetaInfo(meta);

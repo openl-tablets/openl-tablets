@@ -408,7 +408,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                             if (value != null) {
                                 fieldDescription.setDefaultValue(value);
                                 if (Date.class.equals(fieldType.getInstanceClass())) {
-                                    RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, fieldType, false);
+                                    RuleRowHelper.setCellMetaInfo(row.getColumn(2), fieldType, false);
                                 }
                             }
                         }

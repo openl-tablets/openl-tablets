@@ -111,7 +111,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         if (valuesHeight == 1) {
 
             if(!bindingContext.isExecutionMode())
-                RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, true);
+                RuleRowHelper.setCellMetaInfo(valuesTable, domainClass, true);
 
             // load array of values as comma separated parameters
             String[] tokens = RuleRowHelper.extractElementsFromCommaSeparatedArray(valuesTable);
@@ -138,13 +138,13 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 if (value == null || value.length() == 0) {
                     // set meta info for empty cells.
                     if(!bindingContext.isExecutionMode())
-                        RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, false);
+                        RuleRowHelper.setCellMetaInfo(valueTable, domainClass, false);
                     values.add(null);
                     continue;
                 }
 
                 if(!bindingContext.isExecutionMode())
-                    RuleRowHelper.setCellMetaInfo(valueTable, getField().getName(), domainClass, false);
+                    RuleRowHelper.setCellMetaInfo(valueTable, domainClass, false);
                 Object res = getValueByForeignKeyIndex(bindingContext, foreignTable, foreignKeyIndex, foreignKeyTableAccessorChainTokens, valueTable, value);
 
                 addResValues(values, res);
@@ -364,12 +364,12 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         // Set meta info for empty cells
                         if (!cxt.isExecutionMode()) {
                             DomainOpenClass domainClass = getDomainClass(foreignTable, foreignKeyIndex, cxt);
-                            RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
+                            RuleRowHelper.setCellMetaInfo(valuesTable, domainClass, false);
                         }
                     } else {
                         if (!cxt.isExecutionMode()) {
                             DomainOpenClass domainClass = getDomainClass(foreignTable, foreignKeyIndex, cxt);
-                            RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
+                            RuleRowHelper.setCellMetaInfo(valuesTable, domainClass, false);
                         }
                         Object res = getValueByForeignKeyIndex(cxt,
                             foreignTable,
@@ -516,7 +516,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     foreignTable.getTableSyntaxNode().getHeaderLineValue().getValue(),
                     foreignTable.getTableSyntaxNode().getUri(),
                     NodeType.DATA);
-                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
+                CellMetaInfo meta = new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
                 foreignKeyCell.setMetaInfo(meta);
             }
         }

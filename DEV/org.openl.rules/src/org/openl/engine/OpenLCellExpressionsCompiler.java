@@ -9,7 +9,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.*;
 import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.lang.xls.types.CellMetaInfo.Type;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
@@ -181,7 +180,7 @@ public class OpenLCellExpressionsCompiler {
                 }
             }
             Collections.sort(methodUsages, new NodeUsageComparator());
-            cell.setMetaInfo(new CellMetaInfo(Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, methodUsages));
+            cell.setMetaInfo(new CellMetaInfo(JavaOpenClass.STRING, false, methodUsages));
         }
     }
 

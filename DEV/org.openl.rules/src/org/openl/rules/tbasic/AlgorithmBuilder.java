@@ -65,7 +65,7 @@ public class AlgorithmBuilder {
                 algorithmOperations.add(specification.getKeyword());
             }
             algorithmOperationsArray = algorithmOperations.toArray(new String[algorithmOperations.size()]);
-            cellMetaInfo = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, new DomainOpenClass("operation",
+            cellMetaInfo = new CellMetaInfo(new DomainOpenClass("operation",
                 JavaOpenClass.STRING, new EnumDomain<String>(algorithmOperationsArray), null), false);
         } catch (Throwable e) {
             Logger logger = LoggerFactory.getLogger(AlgorithmBuilder.class);

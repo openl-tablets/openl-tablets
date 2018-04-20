@@ -251,11 +251,11 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
             ICell cell = ((GridCellSourceCodeModule) src).getCell();
             CellMetaInfo metaInfo = cell.getMetaInfo();
             if (metaInfo == null) {
-                metaInfo = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false,  new ArrayList<NodeUsage>());
+                metaInfo = new CellMetaInfo(JavaOpenClass.STRING, false,  new ArrayList<NodeUsage>());
                 cell.setMetaInfo(metaInfo);
             }
             List<NodeUsage> usedNodes = metaInfo.getUsedNodes() == null ? new ArrayList<NodeUsage>() :
-                                        new ArrayList<NodeUsage>(metaInfo.getUsedNodes());
+                                        new ArrayList<>(metaInfo.getUsedNodes());
             metaInfo.setUsedNodes(usedNodes);
 
             int start = startIndex + absoluteStart;
@@ -331,7 +331,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
                 parameterType = defaultType;
             }
 
-            String[] split = parameterType.split("\\[\\]", -1);
+            String[] split = parameterType.split("\\[]", -1);
             parameterType = split[0];
             int dimensions = split.length - 1;
 
@@ -424,7 +424,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
                 new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.OBJECT });
         IMethodCaller restoreContext = bindingContext.findMethodCaller(ISyntaxConstants.THIS_NAMESPACE,
                 "restoreContext",
-                new IOpenClass[] {});
+                IOpenClass.EMPTY);
         ProjectData instance = ProjectData.getCurrentInstance();
 
         List<Function> overloadedFunctions = instance.getOverloadedFunctions(methodName);
@@ -477,7 +477,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
     }
 
     private List<String> getUniqueAttributeNames(List<Attribute> attributes) {
-        List<String> attributeNames = new ArrayList<String>();
+        List<String> attributeNames = new ArrayList<>();
         for (Attribute attribute : attributes) {
             String attributeName = attribute.getName();
             if (!attributeNames.contains(attributeName)) {
@@ -488,7 +488,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
     }
 
     private List<Integer> getArrayCallArguments(IBoundNode[] children, IOpenClass[] parameterTypes) {
-        List<Integer> arrayCallArguments = new ArrayList<Integer>();
+        List<Integer> arrayCallArguments = new ArrayList<>();
 
         for (int i = 0; i < children.length; i++) {
             IBoundNode child = children[i];

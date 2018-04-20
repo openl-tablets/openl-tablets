@@ -35,7 +35,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
     public static final String ROW_RET_VALUE = "Return Values";
 
-    protected static final List<ColumnDefinition> MATCH_COLUMN_DEFINITION = new LinkedList<ColumnDefinition>();
+    protected static final List<ColumnDefinition> MATCH_COLUMN_DEFINITION = new LinkedList<>();
     private static final MatchAlgorithmExecutor EXECUTOR = new MatchAlgorithmExecutor();
 
     static {
@@ -55,7 +55,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      * <p>
      * Side effect: when matcher parse cell as numeric binding will block range there.
      */
-    protected void bindMetaInfo(ColumnMatch columnMatch, String paramName, SubValue[] subValues, Object[] objValues) {
+    protected void bindMetaInfo(ColumnMatch columnMatch, SubValue[] subValues, Object[] objValues) {
         IGridTable tableBodyGrid = columnMatch.getSyntaxNode().getTableBody().getSource();
         IGrid grid = tableBodyGrid.getGrid();
 
@@ -66,7 +66,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
             if (cv != null && grid.getCell(gridRegion.getLeft(), gridRegion.getTop()).getMetaInfo() == null) {
                 IOpenClass paramType = JavaOpenClass.getOpenClass(cv.getClass());
-                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, false);
+                CellMetaInfo meta = new CellMetaInfo(paramType, false);
                 grid.getCell(gridRegion.getLeft(), gridRegion.getTop()).setMetaInfo(meta);
             }
             // empty cells are left 'as is' -- suppose they are of String type
@@ -88,7 +88,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             SubValue nameSV = row.get(NAMES)[0];
             IGridRegion gridRegion = nameSV.getGridRegion();
 
-            CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, null, domainOpenClass, false);
+            CellMetaInfo meta = new CellMetaInfo(domainOpenClass, false);
             grid.getCell(gridRegion.getLeft(), gridRegion.getTop()).setMetaInfo(meta);
         }
     }
@@ -276,10 +276,10 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
             if (s.length() > 0) {
                 // ignore empty cells
-                Object v = null;
+                Object v;
                 ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, s);
                 if (constantOpenField != null && constantOpenField.getValue() != null) {
-                    IOpenClass type = null;
+                    IOpenClass type;
                     if (node.getArgument() != null) {
                         type = node.getArgument().getType();
                     }else {
@@ -307,7 +307,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         Object[] retValues = parseValues(bindingContext, columnMatch, row0, returnType);
         columnMatch.setReturnValues(retValues);
 
-        bindMetaInfo(columnMatch, "Return Values", row0.get(VALUES), retValues);
+        bindMetaInfo(columnMatch, row0.get(VALUES), retValues);
     }
 
     protected Object[] parseValues(IBindingContext bindingContext, ColumnMatch columnMatch, TableRow row, IOpenClass openClass) throws SyntaxNodeException {
@@ -392,7 +392,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
             parseCheckValues(bindingContext, columnMatch, row, node, retValuesCount);
 
-            bindMetaInfo(columnMatch, varName, row.get(VALUES), node.getCheckValues());
+            bindMetaInfo(columnMatch, row.get(VALUES), node.getCheckValues());
 
             nodes[i] = node;
         }

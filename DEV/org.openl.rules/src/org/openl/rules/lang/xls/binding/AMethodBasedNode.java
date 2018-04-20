@@ -132,7 +132,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         if (!bindingContext.isExecutionMode() && header instanceof OpenMethodHeader) {
             OpenMethodHeader tableHeader = (OpenMethodHeader) header;
 
-            List<NodeUsage> nodeUsages = new ArrayList<NodeUsage>();
+            List<NodeUsage> nodeUsages = new ArrayList<>();
             ICell cell = getTableSyntaxNode().getGridTable().getCell(0, 0);
             TextInfo tableHeaderText = new TextInfo(cell.getStringValue());
 
@@ -195,7 +195,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
 
             if (CollectionUtils.isNotEmpty(nodeUsages)) {
                 cell.setMetaInfo(
-                    new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, nodeUsages));
+                    new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages));
             }
         }
     }
