@@ -2,6 +2,7 @@ package org.openl.excel.parser.event;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 import org.apache.poi.ddf.EscherContainerRecord;
@@ -49,8 +50,24 @@ public class TableStyleListener implements HSSFListener {
         try (POIFSFileSystem poifs = new POIFSFileSystem(new File(fileName))) {
             this.directory = poifs.getRoot();
 
-            StyleTrackingListener formatListener = new StyleTrackingListener(this);
-            HSSFEventFactory factory = new HSSFEventFactory();
+            final StyleTrackingListener formatListener = new StyleTrackingListener(this);
+
+            // Default HSSFEventFactory doesn't include ContinueRecord items in the stream and it breaks Comments parsing
+            // for some cases. So we used to override processEvents() and initialize RecordFactoryInputStream
+            // to include ContinueRecord items in the stream.
+            HSSFEventFactory factory = new HSSFEventFactory() {
+                @Override
+                public void processEvents(HSSFRequest req, InputStream in) {
+                    // Include ContinueRecord items
+                    RecordFactoryInputStream recordStream = new RecordFactoryInputStream(in, true);
+
+                    Record r;
+                    while ((r = recordStream.nextRecord()) != null) {
+                        formatListener.processRecord(r);
+                    }
+                }
+            };
+
             HSSFRequest request = new HSSFRequest();
             request.addListenerForAllRecords(formatListener);
             factory.processWorkbookEvents(request, poifs);
@@ -168,7 +185,6 @@ public class TableStyleListener implements HSSFListener {
             try {
                 r = EscherAggregate.createAggregate(shapeRecords, loc);
             } catch (Exception e) {
-                // TODO: Investigate such a cases and find a solution to read comments from such files.
                 log.error(e.getMessage(), e);
                 comments = Collections.emptyList();
                 return;
