@@ -35,10 +35,6 @@ public class NaryNode extends ASyntaxNode {
         return nodes;
     }
     
-    public void setNodes(ISyntaxNode[] nodes) {
-        this.nodes = nodes;
-    }
-
     /*
      * (non-Javadoc)
      *
