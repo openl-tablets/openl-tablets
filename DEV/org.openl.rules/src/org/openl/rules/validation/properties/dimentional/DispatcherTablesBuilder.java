@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.rules.binding.RulesModuleBindingContext;
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
@@ -55,18 +55,11 @@ public class DispatcherTablesBuilder {
     }
 
     public void build(MatchingOpenMethodDispatcher dispatcher) {
-        Builder<TableSyntaxNode> tsnDispatcherBuilder = new TableSyntaxNodeDispatcherBuilder(moduleContext,
-                moduleOpenClass, dispatcher);
-        TableSyntaxNode tsn = tsnDispatcherBuilder.build();
+        TableSyntaxNode tsn = new TableSyntaxNodeDispatcherBuilder(moduleContext, moduleOpenClass, dispatcher).build();
         if (tsn != null) {
-            addNewTsnToTopNode(tsn);
+            XlsModuleSyntaxNode xlsModuleNode = moduleOpenClass.getXlsMetaInfo().getXlsModuleNode();
+            xlsModuleNode.getWorkbookSyntaxNodes()[0].getWorksheetSyntaxNodes()[0].addNode(tsn);
         }
-    }
-
-    private void addNewTsnToTopNode(TableSyntaxNode tsn) {
-        XlsMetaInfo xlsMetaInfo = moduleOpenClass.getXlsMetaInfo();
-        xlsMetaInfo.getXlsModuleNode().getWorkbookSyntaxNodes()[0]
-            .getWorksheetSyntaxNodes()[0].addNode(tsn);
     }
 
     private List<MatchingOpenMethodDispatcher> getAllMethodDispatchers(){
