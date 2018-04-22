@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.rules.binding.RulesModuleBindingContext;
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
@@ -57,38 +56,21 @@ public class DispatcherTablesBuilder {
     }
 
     public void build(MatchingOpenMethodDispatcher dispatcher) {
-        Builder<TableSyntaxNode> tsnDispatcherBuilder = new TableSyntaxNodeDispatcherBuilder(moduleContext,
-                moduleOpenClass, dispatcher);
-        TableSyntaxNode tsn = tsnDispatcherBuilder.build();
+        TableSyntaxNode tsn = new TableSyntaxNodeDispatcherBuilder(moduleContext, moduleOpenClass, dispatcher).build();
         if (tsn != null) {
-            if (!isVirtualWorkbook()) {
-                addNewTsnToTopNode(tsn);
-            } else {
-                addNewTsnToCandidateModule(dispatcher, tsn);
-            }
-        }
-    }
-
-    private boolean isVirtualWorkbook(){
-        return moduleOpenClass.getXlsMetaInfo().getXlsModuleNode().getModule() instanceof VirtualSourceCodeModule;
-    }
-
-    private void addNewTsnToTopNode(TableSyntaxNode tsn) {
-        XlsMetaInfo xlsMetaInfo = moduleOpenClass.getXlsMetaInfo();
-        xlsMetaInfo.getXlsModuleNode().getWorkbookSyntaxNodes()[0]
-            .getWorksheetSyntaxNodes()[0].addNode(tsn);
-    }
-
-    private void addNewTsnToCandidateModule(MatchingOpenMethodDispatcher dispatcher, TableSyntaxNode tsn) {
-        for (IOpenMethod method : dispatcher.getCandidates()) {
-            if (method.getDeclaringClass() instanceof XlsModuleOpenClass) {
-                XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) method.getDeclaringClass();
-                XlsModuleSyntaxNode xlsModuleNode = xlsModuleOpenClass.getXlsMetaInfo().getXlsModuleNode();
-                if (!(xlsModuleNode.getModule() instanceof VirtualSourceCodeModule)) {
-                    xlsModuleNode.getWorkbookSyntaxNodes()[0].getWorksheetSyntaxNodes()[0].addNode(tsn);
-                    break;
+            XlsModuleSyntaxNode xlsModuleNode = moduleOpenClass.getXlsMetaInfo().getXlsModuleNode();
+            if (xlsModuleNode.getModule() instanceof VirtualSourceCodeModule) {
+                for (IOpenMethod method : dispatcher.getCandidates()) {
+                    if (method.getDeclaringClass() instanceof XlsModuleOpenClass) {
+                        XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) method.getDeclaringClass();
+                        xlsModuleNode = xlsModuleOpenClass.getXlsMetaInfo().getXlsModuleNode();
+                        if (!(xlsModuleNode.getModule() instanceof VirtualSourceCodeModule)) {
+                            break;
+                        }
+                    }
                 }
             }
+            xlsModuleNode.getWorkbookSyntaxNodes()[0].getWorksheetSyntaxNodes()[0].addNode(tsn);
         }
     }
 
