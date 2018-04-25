@@ -39,7 +39,7 @@ public class ArrayCast implements IOpenCast {
             if (length > 0) {
                 f = Array.get(f, 0);
             }
-            if (Object.class.equals(c)) {
+            if (Object.class.equals(c) && f != null) {
                 c = f.getClass();
             }
         }
