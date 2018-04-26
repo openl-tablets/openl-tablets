@@ -236,7 +236,7 @@ public class DefaultPropertyDefinitions
 		definitions[15].setDisplayName("Region");
 		definitions[15].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("contains(region)"));
 		definitions[15].setGroup("Business Dimension");
-		definitions[15].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY});
+		definitions[15].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[15].setName("region");
 		definitions[15].setPrimaryKey(false);
 		definitions[15].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
