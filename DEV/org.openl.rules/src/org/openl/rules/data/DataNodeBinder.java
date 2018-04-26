@@ -40,16 +40,6 @@ public class DataNodeBinder extends AXlsTableBinder {
     private static final int TYPE_INDEX = 1;
     private static final int TABLE_NAME_INDEX = 2;
 
-    protected IOpenClass getTableType(String typeName,
-            IBindingContext bindingContext,
-            XlsModuleOpenClass module,
-            DataTableBoundNode dataNode,
-            String tableName,
-            TableSyntaxNode tsn) {
-        
-        return RuleRowHelper.getType(typeName, bindingContext);
-    }
-
     protected ATableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module) {
         return new DataTableBoundNode(tsn, module);
     }
@@ -84,7 +74,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
         String tableName = parsedHeader[TABLE_NAME_INDEX].getIdentifier();
 
-        IOpenClass tableType = getTableType(typeName, bindingContext, module, dataNode, tableName, tableSyntaxNode);
+        IOpenClass tableType = RuleRowHelper.getType(typeName, bindingContext);
 
         if (tableType == null) {
             String message = String.format("Type is not found: '%s'", typeName);
