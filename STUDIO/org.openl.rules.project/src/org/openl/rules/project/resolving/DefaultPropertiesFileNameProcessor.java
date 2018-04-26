@@ -190,7 +190,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 if (componentClass.isArray()) {
                     throw new OpenlNotCheckedException("Two dim arrays aren't supported!");
                 }
-                pattern = getPattern(propertyName, returnType);
+                pattern = getPattern(propertyName, componentClass);
             }
             return pattern;
         }
