@@ -294,7 +294,7 @@ public class XlsBinder implements IOpenBinder {
              * Processes datatype table nodes before the bind operation. Checks type declarations and finds invalid
              * using of inheritance feature at this step.
              */
-            TableSyntaxNode[] processedDatatypeNodes = new DatatypesSorter().sort(datatypeNodes, moduleContext); // Rewrite
+            TableSyntaxNode[] processedDatatypeNodes = DatatypesSorter.sort(datatypeNodes, moduleContext); // Rewrite
                                                                                                                  // this
                                                                                                                  // sorter
                                                                                                                  // with

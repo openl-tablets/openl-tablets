@@ -64,7 +64,7 @@ public class OpenlToolTest extends TestCase {
         IOpenClass ioc = OpenLManager.makeType(openl, new StringSourceCodeModule(type, "<internal_string>"), null);
         Assert.assertEquals(xx.getClass(), ioc.getInstanceClass());
 
-        type = "String [] [] xyz";
+        type = "String [] []";
         ioc = OpenLManager.makeType(openl, new StringSourceCodeModule(type, "<internal_string>"), null);
         Assert.assertEquals(xx.getClass(), ioc.getInstanceClass());
 

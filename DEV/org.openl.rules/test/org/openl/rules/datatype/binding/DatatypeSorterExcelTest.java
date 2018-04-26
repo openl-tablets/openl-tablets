@@ -37,7 +37,7 @@ public class DatatypeSorterExcelTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void test_InheritanceOrder() {
-        TableSyntaxNode[] ordered = new DatatypesSorter().sort(getTableSyntaxNodes(), null);
+        TableSyntaxNode[] ordered = DatatypesSorter.sort(getTableSyntaxNodes(), null);
         assertEquals(5, ordered.length);
         assertEquals("ParentType", getDatatypeTypeName(ordered[0]));
         assertEquals("ChildType", getDatatypeTypeName(ordered[1]));
