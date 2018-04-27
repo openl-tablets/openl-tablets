@@ -273,7 +273,7 @@ public class GenRulesCode {
         for (TablePropertyDefinitionWrapper wrapper : tablePropertyDefinitionWrappers.asList()) {
             if (wrapper.isEnum()) {
                 String name = wrapper.getEnumName();
-                String enumName = EnumHelper.getEnumName(name);
+                String enumName = GenRulesTypes.getEnumName(name);
                 String fullEnumName = CodeGenConstants.ENUMS_PACKAGE + "." + enumName;
 
                 boolean isArray = wrapper.getDefinition().getType().getInstanceClass().isArray();
@@ -288,7 +288,7 @@ public class GenRulesCode {
 
             if (wrapper.isEnum()) {
                 String name = wrapper.getEnumName();
-                String enumName = EnumHelper.getEnumName(name);
+                String enumName = GenRulesTypes.getEnumName(name);
                 String fullEnumName = CodeGenConstants.ENUMS_PACKAGE + "." + enumName;
 
                 boolean isArray = wrapper.getDefinition().getType().getInstanceClass().isArray();
