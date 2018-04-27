@@ -6,7 +6,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.openl.rules.datatype.gen.FieldDescription;
-import org.openl.util.StringTool;
+import org.openl.util.ClassUtils;
 
 public class SettersWriter extends MethodWriter {
 
@@ -44,7 +44,7 @@ public class SettersWriter extends MethodWriter {
     }
 
     protected MethodVisitor writeMethodSignature(ClassWriter classWriter, FieldDescription fieldType, String fieldName) {
-        String setterName = StringTool.getSetterName(fieldName);
+        String setterName = ClassUtils.setter(fieldName);
         final String javaType = fieldType.getTypeDescriptor();
         final String format = new StringBuilder(64).append('(').append(javaType).append(")V").toString();
         return classWriter.visitMethod(Opcodes.ACC_PUBLIC,  setterName, format, null, null);

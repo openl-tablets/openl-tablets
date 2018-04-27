@@ -14,7 +14,6 @@ package org.openl.rules.calc.result.convertor;
 import org.openl.rules.convertor.IObjectToDataConvertor;
 import org.openl.rules.convertor.ObjectToDataConvertorFactory;
 import org.openl.util.ClassUtils;
-import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +84,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
         // try to get setter, by upper case the first symbol in the column name,
         // and leave the other part as is
         //
-        String setterName = StringTool.getSetterName(column.getColumnName());
+        String setterName = ClassUtils.setter(column.getColumnName());
         try {
             setterMethod = step.getClass().getMethod(setterName, column.getExpectedType());
         } catch (Exception e) {

@@ -21,7 +21,6 @@ import org.openl.types.impl.ADynamicClass.OpenConstructor;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenConstructor;
 import org.openl.util.ClassUtils;
-import org.openl.util.StringUtils;
 
 /**
  * The factory class that provides methods to generate interface class using
@@ -111,7 +110,7 @@ public class InterfaceGenerator {
                     RuleInfo ruleInfo = getRuleInfoForField(field);
                     boolean isMember = isMember(ruleInfo, includes, excludes);
                     if (isMember) {
-                        MethodKey key = new MethodKey(ruleInfo.getName(), new IOpenClass[0], false);
+                        MethodKey key = new MethodKey(ruleInfo.getName(), IOpenClass.EMPTY, false);
                         //Skip getter for field if method is defined with the same signature.
                         if (!methodsInClass.contains(key)) {
                             rules.add(ruleInfo);
@@ -122,7 +121,7 @@ public class InterfaceGenerator {
             }
         }
 
-        return generateInterface(className, rules.toArray(new RuleInfo[rules.size()]), classLoader);
+        return generateInterface(className, rules.toArray(new RuleInfo[0]), classLoader);
     }
 
     private static boolean isMember(RuleInfo ruleInfo, String[] includes, String[] excludes) {
@@ -189,7 +188,7 @@ public class InterfaceGenerator {
      */
     private static RuleInfo getRuleInfoForField(IOpenField field) {
 
-        String methodName = String.format("get%s", StringUtils.capitalize(field.getName()));
+        String methodName = ClassUtils.getter(field.getName());
         Class<?>[] paramTypes = new Class<?>[0];
         Class<?> returnType = field.getType().getInstanceClass();
 

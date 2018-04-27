@@ -7,7 +7,7 @@
  */
 package org.openl.util.print;
 
-import org.openl.util.StringTool;
+import org.openl.util.ClassUtils;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -82,7 +82,7 @@ public class NicePrinterAdaptor {
 
     public Object getProperty(Object obj, String propertyName) {
         try {
-            Method m = obj.getClass().getMethod(StringTool.getGetterName(propertyName), new Class[0]);
+            Method m = obj.getClass().getMethod(ClassUtils.getter(propertyName), new Class[0]);
 
             String res = (String) m.invoke(obj, new Object[0]);
             return res;

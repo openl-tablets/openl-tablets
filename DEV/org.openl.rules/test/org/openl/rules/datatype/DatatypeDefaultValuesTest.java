@@ -221,7 +221,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
 		methodName = "getIntVal";
 		testValue(clazz, instance, methodName, new Integer(1000));
 
-		methodName = "getDVal";
+		methodName = "getdVal";
 		testValue(clazz, instance, methodName, new Double(1.26));
 		
 		methodName = "getStr";

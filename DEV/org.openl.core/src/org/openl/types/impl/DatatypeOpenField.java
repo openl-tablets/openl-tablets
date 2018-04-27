@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.openl.types.IOpenClass;
-import org.openl.util.StringTool;
+import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -20,13 +20,9 @@ public class DatatypeOpenField extends AOpenField {
 
     public DatatypeOpenField(IOpenClass declaringClass, String name, IOpenClass type) {
         super(name, type);
-        this.getterMethodName = StringTool.getGetterName(getName());
-        this.setterMethodName = StringTool.getSetterName(getName());
+        this.getterMethodName = ClassUtils.getter(getName());
+        this.setterMethodName = ClassUtils.setter(getName());
         this.declaringClass = declaringClass;
-    }
-
-    public DatatypeOpenField(String name, IOpenClass type) {
-        super(name, type);
     }
 
     public Object get(Object target, IRuntimeEnv env) {
@@ -34,20 +30,14 @@ public class DatatypeOpenField extends AOpenField {
             return null;
         }
 
-        Object res = null;
-        Class<?> targetClass = target.getClass();
-        Method method;
         try {
-            method = targetClass.getMethod(getterMethodName);
-            res = method.invoke(target);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
+            Class<?> targetClass = target.getClass();
+            Method method = targetClass.getMethod(getterMethodName);
+            Object res = method.invoke(target);
+            return res != null ? res : getType().nullObject();
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
-        return res != null ? res : getType().nullObject();
     }
 
     @Override
@@ -73,9 +63,7 @@ public class DatatypeOpenField extends AOpenField {
                 getName(),
                 getType().getInstanceClass().getSimpleName());
             throw new RuntimeException(errorMessage, e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }

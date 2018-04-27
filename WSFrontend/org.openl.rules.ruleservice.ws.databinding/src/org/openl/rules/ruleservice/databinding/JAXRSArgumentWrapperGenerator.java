@@ -13,10 +13,9 @@ package org.openl.rules.ruleservice.databinding;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-
 import net.sf.cglib.core.NamingPolicy;
 import net.sf.cglib.core.Predicate;
+import org.openl.util.ClassUtils;
 
 public class JAXRSArgumentWrapperGenerator {
 
@@ -88,7 +87,7 @@ public class JAXRSArgumentWrapperGenerator {
 			if (methodPrefix == null) {
 				prefix = "Request";
 			} else {
-				prefix = StringUtils.capitalize(methodPrefix) + "Request";
+				prefix = ClassUtils.capitalize(methodPrefix) + "Request";
 			}
 			String base = prefix + "$$" + Integer.toHexString(key.hashCode());
 			String attempt = base;

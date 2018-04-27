@@ -1,10 +1,13 @@
 package org.openl.util;
 
+import java.beans.Introspector;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 import java.security.ProtectionDomain;
+
+import static java.util.Locale.ENGLISH;
 
 /**
  * A util to manipulate with Java classes.
@@ -289,4 +292,34 @@ public class ClassUtils {
         }
         return toClass.isAssignableFrom(cls);
     }
+
+    public static String capitalize(String name) {
+        if (name.length() > 1 && Character.isUpperCase(name.charAt(1))) {
+            return name;
+        } else if (Character.isUpperCase(name.charAt(0))) {
+            return name;
+        } else {
+            // See java.beans.NameGenerator.capitalize
+            return name.substring(0, 1).toUpperCase(ENGLISH) + name.substring(1);
+        }
+    }
+
+    public static String decapitalize(String name) {
+        return Introspector.decapitalize(name);
+    }
+
+    public static String getter(String name) {
+        return "get" + capitalize(name);
+    }
+
+    public static String setter(String name) {
+        return "set" + capitalize(name);
+    }
+
+
+    public static String toFieldName(String name) {
+        // remove get or set prefix and decapitalize
+        return decapitalize(name.substring(3));
+    }
+
 }
