@@ -11,7 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang3.text.WordUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
@@ -49,6 +48,7 @@ import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
 import org.slf4j.Logger;
@@ -346,14 +346,14 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     throw SyntaxNodeExceptionUtils.createError(String.format("Field '%s' has already been defined!",
                         fieldName), null, null, getCellSource(row, cxt, 1));
                 }
-                if (fields.containsKey(WordUtils.uncapitalize(fieldName)) || fields
-                    .containsKey(WordUtils.capitalize(fieldName))) {
+                if (fields.containsKey(StringUtils.uncapitalize(fieldName)) || fields
+                    .containsKey(StringUtils.capitalize(fieldName))) {
                     String f = null;
-                    if (fields.containsKey(WordUtils.uncapitalize(fieldName))) {
-                        f = WordUtils.uncapitalize(fieldName);
+                    if (fields.containsKey(StringUtils.uncapitalize(fieldName))) {
+                        f = StringUtils.uncapitalize(fieldName);
                     }
-                    if (fields.containsKey(WordUtils.capitalize(fieldName))) {
-                        f = WordUtils.capitalize(fieldName);
+                    if (fields.containsKey(StringUtils.capitalize(fieldName))) {
+                        f = StringUtils.capitalize(fieldName);
                     }
                     throw SyntaxNodeExceptionUtils.createError(
                         String.format("Field '%s' conflicts with '%s' field!", fieldName, f),
