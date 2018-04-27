@@ -57,7 +57,6 @@ public final class CompileMojo extends BaseOpenLMojo {
             info("Compilation has finished.");
             info("DataTypes: " + openClass.getTypes().size());
             info("Methods  : " + openClass.getMethods().size());
-            info("Fields   : " + openClass.getFields().size());
             info("Warnings : " + warnMessages.size());
         } finally {
             releaseResources(classLoader);
