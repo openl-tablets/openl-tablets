@@ -30,8 +30,6 @@ import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.databinding.JAXRSArgumentWrapperGenerator;
 import org.openl.rules.ruleservice.publish.common.MethodUtil;
 import org.openl.util.ClassUtils;
-import org.openl.util.StringUtils;
-import org.openl.util.generation.GenUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
 import io.swagger.annotations.Api;
@@ -151,7 +149,7 @@ public class JAXRSInterfaceEnhancerHelper {
 
         protected String getRequestParameterName(Method method) {
             if (methodRequests == null) {
-                methodRequests = new HashMap<Method, String>();
+                methodRequests = new HashMap<>();
                 List<Method> methods = new ArrayList<Method>();
                 for (Method m : originalClass.getMethods()) {
                     methods.add(m);
@@ -160,10 +158,10 @@ public class JAXRSInterfaceEnhancerHelper {
                 methods = MethodUtil.sort(methods);
 
                 for (Method m : methods) {
-                    String s = StringUtils.uncapitalize(m.getName()) + "Request";
+                    String s = ClassUtils.decapitalize(m.getName()) + "Request";
                     int i = 1;
                     while (methodRequests.values().contains(s)) {
-                        s = StringUtils.uncapitalize(m.getName()) + "Request" + i;
+                        s = ClassUtils.decapitalize(m.getName()) + "Request" + i;
                         i++;
                     }
                     methodRequests.put(m, s);
@@ -527,7 +525,7 @@ public class JAXRSInterfaceEnhancerHelper {
                             for (int j = 0; j < propertyDescriptors.length; j++) {
                                 int k = -1;
                                 for (int q = 0; q < paramNames.length; q++) {
-                                    if (paramNames[q].equals(GenUtils.convertParameterName(propertyDescriptors[j].getName()))) {
+                                    if (paramNames[q].equals(ClassUtils.decapitalize(propertyDescriptors[j].getName()))) {
                                         k = q;
                                         break;
                                     }

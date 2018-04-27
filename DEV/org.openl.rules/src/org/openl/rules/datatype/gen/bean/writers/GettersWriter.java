@@ -9,8 +9,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.FieldDescription;
-import org.openl.util.StringTool;
-import org.openl.util.StringUtils;
+import org.openl.util.ClassUtils;
 
 /**
  * Writes getters to the generated bean class.
@@ -30,7 +29,7 @@ public class GettersWriter extends MethodWriter {
     }
     
     public void write(ClassWriter classWriter) {
-        /** ignore those fields that are of void type. In java it is impossible
+        /* ignore those fields that are of void type. In java it is impossible
         but possible in Openl, e.g. spreadsheet cell with void type.*/
         for(Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
             if (validField(field.getKey(), field.getValue())) {
@@ -49,24 +48,15 @@ public class GettersWriter extends MethodWriter {
         MethodVisitor methodVisitor;
         String fieldName = fieldEntry.getKey();
         FieldDescription field = fieldEntry.getValue();
-        String getterName = StringTool.getGetterName(fieldName);
+        String getterName = ClassUtils.getter(fieldName);
 
         final String javaType = field.getTypeDescriptor();
-        final String format = new StringBuilder(64).append("()").append(javaType).toString();
+        final String format = "()" + javaType;
         methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC,  getterName, format, null, null);
         
         
-        String elementName = fieldName;
-        if (elementName.length() == 1){
-            elementName = elementName.toLowerCase();
-        }else{
-            if (fieldName.length() > 1 && Character.isUpperCase(elementName.charAt(1))){
-                elementName = StringUtils.capitalize(elementName);
-            }else{
-                elementName = StringUtils.uncapitalize(elementName);
-            }
-        }
-        
+        String elementName = ClassUtils.decapitalize(fieldName);
+
         AnnotationVisitor av = methodVisitor.visitAnnotation("Ljavax/xml/bind/annotation/XmlElement;", true);
         av.visit("name", elementName);
         

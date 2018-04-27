@@ -3,8 +3,8 @@ package org.openl.util.generation;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.util.ClassUtils;
 import org.openl.util.JavaKeywordUtils;
-import org.openl.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -55,12 +55,12 @@ public final class GenUtils {
                     f = false;
                 }
                 if (f) {
-                    List<String> parameterNames = new ArrayList<String>();
+                    List<String> parameterNames = new ArrayList<>();
                     if (hasContext) {
                         parameterNames.add("runtimeContext");
                     }
                     for (i = 0; i < m.getSignature().getNumberOfParameters(); i++) {
-                        String pName = convertParameterName(m.getSignature().getParameterName(i));
+                        String pName = ClassUtils.decapitalize(m.getSignature().getParameterName(i));
                         parameterNames.add(pName);
                     }
                     if (variationPackIsLastParameter) {
@@ -100,15 +100,4 @@ public final class GenUtils {
         }
     }
 
-    public static String convertParameterName(String pName) {
-        if (pName.length() == 1){
-            return pName.toLowerCase();
-        }else{
-            if (pName.length() > 1 && Character.isUpperCase(pName.charAt(1))){
-                return StringUtils.capitalize(pName);
-            }else{
-                return StringUtils.uncapitalize(pName);
-            }
-        }
-    }
 }

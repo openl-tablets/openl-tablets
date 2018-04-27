@@ -100,7 +100,7 @@ public class JavaInterfaceGenerator {
         String className = getClassName(type.getInstanceClass());
 
         String name = field.getName();
-        buf.append("\n  public ").append(className).append(" get").append(StringUtils.capitalize(name)).append("()");
+        buf.append("\n  public ").append(className).append(" ").append(ClassUtils.getter(name)).append("()");
 
         buf.append(";\n\n");
     }
