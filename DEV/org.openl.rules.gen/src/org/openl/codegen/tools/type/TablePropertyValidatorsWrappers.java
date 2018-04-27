@@ -9,7 +9,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 
 public class TablePropertyValidatorsWrappers {
 
-    private Map<String, TablePropertyValidatorsWrapper> wrappers = new HashMap<String, TablePropertyValidatorsWrapper>();
+    private List<TablePropertyValidatorsWrapper> wrappers = new ArrayList<>();
 
     public TablePropertyValidatorsWrappers(TablePropertyDefinition[] definitions) {
         init(definitions);
@@ -18,16 +18,11 @@ public class TablePropertyValidatorsWrappers {
     private void init(TablePropertyDefinition[] definitions) {
 
         for (TablePropertyDefinition definition : definitions) {
-            TablePropertyValidatorsWrapper wrapper = new TablePropertyValidatorsWrapper(definition);
-            wrappers.put(definition.getName(), wrapper);
+            wrappers.add(new TablePropertyValidatorsWrapper(definition));
         }
     }
 
     public List<TablePropertyValidatorsWrapper> asList() {
-        return new ArrayList<TablePropertyValidatorsWrapper>(wrappers.values());
-    }
-
-    public TablePropertyValidatorsWrapper findWrapper(String propertyName) {
-        return wrappers.get(propertyName);
+        return wrappers;
     }
 }
