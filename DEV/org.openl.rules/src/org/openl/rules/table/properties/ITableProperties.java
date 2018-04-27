@@ -192,12 +192,6 @@ public interface ITableProperties {
 	void setScope(java.lang.String scope);
 	java.lang.String getDatatypePackage();
 	void setDatatypePackage(java.lang.String datatypePackage);
-	java.lang.String[] getTransaction();
-	void setTransaction(java.lang.String[] transaction);
-	java.lang.String[] getCustom1();
-	void setCustom1(java.lang.String[] custom1);
-	java.lang.String[] getCustom2();
-	void setCustom2(java.lang.String[] custom2);
 	java.lang.Boolean getCacheable();
 	void setCacheable(java.lang.Boolean cacheable);
 	org.openl.rules.enumeration.RecalculateEnum getRecalculate();
