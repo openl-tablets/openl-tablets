@@ -25,7 +25,6 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calculation.result.convertor2.ConvertationMetadata.NestedType;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 import org.openl.util.ClassUtils;
-import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -167,7 +166,7 @@ public class ConvertorUtils {
 
     private static Method getGetterMethod(CalculationStep step, String propertyName) {
         Method getterMethod = null;
-        String getterrName = StringTool.getGetterName(propertyName);
+        String getterrName = ClassUtils.getter(propertyName);
         try {
             getterMethod = step.getClass().getMethod(getterrName);
         } catch (Exception e) {

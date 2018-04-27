@@ -2,7 +2,6 @@ package org.openl.rules.maven.gen;
 
 import org.openl.util.ClassUtils;
 import org.openl.util.NumberUtils;
-import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 
 import java.lang.reflect.Constructor;
@@ -107,7 +106,7 @@ public class JavaClassGeneratorHelper {
     }
 
     public static String getPublicGetterMethod(String fieldType, String fieldName) {
-        String getterName = StringTool.getGetterName(fieldName);
+        String getterName = ClassUtils.getter(fieldName);
         if ("getClass".equals(getterName)) {
             return null;
         }
@@ -133,7 +132,7 @@ public class JavaClassGeneratorHelper {
 
     public static String getGetterWithCastMethod(Class<?> methodType, String methodToDecorate, String fieldName) {
         return String.format("  public %s %s() {\n   %s\n}\n", filterTypeSimpleName(methodType),
-                StringTool.getGetterName(fieldName), getDecoratorBody(methodType, methodToDecorate, fieldName));
+                ClassUtils.getter(fieldName), getDecoratorBody(methodType, methodToDecorate, fieldName));
     }
 
     public static String getDecoratorBody(Class<?> methodType, String methodToDecorate, String fieldName) {
@@ -161,7 +160,7 @@ public class JavaClassGeneratorHelper {
     }
 
     public static String getPublicSetterMethod(String fieldType, String fieldName) {
-        return String.format("\n  public void %s(%s %s) {\n    this.%s = %s;\n  }\n", StringTool.getSetterName(fieldName),
+        return String.format("\n  public void %s(%s %s) {\n    this.%s = %s;\n  }\n", ClassUtils.setter(fieldName),
                 fieldType, fieldName, fieldName, fieldName);
     }
 
@@ -174,7 +173,7 @@ public class JavaClassGeneratorHelper {
         buf.append("    }\n");
         buf.append(String.format("    %s another = (%s)obj;\n", simpleClassName, simpleClassName));
         for (String field : fields) {
-            String getter = StringTool.getGetterName(field) + "()";
+            String getter = ClassUtils.getter(field) + "()";
             buf.append(String.format("    builder.append(another.%s,%s);\n", getter, getter));
         }
         buf.append("    return builder.isEquals();\n");
@@ -187,7 +186,7 @@ public class JavaClassGeneratorHelper {
         buf.append("\n  public int hashCode() {\n");
         buf.append("    HashCodeBuilder builder = new HashCodeBuilder();\n");
         for (String field : fields) {
-            String getter = StringTool.getGetterName(field) + "()";
+            String getter = ClassUtils.getter(field) + "()";
             buf.append(String.format("    builder.append(%s);\n", getter));
         }
         buf.append("    return builder.toHashCode();\n");
@@ -202,7 +201,7 @@ public class JavaClassGeneratorHelper {
         buf.append(String.format("    builder.append(\"%s {\");\n", simpleClassName));
         for (Entry<String, Class<?>> field : fields.entrySet()) {
             buf.append(String.format("    builder.append(\" %s=\");\n", field.getKey()));
-            String getter = StringTool.getGetterName(field.getKey()) + "()";
+            String getter = ClassUtils.getter(field.getKey()) + "()";
             if (field.getValue().isArray()) {
                 buf.append(String.format("    builder.append(ArrayUtils.toString(%s));\n", getter));
             } else {

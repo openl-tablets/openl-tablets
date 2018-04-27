@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.openl.types.IOpenClass;
-import org.openl.util.StringTool;
+import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -20,8 +20,8 @@ public class DatatypeOpenField extends AOpenField {
 
     public DatatypeOpenField(IOpenClass declaringClass, String name, IOpenClass type) {
         super(name, type);
-        this.getterMethodName = StringTool.getGetterName(getName());
-        this.setterMethodName = StringTool.getSetterName(getName());
+        this.getterMethodName = ClassUtils.getter(getName());
+        this.setterMethodName = ClassUtils.setter(getName());
         this.declaringClass = declaringClass;
     }
 

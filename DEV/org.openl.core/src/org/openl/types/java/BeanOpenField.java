@@ -1,9 +1,3 @@
-/*
- * Created on Oct 17, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.types.java;
 
 import java.beans.BeanInfo;
@@ -13,11 +7,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.ArrayTool;
+import org.openl.util.ClassUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
 
@@ -36,8 +30,8 @@ public class BeanOpenField implements IOpenField {
 
         if (c.isInterface()) {
             Class<?>[] interfaces = c.getInterfaces();
-            for (int i = 0; i < interfaces.length; i++) {
-                collectFields(map, interfaces[i], getters, setters);
+            for (Class<?> anInterface : interfaces) {
+                collectFields(map, anInterface, getters, setters);
             }
         }
 
@@ -63,10 +57,7 @@ public class BeanOpenField implements IOpenField {
                     // named with the first letter as upper case
                     //
                     try {
-                        String fname = StringUtils.capitalize(fieldName);
-                        if (fname.equals(fieldName)) {
-                            fname = StringUtils.uncapitalize(fieldName);
-                        }
+                        String fname = ClassUtils.capitalize(fieldName);
                         field = c.getDeclaredField(fname);
                         // Reset the name
                         fieldName = field.getName();
@@ -205,7 +196,7 @@ public class BeanOpenField implements IOpenField {
 
     public void set(Object target, Object value, IRuntimeEnv env) {
         try {
-            writeMethod.invoke(target, new Object[] { value });
+            writeMethod.invoke(target, value);
         } catch (Exception ex) {
             throw RuntimeExceptionWrapper.wrap("", ex);
         }

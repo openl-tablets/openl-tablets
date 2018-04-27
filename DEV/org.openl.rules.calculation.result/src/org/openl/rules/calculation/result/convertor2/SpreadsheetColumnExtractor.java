@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
-import org.openl.util.StringTool;
+import org.openl.util.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,7 +103,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
         // try to get setter, by upper case the first symbol in the column name,
         // and leave the other part as is
         //
-        String setterName = StringTool.getSetterName(propertyName);
+        String setterName = ClassUtils.setter(propertyName);
         try {
             setterMethod = step.getClass().getMethod(setterName, expectedType);
         } catch (Exception e) {

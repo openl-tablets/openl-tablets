@@ -9,7 +9,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.FieldDescription;
-import org.openl.util.StringTool;
+import org.openl.util.ClassUtils;
 
 /**
  * Writes getters to the generated bean class.
@@ -50,7 +50,7 @@ public class GettersWriter extends MethodWriter {
         MethodVisitor methodVisitor;
         String fieldName = fieldEntry.getKey();
         FieldDescription field = fieldEntry.getValue();
-        String getterName = StringTool.getGetterName(fieldName);
+        String getterName = ClassUtils.getter(fieldName);
 
         final String javaType = field.getTypeDescriptor();
         final String format = "()" + javaType;
