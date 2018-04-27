@@ -11,7 +11,7 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
             if (type.equals("method.body"))
                 parseTopNodeInternal();
             else if (type.equals("method.header"))
-                MethodHeader();
+                parseMethodHeader();
             else if (type.equals("module"))
                 parseModuleInternal();
             else if (type.equals("type"))
