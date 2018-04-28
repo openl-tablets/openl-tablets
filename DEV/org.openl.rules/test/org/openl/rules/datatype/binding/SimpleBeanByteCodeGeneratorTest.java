@@ -12,160 +12,125 @@ import org.junit.Test;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.datatype.gen.FieldDescription;
-import org.openl.rules.datatype.gen.SimpleBeanByteCodeGenerator;
+import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.util.ClassUtils;
 
 public class SimpleBeanByteCodeGeneratorTest {
     
-    private final String CLASS_NAMESPACE = "my.test";
-    
     @Test
     public void testStringFields() {
-        String className = String.format("%s.StringBean", CLASS_NAMESPACE);
         Map<String, FieldDescription> fields = getFields(new FieldDescription(String.class.getName()));
-         
-        assertNotNull(getBeanClass(className, fields));
+        assertNotNull(getBeanClass("my.test.StringBean", fields));
     }
     
     @Test
     public void testDate() {
-        String className = String.format("%s.DateBean", CLASS_NAMESPACE);
         Map<String, FieldDescription> fields = getFields(new FieldDescription(Date.class.getName()));
-         
-        assertNotNull(getBeanClass(className, fields));
+        assertNotNull(getBeanClass("my.test.DateBean", fields));
     }
     
     @Test
     public void testDoubleValue() {
-        String className = String.format("%s.DoubleValueBean", CLASS_NAMESPACE);
         Map<String, FieldDescription> fields = getFields(new FieldDescription(DoubleValue.class.getName()));
-         
-        assertNotNull(getBeanClass(className, fields));
+        assertNotNull(getBeanClass("my.test.DoubleValueBean", fields));
     }
     
     @Test
     public void testRanges() {
-        String className = String.format("%s.RangesBean", CLASS_NAMESPACE);
         Map<String, FieldDescription> fields = getFields(new FieldDescription(IntRange.class.getName()));
         fields.putAll(getFields(new FieldDescription(DoubleRange.class.getName())));
-         
-        assertNotNull(getBeanClass(className, fields));
+        assertNotNull(getBeanClass("my.test.RangesBean", fields));
     }
     
     @Test
     public void testBigNumbers() {
-        String className = String.format("%s.BigNumbersBean", CLASS_NAMESPACE);
         Map<String, FieldDescription> fields = getFields(new FieldDescription(BigInteger.class.getName()));
         fields.putAll(getFields(new FieldDescription(BigDecimal.class.getName())));
-         
-        assertNotNull(getBeanClass(className, fields));
+        assertNotNull(getBeanClass("my.test.BigNumbersBean", fields));
     }
     
     @Test
     public void testIntFields() {
-        String className = String.format("%s.IntBean", CLASS_NAMESPACE);
         Map<String, FieldDescription> fields = getFields(new FieldDescription(int.class.getName()));
         fields.putAll(getFields(new FieldDescription(Integer.class.getName())));
-        
-        assertNotNull(getBeanClass(className, fields));
+        assertNotNull(getBeanClass("my.test.IntBean", fields));
     }
     
     @Test
     public void testFloatFields() {
-        String className = String.format("%s.FloatBean", CLASS_NAMESPACE);
         Map<String, FieldDescription> fields = getFields(new FieldDescription(float.class.getName()));
         fields.putAll(getFields(new FieldDescription(Float.class.getName())));
-        
-        assertNotNull(getBeanClass(className, fields));
+        assertNotNull(getBeanClass("my.test.FloatBean", fields));
     }
     
     @Test
     public void testBooleanFields() {
-        String className = String.format("%s.BooleanBean", CLASS_NAMESPACE);
         Map<String, FieldDescription> fields = getFields(new FieldDescription(boolean.class.getName()));
         fields.putAll(getFields(new FieldDescription(Boolean.class.getName())));
-        
-        assertNotNull(getBeanClass(className, fields));
+        assertNotNull(getBeanClass("my.test.BooleanBean", fields));
     }
     
     @Test
     public void testCharFields() {
-        String className = String.format("%s.CharBean", CLASS_NAMESPACE);
         Map<String, FieldDescription> fields = getFields(new FieldDescription(char.class.getName()));
         fields.putAll(getFields(new FieldDescription(Character.class.getName())));
-        
-        assertNotNull(getBeanClass(className, fields));
+        assertNotNull(getBeanClass("my.test.CharBean", fields));
     }
     
     @Test
     public void testByteFields() {
-        String className = String.format("%s.ByteBean", CLASS_NAMESPACE);
         Map<String, FieldDescription> fields = getFields(new FieldDescription(byte.class.getName()));
         fields.putAll(getFields(new FieldDescription(Byte.class.getName())));
-        
-        assertNotNull(getBeanClass(className, fields));
+        assertNotNull(getBeanClass("my.test.ByteBean", fields));
     }
     
     @Test
     public void testShortFields() {
-        String className = String.format("%s.ShortBean", CLASS_NAMESPACE);
         Map<String, FieldDescription> fields = getFields(new FieldDescription(short.class.getName()));
         fields.putAll(getFields(new FieldDescription(Short.class.getName())));
-        
-        assertNotNull(getBeanClass(className, fields));
+        assertNotNull(getBeanClass("my.test.ShortBean", fields));
     }
     
     @Test
     public void testLongFields() {
-        String className = String.format("%s.LongBean", CLASS_NAMESPACE);
         Map<String, FieldDescription> fields = getFields(new FieldDescription(long.class.getName()));
         fields.putAll(getFields(new FieldDescription(Long.class.getName())));
-        
-        assertNotNull(getBeanClass(className, fields));
+        assertNotNull(getBeanClass("my.test.LongBean", fields));
     }
     
     @Test
     public void testDoubleFields() {
-        String className = String.format("%s.DoubleBean", CLASS_NAMESPACE);
         Map<String, FieldDescription> fields = getFields(new FieldDescription(double.class.getName()));
         fields.putAll(getFields(new FieldDescription(Double.class.getName())));
-        
-        assertNotNull(getBeanClass(className, fields));
+        assertNotNull(getBeanClass("my.test.DoubleBean", fields));
     }
     
     @Test
-    public void testIntArrayFields() {        
-        String className = String.format("%s.IntArrayBean", CLASS_NAMESPACE);
+    public void testIntArrayFields() {
         Map<String, FieldDescription> fields = getFields(new FieldDescription(int[].class.getName()));
-        
-        assertNotNull(getBeanClass(className, fields));
+        assertNotNull(getBeanClass("my.test.IntArrayBean", fields));
     }
     
     @Test
-    public void testLongArrayFields() {        
-        String className = String.format("%s.LongArrayBean", CLASS_NAMESPACE);
+    public void testLongArrayFields() {
         Map<String, FieldDescription> fields = getFields(new FieldDescription(long[].class.getName()));
-        
-        assertNotNull(getBeanClass(className, fields));
+        assertNotNull(getBeanClass("my.test.LongArrayBean", fields));
     }
     
     @Test
-    public void testObjectArrayFields() {        
-        String className = String.format("%s.ObjectArrayBean", CLASS_NAMESPACE);
+    public void testObjectArrayFields() {
         Map<String, FieldDescription> fields = getFields(new FieldDescription(Object[].class.getName()));
-        
-        assertNotNull(getBeanClass(className, fields));
+        assertNotNull(getBeanClass("my.test.ObjectArrayBean", fields));
     }
     
     
     @Test
     public void testEquals() {
-    	String className = String.format("%s.EqualsTestBean", CLASS_NAMESPACE);
-    	Map<String, FieldDescription> fields = getFields(new FieldDescription(String.class.getName()));
+        Map<String, FieldDescription> fields = getFields(new FieldDescription(String.class.getName()));
         
-    	Class<?> clazz = getBeanClass(className, fields);
+    	Class<?> clazz = getBeanClass("my.test.EqualsTestBean", fields);
         assertNotNull(clazz);
         
         Object instance1 = null, instance2 = null;
@@ -198,8 +163,9 @@ public class SimpleBeanByteCodeGeneratorTest {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(simpleBundleClassLoader);
-            SimpleBeanByteCodeGenerator beanGenerator = new SimpleBeanByteCodeGenerator(className, fields, Object.class, new HashMap<String, FieldDescription>());
-            byte[] byteCode = beanGenerator.byteCode();
+            JavaBeanClassBuilder beanBuilder = new JavaBeanClassBuilder(className);
+            beanBuilder.addFields(fields);
+            byte[] byteCode = beanBuilder.byteCode();
             return ClassUtils.defineClass(className, byteCode, simpleBundleClassLoader);
         } catch (Exception e) {
             fail();
