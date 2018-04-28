@@ -45,7 +45,7 @@ import io.swagger.annotations.ApiOperation;
  */
 public class JAXRSInterfaceEnhancerHelper {
 
-    private static final String JAXRS_RULESERVICE_NAMESPACE = "http://jaxrs.publish.ruleservice.rules.openl.com";
+    private static final String JAXRS_RULESERVICE_NAMESPACE = "http://jaxrs.publish.ruleservice.rules.openl.org";
 
     private static boolean isPrimitive(Class<?> type) {
         return type.isPrimitive();
