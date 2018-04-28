@@ -18,8 +18,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import net.sf.cglib.core.NamingPolicy;
-import net.sf.cglib.core.Predicate;
 import org.apache.cxf.jaxrs.ext.xml.ElementClass;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
@@ -27,9 +25,10 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.openl.rules.datatype.gen.FieldDescription;
+import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
-import org.openl.rules.ruleservice.databinding.BeanGeneratorWithJAXBAnnotations;
 import org.openl.rules.ruleservice.publish.common.MethodUtil;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
@@ -46,8 +45,6 @@ import io.swagger.annotations.ApiOperation;
  *
  */
 public class JAXRSInterfaceEnhancerHelper {
-
-    private static final String JAXRS_RULESERVICE_NAMESPACE = "http://jaxrs.publish.ruleservice.rules.openl.com";
 
     private static boolean isPrimitive(Class<?> type) {
         return type.isPrimitive();
@@ -134,24 +131,23 @@ public class JAXRSInterfaceEnhancerHelper {
             }
             ClassLoader classLoader = getClassLoader();
             String requestParameterName = getRequestParameterName(originalMethod);
-            Class<?> argumentWrapperClass = generateClass(requestParameterName,
-                    JAXRS_RULESERVICE_NAMESPACE, originalMethod.getName(), props, classLoader);
+            Class<?> argumentWrapperClass = generateClass(requestParameterName, props, classLoader);
             int index = signature.lastIndexOf(')');
             int indexb = signature.lastIndexOf('(');
             return signature.substring(0, indexb + 1) + Type.getDescriptor(argumentWrapperClass) + signature.substring(index);
         }
 
-        private static Class<?> generateClass(String xmlTypeName, String namespace, String prefix, Map<String, Class<?>> props, ClassLoader classLoader) throws Exception {
-            BeanGeneratorWithJAXBAnnotations beanGenerator = new BeanGeneratorWithJAXBAnnotations();
-            beanGenerator.setNamingPolicy(new JAXRSArgumentWrapperGeneratorNamingPolicy(prefix));
-            for (String name : props.keySet()) {
-                beanGenerator.addProperty(name, props.get(name));
-            }
-            beanGenerator.setClassLoader(classLoader);
-            beanGenerator.setXmlTypeName(xmlTypeName);
-            beanGenerator.setXmlTypeNamespace(namespace);
+        private static Class<?> generateClass(String prefix, Map<String, Class<?>> props, ClassLoader classLoader) throws Exception {
+            String beanName = "org.openl.rules.ruleservice.publish.jaxrs." + prefix;
+            JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanName);
 
-            return (Class<?>) beanGenerator.createClass();
+            for (String name : props.keySet()) {
+                beanClassBuilder.addField(name,  new FieldDescription(props.get(name).getName()));
+            }
+            byte[] byteCode = beanClassBuilder.byteCode();
+            Class<?> aClass = ClassUtils.defineClass(beanName, byteCode, classLoader);
+
+            return aClass;
         }
 
         private ClassLoader getClassLoader() {
@@ -165,7 +161,7 @@ public class JAXRSInterfaceEnhancerHelper {
             return classLoader;
         }
 
-        protected String getRequestParameterName(Method method) {
+        String getRequestParameterName(Method method) {
             if (methodRequests == null) {
                 methodRequests = new HashMap<Method, String>();
                 List<Method> methods = new ArrayList<Method>();
@@ -176,10 +172,11 @@ public class JAXRSInterfaceEnhancerHelper {
                 methods = MethodUtil.sort(methods);
 
                 for (Method m : methods) {
-                    String s = StringUtils.uncapitalize(m.getName()) + "Request";
+                    String name = StringUtils.capitalize(m.getName()) + "Request";
+                    String s = name;
                     int i = 1;
                     while (methodRequests.values().contains(s)) {
-                        s = StringUtils.uncapitalize(m.getName()) + "Request" + i;
+                        s = name + "Request" + i;
                         i++;
                     }
                     methodRequests.put(m, s);
@@ -441,29 +438,6 @@ public class JAXRSInterfaceEnhancerHelper {
             av1.visit(null, MediaType.APPLICATION_JSON);
             av1.visitEnd();
             av.visitEnd();
-        }
-    }
-
-    private static class JAXRSArgumentWrapperGeneratorNamingPolicy implements NamingPolicy {
-
-        private String methodPrefix;
-
-        public JAXRSArgumentWrapperGeneratorNamingPolicy(String methodPrefix) {
-            this.methodPrefix = methodPrefix;
-        }
-
-        public String getClassName(String prefix, String source, Object key, Predicate names) {
-            if (methodPrefix == null) {
-                prefix = "Request";
-            } else {
-                prefix = StringUtils.capitalize(methodPrefix) + "Request";
-            }
-            String base = prefix + "$$" + Integer.toHexString(key.hashCode());
-            String attempt = base;
-            int index = 2;
-            while (names.evaluate(attempt))
-                attempt = base + "_" + index++;
-            return attempt;
         }
     }
 
