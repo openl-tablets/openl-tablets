@@ -425,10 +425,6 @@ public class JAXRSInterfaceEnhancerHelper {
         return classLoader;
     }
 
-    public static Class<?> decorateInterface(Class<?> originalClass) throws Exception {
-        return decorateInterface(originalClass, null, false);
-    }
-
     public static Class<?> decorateInterface(Class<?> originalClass, OpenLService service) throws Exception {
         return decorateInterface(originalClass, service, false);
     }
@@ -470,9 +466,9 @@ public class JAXRSInterfaceEnhancerHelper {
                 PropertyDescriptor[] tmpPropertyDescriptors = (new org.apache.commons.beanutils.PropertyUtilsBean()).getPropertyDescriptors(methodArgument);
                 PropertyDescriptor[] propertyDescriptors = new PropertyDescriptor[tmpPropertyDescriptors.length - 1];
                 int p = 0;
-                for (int i = 0; i < tmpPropertyDescriptors.length; i++) {
-                    if (!tmpPropertyDescriptors[i].getName().equals("class")) {
-                        propertyDescriptors[p] = tmpPropertyDescriptors[i];
+                for (PropertyDescriptor tmpPropertyDescriptor : tmpPropertyDescriptors) {
+                    if (!tmpPropertyDescriptor.getName().equals("class")) {
+                        propertyDescriptors[p] = tmpPropertyDescriptor;
                         p++;
                     }
                 }
