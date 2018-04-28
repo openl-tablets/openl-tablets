@@ -1,5 +1,7 @@
 package org.openl.rules.ruleservice.publish.jaxrs;
 
+import java.beans.BeanInfo;
+import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -447,7 +449,8 @@ public class JAXRSInterfaceEnhancerHelper {
             }
             if (!found && parameterTypes.length == 1) {
                 Class<?> methodArgument = parameterTypes[0];
-                PropertyDescriptor[] tmpPropertyDescriptors = (new org.apache.commons.beanutils.PropertyUtilsBean()).getPropertyDescriptors(methodArgument);
+                BeanInfo beanInfo = Introspector.getBeanInfo(methodArgument);
+                PropertyDescriptor[] tmpPropertyDescriptors = beanInfo.getPropertyDescriptors();
                 PropertyDescriptor[] propertyDescriptors = new PropertyDescriptor[tmpPropertyDescriptors.length - 1];
                 int p = 0;
                 for (PropertyDescriptor tmpPropertyDescriptor : tmpPropertyDescriptors) {
