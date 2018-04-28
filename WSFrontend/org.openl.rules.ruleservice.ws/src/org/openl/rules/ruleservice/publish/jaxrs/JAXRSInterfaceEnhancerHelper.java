@@ -467,10 +467,6 @@ public class JAXRSInterfaceEnhancerHelper {
         return decorateInterface(originalClass, null, false);
     }
 
-    public static Class<?> decorateInterface(Class<?> originalClass, OpenLService service) throws Exception {
-        return decorateInterface(originalClass, service, false);
-    }
-
     public static Object decorateBean(Object targetBean,
             OpenLService service,
             Class<?> proxyInterface,
@@ -483,26 +479,14 @@ public class JAXRSInterfaceEnhancerHelper {
                 throw new IllegalStateException("Proxy interface must contain JAXRSMethod annotation for each method!");
             }
             String methodName = ((JAXRSMethod) jaxRSMethod).value();
-            boolean found = false;
-            for (Method targetMethod : targetInterface.getMethods()) {
-                if (targetMethod.getName().equals(methodName)) {
-                    if (targetMethod.getParameterTypes().length == method.getParameterTypes().length) {
-                        Class<?>[] targetParams = targetMethod.getParameterTypes();
-                        Class<?>[] params = method.getParameterTypes();
-                        boolean f = true;
-                        for (int i = 0; i < targetParams.length; i++) {
-                            if (!targetParams[i].equals(params[i])) {
-                                f = false;
-                                break;
-                            }
-                        }
-                        if (f) {
-                            methodMap.put(method, targetMethod);
-                            found = true;
-                            break;
-                        }
-                    }
-                }
+
+            boolean found;
+            try {
+                Method targetMethod = targetInterface.getMethod(methodName, method.getParameterTypes());
+                methodMap.put(method, targetMethod);
+                found = true;
+            } catch (NoSuchMethodException ex) {
+                found = false;
             }
             if (!found && method.getParameterTypes().length == 1) {
                 Class<?> methodArgument = method.getParameterTypes()[0];
