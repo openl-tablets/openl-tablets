@@ -1,9 +1,9 @@
 package org.openl.util.generation;
 
 import org.openl.rules.variation.VariationsPack;
+import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.util.ClassUtils;
 import org.openl.util.JavaKeywordUtils;
 
 import java.lang.reflect.Method;
@@ -31,6 +31,8 @@ public final class GenUtils {
                 boolean skipRuntimeContextParameter = false;
                 boolean variationPackIsLastParameter = false;
                 int j = 0;
+                IMethodSignature signature = m.getSignature();
+                int numberOfParameters = signature.getNumberOfParameters();
                 for (Class<?> clazz : method.getParameterTypes()) {
                     j++;
                     if (hasContext && !skipRuntimeContextParameter) {
@@ -41,17 +43,17 @@ public final class GenUtils {
                         variationPackIsLastParameter = true;
                         continue;
                     }
-                    if (i >= m.getSignature().getNumberOfParameters()) {
+                    if (i >= numberOfParameters) {
                         f = false;
                         break;
                     }
-                    if (!clazz.equals(m.getSignature().getParameterType(i).getInstanceClass())) {
+                    if (!clazz.equals(signature.getParameterType(i).getInstanceClass())) {
                         f = false;
                         break;
                     }
                     i++;
                 }
-                if (f && i != m.getSignature().getNumberOfParameters()){
+                if (f && i != numberOfParameters){
                     f = false;
                 }
                 if (f) {
@@ -59,8 +61,8 @@ public final class GenUtils {
                     if (hasContext) {
                         parameterNames.add("runtimeContext");
                     }
-                    for (i = 0; i < m.getSignature().getNumberOfParameters(); i++) {
-                        String pName = ClassUtils.decapitalize(m.getSignature().getParameterName(i));
+                    for (i = 0; i < numberOfParameters; i++) {
+                        String pName = signature.getParameterName(i);
                         parameterNames.add(pName);
                     }
                     if (variationPackIsLastParameter) {
