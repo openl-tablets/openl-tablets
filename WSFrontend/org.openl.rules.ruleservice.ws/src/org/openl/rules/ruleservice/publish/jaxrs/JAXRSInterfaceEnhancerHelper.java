@@ -20,6 +20,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import net.sf.cglib.core.NamingPolicy;
+import net.sf.cglib.core.Predicate;
 import org.apache.cxf.jaxrs.ext.xml.ElementClass;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
@@ -29,9 +31,10 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
-import org.openl.rules.ruleservice.databinding.JAXRSArgumentWrapperGenerator;
+import org.openl.rules.ruleservice.databinding.BeanGeneratorWithJAXBAnnotations;
 import org.openl.rules.ruleservice.publish.common.MethodUtil;
 import org.openl.util.ClassUtils;
+import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
 import io.swagger.annotations.Api;
@@ -125,17 +128,31 @@ public class JAXRSInterfaceEnhancerHelper {
         private String changeArgumentTypes(String signature, Method originalMethod) throws Exception {
             String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
             int i = 0;
-            JAXRSArgumentWrapperGenerator generator = new JAXRSArgumentWrapperGenerator(getRequestParameterName(originalMethod),
-                JAXRS_RULESERVICE_NAMESPACE, originalMethod.getName());
+            Map<String, Class<?>> props = new HashMap<>();
             for (Class<?> type : originalMethod.getParameterTypes()) {
-                generator.addProperty(parameterNames[i], type);
+                props.put(parameterNames[i], type);
                 i++;
             }
             ClassLoader classLoader = getClassLoader();
-            Class<?> argumentWrapperClass = generator.generateClass(classLoader);
+            String requestParameterName = getRequestParameterName(originalMethod);
+            Class<?> argumentWrapperClass = generateClass(requestParameterName,
+                    JAXRS_RULESERVICE_NAMESPACE, originalMethod.getName(), props, classLoader);
             int index = signature.lastIndexOf(')');
             int indexb = signature.lastIndexOf('(');
             return signature.substring(0, indexb + 1) + Type.getDescriptor(argumentWrapperClass) + signature.substring(index);
+        }
+
+        private static Class<?> generateClass(String xmlTypeName, String namespace, String prefix, Map<String, Class<?>> props, ClassLoader classLoader) throws Exception {
+            BeanGeneratorWithJAXBAnnotations beanGenerator = new BeanGeneratorWithJAXBAnnotations();
+            beanGenerator.setNamingPolicy(new JAXRSArgumentWrapperGeneratorNamingPolicy(prefix));
+            for (String name : props.keySet()) {
+                beanGenerator.addProperty(name, props.get(name));
+            }
+            beanGenerator.setClassLoader(classLoader);
+            beanGenerator.setXmlTypeName(xmlTypeName);
+            beanGenerator.setXmlTypeNamespace(namespace);
+
+            return (Class<?>) beanGenerator.createClass();
         }
 
         private ClassLoader getClassLoader() {
@@ -425,6 +442,29 @@ public class JAXRSInterfaceEnhancerHelper {
             av1.visit(null, MediaType.APPLICATION_JSON);
             av1.visitEnd();
             av.visitEnd();
+        }
+    }
+
+    private static class JAXRSArgumentWrapperGeneratorNamingPolicy implements NamingPolicy {
+
+        private String methodPrefix;
+
+        public JAXRSArgumentWrapperGeneratorNamingPolicy(String methodPrefix) {
+            this.methodPrefix = methodPrefix;
+        }
+
+        public String getClassName(String prefix, String source, Object key, Predicate names) {
+            if (methodPrefix == null) {
+                prefix = "Request";
+            } else {
+                prefix = StringUtils.capitalize(methodPrefix) + "Request";
+            }
+            String base = prefix + "$$" + Integer.toHexString(key.hashCode());
+            String attempt = base;
+            int index = 2;
+            while (names.evaluate(attempt))
+                attempt = base + "_" + index++;
+            return attempt;
         }
     }
 
