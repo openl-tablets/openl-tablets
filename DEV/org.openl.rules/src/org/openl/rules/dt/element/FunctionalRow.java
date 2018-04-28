@@ -331,7 +331,7 @@ public abstract class FunctionalRow implements IDecisionRow {
             } catch (SyntaxNodeException e) {
                 // Avoid repeating error messages for same cell in Lookup
                 // tables.
-                syntaxNodeExceptionCollector.addSyntaxNodeException(e, true);
+                syntaxNodeExceptionCollector.addSyntaxNodeException(e);
             }
             builders[j].writeObject(loadedValue, ruleN);
 
