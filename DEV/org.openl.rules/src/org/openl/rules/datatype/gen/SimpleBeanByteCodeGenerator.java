@@ -1,24 +1,21 @@
 package org.openl.rules.datatype.gen;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
 import org.openl.rules.datatype.gen.bean.writers.BeanByteCodeWriter;
 import org.openl.rules.datatype.gen.bean.writers.ConstructorWithParametersWriter;
 import org.openl.rules.datatype.gen.bean.writers.DefaultConstructorWriter;
-import org.openl.rules.datatype.gen.bean.writers.DefaultValue;
 import org.openl.rules.datatype.gen.bean.writers.EqualsWriter;
 import org.openl.rules.datatype.gen.bean.writers.GettersWriter;
 import org.openl.rules.datatype.gen.bean.writers.HashCodeWriter;
-import org.openl.rules.datatype.gen.bean.writers.ISO8601DateFormater;
 import org.openl.rules.datatype.gen.bean.writers.SettersWriter;
 import org.openl.rules.datatype.gen.bean.writers.ToStringWriter;
 
@@ -44,11 +41,11 @@ class SimpleBeanByteCodeGenerator {
             Map<String, FieldDescription> parentFields) {
 
         String beanNameWithPackage = beanName.replace('.', '/');
-        LinkedHashMap<String, FieldDescription> allFields = new LinkedHashMap<String, FieldDescription>();
+        LinkedHashMap<String, FieldDescription> allFields = new LinkedHashMap<>();
         allFields.putAll(parentFields);
         allFields.putAll(beanFields);
 
-        List<BeanByteCodeWriter> writers = new ArrayList<BeanByteCodeWriter>();
+        List<BeanByteCodeWriter> writers = new ArrayList<>();
         writers.add(new DefaultConstructorWriter(beanNameWithPackage, parentClass, beanFields));
         if (allFields.size() < 256) {
             // Generate constructor with parameters only in case where there are
@@ -66,7 +63,7 @@ class SimpleBeanByteCodeGenerator {
         writers.add(new ToStringWriter(beanNameWithPackage, allFields));
         writers.add(new EqualsWriter(beanNameWithPackage, allFields));
         writers.add(new HashCodeWriter(beanNameWithPackage, allFields));
-        /** generate byte code */
+        /* generate byte code */
         ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         visitClassDescription(classWriter, beanNameWithPackage, parentClass);
         visitJAXBAnnotation(classWriter, beanNameWithPackage);
@@ -100,24 +97,7 @@ class SimpleBeanByteCodeGenerator {
     private static void visitFields(ClassWriter classWriter, Map<String, FieldDescription> beanFields) {
         for (Map.Entry<String, FieldDescription> field : beanFields.entrySet()) {
             String fieldTypeName = field.getValue().getTypeDescriptor();
-            FieldVisitor fieldVisitor = classWriter
-                    .visitField(Opcodes.ACC_PROTECTED, field.getKey(), fieldTypeName, null, null);
-            if (field.getValue().hasDefaultValue()) {
-                // Requred for java class generation
-                AnnotationVisitor annotationVisitor = fieldVisitor
-                        .visitAnnotation(Type.getDescriptor(DefaultValue.class), true);
-                if (field.getValue().getTypeName().equals(Date.class.getName())) {
-                    Object value = field.getValue().getDefaultValue();
-                    if (value instanceof Date) {
-                        Date date = (Date) value;
-                        String formatedDate = ISO8601DateFormater.format(date);
-                        annotationVisitor.visit("value", formatedDate);
-                    }
-                } else {
-                    annotationVisitor.visit("value", field.getValue().getDefaultValueAsString());
-                }
-                annotationVisitor.visitEnd();
-            }
+            classWriter.visitField(Opcodes.ACC_PROTECTED, field.getKey(), fieldTypeName, null, null);
         }
     }
 
@@ -138,7 +118,7 @@ class SimpleBeanByteCodeGenerator {
      *
      * @return <code>Class<?></code> descriptor for given byteCode
      */
-    public byte[] byteCode() {
+    byte[] byteCode() {
         return bytes;
     }
 }

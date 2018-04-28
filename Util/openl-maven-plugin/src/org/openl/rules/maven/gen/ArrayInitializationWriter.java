@@ -9,14 +9,33 @@ public class ArrayInitializationWriter implements TypeInitializationWriter {
             throw new IllegalArgumentException("Not null value is expected!");
         }
 
-        if (value.getClass().isArray() && !value.getClass().getComponentType().isArray()) {
+        Class<?> type = value.getClass();
+        if (!type.isArray()) {
+            throw new IllegalStateException("Array type is expected!");
+        }
+
+        int length = Array.getLength(value);
+        if (length == 0) {
+            int dims = 0;
+            while (type.isArray()) {
+                dims++;
+                type = type.getComponentType();
+            }
+            StringBuilder sb = new StringBuilder("new ").append(type.getSimpleName());
+            while (dims > 0) {
+                sb.append("[0]");
+                dims--;
+            }
+
+            return sb.toString();
+        } else if (!value.getClass().getComponentType().isArray()) {
 
             TypeInitializationWriter writer = SimpleBeanJavaGenerator
                 .geTypeInitializationWriter(value.getClass().getComponentType());
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder("new ").append(value.getClass().getComponentType().getSimpleName())
+                .append("[] {");
 
-            int length = Array.getLength(value);
             for (int i = 0; i < length; i++) {
                 if (i > 0) {
                     sb.append(", ");
@@ -25,8 +44,7 @@ public class ArrayInitializationWriter implements TypeInitializationWriter {
                 sb.append(writer.getInitialization(v));
             }
 
-            return String
-                .format("new %s[]{%s}", value.getClass().getComponentType().getSimpleName(), sb.toString());
+            return sb.append('}').toString();
         }
 
         throw new IllegalStateException("One dim arrays is expected!");
