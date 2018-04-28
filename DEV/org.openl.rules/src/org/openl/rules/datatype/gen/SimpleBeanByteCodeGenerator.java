@@ -28,7 +28,7 @@ import org.openl.rules.datatype.gen.bean.writers.ToStringWriter;
  * @author DLiauchuk
  *
  */
-public class SimpleBeanByteCodeGenerator {
+class SimpleBeanByteCodeGenerator {
 
     private byte[] bytes;
 
@@ -38,7 +38,7 @@ public class SimpleBeanByteCodeGenerator {
      * @param beanFields map of fields, field name as a key, and type as value.
      * @param parentClass parent class
      */
-    public SimpleBeanByteCodeGenerator(String beanName,
+    SimpleBeanByteCodeGenerator(String beanName,
             Map<String, FieldDescription> beanFields,
             Class<?> parentClass,
             Map<String, FieldDescription> parentFields) {

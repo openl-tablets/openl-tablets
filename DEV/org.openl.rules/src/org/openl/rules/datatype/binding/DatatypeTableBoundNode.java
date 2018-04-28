@@ -24,7 +24,7 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
-import org.openl.rules.datatype.gen.SimpleBeanByteCodeGenerator;
+import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass.OpenFieldsConstructor;
@@ -201,17 +201,16 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private byte[] createBeanForDatatype(Map<String, FieldDescription> fields) throws SyntaxNodeException {
         String beanName = dataType.getJavaName();
         IOpenClass superOpenClass = dataType.getSuperClass();
-        SimpleBeanByteCodeGenerator beanGenerator;
-        LinkedHashMap<String, FieldDescription> parentFields = new LinkedHashMap<String, FieldDescription>();
-        Class<?> superClass = Object.class;
+        JavaBeanClassBuilder beanBuilder = new JavaBeanClassBuilder(beanName);
         if (superOpenClass != null) {
-            superClass = superOpenClass.getInstanceClass();
+            Class<?> superClass = superOpenClass.getInstanceClass();
+            beanBuilder.setParentClass(superClass);
             for (Entry<String, IOpenField> field : superOpenClass.getFields().entrySet()) {
-                parentFields.put(field.getKey(), new FieldDescription(field.getValue().getType().getJavaName()));
+                beanBuilder.addParentField(field.getKey(), new FieldDescription(field.getValue().getType().getJavaName()));
             }
         }
-        beanGenerator = new SimpleBeanByteCodeGenerator(beanName, fields, superClass, parentFields);
-        return beanGenerator.byteCode();
+        beanBuilder.addFields(fields);
+        return beanBuilder.byteCode();
     }
 
     private void validateBeanForDatatype(Class<?> beanClass,
