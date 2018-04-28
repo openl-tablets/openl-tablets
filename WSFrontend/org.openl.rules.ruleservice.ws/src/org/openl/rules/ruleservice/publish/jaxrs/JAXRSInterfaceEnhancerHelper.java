@@ -471,25 +471,27 @@ public class JAXRSInterfaceEnhancerHelper {
             OpenLService service,
             Class<?> proxyInterface,
             Class<?> targetInterface) throws Exception {
-        Map<Method, Method> methodMap = new HashMap<Method, Method>();
-        Map<Method, PropertyDescriptor[]> methodMapToPropertyDescriptors = new HashMap<Method, PropertyDescriptor[]>();
+        Map<Method, Method> methodMap = new HashMap<>();
+        Map<Method, PropertyDescriptor[]> methodMapToPropertyDescriptors = new HashMap<>();
+        Method[] targetMethods = targetInterface.getMethods();
         for (Method method : proxyInterface.getMethods()) {
             Annotation jaxRSMethod = method.getAnnotation(JAXRSMethod.class);
             if (jaxRSMethod == null) {
                 throw new IllegalStateException("Proxy interface must contain JAXRSMethod annotation for each method!");
             }
             String methodName = ((JAXRSMethod) jaxRSMethod).value();
+            Class<?>[] parameterTypes = method.getParameterTypes();
 
             boolean found;
             try {
-                Method targetMethod = targetInterface.getMethod(methodName, method.getParameterTypes());
+                Method targetMethod = targetInterface.getMethod(methodName, parameterTypes);
                 methodMap.put(method, targetMethod);
                 found = true;
             } catch (NoSuchMethodException ex) {
                 found = false;
             }
-            if (!found && method.getParameterTypes().length == 1) {
-                Class<?> methodArgument = method.getParameterTypes()[0];
+            if (!found && parameterTypes.length == 1) {
+                Class<?> methodArgument = parameterTypes[0];
                 PropertyDescriptor[] tmpPropertyDescriptors = (new org.apache.commons.beanutils.PropertyUtilsBean()).getPropertyDescriptors(methodArgument);
                 PropertyDescriptor[] propertyDescriptors = new PropertyDescriptor[tmpPropertyDescriptors.length - 1];
                 int p = 0;
@@ -499,7 +501,7 @@ public class JAXRSInterfaceEnhancerHelper {
                         p++;
                     }
                 }
-                mainloop: for (Method targetMethod : targetInterface.getMethods()) {
+                mainloop: for (Method targetMethod : targetMethods) {
                     if (targetMethod.getName().equals(methodName)) {
                         if (targetMethod.getParameterTypes().length == propertyDescriptors.length) {
                             Class<?>[] targetParams = targetMethod.getParameterTypes();
