@@ -125,7 +125,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
             }
 
-            Class<?> serviceClass = JAXRSInterfaceEnhancerHelper.decorateInterface(service.getServiceClass(), service, true);
+            Class<?> serviceClass = JAXRSInterfaceEnhancerHelper.decorateInterface(service.getServiceClass(), service);
             Object target = JAXRSInterfaceEnhancerHelper.decorateBean(service.getServiceBean(), service, serviceClass, service.getServiceClass());
 
             svrFactory.setResourceClasses(serviceClass);
