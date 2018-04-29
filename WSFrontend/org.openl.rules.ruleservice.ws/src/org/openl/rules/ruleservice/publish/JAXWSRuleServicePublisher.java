@@ -97,15 +97,6 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
         throw new IllegalArgumentException("loggingInfoStoringService isn't defined.");
     }
 
-    protected Class<?> enhanceServiceClassWithJAXWSAnnotations(Class<?> serviceClass,
-            OpenLService service) throws Exception {
-        return JAXWSInterfaceEnhancerHelper.decorateInterface(serviceClass, service);
-    }
-
-    protected Object createWrappedBean(Object serviceBean, OpenLService service) {
-        return Proxy.newProxyInstance(service.getClassLoader(), new Class<?>[] {service.getServiceClass()}, new JAXWSInvocationHandler(serviceBean));
-    }
-
     private ObjectSerializer getObjectSeializer(ServerFactoryBean svrFactory) {
         return new AegisObjectSerializer((AegisDatabinding) svrFactory.getDataBinding());
     }
@@ -121,11 +112,11 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
             try {
                 String serviceAddress = getBaseAddress() + processURL(service.getUrl());
                 svrFactory.setAddress(serviceAddress);
-                
-                Class<?> serviceClass = enhanceServiceClassWithJAXWSAnnotations(service.getServiceClass(), service);
+
+                Class<?> serviceClass = JAXWSInterfaceEnhancerHelper.decorateInterface(service.getServiceClass(), service);
                 svrFactory.setServiceClass(serviceClass);
 
-                Object target = createWrappedBean(service.getServiceBean(), service);
+                Object target = Proxy.newProxyInstance(service.getClassLoader(), new Class<?>[]{service.getServiceClass()}, new JAXWSInvocationHandler(service.getServiceBean()));
 
                 svrFactory.setServiceBean(target);
 
