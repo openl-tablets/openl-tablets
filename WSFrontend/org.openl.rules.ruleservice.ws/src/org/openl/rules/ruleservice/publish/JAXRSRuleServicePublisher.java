@@ -30,8 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 
-import io.swagger.jaxrs.config.SwaggerScannerLocator;
-
 /**
  * DeploymentAdmin to expose services via HTTP using JAXRS.
  *
@@ -104,18 +102,6 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
         return swaggerPrettyPrint;
     }
 
-    protected Class<?> enhanceServiceClassWithJAXRSAnnotations(Class<?> serviceClass,
-            OpenLService service) throws Exception {
-        return JAXRSInterfaceEnhancerHelper.decorateInterface(serviceClass, service, true);
-    }
-
-    protected Object createWrappedBean(Object targetBean,
-            OpenLService service,
-            Class<?> proxyInterface,
-            Class<?> targetInterface) throws Exception {
-        return JAXRSInterfaceEnhancerHelper.decorateBean(targetBean, service, proxyInterface, targetInterface);
-    }
-
     @Override
     protected void deployService(final OpenLService service) throws RuleServiceDeployException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -139,16 +125,14 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
             }
 
-            Class<?> serviceClass = enhanceServiceClassWithJAXRSAnnotations(service.getServiceClass(), service);
+            Class<?> serviceClass = JAXRSInterfaceEnhancerHelper.decorateInterface(service.getServiceClass(), service, true);
+            Object target = JAXRSInterfaceEnhancerHelper.decorateBean(service.getServiceBean(), service, serviceClass, service.getServiceClass());
+
             svrFactory.setResourceClasses(serviceClass);
 
             Swagger2Feature swagger2Feature = getSwagger2Feature(service, serviceClass);
             svrFactory.getFeatures().add(swagger2Feature);
 
-            Object target = createWrappedBean(service.getServiceBean(),
-                service,
-                serviceClass,
-                service.getServiceClass());
             svrFactory.setResourceProvider(serviceClass, new SingletonResourceProvider(target));
             ClassLoader origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
             try {

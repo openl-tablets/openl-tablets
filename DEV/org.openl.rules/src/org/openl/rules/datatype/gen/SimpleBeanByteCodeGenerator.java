@@ -9,6 +9,8 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
+import org.objectweb.asm.commons.Method;
 
 import org.openl.rules.datatype.gen.bean.writers.BeanByteCodeWriter;
 import org.openl.rules.datatype.gen.bean.writers.ConstructorWithParametersWriter;
@@ -36,9 +38,10 @@ class SimpleBeanByteCodeGenerator {
      * @param parentClass parent class
      */
     SimpleBeanByteCodeGenerator(String beanName,
-            Map<String, FieldDescription> beanFields,
+            LinkedHashMap<String, FieldDescription> beanFields,
             Class<?> parentClass,
-            Map<String, FieldDescription> parentFields) {
+            Map<String, FieldDescription> parentFields,
+            String methodName) {
 
         String beanNameWithPackage = beanName.replace('.', '/');
         LinkedHashMap<String, FieldDescription> allFields = new LinkedHashMap<>();
@@ -73,7 +76,71 @@ class SimpleBeanByteCodeGenerator {
             writer.write(classWriter);
         }
 
+        if (methodName != null) {
+            add_args(classWriter, beanFields, beanNameWithPackage);
+            add_types(classWriter, beanFields, beanNameWithPackage);
+            add_method(classWriter, methodName);
+        }
+
         bytes = classWriter.toByteArray();
+    }
+
+    private void add_args(ClassWriter classWriter, LinkedHashMap<String, FieldDescription> beanFields, String beanNameWithPackage) {
+        Type OBJECT_TYPE = Type.getType(Object.class);
+        Type beanType = Type.getType(beanNameWithPackage);
+
+        Method _args = Method.getMethod("java.lang.Object[] _args()");
+        GeneratorAdapter ag = new GeneratorAdapter(Opcodes.ACC_PUBLIC, _args, null, null, classWriter);
+        ag.push(beanFields.size()); // array length
+        ag.newArray(OBJECT_TYPE); // ar = new Object[size]
+
+        int i = 0;
+        for (Map.Entry<String, FieldDescription> field : beanFields.entrySet()) {
+            Type fieldType = Type.getType(field.getValue().getTypeDescriptor());
+
+            ag.dup();// ar
+            ag.push(i); // index
+            ag.loadThis(); // this.
+            ag.getField(beanType, field.getKey(), fieldType); // field
+            ag.valueOf(fieldType); // value = Type.valueOf(this.field)
+            ag.arrayStore(OBJECT_TYPE); // ar[i]=value;
+
+            i++;
+        }
+        ag.returnValue();
+        ag.endMethod();
+    }
+
+    private void add_types(ClassWriter classWriter, LinkedHashMap<String, FieldDescription> beanFields, String beanNameWithPackage) {
+        Type CLASS_TYPE = Type.getType(Class.class);
+
+        Method _types = Method.getMethod("java.lang.Class[] _types()");
+        GeneratorAdapter tg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, _types, null, null, classWriter);
+        tg.push(beanFields.size()); // array length
+        tg.newArray(CLASS_TYPE); // ar = new Object[size]
+
+        int i = 0;
+        for (Map.Entry<String, FieldDescription> field : beanFields.entrySet()) {
+            Type fieldType = Type.getType(field.getValue().getTypeDescriptor());
+
+            tg.dup();// ar
+            tg.push(i); // index
+            tg.push(fieldType); // value = Type.class
+            tg.arrayStore(CLASS_TYPE); // ar[i]=value;
+
+            i++;
+        }
+
+        tg.returnValue();
+        tg.endMethod();
+    }
+
+    private void add_method(ClassWriter classWriter, String methodName) {
+        Method _method = Method.getMethod("java.lang.String _method()");
+        GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, _method, null, null, classWriter);
+        mg.push(methodName);
+        mg.returnValue();
+        mg.endMethod();
     }
 
     private static void visitClassDescription(ClassWriter classWriter, String className, Class<?> parentClass) {
