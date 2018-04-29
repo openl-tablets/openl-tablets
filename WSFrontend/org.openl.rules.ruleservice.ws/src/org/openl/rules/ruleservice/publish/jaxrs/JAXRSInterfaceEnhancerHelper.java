@@ -26,6 +26,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -71,10 +72,15 @@ public class JAXRSInterfaceEnhancerHelper {
         }
 
         @Override
-        public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+        public void visit(int version,
+                int access,
+                String name,
+                String signature,
+                String superName,
+                String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces);
 
-            //Swagger annotation
+            // Swagger annotation
             if (originalClass.getAnnotation(Api.class) == null) {
                 this.visitAnnotation(Type.getDescriptor(Api.class), true);
             }
@@ -84,7 +90,7 @@ public class JAXRSInterfaceEnhancerHelper {
                 annotationVisitor.visit("value", "/");
                 annotationVisitor.visitEnd();
             }
-            
+
             // Consumes annotation
             if (originalClass.getAnnotation(Consumes.class) == null) {
                 addConsumesAnnotation(this);
@@ -101,26 +107,31 @@ public class JAXRSInterfaceEnhancerHelper {
         }
 
         private String changeArgumentTypes(String signature, Method originalMethod) throws Exception {
+            Class<?> argumentWrapperClass = generateWrapperClass(originalMethod);
+
+            int index = signature.lastIndexOf(')');
+            int indexb = signature.lastIndexOf('(');
+            return signature.substring(0, indexb + 1) + Type.getDescriptor(argumentWrapperClass) + signature
+                .substring(index);
+        }
+
+        private Class<?> generateWrapperClass(Method originalMethod) throws Exception {
             String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
             String requestParameterName = getRequestParameterName(originalMethod);
-            String beanName = "org.openl.rules.ruleservice.publish.jaxrs." + requestParameterName;
+            String beanName = "org.openl.jaxrs." + requestParameterName;
 
             int i = 0;
             JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanName);
             beanClassBuilder.setMethod(originalMethod.getName());
             for (Class<?> type : originalMethod.getParameterTypes()) {
-                beanClassBuilder.addField(parameterNames[i],  type.getName());
+                beanClassBuilder.addField(parameterNames[i], type.getName());
                 i++;
             }
 
             byte[] byteCode = beanClassBuilder.byteCode();
 
             ClassLoader classLoader = getClassLoader();
-            Class<?> argumentWrapperClass = ClassUtils.defineClass(beanName, byteCode, classLoader);
-
-            int index = signature.lastIndexOf(')');
-            int indexb = signature.lastIndexOf('(');
-            return signature.substring(0, indexb + 1) + Type.getDescriptor(argumentWrapperClass) + signature.substring(index);
+            return ClassUtils.defineClass(beanName, byteCode, classLoader);
         }
 
         private ClassLoader getClassLoader() {
@@ -230,10 +241,13 @@ public class JAXRSInterfaceEnhancerHelper {
             }
 
             MethodVisitor mv = null;
+            String originalMethodName = getMethodName(originalMethod);
+            String changeReturnType = changeReturnType(arg2);
             if (!skip) {
                 boolean allParametersIsPrimitive = true;
-                if (originalMethod.getParameterTypes().length < MAX_PARAMETERS_COUNT_FOR_GET) {
-                    for (Class<?> parameterType : originalMethod.getParameterTypes()) {
+                Class<?>[] originalParameterTypes = originalMethod.getParameterTypes();
+                if (originalParameterTypes.length < MAX_PARAMETERS_COUNT_FOR_GET) {
+                    for (Class<?> parameterType : originalParameterTypes) {
                         if (!parameterType.isPrimitive()) {
                             allParametersIsPrimitive = false;
                             break;
@@ -241,17 +255,17 @@ public class JAXRSInterfaceEnhancerHelper {
                     }
                 }
                 StringBuilder sb = new StringBuilder();
-                sb.append("/" + getPath(originalMethod));
-                if (originalMethod.getParameterTypes().length < MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive) {
+                sb.append("/").append(getPath(originalMethod));
+                if (originalParameterTypes.length < MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive) {
                     if (changeReturnTypes && !originalMethod.getReturnType().equals(Response.class)) {
-                        mv = super.visitMethod(arg0, getMethodName(originalMethod), changeReturnType(arg2), arg3, arg4);
+                        mv = super.visitMethod(arg0, originalMethodName, changeReturnType, arg3, arg4);
                     } else {
-                        mv = super.visitMethod(arg0, getMethodName(originalMethod), arg2, arg3, arg4);
+                        mv = super.visitMethod(arg0, originalMethodName, arg2, arg3, arg4);
                     }
                     String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
                     int i = 0;
                     for (String paramName : parameterNames) {
-                        sb.append("/{" + paramName + ": .*}");
+                        sb.append("/{").append(paramName).append(": .*}");
                         addPathParamAnnotation(mv, i, paramName);
                         i++;
                     }
@@ -260,29 +274,19 @@ public class JAXRSInterfaceEnhancerHelper {
                 } else {
                     try {
                         if (changeReturnTypes && !originalMethod.getReturnType().equals(Response.class)) {
-                            if (originalMethod.getParameterTypes().length > 1 && originalMethod.getParameterTypes().length != 0) {
-                                mv = super.visitMethod(arg0,
-                                    getMethodName(originalMethod),
-                                    changeArgumentTypes(changeReturnType(arg2), originalMethod),
-                                    arg3,
-                                    arg4);
+                            if (originalParameterTypes.length > 1) {
+                                String changeArgumentTypes = changeArgumentTypes(changeReturnType, originalMethod);
+                                mv = super.visitMethod(arg0, originalMethodName, changeArgumentTypes, arg3, arg4);
                             } else {
-                                mv = super.visitMethod(arg0,
-                                    getMethodName(originalMethod),
-                                    changeReturnType(arg2),
-                                    arg3,
-                                    arg4);
+                                mv = super.visitMethod(arg0, originalMethodName, changeReturnType, arg3, arg4);
                             }
                             annotateReturnElementClass(mv, originalMethod.getReturnType());
                         } else {
-                            if (originalMethod.getParameterTypes().length > 1 && originalMethod.getParameterTypes().length != 0) {
-                                mv = super.visitMethod(arg0,
-                                    getMethodName(originalMethod),
-                                    changeArgumentTypes(arg2, originalMethod),
-                                    arg3,
-                                    arg4);
+                            if (originalParameterTypes.length > 1) {
+                                String changeArgumentTypes = changeArgumentTypes(arg2, originalMethod);
+                                mv = super.visitMethod(arg0, originalMethodName, changeArgumentTypes, arg3, arg4);
                             } else {
-                                mv = super.visitMethod(arg0, getMethodName(originalMethod), arg2, arg3, arg4);
+                                mv = super.visitMethod(arg0, originalMethodName, arg2, arg3, arg4);
                             }
                         }
                         addPostAnnotation(mv);
@@ -293,21 +297,20 @@ public class JAXRSInterfaceEnhancerHelper {
                 }
             } else {
                 if (changeReturnTypes && !originalMethod.getReturnType().equals(Response.class)) {
-                    mv = super.visitMethod(arg0, getMethodName(originalMethod), changeReturnType(arg2), arg3, arg4);
+                    mv = super.visitMethod(arg0, originalMethodName, changeReturnType, arg3, arg4);
                 } else {
-                    mv = super.visitMethod(arg0, getMethodName(originalMethod), arg2, arg3, arg4);
+                    mv = super.visitMethod(arg0, originalMethodName, arg2, arg3, arg4);
                 }
-                
-                //Parameter annotations process, because InterfaceTransformet skip them
-                //Need refactoring.
+
+                // Parameter annotations process, because InterfaceTransformet skip them
+                // Need refactoring.
                 if (originalMethod.getParameterAnnotations().length > 0) {
                     int index = 0;
                     for (Annotation[] annotatons : originalMethod.getParameterAnnotations()) {
-                        for (int j = 0; j < annotatons.length; j++) {
-                            AnnotationVisitor av = mv.visitParameterAnnotation(index,
-                                Type.getDescriptor(annotatons[j].annotationType()),
-                                true);
-                            InterfaceTransformer.processAnnotation(annotatons[j], av);
+                        for (Annotation annotaton : annotatons) {
+                            AnnotationVisitor av = mv
+                                .visitParameterAnnotation(index, Type.getDescriptor(annotaton.annotationType()), true);
+                            InterfaceTransformer.processAnnotation(annotaton, av);
                         }
                         index++;
                     }
@@ -315,20 +318,20 @@ public class JAXRSInterfaceEnhancerHelper {
             }
 
             addJAXRSMethodAnnotation(mv, originalMethod.getName());
-            
+
             addSwaggerMethodAnnotation(mv, originalMethod);
             return mv;
         }
 
         private void annotateReturnElementClass(MethodVisitor mv, Class<?> returnType) {
-            if (returnType.equals(Object.class) || returnType.equals(Void.class)){
+            if (returnType.equals(Object.class) || returnType.equals(Void.class)) {
                 return;
             }
             AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ElementClass.class), true);
             av.visit("response", Type.getType(returnType));
             av.visitEnd();
         }
-        
+
         private void addPostAnnotation(MethodVisitor mv) {
             AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(POST.class), true);
             av.visitEnd();
@@ -350,7 +353,7 @@ public class JAXRSInterfaceEnhancerHelper {
             av.visit("value", methodName);
             av.visitEnd();
         }
-        
+
         private void addSwaggerMethodAnnotation(MethodVisitor mv, Method originalMethod) {
             if (!originalMethod.isAnnotationPresent(ApiOperation.class)) {
                 AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ApiOperation.class), true);
@@ -364,7 +367,7 @@ public class JAXRSInterfaceEnhancerHelper {
             av.visit("value", paramName);
             av.visitEnd();
         }
-        
+
         private void addProducesAnnotation(ClassVisitor cv) {
             AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(Produces.class), true);
             AnnotationVisitor av1 = av.visitArray("value");
@@ -382,7 +385,9 @@ public class JAXRSInterfaceEnhancerHelper {
         }
     }
 
-    public static Class<?> decorateInterface(Class<?> originalClass, OpenLService service, boolean changeReturnTypes) throws Exception {
+    public static Class<?> decorateInterface(Class<?> originalClass,
+            OpenLService service,
+            boolean changeReturnTypes) throws Exception {
         if (originalClass == null) {
             throw new IllegalArgumentException("Original class is mandatory argument!");
         }
@@ -390,11 +395,13 @@ public class JAXRSInterfaceEnhancerHelper {
             throw new IllegalArgumentException("Original class must be an interface!");
         }
         ClassWriter cw = new ClassWriter(0);
-        JAXRSInterfaceAnnotationEnhancerClassVisitor jaxrsAnnotationEnhancerClassVisitor = new JAXRSInterfaceAnnotationEnhancerClassVisitor(cw,
+        JAXRSInterfaceAnnotationEnhancerClassVisitor jaxrsAnnotationEnhancerClassVisitor = new JAXRSInterfaceAnnotationEnhancerClassVisitor(
+            cw,
             originalClass,
             service,
             changeReturnTypes);
-        String enchancedClassName = originalClass.getCanonicalName() + JAXRSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
+        String enchancedClassName = originalClass
+            .getCanonicalName() + JAXRSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
         // Fix an NPE issue JAXRSUtil with no package class
         if (originalClass.getPackage() == null) {
             enchancedClassName = "default." + enchancedClassName;
@@ -407,7 +414,6 @@ public class JAXRSInterfaceEnhancerHelper {
         return enchancedClass;
     }
 
-    
     private static ClassLoader getClassLoader(OpenLService service) {
         ClassLoader classLoader = null;
         if (service != null) {
@@ -479,7 +485,8 @@ public class JAXRSInterfaceEnhancerHelper {
                             for (int j = 0; j < propertyDescriptors.length; j++) {
                                 int k = -1;
                                 for (int q = 0; q < paramNames.length; q++) {
-                                    if (paramNames[q].equals(GenUtils.convertParameterName(propertyDescriptors[j].getName()))) {
+                                    if (paramNames[q]
+                                        .equals(ClassUtils.decapitalize(propertyDescriptors[j].getName()))) {
                                         k = q;
                                         break;
                                     }
@@ -506,7 +513,7 @@ public class JAXRSInterfaceEnhancerHelper {
                     }
                 }
                 if (!found) {
-                   throw new IllegalStateException("Method is not found!");
+                    throw new IllegalStateException("Method is not found!");
                 }
             }
         }
