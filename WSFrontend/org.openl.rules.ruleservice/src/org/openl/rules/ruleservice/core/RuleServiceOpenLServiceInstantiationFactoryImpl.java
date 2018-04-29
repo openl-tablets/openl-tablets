@@ -13,7 +13,6 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategyEnhancer;
 import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancer;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.ruleservice.core.instantiation.RuleServiceRuntimeContextInstantiationStrategyEnhancer;
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdvice;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallInterceptorGroup;
@@ -59,9 +58,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         }
         if (service.isProvideRuntimeContext()) {
             instantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(instantiationStrategy);
-            if (service.isUseRuleServiceRuntimeContext()) {
-                instantiationStrategy = new RuleServiceRuntimeContextInstantiationStrategyEnhancer(instantiationStrategy);
-            }
         }
         resolveInterfaceAndClassLoader(service, instantiationStrategy);
         resolveRmiInterface(service);
@@ -226,7 +222,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 .setRmiServiceClassName(serviceDescription.getRmiServiceClassName())
                 .setProvideRuntimeContext(serviceDescription.isProvideRuntimeContext())
                 .setProvideVariations(serviceDescription.isProvideVariations())
-                .setUseRuleServiceRuntimeContext(serviceDescription.isUseRuleServiceRuntimeContext())
                 .addModules(modules);
 
             if (serviceDescription.getPublishers() != null) {

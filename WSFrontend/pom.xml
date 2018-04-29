@@ -12,7 +12,6 @@
     <name>OpenL - RuleService</name>
     <description>Rules Service Pom Project</description>
     <modules>
-        <module>org.openl.rules.ruleservice.context</module>
         <module>org.openl.rules.ruleservice.annotation</module>
         <module>org.openl.rules.ruleservice</module>
         <module>org.openl.rules.ruleservice.activiti</module>

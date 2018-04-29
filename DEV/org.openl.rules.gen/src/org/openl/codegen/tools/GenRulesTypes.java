@@ -32,9 +32,6 @@ public class GenRulesTypes {
         System.out.println("Generating Rules enumerations...");
         generateEnumerations(enumerationDefinitions);
 
-        // RuleService Enums
-        System.out.println("Generating Rules Service enumerations...");
-        generateRulesServiceEnumerations(enumerationDefinitions);
     }
 
     private List<EnumerationDescriptor> loadEnumerations() {
@@ -78,17 +75,6 @@ public class GenRulesTypes {
             Map<String, Object> variables = new HashMap<>();
             variables.put("enumPackage", CodeGenConstants.ENUMS_PACKAGE);
             generateEnumeration(descriptor, sourceFilePath, variables, "rules-enum.vm");
-        }
-    }
-
-    private void generateRulesServiceEnumerations(List<EnumerationDescriptor> enumerationDefinitions) throws Exception {
-
-        for (EnumerationDescriptor descriptor : enumerationDefinitions) {
-            String enumName = descriptor.getEnumName();
-            String sourceFilePath = CodeGenConstants.RULESERVICE_CONTEXT_SOURCE_LOCATION + CodeGenConstants.RULESERVICE_ENUMS_PACKAGE_PATH + enumName + ".java";
-            Map<String, Object> variables = new HashMap<>();
-            variables.put("enumPackage", CodeGenConstants.RULESERVICE_ENUMS_PACKAGE);
-            generateEnumeration(descriptor, sourceFilePath, variables, "RuleService-rules-enum.vm");
         }
     }
 

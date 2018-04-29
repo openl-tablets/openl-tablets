@@ -23,7 +23,6 @@ public class XmlRulesDeploySerializerTest {
         assertNotNull(rulesDeploy);
         assertEquals("rulesDeployName", rulesDeploy.getServiceName());
         assertEquals(Boolean.FALSE, rulesDeploy.isProvideRuntimeContext());
-        assertEquals(Boolean.TRUE, rulesDeploy.isUseRuleServiceRuntimeContext());
         assertEquals(Boolean.TRUE, rulesDeploy.isProvideVariations());
         assertEquals(String.class.getCanonicalName(), rulesDeploy.getServiceClass());
         assertEquals(String.class.getCanonicalName(), rulesDeploy.getRmiServiceClass());
@@ -48,7 +47,6 @@ public class XmlRulesDeploySerializerTest {
         rulesDeploy.setProvideRuntimeContext(false);
         rulesDeploy.setProvideVariations(true);
         rulesDeploy.setLazyModulesForCompilationPatterns(new RulesDeploy.WildcardPattern[]{new RulesDeploy.WildcardPattern("some1*"), new RulesDeploy.WildcardPattern("some2*")});
-        rulesDeploy.setUseRuleServiceRuntimeContext(true);
         rulesDeploy.setInterceptingTemplateClassName(String.class.getCanonicalName());
         rulesDeploy.setAnnotationTemplateClassName(String.class.getCanonicalName());
         rulesDeploy.setServiceClass(String.class.getCanonicalName());
@@ -64,7 +62,6 @@ public class XmlRulesDeploySerializerTest {
         String expectedValue = "<rules-deploy>" + "\n" +
                                 "  <isProvideRuntimeContext>false</isProvideRuntimeContext>"+ "\n" +
                                 "  <isProvideVariations>true</isProvideVariations>"+ "\n" +
-                                "  <useRuleServiceRuntimeContext>true</useRuleServiceRuntimeContext>"+ "\n" +
                                 "  <serviceName>rulesDeployName</serviceName>"+ "\n" +
                                 "  <publishers>"+ "\n" +
                                 "    <publisher>WEBSERVICE</publisher>" + "\n" + 
