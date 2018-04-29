@@ -57,18 +57,16 @@ public class JAXRSInterfaceEnhancerHelper {
 
         private Class<?> originalClass;
         private OpenLService service;
-        private boolean changeReturnTypes;
+        private boolean changeReturnTypes = true;
         private Map<Method, String> methodNames = null;
         private Map<Method, String> paths = null;
         private Map<Method, String> methodRequests = null;
 
         JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
-                Class<?> originalClass,
-                OpenLService service,
-                boolean changeReturnTypes) {
+                                                     Class<?> originalClass,
+                                                     OpenLService service) {
             super(Opcodes.ASM4, arg0);
             this.originalClass = originalClass;
-            this.changeReturnTypes = changeReturnTypes;
             this.service = service;
         }
 
@@ -387,8 +385,7 @@ public class JAXRSInterfaceEnhancerHelper {
     }
 
     public static Class<?> decorateInterface(Class<?> originalClass,
-            OpenLService service,
-            boolean changeReturnTypes) throws Exception {
+                                             OpenLService service) throws Exception {
         if (originalClass == null) {
             throw new IllegalArgumentException("Original class is mandatory argument!");
         }
@@ -399,8 +396,8 @@ public class JAXRSInterfaceEnhancerHelper {
         JAXRSInterfaceAnnotationEnhancerClassVisitor jaxrsAnnotationEnhancerClassVisitor = new JAXRSInterfaceAnnotationEnhancerClassVisitor(
             cw,
             originalClass,
-            service,
-            changeReturnTypes);
+            service
+        );
         String enchancedClassName = originalClass
             .getCanonicalName() + JAXRSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
         // Fix an NPE issue JAXRSUtil with no package class

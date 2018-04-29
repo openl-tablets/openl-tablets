@@ -50,7 +50,7 @@ public class JAXRSInterfaceEnhancerHelperTest {
 
     @Test
     public void testNoAnnotationMethod() throws Exception {
-        Class<?> enchancedClass = JAXRSInterfaceEnhancerHelper.decorateInterface(TestInterface.class, null, false);
+        Class<?> enchancedClass = JAXRSInterfaceEnhancerHelper.decorateInterface(TestInterface.class, null);
         boolean f = false;
         boolean producesAnnotationExists = false;
         boolean consumesAnnotationExists = false;
@@ -126,7 +126,7 @@ public class JAXRSInterfaceEnhancerHelperTest {
 
     @Test
     public void testMethodWithAnnotation() throws Exception {
-        Class<?> enchancedClass = JAXRSInterfaceEnhancerHelper.decorateInterface(TestAnnotatedInterface.class, null, false);
+        Class<?> enchancedClass = JAXRSInterfaceEnhancerHelper.decorateInterface(TestAnnotatedInterface.class, null);
         boolean f = false;
         for (Annotation annotation : enchancedClass.getAnnotations()) {
             if (annotation.annotationType().equals(Path.class)) {
@@ -200,7 +200,7 @@ public class JAXRSInterfaceEnhancerHelperTest {
 
     @Test
     public void testParametersInMethod() throws Exception {
-        Class<?> enchancedClass = JAXRSInterfaceEnhancerHelper.decorateInterface(TestParameterInterface.class, null, false);
+        Class<?> enchancedClass = JAXRSInterfaceEnhancerHelper.decorateInterface(TestParameterInterface.class, null);
         int i = 0;
         for (Method method : enchancedClass.getMethods()) {
             if ("someMethod".equals(method.getName())) {
@@ -238,7 +238,7 @@ public class JAXRSInterfaceEnhancerHelperTest {
 
     @Test
     public void testMethodNamesAndPath() throws Exception {
-        Class<?> enchancedClass = JAXRSInterfaceEnhancerHelper.decorateInterface(TestMethodNameAndPath.class, null, false);
+        Class<?> enchancedClass = JAXRSInterfaceEnhancerHelper.decorateInterface(TestMethodNameAndPath.class, null);
         int i = 0;
         for (Method method : enchancedClass.getMethods()) {
             if ("someMethod".equals(method.getName())) {
