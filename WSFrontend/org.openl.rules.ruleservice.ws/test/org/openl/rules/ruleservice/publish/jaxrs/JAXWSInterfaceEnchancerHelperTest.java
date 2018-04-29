@@ -43,7 +43,7 @@ public class JAXWSInterfaceEnchancerHelperTest {
 
     @Test
     public void testNoAnnotationMethod() throws Exception {
-        Class<?> enchancedClass = JAXWSInterfaceEnhancerHelper.decorateInterface(TestInterface.class);
+        Class<?> enchancedClass = JAXWSInterfaceEnhancerHelper.decorateInterface(TestInterface.class, null);
 
         Annotation webServiceAnnotation = enchancedClass.getAnnotation(WebService.class);
         Assert.assertNotNull("Enchanced interface should contains @WebService annotation on class!",
@@ -61,7 +61,7 @@ public class JAXWSInterfaceEnchancerHelperTest {
 
     @Test
     public void testMethodWithAnnotation() throws Exception {
-        Class<?> enchancedClass = JAXWSInterfaceEnhancerHelper.decorateInterface(TestAnnotatedInterface.class);
+        Class<?> enchancedClass = JAXWSInterfaceEnhancerHelper.decorateInterface(TestAnnotatedInterface.class, null);
 
         Annotation webServiceAnnotation = enchancedClass.getAnnotation(WebService.class);
         Assert.assertNotNull("Enchanced interface should contains @WebService annotation on class!",
@@ -83,7 +83,7 @@ public class JAXWSInterfaceEnchancerHelperTest {
 
     @Test
     public void testMethodNamesAndOperationNames() throws Exception {
-        Class<?> enchancedClass = JAXWSInterfaceEnhancerHelper.decorateInterface(TestMethodNamesAndOperationNames.class);
+        Class<?> enchancedClass = JAXWSInterfaceEnhancerHelper.decorateInterface(TestMethodNamesAndOperationNames.class, null);
         int i = 0;
         for (Method method : enchancedClass.getMethods()) {
             if ("someMethod".equals(method.getName()) && method.getParameterTypes().length == 0) {
