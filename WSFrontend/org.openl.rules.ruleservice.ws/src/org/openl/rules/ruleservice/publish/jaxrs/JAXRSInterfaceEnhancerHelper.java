@@ -5,6 +5,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
@@ -46,10 +46,6 @@ import io.swagger.annotations.ApiOperation;
  */
 public class JAXRSInterfaceEnhancerHelper {
 
-    private static boolean isPrimitive(Class<?> type) {
-        return type.isPrimitive();
-    }
-
     private static class JAXRSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
 
         private static final int MAX_PARAMETERS_COUNT_FOR_GET = 4;
@@ -58,12 +54,12 @@ public class JAXRSInterfaceEnhancerHelper {
 
         private Class<?> originalClass;
         private OpenLService service;
-        private boolean changeReturnTypes = true;
+        private boolean changeReturnTypes;
         private Map<Method, String> methodNames = null;
         private Map<Method, String> paths = null;
         private Map<Method, String> methodRequests = null;
 
-        public JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
+        JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
                 Class<?> originalClass,
                 OpenLService service,
                 boolean changeReturnTypes) {
@@ -76,42 +72,24 @@ public class JAXRSInterfaceEnhancerHelper {
         @Override
         public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces);
-            boolean requiredPathAnnotation = true;
-            boolean consumesAnnotationRequired = true;
-            boolean producesAnnotationRequired = true;
 
-            for (Annotation annotation : originalClass.getAnnotations()) {
-
-                if (annotation.annotationType().equals(Produces.class)) {
-                    producesAnnotationRequired = false;
-                }
-                if (annotation.annotationType().equals(Consumes.class)) {
-                    consumesAnnotationRequired = false;
-                }
-
-                if (annotation.annotationType().equals(Path.class)) {
-                    requiredPathAnnotation = false;
-                    break;
-                }
-            }
-            
             //Swagger annotation
             if (originalClass.getAnnotation(Api.class) == null) {
                 this.visitAnnotation(Type.getDescriptor(Api.class), true);
             }
 
-            if (requiredPathAnnotation) {
+            if (originalClass.getAnnotation(Path.class) == null) {
                 AnnotationVisitor annotationVisitor = this.visitAnnotation(Type.getDescriptor(Path.class), true);
                 annotationVisitor.visit("value", "/");
                 annotationVisitor.visitEnd();
             }
             
             // Consumes annotation
-            if (consumesAnnotationRequired) {
+            if (originalClass.getAnnotation(Consumes.class) == null) {
                 addConsumesAnnotation(this);
             }
             // Produces annotation
-            if (producesAnnotationRequired) {
+            if (originalClass.getAnnotation(Produces.class) == null) {
                 addProducesAnnotation(this);
             }
         }
@@ -123,31 +101,25 @@ public class JAXRSInterfaceEnhancerHelper {
 
         private String changeArgumentTypes(String signature, Method originalMethod) throws Exception {
             String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
+            String requestParameterName = getRequestParameterName(originalMethod);
+            String beanName = "org.openl.rules.ruleservice.publish.jaxrs." + requestParameterName;
+
             int i = 0;
-            Map<String, Class<?>> props = new HashMap<>();
+            JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanName);
+            beanClassBuilder.setMethod(originalMethod.getName());
             for (Class<?> type : originalMethod.getParameterTypes()) {
-                props.put(parameterNames[i], type);
+                beanClassBuilder.addField(parameterNames[i],  type.getName());
                 i++;
             }
+
+            byte[] byteCode = beanClassBuilder.byteCode();
+
             ClassLoader classLoader = getClassLoader();
-            String requestParameterName = getRequestParameterName(originalMethod);
-            Class<?> argumentWrapperClass = generateClass(requestParameterName, props, classLoader);
+            Class<?> argumentWrapperClass = ClassUtils.defineClass(beanName, byteCode, classLoader);
+
             int index = signature.lastIndexOf(')');
             int indexb = signature.lastIndexOf('(');
             return signature.substring(0, indexb + 1) + Type.getDescriptor(argumentWrapperClass) + signature.substring(index);
-        }
-
-        private static Class<?> generateClass(String prefix, Map<String, Class<?>> props, ClassLoader classLoader) throws Exception {
-            String beanName = "org.openl.rules.ruleservice.publish.jaxrs." + prefix;
-            JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanName);
-
-            for (String name : props.keySet()) {
-                beanClassBuilder.addField(name,  new FieldDescription(props.get(name).getName()));
-            }
-            byte[] byteCode = beanClassBuilder.byteCode();
-            Class<?> aClass = ClassUtils.defineClass(beanName, byteCode, classLoader);
-
-            return aClass;
         }
 
         private ClassLoader getClassLoader() {
@@ -164,12 +136,7 @@ public class JAXRSInterfaceEnhancerHelper {
         String getRequestParameterName(Method method) {
             if (methodRequests == null) {
                 methodRequests = new HashMap<Method, String>();
-                List<Method> methods = new ArrayList<Method>();
-                for (Method m : originalClass.getMethods()) {
-                    methods.add(m);
-                }
-
-                methods = MethodUtil.sort(methods);
+                List<Method> methods = MethodUtil.sort(Arrays.asList(originalClass.getMethods()));
 
                 for (Method m : methods) {
                     String name = StringUtils.capitalize(m.getName()) + "Request";
@@ -186,10 +153,10 @@ public class JAXRSInterfaceEnhancerHelper {
             return methodRequests.get(method);
         }
 
-        protected String getPath(Method method) {
+        String getPath(Method method) {
             if (paths == null) {
-                paths = new HashMap<Method, String>();
-                List<Method> methods = new ArrayList<Method>();
+                paths = new HashMap<>();
+                List<Method> methods = new ArrayList<>();
                 for (Method m : originalClass.getMethods()) {
                     Annotation pathAnnotation = m.getAnnotation(Path.class);
                     if (pathAnnotation != null) {
@@ -225,15 +192,10 @@ public class JAXRSInterfaceEnhancerHelper {
             return paths.get(method);
         }
 
-        protected String getMethodName(Method method) {
+        private String getMethodName(Method method) {
             if (methodNames == null) {
-                methodNames = new HashMap<Method, String>();
-                List<Method> methods = new ArrayList<Method>();
-                for (Method m : originalClass.getMethods()) {
-                    methods.add(m);
-                }
-
-                methods = MethodUtil.sort(methods);
+                methodNames = new HashMap<>();
+                List<Method> methods = MethodUtil.sort(Arrays.asList(originalClass.getMethods()));
 
                 for (Method m : methods) {
                     String s = m.getName();
@@ -271,7 +233,7 @@ public class JAXRSInterfaceEnhancerHelper {
                 boolean allParametersIsPrimitive = true;
                 if (originalMethod.getParameterTypes().length < MAX_PARAMETERS_COUNT_FOR_GET) {
                     for (Class<?> parameterType : originalMethod.getParameterTypes()) {
-                        if (!isPrimitive(parameterType)) {
+                        if (!parameterType.isPrimitive()) {
                             allParametersIsPrimitive = false;
                             break;
                         }
@@ -491,7 +453,6 @@ public class JAXRSInterfaceEnhancerHelper {
             Class<?> proxyInterface,
             Class<?> targetInterface) throws Exception {
         Map<Method, Method> methodMap = new HashMap<Method, Method>();
-        Map<Method, PropertyDescriptor[]> methodMapToPropertyDescriptors = new HashMap<Method, PropertyDescriptor[]>();
         for (Method method : proxyInterface.getMethods()) {
             Annotation jaxRSMethod = method.getAnnotation(JAXRSMethod.class);
             if (jaxRSMethod == null) {
@@ -536,7 +497,6 @@ public class JAXRSInterfaceEnhancerHelper {
                             Class<?>[] targetParams = targetMethod.getParameterTypes();
                             String[] paramNames = MethodUtil.getParameterNames(targetMethod, service);
                             Class<?>[] params = new Class<?>[propertyDescriptors.length];
-                            PropertyDescriptor[] propertyDescriptorsForMap = new PropertyDescriptor[tmpPropertyDescriptors.length - 1];
                             for (int j = 0; j < propertyDescriptors.length; j++) {
                                 int k = -1;
                                 for (int q = 0; q < paramNames.length; q++) {
@@ -547,7 +507,6 @@ public class JAXRSInterfaceEnhancerHelper {
                                 }
                                 if (k >= 0) {
                                     params[k] = propertyDescriptors[j].getPropertyType();
-                                    propertyDescriptorsForMap[k] = propertyDescriptors[j];
                                 } else {
                                     continue mainloop;
                                 }
@@ -561,7 +520,6 @@ public class JAXRSInterfaceEnhancerHelper {
                             }
                             if (f) {
                                 methodMap.put(method, targetMethod);
-                                methodMapToPropertyDescriptors.put(method, propertyDescriptorsForMap);
                                 found = true;
                                 break;
                             }
@@ -578,6 +536,6 @@ public class JAXRSInterfaceEnhancerHelper {
 
         return Proxy.newProxyInstance(classLoader,
             new Class<?>[] { proxyInterface },
-            new JAXRSInvocationHandler(targetBean, methodMap, methodMapToPropertyDescriptors));
+            new JAXRSInvocationHandler(targetBean, methodMap));
     }
 }

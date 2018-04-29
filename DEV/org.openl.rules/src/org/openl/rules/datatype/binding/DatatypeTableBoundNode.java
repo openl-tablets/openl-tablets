@@ -206,7 +206,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             Class<?> superClass = superOpenClass.getInstanceClass();
             beanBuilder.setParentClass(superClass);
             for (Entry<String, IOpenField> field : superOpenClass.getFields().entrySet()) {
-                beanBuilder.addParentField(field.getKey(), new FieldDescription(field.getValue().getType().getJavaName()));
+                beanBuilder.addParentField(field.getKey(), field.getValue().getType().getJavaName());
             }
         }
         beanBuilder.addFields(fields);

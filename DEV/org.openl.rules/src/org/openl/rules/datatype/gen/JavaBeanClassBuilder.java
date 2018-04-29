@@ -8,10 +8,11 @@ import java.util.Map;
  */
 public class JavaBeanClassBuilder {
 
-    final String beanName;
+    private final String beanName;
     private Class<?> parentClass = Object.class;
     private LinkedHashMap<String, FieldDescription> parentFields = new LinkedHashMap<>(0);
     private LinkedHashMap<String, FieldDescription> fields = new LinkedHashMap<>(0);
+    private String methodName;
 
     public JavaBeanClassBuilder(String beanName) {
         this.beanName = beanName.replace('.', '/');
@@ -21,18 +22,22 @@ public class JavaBeanClassBuilder {
         this.parentClass = parentClass;
     }
 
-    public void addParentField(String name, FieldDescription type) {
-        Object put = parentFields.put(name, type);
+    public void addParentField(String name, String type) {
+        Object put = parentFields.put(name, new FieldDescription(type));
         if (put != null) {
             throw new IllegalArgumentException("The same parent field '" + name + " has been put!");
         }
     }
 
-    public void addField(String name, FieldDescription type) {
+    private void addField(String name, FieldDescription type) {
         Object put = fields.put(name, type);
         if (put != null) {
             throw new IllegalArgumentException("The same parent field '" + name + " has been put!");
         }
+    }
+
+    public void addField(String name, String type) {
+        addField(name, new FieldDescription(type));
     }
 
     public void addFields(Map<String, FieldDescription> fields) {
@@ -41,10 +46,14 @@ public class JavaBeanClassBuilder {
         }
     }
 
+    public void setMethod(String methodName) {
+        this.methodName = methodName;
+    }
+
     /**
      * Creates JavaBean byte code for given fields.
      */
     public byte[] byteCode() {
-        return new SimpleBeanByteCodeGenerator(beanName, fields, parentClass, parentFields).byteCode();
+        return new SimpleBeanByteCodeGenerator(beanName, fields, parentClass, parentFields, methodName).byteCode();
     }
 }
