@@ -26,6 +26,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
@@ -212,7 +213,7 @@ public class JAXRSInterfaceEnhancerHelper {
 
         @Override
         public MethodVisitor visitMethod(int arg0, String methodName, String arg2, String arg3, String[] arg4) {
-            Method originalMethod = findOriginalMethod(methodName, arg2);
+            Method originalMethod = ASMUtils.getMethod(originalClass, methodName, arg2);
             if (originalMethod == null) {
                 throw new RuleServiceRuntimeException("Method is not found in the original class!");
             }
@@ -317,28 +318,6 @@ public class JAXRSInterfaceEnhancerHelper {
             
             addSwaggerMethodAnnotation(mv, originalMethod);
             return mv;
-        }
-        
-        private Method findOriginalMethod(String methodName, String argumentTypes) {
-            Method originalMethod = null;
-            for (Method method : originalClass.getMethods()) {
-                if (originalMethod == null && methodName.equals(method.getName())) {
-                    Type[] typesInOriginalClassMethod = Type.getArgumentTypes(method);
-                    Type[] typesInCurrentMethod = Type.getArgumentTypes(argumentTypes);
-                    if (typesInCurrentMethod.length == typesInOriginalClassMethod.length) {
-                        boolean f = true;
-                        for (int i = 0; i < typesInCurrentMethod.length; i++) {
-                            if (!typesInCurrentMethod[i].equals(typesInOriginalClassMethod[i])) {
-                                f = false;
-                            }
-                        }
-                        if (f) {
-                            originalMethod = method;
-                        }
-                    }
-                }
-            }
-            return originalMethod;
         }
 
         private void annotateReturnElementClass(MethodVisitor mv, Class<?> returnType) {
