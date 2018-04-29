@@ -29,15 +29,6 @@ public class RulesDeployGuiWrapper {
         rulesDeploy.setProvideRuntimeContext(provideRuntimeContext);
     }
 
-    public boolean isUseRuleServiceRuntimeContext() {
-        Boolean useRuleServiceRuntimeContext = rulesDeploy.isUseRuleServiceRuntimeContext();
-        return useRuleServiceRuntimeContext != null ? useRuleServiceRuntimeContext : false;
-    }
-
-    public void setUseRuleServiceRuntimeContext(boolean useRuleServiceRuntimeContext) {
-        rulesDeploy.setUseRuleServiceRuntimeContext(useRuleServiceRuntimeContext);
-    }
-
     public boolean isProvideVariations() {
         Boolean provideVariations = rulesDeploy.isProvideVariations();
         return provideVariations != null ? provideVariations : false;

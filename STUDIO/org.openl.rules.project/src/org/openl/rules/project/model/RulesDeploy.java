@@ -28,7 +28,6 @@ public class RulesDeploy {
 
     private Boolean isProvideRuntimeContext;
     private Boolean isProvideVariations;
-    private Boolean useRuleServiceRuntimeContext;
     private String serviceName;
     private PublisherType[] publishers;
     private String interceptingTemplateClassName;
@@ -64,14 +63,6 @@ public class RulesDeploy {
 
     public void setProvideRuntimeContext(Boolean isProvideRuntimeContext) {
         this.isProvideRuntimeContext = isProvideRuntimeContext;
-    }
-
-    public void setUseRuleServiceRuntimeContext(Boolean useRuleServiceRuntimeContext) {
-        this.useRuleServiceRuntimeContext = useRuleServiceRuntimeContext;
-    }
-
-    public Boolean isUseRuleServiceRuntimeContext() {
-        return useRuleServiceRuntimeContext;
     }
 
     public Boolean isProvideVariations() {

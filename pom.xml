@@ -1622,11 +1622,6 @@
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.context</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.rmi</artifactId>
                 <version>${project.version}</version>
             </dependency>
