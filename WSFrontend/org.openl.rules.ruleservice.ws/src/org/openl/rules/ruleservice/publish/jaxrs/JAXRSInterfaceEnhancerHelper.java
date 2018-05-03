@@ -1,8 +1,5 @@
 package org.openl.rules.ruleservice.publish.jaxrs;
 
-import java.beans.BeanInfo;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -428,7 +425,6 @@ public class JAXRSInterfaceEnhancerHelper {
             Class<?> proxyInterface,
             Class<?> targetInterface) throws Exception {
         Map<Method, Method> methodMap = new HashMap<>();
-        Method[] targetMethods = targetInterface.getMethods();
         for (Method method : proxyInterface.getMethods()) {
             Annotation jaxRSMethod = method.getAnnotation(JAXRSMethod.class);
             if (jaxRSMethod == null) {
@@ -437,65 +433,16 @@ public class JAXRSInterfaceEnhancerHelper {
             String methodName = ((JAXRSMethod) jaxRSMethod).value();
             Class<?>[] parameterTypes = method.getParameterTypes();
 
-            boolean found;
             try {
                 Method targetMethod = targetInterface.getMethod(methodName, parameterTypes);
                 methodMap.put(method, targetMethod);
-                found = true;
             } catch (NoSuchMethodException ex) {
-                found = false;
-            }
-            if (!found && parameterTypes.length == 1) {
-                Class<?> methodArgument = parameterTypes[0];
-                BeanInfo beanInfo = Introspector.getBeanInfo(methodArgument);
-                PropertyDescriptor[] tmpPropertyDescriptors = beanInfo.getPropertyDescriptors();
-                PropertyDescriptor[] propertyDescriptors = new PropertyDescriptor[tmpPropertyDescriptors.length - 1];
-                int p = 0;
-                for (PropertyDescriptor tmpPropertyDescriptor : tmpPropertyDescriptors) {
-                    if (!tmpPropertyDescriptor.getName().equals("class")) {
-                        propertyDescriptors[p] = tmpPropertyDescriptor;
-                        p++;
-                    }
+                if (parameterTypes.length == 1) {
+                    Class<?> methodArgument = parameterTypes[0];
+                    parameterTypes = (Class<?>[]) methodArgument.getMethod("_types").invoke(null);
                 }
-                mainloop: for (Method targetMethod : targetMethods) {
-                    if (targetMethod.getName().equals(methodName)) {
-                        if (targetMethod.getParameterTypes().length == propertyDescriptors.length) {
-                            Class<?>[] targetParams = targetMethod.getParameterTypes();
-                            String[] paramNames = MethodUtil.getParameterNames(targetMethod, service);
-                            Class<?>[] params = new Class<?>[propertyDescriptors.length];
-                            for (int j = 0; j < propertyDescriptors.length; j++) {
-                                int k = -1;
-                                for (int q = 0; q < paramNames.length; q++) {
-                                    if (paramNames[q]
-                                        .equals(ClassUtils.decapitalize(propertyDescriptors[j].getName()))) {
-                                        k = q;
-                                        break;
-                                    }
-                                }
-                                if (k >= 0) {
-                                    params[k] = propertyDescriptors[j].getPropertyType();
-                                } else {
-                                    continue mainloop;
-                                }
-                            }
-                            boolean f = true;
-                            for (int i = 0; i < targetParams.length; i++) {
-                                if (!targetParams[i].equals(params[i])) {
-                                    f = false;
-                                    break;
-                                }
-                            }
-                            if (f) {
-                                methodMap.put(method, targetMethod);
-                                found = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-                if (!found) {
-                    throw new IllegalStateException("Method is not found!");
-                }
+                Method targetMethod = targetInterface.getMethod(methodName, parameterTypes);
+                methodMap.put(method, targetMethod);
             }
         }
 
