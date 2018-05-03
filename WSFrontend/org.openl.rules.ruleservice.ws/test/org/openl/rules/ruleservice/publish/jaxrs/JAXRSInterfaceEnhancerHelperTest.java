@@ -164,12 +164,12 @@ public class JAXRSInterfaceEnhancerHelperTest {
             if (annotation.annotationType().equals(Produces.class)) {
                 producesAnnotationExists = true;
                 Produces produces = (Produces) annotation;
-                Assert.assertTrue("@Produces annotatoion requires defined values!", produces.value().length == 1);
+                Assert.assertEquals("@Produces annotatoion requires defined values!", 1, produces.value().length);
             }
             if (annotation.annotationType().equals(Consumes.class)) {
                 consumesAnnotationExists = true;
                 Consumes consumes = (Consumes) annotation;
-                Assert.assertTrue("@Consumes annotatoion requires defined values!", consumes.value().length == 1);
+                Assert.assertEquals("@Consumes annotatoion requires defined values!", 1, consumes.value().length);
             }
         }
         for (Annotation[] annotations : someMethod.getParameterAnnotations()) {
@@ -233,40 +233,37 @@ public class JAXRSInterfaceEnhancerHelperTest {
             }
         }
 
-        Assert.assertTrue("Method is not found!", i == 4);
+        Assert.assertEquals("Method is not found!", 4, i);
     }
 
     @Test
     public void testMethodNamesAndPath() throws Exception {
         Class<?> enchancedClass = JAXRSInterfaceEnhancerHelper.decorateInterface(TestMethodNameAndPath.class, null);
-        int i = 0;
-        for (Method method : enchancedClass.getMethods()) {
-            if ("someMethod".equals(method.getName())) {
-                i++;
-                Annotation pathAnnotation = method.getAnnotation(Path.class);
-                Assert.assertNotNull("Expected @Path annotation!", pathAnnotation);
+        Method[] methods = enchancedClass.getMethods();
+        Assert.assertEquals("Method is not found!", 3, methods.length);
 
-                Assert.assertEquals("Expected only one parameter in method!", 0, method.getParameterTypes().length);
-                Assert.assertEquals("Expected \"someMethod1\" value in annotation!", "/someMethod1", ((Path)pathAnnotation).value());
-            }
-            if ("someMethod1".equals(method.getName())) {
-                i++;
-                Annotation pathAnnotation = method.getAnnotation(Path.class);
-                Assert.assertNotNull("Expected @Path annotation!", pathAnnotation);
+        for (Method method : methods) {
+            Assert.assertEquals("someMethod", method.getName());
+            Annotation pathAnnotation = method.getAnnotation(Path.class);
+            Assert.assertNotNull("Expected @Path annotation!", pathAnnotation);
 
-                Assert.assertEquals("Expected one parameters in method!", 1, method.getParameterTypes().length);
-                Assert.assertEquals("Expected \"someMethod\" value in annotation!", "/someMethod", ((Path)pathAnnotation).value());
-            }
-            if ("someMethod2".equals(method.getName())) {
-                i++;
-                Annotation pathAnnotation = method.getAnnotation(Path.class);
-                Assert.assertNotNull("Expected @Path annotation!", pathAnnotation);
+            String path = null;
+            switch (method.getParameterTypes().length) {
+                case 0:
+                    path = "/someMethod1";
+                    break;
+                case 1:
+                    path = "/someMethod";
+                    break;
+                case 3:
+                    path = "/someMethod2/{arg0: .*}/{arg1: .*}/{arg2: .*}";
+                    break;
+                default:
+                    Assert.fail("Unexpected count of arguments");
 
-                Assert.assertEquals("Expected three parameters in method!", 3, method.getParameterTypes().length);
-                Assert.assertEquals("Expected \"someMethod2\" value in annotation!", "/someMethod2/{arg0: .*}/{arg1: .*}/{arg2: .*}", ((Path)pathAnnotation).value());
+
             }
+            Assert.assertEquals("Unexpected value in @Path annotation", path, ((Path)pathAnnotation).value());
         }
-
-        Assert.assertTrue("Method is not found!", i == 3);
     }
 }
