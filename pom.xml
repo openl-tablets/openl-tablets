@@ -1131,6 +1131,11 @@
                 <artifactId>swagger-ui</artifactId>
                 <version>3.14.0</version>
             </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-jaxrs</artifactId>
+                <version>1.5.19</version>
+            </dependency>
             <!-- Apache CXF Runtime CORBA Binding -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
