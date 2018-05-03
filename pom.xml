@@ -116,6 +116,7 @@
         </snapshotRepository>
     </distributionManagement>
     <build>
+        <defaultGoal>clean verify</defaultGoal>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>test</testSourceDirectory>
         <resources>
