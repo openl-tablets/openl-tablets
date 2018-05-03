@@ -122,7 +122,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         }
         java.math.BigDecimal[] unwrappedArray = unwrap(values);
         java.math.BigDecimal avg = MathUtils.avg(unwrappedArray);
-        return new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(avg), NumberOperations.AVG, values);
+        return avg != null ? new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(avg), NumberOperations.AVG, values) : null;
     }
      /**
      * sum
@@ -135,7 +135,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         }
         java.math.BigDecimal[] unwrappedArray = unwrap(values);
         java.math.BigDecimal sum = MathUtils.sum(unwrappedArray);
-        return new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(sum), NumberOperations.SUM, values);
+        
+        return sum != null ? new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(sum), NumberOperations.SUM, values) : null;
     }
      /**
      * median
@@ -148,7 +149,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         }
         java.math.BigDecimal[] unwrappedArray = unwrap(values);
         java.math.BigDecimal median = MathUtils.median(unwrappedArray);
-        return new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(median), NumberOperations.MEDIAN, values);
+        return median != null ? new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(median), NumberOperations.MEDIAN, values) : null;
     }
 
      /**
@@ -400,7 +401,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         java.math.BigDecimal[] unwrappedArray = unwrap(values);
         java.math.BigDecimal product = MathUtils.product(unwrappedArray);
         // we loose the parameters, but not the result of computation.
-        return new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(product), NumberOperations.PRODUCT, null);
+        return product != null ? new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(product), NumberOperations.PRODUCT, null) : null;
     }
      /**
      *   

@@ -66,9 +66,9 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         }
         java.math.BigInteger[] unwrappedArray = unwrap(values);
         java.math.BigDecimal avg = MathUtils.avg(unwrappedArray);
-        return new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(avg),
+        return avg != null ? new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(avg),
             NumberOperations.AVG,
-            toBigDecimalValueValues(values));
+            toBigDecimalValueValues(values)) : null;
     }
 
     /**
@@ -83,9 +83,9 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         }
         java.math.BigInteger[] unwrappedArray = unwrap(values);
         java.math.BigInteger sum = MathUtils.sum(unwrappedArray);
-        return new org.openl.meta.BigIntegerValue(new org.openl.meta.BigIntegerValue(sum),
+        return sum != null ? new org.openl.meta.BigIntegerValue(new org.openl.meta.BigIntegerValue(sum),
             NumberOperations.SUM,
-            values);
+            values) : null;
     }
 
     /**
@@ -100,9 +100,9 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         }
         java.math.BigInteger[] unwrappedArray = unwrap(values);
         java.math.BigInteger median = MathUtils.median(unwrappedArray);
-        return new org.openl.meta.BigIntegerValue(new org.openl.meta.BigIntegerValue(median),
+        return median != null ? new org.openl.meta.BigIntegerValue(new org.openl.meta.BigIntegerValue(median),
             NumberOperations.MEDIAN,
-            values);
+            values) : null;
     }
 
     /**
@@ -394,9 +394,9 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         java.math.BigInteger[] unwrappedArray = unwrap(values);
         java.math.BigInteger product = MathUtils.product(unwrappedArray);
         // we loose the parameters, but not the result of computation.
-        return new org.openl.meta.BigIntegerValue(new org.openl.meta.BigIntegerValue(product),
+        return product != null ? new org.openl.meta.BigIntegerValue(new org.openl.meta.BigIntegerValue(product),
             NumberOperations.PRODUCT,
-            null);
+            null) : null;
     }
 
     /**

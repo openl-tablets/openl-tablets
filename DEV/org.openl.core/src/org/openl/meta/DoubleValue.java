@@ -164,7 +164,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
         Double[] unwrappedArray = unwrap(values);
         Double avg = MathUtils.avg(unwrappedArray);
-        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg), NumberOperations.AVG, values);
+        return avg != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg), NumberOperations.AVG, values) : null;
     }
      /**
      * sum
@@ -177,7 +177,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
         Double[] unwrappedArray = unwrap(values);
         Double sum = MathUtils.sum(unwrappedArray);
-        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(sum), NumberOperations.SUM, values);
+        return sum != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(sum), NumberOperations.SUM, values) : null;
     }
      /**
      * median
@@ -190,7 +190,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
         Double[] unwrappedArray = unwrap(values);
         Double median = MathUtils.median(unwrappedArray);
-        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median), NumberOperations.MEDIAN, values);
+        return median != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median), NumberOperations.MEDIAN, values) : null;
     }
 
      /**
@@ -444,9 +444,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
             return null;
         }
         Double[] unwrappedArray = unwrap(values);
-        double product = MathUtils.product(unwrappedArray);
+        Double product = MathUtils.product(unwrappedArray);
         // we loose the parameters, but not the result of computation.
-        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
+        return product != null ? new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null) : null;
     }
      /**
      *   

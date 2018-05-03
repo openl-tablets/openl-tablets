@@ -66,9 +66,9 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         }
         Long[] unwrappedArray = unwrap(values);
         Double avg = MathUtils.avg(unwrappedArray);
-        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg),
+        return avg != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg),
             NumberOperations.AVG,
-            toDoubleValues(values));
+            toDoubleValues(values)) : null;
     }
 
     /**
@@ -83,7 +83,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         }
         Long[] unwrappedArray = unwrap(values);
         Long sum = MathUtils.sum(unwrappedArray);
-        return new org.openl.meta.LongValue(new org.openl.meta.LongValue(sum), NumberOperations.SUM, values);
+        return sum != null ? new org.openl.meta.LongValue(new org.openl.meta.LongValue(sum), NumberOperations.SUM, values) : null;
     }
 
     /**
@@ -98,9 +98,9 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         }
         Long[] unwrappedArray = unwrap(values);
         Double median = MathUtils.median(unwrappedArray);
-        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median),
+        return median != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median),
             NumberOperations.MEDIAN,
-            toDoubleValues(values));
+            toDoubleValues(values)) : null;
     }
 
     /**
@@ -384,9 +384,9 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
             return null;
         }
         Long[] unwrappedArray = unwrap(values);
-        double product = MathUtils.product(unwrappedArray);
+        Long product = MathUtils.product(unwrappedArray);
         // we loose the parameters, but not the result of computation.
-        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
+        return product != null ? new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null) : null;
     }
 
     /**

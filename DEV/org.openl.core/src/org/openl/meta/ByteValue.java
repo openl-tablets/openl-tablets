@@ -67,9 +67,9 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         Byte[] unwrappedArray = unwrap(values);
         Double avg = MathUtils.avg(unwrappedArray);
 
-        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg),
+        return avg != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg),
             NumberOperations.AVG,
-            toDoubleValues(values));
+            toDoubleValues(values)) : null;
     }
 
     /**
@@ -84,7 +84,9 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         }
         Byte[] unwrappedArray = unwrap(values);
         Byte sum = MathUtils.sum(unwrappedArray);
-        return new org.openl.meta.ByteValue(new org.openl.meta.ByteValue(sum), NumberOperations.SUM, values);
+        return sum != null ? new org.openl.meta.ByteValue(new org.openl.meta.ByteValue(sum),
+            NumberOperations.SUM,
+            values) : null;
     }
 
     /**
@@ -99,9 +101,9 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         }
         Byte[] unwrappedArray = unwrap(values);
         Double median = MathUtils.median(unwrappedArray);
-        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median),
+        return median != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median),
             NumberOperations.MEDIAN,
-            toDoubleValues(values));
+            toDoubleValues(values)) : null;
     }
 
     /**
@@ -369,24 +371,6 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
             return new LongValue(result, NumberOperations.QUOTIENT, null);
         }
         return null;
-    }
-
-    // generated product function for types that are wrappers over primitives
-    /**
-     * Multiplies the numbers from the provided array and returns the product as
-     * a number.
-     * 
-     * @param values an array of IntValue which will be converted to DoubleValue
-     * @return the product as a number
-     */
-    public static DoubleValue product(org.openl.meta.ByteValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
-        Byte[] unwrappedArray = unwrap(values);
-        double product = MathUtils.product(unwrappedArray);
-        // we loose the parameters, but not the result of computation.
-        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
     }
 
     /**
@@ -780,9 +764,10 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 
         Byte[] unwrappedArray = new Byte[values.length];
         for (int i = 0; i < values.length; i++) {
-            unwrappedArray[i] = values[i].getValue();
+            if (values[i] != null) {
+                unwrappedArray[i] = values[i].getValue();
+            }
         }
         return unwrappedArray;
     }
-
 }

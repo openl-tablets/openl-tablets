@@ -136,7 +136,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
         Float[] unwrappedArray = unwrap(values);
         Float avg = MathUtils.avg(unwrappedArray);
-        return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(avg), NumberOperations.AVG, values);
+        return avg != null ? new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(avg), NumberOperations.AVG, values) : null;
     }
 
     /**
@@ -151,7 +151,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
         Float[] unwrappedArray = unwrap(values);
         Float sum = MathUtils.sum(unwrappedArray);
-        return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(sum), NumberOperations.SUM, values);
+        return sum != null ? new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(sum), NumberOperations.SUM, values) : null;
     }
 
     /**
@@ -166,7 +166,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
         Float[] unwrappedArray = unwrap(values);
         Float median = MathUtils.median(unwrappedArray);
-        return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(median), NumberOperations.MEDIAN, values);
+        return median != null ? new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(median), NumberOperations.MEDIAN, values) : null;
     }
 
     /**
@@ -430,24 +430,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
             return new LongValue(result, NumberOperations.QUOTIENT, null);
         }
         return null;
-    }
-
-    // generated product function for types that are wrappers over primitives
-    /**
-     * Multiplies the numbers from the provided array and returns the product as
-     * a number.
-     * 
-     * @param values an array of IntValue which will be converted to DoubleValue
-     * @return the product as a number
-     */
-    public static DoubleValue product(org.openl.meta.FloatValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
-        Float[] unwrappedArray = unwrap(values);
-        double product = MathUtils.product(unwrappedArray);
-        // we loose the parameters, but not the result of computation.
-        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
     }
 
     /**
