@@ -158,6 +158,7 @@ class SimpleBeanByteCodeGenerator {
 
         av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlType;", true);
         av.visit("namespace", namespace);
+        av.visit("name", beannameWithPackage.substring(beannameWithPackage.lastIndexOf('/') + 1));
         av.visitEnd();
     }
 
