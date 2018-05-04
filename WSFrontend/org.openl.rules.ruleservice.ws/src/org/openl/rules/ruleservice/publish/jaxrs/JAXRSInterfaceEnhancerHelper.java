@@ -54,8 +54,6 @@ public class JAXRSInterfaceEnhancerHelper {
 
         private Class<?> originalClass;
         private OpenLService service;
-        private boolean changeReturnTypes = true;
-        private Map<Method, String> methodNames = null;
         private Map<Method, String> paths = null;
         private Map<Method, String> methodRequests = null;
 
@@ -95,11 +93,6 @@ public class JAXRSInterfaceEnhancerHelper {
             if (originalClass.getAnnotation(Produces.class) == null) {
                 addProducesAnnotation(this);
             }
-        }
-
-        private String changeReturnType(String signature) {
-            int index = signature.lastIndexOf(')');
-            return signature.substring(0, index + 1) + Type.getDescriptor(Response.class);
         }
 
         private String changeArgumentTypes(String signature, Method originalMethod) throws Exception {
@@ -207,77 +200,15 @@ public class JAXRSInterfaceEnhancerHelper {
                 throw new RuleServiceRuntimeException("Method is not found in the original class!");
             }
 
-            boolean skip = false;
-            if (originalMethod.getAnnotation(Path.class) != null) {
-                skip = true;
-            }
-            if (originalMethod.getAnnotation(POST.class) != null) {
-                skip = true;
-            }
-            if (originalMethod.getAnnotation(GET.class) != null) {
-                skip = true;
-            }
+            boolean skip = originalMethod.getAnnotation(Path.class) != null || originalMethod
+                .getAnnotation(POST.class) != null || originalMethod.getAnnotation(GET.class) != null;
 
             MethodVisitor mv;
-            String changeReturnType = changeReturnType(arg2);
-            if (!skip) {
-                boolean allParametersIsPrimitive = true;
-                Class<?>[] originalParameterTypes = originalMethod.getParameterTypes();
-                if (originalParameterTypes.length < MAX_PARAMETERS_COUNT_FOR_GET) {
-                    for (Class<?> parameterType : originalParameterTypes) {
-                        if (!parameterType.isPrimitive()) {
-                            allParametersIsPrimitive = false;
-                            break;
-                        }
-                    }
-                }
-                StringBuilder sb = new StringBuilder();
-                sb.append("/").append(getPath(originalMethod));
-                if (originalParameterTypes.length < MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive) {
-                    if (changeReturnTypes && !originalMethod.getReturnType().equals(Response.class)) {
-                        mv = super.visitMethod(arg0, methodName, changeReturnType, arg3, arg4);
-                    } else {
-                        mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
-                    }
-                    String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
-                    int i = 0;
-                    for (String paramName : parameterNames) {
-                        sb.append("/{").append(paramName).append(": .*}");
-                        addPathParamAnnotation(mv, i, paramName);
-                        i++;
-                    }
-                    addGetAnnotation(mv);
-                    addPathAnnotation(mv, sb.toString());
-                } else {
-                    try {
-                        if (changeReturnTypes && !originalMethod.getReturnType().equals(Response.class)) {
-                            if (originalParameterTypes.length > 1) {
-                                String changeArgumentTypes = changeArgumentTypes(changeReturnType, originalMethod);
-                                mv = super.visitMethod(arg0, methodName, changeArgumentTypes, arg3, arg4);
-                            } else {
-                                mv = super.visitMethod(arg0, methodName, changeReturnType, arg3, arg4);
-                            }
-                            annotateReturnElementClass(mv, originalMethod.getReturnType());
-                        } else {
-                            if (originalParameterTypes.length > 1) {
-                                String changeArgumentTypes = changeArgumentTypes(arg2, originalMethod);
-                                mv = super.visitMethod(arg0, methodName, changeArgumentTypes, arg3, arg4);
-                            } else {
-                                mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
-                            }
-                        }
-                        addPostAnnotation(mv);
-                        addPathAnnotation(mv, sb.toString());
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            } else {
-                if (changeReturnTypes && !originalMethod.getReturnType().equals(Response.class)) {
-                    mv = super.visitMethod(arg0, methodName, changeReturnType, arg3, arg4);
-                } else {
-                    mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
-                }
+            Class<?> returnType = originalMethod.getReturnType();
+            boolean hasResponse = returnType.equals(Response.class);
+            arg2 = hasResponse ? arg2 : arg2.substring(0, arg2.lastIndexOf(')') + 1) + Type.getDescriptor(Response.class);
+            if (skip) {
+                mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
 
                 // Parameter annotations process, because InterfaceTransformet skip them
                 // Need refactoring.
@@ -290,6 +221,48 @@ public class JAXRSInterfaceEnhancerHelper {
                             InterfaceTransformer.processAnnotation(annotaton, av);
                         }
                         index++;
+                    }
+                }
+            } else {
+                boolean allParametersIsPrimitive = true;
+                Class<?>[] originalParameterTypes = originalMethod.getParameterTypes();
+                int numOfParameters = originalParameterTypes.length;
+                if (numOfParameters < MAX_PARAMETERS_COUNT_FOR_GET) {
+                    for (Class<?> parameterType : originalParameterTypes) {
+                        if (!parameterType.isPrimitive()) {
+                            allParametersIsPrimitive = false;
+                            break;
+                        }
+                    }
+                }
+                StringBuilder sb = new StringBuilder();
+                sb.append("/").append(getPath(originalMethod));
+                if (numOfParameters < MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive) {
+                    mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
+                    String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
+                    int i = 0;
+                    for (String paramName : parameterNames) {
+                        sb.append("/{").append(paramName).append(": .*}");
+                        addPathParamAnnotation(mv, i, paramName);
+                        i++;
+                    }
+                    addGetAnnotation(mv);
+                    addPathAnnotation(mv, sb.toString());
+                } else {
+                    try {
+                        if (numOfParameters > 1) {
+                            String changeArgumentTypes = changeArgumentTypes(arg2, originalMethod);
+                            mv = super.visitMethod(arg0, methodName, changeArgumentTypes, arg3, arg4);
+                        } else {
+                            mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
+                        }
+                        if (!hasResponse) {
+                            annotateReturnElementClass(mv, returnType);
+                        }
+                        addPostAnnotation(mv);
+                        addPathAnnotation(mv, sb.toString());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
                     }
                 }
             }
