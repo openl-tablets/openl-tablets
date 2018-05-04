@@ -10,7 +10,6 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.util.StringTool;
-import org.openl.util.StringUtils;
 
 /**
  * Writes getters to the generated bean class.
@@ -54,26 +53,16 @@ public class GettersWriter extends MethodWriter {
         String getterName = StringTool.getGetterName(fieldName);
 
         final String javaType = field.getTypeDescriptor();
-        final String format = new StringBuilder(64).append("()").append(javaType).toString();
+        final String format = "()" + javaType;
         methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, getterName, format, null, null);
 
-        String elementName = fieldName;
-        if (elementName.length() == 1){
-            elementName = elementName.toLowerCase();
-        }else{
-            if (fieldName.length() > 1 && Character.isUpperCase(elementName.charAt(1))){
-                elementName = StringUtils.capitalize(elementName);
-            }else{
-                elementName = StringUtils.uncapitalize(elementName);
-            }
-        }
-        
         AnnotationVisitor av = methodVisitor.visitAnnotation("Ljavax/xml/bind/annotation/XmlElement;", true);
-        av.visit("name", elementName);
+        av.visit("name", fieldName);
 
-        if (field.hasDefaultKeyWord()) {
-            av.visit("nillable", false);
-        } else if (field.hasDefaultValue()) {
+        if (!field.hasDefaultValue() && field.getTypeDescriptor().length() != 1) {
+            av.visit("nillable", true);
+        }
+        if (field.hasDefaultValue() && !field.hasDefaultKeyWord()) {
             String defaultFieldValue = field.getDefaultValueAsString();
             if (Boolean.class.getName().equals(field.getTypeName()) || boolean.class.getName()
                 .equals(field.getTypeName())) {
@@ -83,8 +72,6 @@ public class GettersWriter extends MethodWriter {
                 defaultFieldValue = ISO8601DateFormater.format(date);
             }
             av.visit("defaultValue", defaultFieldValue);
-        } else {
-            av.visit("nillable", true);
         }
         av.visitEnd();
 
