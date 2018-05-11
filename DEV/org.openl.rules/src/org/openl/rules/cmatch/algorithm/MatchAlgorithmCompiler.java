@@ -5,18 +5,18 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.rules.binding.RuleRowHelper;
-import org.openl.rules.cmatch.ColumnMatch;
-import org.openl.rules.cmatch.MatchNode;
-import org.openl.rules.cmatch.SubValue;
-import org.openl.rules.cmatch.TableColumn;
-import org.openl.rules.cmatch.TableRow;
+import org.openl.rules.cmatch.*;
 import org.openl.rules.cmatch.matcher.IMatcher;
 import org.openl.rules.cmatch.matcher.MatcherFactory;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.lang.xls.types.meta.BaseMetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -341,10 +341,18 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             SubValue sv,
             String s,
             ConstantOpenField constantOpenField) {
-        IGridTable tableBodyGrid = columnMatch.getSyntaxNode().getTableBody().getSource();
-        IGrid grid = tableBodyGrid.getGrid();
-        IGridRegion gridRegion = sv.getGridRegion();
-        RuleRowHelper.setMetaInfoWithNodeUsageForConstantCell(grid.getCell(gridRegion.getLeft(), gridRegion.getTop()), s, constantOpenField, bindingContext);
+        if (!bindingContext.isExecutionMode()) {
+            IGridTable tableBodyGrid = columnMatch.getSyntaxNode().getTableBody().getSource();
+            IGrid grid = tableBodyGrid.getGrid();
+            IGridRegion gridRegion = sv.getGridRegion();
+            ICell cell = grid.getCell(gridRegion.getLeft(), gridRegion.getTop());
+            MetaInfoReader metaInfoReader = columnMatch.getSyntaxNode().getMetaInfoReader();
+            if (metaInfoReader instanceof BaseMetaInfoReader) {
+                SimpleNodeUsage nodeUsage = RuleRowHelper.createConstantNodeUsage(s, constantOpenField);
+                ((BaseMetaInfoReader) metaInfoReader).addConstant(cell, nodeUsage);
+            }
+            RuleRowHelper.setMetaInfoWithNodeUsageForConstantCell(cell, s, constantOpenField, bindingContext);
+        }
     }
 
     /**

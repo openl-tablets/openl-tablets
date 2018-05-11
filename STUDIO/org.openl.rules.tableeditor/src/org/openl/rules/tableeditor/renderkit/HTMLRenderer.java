@@ -37,7 +37,7 @@ public class HTMLRenderer {
         Map<String, Object> requestMap = FacesUtils.getRequestMap();
         Set<String> resources = (Set<String>) requestMap.get(Constants.TABLE_EDITOR_RESOURCES);
         if (resources == null) {
-            resources = new HashSet<String>();
+            resources = new HashSet<>();
             requestMap.put(Constants.TABLE_EDITOR_RESOURCES, resources);
         }
         return resources;
@@ -82,7 +82,7 @@ public class HTMLRenderer {
             IGridTable table = editor.getTable().getGridTable(editor.getView());
             int numRows = getMaxNumRowsToDisplay(table);
             TableModel tableModel = TableModel.initializeTableModel(table, filters, numRows, editor.getLinkBuilder(),
-                    mode, editor.getView());
+                    mode, editor.getView(), editor.getMetaInfoReader());
 
             if (tableModel != null) {
                 TableRenderer tableRenderer = new TableRenderer(tableModel);

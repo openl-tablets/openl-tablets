@@ -7,7 +7,6 @@
 package org.openl.rules.table.xls;
 
 import java.awt.*;
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +34,7 @@ import org.openl.domain.IDomain;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.AGrid;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.GridRegion;
@@ -63,7 +63,7 @@ import org.openl.util.StringUtils;
  * @author snshor
  * 
  */
-public class XlsSheetGridModel extends AGrid implements IWritableGrid {
+public class XlsSheetGridModel extends AGrid implements IWritableGrid, MetaInfoReader {
 
     private XlsSheetSourceCodeModule sheetSource;
 
@@ -200,6 +200,11 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     CellMetaInfo getCellMetaInfo(int col, int row) {
         CellKey ck = CellKey.CellKeyFactory.getCellKey(col, row);
         return metaInfoMap.get(ck);
+    }
+
+    @Override
+    public CellMetaInfo getMetaInfo(int row, int col) {
+        return getCellMetaInfo(col, row);
     }
 
     public int getColumnWidth(int col) {

@@ -37,8 +37,9 @@ public class FormattedCell implements ICell {
 
     private Object objectValue;
     private String formattedValue;
+    private final CellMetaInfo metaInfo;
 
-    public FormattedCell(ICell delegate) {
+    public FormattedCell(ICell delegate, CellMetaInfo cellMetaInfo) {
         this.delegate = delegate;
         try {
             this.objectValue = this.delegate.getObjectValue();
@@ -46,10 +47,11 @@ public class FormattedCell implements ICell {
             //logged in XlsCell.getObjectValue() method.
             this.objectValue = ERROR_VALUE;
         }
-        this.formattedValue = XlsDataFormatterFactory.getFormattedValue(delegate);
+        this.formattedValue = XlsDataFormatterFactory.getFormattedValue(delegate, cellMetaInfo);
 
         this.font = new CellFont(delegate.getFont());
         this.style = new CellStyle(delegate.getStyle());
+        this.metaInfo = cellMetaInfo;
     }
 
     public ICellStyle getStyle() {
@@ -156,7 +158,7 @@ public class FormattedCell implements ICell {
     }
 
     public CellMetaInfo getMetaInfo() {
-        return delegate.getMetaInfo();
+        return metaInfo;
     }
 
     public void setMetaInfo(CellMetaInfo metaInfo) {

@@ -7,6 +7,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.tableeditor.model.ui.LinkBuilder;
@@ -38,6 +39,7 @@ public class TableEditor {
     private String excludeScripts;
     private LinkBuilder linkBuilder;
     private Integer rowIndex;
+    private MetaInfoReader metaInfoReader;
 
     public TableEditor() {
     }
@@ -64,6 +66,7 @@ public class TableEditor {
         onRequestEnd = (String) attributes.get(Constants.ATTRIBUTE_ON_REQUEST_END);
         excludeScripts = (String) attributes.get(Constants.ATTRIBUTE_EXCLUDE_SCRIPTS);
         rowIndex = (Integer) attributes.get(Constants.ATTRIBUTE_ROW_INDEX);
+        metaInfoReader = (MetaInfoReader) attributes.get(Constants.ATTRIBUTE_META_INFO_READER);
     }
 
     private void castToFilters(Object filtersParam) {
@@ -76,7 +79,7 @@ public class TableEditor {
         } else if (filtersParam instanceof Collection) {
             @SuppressWarnings("unchecked")
             Collection<IGridFilter> collection = (Collection<IGridFilter>) filtersParam;
-            filters = collection.toArray(new IGridFilter[collection.size()]);
+            filters = collection.toArray(new IGridFilter[0]);
         } else {
             throw new IllegalArgumentException(String.format("Unsupported type of parameter \"%s\"",
                     Constants.ATTRIBUTE_FILTERS));
@@ -241,5 +244,13 @@ public class TableEditor {
 
     public Integer getRowIndex() {
         return rowIndex;
+    }
+
+    public MetaInfoReader getMetaInfoReader() {
+        return metaInfoReader;
+    }
+
+    public void setMetaInfoReader(MetaInfoReader metaInfoReader) {
+        this.metaInfoReader = metaInfoReader;
     }
 }

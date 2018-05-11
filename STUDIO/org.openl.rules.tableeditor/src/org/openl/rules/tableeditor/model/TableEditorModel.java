@@ -15,6 +15,7 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.*;
 import org.openl.rules.table.actions.*;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
@@ -56,18 +57,23 @@ public class TableEditorModel {
     private String beforeEditAction;
     private String beforeSaveAction;
     private String afterSaveAction;
+    private final MetaInfoReader metaInfoReader;
 
     private UndoableActions actions = new UndoableActions();
 
     private TableEditor tableEditor;
 
     public TableEditorModel(TableEditor editor) {
-        this(editor.getTable(), editor.getView(), editor.isShowFormulas());
+        this(editor.getTable(), editor.getView(), editor.isShowFormulas(), editor.getMetaInfoReader());
         setTableEditor(editor);
     }
 
-    public TableEditorModel(IOpenLTable table, String view, boolean showFormulas) {
+    public TableEditorModel(IOpenLTable table,
+            String view,
+            boolean showFormulas,
+            MetaInfoReader metaInfoReader) {
         this.table = table;
+        this.metaInfoReader = metaInfoReader;
         this.gridTable = table.getGridTable(view);
         if (gridTable == table.getGridTable()) { // table have no business view(e.g. Method Table)
             this.view = IXlsTableNames.VIEW_DEVELOPER;
@@ -177,10 +183,10 @@ public class TableEditorModel {
             dataFormatter = formatter;
         } else {
             ICell cell = gridTable.getGrid().getCell(gcol, grow);
-            dataFormatter = XlsDataFormatterFactory.getFormatter(cell);
+            CellMetaInfo metaInfo = getMetaInfoReader().getMetaInfo(grow, gcol);
+            dataFormatter = XlsDataFormatterFactory.getFormatter(cell, metaInfo);
 
             // Don't reformat value if value is belong to domain
-            CellMetaInfo metaInfo = cell.getMetaInfo();
             IOpenClass dataType = metaInfo == null ? null : metaInfo.getDataType();
             if (value != null && dataType != null) {
                 IDomain<?> domain = dataType.getDomain();
@@ -209,6 +215,10 @@ public class TableEditorModel {
 
         action.doAction(gridTable);
         actions.addNewAction(action);
+    }
+
+    public MetaInfoReader getMetaInfoReader() {
+        return metaInfoReader;
     }
 
     public synchronized void setCellValue(int row, int col, String value) {

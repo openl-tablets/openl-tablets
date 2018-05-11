@@ -16,11 +16,7 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.DecisionTableHelper;
-import org.openl.rules.dt.DecisionTableLoader;
-import org.openl.rules.dt.IBaseAction;
-import org.openl.rules.dt.IBaseCondition;
+import org.openl.rules.dt.*;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dt.builder.ConditionsBuilder;
 import org.openl.rules.dt.builder.DecisionTableBuilder;
@@ -31,6 +27,7 @@ import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.Point;
@@ -130,6 +127,8 @@ class TableSyntaxNodeDispatcherBuilder {
             //
             Builder<DecisionTable> dtOpenLBuilder = initDecisionTableOpenlBuilder(tsn);
             DecisionTable decisionTable = dtOpenLBuilder.build();
+            // TODO: Possibly not needed. Dispatcher tables aren't shown in WebStudio anymore
+            tsn.setMetaInfoReader(new DecisionTableMetaInfoReader((DecisionTableBoundNode) decisionTable.getBoundNode(), decisionTable));
 
             loadCreatedTable(decisionTable, tsn);
 
@@ -367,7 +366,7 @@ class TableSyntaxNodeDispatcherBuilder {
      * @return properties values from tables in group.
      */
     private List<ITableProperties> getMethodsProperties() {
-        List<ITableProperties> propertiesValues = new ArrayList<ITableProperties>();
+        List<ITableProperties> propertiesValues = new ArrayList<>();
         for (IOpenMethod method : dispatcher.getCandidates()) {
             propertiesValues.add(PropertiesHelper.getTableProperties(method));
         }

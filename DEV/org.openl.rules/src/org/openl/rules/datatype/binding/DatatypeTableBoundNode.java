@@ -16,6 +16,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.NodeType;
+import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
@@ -27,16 +28,16 @@ import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass.OpenFieldsConstructor;
+import org.openl.rules.lang.xls.types.meta.BaseMetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.DatatypeTableMetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.utils.ParserUtils;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
+import org.openl.syntax.exception.*;
 import org.openl.syntax.exception.Runnable;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
@@ -138,6 +139,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private void addFields(final IBindingContext cxt) throws Exception {
 
         final ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
+        // Save normalized table to work with it later
+        this.table = dataTable;
 
         int tableHeight = 0;
 
@@ -391,10 +394,19 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 if (constantOpenField != null) {
                     fieldDescription.setDefaultValue(constantOpenField.getValue());
                     fieldDescription.setDefaultValueAsString(constantOpenField.getValueAsString());
-                    RuleRowHelper.setMetaInfoWithNodeUsageForConstantCell(getCellSource(row, cxt, 2).getCell(),
-                        defaultValue,
-                        constantOpenField,
-                        cxt);
+                    if (!cxt.isExecutionMode()) {
+                        ICell cell = getCellSource(row, cxt, 2).getCell();
+                        MetaInfoReader metaInfoReader = tableSyntaxNode.getMetaInfoReader();
+                        if (metaInfoReader instanceof BaseMetaInfoReader) {
+                            SimpleNodeUsage nodeUsage = RuleRowHelper.createConstantNodeUsage(defaultValue, constantOpenField);
+                            ((BaseMetaInfoReader) metaInfoReader).addConstant(cell, nodeUsage);
+                        }
+
+                        RuleRowHelper.setMetaInfoWithNodeUsageForConstantCell(cell,
+                                defaultValue,
+                                constantOpenField,
+                                cxt);
+                    }
                 } else {
                     fieldDescription.setDefaultValueAsString(defaultValue);
 
@@ -511,6 +523,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     public void finalizeBind(IBindingContext cxt) throws Exception {
+        if (!cxt.isExecutionMode()) {
+            tableSyntaxNode.setMetaInfoReader(new DatatypeTableMetaInfoReader(this));
+        }
         if (parentClassName != null) {
             IOpenClass parentClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, parentClassName);
             if (parentClass == null) {
@@ -593,4 +608,19 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         // nothing to remove
     }
 
+    public TableSyntaxNode getTableSyntaxNode() {
+        return tableSyntaxNode;
+    }
+
+    public DatatypeOpenClass getDataType() {
+        return dataType;
+    }
+
+    public ILogicalTable getTable() {
+        return table;
+    }
+
+    public IdentifierNode getParentClassIdentifier() {
+        return parentClassIdentifier;
+    }
 }

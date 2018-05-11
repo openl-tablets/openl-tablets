@@ -45,6 +45,11 @@ public class Table implements ITable {
         logicalTable = dataWithHeader;
     }
 
+    @Override
+    public ILogicalTable getData() {
+        return logicalTable;
+    }
+
     public void setModel(ITableModel dataModel) {
         this.dataModel = dataModel;
     }
@@ -107,6 +112,11 @@ public class Table implements ITable {
 
     public int getNumberOfColumns() {
         return dataModel.getDescriptor().length;
+    }
+
+    @Override
+    public ColumnDescriptor getColumnDescriptor(int i) {
+        return dataModel.getDescriptor()[i];
     }
 
     public int getNumberOfRows() {
@@ -215,20 +225,6 @@ public class Table implements ITable {
         int startRow = 1;
 
         Collection<SyntaxNodeException> errorSyntaxNodeExceptions = new ArrayList<>(0);
-
-        if (!bindingContext.isExecutionMode()) {
-            for (int j = 0; j < columns; j++) {
-                ColumnDescriptor descriptor = dataModel.getDescriptor()[j];
-
-                if (descriptor instanceof ForeignKeyColumnDescriptor) {
-                    ForeignKeyColumnDescriptor fkDescriptor = (ForeignKeyColumnDescriptor) descriptor;
-
-                    if (fkDescriptor.isReference()) {
-                        fkDescriptor.setForeignKeyCellMetaInfo(dataBase);
-                    }
-                }
-            }
-        }
 
         for (int i = startRow; i < rows; i++) {
 

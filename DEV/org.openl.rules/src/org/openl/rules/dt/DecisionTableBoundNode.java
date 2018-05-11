@@ -14,6 +14,7 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.types.IOpenMethodHeader;
 
@@ -37,6 +38,10 @@ public class DecisionTableBoundNode extends AMethodBasedNode {
     }
 
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
+        if (!bindingContext.isExecutionMode()) {
+            getTableSyntaxNode().setMetaInfoReader(new DecisionTableMetaInfoReader(this));
+        }
+
         super.finalizeBind(bindingContext);
         new DecisionTableLoader().loadAndBind(getTableSyntaxNode(), getDecisionTable(), getOpenl(), getModule(), bindingContext);
     }

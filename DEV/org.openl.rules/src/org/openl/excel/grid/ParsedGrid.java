@@ -7,12 +7,13 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.*;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.util.StringUtils;
 
-public class ParsedGrid extends AGrid {
+public class ParsedGrid extends AGrid implements MetaInfoReader {
     private final String workbookPath;
     private final Object[][] cells;
     private final String uri;
@@ -247,6 +248,11 @@ public class ParsedGrid extends AGrid {
         }
 
         return null;
+    }
+
+    @Override
+    public CellMetaInfo getMetaInfo(int row, int col) {
+        return getCellMetaInfo(col, row);
     }
 
     protected CellMetaInfo getCellMetaInfo(int col, int row) {

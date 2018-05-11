@@ -17,6 +17,7 @@ import org.openl.rules.datatype.binding.DatatypeTableBoundNode;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.ConstantsTableMetaInfoReader;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.utils.ParserUtils;
@@ -38,6 +39,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
     private TableSyntaxNode tableSyntaxNode;
     private ModuleOpenClass moduleOpenClass;
     private ILogicalTable table;
+    private ILogicalTable normalizedData;
     private OpenL openl;
     private Collection<ConstantOpenField> constantOpenFields = new ArrayList<>();
 
@@ -186,6 +188,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
 
     private void addConstants(final IBindingContext cxt) throws Exception {
         final ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
+        normalizedData = dataTable;
 
         int tableHeight = 0;
         if (dataTable != null) {
@@ -208,6 +211,10 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
 
     @Override
     public void finalizeBind(IBindingContext cxt) throws Exception {
+        if (!cxt.isExecutionMode()) {
+            getTableSyntaxNode().setMetaInfoReader(new ConstantsTableMetaInfoReader(this));
+        }
+
         addConstants(cxt);
 
         ILogicalTable tableBody = getTableSyntaxNode().getTableBody();
@@ -224,4 +231,11 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
         }
     }
 
+    public ILogicalTable getNormalizedData() {
+        return normalizedData;
+    }
+
+    public Collection<ConstantOpenField> getConstantOpenFields() {
+        return constantOpenFields;
+    }
 }

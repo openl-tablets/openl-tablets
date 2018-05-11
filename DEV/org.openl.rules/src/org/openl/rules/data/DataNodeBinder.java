@@ -37,7 +37,7 @@ import org.openl.util.text.TextInterval;
 public class DataNodeBinder extends AXlsTableBinder {
 
     // indexes of names in header
-    private static final int TYPE_INDEX = 1;
+    public static final int TYPE_INDEX = 1;
     private static final int TABLE_NAME_INDEX = 2;
 
     protected ATableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module) {
@@ -102,7 +102,7 @@ public class DataNodeBinder extends AXlsTableBinder {
     }
 
     private IdentifierNode[] mergeArraySimbols(IdentifierNode[] parsedHeader) {
-        List<IdentifierNode> parsedHeader1 = new ArrayList<IdentifierNode>();
+        List<IdentifierNode> parsedHeader1 = new ArrayList<>();
         parsedHeader1.add(parsedHeader[0]);
         int i = 2;
         StringBuilder sb = new StringBuilder();
@@ -140,7 +140,6 @@ public class DataNodeBinder extends AXlsTableBinder {
      * @param openl OpenL instance.
      * @param hasColumnTitleRow Flag representing if tableBody has title row for
      *            columns.
-     * @throws Exception
      */
     public void processTable(XlsModuleOpenClass xlsOpenClass,
             ITable tableToProcess,
@@ -178,7 +177,7 @@ public class DataNodeBinder extends AXlsTableBinder {
                     descriptors,
                     hasColumnTitleRow);
 
-                OpenlToolAdaptor ota = new OpenlToolAdaptor(openl, bindingContext);
+                OpenlToolAdaptor ota = new OpenlToolAdaptor(openl, bindingContext, tableToProcess.getTableSyntaxNode());
 
                 xlsOpenClass.getDataBase().preLoadTable(tableToProcess, dataModel, dataWithTitleRows, ota);
             } else {

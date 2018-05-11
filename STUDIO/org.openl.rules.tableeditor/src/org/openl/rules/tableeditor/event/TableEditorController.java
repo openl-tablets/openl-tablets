@@ -10,6 +10,7 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.formatters.FormulaFormatter;
@@ -97,8 +98,11 @@ public class TableEditorController extends BaseTableEditorController {
     public String getCellEditor() {
         TableEditorModel editorModel = startEditing(getEditorId());
         if (editorModel != null) {
-            ICell cell = editorModel.getOriginalGridTable().getCell(getCol(), getRow());
-            ICellEditor editor = new CellEditorSelector().selectEditor(cell);
+            int row = getRow();
+            int col = getCol();
+            ICell cell = editorModel.getOriginalGridTable().getCell(col, row);
+            CellMetaInfo meta = getMetaInfo(editorModel, row, col);
+            ICellEditor editor = new CellEditorSelector().selectEditor(cell, meta);
             EditorTypeResponse editorResponse = editor.getEditorTypeAndMetadata();
 
             String editorType = editorResponse.getEditor();
@@ -110,22 +114,28 @@ public class TableEditorController extends BaseTableEditorController {
         return "";
     }
 
-
     private String getCellEditorInitValue(String editorType, ICell cell) {
         String value = null;
 
         if (editorType.equals(ICellEditor.CE_NUMERIC)) {
             value = cell.getStringValue();
-
         } else if (editorType.equals(ICellEditor.CE_FORMULA)) {
             value = "=" + cell.getFormula();
-        } else if (CellMetaInfo.isCellContainsNodeUsages(cell)) {
+        } else if (editorType.equals(ICellEditor.CE_TEXT)) {
             value = cell.getStringValue();
         } else if (editorType.equals(ICellEditor.CE_DATE)) {
             // Format must be same as in DateEditor.js
             value = FormattersManager.format(cell.getObjectValue());
         }
         return value;
+    }
+
+    private CellMetaInfo getMetaInfo(TableEditorModel editorModel, int row, int col) {
+        IGridTable originalGridTable = editorModel.getOriginalGridTable();
+        IGridRegion originalRegion = originalGridTable.getRegion();
+        int gcol = originalRegion.getLeft() + col;
+        int grow = originalRegion.getTop() + row;
+        return editorModel.getMetaInfoReader().getMetaInfo(grow, gcol);
     }
 
     private int getCol() {
@@ -257,7 +267,8 @@ public class TableEditorController extends BaseTableEditorController {
         if (ICellEditor.CE_FORMULA.equals(cellEditor)) {
             ICell cell = editorModel.getOriginalGridTable().getCell(col, row);
 
-            IFormatter currentFormatter = XlsDataFormatterFactory.getFormatter(cell);
+            CellMetaInfo meta = getMetaInfo(editorModel, row, col);
+            IFormatter currentFormatter = XlsDataFormatterFactory.getFormatter(cell, meta);
             IFormatter formulaResultFormatter = null;
             if (!(currentFormatter instanceof FormulaFormatter)) {
                 formulaResultFormatter = currentFormatter;
@@ -270,7 +281,8 @@ public class TableEditorController extends BaseTableEditorController {
         } else if (cellEditor == null) {
             // Format must be same as in DateEditor.js
             ICell cell = editorModel.getOriginalGridTable().getCell(col, row);
-            ICellEditor editor = new CellEditorSelector().selectEditor(cell);
+            CellMetaInfo meta = getMetaInfo(editorModel, row, col);
+            ICellEditor editor = new CellEditorSelector().selectEditor(cell, meta);
             if (ICellEditor.CE_DATE.equals(editor.getEditorTypeAndMetadata().getEditor())) {
                 return FormattersManager.getFormatter(Date.class);
             }

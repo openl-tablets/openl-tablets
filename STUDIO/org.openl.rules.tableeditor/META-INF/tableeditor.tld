@@ -242,5 +242,11 @@
                 <type>java.lang.Integer</type>
             </deferred-value>
         </attribute>
+        <attribute>
+            <name>metaInfoReader</name>
+            <deferred-value>
+                <type>org.openl.rules.lang.xls.types.meta.MetaInfoReader</type>
+            </deferred-value>
+        </attribute>
     </tag>
 </taglib>

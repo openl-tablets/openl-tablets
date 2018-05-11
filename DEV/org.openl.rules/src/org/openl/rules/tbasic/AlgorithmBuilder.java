@@ -12,6 +12,7 @@ import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.lang.xls.types.meta.AlgorithmMetaInfoReader;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -31,8 +32,8 @@ public class AlgorithmBuilder {
     private static final String LABEL = "label";
     private static final String DESCRIPTION = "description";
     private static final String OPERATION1 = "operation";
-    private static final String CONDITION = "condition";
-    private static final String ACTION = "action";
+    public static final String CONDITION = "condition";
+    public static final String ACTION = "action";
     private static final String BEFORE = "before";
     private static final String AFTER = "after";
     private static final String CELL = "cell";
@@ -51,22 +52,21 @@ public class AlgorithmBuilder {
 
     private static final String OPERATION = "Operation";
 
-    private static String[] algorithmOperationsArray = null;
-    private static CellMetaInfo cellMetaInfo = null;
+    public static final CellMetaInfo CELL_META_INFO;
 
     static {
         try {
             AlgorithmTableParserManager tbasicParser = AlgorithmTableParserManager.getInstance();
             TableParserSpecificationBean[] algSpecifications = tbasicParser.getAlgorithmSpecification();
 
-            Set<String> algorithmOperations = new LinkedHashSet<String>();
+            Set<String> algorithmOperations = new LinkedHashSet<>();
 
             for (TableParserSpecificationBean specification : algSpecifications) {
                 algorithmOperations.add(specification.getKeyword());
             }
-            algorithmOperationsArray = algorithmOperations.toArray(new String[algorithmOperations.size()]);
-            cellMetaInfo = new CellMetaInfo(new DomainOpenClass("operation",
-                JavaOpenClass.STRING, new EnumDomain<String>(algorithmOperationsArray), null), false);
+            String[] algorithmOperationsArray = algorithmOperations.toArray(new String[0]);
+            CELL_META_INFO = new CellMetaInfo(new DomainOpenClass("operation",
+                JavaOpenClass.STRING, new EnumDomain<>(algorithmOperationsArray), null), false);
         } catch (Throwable e) {
             Logger logger = LoggerFactory.getLogger(AlgorithmBuilder.class);
             logger.error(e.getMessage(), e);
@@ -91,16 +91,12 @@ public class AlgorithmBuilder {
     /**
      * Sets CellMetaInfo for operation cell. Thus, editor can use special
      * controller to validate/limit user input.
-     *
-     * @param c
-     * @param r
-     * @param grid
      */
-    private void bindMetaInfo(IGridTable grid, int c, int r) { 
+    private void bindMetaInfo(IGridTable grid, int c, int r) {
         grid.getGrid().getCell(
                 IGridRegion.Tool.getAbsoluteColumn(grid.getRegion(), c),
                 IGridRegion.Tool.getAbsoluteRow(grid.getRegion(), r)
-        ).setMetaInfo(cellMetaInfo);
+        ).setMetaInfo(CELL_META_INFO);
     }
 
     public void build(ILogicalTable tableBody) throws Exception {
@@ -128,7 +124,7 @@ public class AlgorithmBuilder {
     }
 
     private List<AlgorithmRow> buildRows(ILogicalTable tableBody) throws SyntaxNodeException {
-        List<AlgorithmRow> result = new ArrayList<AlgorithmRow>();
+        List<AlgorithmRow> result = new ArrayList<>();
 
         IGridTable grid = tableBody.getRows(2).getSource();
         for (int r = 0; r < grid.getHeight(); r++) {
@@ -162,6 +158,14 @@ public class AlgorithmBuilder {
                     ICellStyle cellStyle = grid.getCell(c, r).getStyle();
                     int i = (cellStyle == null) ? 0 : cellStyle.getIndent();
                     aRow.setOperationLevel(i);
+
+                    if (!bindingContext.isExecutionMode()) {
+                        if (tsn.getMetaInfoReader() instanceof AlgorithmMetaInfoReader) {
+                            int operationColumn = grid.getCell(c, r).getAbsoluteColumn();
+                            ((AlgorithmMetaInfoReader) tsn.getMetaInfoReader()).setOperationColumn(operationColumn);
+                        }
+                    }
+
                     bindMetaInfo(grid, c, r);
                 }
             }
@@ -173,7 +177,7 @@ public class AlgorithmBuilder {
     }
 
     private void prepareColumns(ILogicalTable tableBody) throws SyntaxNodeException {
-        columns = new HashMap<String, AlgorithmColumn>();
+        columns = new HashMap<>();
 
         ILogicalTable ids = tableBody.getRow(0);
 

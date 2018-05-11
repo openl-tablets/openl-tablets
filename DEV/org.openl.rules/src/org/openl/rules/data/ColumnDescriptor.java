@@ -337,4 +337,8 @@ public class ColumnDescriptor {
     public void setSupportMultirows(boolean supportMultirows) {
         this.supportMultirows = supportMultirows;
     }
+
+    public boolean isValuesAnArray() {
+        return valuesAnArray;
+    }
 }

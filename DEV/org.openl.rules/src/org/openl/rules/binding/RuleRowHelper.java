@@ -28,6 +28,8 @@ import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.dt.element.ArrayHolder;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.lang.xls.types.meta.BaseMetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
@@ -346,20 +348,24 @@ public class RuleRowHelper {
             }
 
             List<NodeUsage> nodeUsages = new ArrayList<NodeUsage>();
-            String description = MethodUtil.printType(constantOpenField.getType()) + " " + constantOpenField
-                .getName() + " = " + constantOpenField.getValueAsString();
             if (metaInfo.getUsedNodes() != null && !metaInfo.getUsedNodes().isEmpty()) {
                 nodeUsages.addAll(metaInfo.getUsedNodes());
             } else {
-                nodeUsages.add(new SimpleNodeUsage(0,
-                    cellCode.length() - 1,
-                    description,
-                    constantOpenField.getUri(),
-                    NodeType.OTHER));
+                nodeUsages.add(createConstantNodeUsage(cellCode, constantOpenField));
             }
             metaInfo.setUsedNodes(nodeUsages);
             sourceCell.setMetaInfo(metaInfo);
         }
+    }
+
+    public static SimpleNodeUsage createConstantNodeUsage(String cellCode, ConstantOpenField constantOpenField) {
+        String description = MethodUtil.printType(constantOpenField.getType()) + " " + constantOpenField
+                .getName() + " = " + constantOpenField.getValueAsString();
+        return new SimpleNodeUsage(0,
+                cellCode.length() - 1,
+                description,
+                constantOpenField.getUri(),
+                NodeType.OTHER);
     }
 
     public static ConstantOpenField findConstantField(IBindingContext bindingContext, String source) {
@@ -443,6 +449,13 @@ public class RuleRowHelper {
                 ConstantOpenField constantOpenField = findConstantField(bindingContext, source);
                 ICell theValueCell = cell.getSource().getCell(0, 0);
                 if (constantOpenField != null) {
+                    if (!bindingContext.isExecutionMode()) {
+                        MetaInfoReader metaInfoReader = openlAdapter.getTableSyntaxNode().getMetaInfoReader();
+                        if (metaInfoReader instanceof BaseMetaInfoReader) {
+                            SimpleNodeUsage nodeUsage = createConstantNodeUsage(theValueCell.getStringValue(), constantOpenField);
+                            ((BaseMetaInfoReader) metaInfoReader).addConstant(theValueCell, nodeUsage);
+                        }
+                    }
                     setMetaInfoWithNodeUsageForConstantCell(theValueCell,
                         theValueCell.getStringValue(),
                         constantOpenField,
@@ -571,17 +584,17 @@ public class RuleRowHelper {
             IMetaInfo metaInfo,
             NodeType nodeType) {
         if (metaInfo != null) {
-            SimpleNodeUsage nodeUsage = new SimpleNodeUsage(identifier,
-                metaInfo.getDisplayName(INamedThing.SHORT),
-                metaInfo.getSourceUrl(),
-                nodeType);
-            CellMetaInfo meta = new CellMetaInfo(
-                    JavaOpenClass.STRING,
-                false,
-                Collections.singletonList(nodeUsage));
             ICell cell = logicalCell.getSource().getCell(0, 0);
-            cell.setMetaInfo(meta);
+            cell.setMetaInfo(createCellMetaInfo(identifier, metaInfo, nodeType));
         }
+    }
+
+    public static CellMetaInfo createCellMetaInfo(IdentifierNode identifier, IMetaInfo metaInfo, NodeType nodeType) {
+        SimpleNodeUsage nodeUsage = new SimpleNodeUsage(identifier,
+            metaInfo.getDisplayName(INamedThing.SHORT),
+            metaInfo.getSourceUrl(),
+            nodeType);
+        return new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
     }
 
     private static void setMetaInfo(IMetaHolder holder,

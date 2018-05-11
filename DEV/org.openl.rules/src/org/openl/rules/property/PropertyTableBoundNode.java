@@ -8,6 +8,7 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.PropertyTableMetaInfoReader;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.types.IOpenClass;
@@ -20,7 +21,7 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
     private TableProperties propertiesInstance;
     private String tableName;
     
-    public PropertyTableBoundNode(TableSyntaxNode syntaxNode, XlsModuleOpenClass module) {
+    public PropertyTableBoundNode(TableSyntaxNode syntaxNode) {
         super(syntaxNode);
     }
 
@@ -39,8 +40,10 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
         return null;
     }
 
-    public void finalizeBind(IBindingContext cxt) throws Exception {
-        // don`t need to finalize anything
+    public void finalizeBind(IBindingContext cxt) {
+        if (!cxt.isExecutionMode()) {
+            getTableSyntaxNode().setMetaInfoReader(new PropertyTableMetaInfoReader(this));
+        }
     }
 
     public IOpenClass getType() {
@@ -75,7 +78,7 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
         }
     }
 
-    public void removeDebugInformation(IBindingContext cxt) throws Exception {
+    public void removeDebugInformation(IBindingContext cxt) {
         if (cxt.isExecutionMode() && field != null) {
             field.setPropertiesInstance(getTablePropertiesForExecutionMode(propertiesInstance));
         }

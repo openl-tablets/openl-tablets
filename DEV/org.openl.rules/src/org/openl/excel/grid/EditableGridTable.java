@@ -17,6 +17,9 @@ public class EditableGridTable extends GridTable {
         return grid.isEditing() ? grid.getWritableGrid() : super.getGrid();
     }
 
+    /**
+     * TODO: Remove
+     */
     @Override
     public ICell getCell(int column, int row) {
         ICell cell = super.getCell(column, row);

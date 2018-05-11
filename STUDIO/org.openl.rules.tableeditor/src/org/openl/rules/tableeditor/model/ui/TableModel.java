@@ -1,5 +1,6 @@
 package org.openl.rules.tableeditor.model.ui;
 
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.filters.IGridFilter;
@@ -20,20 +21,21 @@ public class TableModel {
     
     private final boolean showHeader;
 
-    public static TableModel initializeTableModel(IGridTable table) {
-        return initializeTableModel(table, null);
+    public static TableModel initializeTableModel(IGridTable table, int numRows, MetaInfoReader metaInfoReader) {
+        return initializeTableModel(table, null, numRows, null, null, null, metaInfoReader);
     }
 
-    public static TableModel initializeTableModel(IGridTable table, int numRows) {
-        return initializeTableModel(table, null, numRows, null, null, null);
+    public static TableModel initializeTableModel(IGridTable table, IGridFilter[] filters, MetaInfoReader metaInfoReader) {
+        return initializeTableModel(table, filters, -1, null, null, null, metaInfoReader);
     }
 
-    public static TableModel initializeTableModel(IGridTable table, IGridFilter[] filters) {
-        return initializeTableModel(table, filters, -1, null, null, null);
-    }
-
-    public static TableModel initializeTableModel(IGridTable table, IGridFilter[] filters, int numRows,
-            LinkBuilder linkBuilder, String mode, String view) {
+    public static TableModel initializeTableModel(IGridTable table,
+            IGridFilter[] filters,
+            int numRows,
+            LinkBuilder linkBuilder,
+            String mode,
+            String view,
+            MetaInfoReader metaInfoReader) {
         if (table == null) {
             return null;
         }
@@ -45,7 +47,7 @@ public class TableModel {
         IGrid grid;
 
         if (CollectionUtils.isNotEmpty(filters)) {
-            grid = new FilteredGrid(table.getGrid(), filters);
+            grid = new FilteredGrid(table.getGrid(), filters, metaInfoReader);
         } else {
             grid = table.getGrid();
         }
@@ -56,7 +58,7 @@ public class TableModel {
             ((GridRegion) region).setBottom(region.getTop() + numRows - 1);
         }
 
-        return new TableViewer(grid, region, linkBuilder, mode, view).buildModel(table, numRows);
+        return new TableViewer(grid, region, linkBuilder, mode, view, metaInfoReader).buildModel(table, numRows);
     }
     
     public boolean isShowHeader() {

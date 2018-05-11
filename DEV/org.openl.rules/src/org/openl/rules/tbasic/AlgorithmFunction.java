@@ -15,5 +15,7 @@ public abstract class AlgorithmFunction extends ExecutableRulesMethod {
 
     public abstract void setAlgorithmSteps(List<RuntimeOperation> operations);
 
+    public abstract List<RuntimeOperation> getAlgorithmSteps();
+
     public abstract void setLabels(Map<String, RuntimeOperation> localLabelsRegister);
 }

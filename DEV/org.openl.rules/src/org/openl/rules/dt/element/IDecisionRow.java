@@ -10,6 +10,7 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.dt.IBaseDecisionRow;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -64,7 +65,7 @@ public interface IDecisionRow  extends IBaseDecisionRow{
             OpenL openl,
             ComponentOpenClass componentModule,
             IBindingContext bindingContext,
-            RuleRow ruleRow) throws Exception;
+            RuleRow ruleRow, TableSyntaxNode tableSyntaxNode) throws Exception;
 
 	void loadValues(Object[] dest, int offset, int ruleN, Object target,
 			Object[] tableParams, IRuntimeEnv env);

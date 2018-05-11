@@ -1123,7 +1123,8 @@ public class ProjectModel {
 
     public TableEditorModel getTableEditorModel(IOpenLTable table) {
         String tableView = studio.getTableView();
-        return new TableEditorModel(table, tableView, false);
+        TableSyntaxNode syntaxNode = getNode(table.getUri());
+        return new TableEditorModel(table, tableView, false, syntaxNode.getMetaInfoReader());
     }
 
     public boolean isProjectCompiledSuccessfully() {

@@ -207,7 +207,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         bindingContext.addError(error);
     }
 
-    protected int getSignatureStartIndex() {
+    public int getSignatureStartIndex() {
         ICell cell = getTableSyntaxNode().getGridTable().getCell(0, 0);
         TextInfo tableHeaderText = new TextInfo(cell.getStringValue());
         return getTableSyntaxNode().getHeader().getHeaderToken().getLocation().getEnd().getAbsolutePosition(

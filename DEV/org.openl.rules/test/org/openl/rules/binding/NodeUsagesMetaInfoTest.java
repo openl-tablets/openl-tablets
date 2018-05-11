@@ -10,7 +10,9 @@ import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridTable;
 
 public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     private static final String SRC = "test/rules/binding/NodeUsagesMetaInfoTest.xls";
@@ -20,6 +22,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     private TableSyntaxNode carType;
     private TableSyntaxNode typeB;
     private TableSyntaxNode typeC;
+    private TableSyntaxNode typeCTransposed;
     private TableSyntaxNode rule1;
     private TableSyntaxNode rule2;
     private TableSyntaxNode convert;
@@ -27,19 +30,29 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     private TableSyntaxNode assetsCompare;
     private TableSyntaxNode totalAssets;
     private TableSyntaxNode miscAssets;
+    private MetaInfoReader dataBMetaReader;
+    private MetaInfoReader dataCMetaReader;
+    private MetaInfoReader typeCMetaReader;
+    private MetaInfoReader typeCTransposedMetaReader;
+    private MetaInfoReader rule1MetaReader;
+    private MetaInfoReader convertMetaReader;
+    private MetaInfoReader rule2MetaReader;
+    private MetaInfoReader method1MetaReader;
+    private MetaInfoReader assetsCompareMetaReader;
 
     public NodeUsagesMetaInfoTest() {
         super(SRC);
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         dataA = findTable("Data String dataA");
         dataB = findTable("Data TypeB dataB");
         dataC = findTable("Data TypeC dataC");
         carType = findTable("Datatype CarType <String>");
         typeB = findTable("Datatype TypeB");
         typeC = findTable("Datatype TypeC extends TypeB");
+        typeCTransposed = findTable("Datatype TypeCTransposed extends TypeB");
         rule1 = findTable("Rules TypeB rule1(TypeB typeB, TypeC typeC)");
         rule2 = findTable("Rules TypeB rule2(TypeB typeB, TypeC typeC)");
         convert = findTable("Method TypeB[][] convert(TypeC[][] param)");
@@ -48,88 +61,116 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assetsCompare = findTable("Spreadsheet SpreadsheetResult AssetsCompare ()");
         totalAssets = findTable("Spreadsheet SpreadsheetResult TotalAssets ()");
         miscAssets = findTable("Spreadsheet SpreadsheetResult MiscAssets (SpreadsheetResultTotalAssets totalAssets1, SpreadsheetResult totalAssets2)");
+
+        dataBMetaReader = dataB.getMetaInfoReader();
+        dataCMetaReader = dataC.getMetaInfoReader();
+        typeCMetaReader = typeC.getMetaInfoReader();
+        typeCTransposedMetaReader = typeCTransposed.getMetaInfoReader();
+        rule1MetaReader = rule1.getMetaInfoReader();
+        rule2MetaReader = rule2.getMetaInfoReader();
+        convertMetaReader = convert.getMetaInfoReader();
+        method1MetaReader = method1.getMetaInfoReader();
+        assetsCompareMetaReader = assetsCompare.getMetaInfoReader();
     }
 
     @Test
     public void testDataTableReference() {
         // Reference in dataB table points to dataA
         ICell referenceCell = dataB.getGridTable().getCell(0, 2);
-        assertTrue(CellMetaInfo.isCellContainsNodeUsages(referenceCell));
-        assertEquals(dataA.getUri(), referenceCell.getMetaInfo().getUsedNodes().get(0).getUri());
+        CellMetaInfo referenceCellMeta = getMetaInfo(dataBMetaReader, referenceCell);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(referenceCellMeta));
+        assertEquals(dataA.getUri(), referenceCellMeta.getUsedNodes().get(0).getUri());
 
         // Reference in empty dataC table points to dataA
         ICell referenceCellDataA = dataC.getGridTable().getCell(0, 2);
-        assertTrue(CellMetaInfo.isCellContainsNodeUsages(referenceCellDataA));
-        assertEquals(dataA.getUri(), referenceCellDataA.getMetaInfo().getUsedNodes().get(0).getUri());
+        CellMetaInfo referenceCellDataAMeta = getMetaInfo(dataCMetaReader, referenceCellDataA);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(referenceCellDataAMeta));
+        assertEquals(dataA.getUri(), referenceCellDataAMeta.getUsedNodes().get(0).getUri());
 
         // Reference in empty dataC table points to dataB
         ICell referenceCellDataB = dataC.getGridTable().getCell(1, 2);
-        assertTrue(CellMetaInfo.isCellContainsNodeUsages(referenceCellDataB));
-        assertEquals(dataB.getUri(), referenceCellDataB.getMetaInfo().getUsedNodes().get(0).getUri());
+        CellMetaInfo referenceCellDataBMeta = getMetaInfo(dataCMetaReader, referenceCellDataB);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(referenceCellDataBMeta));
+        assertEquals(dataB.getUri(), referenceCellDataBMeta.getUsedNodes().get(0).getUri());
     }
 
     @Test
-    public void testDataTypeNodeInDataTable() throws Exception {
+    public void testDataTypeNodeInDataTable() {
         ICell dataDeclarationCell = dataB.getGridTable().getCell(0, 0);
-        assertTrue(CellMetaInfo.isCellContainsNodeUsages(dataDeclarationCell));
-        assertEquals(typeB.getUri(), dataDeclarationCell.getMetaInfo().getUsedNodes().get(0).getUri());
+        CellMetaInfo dataDeclarationCellMeta = getMetaInfo(dataBMetaReader, dataDeclarationCell);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(dataDeclarationCellMeta));
+        assertEquals(typeB.getUri(), dataDeclarationCellMeta.getUsedNodes().get(0).getUri());
     }
 
     @Test
-    public void testDataTypeTable() throws Exception {
+    public void testDataTypeTable() {
         ICell dataTypeDeclarationCell = typeC.getGridTable().getCell(0, 0);
-        assertTrue(CellMetaInfo.isCellContainsNodeUsages(dataTypeDeclarationCell));
-        assertEquals(typeB.getUri(), dataTypeDeclarationCell.getMetaInfo().getUsedNodes().get(0).getUri());
+        CellMetaInfo dataTypeDeclarationCellMeta = getMetaInfo(typeCMetaReader, dataTypeDeclarationCell);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(dataTypeDeclarationCellMeta));
+        assertEquals(typeB.getUri(), dataTypeDeclarationCellMeta.getUsedNodes().get(0).getUri());
 
         ICell bField = typeC.getGridTable().getCell(0, 1);
-        assertTrue(CellMetaInfo.isCellContainsNodeUsages(bField));
-        assertEquals(typeB.getUri(), bField.getMetaInfo().getUsedNodes().get(0).getUri());
+        CellMetaInfo bFieldMeta = getMetaInfo(typeCMetaReader, bField);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(bFieldMeta));
+        assertEquals(typeB.getUri(), bFieldMeta.getUsedNodes().get(0).getUri());
 
         ICell bArray = typeC.getGridTable().getCell(0, 2);
-        assertTrue(CellMetaInfo.isCellContainsNodeUsages(bArray));
-        NodeUsage typeBNodeUsage = bArray.getMetaInfo().getUsedNodes().get(0);
+        CellMetaInfo bArrayMeta = getMetaInfo(typeCMetaReader, bArray);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(bArrayMeta));
+        NodeUsage typeBNodeUsage = bArrayMeta.getUsedNodes().get(0);
         assertEquals(typeB.getUri(), typeBNodeUsage.getUri());
         assertEquals(0, typeBNodeUsage.getStart());
         assertEquals(4, typeBNodeUsage.getEnd());
 
         ICell carTypes = typeC.getGridTable().getCell(0, 3);
-        assertTrue(CellMetaInfo.isCellContainsNodeUsages(carTypes));
-        NodeUsage carTypeNodeUsage = carTypes.getMetaInfo().getUsedNodes().get(0);
+        CellMetaInfo carTypesMeta = getMetaInfo(typeCMetaReader, carTypes);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(carTypesMeta));
+        NodeUsage carTypeNodeUsage = carTypesMeta.getUsedNodes().get(0);
         assertEquals(carType.getUri(), carTypeNodeUsage.getUri());
         assertEquals(0, carTypeNodeUsage.getStart());
         assertEquals(6, carTypeNodeUsage.getEnd());
     }
 
     @Test
-    public void testLinksInDecisionTableHeader() throws Exception {
+    public void testLinksInDecisionTableHeader() {
         ICell header = rule1.getGridTable().getCell(0, 0);
-        assertTrue(CellMetaInfo.isCellContainsNodeUsages(header));
+        CellMetaInfo headerMeta = getMetaInfo(rule1MetaReader, header);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(headerMeta));
 
-        List<? extends NodeUsage> usedNodes = header.getMetaInfo().getUsedNodes();
+        List<? extends NodeUsage> usedNodes = headerMeta.getUsedNodes();
         assertEquals(3, usedNodes.size());
         assertEquals(typeB.getUri(), usedNodes.get(0).getUri());
         assertEquals(typeB.getUri(), usedNodes.get(1).getUri());
         assertEquals(typeC.getUri(), usedNodes.get(2).getUri());
 
         ICell condition2 = rule1.getGridTable().getCell(1, 3);
-        assertTrue(CellMetaInfo.isCellContainsNodeUsages(condition2));
-        usedNodes = condition2.getMetaInfo().getUsedNodes();
+        CellMetaInfo condition2Meta = getMetaInfo(rule1MetaReader, condition2);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(condition2Meta));
+        usedNodes = condition2Meta.getUsedNodes();
         assertEquals(1, usedNodes.size());
         assertEquals(carType.getUri(), usedNodes.get(0).getUri());
 
         ICell returnCell = rule1.getGridTable().getCell(2, 3);
-        assertTrue(CellMetaInfo.isCellContainsNodeUsages(returnCell));
-        usedNodes = returnCell.getMetaInfo().getUsedNodes();
+        CellMetaInfo returnCellMeta = getMetaInfo(rule1MetaReader, returnCell);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(returnCellMeta));
+        usedNodes = returnCellMeta.getUsedNodes();
         assertEquals(1, usedNodes.size());
         assertEquals(typeB.getUri(), usedNodes.get(0).getUri());
+
+        ICell ruleCondition2 = rule1.getGridTable().getCell(1, 5);
+        CellMetaInfo ruleCondition2Meta = getMetaInfo(rule1MetaReader, ruleCondition2);
+        assertFalse(CellMetaInfo.isCellContainsNodeUsages(ruleCondition2Meta));
+        assertEquals("CarType", ruleCondition2Meta.getDataType().getName());
+        assertFalse(ruleCondition2Meta.isMultiValue());
     }
 
     @Test
-    public void testLinksInMethodTableHeader() throws Exception {
+    public void testLinksInMethodTableHeader() {
         ICell header = convert.getGridTable().getCell(0, 0);
-        assertTrue(CellMetaInfo.isCellContainsNodeUsages(header));
+        CellMetaInfo headerMeta = getMetaInfo(convertMetaReader, header);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(headerMeta));
 
-        List<? extends NodeUsage> usedNodes = header.getMetaInfo().getUsedNodes();
+        List<? extends NodeUsage> usedNodes = headerMeta.getUsedNodes();
         assertEquals(2, usedNodes.size());
 
         assertEquals(typeB.getUri(), usedNodes.get(0).getUri());
@@ -145,9 +186,10 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     public void testForFieldUsageInDecisionTable() {
         // First condition
         ICell condition1 = rule2.getGridTable().getCell(0, 2);
-        assertTrue(CellMetaInfo.isCellContainsNodeUsages(condition1));
+        CellMetaInfo condition1Meta = getMetaInfo(rule2MetaReader, condition1);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(condition1Meta));
 
-        List<? extends NodeUsage> usedNodes = condition1.getMetaInfo().getUsedNodes();
+        List<? extends NodeUsage> usedNodes = condition1Meta.getUsedNodes();
         assertEquals(2, usedNodes.size());
 
         assertEquals(typeC.getUri(), usedNodes.get(0).getUri());
@@ -160,9 +202,10 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
         // Second condition
         ICell condition2 = rule2.getGridTable().getCell(1, 2);
-        assertTrue(CellMetaInfo.isCellContainsNodeUsages(condition2));
+        CellMetaInfo condition2Meta = getMetaInfo(rule2MetaReader, condition2);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(condition2Meta));
 
-        usedNodes = condition2.getMetaInfo().getUsedNodes();
+        usedNodes = condition2Meta.getUsedNodes();
         assertEquals(1, usedNodes.size());
 
         assertEquals(typeC.getUri(), usedNodes.get(0).getUri());
@@ -174,9 +217,10 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     public void testForMixedNodeUsageInMethodTable() {
         // First line of method body
         ICell actionCell = method1.getGridTable().getCell(0, 1);
-        assertTrue(CellMetaInfo.isCellContainsNodeUsages(actionCell));
+        CellMetaInfo actionCellMeta = getMetaInfo(method1MetaReader, actionCell);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(actionCellMeta));
 
-        List<? extends NodeUsage> usedNodes = actionCell.getMetaInfo().getUsedNodes();
+        List<? extends NodeUsage> usedNodes = actionCellMeta.getUsedNodes();
         assertEquals(2, usedNodes.size());
 
         assertEquals(dataB.getUri(), usedNodes.get(0).getUri());
@@ -189,9 +233,10 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
         // Return cell
         ICell returnCell = method1.getGridTable().getCell(0, 2);
-        assertTrue(CellMetaInfo.isCellContainsNodeUsages(returnCell));
+        CellMetaInfo returnCellMeta = getMetaInfo(method1MetaReader, returnCell);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(returnCellMeta));
 
-        usedNodes = returnCell.getMetaInfo().getUsedNodes();
+        usedNodes = returnCellMeta.getUsedNodes();
         assertEquals(4, usedNodes.size());
 
         assertEquals(typeB.getUri(), usedNodes.get(0).getUri());
@@ -227,12 +272,12 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         List<? extends NodeUsage> usedNodes;
 
         // Variable declaration: "AssetsCalc2012 : SpreadsheetResultTotalAssets"
-        usedNodes = assetsCompare.getGridTable().getCell(0, 2).getMetaInfo().getUsedNodes();
+        usedNodes = getMetaInfo(assetsCompareMetaReader, assetsCompare.getGridTable().getCell(0, 2)).getUsedNodes();
         assertEquals("Spreadsheet TotalAssets", usedNodes.get(0).getDescription());
         assertEquals(totalAssets.getUri(), usedNodes.get(0).getUri());
 
         // AssetsCalc2012
-        usedNodes = assetsCompare.getGridTable().getCell(1, 2).getMetaInfo().getUsedNodes();
+        usedNodes = getMetaInfo(assetsCompareMetaReader, assetsCompare.getGridTable().getCell(1, 2)).getUsedNodes();
         assertEquals(2, usedNodes.size());
         // '=' symbol
         assertEquals("Cell type: SpreadsheetResultTotalAssets", usedNodes.get(0).getDescription());
@@ -241,17 +286,17 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals("SpreadsheetResultTotalAssets TotalAssets()", usedNodes.get(1).getDescription());
 
         // TotalAssets2012
-        usedNodes = assetsCompare.getGridTable().getCell(1, 3).getMetaInfo().getUsedNodes();
+        usedNodes = getMetaInfo(assetsCompareMetaReader, assetsCompare.getGridTable().getCell(1, 3)).getUsedNodes();
         assertEquals(3, usedNodes.size());
         assertEquals("Cell type: Long", usedNodes.get(0).getDescription()); // =
         assertEquals("SpreadsheetResultTotalAssets $AssetsCalc2012", usedNodes.get(1).getDescription()); // $AssetsCalc2012
         assertEquals("Spreadsheet TotalAssets\nLong $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total (other spreadsheet)
 
         // TotalAssets2011
-        assertFalse(CellMetaInfo.isCellContainsNodeUsages(assetsCompare.getGridTable().getCell(1, 4)));
+        assertFalse(CellMetaInfo.isCellContainsNodeUsages(getMetaInfo(assetsCompareMetaReader, assetsCompare.getGridTable().getCell(1, 4))));
 
         // Change in %
-        usedNodes = assetsCompare.getGridTable().getCell(1, 5).getMetaInfo().getUsedNodes();
+        usedNodes = getMetaInfo(assetsCompareMetaReader, assetsCompare.getGridTable().getCell(1, 5)).getUsedNodes();
         assertEquals(4, usedNodes.size());
         assertEquals("Cell type: Double", usedNodes.get(0).getDescription()); // =
         assertEquals("Long $TotalAssets2012", usedNodes.get(1).getDescription()); // $TotalAssets2012
@@ -271,14 +316,16 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         List<? extends NodeUsage> usedNodes;
 
         // USD
-        usedNodes = totalAssets.getGridTable().getCell(3, 2).getMetaInfo().getUsedNodes();
+        usedNodes = getMetaInfo(totalAssets.getMetaInfoReader(),
+                totalAssets.getGridTable().getCell(3, 2)).getUsedNodes();
         assertEquals(3, usedNodes.size());
         assertEquals("Cell type: Long", usedNodes.get(0).getDescription()); // =
         assertEquals("Double $Amount", usedNodes.get(1).getDescription()); // Amount
         assertEquals("Double $Exchange Rate", usedNodes.get(2).getDescription()); // $Exchange Rate
 
         // Total
-        usedNodes = totalAssets.getGridTable().getCell(3, 7).getMetaInfo().getUsedNodes();
+        usedNodes = getMetaInfo(totalAssets.getMetaInfoReader(),
+                totalAssets.getGridTable().getCell(3, 7)).getUsedNodes();
         assertEquals(2, usedNodes.size());
         assertEquals("Cell type: Long", usedNodes.get(0).getDescription()); // =
         assertEquals("Long[] $USD:$GLD", usedNodes.get(1).getDescription()); // $USD:$GLD (cell range)
@@ -296,7 +343,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         List<? extends NodeUsage> usedNodes;
 
         // TotalAssets1
-        usedNodes = miscAssets.getGridTable().getCell(1, 2).getMetaInfo().getUsedNodes();
+        usedNodes = getMetaInfo(miscAssets.getMetaInfoReader(), miscAssets.getGridTable().getCell(1, 2)).getUsedNodes();
         assertEquals(3, usedNodes.size());
         assertEquals("Cell type: Long", usedNodes.get(0).getDescription()); // =
         assertNull(usedNodes.get(0).getUri());
@@ -306,10 +353,58 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals(totalAssets.getUri(), usedNodes.get(2).getUri());
 
         // TotalAssets2
-        usedNodes = miscAssets.getGridTable().getCell(1, 3).getMetaInfo().getUsedNodes();
+        usedNodes = getMetaInfo(miscAssets.getMetaInfoReader(), miscAssets.getGridTable().getCell(1, 3)).getUsedNodes();
         assertEquals(3, usedNodes.size());
         assertEquals("Cell type: Object", usedNodes.get(0).getDescription()); // =
         assertEquals("SpreadsheetResult totalAssets2", usedNodes.get(1).getDescription()); // totalAssets2
         assertEquals("Spreadsheet\nObject $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total (other spreadsheet)
     }
+
+    @Test
+    public void testTransposedDataTypeTable() {
+        ICell dataTypeDeclarationCell = typeCTransposed.getGridTable().getCell(0, 0);
+        CellMetaInfo dataTypeDeclarationCellMeta = getMetaInfo(typeCTransposedMetaReader, dataTypeDeclarationCell);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(dataTypeDeclarationCellMeta));
+        assertEquals(typeB.getUri(), dataTypeDeclarationCellMeta.getUsedNodes().get(0).getUri());
+
+        ICell bField = typeCTransposed.getGridTable().getCell(0, 1);
+        CellMetaInfo bFieldMeta = getMetaInfo(typeCTransposedMetaReader, bField);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(bFieldMeta));
+        assertEquals(typeB.getUri(), bFieldMeta.getUsedNodes().get(0).getUri());
+
+        ICell bArray = typeCTransposed.getGridTable().getCell(1, 1);
+        CellMetaInfo bArrayMeta = getMetaInfo(typeCTransposedMetaReader, bArray);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(bArrayMeta));
+        NodeUsage typeBNodeUsage = bArrayMeta.getUsedNodes().get(0);
+        assertEquals(typeB.getUri(), typeBNodeUsage.getUri());
+        assertEquals(0, typeBNodeUsage.getStart());
+        assertEquals(4, typeBNodeUsage.getEnd());
+
+        ICell carTypes = typeCTransposed.getGridTable().getCell(2, 1);
+        CellMetaInfo carTypesMeta = getMetaInfo(typeCTransposedMetaReader, carTypes);
+        assertTrue(CellMetaInfo.isCellContainsNodeUsages(carTypesMeta));
+        NodeUsage carTypeNodeUsage = carTypesMeta.getUsedNodes().get(0);
+        assertEquals(carType.getUri(), carTypeNodeUsage.getUri());
+        assertEquals(0, carTypeNodeUsage.getStart());
+        assertEquals(6, carTypeNodeUsage.getEnd());
+    }
+
+    @Test
+    public void testAliasTable() {
+        MetaInfoReader metaInfoReader = carType.getMetaInfoReader();
+        IGridTable gridTable = carType.getGridTable();
+
+        assertNull(getMetaInfo(metaInfoReader, gridTable.getCell(0, 0)));
+
+        CellMetaInfo firstValueMeta = getMetaInfo(metaInfoReader, gridTable.getCell(0, 1));
+        assertNotNull(firstValueMeta);
+        assertFalse(CellMetaInfo.isCellContainsNodeUsages(firstValueMeta));
+        assertEquals(String.class, firstValueMeta.getDataType().getInstanceClass());
+        assertFalse(firstValueMeta.isMultiValue());
+    }
+
+    private CellMetaInfo getMetaInfo(MetaInfoReader metaInfoReader, ICell cell) {
+        return metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
+    }
+
 }

@@ -61,7 +61,7 @@ public class PropertyTableBinder extends DataNodeBinder {
         }
 
         TableProperties propertiesInstance = ((TableProperties[]) propertyTable.getDataArray())[0];
-        propertiesInstance.setPropertiesSection(tsn.getTable());
+        propertiesInstance.setPropertiesSection(tsn.getTable().getRows(1)); // Skip header
         propertiesInstance.setCurrentTableType(tsn.getType());
         
         PropertiesChecker.checkProperties(cxt, propertiesInstance.getAllProperties().keySet(), tsn, 
@@ -224,7 +224,7 @@ public class PropertyTableBinder extends DataNodeBinder {
     }
 
     protected ATableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module) {
-        return new PropertyTableBoundNode(tsn, module);
+        return new PropertyTableBoundNode(tsn);
     }
 
 }

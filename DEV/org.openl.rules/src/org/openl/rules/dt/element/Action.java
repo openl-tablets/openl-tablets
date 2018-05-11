@@ -9,6 +9,7 @@ import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.data.RuleExecutionObject;
 import org.openl.rules.dt.storage.IStorage;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -104,7 +105,7 @@ public class Action extends FunctionalRow implements IAction {
         return getMethod().invoke(target, mergeParams(target, params, env, ruleN), env);
     }
 
-    private IOpenClass exctractMethodTypeForCollectReturnAction(IOpenClass type) throws Exception {
+    private IOpenClass exctractMethodTypeForCollectReturnAction(IOpenClass type) {
         if (type.isArray()){
             return type.getComponentClass();
         }
@@ -122,7 +123,9 @@ public class Action extends FunctionalRow implements IAction {
             OpenL openl,
             ComponentOpenClass componentOpenClass,
             IBindingContext bindingContext,
-            RuleRow ruleRow, IOpenClass ruleExecutionType) throws Exception {
+            RuleRow ruleRow,
+            IOpenClass ruleExecutionType,
+            TableSyntaxNode tableSyntaxNode) throws Exception {
         
         this.returnType = header.getType();
         
@@ -139,7 +142,7 @@ public class Action extends FunctionalRow implements IAction {
             }
         }
         
-        prepare(methodType, signature, openl, componentOpenClass, bindingContext, ruleRow);
+        prepare(methodType, signature, openl, componentOpenClass, bindingContext, ruleRow, tableSyntaxNode);
         this.ruleExecutionType = ruleExecutionType;
 
         IParameterDeclaration[] params = getParams();

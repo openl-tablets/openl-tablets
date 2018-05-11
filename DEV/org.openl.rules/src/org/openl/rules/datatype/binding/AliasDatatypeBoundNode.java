@@ -4,6 +4,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.AliasDatatypeMetaInfoReader;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 
@@ -29,13 +30,23 @@ public class AliasDatatypeBoundNode implements IMemberBoundNode {
 	}
 
 	public void finalizeBind(IBindingContext cxt) throws Exception {
+        if (!cxt.isExecutionMode()) {
+            tableSyntaxNode.setMetaInfoReader(new AliasDatatypeMetaInfoReader(this));
+        }
 		// Add new type to internal types of module.
 		//
 		moduleOpenClass.addType(domainOpenClass);
 	}
 
-    public void removeDebugInformation(IBindingContext cxt) throws Exception {
+    public void removeDebugInformation(IBindingContext cxt) {
         //nothing to remove
     }
 
+	public TableSyntaxNode getTableSyntaxNode() {
+		return tableSyntaxNode;
+	}
+
+	public DomainOpenClass getDomainOpenClass() {
+		return domainOpenClass;
+	}
 }

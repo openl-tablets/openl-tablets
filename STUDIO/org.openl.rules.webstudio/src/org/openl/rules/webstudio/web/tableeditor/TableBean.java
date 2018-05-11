@@ -30,6 +30,7 @@ import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
@@ -252,6 +253,11 @@ public class TableBean {
 
     public IOpenLTable getTable() {
         return table;
+    }
+
+    public MetaInfoReader getMetaInfoReader() {
+        ProjectModel model = WebStudioUtils.getWebStudio().getModel();
+        return uri == null ? null : model.getNode(uri).getMetaInfoReader();
     }
 
     public Collection<OpenLMessage> getErrors() {

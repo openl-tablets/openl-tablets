@@ -2,23 +2,19 @@ package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.NodeType;
-import org.openl.binding.impl.NodeUsage;
-import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.convertor.IObjectToDataConvertor;
 import org.openl.rules.convertor.ObjectToDataConvertorFactory;
-import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.table.CellKey;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -32,8 +28,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
-import org.openl.util.text.ILocation;
-import org.openl.util.text.TextInfo;
 
 /**
  * Handles column descriptors that are represented as foreign keys to data from
@@ -50,7 +44,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     private final IdentifierNode foreignKey;
     private String[] foreignKeyColumnChainTokens = {};
 
-    private ICell foreignKeyCell;
+    private CellKey foreignKeyCellCoordinate;
     
     public ForeignKeyColumnDescriptor(IOpenField field,
             IdentifierNode foreignKeyTable,
@@ -65,7 +59,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         this.foreignKeyTable = foreignKeyTable;
         this.foreignKey = foreignKey;
         this.foreignKeyTableAccessorChainTokens = foreignKeyTableAccessorChainTokens;
-        this.foreignKeyCell = foreignKeyCell;
+        this.foreignKeyCellCoordinate = CellKey.CellKeyFactory.getCellKey(foreignKeyCell.getAbsoluteColumn(),
+                foreignKeyCell.getAbsoluteRow());
     }
 
     /**
@@ -311,16 +306,10 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
                 validateForeignTable(foreignTable, foreignKeyTableName);
 
-                int foreignKeyIndex = 0;
-                String columnName = NOT_INITIALIZED;
-
-                if (foreignKey != null) {
-                    columnName = foreignKey.getIdentifier();
-                    foreignKeyIndex = foreignTable.getColumnIndex(columnName);
-                }
+                int foreignKeyIndex = getForeignKeyIndex(foreignTable);
 
                 if (foreignKeyIndex == -1) {
-                    String message = "Column '" + columnName + "' is not found";
+                    String message = "Column '" + foreignKey.getIdentifier() + "' is not found";
                     throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
                 }
 
@@ -461,6 +450,33 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         }
     }
 
+    private int getForeignKeyIndex(ITable foreignTable) {
+        int foreignKeyIndex = 0;
+
+        if (foreignKey != null) {
+            String columnName = foreignKey.getIdentifier();
+            foreignKeyIndex = foreignTable.getColumnIndex(columnName);
+        }
+
+        return foreignKeyIndex;
+    }
+
+    public DomainOpenClass getDomainClassForForeignTable(IDataBase db) throws SyntaxNodeException {
+        if (foreignKeyTable != null) {
+            String foreignKeyTableName = foreignKeyTable.getIdentifier();
+            ITable foreignTable = db.getTable(foreignKeyTableName);
+
+            int foreignKeyIndex = getForeignKeyIndex(foreignTable);
+            if (foreignKeyIndex == -1) {
+                return null;
+            }
+
+            return getDomainClass(foreignTable, foreignKeyIndex, null);
+        }
+
+        return null;
+    }
+
     private DomainOpenClass getDomainClass(ITable foreignTable, int foreignKeyIndex, IBindingContext cxt) throws
                                                                                                           SyntaxNodeException {
         final List<Object> foreignTableValues = foreignTable.getUniqueValues(foreignKeyIndex);
@@ -505,24 +521,12 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         return new ResultChainObject(resObj, resInctClass);
     }
 
-    public void setForeignKeyCellMetaInfo(IDataBase db) {
-        if (foreignKeyCell != null) {
-            ITable foreignTable = db.getTable(foreignKeyTable.getIdentifier());
-            if (foreignTable != null) {
-                ILocation location = foreignKeyTable.getLocation();
-                NodeUsage nodeUsage = new SimpleNodeUsage(
-                    location.getStart().getAbsolutePosition(new TextInfo(foreignTable.getName())),
-                    location.getEnd().getAbsolutePosition(new TextInfo(foreignTable.getName())) - 1,
-                    foreignTable.getTableSyntaxNode().getHeaderLineValue().getValue(),
-                    foreignTable.getTableSyntaxNode().getUri(),
-                    NodeType.DATA);
-                CellMetaInfo meta = new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
-                foreignKeyCell.setMetaInfo(meta);
-            }
-        }
+    public IdentifierNode getForeignKeyTable() {
+        return foreignKeyTable;
+    }
 
-        // Not needed anymore
-        foreignKeyCell = null;
+    public CellKey getForeignKeyCellCoordinate() {
+        return foreignKeyCellCoordinate;
     }
 
     public IOpenField getForeignKeyField(IOpenClass type, IDataBase db) {

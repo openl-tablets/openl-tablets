@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.openl.rules.tbasic;
 
 import java.util.List;
@@ -80,6 +77,11 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
     @Override
     public void setAlgorithmSteps(List<RuntimeOperation> operations) {
         algorithmSteps = operations;
+    }
+
+    @Override
+    public List<RuntimeOperation> getAlgorithmSteps() {
+        return algorithmSteps;
     }
 
     @Override

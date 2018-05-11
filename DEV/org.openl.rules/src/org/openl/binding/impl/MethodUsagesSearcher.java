@@ -138,6 +138,9 @@ public class MethodUsagesSearcher {
             List<MethodUsage> methods,
             String sourceString,
             int startIndex) {
+        if (boundNode == null) {
+            return;
+        }
         if (boundNode instanceof MethodBoundNode) {
             MethodBoundNode methodBoundNode = (MethodBoundNode) boundNode;
             ILocation location = methodBoundNode.getSyntaxNode().getSourceLocation();

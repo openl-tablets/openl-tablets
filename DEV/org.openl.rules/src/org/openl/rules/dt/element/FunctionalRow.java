@@ -24,6 +24,7 @@ import org.openl.rules.dt.storage.IStorage;
 import org.openl.rules.dt.storage.IStorageBuilder;
 import org.openl.rules.dt.storage.StorageFactory;
 import org.openl.rules.dt.storage.StorageInfo;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -191,11 +192,12 @@ public abstract class FunctionalRow implements IDecisionRow {
             OpenL openl,
             ComponentOpenClass componentOpenClass,
             IBindingContext bindingContext,
-            RuleRow ruleRow) throws Exception {
+            RuleRow ruleRow,
+            TableSyntaxNode tableSyntaxNode) throws Exception {
 
         method = generateMethod(signature, openl, bindingContext, componentOpenClass, methodType);
 
-        OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext);
+        OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext, tableSyntaxNode);
 
         IOpenMethodHeader header = new OpenMethodHeader(name, null, signature, componentOpenClass);
         openlAdaptor.setHeader(header);
@@ -364,7 +366,15 @@ public abstract class FunctionalRow implements IDecisionRow {
         return decisionTable.getSubtable(column + IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, row, 1, 1);
     }
 
-    private int nValues() {
+    public ILogicalTable getCodeTable() {
+        return codeTable;
+    }
+
+    public ILogicalTable getParamsTable() {
+        return paramsTable;
+    }
+
+    public int nValues() {
         return decisionTable.getWidth() - IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
     }
 
@@ -592,6 +602,13 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     public StorageInfo getStorageInfo(int paramN) {
         return storage[paramN].getInfo();
+    }
+
+    public Object getStorageValue(int paramNum, int ruleNum) {
+        if (storage == null) {
+            return null;
+        }
+        return storage[paramNum].getValue(ruleNum);
     }
 
     @Override

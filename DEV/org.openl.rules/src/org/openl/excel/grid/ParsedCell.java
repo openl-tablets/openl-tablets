@@ -179,7 +179,7 @@ public class ParsedCell implements ICell {
 
     @Override
     public void setMetaInfo(CellMetaInfo cellMetaInfo) {
-        grid.setCellMetaInfo(column, row, cellMetaInfo);
+//        grid.setCellMetaInfo(column, row, cellMetaInfo);
     }
 
     @Override

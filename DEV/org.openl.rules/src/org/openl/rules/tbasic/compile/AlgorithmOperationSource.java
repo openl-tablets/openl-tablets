@@ -1,9 +1,7 @@
-/**
- *
- */
 package org.openl.rules.tbasic.compile;
 
 import org.openl.rules.table.IGridRegion;
+import org.openl.rules.tbasic.AlgorithmRow;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.source.IOpenSourceCodeModule;
 
@@ -49,5 +47,13 @@ public class AlgorithmOperationSource {
 
     public String getSourceUri() {
         return sourceNode.getAlgorithmRow().getOperation().asSourceCodeModule().getUri();
+    }
+
+    public AlgorithmRow getAlgorithmRow() {
+        return sourceNode.getAlgorithmRow();
+    }
+
+    public String getOperationFieldName() {
+        return operationFieldName;
     }
 }

@@ -31,6 +31,8 @@ import org.openl.rules.lang.xls.load.SimpleSheetLoader;
 import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.*;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -764,6 +766,14 @@ public class DecisionTableHelper {
             grid.setCellValue(column, 2, typeOfValue.getLeft());
 
             if (!bindingContext.isExecutionMode()) {
+                MetaInfoReader metaReader = decisionTable.getSyntaxNode().getMetaInfoReader();
+                if (metaReader instanceof DecisionTableMetaInfoReader) {
+                    DecisionTableMetaInfoReader metaInfoReader = (DecisionTableMetaInfoReader) metaReader;
+                    ICell cell = originalTable.getSource().getCell(column, 0);
+                    metaInfoReader.addSimpleRulesCondition(cell.getAbsoluteRow(),
+                            cell.getAbsoluteColumn(),
+                            conditions[i].getParameterIndex());
+                }
                 writeMetaInfoForCondition(originalTable,
                     column,
                     decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()),
@@ -805,6 +815,7 @@ public class DecisionTableHelper {
             int numberOfHcondition,
             int numberOfConditions,
             int hColumn) {
+        MetaInfoReader metaInfoReader = decisionTable.getSyntaxNode().getMetaInfoReader();
         int j = 0;
         for (int i = numberOfConditions - numberOfHcondition; i < numberOfConditions; i++) {
             int c = hColumn;
@@ -813,6 +824,11 @@ public class DecisionTableHelper {
 
                 String cellValue = cell.getStringValue();
                 if (cellValue != null) {
+                    if (metaInfoReader instanceof DecisionTableMetaInfoReader) {
+                        ((DecisionTableMetaInfoReader) metaInfoReader).addSimpleRulesCondition(cell.getAbsoluteRow(),
+                                cell.getAbsoluteColumn(),
+                                conditions[i].getParameterIndex());
+                    }
                     String text = String.format("Condition for %s: %s",
                             decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()),
                             decisionTable.getSignature().getParameterType(i).getDisplayName(0));
