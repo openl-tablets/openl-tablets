@@ -42,7 +42,6 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IWritableGrid;
-import org.openl.rules.table.Point;
 import org.openl.rules.table.RegionsPool;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.writers.AXlsCellWriter;
@@ -336,13 +335,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, MetaInfoR
             poiCell.setCellType(CELL_TYPE_BLANK);
         }
     }
-
-    @Override
-    public Point setCellValue(Point position, Object value) {
-        setCellValue(position.getColumn(), position.getRow(), value);
-        return position;
-    }
-
 
     public void setCellStringValue(int col, int row, String value) {
         PoiExcelHelper.setCellStringValue(col, row, value, getSheet());
