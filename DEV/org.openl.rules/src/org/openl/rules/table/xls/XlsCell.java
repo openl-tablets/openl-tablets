@@ -17,7 +17,6 @@ import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.xls.writers.AXlsCellWriter;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringPool;
 import org.openl.util.StringUtils;
@@ -106,33 +105,6 @@ public class XlsCell implements ICell {
         } else {
             // If cell belongs to some merged region, we try to get merged value from it.
             return extractValueFromRegion();
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    public void setObjectValue(Object value) {
-        Cell cell = getCell();
-        if (value != null) {
-            boolean writeCellMetaInfo = true;
-
-            // Don't write meta info for predefined String arrays to avoid
-            // removing Enum Domain meta info.
-            if (gridModel.hasEnumDomainMetaInfo(column, row)) {
-                writeCellMetaInfo = false;
-            }
-
-            // Don't write meta info for predefined String arrays to avoid
-            // removing Range Domain meta info.
-            if (gridModel.hasRangeDomainMetaInfo(column, row)) {
-                writeCellMetaInfo = false;
-            }
-
-            AXlsCellWriter cellWriter = gridModel.getCellWriter(value);
-            cellWriter.setCellToWrite(cell);
-            cellWriter.setValueToWrite(value);
-            cellWriter.writeCellValue(writeCellMetaInfo);
-        } else {
-            cell.setCellType(IGrid.CELL_TYPE_BLANK);
         }
     }
 
