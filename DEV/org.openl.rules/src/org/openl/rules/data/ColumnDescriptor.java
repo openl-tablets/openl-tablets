@@ -310,26 +310,6 @@ public class ColumnDescriptor {
         return arrayValues;
     }
 
-    public void setCellMetaInfo(ILogicalTable cell) {
-        if (field != null) {
-            IOpenClass paramType = field.getType();
-
-            if (valuesAnArray) {
-                paramType = paramType.getAggregateInfo().getComponentType(paramType);
-            }
-
-            if (cell.getHeight() == 1 && cell.getWidth() == 1) {
-                RuleRowHelper.setCellMetaInfo(cell, paramType, valuesAnArray);
-            } else {
-                cell = LogicalTableHelper.make1ColumnTable(cell);
-                int valuesTableHeight = RuleRowHelper.calculateHeight(cell);
-                for (int i = 0; i < valuesTableHeight; i++) {
-                    RuleRowHelper.setCellMetaInfo(cell.getRow(i), paramType, false);
-                }
-            }
-        }
-    }
-
     public boolean isSupportMultirows() {
         return supportMultirows;
     }

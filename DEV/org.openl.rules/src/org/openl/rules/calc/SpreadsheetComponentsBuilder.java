@@ -297,9 +297,6 @@ public class SpreadsheetComponentsBuilder {
                             cell = cellsHeaderExtractor.getColumnNamesTable().getColumn(headerDefinition.getColumn());
                         }
 
-                        RuleRowHelper.setCellMetaInfoWithNodeUsage(cell, identifier, type.getMetaInfo(),
-                                NodeType.DATATYPE);
-
                         MetaInfoReader metaInfoReader = getTableSyntaxNode().getMetaInfoReader();
                         if (metaInfoReader instanceof SpreadsheetMetaInfoReader) {
                             IMetaInfo typeMeta = type.getMetaInfo();

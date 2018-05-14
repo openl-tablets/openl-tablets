@@ -2,19 +2,9 @@ package org.openl.rules.table.xls;
 
 import java.util.Date;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Comment;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.openl.rules.lang.xls.load.CellLoader;
-import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.ICellComment;
-import org.openl.rules.table.IGrid;
-import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.*;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.util.NumberUtils;
@@ -267,14 +257,6 @@ public class XlsCell implements ICell {
         } catch (NullPointerException npe){
             throw new IllegalStateException("Cannot parse the value as a date : " + cell.getNumericCellValue());
         }
-    }
-
-    public CellMetaInfo getMetaInfo() {
-        return gridModel.getCellMetaInfo(column, row);
-    }
-
-    public void setMetaInfo(CellMetaInfo metaInfo) {
-        gridModel.setCellMetaInfo(column, row, metaInfo);
     }
 
     private ICellStyle getCellStyle(Cell cell) {

@@ -12,7 +12,6 @@ import java.util.List;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
-import org.openl.binding.impl.NodeType;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -79,13 +78,6 @@ public class DataNodeBinder extends AXlsTableBinder {
         if (tableType == null) {
             String message = String.format("Type is not found: '%s'", typeName);
             throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TYPE_INDEX]);
-        }
-
-        if (!bindingContext.isExecutionMode()) {
-            RuleRowHelper.setCellMetaInfoWithNodeUsage(table,
-                parsedHeader[TYPE_INDEX],
-                tableType.getMetaInfo(),
-                NodeType.DATATYPE);
         }
 
         // Check that table type loaded properly.

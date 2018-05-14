@@ -1,11 +1,6 @@
 package org.openl.rules.tbasic;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.openl.binding.IBindingContext;
 import org.openl.domain.EnumDomain;
@@ -13,7 +8,6 @@ import org.openl.meta.StringValue;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.AlgorithmMetaInfoReader;
-import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -88,17 +82,6 @@ public class AlgorithmBuilder {
         this.tsn = tsn;
     }
 
-    /**
-     * Sets CellMetaInfo for operation cell. Thus, editor can use special
-     * controller to validate/limit user input.
-     */
-    private void bindMetaInfo(IGridTable grid, int c, int r) {
-        grid.getGrid().getCell(
-                IGridRegion.Tool.getAbsoluteColumn(grid.getRegion(), c),
-                IGridRegion.Tool.getAbsoluteRow(grid.getRegion(), r)
-        ).setMetaInfo(CELL_META_INFO);
-    }
-
     public void build(ILogicalTable tableBody) throws Exception {
         
         if (tableBody == null) {
@@ -165,8 +148,6 @@ public class AlgorithmBuilder {
                             ((AlgorithmMetaInfoReader) tsn.getMetaInfoReader()).setOperationColumn(operationColumn);
                         }
                     }
-
-                    bindMetaInfo(grid, c, r);
                 }
             }
 

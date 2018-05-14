@@ -2,7 +2,6 @@ package org.openl.rules.table;
 
 import java.util.Date;
 
-import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 
@@ -112,14 +111,6 @@ class CompositeCell implements ICell {
 
     public Date getNativeDate() {
         return delegate.getNativeDate();
-    }
-
-    public CellMetaInfo getMetaInfo() {
-        return delegate.getMetaInfo();
-    }
-
-    public void setMetaInfo(CellMetaInfo metaInfo) {
-        delegate.setMetaInfo(metaInfo);
     }
 
     public ICellComment getComment() {

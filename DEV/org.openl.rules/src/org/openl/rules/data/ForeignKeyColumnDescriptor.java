@@ -89,25 +89,19 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
      * @param foreignTable Foreign table with stored info about dependent
      *            values.
      * @param foreignKeyIndex index of the foreign key column
-     * @param domainClass domain class for the column values
      * @return foreign key values
      */
     private ArrayList<Object> getArrayValuesByForeignKey(ILogicalTable valuesTable,
             IBindingContext bindingContext,
             ITable foreignTable,
             int foreignKeyIndex,
-            IdentifierNode[] foreignKeyTableAccessorChainTokens,
-            DomainOpenClass domainClass) throws SyntaxNodeException {
+            IdentifierNode[] foreignKeyTableAccessorChainTokens) throws SyntaxNodeException {
 
         int valuesHeight = valuesTable.getHeight();
 
         ArrayList<Object> values = new ArrayList<>(valuesHeight);
 
         if (valuesHeight == 1) {
-
-            if(!bindingContext.isExecutionMode())
-                RuleRowHelper.setCellMetaInfo(valuesTable, domainClass, true);
-
             // load array of values as comma separated parameters
             String[] tokens = RuleRowHelper.extractElementsFromCommaSeparatedArray(valuesTable);
 
@@ -131,15 +125,10 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 String value = getCellStringValue(valueTable);
 
                 if (value == null || value.length() == 0) {
-                    // set meta info for empty cells.
-                    if(!bindingContext.isExecutionMode())
-                        RuleRowHelper.setCellMetaInfo(valueTable, domainClass, false);
                     values.add(null);
                     continue;
                 }
 
-                if(!bindingContext.isExecutionMode())
-                    RuleRowHelper.setCellMetaInfo(valueTable, domainClass, false);
                 Object res = getValueByForeignKeyIndex(bindingContext, foreignTable, foreignKeyIndex, foreignKeyTableAccessorChainTokens, valueTable, value);
 
                 addResValues(values, res);
@@ -349,17 +338,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 }
 
                 if (!(fieldType.isArray() && fieldType.getComponentClass().getInstanceClass().equals(resType.getInstanceClass()))) {
-                    if (StringUtils.isEmpty(s)) {
-                        // Set meta info for empty cells
-                        if (!cxt.isExecutionMode()) {
-                            DomainOpenClass domainClass = getDomainClass(foreignTable, foreignKeyIndex, cxt);
-                            RuleRowHelper.setCellMetaInfo(valuesTable, domainClass, false);
-                        }
-                    } else {
-                        if (!cxt.isExecutionMode()) {
-                            DomainOpenClass domainClass = getDomainClass(foreignTable, foreignKeyIndex, cxt);
-                            RuleRowHelper.setCellMetaInfo(valuesTable, domainClass, false);
-                        }
+                    if (!StringUtils.isEmpty(s)) {
                         Object res = getValueByForeignKeyIndex(cxt,
                             foreignTable,
                             foreignKeyIndex,
@@ -379,11 +358,10 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     }
                 } else {
                     // processing array or list values.
-                    DomainOpenClass domainClass = cxt.isExecutionMode() ? null : getDomainClass(foreignTable, foreignKeyIndex, cxt);
                     List<Object> cellValues = getArrayValuesByForeignKey(valuesTable, cxt, foreignTable,
                         foreignKeyIndex,
-                        foreignKeyTableAccessorChainTokens,
-                        domainClass);
+                        foreignKeyTableAccessorChainTokens
+                    );
                     // Cell can contain empty reference value. As a result we
                     // will
                     // receive collection with one null value element. The

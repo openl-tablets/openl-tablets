@@ -11,7 +11,6 @@ import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.NodeType;
-import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IDomain;
@@ -30,13 +29,7 @@ import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.BaseMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGrid;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.LogicalTableHelper;
-import org.openl.rules.table.SingleCellGridTable;
+import org.openl.rules.table.*;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
@@ -122,13 +115,6 @@ public class RuleRowHelper {
 
                 if (res == null) {
                     res = paramType.nullObject();
-
-                    // Set cell meta info manually.
-                    //
-                    //
-                    if (!openlAdaptor.getBindingContext().isExecutionMode()) {
-                        setCellMetaInfo(cell, paramType, true);
-                    }
                 }
 
                 values.add(res);
@@ -142,9 +128,6 @@ public class RuleRowHelper {
             }
         } else {
             arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { 0 });
-            if (!openlAdaptor.getBindingContext().isExecutionMode()) {
-                setCellMetaInfo(cell, paramType, true);
-            }
         }
 
         return arrayValues;
@@ -249,9 +232,6 @@ public class RuleRowHelper {
 
                 if (res != null) {
                     validateValue(res, paramType);
-                    if (!openlAdapter.getBindingContext().isExecutionMode()) {
-                        setCellMetaInfo(table, paramType, false);
-                    }
                     return res;
                 }
             } catch (Exception t) {
@@ -333,31 +313,6 @@ public class RuleRowHelper {
         return res;
     }
 
-    public static void setMetaInfoWithNodeUsageForConstantCell(ICell sourceCell,
-            String cellCode,
-            IOpenField openField,
-            IBindingContext bindingContext) {
-        if (!bindingContext.isExecutionMode()) {
-            ConstantOpenField constantOpenField = (ConstantOpenField) openField;
-            CellMetaInfo metaInfo = sourceCell.getMetaInfo();
-            if (metaInfo == null) {
-                metaInfo = new CellMetaInfo(
-                        JavaOpenClass.STRING,
-                    false,
-                    Collections.<NodeUsage> emptyList());
-            }
-
-            List<NodeUsage> nodeUsages = new ArrayList<NodeUsage>();
-            if (metaInfo.getUsedNodes() != null && !metaInfo.getUsedNodes().isEmpty()) {
-                nodeUsages.addAll(metaInfo.getUsedNodes());
-            } else {
-                nodeUsages.add(createConstantNodeUsage(cellCode, constantOpenField));
-            }
-            metaInfo.setUsedNodes(nodeUsages);
-            sourceCell.setMetaInfo(metaInfo);
-        }
-    }
-
     public static SimpleNodeUsage createConstantNodeUsage(String cellCode, ConstantOpenField constantOpenField) {
         String description = MethodUtil.printType(constantOpenField.getType()) + " " + constantOpenField
                 .getName() + " = " + constantOpenField.getValueAsString();
@@ -431,12 +386,6 @@ public class RuleRowHelper {
 
             Class<?> expectedType = paramType.getInstanceClass();
 
-            // Set cell meta information at first.
-            //
-            if (!openlAdapter.getBindingContext().isExecutionMode()) {
-                setCellMetaInfo(cell, paramType, isPartOfArray);
-            }
-
             // Try to get cell object value with appropriate string parser.
             // A parser instance will be selected using expected type of cell
             // value.
@@ -456,10 +405,6 @@ public class RuleRowHelper {
                             ((BaseMetaInfoReader) metaInfoReader).addConstant(theValueCell, nodeUsage);
                         }
                     }
-                    setMetaInfoWithNodeUsageForConstantCell(theValueCell,
-                        theValueCell.getStringValue(),
-                        constantOpenField,
-                        bindingContext);
                     if (constantOpenField.getValue() != null) {
                         result = castConstantToExpectedType(bindingContext, constantOpenField, paramType);
                     }
@@ -510,11 +455,6 @@ public class RuleRowHelper {
             }
 
             return result;
-        } else {
-            // Set meta info for empty cells. To suggest an appropriate editor
-            // according to cell type.
-            if (!openlAdapter.getBindingContext().isExecutionMode())
-                setCellMetaInfo(cell, paramType, false);
         }
 
         return null;
@@ -564,29 +504,6 @@ public class RuleRowHelper {
         }
 
         return false;
-    }
-
-    public static void setCellMetaInfo(ILogicalTable logicalCell,
-            IOpenClass paramType,
-            boolean isMultiValue) {
-        CellMetaInfo meta = new CellMetaInfo(paramType, isMultiValue);
-        ICell cell = logicalCell.getSource().getCell(0, 0);
-
-        if (cell.getMetaInfo() != null && cell.getMetaInfo().getUsedNodes() != null) {
-            meta.setUsedNodes(cell.getMetaInfo().getUsedNodes());
-        }
-
-        cell.setMetaInfo(meta);
-    }
-
-    public static void setCellMetaInfoWithNodeUsage(ILogicalTable logicalCell,
-            IdentifierNode identifier,
-            IMetaInfo metaInfo,
-            NodeType nodeType) {
-        if (metaInfo != null) {
-            ICell cell = logicalCell.getSource().getCell(0, 0);
-            cell.setMetaInfo(createCellMetaInfo(identifier, metaInfo, nodeType));
-        }
     }
 
     public static CellMetaInfo createCellMetaInfo(IdentifierNode identifier, IMetaInfo metaInfo, NodeType nodeType) {
@@ -657,21 +574,6 @@ public class RuleRowHelper {
         }
     }
 
-    private static Object loadEmptyCellParams(ILogicalTable dataTable,
-            String ruleName,
-            OpenlToolAdaptor openlAdaptor,
-            IOpenClass paramType) {
-        if (!openlAdaptor.getBindingContext().isExecutionMode()) {
-            if (paramType.isArray()) {
-                IOpenClass arrayType = paramType.getAggregateInfo().getComponentType(paramType);
-                setCellMetaInfo(dataTable, arrayType, true);
-            } else {
-                setCellMetaInfo(dataTable, paramType, false);
-            }
-        }
-        return null;
-    }
-
     public static Object loadParam(ILogicalTable dataTable,
             IOpenClass paramType,
             String paramName,
@@ -690,7 +592,7 @@ public class RuleRowHelper {
         boolean oneCellTable = height == 1;
 
         if (height == 0) {
-            return loadEmptyCellParams(dataTable, ruleName, openlAdaptor, paramType);
+            return null;
         }
 
         // If data table contains one cell and parameter type is not array type

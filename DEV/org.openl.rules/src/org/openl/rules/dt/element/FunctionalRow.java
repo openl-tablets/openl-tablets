@@ -11,7 +11,6 @@ import java.util.Set;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.exception.OpenLCompilationException;
@@ -36,12 +35,7 @@ import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenMethodHeader;
-import org.openl.types.IParameterDeclaration;
-import org.openl.types.NullOpenClass;
+import org.openl.types.*;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
@@ -492,10 +486,6 @@ public abstract class FunctionalRow implements IDecisionRow {
             throw SyntaxNodeExceptionUtils.createError("Type '" + typeCode + "'is not found", nodes[0]);
         }
 
-        if (!bindingContext.isExecutionMode()) {
-            setCellMetaInfo(paramNum, type);
-        }
-
         if (nodes.length == 1) {
             String paramName = makeParamName();
             return new ParameterDeclaration(type, paramName);
@@ -504,23 +494,6 @@ public abstract class FunctionalRow implements IDecisionRow {
         String name = nodes[1].getIdentifier();
 
         return new ParameterDeclaration(type, name);
-    }
-
-    protected void setCellMetaInfo(int paramNum, IOpenClass type) throws OpenLCompilationException {
-        IOpenClass typeForLink = type;
-        while (typeForLink.getMetaInfo() == null && typeForLink.isArray()) {
-            typeForLink = typeForLink.getComponentClass();
-        }
-
-        ILogicalTable table = paramsTable.getRow(paramNum);
-        if (table != null) {
-            GridCellSourceCodeModule source = new GridCellSourceCodeModule(table.getSource());
-            IdentifierNode[] paramNodes = Tokenizer.tokenize(source, "[] \n\r");
-            if (paramNodes.length > 0) {
-                RuleRowHelper
-                    .setCellMetaInfoWithNodeUsage(table, paramNodes[0], typeForLink.getMetaInfo(), NodeType.DATATYPE);
-            }
-        }
     }
 
     @Override

@@ -6,7 +6,6 @@ package org.openl.rules.datatype.binding;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,12 +14,10 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
-import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.meta.IMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.datatype.gen.FieldDescription;
@@ -320,14 +317,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             IOpenClass fieldType = getFieldType(cxt, row, rowSrc);
             IOpenField field = new DatatypeOpenField(dataType, fieldName, fieldType);
 
-            if (!cxt.isExecutionMode()) {
-                IdentifierNode[] parsedHeader = Tokenizer.tokenize(rowSrc, "[]\n\r");
-                IMetaInfo metaInfo = fieldType.getMetaInfo();
-
-                // Link to field type table
-                RuleRowHelper.setCellMetaInfoWithNodeUsage(row, parsedHeader[0], metaInfo, NodeType.DATATYPE);
-            }
-
             if (!isRecursiveField(field) && getRootComponentClass(field.getType()).getInstanceClass() == null) {
                 // For example type A depends on B and B depends on A. At this
                 // point B is not generated yet.
@@ -401,11 +390,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                             SimpleNodeUsage nodeUsage = RuleRowHelper.createConstantNodeUsage(defaultValue, constantOpenField);
                             ((BaseMetaInfoReader) metaInfoReader).addConstant(cell, nodeUsage);
                         }
-
-                        RuleRowHelper.setMetaInfoWithNodeUsageForConstantCell(cell,
-                                defaultValue,
-                                constantOpenField,
-                                cxt);
                     }
                 } else {
                     fieldDescription.setDefaultValueAsString(defaultValue);
@@ -416,9 +400,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                             Object value = RuleRowHelper.loadNativeValue(theCellValue, fieldType, cxt);
                             if (value != null) {
                                 fieldDescription.setDefaultValue(value);
-                                if (Date.class.equals(fieldType.getInstanceClass())) {
-                                    RuleRowHelper.setCellMetaInfo(row.getColumn(2), fieldType, false);
-                                }
                             }
                         }
                     }
@@ -551,15 +532,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             }
 
             dataType.setSuperClass(parentClass);
-
-            if (!cxt.isExecutionMode()) {
-                // Link to parent class table
-                RuleRowHelper.setCellMetaInfoWithNodeUsage(table,
-                    parentClassIdentifier,
-                    parentClass.getMetaInfo(),
-                    NodeType.DATATYPE);
-            }
-
         }
         addFields(cxt);
         // adding constructor with all fields after all fields have been added

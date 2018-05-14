@@ -228,7 +228,6 @@ public class TableSyntaxNode extends NaryNode {
     }
 
     public MetaInfoReader getMetaInfoReader() {
-//        if (true) return (MetaInfoReader) getGridTable().getGrid();
         return metaInfoReader;
     }
 

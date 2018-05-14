@@ -1,19 +1,20 @@
 package org.openl.excel.grid;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
 
 import org.openl.excel.parser.*;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.*;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.util.StringUtils;
 
-public class ParsedGrid extends AGrid implements MetaInfoReader {
+public class ParsedGrid extends AGrid {
     private final String workbookPath;
     private final Object[][] cells;
     private final String uri;
@@ -22,7 +23,6 @@ public class ParsedGrid extends AGrid implements MetaInfoReader {
     private final boolean use1904Windowing;
     private final List<IGridRegion> regions = new ArrayList<>();
 
-    private CellMetaInfo[][] metaInfoArray;
     private XlsSheetGridModel writableGrid;
 
     private transient IGridTable[] tables;
@@ -248,38 +248,6 @@ public class ParsedGrid extends AGrid implements MetaInfoReader {
         }
 
         return null;
-    }
-
-    @Override
-    public CellMetaInfo getMetaInfo(int row, int col) {
-        return getCellMetaInfo(col, row);
-    }
-
-    protected CellMetaInfo getCellMetaInfo(int col, int row) {
-        if (metaInfoArray == null) {
-            return null;
-        }
-
-        int internalRow = row - getFirstRowNum();
-        int internalCol = col - getFirstColNum();
-
-        if (internalRow >= metaInfoArray.length || internalCol >= metaInfoArray[internalRow].length) {
-            return null;
-        }
-
-        return metaInfoArray[internalRow][internalCol];
-    }
-
-    protected synchronized void setCellMetaInfo(int col, int row, CellMetaInfo meta) {
-        if (metaInfoArray == null) {
-            int columns = cells.length == 0 ? 0 : cells[0].length;
-            metaInfoArray = new CellMetaInfo[cells.length][columns];
-        }
-
-        int internalRow = row - getFirstRowNum();
-        int internalCol = col - getFirstColNum();
-
-        metaInfoArray[internalRow][internalCol] = meta;
     }
 
     protected Object[][] getCells() {

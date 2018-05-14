@@ -13,7 +13,6 @@ import org.openl.rules.cmatch.matcher.MatcherFactory;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
-import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.BaseMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ICell;
@@ -23,7 +22,6 @@ import org.openl.rules.table.IGridTable;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
-import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
@@ -46,51 +44,6 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
     protected void assignExecutor(ColumnMatch columnMatch) {
         columnMatch.setAlgorithmExecutor(EXECUTOR);
-    }
-
-    /**
-     * Sets CellMetaInfo by type of parsed value. Thus, editor can use special controller to validate/limit user input.
-     * <p>
-     * Null values from {@literal objValues} will be ignored. That let us use both numeric and range values.
-     * <p>
-     * Side effect: when matcher parse cell as numeric binding will block range there.
-     */
-    protected void bindMetaInfo(ColumnMatch columnMatch, SubValue[] subValues, Object[] objValues) {
-        IGridTable tableBodyGrid = columnMatch.getSyntaxNode().getTableBody().getSource();
-        IGrid grid = tableBodyGrid.getGrid();
-
-        // Bind cell data type based on parsed data
-        for (int i = 0; i < subValues.length; i++) {
-            IGridRegion gridRegion = subValues[i].getGridRegion();
-            Object cv = objValues[i];
-
-            if (cv != null && grid.getCell(gridRegion.getLeft(), gridRegion.getTop()).getMetaInfo() == null) {
-                IOpenClass paramType = JavaOpenClass.getOpenClass(cv.getClass());
-                CellMetaInfo meta = new CellMetaInfo(paramType, false);
-                grid.getCell(gridRegion.getLeft(), gridRegion.getTop()).setMetaInfo(meta);
-            }
-            // empty cells are left 'as is' -- suppose they are of String type
-        }
-    }
-
-    /**
-     * Sets CellMetaInfo for 'names' column (except special rows).
-     */
-    protected void bindNamesMetaInfo(ColumnMatch columnMatch, ArgumentsHelper argumentsHelper) {
-        DomainOpenClass domainOpenClass = argumentsHelper.generateDomainClassByArgNames();
-
-        IGridTable tableBodyGrid = columnMatch.getSyntaxNode().getTableBody().getSource();
-        IGrid grid = tableBodyGrid.getGrid();
-
-        List<TableRow> rows = columnMatch.getRows();
-        for (int i = getSpecialRowCount(); i < rows.size(); i++) {
-            TableRow row = rows.get(i);
-            SubValue nameSV = row.get(NAMES)[0];
-            IGridRegion gridRegion = nameSV.getGridRegion();
-
-            CellMetaInfo meta = new CellMetaInfo(domainOpenClass, false);
-            grid.getCell(gridRegion.getLeft(), gridRegion.getTop()).setMetaInfo(meta);
-        }
     }
 
     /**
@@ -221,7 +174,6 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         checkSpecialRows(columnMatch);
 
         ArgumentsHelper argumentsHelper = new ArgumentsHelper(columnMatch.getHeader().getSignature());
-        bindNamesMetaInfo(columnMatch, argumentsHelper);
 
         parseSpecialRows(bindingContext, columnMatch);
         // [0..X] special rows are ignored
@@ -306,8 +258,6 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         TableRow row0 = columnMatch.getRows().get(0);
         Object[] retValues = parseValues(bindingContext, columnMatch, row0, returnType);
         columnMatch.setReturnValues(retValues);
-
-        bindMetaInfo(columnMatch, row0.get(VALUES), retValues);
     }
 
     protected Object[] parseValues(IBindingContext bindingContext, ColumnMatch columnMatch, TableRow row, IOpenClass openClass) throws SyntaxNodeException {
@@ -351,7 +301,6 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                 SimpleNodeUsage nodeUsage = RuleRowHelper.createConstantNodeUsage(s, constantOpenField);
                 ((BaseMetaInfoReader) metaInfoReader).addConstant(cell, nodeUsage);
             }
-            RuleRowHelper.setMetaInfoWithNodeUsageForConstantCell(cell, s, constantOpenField, bindingContext);
         }
     }
 
@@ -399,8 +348,6 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             node.setArgument(arg);
 
             parseCheckValues(bindingContext, columnMatch, row, node, retValuesCount);
-
-            bindMetaInfo(columnMatch, row.get(VALUES), node.getCheckValues());
 
             nodes[i] = node;
         }

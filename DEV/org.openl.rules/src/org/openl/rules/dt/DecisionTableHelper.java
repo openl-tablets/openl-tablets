@@ -14,8 +14,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.NodeType;
-import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.constants.ConstantOpenField;
@@ -30,7 +28,6 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.load.SimpleSheetLoader;
 import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.*;
@@ -42,7 +39,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DomainOpenClass;
-import org.openl.types.java.JavaOpenClass;
 
 public class DecisionTableHelper {
 
@@ -467,18 +463,6 @@ public class DecisionTableHelper {
                     DecisionTableMetaInfoReader metaInfoReader = (DecisionTableMetaInfoReader) metaReader;
                     metaInfoReader.addSimpleRulesReturn(cell.getAbsoluteRow(), cell.getAbsoluteColumn(), description);
                 }
-
-                String stringValue = originalTable.getSource().getCell(column, numberOfMergedRows - 1).getStringValue();
-                SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
-                    stringValue.length() - 1,
-                    description,
-                    null,
-                    NodeType.OTHER);
-                CellMetaInfo meta = new CellMetaInfo(
-                        JavaOpenClass.STRING,
-                    false,
-                    Collections.singletonList(simpleNodeUsage));
-                cell.setMetaInfo(meta);
             }
 
             column += mergedColumnsCounts;
@@ -781,10 +765,6 @@ public class DecisionTableHelper {
                             cell.getAbsoluteColumn(),
                             conditions[i].getParameterIndex());
                 }
-                writeMetaInfoForCondition(originalTable,
-                    column,
-                    decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()),
-                    typeOfValue.getRight());
             }
 
             // merge columns
@@ -836,43 +816,11 @@ public class DecisionTableHelper {
                                 cell.getAbsoluteColumn(),
                                 conditions[i].getParameterIndex());
                     }
-                    String text = String.format("Condition for %s: %s",
-                            decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()),
-                            decisionTable.getSignature().getParameterType(i).getDisplayName(0));
-                    SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
-                            cellValue.length() - 1,
-                            text,
-                            null,
-                            NodeType.OTHER);
-                    CellMetaInfo meta = new CellMetaInfo(
-                            JavaOpenClass.STRING,
-                            false,
-                            Collections.singletonList(simpleNodeUsage));
-                    cell.setMetaInfo(meta);
                 }
                 c = c + cell.getWidth();
             }
             j++;
         }
-    }
-
-    private static void writeMetaInfoForCondition(ILogicalTable originalTable,
-            int column,
-            String parameterName,
-            String typeOfValue) {
-        String cellValue = originalTable.getSource().getCell(column, 0).getStringValue();
-        if (cellValue == null) {
-            return;
-        }
-
-        String text = String.format("Condition for %s: %s", parameterName, typeOfValue);
-        ICell cell = originalTable.getSource().getCell(column, 0);
-        SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0, cellValue.length() - 1, text, null, NodeType.OTHER);
-        CellMetaInfo meta = new CellMetaInfo(
-                JavaOpenClass.STRING,
-            false,
-            Collections.singletonList(simpleNodeUsage));
-        cell.setMetaInfo(meta);
     }
 
     private final static class Condition {
