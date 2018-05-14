@@ -127,7 +127,7 @@ public class MergedRegionsTest {
     private static boolean saveAfterFailure = false;
 
     private List<TestDesctiption> findAllTests(IWritableGrid grid) {
-        List<TestDesctiption> result = new ArrayList<TestDesctiption>();
+        List<TestDesctiption> result = new ArrayList<>();
         for (int row = 0; row <= grid.getMaxRowIndex(); row++) {
             for (int column = 0; column <= grid.getMaxColumnIndex(row); column++) {
                 ICell cell = grid.getCell(column, row);
@@ -174,14 +174,14 @@ public class MergedRegionsTest {
     }
 
     private boolean isEqualCells(ICell first, ICell second, XlsSheetGridModel grid) {
-        if (grid.isPartOfTheMergedRegion(first.getAbsoluteColumn(), first.getAbsoluteRow()) != grid
-                .isPartOfTheMergedRegion(second.getAbsoluteColumn(), second.getAbsoluteRow())) {
-            return false;
-        }
         if (first == null && second == null) {
             return true;
         }
         if (first == null || second == null) {
+            return false;
+        }
+        if (grid.isPartOfTheMergedRegion(first.getAbsoluteColumn(), first.getAbsoluteRow()) != grid
+                .isPartOfTheMergedRegion(second.getAbsoluteColumn(), second.getAbsoluteRow())) {
             return false;
         }
         String firstValue = first.getStringValue();
@@ -246,8 +246,7 @@ public class MergedRegionsTest {
                     e1.printStackTrace();
                 }
             }
-            assertFalse("Different cells:\n" + e.getResultCell().getUri() + "\n and \n" + e.getExpectedCell().getUri(),
-                    true);
+            fail("Different cells:\n" + e.getResultCell().getUri() + "\n and \n" + e.getExpectedCell().getUri());
         }
     }
 
