@@ -140,7 +140,32 @@ set _MEMORY=%_MEMORY:~0,-9%
 
 @rem 12GiB
 @if %_MEMORY% GEQ 12 set _JAVA_MEMORY=-Xms8g -Xmx10g
+
+@rem reset to safe settings for 32bit
+@pushd "%_JRE_HOME%"
+@if %_MEMORY% GEQ 4 FOR /f "tokens=3" %%G IN ('bin\java.exe -d64 -version 2^>^&1 ^| find "Error"') DO (
+set _JAVA_MEMORY=-Xms512m -Xmx1024m
+echo.
+echo.
+echo      ************************************************
+echo      *                                              *
+echo      *  Old 32-bit Java version has been detected!  *
+echo      *                                              *
+echo      *   A limited amount of memory will be used.   *
+echo      *                                              *
+echo      ************************************************
+echo.
+echo.
 )
+@popd
+)
+
+@rem Show Java version
+@pushd "%_JRE_HOME%"
+@bin\java.exe %_JAVA_MEMORY% -version
+@echo.
+@echo -------------------------------
+@popd
 
 @rem Apply security policy for demo
 @if exist demo-java.policy set CATALINA_OPTS=%CATALINA_OPTS% -Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=%JAVA_EXTENSIONS_DIR%
