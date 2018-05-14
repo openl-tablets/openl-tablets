@@ -1,5 +1,6 @@
 package org.openl.rules.table.actions;
 
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.*;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
 
@@ -11,11 +12,13 @@ public class UndoableInsertColumnsAction extends UndoableInsertAction {
     private int nCols;
     private int beforeCol;
     private int row;
+    private MetaInfoWriter metaInfoWriter;
 
-    public UndoableInsertColumnsAction(int nCols, int beforeCol, int row) {
+    public UndoableInsertColumnsAction(int nCols, int beforeCol, int row, MetaInfoWriter metaInfoWriter) {
         this.nCols = nCols;
         this.beforeCol = beforeCol;
         this.row = row;
+        this.metaInfoWriter = metaInfoWriter;
     }
 
     public static boolean canInsertColumns(IGridTable table, int nCols) {
@@ -23,9 +26,9 @@ public class UndoableInsertColumnsAction extends UndoableInsertAction {
         GridRegion newRegion = new GridRegion(region.getTop() - 1, region.getRight() + 1,
                 region.getBottom() + 1, region.getRight() + 1 + nCols);
         IGridTable[] allGridTables = table.getGrid().getTables();
-        for (int i = 0; i < allGridTables.length; i++) {
-            if (!table.getUri().equals(allGridTables[i].getUri())
-                    && IGridRegion.Tool.intersects(newRegion, allGridTables[i].getRegion())) {
+        for (IGridTable allGridTable : allGridTables) {
+            if (!table.getUri().equals(allGridTable.getUri())
+                    && IGridRegion.Tool.intersects(newRegion, allGridTable.getRegion())) {
                 return false;
             }
         }
@@ -49,7 +52,7 @@ public class UndoableInsertColumnsAction extends UndoableInsertAction {
     
     @Override
     protected IUndoableGridTableAction performAction(int numberToInsert, IGridRegion fullTableRegion, IGridTable table) {
-        return GridTool.insertColumns(numberToInsert, beforeCol, fullTableRegion, table.getGrid());
+        return GridTool.insertColumns(numberToInsert, beforeCol, fullTableRegion, table.getGrid(), metaInfoWriter);
     }
     
     @Override

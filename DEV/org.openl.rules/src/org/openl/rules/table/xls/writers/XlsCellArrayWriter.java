@@ -10,14 +10,9 @@ public class XlsCellArrayWriter extends AXlsCellWriter {
     }
 
     @Override
-    public void writeCellValue(boolean writeMetaInfo) {
+    public void writeCellValue() {
         Object[] values = (Object[]) getValueToWrite();
         getCellToWrite().setCellValue(StringUtils.join(values, ","));
-
-        if (writeMetaInfo) {
-            Class<?> valueClass = getValueToWrite().getClass().getComponentType();
-            setMetaInfo(valueClass, true);
-        }
     }
 
 }

@@ -14,7 +14,7 @@ public class XlsCellDateWriter extends AXlsCellWriter{
         super(xlsSheetGridModel);
     }
 
-    public void writeCellValue(boolean writeMetaInfo) {        
+    public void writeCellValue() {
         Date dateValue = (Date) getValueToWrite();
         getCellToWrite().setCellValue(dateValue);
 
@@ -23,10 +23,6 @@ public class XlsCellDateWriter extends AXlsCellWriter{
         getCellToWrite().getCellStyle().cloneStyleFrom(previousStyle);
         getCellToWrite().getCellStyle().setDataFormat((short) BuiltinFormats
                 .getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
-
-        if (writeMetaInfo) {
-            setMetaInfo(Date.class);
-        }
     }
 
 }

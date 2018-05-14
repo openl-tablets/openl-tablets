@@ -70,7 +70,7 @@ public class CellStylesCountTest {
         XlsCellDateWriter writer = new XlsCellDateWriter(grid);
         writer.setCellToWrite(PoiExcelHelper.getOrCreateCell(0, 0, sheetSource.getSheet()));
         writer.setValueToWrite(new Date());
-        writer.writeCellValue(false);
+        writer.writeCellValue();
         assertTrue("Styles count should be less than " + MAX_STYLES, wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES);
     }
 

@@ -11,7 +11,7 @@ public class XlsCellFormulaWriter extends AXlsCellWriter {
     }
 
     @Override
-    public void writeCellValue(boolean writeMetaInfo) {
+    public void writeCellValue() {
         String formula = getStringValue();
         Cell cellToWrite = getCellToWrite();
         try {
@@ -25,9 +25,6 @@ public class XlsCellFormulaWriter extends AXlsCellWriter {
             // Formulas
             cellToWrite.setCellType(Cell.CELL_TYPE_STRING);
             cellToWrite.setCellValue(formula);
-        }
-        if (writeMetaInfo) {
-            setMetaInfo(String.class);
         }
     }
 

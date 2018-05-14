@@ -15,7 +15,7 @@ public class XlsCellNumberWriter extends AXlsCellWriter {
     }
 
     @Override
-    public void writeCellValue(boolean writeMetaInfo) {
+    public void writeCellValue() {
         Number numberValue = (Number) getValueToWrite();
         Cell cellToWrite = getCellToWrite();
         cellToWrite.setCellValue(numberValue.doubleValue());
@@ -30,11 +30,6 @@ public class XlsCellNumberWriter extends AXlsCellWriter {
             cellToWrite.setCellStyle(newStyle);
             newStyle.cloneStyleFrom(previousStyle);
             newStyle.setDataFormat((short) BuiltinFormats.getBuiltinFormat(FormatConstants.GENERAL_FORMAT));
-        }
-
-        if (writeMetaInfo) {
-            // We need to set cell meta info for the cell, to open appropriate editor for it on UI.
-            setMetaInfo(numberValue.getClass());
         }
     }
 

@@ -1,6 +1,7 @@
 package org.openl.rules.table.actions;
 
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IWritableGrid;
@@ -20,10 +21,12 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
     private ICellStyle prevStyle;
     private ICellComment prevComment;
     private CellMetaInfo prevMetaInfo;
+    protected final MetaInfoWriter metaInfoWriter;
 
-    public AUndoableCellAction(int col, int row) {
+    public AUndoableCellAction(int col, int row, MetaInfoWriter metaInfoWriter) {
         this.col = col;
         this.row = row;
+        this.metaInfoWriter = metaInfoWriter;
     }
 
     protected void savePrevCell(IWritableGrid grid) {
@@ -33,7 +36,7 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
         setPrevFormula(cell.getFormula());
         setPrevStyle(cell.getStyle());
         setPrevComment(cell.getComment());
-        setPrevMetaInfo(cell.getMetaInfo());
+        setPrevMetaInfo(metaInfoWriter.getMetaInfo(row, col));
     }
 
     protected void restorePrevCell(IWritableGrid grid) {
@@ -42,7 +45,7 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
         } else {
             grid.clearCell(col, row);
         }
-        grid.getCell(col, row).setMetaInfo(prevMetaInfo);
+        metaInfoWriter.setMetaInfo(row, col, prevMetaInfo);
     }
 
     public int getCol() {

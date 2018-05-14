@@ -29,9 +29,6 @@ import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.openl.domain.EnumDomain;
-import org.openl.domain.IDomain;
-import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
@@ -53,8 +50,6 @@ import org.openl.rules.table.xls.writers.XlsCellEnumWriter;
 import org.openl.rules.table.xls.writers.XlsCellFormulaWriter;
 import org.openl.rules.table.xls.writers.XlsCellNumberWriter;
 import org.openl.rules.table.xls.writers.XlsCellStringWriter;
-import org.openl.types.IOpenClass;
-import org.openl.util.ClassUtils;
 import org.openl.util.EnumUtils;
 import org.openl.util.StringUtils;
 
@@ -313,24 +308,10 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, MetaInfoR
     public void setCellValue(int col, int row, Object value) {
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, getSheet());
         if (value != null) {
-            boolean writeCellMetaInfo = true;
-
-            // Don't write meta info for predefined String arrays to avoid
-            // removing Enum Domain meta info.
-            if (hasEnumDomainMetaInfo(col, row)) {
-                writeCellMetaInfo = false;
-            }
-            
-            // Don't write meta info for predefined String arrays to avoid
-            // removing Range Domain meta info.
-            if (hasRangeDomainMetaInfo(col, row)) {
-                writeCellMetaInfo = false;
-            }
-
             AXlsCellWriter cellWriter = getCellWriter(value);
             cellWriter.setCellToWrite(poiCell);
             cellWriter.setValueToWrite(value);
-            cellWriter.writeCellValue(writeCellMetaInfo);
+            cellWriter.writeCellValue();
         } else {
             poiCell.setCellType(CELL_TYPE_BLANK);
         }
@@ -347,7 +328,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, MetaInfoR
             AXlsCellWriter cellWriter = getCellWriters().get(AXlsCellWriter.FORMULA_WRITER);
             cellWriter.setCellToWrite(poiCell);
             cellWriter.setValueToWrite(formula);
-            cellWriter.writeCellValue(false);
+            cellWriter.writeCellValue();
         }
     }
 
@@ -534,42 +515,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid, MetaInfoR
             poiComment = ((XlsCellComment) comment).getXlxComment();
         }
         poiCell.setCellComment(poiComment);
-    }
-
-    /**
-     * @deprecated
-     */
-    public boolean hasEnumDomainMetaInfo(int col, int row) {
-        boolean result = false;
-
-        ICell cell = getCell(col, row);
-        if (cell != null) {
-            CellMetaInfo cellMetaInfo = cell.getMetaInfo();
-            IOpenClass dataType = cellMetaInfo == null ? null : cellMetaInfo.getDataType();
-            if (dataType != null) {
-                IDomain<?> domain = dataType.getDomain();
-                if (domain instanceof EnumDomain<?>) {
-                    result = true;
-                }
-            }
-        }
-        return result;
-    }
-    
-    public boolean hasRangeDomainMetaInfo(int col, int row) {
-        boolean result = false;
-
-        ICell cell = getCell(col, row);
-        if (cell != null) {
-            CellMetaInfo cellMetaInfo = cell.getMetaInfo();
-            IOpenClass dataType = cellMetaInfo == null ? null : cellMetaInfo.getDataType();
-            if (dataType != null) {
-                if (ClassUtils.isAssignable(dataType.getInstanceClass(), INumberRange.class)) {
-                    result = true;
-                }
-            }
-        }
-        return result;
     }
 
     // TODO: move to factory.
