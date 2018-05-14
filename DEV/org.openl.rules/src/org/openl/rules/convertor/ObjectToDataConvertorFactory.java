@@ -12,16 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
-import org.openl.binding.IBindingContext;
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.ByteValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ShortValue;
-import org.openl.meta.StringValue;
+import org.openl.meta.*;
 import org.openl.rules.helpers.IntRange;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -70,7 +61,7 @@ public class ObjectToDataConvertorFactory {
             this.ctr = ctr;
         }
 
-        public Object convert(Object data, IBindingContext bindingContext) {
+        public Object convert(Object data) {
             try {
                 return ctr.newInstance(new Object[] { data });
             } catch (Exception e) {
@@ -95,7 +86,7 @@ public class ObjectToDataConvertorFactory {
             this.staticMethod = staticMethod;
         }
 
-        public Object convert(Object data, IBindingContext bindingContext) {
+        public Object convert(Object data) {
             try {
                 // first argument is null as field staticMethod represents only static method.
                 //
@@ -107,7 +98,7 @@ public class ObjectToDataConvertorFactory {
     }
 
     public static class CopyConvertor implements IObjectToDataConvertor {
-        public Object convert(Object data, IBindingContext bindingContext) {
+        public Object convert(Object data) {
             return data;
         }
         
@@ -122,7 +113,7 @@ public class ObjectToDataConvertorFactory {
      *
      */
     public static class GetValueConvertor implements IObjectToDataConvertor {
-        public Object convert(Object data, IBindingContext bindingContext) {
+        public Object convert(Object data) {
             if (data != null) {
                 Method getValueMethod = null;
                 try {
@@ -147,7 +138,7 @@ public class ObjectToDataConvertorFactory {
         try {
             convertors.put(new ClassCastPair(Integer.class, IntRange.class), new IObjectToDataConvertor() {
 
-                public Object convert(Object data, IBindingContext bindingContext) {
+                public Object convert(Object data) {
                     return new IntRange((Integer) data);
                 }
 
@@ -155,7 +146,7 @@ public class ObjectToDataConvertorFactory {
 
             convertors.put(new ClassCastPair(int.class, IntRange.class), new IObjectToDataConvertor() {
 
-                public Object convert(Object data, IBindingContext bindingContext) {
+                public Object convert(Object data) {
                     return new IntRange((Integer) data);
                 }
 
@@ -164,7 +155,7 @@ public class ObjectToDataConvertorFactory {
             
             convertors.put(new ClassCastPair(Double.class, DoubleValue.class), new IObjectToDataConvertor() {
 
-                public Object convert(Object data, IBindingContext bindingContext) {
+                public Object convert(Object data) {
                     return new DoubleValue((Double) data);
                 }
 
@@ -176,7 +167,7 @@ public class ObjectToDataConvertorFactory {
             
             convertors.put(new ClassCastPair(double.class, DoubleValue.class), new IObjectToDataConvertor() {
                 
-                public Object convert(Object data, IBindingContext bindingContext) {
+                public Object convert(Object data) {
                     return new DoubleValue((Double)data);
                 }
             });
@@ -184,7 +175,7 @@ public class ObjectToDataConvertorFactory {
             
             convertors.put(new ClassCastPair(Date.class, Calendar.class), new IObjectToDataConvertor() {
 
-                public Object convert(Object data, IBindingContext bindingContext) {
+                public Object convert(Object data) {
                     Calendar cal = Calendar.getInstance(LocaleDependConvertor.getLocale());
                     cal.setTime((Date) data);
                     return cal;
@@ -194,7 +185,7 @@ public class ObjectToDataConvertorFactory {
 
             convertors.put(new ClassCastPair(Date.class, Calendar.class), new IObjectToDataConvertor() {
 
-                public Object convert(Object data, IBindingContext bindingContext) {
+                public Object convert(Object data) {
                     Calendar cal = Calendar.getInstance(LocaleDependConvertor.getLocale());
                     cal.setTime((Date) data);
                     return cal;
@@ -221,7 +212,7 @@ public class ObjectToDataConvertorFactory {
 
     public static final IObjectToDataConvertor NO_Convertor = new IObjectToDataConvertor() {
 
-        public Object convert(Object data, IBindingContext bindingContext) {
+        public Object convert(Object data) {
             throw new UnsupportedOperationException();
         }
 

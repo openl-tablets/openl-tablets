@@ -449,13 +449,13 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 return null;
             }
 
-            return getDomainClass(foreignTable, foreignKeyIndex, null);
+            return getDomainClass(foreignTable, foreignKeyIndex);
         }
 
         return null;
     }
 
-    private DomainOpenClass getDomainClass(ITable foreignTable, int foreignKeyIndex, IBindingContext cxt) throws
+    private DomainOpenClass getDomainClass(ITable foreignTable, int foreignKeyIndex) throws
                                                                                                           SyntaxNodeException {
         final List<Object> foreignTableValues = foreignTable.getUniqueValues(foreignKeyIndex);
 
@@ -473,7 +473,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 IObjectToDataConvertor convertor = ObjectToDataConvertorFactory.getConvertor(columnType.getInstanceClass(),
                         foreignValue.getClass());
                 if (convertor != ObjectToDataConvertorFactory.NO_Convertor) {
-                    foreignArray[i] = convertor.convert(foreignValue, cxt);
+                    foreignArray[i] = convertor.convert(foreignValue);
                 }
             }
 

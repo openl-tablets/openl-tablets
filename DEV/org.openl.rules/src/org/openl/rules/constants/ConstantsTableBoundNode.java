@@ -120,7 +120,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                 if (String.class.equals(constantType.getInstanceClass())) {
                     objectValue = String2DataConvertorFactory.parse(String.class, value, cxt);
                 } else {
-                    objectValue = RuleRowHelper.loadNativeValue(row.getColumn(2).getCell(0, 0), constantType, cxt);
+                    objectValue = RuleRowHelper.loadNativeValue(row.getColumn(2).getCell(0, 0), constantType);
                     if (objectValue == null) {
                         objectValue = String2DataConvertorFactory.parse(constantType.getInstanceClass(), value, cxt);
                     } else {

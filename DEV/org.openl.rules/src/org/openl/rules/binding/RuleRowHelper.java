@@ -201,7 +201,7 @@ public class RuleRowHelper {
             ICell theValueCell) throws SyntaxNodeException {
         if (theValueCell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
             try {
-                Object res = loadNativeValue(theValueCell, paramType, openlAdapter.getBindingContext());
+                Object res = loadNativeValue(theValueCell, paramType);
 
                 if (res instanceof IMetaHolder) {
                     setMetaInfo((IMetaHolder) res, table, paramName, ruleName, openlAdapter.getBindingContext());
@@ -250,7 +250,7 @@ public class RuleRowHelper {
         }
     }
 
-    public static Object loadNativeValue(ICell cell, IOpenClass paramType, IBindingContext bindingContext) {
+    public static Object loadNativeValue(ICell cell, IOpenClass paramType) {
         Object res = null;
         if (cell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
             Class<?> expectedType = paramType.getInstanceClass();
@@ -261,26 +261,26 @@ public class RuleRowHelper {
                 // otherwise we lose in precision (part of EPBDS-5879)
                 IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType,
                     String.class);
-                res = objectConvertor.convert(cell.getStringValue(), bindingContext);
+                res = objectConvertor.convert(cell.getStringValue());
             } else {
                 double value = cell.getNativeNumber();
                 IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType,
                     double.class);
                 if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
-                    res = objectConvertor.convert(value, bindingContext);
+                    res = objectConvertor.convert(value);
                 } else {
                     objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Double.class);
                     if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
-                        res = objectConvertor.convert(value, bindingContext);
+                        res = objectConvertor.convert(value);
                     } else {
                         objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Date.class);
                         if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
                             Date dateValue = cell.getNativeDate();
-                            res = objectConvertor.convert(dateValue, bindingContext);
+                            res = objectConvertor.convert(dateValue);
                         } else if (((int) value) == value) {
                             objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Integer.class);
                             if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor)
-                                res = objectConvertor.convert((int) value, bindingContext);
+                                res = objectConvertor.convert((int) value);
 
                         }
                     }

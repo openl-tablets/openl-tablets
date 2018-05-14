@@ -394,7 +394,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     if (!String.class.equals(fieldType.getInstanceClass())) {
                         ICell theCellValue = row.getColumn(2).getCell(0, 0);
                         if (theCellValue.hasNativeType()) {
-                            Object value = RuleRowHelper.loadNativeValue(theCellValue, fieldType, cxt);
+                            Object value = RuleRowHelper.loadNativeValue(theCellValue, fieldType);
                             if (value != null) {
                                 fieldDescription.setDefaultValue(value);
                             }

@@ -12,17 +12,9 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.IMetaHolder;
-import org.openl.meta.IMetaInfo;
-import org.openl.meta.StringValue;
-import org.openl.meta.ValueMetaInfo;
+import org.openl.meta.*;
 import org.openl.rules.binding.RuleRowHelper;
-import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.calc.element.SpreadsheetCellField;
-import org.openl.rules.calc.element.SpreadsheetCellType;
-import org.openl.rules.calc.element.SpreadsheetExpressionMarker;
-import org.openl.rules.calc.element.SpreadsheetStructureBuilderHolder;
+import org.openl.rules.calc.element.*;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.String2DataConvertorFactory;
@@ -37,11 +29,7 @@ import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenMethodHeader;
+import org.openl.types.*;
 import org.openl.types.impl.ConstOpenField;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
@@ -314,7 +302,7 @@ public class SpreadsheetStructureBuilder {
                     result = String2DataConvertorFactory.parse(instanceClass, code, bindingContext);
                 } else {
                     if (theCellValue.hasNativeType()) {
-                        result = RuleRowHelper.loadNativeValue(theCellValue, type, bindingContext);
+                        result = RuleRowHelper.loadNativeValue(theCellValue, type);
                     }
                     if (result == null) {
                         result = String2DataConvertorFactory.parse(instanceClass, code, bindingContext);
