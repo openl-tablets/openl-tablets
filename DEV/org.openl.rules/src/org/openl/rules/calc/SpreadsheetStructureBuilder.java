@@ -529,13 +529,7 @@ public class SpreadsheetStructureBuilder {
         IOpenField columnField = new ConstOpenField(COLUMN_FIELD, columnIndex, JavaOpenClass.INT);
         columnOpenClass.addField(columnField);
         SpreadsheetHeaderDefinition shd = componentsBuilder.getRowHeaders().get(columnIndex);
-        if (shd != null) {
-            String columnName = shd.getFirstname();
-            if (columnName != null) {
-                IOpenField columnNameField = new ConstOpenField(EMPTY_COLUMN_NAME, columnName, JavaOpenClass.STRING);
-                columnOpenClass.addField(columnNameField);
-            }
-        }
+        addEmptyConstField(columnOpenClass, shd, EMPTY_COLUMN_NAME);
         return columnOpenClass;
     }
 
@@ -572,14 +566,19 @@ public class SpreadsheetStructureBuilder {
         rowOpenClass.addField(rowField);
 
         SpreadsheetHeaderDefinition shd = componentsBuilder.getRowHeaders().get(rowIndex);
-        if (shd != null) {
-            String rowName = shd.getFirstname();
-            if (rowName != null) {
-                IOpenField rowNameField = new ConstOpenField(EMPTY_ROW_NAME, rowName, JavaOpenClass.STRING);
-                rowOpenClass.addField(rowNameField);
+        addEmptyConstField(rowOpenClass, shd, EMPTY_ROW_NAME);
+        return rowOpenClass;
+    }
+
+    private void addEmptyConstField(ComponentOpenClass headerOpenClass,
+            SpreadsheetHeaderDefinition headerDefinition,
+            String emptyFieldName) {
+        if (headerDefinition != null) {
+            String firstName = headerDefinition.getFirstname();
+            if (firstName != null) {
+                headerOpenClass.addField(new ConstOpenField(emptyFieldName, firstName, JavaOpenClass.STRING));
             }
         }
-        return rowOpenClass;
     }
 
     private SpreadsheetCellField createSpreadsheetCellField(IOpenClass rowOpenClass,
