@@ -39,6 +39,11 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
      */
     private final Map<CellKey, Integer> simpleRulesConditionMap = new HashMap<>();
 
+    /**
+     * Map for compound return column descriptions in SimpleRules header
+     */
+    private final Map<CellKey, String> simpleRulesReturnDescriptions = new HashMap<>();
+
     public DecisionTableMetaInfoReader(DecisionTableBoundNode boundNode) {
         super(boundNode);
         decisionTable = null;
@@ -52,6 +57,11 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     @Override
     public CellMetaInfo getBodyMetaInfo(int row, int col) {
         DecisionTable decisionTable = getDecisionTable();
+
+        CellMetaInfo compoundReturnMeta = searchCompoundReturnColumn(row, col);
+        if (compoundReturnMeta != NOT_FOUND) {
+            return compoundReturnMeta;
+        }
 
         // Condition description
         IBaseCondition[] conditionRows = decisionTable.getConditionRows();
@@ -126,13 +136,37 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                     JavaOpenClass.STRING,
                     false,
                     Collections.singletonList(simpleNodeUsage));
-        } else {
-            return NOT_FOUND;
         }
+
+        return NOT_FOUND;
+    }
+
+    private CellMetaInfo searchCompoundReturnColumn(int row, int col) {
+        String description = simpleRulesReturnDescriptions.get(CellKey.CellKeyFactory.getCellKey(col, row));
+        if (description != null) {
+            ICell cell = getTableSyntaxNode().getGridTable().getGrid().getCell(col, row);
+            String stringValue = cell.getStringValue();
+
+            SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
+                    stringValue.length() - 1,
+                    description,
+                    null,
+                    NodeType.OTHER);
+            return new CellMetaInfo(
+                    JavaOpenClass.STRING,
+                    false,
+                    Collections.singletonList(simpleNodeUsage));
+        }
+
+        return NOT_FOUND;
     }
 
     public void addSimpleRulesCondition(int row, int col, int paramIndex) {
         simpleRulesConditionMap.put(CellKey.CellKeyFactory.getCellKey(col, row), paramIndex);
+    }
+
+    public void addSimpleRulesReturn(int row, int col, String description) {
+        simpleRulesReturnDescriptions.put(CellKey.CellKeyFactory.getCellKey(col, row), description);
     }
 
     private CellMetaInfo searchValueMetaInfo(FunctionalRow funcRow, int row, int col) {

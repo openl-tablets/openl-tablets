@@ -459,9 +459,16 @@ public class DecisionTableHelper {
             }
 
             if (!bindingContext.isExecutionMode()) {
-                String stringValue = originalTable.getSource().getCell(column, numberOfMergedRows - 1).getStringValue();
-                String description = "Return: " + type.getDisplayName(0) + " " + fieldChainSb.toString();
                 ICell cell = originalTable.getSource().getCell(column, previoush);
+                String description = "Return: " + type.getDisplayName(0) + " " + fieldChainSb.toString();
+
+                MetaInfoReader metaReader = tableSyntaxNode.getMetaInfoReader();
+                if (metaReader instanceof DecisionTableMetaInfoReader) {
+                    DecisionTableMetaInfoReader metaInfoReader = (DecisionTableMetaInfoReader) metaReader;
+                    metaInfoReader.addSimpleRulesReturn(cell.getAbsoluteRow(), cell.getAbsoluteColumn(), description);
+                }
+
+                String stringValue = originalTable.getSource().getCell(column, numberOfMergedRows - 1).getStringValue();
                 SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
                     stringValue.length() - 1,
                     description,
