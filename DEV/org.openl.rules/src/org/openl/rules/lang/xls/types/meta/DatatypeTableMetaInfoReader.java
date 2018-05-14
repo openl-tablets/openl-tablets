@@ -20,6 +20,7 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.utils.ParserUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.slf4j.Logger;
@@ -61,21 +62,37 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
             c = temp;
         }
         if (c > 0) {
+            if (c == 2) {
+                // Default Values
+                try {
+                    ILogicalTable logicalRow = logicalTable.getRow(r);
+                    IOpenField field = getField(logicalRow);
+                    if (field == null) {
+                        return null;
+                    }
+                    IOpenClass type = field.getType();
+                    boolean multiValue = false;
+                    if (type.getAggregateInfo().isAggregate(type)) {
+                        type = type.getAggregateInfo().getComponentType(type);
+                        multiValue = true;
+                    }
+
+                    return new CellMetaInfo(type, multiValue);
+                } catch (OpenLCompilationException e) {
+                    log.error(e.getMessage(), e);
+                    return null;
+                }
+            }
+
+            // Field names
             return null;
         }
 
         ILogicalTable logicalRow = logicalTable.getRow(r);
         GridCellSourceCodeModule typeCellSource = getCellSource(logicalRow, null, 0);
         if (!ParserUtils.isBlankOrCommented(typeCellSource.getCode())) {
-            String fieldName;
             try {
-                fieldName = getName(logicalRow);
-                if (fieldName == null) {
-                    return null;
-                }
-
-                DatatypeOpenClass dataType = getBoundNode().getDataType();
-                IOpenField field = dataType.getField(fieldName);
+                IOpenField field = getField(logicalRow);
                 if (field == null) {
                     return null;
                 }
@@ -89,6 +106,20 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
         }
 
         return null;
+    }
+
+    private IOpenField getField(ILogicalTable logicalRow) throws OpenLCompilationException {
+        String fieldName = getName(logicalRow);
+        if (fieldName == null) {
+            return null;
+        }
+
+        DatatypeOpenClass dataType = getBoundNode().getDataType();
+        IOpenField field = dataType.getField(fieldName);
+        if (field == null) {
+            return null;
+        }
+        return field;
     }
 
     private CellMetaInfo createMetaInfo(IdentifierNode identifier, IMetaInfo typeMeta) {
