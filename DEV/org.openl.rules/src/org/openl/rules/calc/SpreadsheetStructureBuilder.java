@@ -74,8 +74,6 @@ public class SpreadsheetStructureBuilder {
     private Map<Integer, IBindingContext> rowContexts = new HashMap<>();
     private Map<Integer, Map<Integer, IBindingContext>> colContexts = new HashMap<>();
 
-    private List<SpreadsheetCell> formulaCells = new ArrayList<>();
-
     private SpreadsheetCell[][] cells;
 
     /**
@@ -228,10 +226,6 @@ public class SpreadsheetStructureBuilder {
 
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell.getSource(), spreadsheetBindingContext);
         String code = StringUtils.trimToNull(source.getCode());
-
-        if (SpreadsheetExpressionMarker.isFormula(code)) {
-            formulaCells.add(spreadsheetCell);
-        }
 
         String name = getSpreadsheetCellFieldName(columnHeaders.get(columnIndex).getFirstname(),
             rowHeaders.get(rowIndex).getFirstname());
