@@ -40,7 +40,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     private RegionsPool mergedRegionsPool;
 
-    private Map<String, AXlsCellWriter> cellWriters = new HashMap<String, AXlsCellWriter>();
+    private Map<String, AXlsCellWriter> cellWriters = new HashMap<>();
 
     public XlsSheetGridModel(XlsSheetSourceCodeModule sheetSource) {
         this.sheetSource = sheetSource;
@@ -215,8 +215,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     }
 
     public String getUri() {
-        String xlsUri = sheetSource == null ? "" : sheetSource.getUri();
-        return xlsUri;// + "#" + name;
+        return sheetSource == null ? "" : sheetSource.getUri();// + "#" + name;
 
     }
 

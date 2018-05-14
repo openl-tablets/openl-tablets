@@ -92,17 +92,19 @@ public class SpreadsheetCell implements Invokable {
 
     public void setValue(Object value) {
         if (value == null) {
-        } else if (value instanceof IOpenMethod) {
+            return;
+        }
+        if (value instanceof IOpenMethod) {
             this.method = (IOpenMethod) value;
         } else {
             this.value = value;
         }
     }
 
+    @SuppressWarnings("unchecked")
     public Object invoke(Object spreadsheetResult, Object[] params, IRuntimeEnv env) {
         if (isValueCell() || isConstantCell()) {
-            Object value = getValue();
-            return value;
+            return getValue();
         } else if (isMethodCell()) {
             return getMethod().invoke(spreadsheetResult, params, env);
         } else {

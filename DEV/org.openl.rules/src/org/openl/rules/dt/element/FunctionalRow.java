@@ -216,7 +216,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
         if (params == null) {
 
-            Set<String> paramNames = new HashSet<String>();
+            Set<String> paramNames = new HashSet<>();
             int length = paramsTable.getHeight();
 
             params = new IParameterDeclaration[length];
@@ -508,8 +508,8 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     @Override
     public boolean isEmpty(int ruleN) {
-        for (int i = 0; i < storage.length; i++) {
-            if (!storage[i].isSpace(ruleN))
+        for (IStorage<?> aStorage : storage) {
+            if (!aStorage.isSpace(ruleN))
                 return false;
         }
 
@@ -519,8 +519,8 @@ public abstract class FunctionalRow implements IDecisionRow {
     @Override
     public boolean hasFormula(int ruleN) {
         if (storage != null) {
-            for (int i = 0; i < storage.length; i++) {
-                if (storage[i].isFormula(ruleN)) {
+            for (IStorage<?> aStorage : storage) {
+                if (aStorage.isFormula(ruleN)) {
                     return true;
                 }
             }
@@ -536,6 +536,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         return storage[0].size();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void loadValues(Object[] dest, int offset, int ruleN, Object target, Object[] tableParams, IRuntimeEnv env) {
 
@@ -555,8 +556,8 @@ public abstract class FunctionalRow implements IDecisionRow {
     @Override
     public boolean hasFormulas() {
         if (storage != null) {
-            for (int i = 0; i < storage.length; i++) {
-                if (storage[i].getInfo().getNumberOfFormulas() > 0)
+            for (IStorage<?> aStorage : storage) {
+                if (aStorage.getInfo().getNumberOfFormulas() > 0)
                     return true;
             }
         } else {

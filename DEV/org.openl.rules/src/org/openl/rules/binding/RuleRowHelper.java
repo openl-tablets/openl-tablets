@@ -40,7 +40,6 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenMethodHeader;
@@ -50,11 +49,10 @@ import org.openl.util.Log;
 import org.openl.util.StringPool;
 import org.openl.util.StringTool;
 import org.openl.util.text.LocationUtils;
-import org.openl.vm.IRuntimeEnv;
 
 public class RuleRowHelper {
 
-    public static final String COMMETARY = "//";
+    private static final String COMMETARY = "//";
     public static final String ARRAY_ELEMENTS_SEPARATOR_ESCAPER = "\\";
     public static final String ARRAY_ELEMENTS_SEPARATOR = ",";
     public static final String CONSTRUCTOR = "constructor";
@@ -106,12 +104,12 @@ public class RuleRowHelper {
 
         if (tokens != null) {
 
-            ArrayList<Object> values = new ArrayList<Object>(tokens.length);
+            ArrayList<Object> values = new ArrayList<>(tokens.length);
 
             for (String token : tokens) {
 
                 String str = StringPool.intern(token);
-                Object res = loadSingleParam(paramType, paramName, ruleName, cell, openlAdaptor, str, true);
+                Object res = loadSingleParam(paramType, paramName, ruleName, cell, openlAdaptor, str);
 
                 if (res == null) {
                     res = paramType.nullObject();
@@ -157,27 +155,6 @@ public class RuleRowHelper {
         return bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeCode);
     }
 
-    public static void loadParams(Object[] array,
-            int from,
-            Object[] paramValues,
-            Object target,
-            Object[] params,
-            IRuntimeEnv env) {
-
-        for (int i = 0; i < paramValues.length; i++) {
-
-            Object value = paramValues[i];
-
-            if (value instanceof IOpenMethod) {
-                value = ((IOpenMethod) value).invoke(target, params, env);
-            } else if (value instanceof ArrayHolder) {
-                value = ((ArrayHolder) value).invoke(target, params, env);
-            }
-
-            array[i + from] = value;
-        }
-    }
-
     public static Object loadSingleParam(IOpenClass paramType,
             String paramName,
             String ruleName,
@@ -198,7 +175,7 @@ public class RuleRowHelper {
             String src = theValueCell.getStringValue();
             if (src != null)
                 src = src.length() <= 4 ? src.intern() : src;
-            return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, false);
+            return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src);
         }
 
         // load value as native type
@@ -213,7 +190,7 @@ public class RuleRowHelper {
         // TODO review our using of intern()
         // @see http://java-performance.info/string-intern-in-java-6-7-8/
         // if (src != null) src = src.intern();
-        return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, false);
+        return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src);
     }
 
     private static Object loadNativeValue(IOpenClass paramType,
@@ -226,7 +203,7 @@ public class RuleRowHelper {
             try {
                 Object res = loadNativeValue(theValueCell, paramType, openlAdapter.getBindingContext());
 
-                if (res != null && res instanceof IMetaHolder) {
+                if (res instanceof IMetaHolder) {
                     setMetaInfo((IMetaHolder) res, table, paramName, ruleName, openlAdapter.getBindingContext());
                 }
 
@@ -350,8 +327,7 @@ public class RuleRowHelper {
             String ruleName,
             ILogicalTable cell,
             OpenlToolAdaptor openlAdapter,
-            String source,
-            boolean isPartOfArray) throws SyntaxNodeException {
+            String source) throws SyntaxNodeException {
 
         // TODO: parse values considering underlying excel format. Note: this
         // class doesn't know anything about Excel. Keep it storage format
@@ -467,7 +443,7 @@ public class RuleRowHelper {
      * @param cellTable original cell
      * @return top left cell if region is merged or the cell itself otherwise
      */
-    public static IGridTable getTopLeftCellFromMergedRegion(IGridTable cellTable) {
+    private static IGridTable getTopLeftCellFromMergedRegion(IGridTable cellTable) {
         if (cellTable instanceof SingleCellGridTable) {
             ICell cell = cellTable.getCell(0, 0);
             IGridRegion region = cell.getRegion();
@@ -542,8 +518,9 @@ public class RuleRowHelper {
             IDomain<Object> domain,
             IOpenClass paramType) throws OpenLCompilationException {
         if (value == null) {
-            // return;
-        } else if (value.getClass().isArray()) {
+             return;
+        }
+        if (value.getClass().isArray()) {
             int length = Array.getLength(value);
             for (int i = 0; i < length; i++) {
                 Object element = Array.get(value, i);
@@ -668,7 +645,7 @@ public class RuleRowHelper {
         ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { paramsLength });
         for (int i = 0; i < paramsLength; i++) {
             if (paramsArray[i] instanceof CompositeMethod) {
-                methodsList = new ArrayList<CompositeMethod>(addMethod(methodsList, (CompositeMethod) paramsArray[i]));
+                methodsList = new ArrayList<>(addMethod(methodsList, (CompositeMethod) paramsArray[i]));
             } else {
                 Array.set(ary, i, paramsArray[i]);
             }
@@ -676,12 +653,12 @@ public class RuleRowHelper {
 
         return methodsList == null ? ary
                                    : new ArrayHolder(paramType,
-                                       methodsList.toArray(new CompositeMethod[methodsList.size()]));
+                                       methodsList.toArray(new CompositeMethod[0]));
     }
 
     private static List<CompositeMethod> addMethod(List<CompositeMethod> methods, CompositeMethod method) {
         if (methods == null) {
-            methods = new ArrayList<CompositeMethod>();
+            methods = new ArrayList<>();
         }
         methods.add(method);
 
@@ -697,7 +674,7 @@ public class RuleRowHelper {
         int height = RuleRowHelper.calculateHeight(dataTable);
 
         List<CompositeMethod> methodsList = null;
-        List<Object> values = new ArrayList<Object>();
+        List<Object> values = new ArrayList<>();
 
         for (int i = 0; i < height; i++) { // load array values represented as
             // number of cells
@@ -705,7 +682,7 @@ public class RuleRowHelper {
             Object parameter = RuleRowHelper.loadSingleParam(paramType, paramName, ruleName, cell, openlAdaptor);
 
             if (parameter instanceof CompositeMethod) {
-                methodsList = new ArrayList<CompositeMethod>(addMethod(methodsList, (CompositeMethod) parameter));
+                methodsList = new ArrayList<>(addMethod(methodsList, (CompositeMethod) parameter));
             } else {
                 if (parameter != null) {
                     values.add(parameter);
@@ -721,7 +698,7 @@ public class RuleRowHelper {
 
         return methodsList == null ? ary
                                    : new ArrayHolder(paramType,
-                                       methodsList.toArray(new CompositeMethod[methodsList.size()]));
+                                       methodsList.toArray(new CompositeMethod[0]));
 
     }
 }

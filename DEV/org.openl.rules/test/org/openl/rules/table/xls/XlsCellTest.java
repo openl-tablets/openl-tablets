@@ -44,7 +44,6 @@ public class XlsCellTest {
         assertEquals(1, gridRegion.getLeft());
         assertEquals(2, gridRegion.getRight());
         
-        gridRegion = null;
         gridRegion = cell.getRegion();
         assertEquals(3, gridRegion.getTop());
         assertEquals(4, gridRegion.getBottom());
@@ -103,7 +102,6 @@ public class XlsCellTest {
         assertEquals(4, gridRegion.getLeft());
         assertEquals(7, gridRegion.getRight());
         
-        gridRegion = null;
         gridRegion = cell.getRegion();
         assertEquals(7, gridRegion.getTop());
         assertEquals(9, gridRegion.getBottom());
@@ -136,7 +134,7 @@ public class XlsCellTest {
         
         Object objectValue = cell.getObjectValue();
         assertTrue(objectValue instanceof Double);
-        assertEquals(123.343, ((Double)objectValue).doubleValue(), 0.001); // the value will be taken from the top left 
+        assertEquals(123.343, (Double) objectValue, 0.001); // the value will be taken from the top left
                                                                            // cell from the region 
     }
 }

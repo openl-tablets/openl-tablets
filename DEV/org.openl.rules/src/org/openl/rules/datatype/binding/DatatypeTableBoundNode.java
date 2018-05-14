@@ -148,7 +148,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         // map of fields that will be used for byte code generation.
         // key: name of the field, value: field type.
         //
-        final Map<String, FieldDescription> fields = new LinkedHashMap<String, FieldDescription>();
+        final Map<String, FieldDescription> fields = new LinkedHashMap<>();
         SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         for (int i = 0; i < tableHeight; i++) {
             final int index = i;
@@ -199,9 +199,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
         if (parentClassName != null) {
             IOpenClass parentClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, parentClassName);
-            if (parentClass.getInstanceClass() == null) {
-                return false;// parent bean was not generated
-            }
+            return parentClass.getInstanceClass() != null;
         }
         return true;
     }
@@ -211,9 +209,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
      *
      * @param fields fields for bean class
      * @return Class descriptor of generated bean class.
-     * @throws SyntaxNodeException is can`t generate bean for datatype table.
      */
-    private byte[] createBeanForDatatype(Map<String, FieldDescription> fields) throws SyntaxNodeException {
+    private byte[] createBeanForDatatype(Map<String, FieldDescription> fields) {
         String beanName = dataType.getJavaName();
         IOpenClass superOpenClass = dataType.getSuperClass();
         JavaBeanClassBuilder beanBuilder = new JavaBeanClassBuilder(beanName);
@@ -576,7 +573,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
     }
 
-    public void removeDebugInformation(IBindingContext cxt) throws Exception {
+    public void removeDebugInformation(IBindingContext cxt) {
         // nothing to remove
     }
 

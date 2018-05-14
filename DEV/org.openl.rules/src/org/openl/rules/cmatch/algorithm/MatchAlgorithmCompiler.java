@@ -31,7 +31,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     public static final String OPERATION = "operation";
     public static final String VALUES = "values";
 
-    public static final String ROW_RET_VALUE = "Return Values";
+    private static final String ROW_RET_VALUE = "Return Values";
 
     protected static final List<ColumnDefinition> MATCH_COLUMN_DEFINITION = new LinkedList<>();
     private static final MatchAlgorithmExecutor EXECUTOR = new MatchAlgorithmExecutor();
@@ -86,7 +86,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         return rootNode;
     }
 
-    protected void checkColumnValue(TableRow row, ColumnDefinition colDef) {
+    private void checkColumnValue(TableRow row, ColumnDefinition colDef) {
         SubValue[] values = row.get(colDef.getName());
         if (!colDef.isMultipleValueAllowed()) {
             // only 1
@@ -124,9 +124,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     }
 
     private void checkRows(List<TableRow> rows) {
-        for (int i = 0; i < rows.size(); i++) {
-            TableRow row = rows.get(i);
-
+        for (TableRow row : rows) {
             for (ColumnDefinition colDef : getColumnDefinition()) {
                 checkColumnValue(row, colDef);
             }
@@ -150,7 +148,9 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
         if (childCount == childLeafs) {
             // No children or all are leafs
-        } else if (childCount == 1 && childLeafs == 0) {
+            return;
+        }
+        if (childCount == 1 && childLeafs == 0) {
             // check child
             for (MatchNode child : parent.getChildren()) {
                 checkTreeChildren(child, rows);
@@ -363,9 +363,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      */
     protected void validateTree(MatchNode rootNode, List<TableRow> rows, MatchNode[] nodes) throws SyntaxNodeException {
         for (MatchNode node : rootNode.getChildren()) {
-            if (node.isLeaf()) {
-                // ok
-            } else {
+            if (!node.isLeaf()) {
                 // has at least 1 child
                 checkTreeChildren(node, rows);
             }
