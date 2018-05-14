@@ -63,7 +63,7 @@ public class ObjectToDataConvertorFactory {
 
         public Object convert(Object data) {
             try {
-                return ctr.newInstance(new Object[] { data });
+                return ctr.newInstance(data);
             } catch (Exception e) {
                 throw RuntimeExceptionWrapper.wrap(e);
             }
@@ -115,25 +115,25 @@ public class ObjectToDataConvertorFactory {
     public static class GetValueConvertor implements IObjectToDataConvertor {
         public Object convert(Object data) {
             if (data != null) {
-                Method getValueMethod = null;
+                Method getValueMethod;
                 try {
-                    getValueMethod = data.getClass().getMethod("getValue", new Class<?>[0]);
+                    getValueMethod = data.getClass().getMethod("getValue");
                 } catch (Exception e) {
                     throw RuntimeExceptionWrapper.wrap(e);
                 } 
-                Object value = null;
+                Object value;
                 try {
-                    value = getValueMethod.invoke(data, new Object[0]);
+                    value = getValueMethod.invoke(data);
                 } catch (Exception e) {
                     throw RuntimeExceptionWrapper.wrap(e);
                 } 
                 return value;                
             }
-            return data;
+            return null;
         }
     }
 
-    private static Map<ClassCastPair, IObjectToDataConvertor> convertors = new HashMap<ClassCastPair, IObjectToDataConvertor>();
+    private static Map<ClassCastPair, IObjectToDataConvertor> convertors = new HashMap<>();
     static {
         try {
             convertors.put(new ClassCastPair(Integer.class, IntRange.class), new IObjectToDataConvertor() {
@@ -193,7 +193,7 @@ public class ObjectToDataConvertorFactory {
 
             });
             
-            /** convertors from Openl types with meta info to common java types*/
+            /* convertors from Openl types with meta info to common java types*/
             convertors.put(new ClassCastPair(ByteValue.class, Byte.class), new GetValueConvertor());
             convertors.put(new ClassCastPair(ShortValue.class, Short.class), new GetValueConvertor());
             convertors.put(new ClassCastPair(IntValue.class, Integer.class), new GetValueConvertor());
@@ -226,7 +226,7 @@ public class ObjectToDataConvertorFactory {
         if (toClass == fromClass)
             return CopyConvertor.the;
         ClassCastPair pair = new ClassCastPair(fromClass, toClass);
-        IObjectToDataConvertor convertor = NO_Convertor;
+        IObjectToDataConvertor convertor;
         if (!convertors.containsKey(pair)) {
             // at first try to find static initialization method, for some numeric classes(e.g. Integer, Double, etc)
             // there are predefined cached values(see Integer.valueOf(int a)).
@@ -237,7 +237,7 @@ public class ObjectToDataConvertorFactory {
             } else {
                 // try to find appropriate constructor.
                 //
-                Constructor<?> ctr = ConstructorUtils.getMatchingAccessibleConstructor(toClass, new Class[] { fromClass });
+                Constructor<?> ctr = ConstructorUtils.getMatchingAccessibleConstructor(toClass, fromClass);
                 
                 if (ctr != null) {
                     convertor = new MatchedConstructorConvertor(ctr);

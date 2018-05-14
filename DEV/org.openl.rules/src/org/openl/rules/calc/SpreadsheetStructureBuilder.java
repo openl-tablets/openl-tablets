@@ -71,10 +71,10 @@ public class SpreadsheetStructureBuilder {
         this.autoType = autoType;
     }
 
-    private Map<Integer, IBindingContext> rowContexts = new HashMap<Integer, IBindingContext>();
-    private Map<Integer, Map<Integer, IBindingContext>> colContexts = new HashMap<Integer, Map<Integer, IBindingContext>>();
+    private Map<Integer, IBindingContext> rowContexts = new HashMap<>();
+    private Map<Integer, Map<Integer, IBindingContext>> colContexts = new HashMap<>();
 
-    private List<SpreadsheetCell> formulaCells = new ArrayList<SpreadsheetCell>();
+    private List<SpreadsheetCell> formulaCells = new ArrayList<>();
 
     private SpreadsheetCell[][] cells;
 
@@ -84,12 +84,12 @@ public class SpreadsheetStructureBuilder {
      * @param spreadsheetType open class of the spreadsheet
      */
     public void addCellFields(SpreadsheetOpenClass spreadsheetType) {
-        /**
+        /*
          * at first appropriate data should be extracted from the source table
-         **/
+         */
         componentsBuilder.buildHeaders(spreadsheetHeader.getType());
 
-        /** build cells representations of the spreadsheet */
+        // build cells representations of the spreadsheet
         buildCellsInternal(spreadsheetType);
     }
 
@@ -130,21 +130,21 @@ public class SpreadsheetStructureBuilder {
         int rowsCount = cellsHeadersExtractor.getHeight();
         int columnsCount = cellsHeadersExtractor.getWidth();
 
-        /** create cells according to the size of the spreadsheet **/
+        // create cells according to the size of the spreadsheet
         cells = new SpreadsheetCell[rowsCount][columnsCount];
 
-        /** create the binding context for the spreadsheet level **/
+        // create the binding context for the spreadsheet level
         spreadsheetBindingContext = initSpreadsheetBindingContext(spreadsheetType, generalBindingContext);
 
         for (int rowIndex = 0; rowIndex < rowsCount; rowIndex++) {
             for (int columnIndex = 0; columnIndex < columnsCount; columnIndex++) {
-                /** build spreadsheet cell */
+                // build spreadsheet cell
                 SpreadsheetCell spreadsheetCell = buildCell(rowIndex, columnIndex);
 
-                /** init cells array with appropriate cell */
+                // init cells array with appropriate cell
                 cells[rowIndex][columnIndex] = spreadsheetCell;
 
-                /** create and add field of the cell to the spreadsheetType */
+                // create and add field of the cell to the spreadsheetType
                 addSpreadsheetFields(spreadsheetType, spreadsheetCell, rowIndex, columnIndex);
             }
         }
@@ -179,8 +179,8 @@ public class SpreadsheetStructureBuilder {
         }
     }
 
-    private List<SpreadsheetCell> processingCells = new ArrayList<SpreadsheetCell>();
-    private List<SpreadsheetCell> extractedCellValues = new ArrayList<SpreadsheetCell>();
+    private List<SpreadsheetCell> processingCells = new ArrayList<>();
+    private List<SpreadsheetCell> extractedCellValues = new ArrayList<>();
 
     public IOpenClass makeType(SpreadsheetCell cell) {
         if (cell.getType() == null) {
@@ -284,7 +284,7 @@ public class SpreadsheetStructureBuilder {
                 ConstantOpenField constOpenField = (ConstantOpenField) openField;
                 spreadsheetCell.setValue(constOpenField.getValue());
             } catch (Exception e) {
-                String message = String.format("Cannot parse cell!", code);
+                String message = "Cannot parse cell!";
                 addError(SyntaxNodeExceptionUtils.createError(message, e, null, source));
             }
         } else {
@@ -344,19 +344,19 @@ public class SpreadsheetStructureBuilder {
 
         for (SymbolicTypeDefinition columnDefinition : columnHeaders.getVars()) {
             for (SymbolicTypeDefinition rowDefinition : rowHeaders.getVars()) {
-                /** get column name from the column definition */
+                // get column name from the column definition
                 String columnName = columnDefinition.getName().getIdentifier();
 
-                /** get row name from the row definition */
+                // get row name from the row definition
                 String rowName = rowDefinition.getName().getIdentifier();
 
-                /** create name of the field */
+                // create name of the field
                 String fieldname = getSpreadsheetCellFieldName(columnName, rowName);
 
-                /** create spreadsheet cell field */
+                // create spreadsheet cell field
                 SpreadsheetCellField field = createSpreadsheetCellField(spreadsheetType, spreadsheetCell, fieldname);
 
-                /** add spreadsheet cell field to its open class */
+                // add spreadsheet cell field to its open class
                 spreadsheetType.addField(field);
             }
         }
@@ -387,7 +387,7 @@ public class SpreadsheetStructureBuilder {
 
         IOpenField openField = null;
 
-        SpreadsheetCellType spreadsheetCellType = null;
+        SpreadsheetCellType spreadsheetCellType;
         if (cellCode == null || cellCode.isEmpty() || columnHeaders.get(columnIndex) == null || rowHeaders
             .get(rowIndex) == null) {
             spreadsheetCellType = SpreadsheetCellType.EMPTY;
@@ -471,7 +471,7 @@ public class SpreadsheetStructureBuilder {
     private IBindingContext getColumnContext(int columnIndex, int rowIndex, IBindingContext rowBindingContext) {
         Map<Integer, IBindingContext> contexts = colContexts.get(columnIndex);
         if (contexts == null) {
-            contexts = new HashMap<Integer, IBindingContext>();
+            contexts = new HashMap<>();
             colContexts.put(columnIndex, contexts);
         }
         IBindingContext context = contexts.get(rowIndex);
@@ -483,7 +483,7 @@ public class SpreadsheetStructureBuilder {
     }
 
     private IBindingContext makeColumnContext(int columnIndex, IBindingContext rowBindingContext) {
-        /** create name for the column open class */
+        // create name for the column open class
         String columnOpenClassName = String.format("%sColType%d", spreadsheetHeader.getName(), columnIndex);
 
         ComponentOpenClass columnOpenClass = createAndPopulateColumnOpenClass(columnIndex, columnOpenClassName);
@@ -497,13 +497,13 @@ public class SpreadsheetStructureBuilder {
 
     private IBindingContext makeRowContext(int rowIndex) {
 
-        /** create name for the row open class */
+        // create name for the row open class
         String rowOpenClassName = String.format("%sRowType%d", spreadsheetHeader.getName(), rowIndex);
 
-        /** create row open class and populate it with fields **/
+        // create row open class and populate it with fields
         ComponentOpenClass rowOpenClass = createAndPopulateRowOpenClass(rowIndex, rowOpenClassName);
 
-        /** create row binding context **/
+        // create row binding context
         return new SpreadsheetContext(spreadsheetBindingContext, rowOpenClass);
     }
 
@@ -532,8 +532,7 @@ public class SpreadsheetStructureBuilder {
                 columnOpenClass.addField(field);
             }
         }
-        String nameOpenField = COLUMN_FIELD;
-        IOpenField columnField = new ConstOpenField(nameOpenField, columnIndex, JavaOpenClass.INT);
+        IOpenField columnField = new ConstOpenField(COLUMN_FIELD, columnIndex, JavaOpenClass.INT);
         columnOpenClass.addField(columnField);
         SpreadsheetHeaderDefinition shd = componentsBuilder.getRowHeaders().get(columnIndex);
         if (shd != null) {
@@ -549,14 +548,14 @@ public class SpreadsheetStructureBuilder {
     private ComponentOpenClass createAndPopulateRowOpenClass(int rowIndex, String rowOpenClassName) {
         IBindingContext generalBindingContext = componentsBuilder.getBindingContext();
 
-        /** create row open class for current row **/
+        // create row open class for current row
         ComponentOpenClass rowOpenClass = createRowOrColumnOpenClass(rowOpenClassName,
             generalBindingContext.getOpenL());
 
-        /** get the width of the whole spreadsheet **/
+        // get the width of the whole spreadsheet
         int width = cells[0].length;
 
-        /** create for each column in row its field */
+        // create for each column in row its field
         for (int columnIndex = 0; columnIndex < width; columnIndex++) {
 
             SpreadsheetHeaderDefinition columnHeader = componentsBuilder.getColumnHeaders().get(columnIndex);
@@ -575,8 +574,7 @@ public class SpreadsheetStructureBuilder {
             }
         }
 
-        String nameOpenField = ROW_FIELD;
-        IOpenField rowField = new ConstOpenField(nameOpenField, rowIndex, JavaOpenClass.INT);
+        IOpenField rowField = new ConstOpenField(ROW_FIELD, rowIndex, JavaOpenClass.INT);
         rowOpenClass.addField(rowField);
 
         SpreadsheetHeaderDefinition shd = componentsBuilder.getRowHeaders().get(rowIndex);

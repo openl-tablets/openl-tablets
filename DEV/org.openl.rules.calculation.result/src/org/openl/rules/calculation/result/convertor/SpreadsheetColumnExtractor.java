@@ -55,7 +55,6 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
      * Convert the given value to the appropriate type that is expected. And
      * store it to the row instance.
      *
-     * @param valueForStoraging
      * @param spreadsheetRow    for population with given data
      */
     public void convertAndStoreData(Object valueForStoraging, S spreadsheetRow) {
