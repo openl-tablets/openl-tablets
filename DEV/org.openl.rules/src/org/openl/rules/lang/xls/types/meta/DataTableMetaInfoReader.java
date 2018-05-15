@@ -64,14 +64,13 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
         try {
             ITable table = getBoundNode().getTable();
 
-            ICell firstDataCell = table.getRowTable(0).getCell(0, 0);
-            if (row < firstDataCell.getAbsoluteRow()) {
-                return getHeaderMetaInfo(table, row, col);
+            if (isDescription(table, row, col)) {
+                return getDescriptionMetaInfo(table, row, col);
             }
 
             if (table.getNumberOfRows() > 0 && table.getNumberOfColumns() > 0) {
                 // Data exist
-                return getDataMetaInfo(table, col);
+                return getDataMetaInfo(table, row, col);
             }
 
             return null;
@@ -81,7 +80,20 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
         }
     }
 
-    private CellMetaInfo getHeaderMetaInfo(ITable table, int row, int col) {
+    private boolean isDescription(ITable table, int row, int col) {
+        if (table.getNumberOfRows() == 0) {
+            // No data values in this table. Only description.
+            return true;
+        }
+        ICell firstDataCell = table.getRowTable(0).getCell(0, 0);
+        if (table.getData().isNormalOrientation()) {
+            return row < firstDataCell.getAbsoluteRow();
+        } else {
+            return col < firstDataCell.getAbsoluteColumn();
+        }
+    }
+
+    private CellMetaInfo getDescriptionMetaInfo(ITable table, int row, int col) {
         int numberOfColumns = table.getNumberOfColumns();
         for (int i = 0; i < numberOfColumns; i++) {
             ColumnDescriptor descriptor = table.getColumnDescriptor(i);
@@ -121,18 +133,20 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
         return NOT_FOUND;
     }
 
-    private CellMetaInfo getDataMetaInfo(ITable table, int col) throws SyntaxNodeException {
-        ICell firstCell = table.getRowTable(0).getCell(0, 0);
-        int startCol = firstCell.getAbsoluteColumn();
-        int c = col - startCol;
+    private CellMetaInfo getDataMetaInfo(ITable table, int row, int col) throws SyntaxNodeException {
         ILogicalTable data = table.getData();
+        boolean normalOrientation = data.isNormalOrientation();
+
+        ICell firstCell = table.getRowTable(0).getCell(0, 0);
+        // logicalCol is column for normal orientation and is row for transposed table
+        int logicalCol = normalOrientation ? col - firstCell.getAbsoluteColumn() : row - firstCell.getAbsoluteRow();
 
         for (int i = 0; i < table.getNumberOfColumns(); i++) {
             ICell cell = data.getCell(i, 0);
-            int column = cell.getColumn();
-            int columnWidth = data.getColumnWidth(i);
+            int logicalColStart = cell.getColumn();
+            int logicalWidth = data.getColumnWidth(i);
 
-            if (column <= c && c < column + columnWidth) {
+            if (logicalColStart <= logicalCol && logicalCol < logicalColStart + logicalWidth) {
                 // Found needed column for cell
                 ColumnDescriptor descriptor = table.getColumnDescriptor(i);
                 if (descriptor == null) {
@@ -149,10 +163,10 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
                     return new CellMetaInfo(columnType, false);
                 } else {
                     if (descriptor instanceof ForeignKeyColumnDescriptor) {
-                        return new CellMetaInfo(columnType, columnWidth == 1);
+                        return new CellMetaInfo(columnType, logicalWidth == 1);
                     } else {
                         IOpenClass elemType = columnType.getAggregateInfo().getComponentType(columnType);
-                        return new CellMetaInfo(elemType, columnWidth == 1);
+                        return new CellMetaInfo(elemType, logicalWidth == 1);
                     }
                 }
             }
