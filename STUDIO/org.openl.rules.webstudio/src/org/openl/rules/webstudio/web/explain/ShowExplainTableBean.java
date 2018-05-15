@@ -4,7 +4,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.*;
 import org.openl.rules.table.ui.IGridSelector;
 import org.openl.rules.table.ui.RegionGridSelector;
@@ -37,11 +36,6 @@ public class ShowExplainTableBean {
 
     public IOpenLTable getTable() {
         return table;
-    }
-
-    public MetaInfoReader getMetaInfoReader() {
-        ProjectModel model = WebStudioUtils.getWebStudio().getModel();
-        return uri == null ? null : model.getNode(uri).getMetaInfoReader();
     }
 
     private IGridRegion findInCompositeGrid(CompositeGrid compositeGrid, XlsUrlParser p1, IGridRegion region) {

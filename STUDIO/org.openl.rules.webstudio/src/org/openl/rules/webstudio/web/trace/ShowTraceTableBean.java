@@ -13,7 +13,6 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
-import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IOpenLTable;
@@ -23,7 +22,6 @@ import org.openl.rules.table.ui.filters.IColorFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.ObjectViewer;
-import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.trace.node.ATableTracerNode;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
@@ -62,12 +60,6 @@ public class ShowTraceTableBean {
         String uri = tto.getUri();
         TableSyntaxNode tsn = WebStudioUtils.getProjectModel().findNode(uri);
         return new TableSyntaxNodeAdapter(tsn);
-    }
-
-    public MetaInfoReader getMetaInfoReader() {
-        String uri = tto.getUri();
-        ProjectModel model = WebStudioUtils.getProjectModel();
-        return uri == null ? null : model.getNode(uri).getMetaInfoReader();
     }
 
     public IGridFilter[] getTraceFilters() {

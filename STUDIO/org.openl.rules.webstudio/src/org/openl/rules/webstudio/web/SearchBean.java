@@ -15,7 +15,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -98,12 +97,6 @@ public class SearchBean {
 
     public List<IOpenLTable> getSearchResults() {
         return searchResults;
-    }
-
-    public MetaInfoReader getMetaInfoReader(IOpenLTable table) {
-        String uri = table.getUri();
-        ProjectModel model = WebStudioUtils.getWebStudio().getModel();
-        return uri == null ? null : model.getNode(uri).getMetaInfoReader();
     }
 
     private void initProperties() {

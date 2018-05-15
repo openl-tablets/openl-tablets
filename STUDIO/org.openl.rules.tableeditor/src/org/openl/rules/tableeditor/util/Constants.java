@@ -23,7 +23,6 @@ public final class Constants {
     public static final String ATTRIBUTE_EXCLUDE_SCRIPTS = "excludeScripts";
     public static final String ATTRIBUTE_ROW_INDEX = "rowIndex";
     public static final String ATTRIBUTE_LINK_BUILDER = "linkBuilder";
-    public static final String ATTRIBUTE_META_INFO_READER = "metaInfoReader";
 
     public static final String REQUEST_PARAM_EDITOR_ID = "editorId";
     public static final String REQUEST_PARAM_MODE = "mode";

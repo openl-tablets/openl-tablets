@@ -59,7 +59,6 @@ public class TableEditorModel {
     private String beforeEditAction;
     private String beforeSaveAction;
     private String afterSaveAction;
-    private final MetaInfoReader metaInfoReader;
     private MetaInfoWriter metaInfoWriter;
 
     private UndoableActions actions = new UndoableActions();
@@ -67,16 +66,14 @@ public class TableEditorModel {
     private TableEditor tableEditor;
 
     public TableEditorModel(TableEditor editor) {
-        this(editor.getTable(), editor.getView(), editor.isShowFormulas(), editor.getMetaInfoReader());
+        this(editor.getTable(), editor.getView(), editor.isShowFormulas());
         setTableEditor(editor);
     }
 
     public TableEditorModel(IOpenLTable table,
             String view,
-            boolean showFormulas,
-            MetaInfoReader metaInfoReader) {
+            boolean showFormulas) {
         this.table = table;
-        this.metaInfoReader = metaInfoReader;
         this.gridTable = table.getGridTable(view);
         if (gridTable == table.getGridTable()) { // table have no business view(e.g. Method Table)
             this.view = IXlsTableNames.VIEW_DEVELOPER;
@@ -230,7 +227,7 @@ public class TableEditorModel {
     public MetaInfoReader getMetaInfoReader() {
         // If metaInfoWriter isn't null, then currently we edit the table, so we must return metaInfoWriter to include
         // user changes when display the table to a user.
-        return metaInfoWriter != null ? metaInfoWriter : metaInfoReader;
+        return metaInfoWriter != null ? metaInfoWriter : table.getMetaInfoReader();
     }
 
     public synchronized void setCellValue(int row, int col, String value) {
@@ -392,7 +389,7 @@ public class TableEditorModel {
     private MetaInfoWriter getMetaInfoWriter() {
         if (metaInfoWriter == null) {
             // Initialize meta info writer and use it later instead of reader
-            this.metaInfoWriter = new MetaInfoWriterImpl(metaInfoReader, gridTable);
+            this.metaInfoWriter = new MetaInfoWriterImpl(table.getMetaInfoReader(), gridTable);
         }
         return metaInfoWriter;
     }

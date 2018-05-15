@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.tableeditor.model.ui.ActionLink;
@@ -70,19 +71,20 @@ public class HTMLRenderer {
 
         result.append("<div id='").append(editor.getId()).append(Constants.TABLE_EDITOR_WRAPPER_PREFIX).append("' class='te_editor_wrapper'></div>");
 
-        if (editor.getTable() != null && (editor.isEditable() || CollectionUtils.isNotEmpty(actionLinks))) {
+        IOpenLTable openLTable = editor.getTable();
+        if (openLTable != null && (editor.isEditable() || CollectionUtils.isNotEmpty(actionLinks))) {
             String menuId = editor.getId() + Constants.ID_POSTFIX_MENU;
             result.append(renderActionMenu(menuId, editor.isEditable(), actionLinks));
         }
 
         result.append("</div>");
 
-        if (editor.getTable() != null) {
+        if (openLTable != null) {
             IGridFilter[] filters = editor.getFilters();
-            IGridTable table = editor.getTable().getGridTable(editor.getView());
+            IGridTable table = openLTable.getGridTable(editor.getView());
             int numRows = getMaxNumRowsToDisplay(table);
             TableModel tableModel = TableModel.initializeTableModel(table, filters, numRows, editor.getLinkBuilder(),
-                    mode, editor.getView(), editor.getMetaInfoReader());
+                    mode, editor.getView(), openLTable.getMetaInfoReader());
 
             if (tableModel != null) {
                 TableRenderer tableRenderer = new TableRenderer(tableModel);
