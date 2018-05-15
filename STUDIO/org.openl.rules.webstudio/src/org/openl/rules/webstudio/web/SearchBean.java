@@ -15,6 +15,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -61,7 +62,7 @@ public class SearchBean {
     private String query;
     private String[] tableTypes;
     private String tableHeader;
-    private List<TableProperty> properties = new ArrayList<TableProperty>();
+    private List<TableProperty> properties = new ArrayList<>();
 
     private List<IOpenLTable> searchResults;
 
@@ -97,6 +98,12 @@ public class SearchBean {
 
     public List<IOpenLTable> getSearchResults() {
         return searchResults;
+    }
+
+    public MetaInfoReader getMetaInfoReader(IOpenLTable table) {
+        String uri = table.getUri();
+        ProjectModel model = WebStudioUtils.getWebStudio().getModel();
+        return uri == null ? null : model.getNode(uri).getMetaInfoReader();
     }
 
     private void initProperties() {
@@ -148,11 +155,11 @@ public class SearchBean {
                 return property;
             }
         }
-        return null;
+        throw new IllegalArgumentException("Incorrect property '" + name + "'");
     }
 
     private Map<String, Object> getSearchProperties() {
-        Map<String, Object> properties = new HashMap<String, Object>();
+        Map<String, Object> properties = new HashMap<>();
 
         for (TableProperty prop : this.properties) {
             Object propValue = prop.getValue();
