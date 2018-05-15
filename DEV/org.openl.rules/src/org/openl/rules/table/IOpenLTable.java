@@ -3,6 +3,7 @@ package org.openl.rules.table;
 import java.util.Collection;
 
 import org.openl.message.OpenLMessage;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.properties.ITableProperties;
 
 public interface IOpenLTable {
@@ -42,5 +43,7 @@ public interface IOpenLTable {
     String getId();
 
     boolean isCanContainProperties();
+
+    MetaInfoReader getMetaInfoReader();
 
 }

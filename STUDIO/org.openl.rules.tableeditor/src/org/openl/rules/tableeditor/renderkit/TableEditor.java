@@ -247,7 +247,7 @@ public class TableEditor {
     }
 
     public MetaInfoReader getMetaInfoReader() {
-        return metaInfoReader;
+        return metaInfoReader != null ? metaInfoReader : table.getMetaInfoReader();
     }
 
     public void setMetaInfoReader(MetaInfoReader metaInfoReader) {
