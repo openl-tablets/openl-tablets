@@ -45,7 +45,6 @@ public class RepositoryDiffController extends AbstractDiffController {
     private DesignTimeRepository designTimeRepository;
 
     private AProject projectUW; // User Workspace project
-    private AProject projectRepo; // Repository project
     private List<AProjectArtefact> excelArtefactsUW;
     private List<AProjectArtefact> excelArtefactsRepo;
 
@@ -92,7 +91,7 @@ public class RepositoryDiffController extends AbstractDiffController {
 
     public List<SelectItem> getExcelFilesUW() {
         init();
-        List<SelectItem> excelItems = new ArrayList<SelectItem>();
+        List<SelectItem> excelItems = new ArrayList<>();
         for (AProjectArtefact excelArtefact : excelArtefactsUW) {
             excelItems.add(new SelectItem(excelArtefact.getArtefactPath().getStringValue(),
                     excelArtefact.getName()));
@@ -101,7 +100,7 @@ public class RepositoryDiffController extends AbstractDiffController {
     }
 
     public List<SelectItem> getExcelFilesRepo() {
-        List<SelectItem> excelItems = new ArrayList<SelectItem>();
+        List<SelectItem> excelItems = new ArrayList<>();
         for (AProjectArtefact excelArtefact : excelArtefactsRepo) {
             excelItems.add(new SelectItem(excelArtefact.getArtefactPath().getStringValue(),
                     excelArtefact.getName()));
@@ -141,6 +140,8 @@ public class RepositoryDiffController extends AbstractDiffController {
     public void initProjectRepo() {
         try {
             CommonVersionImpl version = new CommonVersionImpl(selectedVersionRepo);
+            // Repository project
+            AProject projectRepo;
             try {
                 projectRepo = designTimeRepository.getProject(projectUW.getName(), version);
             } catch (Exception e) {
@@ -153,8 +154,8 @@ public class RepositoryDiffController extends AbstractDiffController {
         }
     }
 
-    private List<AProjectArtefact> getExcelArtefacts(AProject project, String rootPath) throws Exception {
-        List<AProjectArtefact> excelArtefacts = new ArrayList<AProjectArtefact>();
+    private List<AProjectArtefact> getExcelArtefacts(AProject project, String rootPath) {
+        List<AProjectArtefact> excelArtefacts = new ArrayList<>();
         Collection<? extends AProjectArtefact> projectArtefacts;
         if (rootPath != null) {
             try {

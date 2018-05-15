@@ -19,7 +19,7 @@ import org.richfaces.model.UploadedFile;
 @SessionScoped
 public class UploadExcelDiffController extends ExcelDiffController {
 
-    private List<UploadedFile> uploadedFiles = new ArrayList<UploadedFile>();
+    private List<UploadedFile> uploadedFiles = new ArrayList<>();
 
     public List<UploadedFile> getUploadedFiles() {
         return uploadedFiles;
@@ -43,10 +43,10 @@ public class UploadExcelDiffController extends ExcelDiffController {
         if (uploadedFiles.size() >= MAX_FILES_COUNT) {
             // Clear selection to handle NPE bug. See EPBDS-3992 for details.
             UITree treeComponent = (UITree) FacesContext.getCurrentInstance().getViewRoot().findComponent("diffTreeForm:newTree");
-            treeComponent.setSelection(new ArrayList<Object>());
+            treeComponent.setSelection(new ArrayList<>());
 
             deleteTempFiles();
-            List<File> filesToCompare = new ArrayList<File>();
+            List<File> filesToCompare = new ArrayList<>();
             for (UploadedFile uploadedFile : uploadedFiles) {
                 File fileToCompare = FileTool.toTempFile(
                         uploadedFile.getInputStream(), FileUtils.getName(uploadedFile.getName()));

@@ -103,7 +103,7 @@ public abstract class AbstractDiffController {
     }
 
     private IGridFilter makeFilter(IGridTable table, List<ICell> selectedCells) {
-        List<IGridRegion> regions = new ArrayList<IGridRegion>();
+        List<IGridRegion> regions = new ArrayList<>();
         for (ICell cell : selectedCells) {
             IGridRegion region = table.getSubtable(cell.getColumn(), cell.getRow(), 1, 1).getRegion();
             regions.add(region);
@@ -111,7 +111,7 @@ public abstract class AbstractDiffController {
         if (regions.isEmpty()) {
             return null;
         }
-        IGridRegion[] aRegions = regions.toArray(new IGridRegion[regions.size()]);
+        IGridRegion[] aRegions = regions.toArray(new IGridRegion[0]);
         return new ColorGridFilter(new RegionGridSelector(aRegions, true),
                 WebStudioUtils.getWebStudio().getModel().getFilterHolder().makeFilter());
     }
@@ -175,7 +175,7 @@ public abstract class AbstractDiffController {
     }
 
     private List<PropertyNode> getPropertyNodes(DiffTreeNode d) {
-        List<PropertyNode> propertyNodes = new ArrayList<PropertyNode>();
+        List<PropertyNode> propertyNodes = new ArrayList<>();
 
         Projection p1 = d.getElement(0).getProjection();
         Projection p2 = d.getElement(1).getProjection();
@@ -212,7 +212,7 @@ public abstract class AbstractDiffController {
     }
 
     public void processSelection(TreeSelectionChangeEvent event) {
-        List<Object> selection = new ArrayList<Object>(event.getNewSelection());
+        List<Object> selection = new ArrayList<>(event.getNewSelection());
         Object currentSelectionKey = selection.get(0);
         UITree tree = (UITree) event.getSource();
 
