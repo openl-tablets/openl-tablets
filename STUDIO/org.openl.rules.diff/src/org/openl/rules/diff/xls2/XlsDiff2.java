@@ -6,7 +6,6 @@ import java.util.*;
 
 import org.openl.binding.IBoundCode;
 import org.openl.conf.UserContext;
-import org.openl.rules.diff.print.SimpleDiffTreePrinter;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls.XlsProjectionDiffer;
 import org.openl.rules.lang.xls.XlsBinder;
@@ -49,16 +48,7 @@ public class XlsDiff2 {
 
     public XlsDiff2() {
         // TreeMap -- Key as a weight
-        diffGuess = new TreeMap<String, List<DiffPair>>();
-    }
-
-    public static void main(String[] args) {
-        XlsDiff2 diff = new XlsDiff2();
-        File xlsFile1 = new File("test/diff-1.xls");
-        File xlsFile2 = new File("test/diff-2.xls");
-        DiffTreeNode root = diff.diffFiles(xlsFile1, xlsFile2);
-        SimpleDiffTreePrinter p = new SimpleDiffTreePrinter(root, System.out);
-        p.print();
+        diffGuess = new TreeMap<>();
     }
 
     private List<XlsTable> load(IOpenSourceCodeModule src) {
@@ -73,7 +63,7 @@ public class XlsDiff2 {
         XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
 
         TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
-        List<XlsTable> tables = new ArrayList<XlsTable>(nodes.length);
+        List<XlsTable> tables = new ArrayList<>(nodes.length);
         for (TableSyntaxNode node : nodes) {
             tables.add(new XlsTable(node));
         }
@@ -100,7 +90,7 @@ public class XlsDiff2 {
     private void add(String guess, DiffPair r) {
         List<DiffPair> list = diffGuess.get(guess);
         if (list == null) {
-            list = new LinkedList<DiffPair>();
+            list = new LinkedList<>();
             diffGuess.put(guess, list);
         }
         list.add(r);
@@ -199,8 +189,8 @@ public class XlsDiff2 {
         IGridTable grid1 = pair.getTable1().getTable().getGridTable();
         IGridTable grid2 = pair.getTable2().getTable().getGridTable();
 
-        List<ICell> diff1 = new ArrayList<ICell>();
-        List<ICell> diff2 = new ArrayList<ICell>();
+        List<ICell> diff1 = new ArrayList<>();
+        List<ICell> diff2 = new ArrayList<>();
 
         if (grid1.getWidth() == grid2.getWidth() && grid1.getHeight() == grid2.getHeight()) {
             //Same Size
@@ -334,7 +324,7 @@ public class XlsDiff2 {
     private void compareCols(IGridTable grid1, IGridTable grid2, List<ICell> diff) {
         // compareRows is hard enough :)
         // let reuse it
-        List<ICell> iDiff = new ArrayList<ICell>();
+        List<ICell> iDiff = new ArrayList<>();
         compareRows(grid1.transpose(), grid2.transpose(), iDiff);
 
         // fix diff -- invert coordinates
