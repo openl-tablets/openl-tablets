@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web.util;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
+
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
@@ -12,9 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpSession;
 
 /**
  * Contains utility methods, which can be used from any class.
@@ -91,11 +91,7 @@ public abstract class WebStudioUtils {
     }
 
     public static ProjectModel getProjectModel() {
-        WebStudio webStudio = getWebStudio();
-        if (webStudio != null) {
-            return webStudio.getModel();
-        }
-        return null;
+        return getWebStudio().getModel();
     }
 
     public static UserWorkspace getUserWorkspace(HttpSession session) {
