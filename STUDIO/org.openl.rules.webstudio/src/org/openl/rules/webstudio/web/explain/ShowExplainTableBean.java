@@ -4,11 +4,8 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.table.CompositeGrid;
-import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
+import org.openl.rules.table.*;
 import org.openl.rules.table.ui.IGridSelector;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
@@ -41,7 +38,12 @@ public class ShowExplainTableBean {
     public IOpenLTable getTable() {
         return table;
     }
-    
+
+    public MetaInfoReader getMetaInfoReader() {
+        ProjectModel model = WebStudioUtils.getWebStudio().getModel();
+        return uri == null ? null : model.getNode(uri).getMetaInfoReader();
+    }
+
     private IGridRegion findInCompositeGrid(CompositeGrid compositeGrid, XlsUrlParser p1, IGridRegion region) {
         int i = 0;
         for (IGridTable gridTable : compositeGrid.getGridTables()) {
@@ -53,8 +55,7 @@ public class ShowExplainTableBean {
                     int bottom = region.getBottom() - region2.getTop() + region3.getTop();
                     int left = region.getLeft() - region2.getLeft() + region3.getLeft();
                     int right = region.getRight() - region2.getLeft() + region3.getLeft();
-                    IGridRegion r = new GridRegion(top, left, bottom, right);
-                    return r;                 
+                    return new GridRegion(top, left, bottom, right);
                 }
             } else {
                 if (XlsUrlUtils.intersects(p1, gridTable.getUri())) {
@@ -71,8 +72,7 @@ public class ShowExplainTableBean {
                     int bottom = tmp.getBottom() - region2.getTop() + region3.getTop();
                     int left = tmp.getLeft() - region2.getLeft() + region3.getLeft();
                     int right = tmp.getRight() - region2.getLeft() + region3.getLeft();
-                    IGridRegion r = new GridRegion(top, left, bottom, right);
-                    return r;
+                    return new GridRegion(top, left, bottom, right);
                 }
             }
             i++;
@@ -104,9 +104,8 @@ public class ShowExplainTableBean {
 
         IGridSelector regionSelector = new RegionGridSelector(region, true);
         IColorFilter colorFilter = model.getFilterHolder().makeFilter();
-        IGridFilter filter = new ColorGridFilter(regionSelector, colorFilter);
 
-        return filter;
+        return new ColorGridFilter(regionSelector, colorFilter);
     }
 
     public String getHeader() {
