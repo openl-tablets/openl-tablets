@@ -2,12 +2,7 @@ package org.openl.rules.diff.xls2;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import org.openl.binding.IBoundCode;
 import org.openl.conf.UserContext;
@@ -15,7 +10,6 @@ import org.openl.rules.diff.print.SimpleDiffTreePrinter;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls.XlsProjectionDiffer;
 import org.openl.rules.lang.xls.XlsBinder;
-import org.openl.rules.lang.xls.XlsParser;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
@@ -25,6 +19,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.types.IOpenClass;
+import org.openl.xls.sequential.SequentialParser;
 
 /**
  * Find difference between two XLS files.
@@ -70,7 +65,7 @@ public class XlsDiff2 {
 
         UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
 
-        IParsedCode pc = new XlsParser(ucxt).parseAsModule(src);
+        IParsedCode pc = new SequentialParser(ucxt).parseAsModule(src);
         IBoundCode bc = new XlsBinder(ucxt).bind(pc);
         IOpenClass ioc = bc.getTopNode().getType();
 
