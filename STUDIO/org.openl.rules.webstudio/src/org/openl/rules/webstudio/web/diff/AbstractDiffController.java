@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.diff;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,6 +19,7 @@ import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.FileUtils;
 import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
 
@@ -27,6 +29,7 @@ public abstract class AbstractDiffController {
 
     private TreeNode richDiffTree;
     private TreeNode selectedNode;
+    private List<File> tempFiles = new ArrayList<>();
 
     public abstract String compare();
 
@@ -219,4 +222,17 @@ public abstract class AbstractDiffController {
         tree.setRowKey(storedKey);
     }
 
+    protected void addTempFile(File tempFile) {
+        if (tempFile != null) {
+            tempFiles.add(tempFile);
+        }
+    }
+
+    protected void deleteTempFiles() {
+        for (File file : tempFiles) {
+            FileUtils.deleteQuietly(file);
+        }
+
+        tempFiles.clear();
+    }
 }
