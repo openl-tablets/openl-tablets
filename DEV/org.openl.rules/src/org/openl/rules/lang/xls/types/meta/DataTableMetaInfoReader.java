@@ -135,6 +135,9 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
             if (column <= c && c < column + columnWidth) {
                 // Found needed column for cell
                 ColumnDescriptor descriptor = table.getColumnDescriptor(i);
+                if (descriptor == null) {
+                    continue;
+                }
                 IOpenClass columnType;
                 if (descriptor instanceof ForeignKeyColumnDescriptor) {
                     IDataBase db = getBoundNode().getDataBase();
