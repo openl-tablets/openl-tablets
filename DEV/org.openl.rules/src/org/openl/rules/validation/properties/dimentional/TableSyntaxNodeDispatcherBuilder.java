@@ -1,11 +1,7 @@
 package org.openl.rules.validation.properties.dimentional;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.MethodUtil;
@@ -39,11 +35,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
-import org.openl.types.IMethodCaller;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.types.NullOpenClass;
+import org.openl.types.*;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
@@ -127,7 +119,7 @@ class TableSyntaxNodeDispatcherBuilder {
             //
             Builder<DecisionTable> dtOpenLBuilder = initDecisionTableOpenlBuilder(tsn);
             DecisionTable decisionTable = dtOpenLBuilder.build();
-            // TODO: Possibly not needed. Dispatcher tables aren't shown in WebStudio anymore
+            // Dispatcher tables are shown in Trace
             tsn.setMetaInfoReader(new DecisionTableMetaInfoReader((DecisionTableBoundNode) decisionTable.getBoundNode(), decisionTable));
 
             loadCreatedTable(decisionTable, tsn);
