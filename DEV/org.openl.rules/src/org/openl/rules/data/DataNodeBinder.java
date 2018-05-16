@@ -19,6 +19,7 @@ import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.DataTableMetaInfoReader;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -39,8 +40,16 @@ public class DataNodeBinder extends AXlsTableBinder {
     public static final int TYPE_INDEX = 1;
     private static final int TABLE_NAME_INDEX = 2;
 
-    protected ATableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module) {
-        return new DataTableBoundNode(tsn, module);
+    protected ATableBoundNode makeNode(TableSyntaxNode tsn,
+            XlsModuleOpenClass module,
+            IBindingContext bindingContext) {
+        DataTableBoundNode boundNode = new DataTableBoundNode(tsn, module);
+
+        if (!bindingContext.isExecutionMode()) {
+            tsn.setMetaInfoReader(new DataTableMetaInfoReader(boundNode));
+        }
+
+        return boundNode;
     }
 
     protected ILogicalTable getTableBody(TableSyntaxNode tsn) {
@@ -53,7 +62,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             IBindingContext bindingContext,
             XlsModuleOpenClass module) throws Exception {
 
-        DataTableBoundNode dataNode = (DataTableBoundNode) makeNode(tableSyntaxNode, module);
+        DataTableBoundNode dataNode = (DataTableBoundNode) makeNode(tableSyntaxNode, module, bindingContext);
         ILogicalTable table = tableSyntaxNode.getTable();
 
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(table.getSource(), bindingContext);

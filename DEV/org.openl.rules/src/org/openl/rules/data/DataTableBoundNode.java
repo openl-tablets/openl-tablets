@@ -6,7 +6,6 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.types.meta.DataTableMetaInfoReader;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -56,9 +55,6 @@ public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundN
     }
 
     public void finalizeBind(IBindingContext cxt) throws Exception {
-        if (!cxt.isExecutionMode()) {
-            getTableSyntaxNode().setMetaInfoReader(new DataTableMetaInfoReader(this));
-        }
         table.populate(module.getDataBase(), cxt);
     }
 
