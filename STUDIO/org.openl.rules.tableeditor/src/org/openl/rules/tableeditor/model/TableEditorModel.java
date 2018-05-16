@@ -96,6 +96,8 @@ public class TableEditorModel {
         if (metaInfoWriter != null) {
             metaInfoWriter = null;
         }
+
+        table.getMetaInfoReader().release();
     }
 
     public IOpenLTable getTable() {

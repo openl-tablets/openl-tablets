@@ -47,4 +47,12 @@ public class MetaInfoWriterImpl implements MetaInfoWriter {
         CellKey key = CellKey.CellKeyFactory.getCellKey(col, row);
         return metaInfoMap.get(key);
     }
+
+    @Override
+    public void prepare(IGridRegion region) {
+    }
+
+    @Override
+    public void release() {
+    }
 }

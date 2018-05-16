@@ -5,11 +5,7 @@ import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.ICellComment;
-import org.openl.rules.table.IGrid;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.*;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.tableeditor.util.Constants;
@@ -212,6 +208,8 @@ public class TableViewer {
         
         TableModel tm = new TableModel(w, h, gt, showHeader);
         tm.setNumRowsToDisplay(numRows);
+
+        metaInfoReader.prepare(reg);
 
         for (int row = reg.getTop(); row <= reg.getBottom(); row++) {
             for (int column = reg.getLeft(); column <= reg.getRight(); column++) {

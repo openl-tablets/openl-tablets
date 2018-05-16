@@ -10,6 +10,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.types.IOpenClass;
@@ -19,10 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements MetaInfoReader {
-    private final Map<CellKey, NodeUsage> constantsMap = new HashMap<>();
-    private final Logger log = LoggerFactory.getLogger(BaseMetaInfoReader.class);
-
     protected static final CellMetaInfo NOT_FOUND = new CellMetaInfo(null, false);
+
+    private final Logger log = LoggerFactory.getLogger(BaseMetaInfoReader.class);
+    private final Map<CellKey, NodeUsage> constantsMap = new HashMap<>();
 
     private T boundNode;
 
@@ -65,6 +66,17 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
             log.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    @Override
+    public void prepare(IGridRegion region) {
+        // By default do nothing.
+        // It can be inefficient for some tables to store meta info for all cells.
+    }
+
+    @Override
+    public void release() {
+        // By default do nothing.
     }
 
     protected abstract TableSyntaxNode getTableSyntaxNode();

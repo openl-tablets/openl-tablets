@@ -44,6 +44,10 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
      */
     private final Map<CellKey, String> simpleRulesReturnDescriptions = new HashMap<>();
 
+    private CellMetaInfo[][] preparedMetaInfos;
+    private int top;
+    private int left;
+
     public DecisionTableMetaInfoReader(DecisionTableBoundNode boundNode) {
         super(boundNode);
         decisionTable = null;
@@ -55,110 +59,105 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     }
 
     @Override
-    public CellMetaInfo getBodyMetaInfo(int row, int col) {
-        DecisionTable decisionTable = getDecisionTable();
+    public void prepare(IGridRegion region) {
+        top = region.getTop();
+        left = region.getLeft();
+        preparedMetaInfos = new CellMetaInfo[region.getBottom() - top + 1][region.getRight() - left + 1];
 
-        CellMetaInfo compoundReturnMeta = searchCompoundReturnColumn(row, col);
-        if (compoundReturnMeta != NOT_FOUND) {
-            return compoundReturnMeta;
-        }
+        DecisionTable decisionTable = getDecisionTable();
 
         // Condition description
         IBaseCondition[] conditionRows = decisionTable.getConditionRows();
+
+        saveSimpleRulesMetaInfo(decisionTable, region);
+        saveCompoundReturnColumn(region);
+
         for (IBaseCondition conditionRow : conditionRows) {
-            FunctionalRow funcRow = (FunctionalRow) conditionRow;
-
-            CellMetaInfo metaInfo = searchSimpleRulesMetaInfo(decisionTable, funcRow, row, col);
-            if (metaInfo != NOT_FOUND) {
-                return metaInfo;
-            }
-
-            metaInfo = searchDescriptionMetaInfo(funcRow, row, col);
-            if (metaInfo != NOT_FOUND) {
-                return metaInfo;
-            }
+            saveDescriptionMetaInfo((FunctionalRow) conditionRow, region);
         }
 
         // Action description
         for (IBaseAction action : decisionTable.getActionRows()) {
-            CellMetaInfo metaInfo = searchDescriptionMetaInfo((FunctionalRow) action, row, col);
-            if (metaInfo != NOT_FOUND) {
-                return metaInfo;
-            }
+            saveDescriptionMetaInfo((FunctionalRow) action, region);
         }
 
         // Condition values
         for (IBaseCondition condition : decisionTable.getConditionRows()) {
             FunctionalRow funcRow = (FunctionalRow) condition;
-            CellMetaInfo metaInfo = searchValueMetaInfo(funcRow, row, col);
-            if (metaInfo != NOT_FOUND) {
-                // Cell is found and it can be null
-                return metaInfo;
-            }
+            saveValueMetaInfo(funcRow, region);
         }
 
         // Action values
         for (IBaseAction action : decisionTable.getActionRows()) {
             FunctionalRow funcRow = (FunctionalRow) action;
-            CellMetaInfo metaInfo = searchValueMetaInfo(funcRow, row, col);
-            if (metaInfo != NOT_FOUND) {
-                // Cell is found and it can be null
-                return metaInfo;
-            }
+            saveValueMetaInfo(funcRow, region);
         }
-
-        return null;
     }
 
-    private CellMetaInfo searchSimpleRulesMetaInfo(DecisionTable decisionTable, FunctionalRow funcRow, int row, int col) {
-        Integer paramIndex = simpleRulesConditionMap.get(CellKey.CellKeyFactory.getCellKey(col, row));
-        if (paramIndex != null) {
+    @Override
+    public void release() {
+        preparedMetaInfos = null;
+    }
+
+    @Override
+    public CellMetaInfo getBodyMetaInfo(int row, int col) {
+        return getPreparedMetaInfo(row, col);
+    }
+
+    private void saveSimpleRulesMetaInfo(DecisionTable decisionTable, IGridRegion region) {
+        for (Map.Entry<CellKey, Integer> entry : simpleRulesConditionMap.entrySet()) {
+            Integer paramIndex = entry.getValue();
+            CellKey key = entry.getKey();
+            int row = key.getRow();
+            int col = key.getColumn();
+            if (!IGridRegion.Tool.contains(region, col, row)) {
+                continue;
+            }
+
             // SimpleRules or SimpleLookup
+            IGrid grid = getTableSyntaxNode().getGridTable().getGrid();
+            String cellValue = grid.getCell(col, row).getStringValue();
+            if (StringUtils.isBlank(cellValue)) {
+                continue;
+            }
+
             String text = String.format("Condition for %s: %s",
                     decisionTable.getSignature().getParameterName(paramIndex),
                     decisionTable.getSignature().getParameterType(paramIndex).getDisplayName(0));
-            IGrid grid = funcRow.getDecisionTable()
-                    .getSource()
-                    .getGrid();
-            if (grid instanceof CompositeGrid) {
-                grid = ((CompositeGrid) grid).getGridTables()[1].getGrid(); // Get original grid
-            }
-            String cellValue = grid.getCell(col, row).getStringValue();
-            if (StringUtils.isBlank(cellValue)) {
-                return null;
-            }
             SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
                     cellValue.length() - 1,
                     text,
                     null,
                     NodeType.OTHER);
-            return new CellMetaInfo(
-                    JavaOpenClass.STRING,
-                    false,
-                    Collections.singletonList(simpleNodeUsage));
+            setPreparedMetaInfo(row,
+                    col,
+                    new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(simpleNodeUsage)));
         }
-
-        return NOT_FOUND;
     }
 
-    private CellMetaInfo searchCompoundReturnColumn(int row, int col) {
-        String description = simpleRulesReturnDescriptions.get(CellKey.CellKeyFactory.getCellKey(col, row));
-        if (description != null) {
+    private void saveCompoundReturnColumn(IGridRegion region) {
+        for (Map.Entry<CellKey, String> entry : simpleRulesReturnDescriptions.entrySet()) {
+            CellKey key = entry.getKey();
+            int row = key.getRow();
+            int col = key.getColumn();
+            if (!IGridRegion.Tool.contains(region, col, row)) {
+                continue;
+            }
+
             ICell cell = getTableSyntaxNode().getGridTable().getGrid().getCell(col, row);
             String stringValue = cell.getStringValue();
 
             SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
                     stringValue.length() - 1,
-                    description,
+                    entry.getValue(),
                     null,
                     NodeType.OTHER);
-            return new CellMetaInfo(
+            CellMetaInfo metaInfo = new CellMetaInfo(
                     JavaOpenClass.STRING,
                     false,
                     Collections.singletonList(simpleNodeUsage));
+            setPreparedMetaInfo(row, col, metaInfo);
         }
-
-        return NOT_FOUND;
     }
 
     public void addSimpleRulesCondition(int row, int col, int paramIndex) {
@@ -169,49 +168,56 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         simpleRulesReturnDescriptions.put(CellKey.CellKeyFactory.getCellKey(col, row), description);
     }
 
-    private CellMetaInfo searchValueMetaInfo(FunctionalRow funcRow, int row, int col) {
+    private void saveValueMetaInfo(FunctionalRow funcRow, IGridRegion region) {
         // Lookup tables are transformed to Rules tables so we can't predict real column and row of a cell.
         // In current implementation we run through all of them and if it's current row and cell.
         for (int c = 0; c < funcRow.nValues(); c++) {
             for (int i = 0; i < funcRow.getNumberOfParams(); i++) {
                 ILogicalTable valueCell = funcRow.getValueCell(c);
                 ICell cell = valueCell.getCell(0, 0);
-                if (isNeededCell(cell, row, col)) {
-                    Object storageValue = funcRow.getStorageValue(i, c);
-                    if (storageValue instanceof CompositeMethod) {
-                        String stringValue = cell.getStringValue();
-                        List<NodeUsage> nodeUsages = OpenLCellExpressionsCompiler.getNodeUsages(
-                                (CompositeMethod) storageValue,
-                                stringValue,
-                                stringValue.indexOf('=') + 1
-                        );
-                        return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
-                    }
+                int row = cell.getAbsoluteRow();
+                int col = cell.getAbsoluteColumn();
 
-                    IOpenClass type = funcRow.getParams()[i].getType();
-                    boolean multiValue = false;
-                    if (type.isArray()) {
-                        multiValue = true;
-                        type = type.getAggregateInfo().getComponentType(type);
-                    }
-                    return new CellMetaInfo(type, multiValue);
+                if (!IGridRegion.Tool.contains(region, col, row)) {
+                    continue;
                 }
+
+                Object storageValue = funcRow.getStorageValue(i, c);
+                if (storageValue instanceof CompositeMethod) {
+                    // Some expression
+                    String stringValue = cell.getStringValue();
+                    List<NodeUsage> nodeUsages = OpenLCellExpressionsCompiler.getNodeUsages(
+                            (CompositeMethod) storageValue,
+                            stringValue,
+                            stringValue.indexOf('=') + 1
+                    );
+                    setPreparedMetaInfo(row, col, new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages));
+                    continue;
+                }
+
+                IOpenClass type = funcRow.getParams()[i].getType();
+                boolean multiValue = false;
+                if (type.isArray()) {
+                    multiValue = true;
+                    type = type.getAggregateInfo().getComponentType(type);
+                }
+                setPreparedMetaInfo(row, col, type, multiValue);
             }
         }
-
-        return NOT_FOUND;
     }
 
-    private CellMetaInfo searchDescriptionMetaInfo(FunctionalRow funcRow, int row, int col) {
+    private void saveDescriptionMetaInfo(FunctionalRow funcRow, IGridRegion region) {
         // Condition/Action code (expression)
         ICell codeCell = funcRow.getCodeTable().getCell(0, 0);
-        if (isNeededCell(codeCell, row, col)) {
+        int row = codeCell.getAbsoluteRow();
+        int col = codeCell.getAbsoluteColumn();
+        if (IGridRegion.Tool.contains(region, col, row)) {
             List<CellMetaInfo> metaInfoList = OpenLCellExpressionsCompiler.getMetaInfo(
                     funcRow.getSourceCodeModule(),
                     funcRow.getMethod()
             );
             // Decision table always contains 1 meta info
-            return metaInfoList.get(0);
+            setPreparedMetaInfo(row, col, metaInfoList.get(0));
         }
 
         // Condition/Action type definition
@@ -219,12 +225,13 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         if (funcRow.getNumberOfParams() > 0) {
             IParameterDeclaration param = funcRow.getParams()[0];
             ICell paramCell = paramsTable.getCell(0, 0);
-            if (isNeededCell(paramCell, row, col)) {
-                return getMetaInfo(paramsTable, param.getType());
+            row = paramCell.getAbsoluteRow();
+            col = paramCell.getAbsoluteColumn();
+
+            if (IGridRegion.Tool.contains(region, col, row)) {
+                setPreparedMetaInfo(row, col, getMetaInfo(paramsTable, param.getType()));
             }
         }
-
-        return NOT_FOUND;
     }
 
     protected CellMetaInfo getMetaInfo(ILogicalTable paramsTable, IOpenClass type) {
@@ -269,4 +276,25 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         return getBoundNode().getDecisionTable();
     }
 
+    private CellMetaInfo getPreparedMetaInfo(int row, int col) {
+        if (preparedMetaInfos == null) {
+            prepare(getTableSyntaxNode().getGridTable().getRegion());
+        }
+        return preparedMetaInfos[row - top][col - left];
+    }
+
+    private void setPreparedMetaInfo(int row, int col, CellMetaInfo metaInfo) {
+        preparedMetaInfos[row - top][col - left] = metaInfo;
+    }
+
+    private void setPreparedMetaInfo(int row, int col, IOpenClass type, boolean multiValue) {
+        CellMetaInfo metaInfo = new CellMetaInfo(type, multiValue);
+        CellMetaInfo previous = preparedMetaInfos[row - top][col - left];
+        if (previous != null) {
+            if (previous.getUsedNodes() != null) {
+                metaInfo.setUsedNodes(previous.getUsedNodes());
+            }
+        }
+        setPreparedMetaInfo(row, col, metaInfo);
+    }
 }
