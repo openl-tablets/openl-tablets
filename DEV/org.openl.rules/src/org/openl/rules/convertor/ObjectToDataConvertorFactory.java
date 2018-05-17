@@ -12,16 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
-import org.openl.binding.IBindingContext;
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.ByteValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ShortValue;
-import org.openl.meta.StringValue;
+import org.openl.meta.*;
 import org.openl.rules.helpers.IntRange;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -70,9 +61,9 @@ public class ObjectToDataConvertorFactory {
             this.ctr = ctr;
         }
 
-        public Object convert(Object data, IBindingContext bindingContext) {
+        public Object convert(Object data) {
             try {
-                return ctr.newInstance(new Object[] { data });
+                return ctr.newInstance(data);
             } catch (Exception e) {
                 throw RuntimeExceptionWrapper.wrap(e);
             }
@@ -95,7 +86,7 @@ public class ObjectToDataConvertorFactory {
             this.staticMethod = staticMethod;
         }
 
-        public Object convert(Object data, IBindingContext bindingContext) {
+        public Object convert(Object data) {
             try {
                 // first argument is null as field staticMethod represents only static method.
                 //
@@ -107,7 +98,7 @@ public class ObjectToDataConvertorFactory {
     }
 
     public static class CopyConvertor implements IObjectToDataConvertor {
-        public Object convert(Object data, IBindingContext bindingContext) {
+        public Object convert(Object data) {
             return data;
         }
         
@@ -122,32 +113,32 @@ public class ObjectToDataConvertorFactory {
      *
      */
     public static class GetValueConvertor implements IObjectToDataConvertor {
-        public Object convert(Object data, IBindingContext bindingContext) {
+        public Object convert(Object data) {
             if (data != null) {
-                Method getValueMethod = null;
+                Method getValueMethod;
                 try {
-                    getValueMethod = data.getClass().getMethod("getValue", new Class<?>[0]);
+                    getValueMethod = data.getClass().getMethod("getValue");
                 } catch (Exception e) {
                     throw RuntimeExceptionWrapper.wrap(e);
                 } 
-                Object value = null;
+                Object value;
                 try {
-                    value = getValueMethod.invoke(data, new Object[0]);
+                    value = getValueMethod.invoke(data);
                 } catch (Exception e) {
                     throw RuntimeExceptionWrapper.wrap(e);
                 } 
                 return value;                
             }
-            return data;
+            return null;
         }
     }
 
-    private static Map<ClassCastPair, IObjectToDataConvertor> convertors = new HashMap<ClassCastPair, IObjectToDataConvertor>();
+    private static Map<ClassCastPair, IObjectToDataConvertor> convertors = new HashMap<>();
     static {
         try {
             convertors.put(new ClassCastPair(Integer.class, IntRange.class), new IObjectToDataConvertor() {
 
-                public Object convert(Object data, IBindingContext bindingContext) {
+                public Object convert(Object data) {
                     return new IntRange((Integer) data);
                 }
 
@@ -155,7 +146,7 @@ public class ObjectToDataConvertorFactory {
 
             convertors.put(new ClassCastPair(int.class, IntRange.class), new IObjectToDataConvertor() {
 
-                public Object convert(Object data, IBindingContext bindingContext) {
+                public Object convert(Object data) {
                     return new IntRange((Integer) data);
                 }
 
@@ -164,7 +155,7 @@ public class ObjectToDataConvertorFactory {
             
             convertors.put(new ClassCastPair(Double.class, DoubleValue.class), new IObjectToDataConvertor() {
 
-                public Object convert(Object data, IBindingContext bindingContext) {
+                public Object convert(Object data) {
                     return new DoubleValue((Double) data);
                 }
 
@@ -176,7 +167,7 @@ public class ObjectToDataConvertorFactory {
             
             convertors.put(new ClassCastPair(double.class, DoubleValue.class), new IObjectToDataConvertor() {
                 
-                public Object convert(Object data, IBindingContext bindingContext) {
+                public Object convert(Object data) {
                     return new DoubleValue((Double)data);
                 }
             });
@@ -184,7 +175,7 @@ public class ObjectToDataConvertorFactory {
             
             convertors.put(new ClassCastPair(Date.class, Calendar.class), new IObjectToDataConvertor() {
 
-                public Object convert(Object data, IBindingContext bindingContext) {
+                public Object convert(Object data) {
                     Calendar cal = Calendar.getInstance(LocaleDependConvertor.getLocale());
                     cal.setTime((Date) data);
                     return cal;
@@ -194,7 +185,7 @@ public class ObjectToDataConvertorFactory {
 
             convertors.put(new ClassCastPair(Date.class, Calendar.class), new IObjectToDataConvertor() {
 
-                public Object convert(Object data, IBindingContext bindingContext) {
+                public Object convert(Object data) {
                     Calendar cal = Calendar.getInstance(LocaleDependConvertor.getLocale());
                     cal.setTime((Date) data);
                     return cal;
@@ -202,7 +193,7 @@ public class ObjectToDataConvertorFactory {
 
             });
             
-            /** convertors from Openl types with meta info to common java types*/
+            /* convertors from Openl types with meta info to common java types*/
             convertors.put(new ClassCastPair(ByteValue.class, Byte.class), new GetValueConvertor());
             convertors.put(new ClassCastPair(ShortValue.class, Short.class), new GetValueConvertor());
             convertors.put(new ClassCastPair(IntValue.class, Integer.class), new GetValueConvertor());
@@ -221,7 +212,7 @@ public class ObjectToDataConvertorFactory {
 
     public static final IObjectToDataConvertor NO_Convertor = new IObjectToDataConvertor() {
 
-        public Object convert(Object data, IBindingContext bindingContext) {
+        public Object convert(Object data) {
             throw new UnsupportedOperationException();
         }
 
@@ -235,7 +226,7 @@ public class ObjectToDataConvertorFactory {
         if (toClass == fromClass)
             return CopyConvertor.the;
         ClassCastPair pair = new ClassCastPair(fromClass, toClass);
-        IObjectToDataConvertor convertor = NO_Convertor;
+        IObjectToDataConvertor convertor;
         if (!convertors.containsKey(pair)) {
             // at first try to find static initialization method, for some numeric classes(e.g. Integer, Double, etc)
             // there are predefined cached values(see Integer.valueOf(int a)).
@@ -246,7 +237,7 @@ public class ObjectToDataConvertorFactory {
             } else {
                 // try to find appropriate constructor.
                 //
-                Constructor<?> ctr = ConstructorUtils.getMatchingAccessibleConstructor(toClass, new Class[] { fromClass });
+                Constructor<?> ctr = ConstructorUtils.getMatchingAccessibleConstructor(toClass, fromClass);
                 
                 if (ctr != null) {
                     convertor = new MatchedConstructorConvertor(ctr);

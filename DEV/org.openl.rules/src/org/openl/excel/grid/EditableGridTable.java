@@ -1,7 +1,6 @@
 package org.openl.excel.grid;
 
 import org.openl.rules.table.GridTable;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
 
@@ -15,17 +14,6 @@ public class EditableGridTable extends GridTable {
 
     public IGrid getGrid() {
         return grid.isEditing() ? grid.getWritableGrid() : super.getGrid();
-    }
-
-    @Override
-    public ICell getCell(int column, int row) {
-        ICell cell = super.getCell(column, row);
-
-        if (grid.isEditing() && cell.getMetaInfo() == null) {
-            cell.setMetaInfo(grid.getCell(cell.getAbsoluteColumn(), cell.getAbsoluteRow()).getMetaInfo());
-        }
-
-        return cell;
     }
 
     @Override

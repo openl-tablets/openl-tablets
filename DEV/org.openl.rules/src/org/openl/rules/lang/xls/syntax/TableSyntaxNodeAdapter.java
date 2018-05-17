@@ -6,6 +6,7 @@ import java.util.Objects;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
@@ -121,4 +122,8 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
                 && !tableType.equals(XlsNodeTypes.XLS_PROPERTIES.toString());
     }
 
+    @Override
+    public MetaInfoReader getMetaInfoReader() {
+        return tsn.getMetaInfoReader();
+    }
 }

@@ -45,6 +45,8 @@ public interface ITable {
 
     int getNumberOfColumns();
 
+    ColumnDescriptor getColumnDescriptor(int i);
+
     int getNumberOfRows();
 
     String getPrimaryIndexKey(int row);
@@ -70,6 +72,8 @@ public interface ITable {
     void preLoad(OpenlToolAdaptor ota) throws Exception;
 
     void setData(ILogicalTable dataWithHeader);
+
+    ILogicalTable getData();
 
     void setModel(ITableModel dataModel);
 

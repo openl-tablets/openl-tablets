@@ -6,7 +6,6 @@ package org.openl.rules.datatype.binding;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,11 +14,10 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
-import org.openl.binding.impl.NodeType;
+import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.meta.IMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.datatype.gen.FieldDescription;
@@ -27,16 +25,16 @@ import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass.OpenFieldsConstructor;
+import org.openl.rules.lang.xls.types.meta.BaseMetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.DatatypeTableMetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.utils.ParserUtils;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
+import org.openl.syntax.exception.*;
 import org.openl.syntax.exception.Runnable;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
@@ -138,6 +136,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private void addFields(final IBindingContext cxt) throws Exception {
 
         final ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
+        // Save normalized table to work with it later
+        this.table = dataTable;
 
         int tableHeight = 0;
 
@@ -148,7 +148,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         // map of fields that will be used for byte code generation.
         // key: name of the field, value: field type.
         //
-        final Map<String, FieldDescription> fields = new LinkedHashMap<String, FieldDescription>();
+        final Map<String, FieldDescription> fields = new LinkedHashMap<>();
         SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         for (int i = 0; i < tableHeight; i++) {
             final int index = i;
@@ -199,9 +199,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
         if (parentClassName != null) {
             IOpenClass parentClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, parentClassName);
-            if (parentClass.getInstanceClass() == null) {
-                return false;// parent bean was not generated
-            }
+            return parentClass.getInstanceClass() != null;
         }
         return true;
     }
@@ -211,9 +209,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
      *
      * @param fields fields for bean class
      * @return Class descriptor of generated bean class.
-     * @throws SyntaxNodeException is can`t generate bean for datatype table.
      */
-    private byte[] createBeanForDatatype(Map<String, FieldDescription> fields) throws SyntaxNodeException {
+    private byte[] createBeanForDatatype(Map<String, FieldDescription> fields) {
         String beanName = dataType.getJavaName();
         IOpenClass superOpenClass = dataType.getSuperClass();
         JavaBeanClassBuilder beanBuilder = new JavaBeanClassBuilder(beanName);
@@ -317,14 +314,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             IOpenClass fieldType = getFieldType(cxt, row, rowSrc);
             IOpenField field = new DatatypeOpenField(dataType, fieldName, fieldType);
 
-            if (!cxt.isExecutionMode()) {
-                IdentifierNode[] parsedHeader = Tokenizer.tokenize(rowSrc, "[]\n\r");
-                IMetaInfo metaInfo = fieldType.getMetaInfo();
-
-                // Link to field type table
-                RuleRowHelper.setCellMetaInfoWithNodeUsage(row, parsedHeader[0], metaInfo, NodeType.DATATYPE);
-            }
-
             if (!isRecursiveField(field) && getRootComponentClass(field.getType()).getInstanceClass() == null) {
                 // For example type A depends on B and B depends on A. At this
                 // point B is not generated yet.
@@ -391,22 +380,23 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 if (constantOpenField != null) {
                     fieldDescription.setDefaultValue(constantOpenField.getValue());
                     fieldDescription.setDefaultValueAsString(constantOpenField.getValueAsString());
-                    RuleRowHelper.setMetaInfoWithNodeUsageForConstantCell(getCellSource(row, cxt, 2).getCell(),
-                        defaultValue,
-                        constantOpenField,
-                        cxt);
+                    if (!cxt.isExecutionMode()) {
+                        ICell cell = getCellSource(row, cxt, 2).getCell();
+                        MetaInfoReader metaInfoReader = tableSyntaxNode.getMetaInfoReader();
+                        if (metaInfoReader instanceof BaseMetaInfoReader) {
+                            SimpleNodeUsage nodeUsage = RuleRowHelper.createConstantNodeUsage(defaultValue, constantOpenField);
+                            ((BaseMetaInfoReader) metaInfoReader).addConstant(cell, nodeUsage);
+                        }
+                    }
                 } else {
                     fieldDescription.setDefaultValueAsString(defaultValue);
 
                     if (!String.class.equals(fieldType.getInstanceClass())) {
                         ICell theCellValue = row.getColumn(2).getCell(0, 0);
                         if (theCellValue.hasNativeType()) {
-                            Object value = RuleRowHelper.loadNativeValue(theCellValue, fieldType, cxt);
+                            Object value = RuleRowHelper.loadNativeValue(theCellValue, fieldType);
                             if (value != null) {
                                 fieldDescription.setDefaultValue(value);
-                                if (Date.class.equals(fieldType.getInstanceClass())) {
-                                    RuleRowHelper.setCellMetaInfo(row.getColumn(2), fieldType, false);
-                                }
                             }
                         }
                     }
@@ -511,6 +501,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     public void finalizeBind(IBindingContext cxt) throws Exception {
+        if (!cxt.isExecutionMode()) {
+            tableSyntaxNode.setMetaInfoReader(new DatatypeTableMetaInfoReader(this));
+        }
         if (parentClassName != null) {
             IOpenClass parentClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, parentClassName);
             if (parentClass == null) {
@@ -536,15 +529,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             }
 
             dataType.setSuperClass(parentClass);
-
-            if (!cxt.isExecutionMode()) {
-                // Link to parent class table
-                RuleRowHelper.setCellMetaInfoWithNodeUsage(table,
-                    parentClassIdentifier,
-                    parentClass.getMetaInfo(),
-                    NodeType.DATATYPE);
-            }
-
         }
         addFields(cxt);
         // adding constructor with all fields after all fields have been added
@@ -589,8 +573,23 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
     }
 
-    public void removeDebugInformation(IBindingContext cxt) throws Exception {
+    public void removeDebugInformation(IBindingContext cxt) {
         // nothing to remove
     }
 
+    public TableSyntaxNode getTableSyntaxNode() {
+        return tableSyntaxNode;
+    }
+
+    public DatatypeOpenClass getDataType() {
+        return dataType;
+    }
+
+    public ILogicalTable getTable() {
+        return table;
+    }
+
+    public IdentifierNode getParentClassIdentifier() {
+        return parentClassIdentifier;
+    }
 }

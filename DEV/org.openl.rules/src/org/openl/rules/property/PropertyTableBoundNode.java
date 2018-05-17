@@ -6,7 +6,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
@@ -20,7 +19,7 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
     private TableProperties propertiesInstance;
     private String tableName;
     
-    public PropertyTableBoundNode(TableSyntaxNode syntaxNode, XlsModuleOpenClass module) {
+    public PropertyTableBoundNode(TableSyntaxNode syntaxNode) {
         super(syntaxNode);
     }
 
@@ -39,7 +38,7 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
         return null;
     }
 
-    public void finalizeBind(IBindingContext cxt) throws Exception {
+    public void finalizeBind(IBindingContext cxt) {
         // don`t need to finalize anything
     }
 
@@ -75,7 +74,7 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
         }
     }
 
-    public void removeDebugInformation(IBindingContext cxt) throws Exception {
+    public void removeDebugInformation(IBindingContext cxt) {
         if (cxt.isExecutionMode() && field != null) {
             field.setPropertiesInstance(getTablePropertiesForExecutionMode(propertiesInstance));
         }

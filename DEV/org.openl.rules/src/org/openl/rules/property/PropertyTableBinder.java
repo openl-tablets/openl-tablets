@@ -11,6 +11,7 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.PropertyTableMetaInfoReader;
 import org.openl.rules.property.exception.DuplicatedPropertiesTableException;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.TableProperties;
@@ -41,7 +42,7 @@ public class PropertyTableBinder extends DataNodeBinder {
 
         assert cxt instanceof RulesModuleBindingContext;
 
-        PropertyTableBoundNode propertyNode = (PropertyTableBoundNode) makeNode(tsn, module);
+        PropertyTableBoundNode propertyNode = (PropertyTableBoundNode) makeNode(tsn, module, cxt);
 
         String tableName = parseHeader(tsn);
         propertyNode.setTableName(tableName);
@@ -61,7 +62,7 @@ public class PropertyTableBinder extends DataNodeBinder {
         }
 
         TableProperties propertiesInstance = ((TableProperties[]) propertyTable.getDataArray())[0];
-        propertiesInstance.setPropertiesSection(tsn.getTable());
+        propertiesInstance.setPropertiesSection(tsn.getTable().getRows(1)); // Skip header
         propertiesInstance.setCurrentTableType(tsn.getType());
         
         PropertiesChecker.checkProperties(cxt, propertiesInstance.getAllProperties().keySet(), tsn, 
@@ -223,8 +224,16 @@ public class PropertyTableBinder extends DataNodeBinder {
         return InheritanceLevel.CATEGORY.getDisplayName().equals(scope);
     }
 
-    protected ATableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module) {
-        return new PropertyTableBoundNode(tsn, module);
+    protected ATableBoundNode makeNode(TableSyntaxNode tsn,
+            XlsModuleOpenClass module,
+            IBindingContext bindingContext) {
+        PropertyTableBoundNode boundNode = new PropertyTableBoundNode(tsn);
+
+        if (!bindingContext.isExecutionMode()) {
+            tsn.setMetaInfoReader(new PropertyTableMetaInfoReader(boundNode));
+        }
+
+        return boundNode;
     }
 
 }

@@ -2,7 +2,6 @@ package org.openl.rules.constants;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -17,15 +16,13 @@ import org.openl.rules.datatype.binding.DatatypeTableBoundNode;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.ConstantsTableMetaInfoReader;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.utils.ParserUtils;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
+import org.openl.syntax.exception.*;
 import org.openl.syntax.exception.Runnable;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.FieldMetaInfo;
 import org.openl.types.IOpenClass;
@@ -38,6 +35,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
     private TableSyntaxNode tableSyntaxNode;
     private ModuleOpenClass moduleOpenClass;
     private ILogicalTable table;
+    private ILogicalTable normalizedData;
     private OpenL openl;
     private Collection<ConstantOpenField> constantOpenFields = new ArrayList<>();
 
@@ -122,15 +120,12 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                 if (String.class.equals(constantType.getInstanceClass())) {
                     objectValue = String2DataConvertorFactory.parse(String.class, value, cxt);
                 } else {
-                    objectValue = RuleRowHelper.loadNativeValue(row.getColumn(2).getCell(0, 0), constantType, cxt);
+                    objectValue = RuleRowHelper.loadNativeValue(row.getColumn(2).getCell(0, 0), constantType);
                     if (objectValue == null) {
                         objectValue = String2DataConvertorFactory.parse(constantType.getInstanceClass(), value, cxt);
                     } else {
                         RuleRowHelper.validateValue(objectValue, constantType);
                     }
-                }
-                if (Date.class.equals(constantType.getInstanceClass())) {
-                    RuleRowHelper.setCellMetaInfo(row.getColumn(2), constantType, false);
                 }
             } catch (RuntimeException e) {
                 String message = String.format("Can't parse cell value '%s'", value);
@@ -186,6 +181,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
 
     private void addConstants(final IBindingContext cxt) throws Exception {
         final ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
+        normalizedData = dataTable;
 
         int tableHeight = 0;
         if (dataTable != null) {
@@ -208,6 +204,10 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
 
     @Override
     public void finalizeBind(IBindingContext cxt) throws Exception {
+        if (!cxt.isExecutionMode()) {
+            getTableSyntaxNode().setMetaInfoReader(new ConstantsTableMetaInfoReader(this));
+        }
+
         addConstants(cxt);
 
         ILogicalTable tableBody = getTableSyntaxNode().getTableBody();
@@ -224,4 +224,11 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
         }
     }
 
+    public ILogicalTable getNormalizedData() {
+        return normalizedData;
+    }
+
+    public Collection<ConstantOpenField> getConstantOpenFields() {
+        return constantOpenFields;
+    }
 }

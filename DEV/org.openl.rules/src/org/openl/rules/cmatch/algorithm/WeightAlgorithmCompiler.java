@@ -101,7 +101,6 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
 
         parseCheckValues(bindingContext, columnMatch, totalScoreRow, totalScore, retValuesCount);
         columnMatch.setTotalScore(totalScore);
-        bindMetaInfo(columnMatch, totalScoreRow.get(VALUES), totalScore.getCheckValues());
 
         // score
         TableRow scoreRow = columnMatch.getRows().get(ROW_SCORE_IDX);
@@ -118,7 +117,6 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
             scores[i] = (Integer) objScores[i];
         }
         columnMatch.setColumnScores(scores);
-        bindMetaInfo(columnMatch, scoreRow.get(VALUES), objScores);
     }
 
     @Override

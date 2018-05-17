@@ -6,7 +6,6 @@ package org.openl.rules.datatype.binding;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
@@ -84,7 +83,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
                 IOpenClass arrayOpenClass = OpenLManager
                         .makeType(openl, arrayAliasTypeSource, bindingContext);
 
-                OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext);
+                OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext, tsn);
 
                 Object values = RuleRowHelper.loadParam(dataPart, arrayOpenClass, "Values", "", openlAdaptor, true);
 
@@ -93,7 +92,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
                 }
             }
 
-            IDomain<?> domain = new EnumDomain<Object>(res);
+            IDomain<?> domain = new EnumDomain<>(res);
 
             // Create source code module for type definition.
             // Domain values are loaded as elements of array. We are create one

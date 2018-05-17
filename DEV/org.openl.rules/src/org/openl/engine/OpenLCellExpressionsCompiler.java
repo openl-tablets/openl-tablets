@@ -9,7 +9,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.*;
 import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.CompositeSourceCodeModule;
@@ -20,8 +19,6 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Compiles OpenL expressions from the cells and sets meta info about used
@@ -45,9 +42,6 @@ public class OpenLCellExpressionsCompiler {
         OpenLCompileManager compileManager = new OpenLCompileManager(openl);
 
         compileManager.compileMethod(source, compositeMethod, bindingContext);
-        if (!bindingContext.isExecutionMode()) {
-            gatherMetaInfo(source, compositeMethod);
-        }
     }
 
     /**
@@ -65,11 +59,7 @@ public class OpenLCellExpressionsCompiler {
 
         OpenLCodeManager codeManager = new OpenLCodeManager(openl);
 
-        CompositeMethod method = codeManager.makeMethod(source, methodHeader, bindingContext);
-        if (!bindingContext.isExecutionMode()) {
-            gatherMetaInfo(source, method);
-        }
-        return method;
+        return codeManager.makeMethod(source, methodHeader, bindingContext);
     }
 
     /**
@@ -91,18 +81,14 @@ public class OpenLCellExpressionsCompiler {
 
         OpenLCodeManager codeManager = new OpenLCodeManager(openl);
 
-        CompositeMethod method = codeManager.makeMethodWithUnknownType(source, methodName, signature, declaringClass,
+        return codeManager.makeMethodWithUnknownType(source, methodName, signature, declaringClass,
                 bindingContext);
-        if (!bindingContext.isExecutionMode()) {
-            gatherMetaInfo(source, method);
-        }
-        return method;
     }
 
-    public static void gatherMetaInfo(IOpenSourceCodeModule source, CompositeMethod method) {
+    public static List<CellMetaInfo> getMetaInfo(IOpenSourceCodeModule source, CompositeMethod method) {
         int startIndex = 0;
         if (source instanceof CompositeSourceCodeModule) {
-            setMetaInfoForCompositeSource(method, (CompositeSourceCodeModule) source, startIndex);
+            return getMetaInfoForCompositeSource(method, (CompositeSourceCodeModule) source, startIndex);
         } else {
             IOpenSourceCodeModule src = source;
             // extract original cell source
@@ -111,32 +97,35 @@ public class OpenLCellExpressionsCompiler {
                 src = ((SubTextSourceCodeModule) src).getBaseModule();
             }
             if (src instanceof GridCellSourceCodeModule) {
-                List<NodeUsage> nodeUsages = new ArrayList<NodeUsage>(MethodUsagesSearcher.findAllMethods(method.getMethodBodyBoundNode(),
-                        source.getCode(), startIndex));
-                FieldUsageSearcher.findAllFields(nodeUsages,
-                        method.getMethodBodyBoundNode(),
-                        source.getCode(),
-                        startIndex);
-                setCellMetaInfo((GridCellSourceCodeModule) src, nodeUsages);
+                List<NodeUsage> nodeUsages = getNodeUsages(method, source.getCode(), startIndex);
+                return Collections.singletonList(getCellMetaInfoOrNull(nodeUsages));
             }
         }
+
+        return Collections.singletonList(null);
     }
 
-    private static void setMetaInfoForCompositeSource(CompositeMethod method, CompositeSourceCodeModule source,
-            int startIndex) {
+    public static List<NodeUsage> getNodeUsages(CompositeMethod method, String sourceString, int startIndex) {
         List<NodeUsage> nodeUsages = new ArrayList<NodeUsage>(MethodUsagesSearcher.findAllMethods(method.getMethodBodyBoundNode(),
-                source.getCode(), startIndex));
+                sourceString, startIndex));
         FieldUsageSearcher.findAllFields(nodeUsages,
                 method.getMethodBodyBoundNode(),
-                source.getCode(),
+                sourceString,
                 startIndex);
+        Collections.sort(nodeUsages, new NodeUsageComparator());
+        return nodeUsages;
+    }
+
+    private static List<CellMetaInfo> getMetaInfoForCompositeSource(CompositeMethod method, CompositeSourceCodeModule source,
+            int startIndex) {
+        List<NodeUsage> nodeUsages = getNodeUsages(method, source.getCode(), startIndex);
 
         IOpenSourceCodeModule[] modules = source.getModules();
         int moduleStart = 0;
+        List<CellMetaInfo> metaInfoList = new ArrayList<>();
         for (IOpenSourceCodeModule module : modules) {
             int moduleEnd = moduleStart + module.getCode().length();
             if (module instanceof GridCellSourceCodeModule) {
-                GridCellSourceCodeModule cellSource = (GridCellSourceCodeModule) module;
                 // find all methods used in current cell
                 List<NodeUsage> currentCellMethodUsages = new ArrayList<>();
                 for (NodeUsage usage : nodeUsages) {
@@ -153,35 +142,22 @@ public class OpenLCellExpressionsCompiler {
                         }
                     }
                 }
-                setCellMetaInfo(cellSource, currentCellMethodUsages);
+                metaInfoList.add(getCellMetaInfoOrNull(currentCellMethodUsages));
+            } else {
+                metaInfoList.add(null);
             }
             moduleStart = moduleEnd + 1;
         }
+
+        return metaInfoList;
     }
 
-    private static void setCellMetaInfo(GridCellSourceCodeModule src, List<NodeUsage> methodUsages) {
-        ICell cell = src.getCell();
-        if (CollectionUtils.isNotEmpty(methodUsages) && cell != null) {
-            CellMetaInfo oldMetaInfo = cell.getMetaInfo();
-            if (oldMetaInfo != null && oldMetaInfo.getUsedNodes() != null) {
-                for (NodeUsage nodeUsage : oldMetaInfo.getUsedNodes()) {
-                    if (methodUsages.contains(nodeUsage)) {
-                        Logger log = LoggerFactory.getLogger(OpenLCellExpressionsCompiler.class);
-                        log.warn(
-                                "Trying to add meta info node usage that already exists.\nUri: {}\nRange: {}-{}\nDescription: {}",
-                                nodeUsage.getUri(),
-                                nodeUsage.getStart(),
-                                nodeUsage.getEnd(),
-                                nodeUsage.getDescription()
-                        );
-                    } else {
-                        methodUsages.add(nodeUsage);
-                    }
-                }
-            }
-            Collections.sort(methodUsages, new NodeUsageComparator());
-            cell.setMetaInfo(new CellMetaInfo(JavaOpenClass.STRING, false, methodUsages));
+    private static CellMetaInfo getCellMetaInfoOrNull(List<NodeUsage> methodUsages) {
+        if (CollectionUtils.isNotEmpty(methodUsages)) {
+            return new CellMetaInfo(JavaOpenClass.STRING, false, methodUsages);
         }
+
+        return null;
     }
 
 }

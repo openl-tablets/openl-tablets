@@ -56,14 +56,13 @@ public class GettersWriter extends MethodWriter {
         final String format = "()" + javaType;
         methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, getterName, format, null, null);
 
-        String elementName = ClassUtils.decapitalize(fieldName);
-
         AnnotationVisitor av = methodVisitor.visitAnnotation("Ljavax/xml/bind/annotation/XmlElement;", true);
-        av.visit("name", elementName);
+        av.visit("name", fieldName);
 
-        if (field.hasDefaultKeyWord()) {
-            av.visit("nillable", false);
-        } else if (field.hasDefaultValue()) {
+        if (!field.hasDefaultValue() && field.getTypeDescriptor().length() != 1) {
+            av.visit("nillable", true);
+        }
+        if (field.hasDefaultValue() && !field.hasDefaultKeyWord()) {
             String defaultFieldValue = field.getDefaultValueAsString();
             if (Boolean.class.getName().equals(field.getTypeName()) || boolean.class.getName()
                 .equals(field.getTypeName())) {
@@ -73,8 +72,6 @@ public class GettersWriter extends MethodWriter {
                 defaultFieldValue = ISO8601DateFormater.format(date);
             }
             av.visit("defaultValue", defaultFieldValue);
-        } else {
-            av.visit("nillable", true);
         }
         av.visitEnd();
 

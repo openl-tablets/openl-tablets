@@ -15,6 +15,7 @@ import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.SpreadsheetMetaInfoReader;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -87,6 +88,10 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
     }
 
     public void preBind(IBindingContext bindingContext) throws SyntaxNodeException {
+        if (!bindingContext.isExecutionMode()) {
+            getTableSyntaxNode().setMetaInfoReader(new SpreadsheetMetaInfoReader(this));
+        }
+
         TableSyntaxNode tableSyntaxNode = getTableSyntaxNode();
         validateTableBody(tableSyntaxNode, bindingContext);
         IOpenMethodHeader header = getHeader();

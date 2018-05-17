@@ -21,6 +21,7 @@ import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.DataTableMetaInfoReader;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
@@ -67,8 +68,16 @@ public class TestMethodNodeBinder extends DataNodeBinder {
 
 
     @Override
-    protected ATableBoundNode makeNode(TableSyntaxNode tableSyntaxNode, XlsModuleOpenClass module) {
-        return new TestMethodBoundNode(tableSyntaxNode, module);
+    protected ATableBoundNode makeNode(TableSyntaxNode tableSyntaxNode,
+            XlsModuleOpenClass module,
+            IBindingContext bindingContext) {
+        TestMethodBoundNode boundNode = new TestMethodBoundNode(tableSyntaxNode, module);
+
+        if (!bindingContext.isExecutionMode()) {
+            tableSyntaxNode.setMetaInfoReader(new DataTableMetaInfoReader(boundNode));
+        }
+
+        return boundNode;
     }
 
     @Override
@@ -134,7 +143,8 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                     tableSyntaxNode.addError(error);
                 }
             }
-            TestMethodBoundNode testMethodBoundNode = (TestMethodBoundNode) makeNode(tableSyntaxNode, module);
+            TestMethodBoundNode testMethodBoundNode = (TestMethodBoundNode) makeNode(tableSyntaxNode, module,
+                    bindingContext);
             TestSuiteMethod testSuite = new TestSuiteMethod(testedMethod, header, testMethodBoundNode);
             testMethodBoundNode.setTestSuite(testSuite);
             TestMethodOpenClass testMethodOpenClass = new TestMethodOpenClass(tableName, testedMethod);
@@ -176,7 +186,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                             bestMessages = bindingContext.getMessages();
                             bestBindingContextErrors = bindingContext.getErrors();
                         } else {
-                            List<IOpenMethod> list = new ArrayList<IOpenMethod>();
+                            List<IOpenMethod> list = new ArrayList<>();
                             list.add(testedMethod);
                             list.add(bestCaseOpenMethod);
                             throw new AmbiguousMethodException(tableName, IOpenClass.EMPTY, list);

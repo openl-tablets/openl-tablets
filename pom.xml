@@ -83,12 +83,12 @@
         <cglib.version>3.1</cglib.version>
 
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
-        <org.apache.cxf.version>3.1.14</org.apache.cxf.version>
+        <org.apache.cxf.version>3.1.15</org.apache.cxf.version>
         <openl.mapping.version>1.1.2</openl.mapping.version>
         <org.slf4j.version>1.7.25</org.slf4j.version>
         <org.apache.poi.version>3.17</org.apache.poi.version>
         <org.apache.jackrabbit.version>2.8.0</org.apache.jackrabbit.version>
-        <com.fasterxml.jackson.version>2.9.2</com.fasterxml.jackson.version>
+        <com.fasterxml.jackson.version>2.9.5</com.fasterxml.jackson.version>
         <maven.api.version>3.2.5</maven.api.version>
         <maven.plugin.version>3.5</maven.plugin.version>
         <!-- Empty for building without JaCoCo agent -->
@@ -116,6 +116,7 @@
         </snapshotRepository>
     </distributionManagement>
     <build>
+        <defaultGoal>clean verify</defaultGoal>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>test</testSourceDirectory>
         <resources>
@@ -1123,7 +1124,12 @@
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>3.9.3</version>
+                <version>3.14.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-jaxrs</artifactId>
+                <version>1.5.19</version>
             </dependency>
             <!-- Apache CXF Runtime CORBA Binding -->
             <dependency>

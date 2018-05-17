@@ -171,14 +171,6 @@ public class Cell implements ICell {
         return false;
     }
 
-    public CellMetaInfo getMetaInfo() {
-        return metaInfo;
-    }
-
-    public void setMetaInfo(CellMetaInfo metaInfo) {
-        this.metaInfo = metaInfo;
-    }
-
     public ICellComment getComment() {
         return comment;
     }

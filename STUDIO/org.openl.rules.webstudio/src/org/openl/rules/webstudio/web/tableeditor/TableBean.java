@@ -1,19 +1,9 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.BENCHMARK;
-import static org.openl.rules.security.Privileges.CREATE_TABLES;
-import static org.openl.rules.security.Privileges.EDIT_TABLES;
-import static org.openl.rules.security.Privileges.REMOVE_TABLES;
-import static org.openl.rules.security.Privileges.RUN;
-import static org.openl.rules.security.Privileges.TRACE;
+import static org.openl.rules.security.Privileges.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
@@ -40,13 +30,7 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.testmethod.ParameterWithValueDeclaration;
-import org.openl.rules.testmethod.ProjectHelper;
-import org.openl.rules.testmethod.TestDescription;
-import org.openl.rules.testmethod.TestMethodBoundNode;
-import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.testmethod.TestUtils;
+import org.openl.rules.testmethod.*;
 import org.openl.rules.types.IUriMember;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.RecentlyVisitedTables;
@@ -171,7 +155,7 @@ public class TableBean {
         initErrors();
         initWarnings();
 
-        problems = new ArrayList<OpenLMessage>();
+        problems = new ArrayList<>();
         problems.addAll(errors);
         problems.addAll(warnings);
     }
@@ -182,7 +166,7 @@ public class TableBean {
     }
 
     private void initWarnings() {
-        warnings = new ArrayList<OpenLMessage>();
+        warnings = new ArrayList<>();
         
         if (targetTables != null) {
             boolean warningWasAdded = false;
@@ -309,7 +293,7 @@ public class TableBean {
         if (targetTables == null) {
             return  null;
         }
-        List<TableDescription> tableDescriptions = new ArrayList<TableDescription>(targetTables.size());
+        List<TableDescription> tableDescriptions = new ArrayList<>(targetTables.size());
         for (IOpenLTable targetTable : targetTables) {
             tableDescriptions.add(new TableDescription(targetTable.getUri(),
                     targetTable.getId(),
@@ -378,7 +362,7 @@ public class TableBean {
         if (allTests == null) {
             return null;
         }
-        List<TableDescription> tableDescriptions = new ArrayList<TableDescription>(allTests.length);
+        List<TableDescription> tableDescriptions = new ArrayList<>(allTests.length);
         for (IOpenMethod test : allTests) {
             String tableUri = ((IUriMember) test).getUri();
             TableSyntaxNode syntaxNode = (TableSyntaxNode) test.getInfo().getSyntaxNode();
@@ -390,7 +374,7 @@ public class TableBean {
                 return o1.getName().compareTo(o2.getName());
             }
         });
-        return tableDescriptions.toArray(new TableDescription[tableDescriptions.size()]);
+        return tableDescriptions.toArray(new TableDescription[0]);
     }
     
     public String getTestName(Object testMethod){

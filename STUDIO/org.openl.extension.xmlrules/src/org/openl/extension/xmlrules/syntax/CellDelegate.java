@@ -2,7 +2,6 @@ package org.openl.extension.xmlrules.syntax;
 
 import java.util.Date;
 
-import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGridRegion;
@@ -118,16 +117,6 @@ public class CellDelegate implements ICell {
     @Override
     public Date getNativeDate() {
         return delegate.getNativeDate();
-    }
-
-    @Override
-    public CellMetaInfo getMetaInfo() {
-        return delegate.getMetaInfo();
-    }
-
-    @Override
-    public void setMetaInfo(CellMetaInfo metaInfo) {
-        delegate.setMetaInfo(metaInfo);
     }
 
     @Override

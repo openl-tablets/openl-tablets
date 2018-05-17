@@ -1,5 +1,16 @@
 package org.openl.rules.webstudio.web.diff;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import javax.annotation.PreDestroy;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.SessionScoped;
+import javax.faces.model.SelectItem;
+
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -16,15 +27,6 @@ import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
-import javax.faces.model.SelectItem;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Supplies repository structured diff UI tree with data.
@@ -43,7 +45,6 @@ public class RepositoryDiffController extends AbstractDiffController {
     private DesignTimeRepository designTimeRepository;
 
     private AProject projectUW; // User Workspace project
-    private AProject projectRepo; // Repository project
     private List<AProjectArtefact> excelArtefactsUW;
     private List<AProjectArtefact> excelArtefactsRepo;
 
@@ -90,7 +91,7 @@ public class RepositoryDiffController extends AbstractDiffController {
 
     public List<SelectItem> getExcelFilesUW() {
         init();
-        List<SelectItem> excelItems = new ArrayList<SelectItem>();
+        List<SelectItem> excelItems = new ArrayList<>();
         for (AProjectArtefact excelArtefact : excelArtefactsUW) {
             excelItems.add(new SelectItem(excelArtefact.getArtefactPath().getStringValue(),
                     excelArtefact.getName()));
@@ -99,7 +100,7 @@ public class RepositoryDiffController extends AbstractDiffController {
     }
 
     public List<SelectItem> getExcelFilesRepo() {
-        List<SelectItem> excelItems = new ArrayList<SelectItem>();
+        List<SelectItem> excelItems = new ArrayList<>();
         for (AProjectArtefact excelArtefact : excelArtefactsRepo) {
             excelItems.add(new SelectItem(excelArtefact.getArtefactPath().getStringValue(),
                     excelArtefact.getName()));
@@ -139,6 +140,8 @@ public class RepositoryDiffController extends AbstractDiffController {
     public void initProjectRepo() {
         try {
             CommonVersionImpl version = new CommonVersionImpl(selectedVersionRepo);
+            // Repository project
+            AProject projectRepo;
             try {
                 projectRepo = designTimeRepository.getProject(projectUW.getName(), version);
             } catch (Exception e) {
@@ -151,8 +154,8 @@ public class RepositoryDiffController extends AbstractDiffController {
         }
     }
 
-    private List<AProjectArtefact> getExcelArtefacts(AProject project, String rootPath) throws Exception {
-        List<AProjectArtefact> excelArtefacts = new ArrayList<AProjectArtefact>();
+    private List<AProjectArtefact> getExcelArtefacts(AProject project, String rootPath) {
+        List<AProjectArtefact> excelArtefacts = new ArrayList<>();
         Collection<? extends AProjectArtefact> projectArtefacts;
         if (rootPath != null) {
             try {
@@ -233,11 +236,17 @@ public class RepositoryDiffController extends AbstractDiffController {
             System.err.println("exit");
             return null;
         }
+        // Files can be reloaded lazily later. We can't delete them immediately. Instead delete them when Bean
+        // is destroyed (on session timeout) or before next comparison.
+        deleteTempFiles();
+
         AProjectArtefact excelArtefact1 = getExcelArtefactByPath(excelArtefactsUW, selectedExcelFileUW);
         File excelFile1 = downloadExcelFile(excelArtefact1);
+        addTempFile(excelFile1);
 
         AProjectArtefact excelArtefact2 = getExcelArtefactByPath(excelArtefactsRepo, selectedExcelFileRepo);
         File excelFile2 = downloadExcelFile(excelArtefact2);
+        addTempFile(excelFile2);
 
         try {
             if (excelFile1 == null) {
@@ -263,12 +272,13 @@ public class RepositoryDiffController extends AbstractDiffController {
             String message = "Can't compare the files '" + FileUtils.getName(selectedExcelFileUW) + "' and '" + FileUtils.getName(selectedExcelFileRepo) + "'. Cause: " + cause.getMessage();
             log.error(message, e);
             FacesUtils.addErrorMessage(message);
-        } finally {
-            FileUtils.deleteQuietly(excelFile1);
-            FileUtils.deleteQuietly(excelFile2);
         }
 
         return null;
     }
 
+    @PreDestroy
+    public void destroy() {
+        deleteTempFiles();
+    }
 }

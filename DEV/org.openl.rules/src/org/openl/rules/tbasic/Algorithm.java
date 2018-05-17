@@ -1,5 +1,7 @@
 package org.openl.rules.tbasic;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +10,7 @@ import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
@@ -52,6 +55,7 @@ public class Algorithm extends AlgorithmFunction {
         return getSyntaxNode().getUri();
     }
 
+    @SuppressWarnings("unchecked")
     protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
         if (invoker == null) {
             // create new instance of invoker.
@@ -74,7 +78,8 @@ public class Algorithm extends AlgorithmFunction {
         this.thisClass = thisClass;
     }
 
-    protected List<RuntimeOperation> getAlgorithmSteps() {
+    @Override
+    public List<RuntimeOperation> getAlgorithmSteps() {
         return algorithmSteps;
     }
 
@@ -91,5 +96,16 @@ public class Algorithm extends AlgorithmFunction {
         getBoundNode().updateDependency(bindingDependencies);
 
         return bindingDependencies;
+    }
+
+    public Collection<AlgorithmSubroutineMethod> getSubroutines() {
+        List<AlgorithmSubroutineMethod> subroutines = new ArrayList<>();
+        for (IOpenMethod method : getThisClass().getMethods()) {
+            if (method instanceof AlgorithmSubroutineMethod) {
+                subroutines.add((AlgorithmSubroutineMethod) method);
+            }
+        }
+
+        return subroutines;
     }
 }

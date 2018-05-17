@@ -1,5 +1,7 @@
 package org.openl.rules.table.ui;
 
+import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.AGrid;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ICell;
@@ -16,21 +18,23 @@ public class FilteredGrid extends AGrid {
     private IGridFilter[] formatFilters;
 
     private IGrid delegate;
+    private MetaInfoReader metaInfoReader;
 
-    public FilteredGrid(IGrid delegate, IGridFilter[] formatFilters) {
+    public FilteredGrid(IGrid delegate, IGridFilter[] formatFilters, MetaInfoReader metaInfoReader) {
         this.delegate = delegate;
         this.formatFilters = formatFilters.clone();
+        this.metaInfoReader = metaInfoReader;
     }
 
     private void formatCell(FormattedCell fcell, int col, int row) {
         if (formatFilters != null) {
-            for (int i = 0; i < formatFilters.length; i++) {
-                IGridSelector selector = formatFilters[i].getGridSelector();
+            for (IGridFilter formatFilter : formatFilters) {
+                IGridSelector selector = formatFilter.getGridSelector();
                 if (selector == null || selector.selectCoords(col, row)) {
                     try {
                         // Side effect of method call is setting object value of
                         // the cell
-                        formatFilters[i].filterFormat(fcell);
+                        formatFilter.filterFormat(fcell);
                     } catch (IllegalArgumentException e) {
                         // Ignore if failed to format
                     }
@@ -47,9 +51,10 @@ public class FilteredGrid extends AGrid {
         return getFormattedCell(column, row);
     }
 
-    public synchronized FormattedCell getFormattedCell(int col, int row) {
+    private synchronized FormattedCell getFormattedCell(int col, int row) {
         ICell cell = delegate.getCell(col, row);
-        FormattedCell cellToFormat = new FormattedCell(cell);
+        CellMetaInfo metaInfo = metaInfoReader.getMetaInfo(row, col);
+        FormattedCell cellToFormat = new FormattedCell(cell, metaInfo);
 
         formatCell(cellToFormat, col, row);
 

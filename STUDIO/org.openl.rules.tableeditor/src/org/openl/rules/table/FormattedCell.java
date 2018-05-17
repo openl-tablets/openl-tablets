@@ -3,6 +3,8 @@
  */
 package org.openl.rules.table;
 
+import java.util.Date;
+
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.CellFont;
 import org.openl.rules.table.ui.CellStyle;
@@ -13,8 +15,6 @@ import org.openl.rules.table.xls.IncorrectFormulaException;
 import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Date;
 
 /**
  * @author snshor
@@ -37,8 +37,9 @@ public class FormattedCell implements ICell {
 
     private Object objectValue;
     private String formattedValue;
+    private final CellMetaInfo metaInfo;
 
-    public FormattedCell(ICell delegate) {
+    public FormattedCell(ICell delegate, CellMetaInfo cellMetaInfo) {
         this.delegate = delegate;
         try {
             this.objectValue = this.delegate.getObjectValue();
@@ -46,10 +47,11 @@ public class FormattedCell implements ICell {
             //logged in XlsCell.getObjectValue() method.
             this.objectValue = ERROR_VALUE;
         }
-        this.formattedValue = XlsDataFormatterFactory.getFormattedValue(delegate);
+        this.formattedValue = XlsDataFormatterFactory.getFormattedValue(delegate, cellMetaInfo);
 
         this.font = new CellFont(delegate.getFont());
         this.style = new CellStyle(delegate.getStyle());
+        this.metaInfo = cellMetaInfo;
     }
 
     public ICellStyle getStyle() {
@@ -156,11 +158,7 @@ public class FormattedCell implements ICell {
     }
 
     public CellMetaInfo getMetaInfo() {
-        return delegate.getMetaInfo();
-    }
-
-    public void setMetaInfo(CellMetaInfo metaInfo) {
-        delegate.setMetaInfo(metaInfo);
+        return metaInfo;
     }
 
     public ICellComment getComment() {

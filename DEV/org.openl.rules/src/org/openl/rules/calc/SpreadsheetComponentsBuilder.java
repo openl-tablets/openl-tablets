@@ -9,6 +9,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.NodeType;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.meta.IMetaInfo;
 import org.openl.meta.StringValue;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.calc.element.SpreadsheetCell;
@@ -18,6 +19,9 @@ import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.calc.result.ScalarResultBuilder;
 import org.openl.rules.lang.xls.syntax.SpreadsheetHeaderNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.SpreadsheetMetaInfoReader;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.source.IOpenSourceCodeModule;
@@ -50,9 +54,9 @@ public class SpreadsheetComponentsBuilder {
     
     private SpreadsheetHeaderDefinition returnHeaderDefinition;
     
-    private Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = new HashMap<Integer, SpreadsheetHeaderDefinition>();
-    private Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = new HashMap<Integer, SpreadsheetHeaderDefinition>();
-    private Map<String, SpreadsheetHeaderDefinition> headerDefinitions = new HashMap<String, SpreadsheetHeaderDefinition>();
+    private Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = new HashMap<>();
+    private Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = new HashMap<>();
+    private Map<String, SpreadsheetHeaderDefinition> headerDefinitions = new HashMap<>();
     
     public SpreadsheetComponentsBuilder(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) {        
         this.tableSyntaxNode = tableSyntaxNode;
@@ -66,11 +70,11 @@ public class SpreadsheetComponentsBuilder {
     }
     
     public Map<Integer, SpreadsheetHeaderDefinition> getRowHeaders() {        
-        return new HashMap<Integer, SpreadsheetHeaderDefinition>(rowHeaders);
+        return new HashMap<>(rowHeaders);
     }
     
     public Map<Integer, SpreadsheetHeaderDefinition> getColumnHeaders() {        
-        return new HashMap<Integer, SpreadsheetHeaderDefinition>(columnHeaders);
+        return new HashMap<>(columnHeaders);
     }
     
     public String[] getRowNames() {
@@ -293,8 +297,18 @@ public class SpreadsheetComponentsBuilder {
                             cell = cellsHeaderExtractor.getColumnNamesTable().getColumn(headerDefinition.getColumn());
                         }
 
-                        RuleRowHelper.setCellMetaInfoWithNodeUsage(cell, identifier, type.getMetaInfo(),
-                                NodeType.DATATYPE);
+                        MetaInfoReader metaInfoReader = getTableSyntaxNode().getMetaInfoReader();
+                        if (metaInfoReader instanceof SpreadsheetMetaInfoReader) {
+                            IMetaInfo typeMeta = type.getMetaInfo();
+                            if (typeMeta != null) {
+                                ICell c = cell.getCell(0, 0);
+                                ((SpreadsheetMetaInfoReader) metaInfoReader).addHeaderMetaInfo(
+                                        c.getAbsoluteRow(),
+                                        c.getAbsoluteColumn(),
+                                        RuleRowHelper.createCellMetaInfo(identifier, typeMeta, NodeType.DATATYPE)
+                                );
+                            }
+                        }
                     }
                 }
             }
@@ -397,7 +411,6 @@ public class SpreadsheetComponentsBuilder {
      *         or column
      * 
      * Right now we allow only to return types = scalars or arrays.
-     * @throws SyntaxNodeException
      */
     private IOpenClass deriveSingleCellReturnType(int cellsCount, SpreadsheetHeaderDefinition headerDefinition, IOpenClass spreadsheetHeaderType)
             throws SyntaxNodeException {

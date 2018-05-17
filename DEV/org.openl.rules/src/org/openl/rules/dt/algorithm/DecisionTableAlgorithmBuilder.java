@@ -2,7 +2,6 @@ package org.openl.rules.dt.algorithm;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.TypeBoundNode;
@@ -20,11 +19,7 @@ import org.openl.syntax.exception.Runnable;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.IMethodCaller;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethodHeader;
-import org.openl.types.NullOpenClass;
+import org.openl.types.*;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterMethodCaller;
 import org.openl.types.impl.SourceCodeMethodCaller;
@@ -127,15 +122,14 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     protected void prepareAction(IAction action,
             IBindingContext actionBindingContext,
             DecisionTableDataType ruleExecutionType) throws Exception {
-       
         action.prepareAction(header,
-            signature,
-            openl,
-            componentOpenClass,
-            actionBindingContext,
-            ruleRow,
-            ruleExecutionType);
-
+                signature,
+                openl,
+                componentOpenClass,
+                actionBindingContext,
+                ruleRow,
+                ruleExecutionType,
+                table.getSyntaxNode());
     }
 
     protected IConditionEvaluator[] prepareConditions() throws Exception {
@@ -187,7 +181,8 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         // return condition.prepareCondition(signature, openl,
         // componentOpenClass, bindingContextDelegator, ruleRow);
 
-        condition.prepare(NullOpenClass.the, signature, openl, componentOpenClass, bindingContext, ruleRow);
+        condition.prepare(NullOpenClass.the, signature, openl, componentOpenClass, bindingContext, ruleRow,
+                table.getSyntaxNode());
         IBoundMethodNode methodNode = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode();
         IOpenSourceCodeModule source = methodNode.getSyntaxNode().getModule();
 

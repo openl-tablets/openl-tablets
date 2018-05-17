@@ -12,7 +12,6 @@ import java.util.List;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
-import org.openl.binding.impl.NodeType;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -20,6 +19,7 @@ import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.DataTableMetaInfoReader;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -37,11 +37,19 @@ import org.openl.util.text.TextInterval;
 public class DataNodeBinder extends AXlsTableBinder {
 
     // indexes of names in header
-    private static final int TYPE_INDEX = 1;
+    public static final int TYPE_INDEX = 1;
     private static final int TABLE_NAME_INDEX = 2;
 
-    protected ATableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module) {
-        return new DataTableBoundNode(tsn, module);
+    protected ATableBoundNode makeNode(TableSyntaxNode tsn,
+            XlsModuleOpenClass module,
+            IBindingContext bindingContext) {
+        DataTableBoundNode boundNode = new DataTableBoundNode(tsn, module);
+
+        if (!bindingContext.isExecutionMode()) {
+            tsn.setMetaInfoReader(new DataTableMetaInfoReader(boundNode));
+        }
+
+        return boundNode;
     }
 
     protected ILogicalTable getTableBody(TableSyntaxNode tsn) {
@@ -54,7 +62,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             IBindingContext bindingContext,
             XlsModuleOpenClass module) throws Exception {
 
-        DataTableBoundNode dataNode = (DataTableBoundNode) makeNode(tableSyntaxNode, module);
+        DataTableBoundNode dataNode = (DataTableBoundNode) makeNode(tableSyntaxNode, module, bindingContext);
         ILogicalTable table = tableSyntaxNode.getTable();
 
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(table.getSource(), bindingContext);
@@ -81,13 +89,6 @@ public class DataNodeBinder extends AXlsTableBinder {
             throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TYPE_INDEX]);
         }
 
-        if (!bindingContext.isExecutionMode()) {
-            RuleRowHelper.setCellMetaInfoWithNodeUsage(table,
-                parsedHeader[TYPE_INDEX],
-                tableType.getMetaInfo(),
-                NodeType.DATATYPE);
-        }
-
         // Check that table type loaded properly.
         //
         if (tableType.getInstanceClass() == null) {
@@ -102,7 +103,7 @@ public class DataNodeBinder extends AXlsTableBinder {
     }
 
     private IdentifierNode[] mergeArraySimbols(IdentifierNode[] parsedHeader) {
-        List<IdentifierNode> parsedHeader1 = new ArrayList<IdentifierNode>();
+        List<IdentifierNode> parsedHeader1 = new ArrayList<>();
         parsedHeader1.add(parsedHeader[0]);
         int i = 2;
         StringBuilder sb = new StringBuilder();
@@ -140,7 +141,6 @@ public class DataNodeBinder extends AXlsTableBinder {
      * @param openl OpenL instance.
      * @param hasColumnTitleRow Flag representing if tableBody has title row for
      *            columns.
-     * @throws Exception
      */
     public void processTable(XlsModuleOpenClass xlsOpenClass,
             ITable tableToProcess,
@@ -178,7 +178,7 @@ public class DataNodeBinder extends AXlsTableBinder {
                     descriptors,
                     hasColumnTitleRow);
 
-                OpenlToolAdaptor ota = new OpenlToolAdaptor(openl, bindingContext);
+                OpenlToolAdaptor ota = new OpenlToolAdaptor(openl, bindingContext, tableToProcess.getTableSyntaxNode());
 
                 xlsOpenClass.getDataBase().preLoadTable(tableToProcess, dataModel, dataWithTitleRows, ota);
             } else {

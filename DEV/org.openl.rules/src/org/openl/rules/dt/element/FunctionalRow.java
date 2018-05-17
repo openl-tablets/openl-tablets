@@ -11,7 +11,6 @@ import java.util.Set;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.exception.OpenLCompilationException;
@@ -24,6 +23,7 @@ import org.openl.rules.dt.storage.IStorage;
 import org.openl.rules.dt.storage.IStorageBuilder;
 import org.openl.rules.dt.storage.StorageFactory;
 import org.openl.rules.dt.storage.StorageInfo;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -35,12 +35,7 @@ import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenMethodHeader;
-import org.openl.types.IParameterDeclaration;
-import org.openl.types.NullOpenClass;
+import org.openl.types.*;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
@@ -191,11 +186,12 @@ public abstract class FunctionalRow implements IDecisionRow {
             OpenL openl,
             ComponentOpenClass componentOpenClass,
             IBindingContext bindingContext,
-            RuleRow ruleRow) throws Exception {
+            RuleRow ruleRow,
+            TableSyntaxNode tableSyntaxNode) throws Exception {
 
         method = generateMethod(signature, openl, bindingContext, componentOpenClass, methodType);
 
-        OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext);
+        OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext, tableSyntaxNode);
 
         IOpenMethodHeader header = new OpenMethodHeader(name, null, signature, componentOpenClass);
         openlAdaptor.setHeader(header);
@@ -220,7 +216,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
         if (params == null) {
 
-            Set<String> paramNames = new HashSet<String>();
+            Set<String> paramNames = new HashSet<>();
             int length = paramsTable.getHeight();
 
             params = new IParameterDeclaration[length];
@@ -364,7 +360,15 @@ public abstract class FunctionalRow implements IDecisionRow {
         return decisionTable.getSubtable(column + IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, row, 1, 1);
     }
 
-    private int nValues() {
+    public ILogicalTable getCodeTable() {
+        return codeTable;
+    }
+
+    public ILogicalTable getParamsTable() {
+        return paramsTable;
+    }
+
+    public int nValues() {
         return decisionTable.getWidth() - IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
     }
 
@@ -482,10 +486,6 @@ public abstract class FunctionalRow implements IDecisionRow {
             throw SyntaxNodeExceptionUtils.createError("Type '" + typeCode + "'is not found", nodes[0]);
         }
 
-        if (!bindingContext.isExecutionMode()) {
-            setCellMetaInfo(paramNum, type);
-        }
-
         if (nodes.length == 1) {
             String paramName = makeParamName();
             return new ParameterDeclaration(type, paramName);
@@ -494,23 +494,6 @@ public abstract class FunctionalRow implements IDecisionRow {
         String name = nodes[1].getIdentifier();
 
         return new ParameterDeclaration(type, name);
-    }
-
-    protected void setCellMetaInfo(int paramNum, IOpenClass type) throws OpenLCompilationException {
-        IOpenClass typeForLink = type;
-        while (typeForLink.getMetaInfo() == null && typeForLink.isArray()) {
-            typeForLink = typeForLink.getComponentClass();
-        }
-
-        ILogicalTable table = paramsTable.getRow(paramNum);
-        if (table != null) {
-            GridCellSourceCodeModule source = new GridCellSourceCodeModule(table.getSource());
-            IdentifierNode[] paramNodes = Tokenizer.tokenize(source, "[] \n\r");
-            if (paramNodes.length > 0) {
-                RuleRowHelper
-                    .setCellMetaInfoWithNodeUsage(table, paramNodes[0], typeForLink.getMetaInfo(), NodeType.DATATYPE);
-            }
-        }
     }
 
     @Override
@@ -525,8 +508,8 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     @Override
     public boolean isEmpty(int ruleN) {
-        for (int i = 0; i < storage.length; i++) {
-            if (!storage[i].isSpace(ruleN))
+        for (IStorage<?> aStorage : storage) {
+            if (!aStorage.isSpace(ruleN))
                 return false;
         }
 
@@ -536,8 +519,8 @@ public abstract class FunctionalRow implements IDecisionRow {
     @Override
     public boolean hasFormula(int ruleN) {
         if (storage != null) {
-            for (int i = 0; i < storage.length; i++) {
-                if (storage[i].isFormula(ruleN)) {
+            for (IStorage<?> aStorage : storage) {
+                if (aStorage.isFormula(ruleN)) {
                     return true;
                 }
             }
@@ -553,6 +536,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         return storage[0].size();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void loadValues(Object[] dest, int offset, int ruleN, Object target, Object[] tableParams, IRuntimeEnv env) {
 
@@ -572,8 +556,8 @@ public abstract class FunctionalRow implements IDecisionRow {
     @Override
     public boolean hasFormulas() {
         if (storage != null) {
-            for (int i = 0; i < storage.length; i++) {
-                if (storage[i].getInfo().getNumberOfFormulas() > 0)
+            for (IStorage<?> aStorage : storage) {
+                if (aStorage.getInfo().getNumberOfFormulas() > 0)
                     return true;
             }
         } else {
@@ -592,6 +576,13 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     public StorageInfo getStorageInfo(int paramN) {
         return storage[paramN].getInfo();
+    }
+
+    public Object getStorageValue(int paramNum, int ruleNum) {
+        if (storage == null) {
+            return null;
+        }
+        return storage[paramNum].getValue(ruleNum);
     }
 
     @Override

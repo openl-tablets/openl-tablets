@@ -28,12 +28,12 @@ public class XlsDataFormatterFactory {
      * Warning! Don't invoke this method from core. It can be memory and time consuming operation. Formatting values
      * only from UI is allowed.
      *
-     * @param cell formatting cell
+     * @param cell         formatting cell
+     * @param cellMetaInfo meta info for the cell
      * @return found formatter
      */
-    public static IFormatter getFormatter(ICell cell) {
+    public static IFormatter getFormatter(ICell cell, CellMetaInfo cellMetaInfo) {
         IFormatter formatter = null;
-        CellMetaInfo cellMetaInfo = cell.getMetaInfo();
         IOpenClass dataType = cellMetaInfo == null ? null : cellMetaInfo.getDataType();
         if (dataType != null) {
             Class<?> instanceClass = dataType.getInstanceClass();
@@ -119,9 +119,10 @@ public class XlsDataFormatterFactory {
      * only from UI is allowed.
      *
      * @param cell formatting cell
+     * @param meta meta info for the cell
      * @return Formatted string value
      */
-    public static String getFormattedValue(ICell cell) {
+    public static String getFormattedValue(ICell cell, CellMetaInfo meta) {
         if (cell instanceof FormattedCell) {
             return ((FormattedCell) cell).getFormattedValue();
         }
@@ -130,7 +131,7 @@ public class XlsDataFormatterFactory {
 
         String formattedValue = null;
         if (value != null) {
-            IFormatter cellDataFormatter = getFormatter(cell);
+            IFormatter cellDataFormatter = getFormatter(cell, meta);
 
             if (cellDataFormatter == null && value instanceof Date) {
                 // Cell type is unknown but in Excel it's stored as a Date.

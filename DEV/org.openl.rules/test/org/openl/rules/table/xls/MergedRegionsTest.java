@@ -12,6 +12,9 @@ import org.junit.Test;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.load.SimpleSheetLoader;
+import org.openl.rules.lang.xls.types.meta.EmptyMetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
 import org.openl.rules.table.*;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.source.impl.URLSourceCodeModule;
@@ -124,7 +127,7 @@ public class MergedRegionsTest {
     private static boolean saveAfterFailure = false;
 
     private List<TestDesctiption> findAllTests(IWritableGrid grid) {
-        List<TestDesctiption> result = new ArrayList<TestDesctiption>();
+        List<TestDesctiption> result = new ArrayList<>();
         for (int row = 0; row <= grid.getMaxRowIndex(); row++) {
             for (int column = 0; column <= grid.getMaxColumnIndex(row); column++) {
                 ICell cell = grid.getCell(column, row);
@@ -171,14 +174,14 @@ public class MergedRegionsTest {
     }
 
     private boolean isEqualCells(ICell first, ICell second, XlsSheetGridModel grid) {
-        if (grid.isPartOfTheMergedRegion(first.getAbsoluteColumn(), first.getAbsoluteRow()) != grid
-                .isPartOfTheMergedRegion(second.getAbsoluteColumn(), second.getAbsoluteRow())) {
-            return false;
-        }
         if (first == null && second == null) {
             return true;
         }
         if (first == null || second == null) {
+            return false;
+        }
+        if (grid.isPartOfTheMergedRegion(first.getAbsoluteColumn(), first.getAbsoluteRow()) != grid
+                .isPartOfTheMergedRegion(second.getAbsoluteColumn(), second.getAbsoluteRow())) {
             return false;
         }
         String firstValue = first.getStringValue();
@@ -243,8 +246,7 @@ public class MergedRegionsTest {
                     e1.printStackTrace();
                 }
             }
-            assertFalse("Different cells:\n" + e.getResultCell().getUri() + "\n and \n" + e.getExpectedCell().getUri(),
-                    true);
+            fail("Different cells:\n" + e.getResultCell().getUri() + "\n and \n" + e.getExpectedCell().getUri());
         }
     }
 
@@ -257,9 +259,10 @@ public class MergedRegionsTest {
         List<TestDesctiption> tests = findAllTests(grid);
         assertEquals(8, tests.size());
         IGridTable table = grid.getTables()[0];
+        MetaInfoWriter metaInfoWriter = new MetaInfoWriterImpl(EmptyMetaInfoReader.getInstance(), table);
         for (TestDesctiption test : tests) {
             IUndoableGridTableAction removeRowsAction = GridTool.removeRows(test.getCount(), test.getFrom(),
-                    test.getTestRegion(), table.getGrid());
+                    test.getTestRegion(), table.getGrid(), metaInfoWriter);
             testActions(workbook, grid, table, test, removeRowsAction);
         }
     }
@@ -273,9 +276,10 @@ public class MergedRegionsTest {
         List<TestDesctiption> tests = findAllTests(grid);
         assertEquals(7, tests.size());
         IGridTable table = grid.getTables()[0];
+        MetaInfoWriter metaInfoWriter = new MetaInfoWriterImpl(EmptyMetaInfoReader.getInstance(), table);
         for (TestDesctiption test : tests) {
             IUndoableGridTableAction insertRowsAction = GridTool.insertRows(test.getCount(), test.getFrom(),
-                    test.getTestRegion(), table.getGrid());
+                    test.getTestRegion(), table.getGrid(), metaInfoWriter);
             testActions(workbook, grid, table, test, insertRowsAction);
         }
     }
@@ -289,9 +293,10 @@ public class MergedRegionsTest {
         List<TestDesctiption> tests = findAllTests(grid);
         assertEquals(6, tests.size());
         IGridTable table = grid.getTables()[0];
+        MetaInfoWriter metaInfoWriter = new MetaInfoWriterImpl(EmptyMetaInfoReader.getInstance(), table);
         for (TestDesctiption test : tests) {
             IUndoableGridTableAction removeColumnsAction = GridTool.removeColumns(test.getCount(), test
-                    .getFrom(), test.getTestRegion(), table.getGrid());
+                    .getFrom(), test.getTestRegion(), table.getGrid(), metaInfoWriter);
             testActions(workbook, grid, table, test, removeColumnsAction);
         }
     }
@@ -305,9 +310,10 @@ public class MergedRegionsTest {
         List<TestDesctiption> tests = findAllTests(grid);
         assertEquals(7, tests.size());
         IGridTable table = grid.getTables()[0];
+        MetaInfoWriter metaInfoWriter = new MetaInfoWriterImpl(EmptyMetaInfoReader.getInstance(), table);
         for (TestDesctiption test : tests) {
             IUndoableGridTableAction insertColumnsAction = GridTool.insertColumns(test.getCount(), test
-                    .getFrom(), test.getTestRegion(), table.getGrid());
+                    .getFrom(), test.getTestRegion(), table.getGrid(), metaInfoWriter);
             testActions(workbook, grid, table, test, insertColumnsAction);
         }
     }

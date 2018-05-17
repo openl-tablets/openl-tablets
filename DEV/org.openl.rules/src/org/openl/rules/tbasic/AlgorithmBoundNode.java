@@ -10,6 +10,7 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.AlgorithmMetaInfoReader;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.tbasic.runtime.operations.OpenLEvaluationOperation;
@@ -30,6 +31,10 @@ public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBound
     }
 
     public void finalizeBind(IBindingContext cxt) throws Exception {
+        if (!cxt.isExecutionMode()) {
+            getTableSyntaxNode().setMetaInfoReader(new AlgorithmMetaInfoReader(this));
+        }
+
         super.finalizeBind(cxt);
         AlgorithmBuilder builder = new AlgorithmBuilder(cxt, getAlgorithm(), getTableSyntaxNode());
 

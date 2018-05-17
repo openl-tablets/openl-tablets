@@ -115,7 +115,7 @@ class SimpleBeanByteCodeGenerator {
         Type CLASS_TYPE = Type.getType(Class.class);
 
         Method _types = Method.getMethod("java.lang.Class[] _types()");
-        GeneratorAdapter tg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, _types, null, null, classWriter);
+        GeneratorAdapter tg = new GeneratorAdapter(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, _types, null, null, classWriter);
         tg.push(beanFields.size()); // array length
         tg.newArray(CLASS_TYPE); // ar = new Object[size]
 
@@ -137,7 +137,7 @@ class SimpleBeanByteCodeGenerator {
 
     private void add_method(ClassWriter classWriter, String methodName) {
         Method _method = Method.getMethod("java.lang.String _method()");
-        GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, _method, null, null, classWriter);
+        GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, _method, null, null, classWriter);
         mg.push(methodName);
         mg.returnValue();
         mg.endMethod();
@@ -158,6 +158,7 @@ class SimpleBeanByteCodeGenerator {
 
         av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlType;", true);
         av.visit("namespace", namespace);
+        av.visit("name", beannameWithPackage.substring(beannameWithPackage.lastIndexOf('/') + 1));
         av.visitEnd();
     }
 

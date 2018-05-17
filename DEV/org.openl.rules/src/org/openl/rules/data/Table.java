@@ -45,6 +45,11 @@ public class Table implements ITable {
         logicalTable = dataWithHeader;
     }
 
+    @Override
+    public ILogicalTable getData() {
+        return logicalTable;
+    }
+
     public void setModel(ITableModel dataModel) {
         this.dataModel = dataModel;
     }
@@ -107,6 +112,11 @@ public class Table implements ITable {
 
     public int getNumberOfColumns() {
         return dataModel.getDescriptor().length;
+    }
+
+    @Override
+    public ColumnDescriptor getColumnDescriptor(int i) {
+        return dataModel.getDescriptor()[i];
     }
 
     public int getNumberOfRows() {
@@ -215,20 +225,6 @@ public class Table implements ITable {
         int startRow = 1;
 
         Collection<SyntaxNodeException> errorSyntaxNodeExceptions = new ArrayList<>(0);
-
-        if (!bindingContext.isExecutionMode()) {
-            for (int j = 0; j < columns; j++) {
-                ColumnDescriptor descriptor = dataModel.getDescriptor()[j];
-
-                if (descriptor instanceof ForeignKeyColumnDescriptor) {
-                    ForeignKeyColumnDescriptor fkDescriptor = (ForeignKeyColumnDescriptor) descriptor;
-
-                    if (fkDescriptor.isReference()) {
-                        fkDescriptor.setForeignKeyCellMetaInfo(dataBase);
-                    }
-                }
-            }
-        }
 
         for (int i = startRow; i < rows; i++) {
 
@@ -349,12 +345,6 @@ public class Table implements ITable {
                     ILogicalTable lTable = logicalTable.getSubtable(columnNum, rowNum, 1, 1);
                     if (!(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0).getStringValue() != null) { //EPBDS-6104. For empty values should be used data type default value.
                         return columnDescriptor.populateLiteral(literal, lTable, openlAdapter, env);
-                    } else {
-                        // Set meta info for empty cells. To suggest an appropriate editor
-                        // according to cell type.
-                        if (!openlAdapter.getBindingContext().isExecutionMode()) {
-                            columnDescriptor.setCellMetaInfo(lTable);
-                        }
                     }
                 } catch (SyntaxNodeException ex) {
                     tableSyntaxNode.addError(ex);

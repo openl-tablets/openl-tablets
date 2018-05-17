@@ -10,14 +10,13 @@ package org.openl.rules.calculation.result.convertor;
  * #L%
  */
 
+import java.lang.reflect.Method;
 
 import org.openl.rules.convertor.IObjectToDataConvertor;
 import org.openl.rules.convertor.ObjectToDataConvertorFactory;
 import org.openl.util.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Method;
 
 @Deprecated
 public class SpreadsheetColumnExtractor<S extends CalculationStep> {
@@ -56,7 +55,6 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
      * Convert the given value to the appropriate type that is expected. And
      * store it to the row instance.
      *
-     * @param valueForStoraging
      * @param spreadsheetRow    for population with given data
      */
     public void convertAndStoreData(Object valueForStoraging, S spreadsheetRow) {
@@ -112,7 +110,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
             IObjectToDataConvertor convertor = ObjectToDataConvertorFactory.getConvertor(column.getExpectedType(),
                     x.getClass());
             try {
-                return convertor.convert(x, null);
+                return convertor.convert(x);
             } catch (Exception e) {
                 log.warn("Cannot convert value {} to {}", x, column.getExpectedType().getName(), e);
             }

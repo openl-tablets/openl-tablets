@@ -1,11 +1,7 @@
 package org.openl.rules.validation.properties.dimentional;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.MethodUtil;
@@ -16,11 +12,7 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.DecisionTableHelper;
-import org.openl.rules.dt.DecisionTableLoader;
-import org.openl.rules.dt.IBaseAction;
-import org.openl.rules.dt.IBaseCondition;
+import org.openl.rules.dt.*;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dt.builder.ConditionsBuilder;
 import org.openl.rules.dt.builder.DecisionTableBuilder;
@@ -31,6 +23,7 @@ import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.Point;
@@ -42,11 +35,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
-import org.openl.types.IMethodCaller;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.types.NullOpenClass;
+import org.openl.types.*;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
@@ -130,6 +119,8 @@ class TableSyntaxNodeDispatcherBuilder {
             //
             Builder<DecisionTable> dtOpenLBuilder = initDecisionTableOpenlBuilder(tsn);
             DecisionTable decisionTable = dtOpenLBuilder.build();
+            // Dispatcher tables are shown in Trace
+            tsn.setMetaInfoReader(new DecisionTableMetaInfoReader((DecisionTableBoundNode) decisionTable.getBoundNode(), decisionTable));
 
             loadCreatedTable(decisionTable, tsn);
 
@@ -367,7 +358,7 @@ class TableSyntaxNodeDispatcherBuilder {
      * @return properties values from tables in group.
      */
     private List<ITableProperties> getMethodsProperties() {
-        List<ITableProperties> propertiesValues = new ArrayList<ITableProperties>();
+        List<ITableProperties> propertiesValues = new ArrayList<>();
         for (IOpenMethod method : dispatcher.getCandidates()) {
             propertiesValues.add(PropertiesHelper.getTableProperties(method));
         }

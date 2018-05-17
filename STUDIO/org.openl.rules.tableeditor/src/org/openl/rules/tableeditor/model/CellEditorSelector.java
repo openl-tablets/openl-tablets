@@ -23,20 +23,21 @@ public class CellEditorSelector {
 
     private ICellEditorFactory factory = new CellEditorFactory();
 
-    public ICellEditor selectEditor(ICell cell) {
+    public ICellEditor selectEditor(ICell cell, CellMetaInfo meta) {
         if (cell.getFormula() != null) {
             return factory.makeFormulaEditor();
         }
-        ICellEditor editor = selectEditor(cell, cell.getStringValue());
+        ICellEditor editor = selectEditor(cell, cell.getStringValue(), meta);
         return editor == null ? defaultEditor(cell) : editor;
     }
 
-    private ICellEditor selectEditor(ICell cell, String initialValue) {
-        CellMetaInfo meta = cell.getMetaInfo();
-
+    private ICellEditor selectEditor(ICell cell, String initialValue, CellMetaInfo meta) {
         ICellEditor result = null;
         IOpenClass dataType = meta == null ? null : meta.getDataType();
         if (dataType != null) {
+            if (CellMetaInfo.isCellContainsNodeUsages(meta)) {
+                return defaultEditor(cell);
+            }
             IDomain<?> domain = dataType.getDomain();
             Class<?> instanceClass = dataType.getInstanceClass();
 
@@ -52,7 +53,7 @@ public class CellEditorSelector {
                         return factory.makeComboboxEditor(allObjectValues);
                     }
                 } else if (allObjects != null) {
-                    IFormatter formatter = XlsDataFormatterFactory.getFormatter(cell);
+                    IFormatter formatter = XlsDataFormatterFactory.getFormatter(cell, meta);
 
                     String[] allObjectValues = new String[allObjects.length];
                     for (int i = 0; i < allObjects.length; i++) {

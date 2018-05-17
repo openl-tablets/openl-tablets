@@ -5,7 +5,6 @@ import java.util.Date;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.openl.excel.parser.TableStyles;
-import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ICellComment;
@@ -170,16 +169,6 @@ public class ParsedCell implements ICell {
         }
 
         return null;
-    }
-
-    @Override
-    public CellMetaInfo getMetaInfo() {
-        return grid.getCellMetaInfo(column, row);
-    }
-
-    @Override
-    public void setMetaInfo(CellMetaInfo cellMetaInfo) {
-        grid.setCellMetaInfo(column, row, cellMetaInfo);
     }
 
     @Override

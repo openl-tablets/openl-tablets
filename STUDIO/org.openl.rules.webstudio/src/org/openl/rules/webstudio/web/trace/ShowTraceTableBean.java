@@ -23,7 +23,10 @@ import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.TraceHelper;
-import org.openl.rules.webstudio.web.trace.node.*;
+import org.openl.rules.webstudio.web.trace.node.ATableTracerNode;
+import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
+import org.openl.rules.webstudio.web.trace.node.DecisionTableTraceObject;
+import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.ClassUtils;
@@ -66,7 +69,7 @@ public class ShowTraceTableBean {
             return new DecisionTableTraceFilterFactory(tto, defaultColorFilter).createFilters();
         }
 
-        List<IGridRegion> regions = new ArrayList<IGridRegion>();
+        List<IGridRegion> regions = new ArrayList<>();
 
         List<IGridRegion> r = RegionsExtractor.getGridRegions(tto);
         if (CollectionUtils.isNotEmpty(r)) {

@@ -18,16 +18,12 @@ public class CellMetaInfo {
     
     public CellMetaInfo(IOpenClass domain, boolean multiValue, List<? extends NodeUsage> usedNodes) {
         this.domain = domain;
-        this.setMultiValue(multiValue);
+        this.multiValue = multiValue;
         this.usedNodes = usedNodes;
     }
 
     public IOpenClass getDataType() {
         return domain;
-    }
-
-    public void setMultiValue(boolean multiValue) {
-        this.multiValue = multiValue;
     }
 
     public boolean isMultiValue() {
@@ -42,11 +38,11 @@ public class CellMetaInfo {
         this.usedNodes = usedNodes;
     }
     
-    public boolean hasNodeUsagesInCell() {
+    private boolean hasNodeUsagesInCell() {
         return CollectionUtils.isNotEmpty(getUsedNodes());
     }
 
-    public static boolean isCellContainsNodeUsages(ICell cell){
-        return cell.getMetaInfo() != null && cell.getMetaInfo().hasNodeUsagesInCell();
+    public static boolean isCellContainsNodeUsages(CellMetaInfo metaInfo) {
+        return metaInfo != null && metaInfo.hasNodeUsagesInCell();
     }
 }

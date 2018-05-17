@@ -57,15 +57,6 @@ public interface IWritableGrid extends IGrid {
 
     void setCellValue(int col, int row, Object value);
 
-    /**
-     * Set the cell value to the given position
-     *
-     * @param position position where there value should be set
-     * @param value the value itself
-     * @return the position where the value was set
-     */
-    Point setCellValue(Point position, Object value);
-
     void setCellStringValue(int col, int row, String value);
 
     void setCellFormula(int col, int row, String formula);

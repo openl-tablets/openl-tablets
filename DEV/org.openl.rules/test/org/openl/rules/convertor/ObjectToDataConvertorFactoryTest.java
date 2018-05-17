@@ -16,7 +16,7 @@ public class ObjectToDataConvertorFactoryTest {
         assertNotNull(convertor);
         assertTrue(convertor instanceof MatchedConstructorConvertor);
         
-        Double value = (Double) convertor.convert(2333, null);
+        Double value = (Double) convertor.convert(2333);
         assertEquals(2333, value, 0);
     }
     
@@ -28,7 +28,7 @@ public class ObjectToDataConvertorFactoryTest {
         assertNotNull(convertor);
         assertTrue(convertor instanceof StaticMethodConvertor);
         
-        BigDecimal value = (BigDecimal) convertor.convert(23.5666, null);
+        BigDecimal value = (BigDecimal) convertor.convert(23.5666);
         assertEquals("23.5666", value.toString());
     }
     
@@ -42,7 +42,7 @@ public class ObjectToDataConvertorFactoryTest {
         
         Double valueToConvert = 23.5666;
         
-        BigDecimal value = (BigDecimal) convertor.convert(valueToConvert, null);
+        BigDecimal value = (BigDecimal) convertor.convert(valueToConvert);
         assertEquals(valueToConvert, value.doubleValue(), 0);
     }
     
@@ -52,7 +52,7 @@ public class ObjectToDataConvertorFactoryTest {
         assertNotNull(convertor);
         assertTrue(convertor instanceof StaticMethodConvertor);
         
-        assertEquals("13.356", convertor.convert(13.356, null));
+        assertEquals("13.356", convertor.convert(13.356));
     }
 
     @Test
@@ -61,6 +61,6 @@ public class ObjectToDataConvertorFactoryTest {
         assertNotNull(convertor);
         assertTrue(convertor instanceof StaticMethodConvertor);
 
-        assertEquals("13.356", convertor.convert(13.356, null));
+        assertEquals("13.356", convertor.convert(13.356));
     }
 }
