@@ -1,6 +1,3 @@
-/**
- * Created Jul 22, 2007
- */
 package org.openl.rules.dt.algorithm.evaluator;
 
 import java.util.ArrayList;
@@ -79,11 +76,11 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
         }
 
         int size = iterator.size();
-        List<Point> points = null;
+        List<Point> points;
         if (size != IOpenIterator.UNKNOWN_SIZE) {
-            points = new ArrayList<Point>(size);
+            points = new ArrayList<>(size);
         } else {
-            points = new ArrayList<Point>();
+            points = new ArrayList<>();
         }
         DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
         while (iterator.hasNext()) {
@@ -95,8 +92,8 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
                 continue;
             }
 
-            Comparable<Object> vFrom = null;
-            Comparable<Object> vTo = null;
+            Comparable<Object> vFrom;
+            Comparable<Object> vTo;
 
             if (nparams == 2) {
                 if (rangeAdaptor == null) {
@@ -118,23 +115,22 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
                     vTo = rangeAdaptor.getMax(condition.getParamValue(0, i));
                 }
             }
-            Integer v = Integer.valueOf(i);
             Point vFromPoint = new Point();
             vFromPoint.v = vFrom;
             vFromPoint.isToPoint = false;
-            vFromPoint.value = v;
+            vFromPoint.value = i;
             vFromPoint.isPositiveInfinity = false;
             Point vToPoint = new Point();
             vToPoint.v = vTo;
             vToPoint.isToPoint = true;
-            vToPoint.value = v;
+            vToPoint.value = i;
             vToPoint.isPositiveInfinity = true;
             points.add(vToPoint);
             points.add(vFromPoint);
         }
 
         Collections.sort(points);
-        List<DecisionTableIndexedRuleNode<?>> index = new ArrayList<DecisionTableIndexedRuleNode<?>>();
+        List<DecisionTableIndexedRuleNode<?>> index = new ArrayList<>();
         DecisionTableRuleNode emptyNode = emptyBuilder.makeNode();
 
         // for each indexed value create a DecisionTableRuleNode with indexes of
@@ -142,7 +138,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
         // that match given value
         //
         int length = points.size();
-        SortedSet<Integer> values = new TreeSet<Integer>();
+        SortedSet<Integer> values = new TreeSet<>();
 
         for (int i = 0; i < length; i++) {
             Point intervalPoint = points.get(i);
@@ -152,25 +148,24 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
                 values.remove(intervalPoint.value);
             }
             if (i == length - 1 || intervalPoint.compareTo(points.get(i + 1)) != 0) {
-                Comparable<Point> indexedValue = intervalPoint;
                 int[] rulesIndexesArray = collectionToPrimitiveArray(values);
                 index.add(
-                    new DecisionTableIndexedRuleNode<Point>(emptyNode.getRules(), rulesIndexesArray, indexedValue));
+                    new DecisionTableIndexedRuleNode<>(emptyNode.getRules(), rulesIndexesArray, intervalPoint));
             }
         }
         return new RangeIndex(emptyNode, index, new PointRangeAdaptor(rangeAdaptor));
     }
 
-    static class PointRangeAdaptor implements IRangeAdaptor<Point, Comparable<? extends Object>> {
+    static class PointRangeAdaptor implements IRangeAdaptor<Point, Comparable<?>> {
         IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor;
 
-        public PointRangeAdaptor(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor) {
+        PointRangeAdaptor(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor) {
             this.rangeAdaptor = rangeAdaptor;
         }
 
         @SuppressWarnings("unchecked")
         @Override
-        public Comparable<? extends Object> adaptValueType(Object value) {
+        public Comparable<?> adaptValueType(Object value) {
             if (value == null) {
                 throw new IllegalArgumentException("Null values doesn't supported!");
             }
@@ -218,10 +213,6 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
         return rulesIndexesArray;
     }
 
-    public IDomain<?> getConditionParameterDomain(int paramIdx, ICondition condition) throws DomainCanNotBeDefined {
-        return null;
-    }
-
     protected IDomain<? extends Object> indexedDomain(IBaseCondition condition) throws DomainCanNotBeDefined {
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
@@ -231,8 +222,8 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
             if (condition.isEmpty(ruleN))
                 continue;
 
-            Comparable<?> vFrom = null;
-            Comparable<?> vTo = null;
+            Comparable<?> vFrom;
+            Comparable<?> vTo;
 
             if (nparams == 2) {
                 if (rangeAdaptor == null) {
