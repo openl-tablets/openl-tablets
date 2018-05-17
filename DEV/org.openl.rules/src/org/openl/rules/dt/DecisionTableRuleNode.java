@@ -10,7 +10,7 @@ public class DecisionTableRuleNode  implements IDecisionTableRuleNode{
     public static final int[] ZERO_ARRAY = new int[0];
     private int[] rules;
 
-    private ARuleIndex nextIndex;
+    protected ARuleIndex nextIndex;
 
     // private boolean saveRulesMetaInfo;
 
