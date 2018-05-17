@@ -257,9 +257,9 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             return null;
 
         ARuleIndex indexRoot = evaluators[first].makeIndex(firstCondition, info.makeRuleIterator());
-        
+
         indexNodes(indexRoot, first + 1, info);
-        
+
         return indexRoot;
     }
 
