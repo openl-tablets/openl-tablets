@@ -69,6 +69,9 @@ public class XlsDataFormatterFactory {
 
             } else {
                 formatter = new DefaultFormatter();
+                if (cellMetaInfo.isMultiValue()) {
+                    formatter = new ArrayFormatter(formatter);
+                }
             }
 
             // Formula
@@ -97,7 +100,7 @@ public class XlsDataFormatterFactory {
         return formatter;
     }
 
-    public static IFormatter getDateFormatter(ICell cell) {
+    private static IFormatter getDateFormatter(ICell cell) {
         IFormatter formatter = null;
 
         ICellStyle xlsStyle = cell == null ? null : cell.getStyle();

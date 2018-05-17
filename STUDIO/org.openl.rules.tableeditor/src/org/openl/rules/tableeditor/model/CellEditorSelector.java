@@ -10,12 +10,14 @@ import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.formatters.ArrayFormatter;
 import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.EnumUtils;
 import org.openl.util.IntegerValuesUtils;
 import org.openl.util.NumberUtils;
+import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.IFormatter;
 
 // TODO Reimplement
@@ -54,6 +56,13 @@ public class CellEditorSelector {
                     }
                 } else if (allObjects != null) {
                     IFormatter formatter = XlsDataFormatterFactory.getFormatter(cell, meta);
+                    if (formatter instanceof ArrayFormatter) {
+                        // We need a formatter for each element of an array.
+                        formatter = ((ArrayFormatter) formatter).getElementFormat();
+                        if (formatter == null) {
+                            formatter = new DefaultFormatter();
+                        }
+                    }
 
                     String[] allObjectValues = new String[allObjects.length];
                     for (int i = 0; i < allObjects.length; i++) {
