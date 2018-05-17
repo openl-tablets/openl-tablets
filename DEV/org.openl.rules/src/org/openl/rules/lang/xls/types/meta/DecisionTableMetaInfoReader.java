@@ -60,37 +60,42 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
 
     @Override
     public void prepare(IGridRegion region) {
-        top = region.getTop();
-        left = region.getLeft();
-        preparedMetaInfos = new CellMetaInfo[region.getBottom() - top + 1][region.getRight() - left + 1];
+        try {
+            top = region.getTop();
+            left = region.getLeft();
+            preparedMetaInfos = new CellMetaInfo[region.getBottom() - top + 1][region.getRight() - left + 1];
 
-        DecisionTable decisionTable = getDecisionTable();
+            DecisionTable decisionTable = getDecisionTable();
 
-        // Condition description
-        IBaseCondition[] conditionRows = decisionTable.getConditionRows();
+            // Condition description
+            IBaseCondition[] conditionRows = decisionTable.getConditionRows();
 
-        saveSimpleRulesMetaInfo(decisionTable, region);
-        saveCompoundReturnColumn(region);
+            saveSimpleRulesMetaInfo(decisionTable, region);
+            saveCompoundReturnColumn(region);
 
-        for (IBaseCondition conditionRow : conditionRows) {
-            saveDescriptionMetaInfo((FunctionalRow) conditionRow, region);
-        }
+            for (IBaseCondition conditionRow : conditionRows) {
+                saveDescriptionMetaInfo((FunctionalRow) conditionRow, region);
+            }
 
-        // Action description
-        for (IBaseAction action : decisionTable.getActionRows()) {
-            saveDescriptionMetaInfo((FunctionalRow) action, region);
-        }
+            // Action description
+            for (IBaseAction action : decisionTable.getActionRows()) {
+                saveDescriptionMetaInfo((FunctionalRow) action, region);
+            }
 
-        // Condition values
-        for (IBaseCondition condition : decisionTable.getConditionRows()) {
-            FunctionalRow funcRow = (FunctionalRow) condition;
-            saveValueMetaInfo(funcRow, region);
-        }
+            // Condition values
+            for (IBaseCondition condition : decisionTable.getConditionRows()) {
+                FunctionalRow funcRow = (FunctionalRow) condition;
+                saveValueMetaInfo(funcRow, region);
+            }
 
-        // Action values
-        for (IBaseAction action : decisionTable.getActionRows()) {
-            FunctionalRow funcRow = (FunctionalRow) action;
-            saveValueMetaInfo(funcRow, region);
+            // Action values
+            for (IBaseAction action : decisionTable.getActionRows()) {
+                FunctionalRow funcRow = (FunctionalRow) action;
+                saveValueMetaInfo(funcRow, region);
+            }
+        } catch (Exception e) {
+            // Something unexpected is occurred. Work without full meta info.
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -172,7 +177,11 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         // Lookup tables are transformed to Rules tables so we can't predict real column and row of a cell.
         // In current implementation we run through all of them and if it's current row and cell.
         for (int c = 0; c < funcRow.nValues(); c++) {
-            for (int i = 0; i < funcRow.getNumberOfParams(); i++) {
+            // In the case of errors params will be null
+            IParameterDeclaration[] params = funcRow.getParams();
+            int paramsCount = params == null ? 0 : params.length;
+
+            for (int i = 0; i < paramsCount; i++) {
                 ILogicalTable valueCell = funcRow.getValueCell(c);
                 ICell cell = valueCell.getCell(0, 0);
                 int row = cell.getAbsoluteRow();
@@ -195,7 +204,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                     continue;
                 }
 
-                IOpenClass type = funcRow.getParams()[i].getType();
+                IOpenClass type = params[i].getType();
                 boolean multiValue = false;
                 if (type.isArray()) {
                     multiValue = true;
@@ -222,8 +231,10 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
 
         // Condition/Action type definition
         ILogicalTable paramsTable = funcRow.getParamsTable();
-        if (funcRow.getNumberOfParams() > 0) {
-            IParameterDeclaration param = funcRow.getParams()[0];
+        // In the case of errors params will be null
+        IParameterDeclaration[] params = funcRow.getParams();
+        if (params != null && params.length > 0) {
+            IParameterDeclaration param = params[0];
             ICell paramCell = paramsTable.getCell(0, 0);
             row = paramCell.getAbsoluteRow();
             col = paramCell.getAbsoluteColumn();
