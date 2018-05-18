@@ -291,7 +291,12 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         if (preparedMetaInfos == null) {
             prepare(getTableSyntaxNode().getGridTable().getRegion());
         }
-        return preparedMetaInfos[row - top][col - left];
+        int r = row - top;
+        int c = col - left;
+        if (r < 0 || r >= preparedMetaInfos.length || c < 0 || c >= preparedMetaInfos[0].length) {
+            return null;
+        }
+        return preparedMetaInfos[r][c];
     }
 
     private void setPreparedMetaInfo(int row, int col, CellMetaInfo metaInfo) {
