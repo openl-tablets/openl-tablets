@@ -13,6 +13,11 @@ public class DecisionTableIndexedRuleNode<T> extends DecisionTableRuleNode imple
 
     public DecisionTableIndexedRuleNode(int[] emptyRules, int[] rules, Comparable<T> indexedValue) {
         super(null);
+
+        if (emptyRules == null || rules == null) {
+            throw new IllegalArgumentException();
+        }
+
         this.indexedValue = indexedValue;
         this.rules = rules;
         this.emptyRules = emptyRules;
@@ -28,6 +33,10 @@ public class DecisionTableIndexedRuleNode<T> extends DecisionTableRuleNode imple
 
     @Override
     public int[] getRules() {
+        if (rules == null) {
+            return collectRules();
+        }
+
         return merge(emptyRules, rules);
     }
 

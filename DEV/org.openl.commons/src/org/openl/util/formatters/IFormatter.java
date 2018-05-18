@@ -1,6 +1,3 @@
-/**
- * Created Feb 28, 2007
- */
 package org.openl.util.formatters;
 
 /**
