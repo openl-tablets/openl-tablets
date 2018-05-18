@@ -41,7 +41,13 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
         ILogicalTable table = getTableSyntaxNode().getTable();
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(table.getSource(), null);
 
-        IMetaInfo typeMeta = getBoundNode().getType().getMetaInfo();
+        DataTableBoundNode boundNode = getBoundNode();
+        if (boundNode.getField() == null) {
+            // Datatype contains errors
+            return null;
+        }
+
+        IMetaInfo typeMeta = boundNode.getType().getMetaInfo();
         if (typeMeta != null) {
             try {
                 IdentifierNode[] parsedHeader = Tokenizer.tokenize(source, " \n\r");
@@ -63,6 +69,10 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
     protected CellMetaInfo getBodyMetaInfo(int row, int col) {
         try {
             ITable table = getBoundNode().getTable();
+            if (table == null) {
+                // Datatype contains errors
+                return null;
+            }
 
             if (isDescription(table, row, col)) {
                 return getDescriptionMetaInfo(table, row, col);
