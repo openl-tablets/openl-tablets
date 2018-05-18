@@ -5,6 +5,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.Invokable;
 import org.openl.types.NullOpenClass;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.NumberUtils;
 import org.openl.vm.IRuntimeEnv;
@@ -81,9 +82,9 @@ public class SpreadsheetCell implements Invokable {
             return;
         if (type.equals(NullOpenClass.the)) {
             type = JavaOpenClass.OBJECT;
-        } else if (type == JavaOpenClass.VOID)
+        } else if (type == JavaOpenClass.VOID) {
             type = JavaOpenClass.getOpenClass(Void.class);
-        else if (type.getInstanceClass() != null && type.getInstanceClass().isPrimitive()) {
+        } else if (!(type instanceof DomainOpenClass) && type.getInstanceClass() != null && type.getInstanceClass().isPrimitive()) {
             Class<?> wrapper = NumberUtils.getWrapperType(type.getInstanceClass().getName());
             type = JavaOpenClass.getOpenClass(wrapper);
         }
