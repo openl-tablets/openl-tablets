@@ -16,7 +16,7 @@ public class TypeToAliasCastTest {
     public void testSingle() {
         IDomain<String> strDomain = new StringDomain(new String[] { "Val1", "Val2" });
         DomainOpenClass domain = new DomainOpenClass("TestDomain", JavaOpenClass.STRING, strDomain, null);
-        TypeToAliasCast cast = new TypeToAliasCast(JavaOpenClass.STRING, domain);
+        TypeToAliasCast cast = new TypeToAliasCast(domain);
 
         Object value = cast.convert("Val1");
         assertNotNull(value);

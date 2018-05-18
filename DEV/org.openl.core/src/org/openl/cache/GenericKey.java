@@ -24,7 +24,7 @@ public class GenericKey {
         } else if (object2 == null) {
             return new Single1Key(object1);
         } else {
-            return new ToupleKey(object1, object2);
+            return new TupleKey(object1, object2);
         }
     }
 
@@ -54,11 +54,11 @@ public class GenericKey {
         }
     }
 
-    private static class ToupleKey extends GenericKey {
+    private static class TupleKey extends GenericKey {
         Object object1;
         Object object2;
 
-        ToupleKey(Object object1, Object object2) {
+        TupleKey(Object object1, Object object2) {
             assert object1 != null && object2 != null;
             this.object1 = object1;
             this.object2 = object2;
@@ -71,7 +71,7 @@ public class GenericKey {
             if (o == null || getClass() != o.getClass())
                 return false;
 
-            ToupleKey toupleKey = (ToupleKey) o;
+            TupleKey toupleKey = (TupleKey) o;
 
             if (!object1.equals(toupleKey.object1))
                 return false;

@@ -6,11 +6,15 @@ import org.openl.types.IOpenClass;
 public class AliasToTypeCast implements IOpenCast {
 
     private IOpenClass fromClass;
-    // private IOpenClass toClass;
+    private IOpenCast typeCast;
 
-    public AliasToTypeCast(IOpenClass from, IOpenClass to) {
+    public AliasToTypeCast(IOpenClass from) {
         this.fromClass = from;
-        // this.toClass = to;
+    }
+
+    public AliasToTypeCast(IOpenClass from, IOpenCast typeCast) {
+        this.fromClass = from;
+        this.typeCast = typeCast;
     }
 
     public Object convert(Object from) {
@@ -38,11 +42,19 @@ public class AliasToTypeCast implements IOpenCast {
 
         // Return object as a converted value.
         //
+        if (typeCast != null) {
+            from = typeCast.convert(from);
+        }
+        
         return from;
     }
 
     public int getDistance(IOpenClass from, IOpenClass to) {
-        return CastFactory.ALIAS_TO_TYPE_CAST_DISTANCE;
+        if (typeCast == null) {
+            return CastFactory.ALIAS_TO_TYPE_CAST_DISTANCE;
+        } else {
+            return typeCast.getDistance(from, to) - 1; //This cast has higher priority
+        }
     }
 
     public boolean isImplicit() {
