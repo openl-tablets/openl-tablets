@@ -234,7 +234,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 
         IConditionEvaluator dtcev = DecisionTableOptimizedAlgorithm.makeEvaluator(condition,
             methodType,
-            bindingContext);
+            bindingContext); 
 
         condition.setEvaluator(evaluator = makeOptimizedConditionMethodEvaluator(condition, signature));
 

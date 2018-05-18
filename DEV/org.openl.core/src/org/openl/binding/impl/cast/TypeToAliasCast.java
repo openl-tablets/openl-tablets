@@ -15,18 +15,30 @@ import org.openl.util.DomainUtils;
  * 
  * @see IOpenCast
  */
-class TypeToAliasCast implements IOpenCast {
+final class TypeToAliasCast implements IOpenCast {
 
     /**
      * Result type of object after conversion.
      */
     private IOpenClass toClass;
+    private int distance = CastFactory.TYPE_TO_ALIAS_CAST_DISTANCE;
+    private IOpenCast typeCast;
 
-    TypeToAliasCast(IOpenClass from, IOpenClass to) {
+    TypeToAliasCast(IOpenClass to) {
         this.toClass = to;
     }
 
+    TypeToAliasCast(IOpenClass to, IOpenCast typeCast) {
+        this.toClass = to;
+        this.typeCast = typeCast;
+        distance = typeCast.getDistance() - 1;// This cast has higher priority
+    }
+
     public Object convert(Object from) {
+        if (typeCast != null) {
+            from = typeCast.convert(from);
+        }
+
         if (from == null) {
             return null;
         }
@@ -46,10 +58,10 @@ class TypeToAliasCast implements IOpenCast {
         // appropriate message.
         if (!isInDomain) {
             throw new OutsideOfValidDomainException(
-                String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
-                    from,
-                    toClass.getName(),
-                    DomainUtils.toString(domain)));
+                    String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
+                            from,
+                            toClass.getName(),
+                            DomainUtils.toString(domain)));
         }
 
         // Return object as a converted value.
@@ -57,7 +69,7 @@ class TypeToAliasCast implements IOpenCast {
     }
 
     public int getDistance() {
-        return CastFactory.TYPE_TO_ALIAS_CAST_DISTANCE;
+        return distance;
     }
 
     public boolean isImplicit() {
