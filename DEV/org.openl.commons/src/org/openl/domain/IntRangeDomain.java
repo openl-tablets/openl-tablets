@@ -67,7 +67,7 @@ public class IntRangeDomain extends FixedSizeDomain<Integer> implements IIntDoma
         if (this == obj) {
             return true;
         }
-        if (obj == null || !(obj instanceof IntRangeDomain)) {
+        if (!(obj instanceof IntRangeDomain)) {
             return false;
         }
 
@@ -127,6 +127,12 @@ public class IntRangeDomain extends FixedSizeDomain<Integer> implements IIntDoma
 
     @Override
     public String toString() {
+        if (min == Integer.MIN_VALUE) {
+            return "<=" + max;
+        } else if (max == Integer.MAX_VALUE) {
+            return ">=" + min;
+        }
+
         return "[" + min + ".." + max + "]";
     }
 
