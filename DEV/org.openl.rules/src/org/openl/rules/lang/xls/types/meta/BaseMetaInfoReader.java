@@ -48,6 +48,10 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
     @Override
     public final CellMetaInfo getMetaInfo(int row, int col) {
         try {
+            if (!IGridRegion.Tool.contains(getTableSyntaxNode().getGridTable().getRegion(), col, row)) {
+                return null;
+            }
+
             NodeUsage nodeUsage = constantsMap.get(CellKey.CellKeyFactory.getCellKey(col, row));
             if (nodeUsage != null) {
                 return new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
