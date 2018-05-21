@@ -10,11 +10,16 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.*;
+import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ParsedGrid extends AGrid {
+    private final Logger log = LoggerFactory.getLogger(ParsedGrid.class);
+
     private final String workbookPath;
     private final Object[][] cells;
     private final String uri;
@@ -231,6 +236,10 @@ public class ParsedGrid extends AGrid {
             if (IGridRegion.Tool.contains(extendedRegion, column, row)) {
                 try (ExcelReader excelReader = ExcelReaderFactory.sequentialFactory().create(workbookPath)) {
                     styles = excelReader.getTableStyles(sheetDescriptor, extendedRegion);
+                } catch (Exception e) {
+                    // Fallback to empty style
+                    log.error("Can't read styles for sheet '{}'", sheetDescriptor.getName(), e);
+                    styles = new EmptyTableStyles(extendedRegion);
                 }
 
                 break;
@@ -312,6 +321,39 @@ public class ParsedGrid extends AGrid {
         @Override
         public int hashCode() {
             return Objects.hash(row, col);
+        }
+    }
+
+    private static class EmptyTableStyles implements TableStyles {
+        private final IGridRegion extendedRegion;
+
+        public EmptyTableStyles(IGridRegion extendedRegion) {
+            this.extendedRegion = extendedRegion;
+        }
+
+        @Override
+        public IGridRegion getRegion() {
+            return extendedRegion;
+        }
+
+        @Override
+        public ICellStyle getStyle(int row, int column) {
+            return null;
+        }
+
+        @Override
+        public ICellFont getFont(int row, int column) {
+            return null;
+        }
+
+        @Override
+        public ICellComment getComment(int row, int column) {
+            return null;
+        }
+
+        @Override
+        public String getFormula(int row, int column) {
+            return null;
         }
     }
 

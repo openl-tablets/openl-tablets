@@ -129,8 +129,12 @@ public class TableStyleListener implements HSSFListener {
                     short column = r.getColumn();
 
                     if (IGridRegion.Tool.contains(tableRegion, column, row)) {
-                        String formula = HSSFFormulaParser.toFormulaString(null, r.getParsedExpression());
-                        formulas.put(new CellAddress(row, column), formula);
+                        try {
+                            String formula = HSSFFormulaParser.toFormulaString(null, r.getParsedExpression());
+                            formulas.put(new CellAddress(row, column), formula);
+                        } catch (Exception e) {
+                            log.error("Can't read formula in sheet '{}' row {} column {}", sheet.getName(), row, column, e);
+                        }
 
                         // Don't forget to save style index
                         saveStyleIndex(r, row, column);
