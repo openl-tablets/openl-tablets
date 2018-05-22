@@ -1,7 +1,10 @@
 package org.openl.rules.table.actions;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
-import org.openl.rules.table.*;
+import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridTool;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
 
 /**
@@ -12,13 +15,12 @@ public class UndoableInsertColumnsAction extends UndoableInsertAction {
     private int nCols;
     private int beforeCol;
     private int row;
-    private MetaInfoWriter metaInfoWriter;
 
     public UndoableInsertColumnsAction(int nCols, int beforeCol, int row, MetaInfoWriter metaInfoWriter) {
+        super(metaInfoWriter);
         this.nCols = nCols;
         this.beforeCol = beforeCol;
         this.row = row;
-        this.metaInfoWriter = metaInfoWriter;
     }
 
     public static boolean canInsertColumns(IGridTable table, int nCols) {

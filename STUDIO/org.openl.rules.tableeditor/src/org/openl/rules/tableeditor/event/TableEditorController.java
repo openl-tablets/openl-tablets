@@ -291,7 +291,7 @@ public class TableEditorController extends BaseTableEditorController {
         return formatter;
     }
 
-    public String setProperty() throws Exception {
+    public String setProperty() {
         String name = getRequestParam(Constants.REQUEST_PARAM_PROP_NAME);
         String value = getRequestParam(Constants.REQUEST_PARAM_PROP_VALUE);
         String editorId = getEditorId();
