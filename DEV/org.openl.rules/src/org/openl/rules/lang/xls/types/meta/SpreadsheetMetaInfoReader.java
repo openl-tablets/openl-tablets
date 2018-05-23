@@ -15,6 +15,7 @@ import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.ICell;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 
@@ -53,11 +54,14 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
                     nodeUsages.add(new SimpleNodeUsage(from, from, description, null, NodeType.OTHER));
                 }
 
-                List<NodeUsage> parsedNodeUsages = OpenLCellExpressionsCompiler.getNodeUsages(
-                        (CompositeMethod) spreadsheetCell.getMethod(),
-                        stringValue, from + 1
-                );
-                nodeUsages.addAll(parsedNodeUsages);
+                IOpenMethod method = spreadsheetCell.getMethod();
+                if (method instanceof CompositeMethod) {
+                    List<NodeUsage> parsedNodeUsages = OpenLCellExpressionsCompiler.getNodeUsages(
+                            (CompositeMethod) method,
+                            stringValue, from + 1
+                    );
+                    nodeUsages.addAll(parsedNodeUsages);
+                }
 
                 return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
             }

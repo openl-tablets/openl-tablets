@@ -106,6 +106,11 @@ public class OpenLCellExpressionsCompiler {
     }
 
     public static List<NodeUsage> getNodeUsages(CompositeMethod method, String sourceString, int startIndex) {
+        if (method == null) {
+            // Table contains errors
+            return Collections.emptyList();
+        }
+
         List<NodeUsage> nodeUsages = new ArrayList<NodeUsage>(MethodUsagesSearcher.findAllMethods(method.getMethodBodyBoundNode(),
                 sourceString, startIndex));
         FieldUsageSearcher.findAllFields(nodeUsages,
