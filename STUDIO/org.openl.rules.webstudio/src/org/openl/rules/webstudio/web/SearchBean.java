@@ -134,7 +134,7 @@ public class SearchBean {
         for (Map.Entry<String, String> entry: requestParams.entrySet()) {
             String paramName = entry.getKey();
             if (!ArrayUtils.contains(SEARCH_PARAMS, paramName)
-                    && TablePropertyDefinitionUtils.doesPropertyExist(paramName)) {
+                    && TablePropertyDefinitionUtils.isPropertyExist(paramName)) {
                 TableProperty property = getPropertyByName(paramName);
                 String propertyValue = entry.getValue();
                 property.setStringValue(propertyValue);
