@@ -13,6 +13,7 @@ import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsCellFont;
 import org.openl.rules.table.xls.XlsCellStyle;
+import org.openl.util.StringUtils;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTComment;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTRst;
 
@@ -72,7 +73,7 @@ public class SAXTableStyles implements TableStyles {
 
     @Override
     public String getFormula(int row, int column) {
-        return formulas.get(new CellAddress(row, column));
+        return StringUtils.trimToNull(formulas.get(new CellAddress(row, column)));
     }
 
     private static class SAXCellComment implements ICellComment {

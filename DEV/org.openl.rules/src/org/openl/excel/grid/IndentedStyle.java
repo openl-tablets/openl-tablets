@@ -90,17 +90,20 @@ class IndentedStyle implements ICellStyle {
 
     @Override
     public boolean isWrappedText() {
-        return getDelegate().isWrappedText();
+        ICellStyle style = getDelegate();
+        return style != null && style.isWrappedText();
     }
 
     @Override
     public short getFormatIndex() {
-        return getDelegate().getFormatIndex();
+        ICellStyle style = getDelegate();
+        return style == null ? 0 : style.getFormatIndex();
     }
 
     @Override
     public String getFormatString() {
-        return getDelegate().getFormatString();
+        ICellStyle style = getDelegate();
+        return style == null ? "" : style.getFormatString();
     }
 
     private ICellStyle getDelegate() {

@@ -3,6 +3,7 @@ package org.openl.rules.table.actions;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.AGridTableDecorator;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IGridRegion;
@@ -38,11 +39,11 @@ public abstract class UndoableEditTableAction implements IUndoableGridTableActio
      * Creates actions that moves the table and executes these actions.
      * 
      * @param table Table to move.
+     * @param metaInfoWriter Needed to save meta info changes
      * @return Actions that moved the table.
-     * @throws Exception
      */
-    public static synchronized IUndoableGridTableAction moveTable(IGridTable table) throws Exception {
-        UndoableMoveTableAction moveTableAction = new UndoableMoveTableAction();
+    public static synchronized IUndoableGridTableAction moveTable(IGridTable table, MetaInfoWriter metaInfoWriter) {
+        UndoableMoveTableAction moveTableAction = new UndoableMoveTableAction(metaInfoWriter);
         moveTableAction.doAction(table);
         IUndoableGridTableAction changeRegions = setRegion(moveTableAction.getNewRegion(), table);
         changeRegions.doAction(table);
@@ -54,9 +55,9 @@ public abstract class UndoableEditTableAction implements IUndoableGridTableActio
      * 
      * @param newRegion New region of the table
      */
-    public static IUndoableGridTableAction setRegion(IGridRegion newRegion, IGridTable table) {
+    private static IUndoableGridTableAction setRegion(IGridRegion newRegion, IGridTable table) {
         IGridRegion fullTableRegion = getOriginalRegion(table);
-        List<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>();
+        List<IUndoableGridTableAction> actions = new ArrayList<>();
         int topOffset = newRegion.getTop() - fullTableRegion.getTop();
         int leftOffset = newRegion.getLeft() - fullTableRegion.getLeft();
         if (topOffset != 0) {

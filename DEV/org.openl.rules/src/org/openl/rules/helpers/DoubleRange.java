@@ -6,14 +6,7 @@ import java.util.Objects;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.ByteValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ShortValue;
+import org.openl.meta.*;
 import org.openl.util.RangeWithBounds;
 import org.openl.util.RangeWithBounds.BoundType;
 
@@ -221,6 +214,12 @@ public class DoubleRange implements INumberRange {
 
     @Override
     public String toString() {
+        if (lowerBound == Double.NEGATIVE_INFINITY) {
+            return (upperBoundType == BoundType.INCLUDING ? "<=" : "<") + upperBound;
+        } else if (upperBound == Double.POSITIVE_INFINITY) {
+            return (lowerBoundType == BoundType.INCLUDING ? ">=" : ">") + lowerBound;
+        }
+
         StringBuilder builder = new StringBuilder();
         if (lowerBoundType == BoundType.INCLUDING) {
             builder.append('[');

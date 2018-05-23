@@ -38,7 +38,7 @@ public abstract class BaseReaderTest {
     public void getSheets() {
         List<? extends SheetDescriptor> sheets = reader.getSheets();
 
-        assertEquals(3, sheets.size());
+        assertEquals(4, sheets.size());
 
         assertEquals("Main", sheets.get(0).getName());
         assertEquals("Second", sheets.get(1).getName());
@@ -170,5 +170,16 @@ public abstract class BaseReaderTest {
         assertEquals("B10", tableStyles.getFormula(11, 1));
         assertEquals("\"Concat\"&B5", tableStyles.getFormula(12, 1));
         assertEquals("5>4", tableStyles.getFormula(13, 1));
+    }
+
+    @Test
+    public void getSharedFormulas() {
+        TableStyles tableStyles = reader.getTableStyles(reader.getSheets().get(3), new GridRegion(2, 2, 11, 2));
+
+        // Sometimes Excel uses Shared Formulas to optimize file size.
+        // Check that formula exists in each row.
+        for (int r = 2; r < 12; r++) {
+            assertEquals("Test #" + (r - 1) + " is failed", "B" + (r + 1) + "*10", tableStyles.getFormula(r, 2));
+        }
     }
 }

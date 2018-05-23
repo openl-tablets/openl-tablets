@@ -236,7 +236,7 @@ public class TableEditorModel {
         setCellValue(row, col, value, null);
     }
 
-    public synchronized void setProperty(String name, Object value) throws Exception {
+    public synchronized void setProperty(String name, Object value) {
         List<IUndoableGridTableAction> createdActions = new ArrayList<>();
         int nColsToInsert = 0;
 
@@ -261,7 +261,7 @@ public class TableEditorModel {
             }
             if (!UndoableInsertRowsAction.canInsertRows(gridTable, 1)
                     || !UndoableInsertColumnsAction.canInsertColumns(gridTable, nColsToInsert)) {
-                createdActions.add(UndoableEditTableAction.moveTable(fullTable));
+                createdActions.add(UndoableEditTableAction.moveTable(fullTable, getMetaInfoWriter()));
             }
             GridRegionAction allTable = new GridRegionAction(fullTableRegion, UndoableEditTableAction.ROWS,
                     UndoableEditTableAction.INSERT, ActionType.EXPAND, 1);
@@ -313,7 +313,7 @@ public class TableEditorModel {
         return null;
     }
 
-    public synchronized void setProperty(String name, String value) throws Exception {
+    public synchronized void setProperty(String name, String value) {
         Object objectValue = null;
         if (StringUtils.isNotBlank(value)) {
             TablePropertyDefinition tablePropeprtyDefinition = TablePropertyDefinitionUtils.getPropertyByName(name);
@@ -328,7 +328,7 @@ public class TableEditorModel {
         setProperty(name, objectValue);
     }
 
-    public synchronized void removeProperty(String name) throws Exception {
+    public synchronized void removeProperty(String name) {
         setProperty(name, (Object) null);
     }
 
