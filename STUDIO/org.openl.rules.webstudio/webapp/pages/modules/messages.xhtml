@@ -10,13 +10,15 @@
     <c:set var="editable" value="#{editable == null ? false : editable}" />
     
     <script>
-        function toggleStracktrace(elem, a) {
+        function toggleStracktrace(stacktrace, summary, a) {
             var j1 = $j(a).find("div");
             var f = j1.hasClass("stacktrace-hidden")
+            $j(".summary-panels").show();
             $j(".stacktrace-panels").hide();
             $j(".stacktrace-showed").each(function(i, e) { $j(e).addClass("stacktrace-hidden").removeClass("stacktrace-showed"); });
             if (f) {
-                $j(elem).show();
+                $j(stacktrace).show();
+                $j(summary).hide();
                 j1.addClass("stacktrace-showed").removeClass("stacktrace-hidden");
             } 
         }
@@ -28,7 +30,17 @@
 
         <table style="margin-top: 3px;"><tr><td style="border: 0; padding: 0">
         <div class="#{messageBoxClass}" style="#{messagesBean.hasStacktrace ? 'padding-bottom: 3px' : ''}">
-            <h:outputText id="summary" value="#{messagesBean.summary}" style="white-space:pre;"/>
+
+            <h:panelGroup id="summary_panel" styleClass="summary-panels">
+                <h:outputText id="summary" value="#{messagesBean.summary}" style="white-space:pre;"/>
+            </h:panelGroup>
+            
+            <h:panelGroup rendered="#{messagesBean.hasStacktrace}">
+                <h:panelGroup id="stacktrace_panel" style="display:none" styleClass="stacktrace-panels">                        
+                    <h:outputText id="stacktrace" value="#{messagesBean.stacktrace}" style="white-space:pre;"/>
+                </h:panelGroup>
+            </h:panelGroup>
+            
             <h:panelGroup rendered="#{messagesBean.hasLinkToCell}">
                 <ui:param name="linkTitle" value="#{msg[message.severity == 'ERROR' ? 'ws.table.error.edit' : (message.severity == 'WARN' ? 'ws.table.warning.edit' : 'ws.table.info.edit')]}"/>
 
@@ -50,13 +62,9 @@
                     </h:outputLink>
                 </h:panelGroup>
             </h:panelGroup>
+
             <h:panelGroup rendered="#{messagesBean.hasStacktrace}">
-                <h:panelGroup id="stacktrace_panel" style="display:none" styleClass="stacktrace-panels">                        
-                    <br/>
-                    <br/>
-                    <h:outputText id="stacktrace" value="#{messagesBean.stacktrace}" style="white-space:pre;"/>
-                </h:panelGroup>
-                <h:outputLink onclick="toggleStracktrace(#{rich:element('stacktrace_panel')}, this); return false;" styleClass="stacktrace-links"><div class="stacktrace-hidden"/></h:outputLink>
+                <h:outputLink onclick="toggleStracktrace(#{rich:element('stacktrace_panel')}, #{rich:element('summary_panel')}, this); return false;" styleClass="stacktrace-links"><div class="stacktrace-hidden"/></h:outputLink>
             </h:panelGroup>
         </div>
         </td></tr></table>
