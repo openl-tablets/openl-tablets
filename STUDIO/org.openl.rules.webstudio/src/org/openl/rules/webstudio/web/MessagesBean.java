@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.exception.OpenLException;
 import org.openl.message.OpenLErrorMessage;
@@ -42,7 +41,7 @@ public class MessagesBean {
         OpenLMessage message = (OpenLMessage) messages.getRowData();
         String summary = message.getSummary();
         if (StringUtils.isNotBlank(summary)) {
-            return StringEscapeUtils.escapeHtml4(summary);
+            return summary;
         }
         return StringUtils.EMPTY;
     }
@@ -51,7 +50,7 @@ public class MessagesBean {
         OpenLMessage message = (OpenLMessage) messages.getRowData();
         if (message instanceof OpenLErrorMessage) {
             OpenLErrorMessage errorMessage = (OpenLErrorMessage) message;
-            return StringEscapeUtils.escapeHtml4(ExceptionUtils.getStackTrace((Throwable)errorMessage.getError()));
+            return ExceptionUtils.getStackTrace((Throwable)errorMessage.getError());
         }
         return StringUtils.EMPTY;
     }
