@@ -115,7 +115,7 @@ public class SAXReader implements ExcelReader {
             initializeNeededData(r);
 
             XMLReader parser = SAXHelper.newXMLReader();
-            StyleIndexHandler styleIndexHandler = new StyleIndexHandler(tableRegion);
+            StyleIndexHandler styleIndexHandler = new StyleIndexHandler(tableRegion, saxSheet.getIndex());
             parser.setContentHandler(styleIndexHandler);
 
             try (InputStream sheetData = r.getSheet(saxSheet.getRelationId())) {

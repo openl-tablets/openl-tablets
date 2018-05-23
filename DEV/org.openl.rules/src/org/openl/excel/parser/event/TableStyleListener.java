@@ -11,6 +11,8 @@ import org.apache.poi.hssf.eventusermodel.HSSFListener;
 import org.apache.poi.hssf.eventusermodel.HSSFRequest;
 import org.apache.poi.hssf.model.HSSFFormulaParser;
 import org.apache.poi.hssf.record.*;
+import org.apache.poi.hssf.record.aggregates.FormulaRecordAggregate;
+import org.apache.poi.hssf.record.aggregates.SharedValueManager;
 import org.apache.poi.hssf.usermodel.HSSFComment;
 import org.apache.poi.hssf.usermodel.HSSFShapeFactory;
 import org.apache.poi.poifs.filesystem.DirectoryNode;
@@ -40,6 +42,9 @@ public class TableStyleListener implements HSSFListener {
     private DirectoryNode directory;
     private List<RecordBase> shapeRecords = new ArrayList<>();
 
+    private FormulaRecord currentFormula;
+    private SharedValueManager sharedValueManager;
+
     public TableStyleListener(EventSheetDescriptor sheet, IGridRegion tableRegion) {
         this.sheet = sheet;
         this.tableRegion = tableRegion;
@@ -47,6 +52,15 @@ public class TableStyleListener implements HSSFListener {
     }
 
     void process(String fileName) throws IOException {
+        try (POIFSFileSystem poifs = new POIFSFileSystem(new File(fileName))) {
+            HSSFEventFactory factory = new HSSFEventFactory();
+            HSSFRequest request = new HSSFRequest();
+            SharedValueListener sharedFormulaListener = new SharedValueListener(sheet);
+            request.addListenerForAllRecords(sharedFormulaListener);
+            factory.processWorkbookEvents(request, poifs);
+            sharedValueManager = sharedFormulaListener.getSharedValueManager();
+        }
+
         try (POIFSFileSystem poifs = new POIFSFileSystem(new File(fileName))) {
             this.directory = poifs.getRoot();
 
@@ -96,6 +110,8 @@ public class TableStyleListener implements HSSFListener {
 
     @Override
     public void processRecord(Record record) {
+        processFormula(record);
+
         switch (record.getSid()) {
             case BoundSheetRecord.sid:
                 BoundSheetRecord bsr = (BoundSheetRecord) record;
@@ -129,13 +145,7 @@ public class TableStyleListener implements HSSFListener {
                     short column = r.getColumn();
 
                     if (IGridRegion.Tool.contains(tableRegion, column, row)) {
-                        try {
-                            String formula = HSSFFormulaParser.toFormulaString(null, r.getParsedExpression());
-                            formulas.put(new CellAddress(row, column), formula);
-                        } catch (Exception e) {
-                            log.error("Can't read formula in sheet '{}' row {} column {}", sheet.getName(), row, column, e);
-                        }
-
+                        currentFormula = (FormulaRecord) record;
                         // Don't forget to save style index
                         saveStyleIndex(r, row, column);
                     }
@@ -168,6 +178,30 @@ public class TableStyleListener implements HSSFListener {
                     shapeRecords.add(record);
                 }
                 break;
+        }
+    }
+
+    private void processFormula(Record record) {
+        if (currentFormula != null) {
+            int row = currentFormula.getRow();
+            short column = currentFormula.getColumn();
+            try {
+                StringRecord cachedText = null;
+                if (record instanceof StringRecord) {
+                    cachedText = (StringRecord) record;
+                }
+                FormulaRecordAggregate formulaAggregate = new FormulaRecordAggregate(
+                        currentFormula,
+                        cachedText,
+                        sharedValueManager
+                );
+                String formula = HSSFFormulaParser.toFormulaString(null, formulaAggregate.getFormulaTokens());
+                formulas.put(new CellAddress(row, column), formula);
+            } catch (Exception e) {
+                log.error("Can't read formula in sheet '{}' row {} column {}", sheet.getName(), row, column, e);
+            }
+
+            currentFormula = null;
         }
     }
 

@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICellComment;
@@ -173,7 +172,6 @@ public abstract class BaseReaderTest {
         assertEquals("5>4", tableStyles.getFormula(13, 1));
     }
 
-    @Ignore("Shared Formulas currently aren't supported")
     @Test
     public void getSharedFormulas() {
         TableStyles tableStyles = reader.getTableStyles(reader.getSheets().get(3), new GridRegion(2, 2, 11, 2));
@@ -181,7 +179,7 @@ public abstract class BaseReaderTest {
         // Sometimes Excel uses Shared Formulas to optimize file size.
         // Check that formula exists in each row.
         for (int r = 2; r < 12; r++) {
-            assertEquals("B" + (r + 1) + "*10", tableStyles.getFormula(r, 2));
+            assertEquals("Test #" + (r - 1) + " is failed", "B" + (r + 1) + "*10", tableStyles.getFormula(r, 2));
         }
     }
 }
