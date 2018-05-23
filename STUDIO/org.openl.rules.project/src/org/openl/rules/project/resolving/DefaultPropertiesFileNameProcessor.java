@@ -54,10 +54,9 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                     Object value = patternModel.convert(propertyName, group);
                     props.setFieldValue(propertyName, value);
                 } catch (Exception e) {
-                    throw new NoMatchFileNameException("Module '" + fileName + "' doesn't match file name pattern!" +
-                            "\n File name pattern: " + fileNamePattern +
-                            ".\n Failed property: " + propertyName +
-                            ".\n Message:" + e.getMessage());
+                    throw new NoMatchFileNameException(
+                        "Module '" + fileName + "' doesn't match file name pattern!" + "\n File name pattern: " + fileNamePattern + ".\n Failed property: " + propertyName + ".\n Message:" + e
+                            .getMessage());
                 }
             }
 
@@ -108,10 +107,6 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         }
     }
 
-    public static Class<?> getReturnTypeByPropertyName(String propertyName) {
-        return TablePropertyDefinitionUtils.getPropertyByName(propertyName).getType().getInstanceClass();
-    }
-
     public static class PatternModel {
         private final List<String> propertyNames;
         private final Map<String, SimpleDateFormat> dateFormats;
@@ -154,8 +149,13 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                         throw new InvalidFileNamePatternException(
                             "Wrong file name pattern! Wrong at: " + propertyMatch);
                     }
+                    if (!TablePropertyDefinitionUtils.isPropertyExist(propertyName)) {
+                        throw new InvalidFileNamePatternException(
+                            "Wrong file name pattern! Unknown property: " + propertyName);
+                    }
                     propertyNames.add(propertyName);
-                    Class<?> returnType = getReturnTypeByPropertyName(propertyName);;
+                    Class<?> returnType = TablePropertyDefinitionUtils.getTypeByPropertyName(propertyName);
+                    
                     String pattern = getPattern(propertyName, returnType);
                     fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch, "(" + pattern + ")");
                     start = matcher.end();
@@ -200,7 +200,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         }
 
         protected Object convert(String propertyName, String value) {
-            Class<?> returnType = getReturnTypeByPropertyName(propertyName);
+            Class<?> returnType = TablePropertyDefinitionUtils.getTypeByPropertyName(propertyName);
             return getObject(propertyName, value, returnType);
         }
 

@@ -141,9 +141,17 @@ public class TablePropertyDefinitionUtils {
         }
         return null;
     }
+    
+    public static Class<?> getTypeByPropertyName(String propertyName) {
+        TablePropertyDefinition tablePropertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(propertyName);
+        if (tablePropertyDefinition != null) {
+            return tablePropertyDefinition.getType().getInstanceClass();
+        }
+        return null;
+    }
 
-    public static boolean doesPropertyExist(String name) {
-        return getPropertyByName(name) != null;
+    public static boolean isPropertyExist(String propertyName) {
+        return getPropertyByName(propertyName) != null;
     }
 
     /**
