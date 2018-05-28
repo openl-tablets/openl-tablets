@@ -19,6 +19,7 @@ import org.springframework.util.AntPathMatcher;
 
 public class ProjectDescriptor {
     private final Logger log = LoggerFactory.getLogger(ProjectDescriptor.class);
+
     private String id;
     private String name;
     private String comment;
@@ -26,7 +27,7 @@ public class ProjectDescriptor {
     private List<Module> modules;
     private List<PathEntry> classpath;
     private List<Property> properties;
-    
+
     private List<ProjectDependencyDescriptor> dependencies;
     private ClassLoader classLoader;
     private String propertiesFileNamePattern;
@@ -101,7 +102,7 @@ public class ProjectDescriptor {
     }
 
     public void setModules(List<Module> modules) {
-        this.modules = modules;
+        this.modules = new ArrayList<>(modules);
     }
 
     public List<PathEntry> getClasspath() {
@@ -114,10 +115,10 @@ public class ProjectDescriptor {
 
     /**
      * @param reload Boolean flag that indicates whether classloader must be
-     *               reloaded or used existing.
+     *            reloaded or used existing.
      * @return ClassLoader for this project.
      * @deprecated Must be removed to separate class. Project descriptor is just
-     * description of project and must be simple java bean.
+     *             description of project and must be simple java bean.
      */
     public ClassLoader getClassLoader(boolean reload) {
         if (classLoader == null || reload) {
@@ -135,14 +136,14 @@ public class ProjectDescriptor {
 
     public URL[] getClassPathUrls() {
         if (classpath == null) {
-            return new URL[]{};
+            return new URL[] {};
         }
         URL projectUrl;
         try {
             projectUrl = projectFolder.toURI().toURL();
         } catch (MalformedURLException e) {
             log.error("Bad URL for the project folder \"{}\"", projectFolder, e);
-            return new URL[]{};
+            return new URL[] {};
         }
         Set<String> classpaths = processClasspathPathPatterns();
         ArrayList<URL> urls = new ArrayList<URL>(classpaths.size());
@@ -168,7 +169,7 @@ public class ProjectDescriptor {
     private Set<String> processClasspathPathPatterns() {
         Set<String> processedClasspath = new HashSet<String>(classpath.size());
         for (PathEntry pathEntry : classpath) {
-            String path = pathEntry.getPath().replace('\\','/').trim();
+            String path = pathEntry.getPath().replace('\\', '/').trim();
             if (path.contains("*") || path.contains("?")) {
                 check(projectFolder, processedClasspath, path, projectFolder);
             } else {
@@ -178,7 +179,7 @@ public class ProjectDescriptor {
                     processedClasspath.add(path);
                 } else {
                     File file = new File(path);
-                    if (file.isAbsolute() && file.isDirectory()){
+                    if (file.isAbsolute() && file.isDirectory()) {
                         // it is a folder
                         processedClasspath.add(path + "/");
                     } else if (new File(projectFolder, path).isDirectory()) {
@@ -209,14 +210,13 @@ public class ProjectDescriptor {
         }
     }
 
-
     /**
      * Class loader of current project have to be unregistered if it is not in
      * use to prevent memory leaks.
      *
      * @param classLoader ClassLoader to unregister.
      * @deprecated Must be removed to separate class. Project descriptor is just
-     * description of project and must be simple java bean.
+     *             description of project and must be simple java bean.
      */
     private void unregisterClassloader(ClassLoader classLoader) {
         if (classLoader != null) {
@@ -229,7 +229,8 @@ public class ProjectDescriptor {
     @Override
     protected void finalize() throws Throwable {
         try {
-            // TODO Must be removed to separate class. Project descriptor is just description of project and must be simple java bean.
+            // TODO Must be removed to separate class. Project descriptor is
+            // just description of project and must be simple java bean.
             unregisterClassloader(classLoader);
         } catch (Throwable ignore) {
         } finally {
@@ -237,11 +238,11 @@ public class ProjectDescriptor {
         }
     }
 
-	public List<Property> getProperties() {
-		return properties;
-	}
+    public List<Property> getProperties() {
+        return properties;
+    }
 
-	public void setProperties(List<Property> properties) {
-		this.properties = properties;
-	}
+    public void setProperties(List<Property> properties) {
+        this.properties = properties;
+    }
 }

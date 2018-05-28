@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.faces.context.FacesContext;
@@ -65,9 +67,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * TODO Remove JSF dependency
- * TODO Separate user session from app session
- * TODO Move settings to separate UserSettings class
+ * TODO Remove JSF dependency TODO Separate user session from app session TODO
+ * Move settings to separate UserSettings class
  *
  * @author snshor
  */
@@ -75,14 +76,24 @@ public class WebStudio {
 
     private final Logger log = LoggerFactory.getLogger(WebStudio.class);
 
+    private static final Comparator<Module> MODULES_COMPARATOR = new Comparator<Module>() {
+        @Override
+        public int compare(Module o1, Module o2) {
+            return o1.getName().compareTo(o2.getName());
+        }
+    };
+    
     private final RulesTreeView TYPE_VIEW = new TypeView();
     private final RulesTreeView FILE_VIEW = new FileView();
     private final RulesTreeView CATEGORY_VIEW = new CategoryView();
     private final RulesTreeView CATEGORY_DETAILED_VIEW = new CategoryDetailedView();
     private final RulesTreeView CATEGORY_INVERSED_VIEW = new CategoryInversedView();
 
-    private final RulesTreeView[] treeViews = {TYPE_VIEW, FILE_VIEW, CATEGORY_VIEW, CATEGORY_DETAILED_VIEW,
-            CATEGORY_INVERSED_VIEW};
+    private final RulesTreeView[] treeViews = { TYPE_VIEW,
+            FILE_VIEW,
+            CATEGORY_VIEW,
+            CATEGORY_DETAILED_VIEW,
+            CATEGORY_INVERSED_VIEW };
 
     private static final String USER_SETTINGS_FILENAME = "user-settings.properties";
 
@@ -127,7 +138,7 @@ public class WebStudio {
         initWorkspace(session);
         initUserSettings(session);
         updateSystemProperties = systemConfigManager
-                .getBooleanProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES);
+            .getBooleanProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES);
         projectResolver = ProjectResolver.instance();
     }
 
@@ -146,10 +157,11 @@ public class WebStudio {
     }
 
     private void initUserSettings(HttpSession session) {
-        String settingsLocation = systemConfigManager.getStringProperty("user.settings.home")
-                + File.separator + WebStudioUtils.getRulesUserSession(session).getUserName()
-                + File.separator + USER_SETTINGS_FILENAME;
-        String defaultSettingsLocation = session.getServletContext().getRealPath("/WEB-INF/conf/" + USER_SETTINGS_FILENAME);
+        String settingsLocation = systemConfigManager
+            .getStringProperty("user.settings.home") + File.separator + WebStudioUtils.getRulesUserSession(session)
+                .getUserName() + File.separator + USER_SETTINGS_FILENAME;
+        String defaultSettingsLocation = session.getServletContext()
+            .getRealPath("/WEB-INF/conf/" + USER_SETTINGS_FILENAME);
 
         userSettingsManager = new ConfigurationManager(false, settingsLocation, defaultSettingsLocation, true);
 
@@ -220,9 +232,11 @@ public class WebStudio {
                 getModel().clearModuleInfo();
 
                 // Revert project name in rules.xml
-                IProjectDescriptorSerializer serializer = WebStudioUtils.getBean(ProjectDescriptorSerializerFactory.class)
-                        .getSerializer(project);
-                AProjectResource artefact = (AProjectResource) project.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                IProjectDescriptorSerializer serializer = WebStudioUtils
+                    .getBean(ProjectDescriptorSerializerFactory.class)
+                    .getSerializer(project);
+                AProjectResource artefact = (AProjectResource) project
+                    .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                 ProjectDescriptor projectDescriptor = serializer.deserialize(artefact.getContent());
                 projectDescriptor.setName(project.getName());
                 artefact.setContent(IOUtils.toInputStream(serializer.serialize(projectDescriptor)));
@@ -276,7 +290,8 @@ public class WebStudio {
         String cookieName = cookePrefix + "_" + FacesUtils.getRequestParameter(cookePrefix);
         try {
             RulesProject forExport = getCurrentProject();
-            // Export fresh state of the project (it could be modified in background by Excel)
+            // Export fresh state of the project (it could be modified in
+            // background by Excel)
             forExport.refresh();
             String userName = WebStudioUtils.getRulesUserSession(FacesUtils.getSession()).getUserName();
 
@@ -364,7 +379,7 @@ public class WebStudio {
      * studio works with.
      *
      * @return path to openL projects workspace, i.e. folder containing openL
-     * projects.
+     *         projects.
      */
     public String getWorkspacePath() {
         return workspacePath;
@@ -374,10 +389,13 @@ public class WebStudio {
         if (projects == null) {
             File[] files = new File(workspacePath).listFiles();
             projects = projectResolver.resolve(files);
+            for (ProjectDescriptor pd : projects) {
+                Collections.sort(pd.getModules(), MODULES_COMPARATOR);
+            }
         }
         return projects;
     }
-
+    
     public void removeBenchmark(int i) {
         benchmarks.remove(i);
     }
@@ -486,7 +504,7 @@ public class WebStudio {
         try {
             stream = uploadedFile.getInput();
             XlsWorkbookSourceHistoryListener historyListener = new XlsWorkbookSourceHistoryListener(
-                    model.getHistoryManager());
+                model.getHistoryManager());
             Module module = getCurrentModule();
             File sourceFile = new File(module.getRulesRootPath().getPath());
             historyListener.beforeSave(sourceFile);
@@ -508,7 +526,8 @@ public class WebStudio {
             IOUtils.closeQuietly(stream);
         }
 
-        model.resetSourceModified(); // Because we rewrite a file in the workspace
+        model.resetSourceModified(); // Because we rewrite a file in the
+                                     // workspace
         compile();
         clearUploadedFiles();
 
@@ -531,7 +550,8 @@ public class WebStudio {
             PathFilter filter = getZipFilter();
 
             List<String> filesInProject = getFilesInProject(filter);
-            Charset charset = getZipCharsetDetector().detectCharset(new ZipFromProjectFile(lastUploadedFile), filesInProject);
+            Charset charset = getZipCharsetDetector().detectCharset(new ZipFromProjectFile(lastUploadedFile),
+                filesInProject);
             if (charset == null) {
                 throw new ValidationException("Can't detect a charset for the zip file");
             }
@@ -571,7 +591,7 @@ public class WebStudio {
 
             // Update/create other files in project
             final XlsWorkbookSourceHistoryListener historyListener = new XlsWorkbookSourceHistoryListener(
-                    model.getHistoryManager());
+                model.getHistoryManager());
             zipWalker.iterateEntries(new DefaultZipEntryCommand() {
                 @Override
                 public boolean execute(String filePath, InputStream inputStream) throws IOException {
@@ -610,7 +630,8 @@ public class WebStudio {
 
     public ProjectDescriptor resolveProject(ProjectDescriptor oldProjectDescriptor) {
         File projectFolder = oldProjectDescriptor.getProjectFolder();
-        model.resetSourceModified(); // Because we rewrite a file in the workspace
+        model.resetSourceModified(); // Because we rewrite a file in the
+                                     // workspace
 
         ProjectDescriptor newProjectDescriptor = null;
         try {
@@ -633,8 +654,10 @@ public class WebStudio {
         // Project can be fully changed and renamed, we must force compile
         forcedCompile = true;
 
-        // Note that "newProjectDescriptor == null" is correct case too: it means that it's not OpenL project anymore:
-        // newly updated project doesn't contain rules.xml nor xls file. Such projects are not shown in Editor but
+        // Note that "newProjectDescriptor == null" is correct case too: it
+        // means that it's not OpenL project anymore:
+        // newly updated project doesn't contain rules.xml nor xls file. Such
+        // projects are not shown in Editor but
         // are shown in Repository.
         // In this case we must show the list of all projects in Editor.
         return newProjectDescriptor;
@@ -649,7 +672,8 @@ public class WebStudio {
             PathFilter filter = getZipFilter();
             List<String> filesInProject = getFilesInProject(filter);
 
-            Charset charset = getZipCharsetDetector().detectCharset(new ZipFromProjectFile(lastUploadedFile), filesInProject);
+            Charset charset = getZipCharsetDetector().detectCharset(new ZipFromProjectFile(lastUploadedFile),
+                filesInProject);
             if (charset == null) {
                 return true;
             }
@@ -709,10 +733,14 @@ public class WebStudio {
         return false;
     }
 
-    private String validateUploadedFiles(ProjectFile zipFile, PathFilter zipFilter, ProjectDescriptor oldProjectDescriptor, Charset charset) throws IOException, ProjectException {
+    private String validateUploadedFiles(ProjectFile zipFile,
+            PathFilter zipFilter,
+            ProjectDescriptor oldProjectDescriptor,
+            Charset charset) throws IOException, ProjectException {
         ProjectDescriptor newProjectDescriptor;
         try {
-            newProjectDescriptor = ZipProjectDescriptorExtractor.getProjectDescriptorOrThrow(zipFile, zipFilter, charset);
+            newProjectDescriptor = ZipProjectDescriptorExtractor
+                .getProjectDescriptorOrThrow(zipFile, zipFilter, charset);
         } catch (XStreamException e) {
             return ProjectDescriptorUtils.getErrorMessage(e);
         }
@@ -736,12 +764,14 @@ public class WebStudio {
     }
 
     private ProjectDescriptorArtefactResolver getProjectDescriptorResolver() {
-        return (ProjectDescriptorArtefactResolver) WebApplicationContextUtils.
-                getWebApplicationContext(FacesUtils.getServletContext()).getBean("projectDescriptorArtefactResolver");
+        return (ProjectDescriptorArtefactResolver) WebApplicationContextUtils
+            .getWebApplicationContext(FacesUtils.getServletContext())
+            .getBean("projectDescriptorArtefactResolver");
     }
 
     private PathFilter getZipFilter() {
-        return (PathFilter) WebApplicationContextUtils.getWebApplicationContext(FacesUtils.getServletContext()).getBean("zipFilter");
+        return (PathFilter) WebApplicationContextUtils.getWebApplicationContext(FacesUtils.getServletContext())
+            .getBean("zipFilter");
     }
 
     private ZipCharsetDetector getZipCharsetDetector() {
@@ -799,7 +829,8 @@ public class WebStudio {
      * Checks if there is any project with specified name in repository.
      *
      * @param name physical or logical project name
-     * @return true only if there is a project with specified name and it is not current project
+     * @return true only if there is a project with specified name and it is not
+     *         current project
      */
     public boolean isProjectExists(final String name) {
         HttpSession session = FacesUtils.getSession();
@@ -949,9 +980,7 @@ public class WebStudio {
     /**
      * Normalizes page urls: inserts project and module names.
      * <p/>
-     * Example:
-     * Page Url =       create/
-     * Normalized Url = #tutorial1/rules/create/
+     * Example: Page Url = create/ Normalized Url = #tutorial1/rules/create/
      */
     public String url() {
         return url(null, null);
@@ -969,13 +998,14 @@ public class WebStudio {
             projectName = getCurrentProjectDescriptor() == null ? null : getCurrentProjectDescriptor().getName();
         } else {
             // Get a project
-            ProjectDescriptor project = CollectionUtils.findFirst(getAllProjects(), new CollectionUtils.Predicate<ProjectDescriptor>() {
-                @Override
-                public boolean evaluate(ProjectDescriptor projectDescriptor) {
-                    String projectURI = projectDescriptor.getProjectFolder().toURI().toString();
-                    return tableURI.startsWith(projectURI);
-                }
-            });
+            ProjectDescriptor project = CollectionUtils.findFirst(getAllProjects(),
+                new CollectionUtils.Predicate<ProjectDescriptor>() {
+                    @Override
+                    public boolean evaluate(ProjectDescriptor projectDescriptor) {
+                        String projectURI = projectDescriptor.getProjectFolder().toURI().toString();
+                        return tableURI.startsWith(projectURI);
+                    }
+                });
             if (project == null) {
                 return null;
             }
@@ -994,9 +1024,9 @@ public class WebStudio {
                         ClassLoader classLoader = null;
                         try {
                             classLoader = new SimpleBundleClassLoader(Thread.currentThread().getContextClassLoader());
-                            moduleURI = ExtensionDescriptorFactory.getExtensionDescriptor(
-                                    module.getExtension(), classLoader
-                            ).getUrlForModule(module);
+                            moduleURI = ExtensionDescriptorFactory
+                                .getExtensionDescriptor(module.getExtension(), classLoader)
+                                .getUrlForModule(module);
                         } finally {
                             ClassLoaderUtils.close(classLoader);
                         }
@@ -1018,12 +1048,12 @@ public class WebStudio {
             pageUrl = StringUtils.EMPTY;
         }
 
-        if ((StringUtils.isBlank(projectName) || StringUtils.isBlank(moduleName))
-                && StringUtils.isNotBlank(pageUrl)) {
+        if ((StringUtils.isBlank(projectName) || StringUtils.isBlank(moduleName)) && StringUtils.isNotBlank(pageUrl)) {
             return "#" + pageUrl;
         }
         if (StringUtils.isBlank(projectName)) {
-            return "#"; // Current project isn't selected. Show all projects list.
+            return "#"; // Current project isn't selected. Show all projects
+                        // list.
         }
         if (StringUtils.isBlank(moduleName)) {
             return "#" + StringTool.encodeURL(projectName);
