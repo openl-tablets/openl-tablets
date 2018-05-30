@@ -16,37 +16,9 @@ import org.slf4j.LoggerFactory;
 
 final class Settings {
     private final Logger log = LoggerFactory.getLogger(Settings.class);
-
-    Settings(String databaseCode) throws IOException {
-        TreeMap<String, String> queries = new TreeMap<String, String>();
-        fillQueries(queries, "/openl-db-repository.properties");
-        fillQueries(queries, "/openl-db-repository-" + databaseCode + ".properties");
-        fillQueries(queries, "/openl-db-repository-ext.properties");
-        resolve(queries);
-
-        timerPeriod = getIntValue(queries, "setting.timerPeriod", 10000);
-        tableName = getRequired(queries, "setting.tablename");
-
-        insertFile =  getRequired(queries, "query.insert-new-file");
-        copyFile =    getRequired(queries, "query.copy-last-file");
-        copyHistory = getRequired(queries, "query.copy-exact-file");
-        deleteVersion =    getRequired(queries, "query.delete-exact-file");
-        deleteAllHistory = getRequired(queries, "query.delete-all-history");
-        readActualFile =   getRequired(queries, "query.read-last-file");
-        readHistoricFile = getRequired(queries, "query.read-exact-file");
-        readActualFileMetainfo =   getRequired(queries, "query.read-last-metainfo");
-        readHistoricFileMetainfo = getRequired(queries, "query.read-exact-metainfo");
-        selectAllMetainfo = getRequired(queries, "query.list-last-metainfo");
-        selectAllHistoryMetainfo = getRequired(queries, "query.list-all-metainfo");
-        selectLastChange = getRequired(queries, "query.select-last-change");
-
-        initStatements = queries.subMap("init.", "init." + Character.MAX_VALUE).values();
-    }
-
     int timerPeriod;
     String tableName;
     Collection<String> initStatements;
-
     String selectAllMetainfo;
     String selectAllHistoryMetainfo;
     String insertFile;
@@ -60,10 +32,38 @@ final class Settings {
     String copyFile;
     String copyHistory;
 
+    Settings(String databaseCode, int major, int minor) throws IOException {
+        TreeMap<String, String> queries = new TreeMap<String, String>();
+        fillQueries(queries, "/openl-db-repository");
+        fillQueries(queries, "/openl-db-repository-" + databaseCode);
+        fillQueries(queries, "/openl-db-repository-" + databaseCode + "-v" + major);
+        fillQueries(queries, "/openl-db-repository-" + databaseCode + "-v" + major + "." + minor);
+        fillQueries(queries, "/openl-db-repository-ext"); // For customization purposes
+        resolve(queries);
+
+        timerPeriod = getIntValue(queries, "setting.timerPeriod", 10000);
+        tableName = getRequired(queries, "setting.tablename");
+
+        insertFile = getRequired(queries, "query.insert-new-file");
+        copyFile = getRequired(queries, "query.copy-last-file");
+        copyHistory = getRequired(queries, "query.copy-exact-file");
+        deleteVersion = getRequired(queries, "query.delete-exact-file");
+        deleteAllHistory = getRequired(queries, "query.delete-all-history");
+        readActualFile = getRequired(queries, "query.read-last-file");
+        readHistoricFile = getRequired(queries, "query.read-exact-file");
+        readActualFileMetainfo = getRequired(queries, "query.read-last-metainfo");
+        readHistoricFileMetainfo = getRequired(queries, "query.read-exact-metainfo");
+        selectAllMetainfo = getRequired(queries, "query.list-last-metainfo");
+        selectAllHistoryMetainfo = getRequired(queries, "query.list-all-metainfo");
+        selectLastChange = getRequired(queries, "query.select-last-change");
+
+        initStatements = queries.subMap("init.", "init." + Character.MAX_VALUE).values();
+    }
+
     private void fillQueries(Map<String, String> queries, String propertiesFileName) throws IOException {
-        URL resource = getClass().getResource(propertiesFileName);
+        URL resource = getClass().getResource(propertiesFileName + ".properties");
         if (resource == null) {
-            log.info("File '{}' is not found.", propertiesFileName);
+            log.info("Configuration file '{}.properties' is absent, so skipped.", propertiesFileName);
             return;
         }
         log.info("Load configuration from '{}'.", resource);
