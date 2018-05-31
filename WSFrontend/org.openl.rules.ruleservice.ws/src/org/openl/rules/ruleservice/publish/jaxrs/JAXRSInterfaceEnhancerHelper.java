@@ -316,19 +316,27 @@ public class JAXRSInterfaceEnhancerHelper {
         }
     }
 
-    public static Class<?> decorateInterface(Class<?> originalClass,
-                                             OpenLService service) throws Exception {
+    private static ClassLoader getClassLoader(OpenLService service) {
+        return service.getClassLoader();
+    }
+
+    public static Object decorateBean(Object targetBean,
+            OpenLService service,
+            Class<?> targetInterface) throws Exception {
+        Class<?> originalClass = service.getServiceClass();
         if (originalClass == null) {
             throw new IllegalArgumentException("Original class is mandatory argument!");
         }
         if (!originalClass.isInterface()) {
             throw new IllegalArgumentException("Original class must be an interface!");
         }
+        ClassLoader classLoader = getClassLoader(service);
+
         ClassWriter cw = new ClassWriter(0);
         JAXRSInterfaceAnnotationEnhancerClassVisitor jaxrsAnnotationEnhancerClassVisitor = new JAXRSInterfaceAnnotationEnhancerClassVisitor(
             cw,
             originalClass,
-            service
+                service
         );
         String enchancedClassName = originalClass
             .getCanonicalName() + JAXRSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
@@ -339,19 +347,8 @@ public class JAXRSInterfaceEnhancerHelper {
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enchancedClassName, false);
         transformer.accept(jaxrsAnnotationEnhancerClassVisitor);
         cw.visitEnd();
-        ClassLoader classLoader = getClassLoader(service);
-        Class<?> enchancedClass = ClassUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
-        return enchancedClass;
-    }
 
-    private static ClassLoader getClassLoader(OpenLService service) {
-        return service.getClassLoader();
-    }
-
-    public static Object decorateBean(Object targetBean,
-            OpenLService service,
-            Class<?> proxyInterface,
-            Class<?> targetInterface) throws Exception {
+        Class<?> proxyInterface = ClassUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
         Map<Method, Method> methodMap = new HashMap<>();
         for (Method method : proxyInterface.getMethods()) {
             String methodName = method.getName();
@@ -369,8 +366,6 @@ public class JAXRSInterfaceEnhancerHelper {
                 methodMap.put(method, targetMethod);
             }
         }
-
-        ClassLoader classLoader = getClassLoader(service);
 
         return Proxy.newProxyInstance(classLoader,
             new Class<?>[] { proxyInterface },
