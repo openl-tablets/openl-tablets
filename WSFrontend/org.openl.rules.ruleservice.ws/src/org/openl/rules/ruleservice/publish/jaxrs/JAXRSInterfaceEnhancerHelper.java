@@ -119,19 +119,8 @@ public class JAXRSInterfaceEnhancerHelper {
 
             byte[] byteCode = beanClassBuilder.byteCode();
 
-            ClassLoader classLoader = getClassLoader();
+            ClassLoader classLoader = getClassLoader(service);
             return ClassUtils.defineClass(beanName, byteCode, classLoader);
-        }
-
-        private ClassLoader getClassLoader() {
-            ClassLoader classLoader = null;
-            if (service != null) {
-                classLoader = service.getClassLoader();
-            }
-            if (classLoader == null) {
-                classLoader = Thread.currentThread().getContextClassLoader();
-            }
-            return classLoader;
         }
 
         String getRequestParameterName(Method method) {
