@@ -51,7 +51,7 @@ public class JAXRSInterfaceEnhancerHelperTest {
 
     @Test
     public void testNoAnnotationMethod() throws Exception {
-        Class<?> enchancedClass = JAXRSInterfaceEnhancerHelper.decorateInterface(TestInterface.class, createService());
+        Class<?> enchancedClass = createService(TestInterface.class);
         boolean f = false;
         boolean producesAnnotationExists = false;
         boolean consumesAnnotationExists = false;
@@ -127,7 +127,7 @@ public class JAXRSInterfaceEnhancerHelperTest {
 
     @Test
     public void testMethodWithAnnotation() throws Exception {
-        Class<?> enchancedClass = JAXRSInterfaceEnhancerHelper.decorateInterface(TestAnnotatedInterface.class, createService());
+        Class<?> enchancedClass = createService(TestAnnotatedInterface.class);
         boolean f = false;
         for (Annotation annotation : enchancedClass.getAnnotations()) {
             if (annotation.annotationType().equals(Path.class)) {
@@ -201,7 +201,7 @@ public class JAXRSInterfaceEnhancerHelperTest {
 
     @Test
     public void testParametersInMethod() throws Exception {
-        Class<?> enchancedClass = JAXRSInterfaceEnhancerHelper.decorateInterface(TestParameterInterface.class, createService());
+        Class<?> enchancedClass = createService(TestParameterInterface.class);
         int i = 0;
         for (Method method : enchancedClass.getMethods()) {
             if ("someMethod".equals(method.getName())) {
@@ -239,7 +239,7 @@ public class JAXRSInterfaceEnhancerHelperTest {
 
     @Test
     public void testMethodNamesAndPath() throws Exception {
-        Class<?> enchancedClass = JAXRSInterfaceEnhancerHelper.decorateInterface(TestMethodNameAndPath.class, createService());
+        Class<?> enchancedClass = createService(TestMethodNameAndPath.class);
         Method[] methods = enchancedClass.getMethods();
         Assert.assertEquals("Method is not found!", 3, methods.length);
 
@@ -268,8 +268,16 @@ public class JAXRSInterfaceEnhancerHelperTest {
         }
     }
 
-    private static OpenLService createService() {
-        ClassLoader classLoader = new ClassLoader() {};
-        return new OpenLService.OpenLServiceBuilder().setClassLoader(classLoader).setName("test").build();
+    private static Class<?> createService(Class<?> clazz) throws Exception {
+        ClassLoader classLoader = new ClassLoader() {
+        };
+        OpenLService service = new OpenLService.OpenLServiceBuilder().setClassLoader(classLoader)
+            .setName("test")
+            .setServiceClass(clazz)
+            .build();
+        Object proxy = JAXRSInterfaceEnhancerHelper.decorateBean(new Object(), service, clazz);
+        Class<?> decoratedInterface = proxy.getClass().getInterfaces()[0];
+
+        return decoratedInterface;
     }
 }

@@ -125,15 +125,15 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
             }
 
-            Class<?> serviceClass = JAXRSInterfaceEnhancerHelper.decorateInterface(service.getServiceClass(), service);
-            Object target = JAXRSInterfaceEnhancerHelper.decorateBean(service.getServiceBean(), service, serviceClass, service.getServiceClass());
+            Object proxyServiceBean = JAXRSInterfaceEnhancerHelper.decorateBean(service.getServiceBean(), service, service.getServiceClass());
+            Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0]; // The first is a decorated interface
 
             svrFactory.setResourceClasses(serviceClass);
 
             Swagger2Feature swagger2Feature = getSwagger2Feature(service, serviceClass);
             svrFactory.getFeatures().add(swagger2Feature);
 
-            svrFactory.setResourceProvider(serviceClass, new SingletonResourceProvider(target));
+            svrFactory.setResourceProvider(serviceClass, new SingletonResourceProvider(proxyServiceBean));
             ClassLoader origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
             try {
                 svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
