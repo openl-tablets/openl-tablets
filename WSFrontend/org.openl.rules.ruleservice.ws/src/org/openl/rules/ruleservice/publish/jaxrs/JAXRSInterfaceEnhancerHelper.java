@@ -25,7 +25,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -54,14 +53,17 @@ public class JAXRSInterfaceEnhancerHelper {
 
         private Class<?> originalClass;
         private OpenLService service;
+        private ClassLoader classLoader;
         private Map<Method, String> paths = null;
         private Map<Method, String> methodRequests = null;
 
         JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
                                                      Class<?> originalClass,
+                                                     ClassLoader classLoader,
                                                      OpenLService service) {
             super(Opcodes.ASM4, arg0);
             this.originalClass = originalClass;
+            this.classLoader = classLoader;
             this.service = service;
         }
 
@@ -119,7 +121,6 @@ public class JAXRSInterfaceEnhancerHelper {
 
             byte[] byteCode = beanClassBuilder.byteCode();
 
-            ClassLoader classLoader = getClassLoader(service);
             return ClassUtils.defineClass(beanName, byteCode, classLoader);
         }
 
@@ -316,10 +317,6 @@ public class JAXRSInterfaceEnhancerHelper {
         }
     }
 
-    private static ClassLoader getClassLoader(OpenLService service) {
-        return service.getClassLoader();
-    }
-
     public static Object decorateBean(Object targetBean,
             OpenLService service,
             Class<?> targetInterface) throws Exception {
@@ -330,14 +327,14 @@ public class JAXRSInterfaceEnhancerHelper {
         if (!originalClass.isInterface()) {
             throw new IllegalArgumentException("Original class must be an interface!");
         }
-        ClassLoader classLoader = getClassLoader(service);
+        ClassLoader classLoader = service.getClassLoader();
 
         ClassWriter cw = new ClassWriter(0);
         JAXRSInterfaceAnnotationEnhancerClassVisitor jaxrsAnnotationEnhancerClassVisitor = new JAXRSInterfaceAnnotationEnhancerClassVisitor(
             cw,
             originalClass,
-                service
-        );
+            classLoader,
+            service);
         String enchancedClassName = originalClass
             .getCanonicalName() + JAXRSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
         // Fix an NPE issue JAXRSUtil with no package class
