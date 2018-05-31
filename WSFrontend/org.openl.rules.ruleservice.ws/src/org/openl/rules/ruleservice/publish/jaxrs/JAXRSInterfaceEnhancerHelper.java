@@ -345,14 +345,7 @@ public class JAXRSInterfaceEnhancerHelper {
     }
 
     private static ClassLoader getClassLoader(OpenLService service) {
-        ClassLoader classLoader = null;
-        if (service != null) {
-            classLoader = service.getClassLoader();
-        }
-        if (classLoader == null) {
-            classLoader = Thread.currentThread().getContextClassLoader();
-        }
-        return classLoader;
+        return service.getClassLoader();
     }
 
     public static Object decorateBean(Object targetBean,
