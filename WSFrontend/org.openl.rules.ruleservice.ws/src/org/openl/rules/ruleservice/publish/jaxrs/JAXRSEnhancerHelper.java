@@ -43,7 +43,7 @@ import io.swagger.annotations.ApiOperation;
  * @author Marat Kamalov
  *
  */
-public class JAXRSInterfaceEnhancerHelper {
+public class JAXRSEnhancerHelper {
 
     private static class JAXRSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
 
@@ -317,31 +317,29 @@ public class JAXRSInterfaceEnhancerHelper {
         }
     }
 
-    public static Object decorateBean(Object targetBean,
-            OpenLService service,
-            Class<?> targetInterface) throws Exception {
-        Class<?> originalClass = service.getServiceClass();
-        if (originalClass == null) {
-            throw new IllegalArgumentException("Original class is mandatory argument!");
+    public static Object decorateServiceBean(OpenLService service) throws Exception {
+        Class<?> serviceClass = service.getServiceClass();
+        if (serviceClass == null) {
+            throw new IllegalStateException("Service class is mandatory argument!");
         }
-        if (!originalClass.isInterface()) {
-            throw new IllegalArgumentException("Original class must be an interface!");
+        if (!serviceClass.isInterface()) {
+            throw new IllegalStateException("Service class must be an interface!");
         }
         ClassLoader classLoader = service.getClassLoader();
 
         ClassWriter cw = new ClassWriter(0);
         JAXRSInterfaceAnnotationEnhancerClassVisitor jaxrsAnnotationEnhancerClassVisitor = new JAXRSInterfaceAnnotationEnhancerClassVisitor(
             cw,
-            originalClass,
+            serviceClass,
             classLoader,
             service);
-        String enchancedClassName = originalClass
+        String enchancedClassName = serviceClass
             .getCanonicalName() + JAXRSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
         // Fix an NPE issue JAXRSUtil with no package class
-        if (originalClass.getPackage() == null) {
+        if (serviceClass.getPackage() == null) {
             enchancedClassName = "default." + enchancedClassName;
         }
-        InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enchancedClassName, false);
+        InterfaceTransformer transformer = new InterfaceTransformer(serviceClass, enchancedClassName, false);
         transformer.accept(jaxrsAnnotationEnhancerClassVisitor);
         cw.visitEnd();
 
@@ -352,20 +350,20 @@ public class JAXRSInterfaceEnhancerHelper {
             Class<?>[] parameterTypes = method.getParameterTypes();
 
             try {
-                Method targetMethod = targetInterface.getMethod(methodName, parameterTypes);
+                Method targetMethod = serviceClass.getMethod(methodName, parameterTypes);
                 methodMap.put(method, targetMethod);
             } catch (NoSuchMethodException ex) {
                 if (parameterTypes.length == 1) {
                     Class<?> methodArgument = parameterTypes[0];
                     parameterTypes = (Class<?>[]) methodArgument.getMethod("_types").invoke(null);
                 }
-                Method targetMethod = targetInterface.getMethod(methodName, parameterTypes);
+                Method targetMethod = serviceClass.getMethod(methodName, parameterTypes);
                 methodMap.put(method, targetMethod);
             }
         }
 
         return Proxy.newProxyInstance(classLoader,
             new Class<?>[] { proxyInterface },
-            new JAXRSInvocationHandler(targetBean, methodMap));
+            new JAXRSInvocationHandler(service.getServiceBean(), methodMap));
     }
 }

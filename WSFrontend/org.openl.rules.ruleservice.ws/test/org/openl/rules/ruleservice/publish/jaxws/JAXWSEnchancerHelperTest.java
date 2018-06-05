@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.publish.jaxrs;
+package org.openl.rules.ruleservice.publish.jaxws;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -9,9 +9,10 @@ import javax.ws.rs.PathParam;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openl.rules.ruleservice.publish.jaxws.JAXWSInterfaceEnhancerHelper;
+import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.publish.jaxws.JAXWSEnhancerHelper;
 
-public class JAXWSInterfaceEnchancerHelperTest {
+public class JAXWSEnchancerHelperTest {
     public static interface TestInterface {
         void someMethod(String arg);
     }
@@ -43,7 +44,14 @@ public class JAXWSInterfaceEnchancerHelperTest {
 
     @Test
     public void testNoAnnotationMethod() throws Exception {
-        Class<?> enchancedClass = JAXWSInterfaceEnhancerHelper.decorateInterface(TestInterface.class, null);
+        ClassLoader classLoader = new ClassLoader() {
+        };
+        OpenLService service = new OpenLService.OpenLServiceBuilder().setClassLoader(classLoader)
+            .setName("test")
+            .setServiceClass(TestInterface.class)
+            .build();
+
+        Class<?> enchancedClass = JAXWSEnhancerHelper.decorateServiceInterface(service);
 
         Annotation webServiceAnnotation = enchancedClass.getAnnotation(WebService.class);
         Assert.assertNotNull("Enchanced interface should contains @WebService annotation on class!",
@@ -61,7 +69,13 @@ public class JAXWSInterfaceEnchancerHelperTest {
 
     @Test
     public void testMethodWithAnnotation() throws Exception {
-        Class<?> enchancedClass = JAXWSInterfaceEnhancerHelper.decorateInterface(TestAnnotatedInterface.class, null);
+        ClassLoader classLoader = new ClassLoader() {
+        };
+        OpenLService service = new OpenLService.OpenLServiceBuilder().setClassLoader(classLoader)
+            .setName("test")
+            .setServiceClass(TestAnnotatedInterface.class)
+            .build();
+        Class<?> enchancedClass = JAXWSEnhancerHelper.decorateServiceInterface(service);
 
         Annotation webServiceAnnotation = enchancedClass.getAnnotation(WebService.class);
         Assert.assertNotNull("Enchanced interface should contains @WebService annotation on class!",
@@ -76,14 +90,21 @@ public class JAXWSInterfaceEnchancerHelperTest {
         Annotation webMethodAnnotatopn = someMethod.getAnnotation(WebMethod.class);
         Assert.assertNotNull("Generated method should contains @WebMethod annotation!", webMethodAnnotatopn);
 
-        Assert.assertEquals("Generated method should contains @WebMethod annotation on method with defined in interface operation name!",
+        Assert.assertEquals(
+            "Generated method should contains @WebMethod annotation on method with defined in interface operation name!",
             "someMethod1",
             ((WebMethod) webMethodAnnotatopn).operationName());
     }
 
     @Test
     public void testMethodNamesAndOperationNames() throws Exception {
-        Class<?> enchancedClass = JAXWSInterfaceEnhancerHelper.decorateInterface(TestMethodNamesAndOperationNames.class, null);
+        ClassLoader classLoader = new ClassLoader() {
+        };
+        OpenLService service = new OpenLService.OpenLServiceBuilder().setClassLoader(classLoader)
+            .setName("test")
+            .setServiceClass(TestMethodNamesAndOperationNames.class)
+            .build();
+        Class<?> enchancedClass = JAXWSEnhancerHelper.decorateServiceInterface(service);
         int i = 0;
         for (Method method : enchancedClass.getMethods()) {
             if ("someMethod".equals(method.getName()) && method.getParameterTypes().length == 0) {

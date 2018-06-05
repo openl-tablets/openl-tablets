@@ -24,7 +24,7 @@ import org.openl.rules.ruleservice.logging.CollectOpenLServiceInterceptor;
 import org.openl.rules.ruleservice.logging.CollectOperationResourceInfoInterceptor;
 import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.logging.ObjectSerializer;
-import org.openl.rules.ruleservice.publish.jaxrs.JAXRSInterfaceEnhancerHelper;
+import org.openl.rules.ruleservice.publish.jaxrs.JAXRSEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.logging.JacksonObjectSerializer;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerStaticFieldsWorkaround;
 import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
@@ -133,9 +133,8 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
             }
 
-            Object proxyServiceBean = JAXRSInterfaceEnhancerHelper.decorateBean(service.getServiceBean(), service, service.getServiceClass());
+            Object proxyServiceBean = JAXRSEnhancerHelper.decorateServiceBean(service);
             Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0]; // The first is a decorated interface
-                .decorateBean(service.getServiceBean(), service, serviceClass, service.getServiceClass());
 
             svrFactory.setResourceClasses(serviceClass);
 
