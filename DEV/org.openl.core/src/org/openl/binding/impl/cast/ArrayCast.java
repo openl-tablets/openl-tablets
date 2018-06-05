@@ -38,10 +38,10 @@ public class ArrayCast implements IOpenCast {
             c = c.getComponentType();
             if (length > 0) {
                 f = Array.get(f, 0);
-            }
-            if (Object.class.equals(c) && f != null) {
-                c = f.getClass();
-            }
+                if (Object.class.equals(c) && f != null) {
+                    c = f.getClass();
+                }
+            } 
         }
         if (dim == dims.size()) {
             int[] dimensions = new int[dims.size()];
