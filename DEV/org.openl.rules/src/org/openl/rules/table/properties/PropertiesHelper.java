@@ -32,13 +32,14 @@ public class PropertiesHelper {
         return propTable.getColumns(1);
     }
 
-    public static ITableProperties getTableProperties(IOpenMethod method) {
+    public static ITableProperties getTableProperties(IOpenMethod method) { 
         if (method instanceof OpenMethodDispatcher){
-            List<IOpenMethod> methods = ((OpenMethodDispatcher )method).getCandidates();
-            if (methods.size() == 1){
+            List<IOpenMethod> methods = ((OpenMethodDispatcher) method).getCandidates();
+            if (methods.size() == 1) {
                 return getTableProperties(methods.get(0));
-            }else{
-                throw new IllegalArgumentException("Dispatcher method with more than one candidate doesn't have properties!");
+            } else {
+                throw new IllegalArgumentException(
+                    "Dispatcher method with more than one candidate doesn't have properties!");
             }
         }
         
