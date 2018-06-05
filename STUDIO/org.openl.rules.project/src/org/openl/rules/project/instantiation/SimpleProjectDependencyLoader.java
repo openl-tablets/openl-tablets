@@ -27,8 +27,7 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
     protected Map<String, Object> configureParameters(IDependencyManager dependencyManager) {
         Map<String, Object> params = dependencyManager.getExternalParameters();
         if (!singleModuleMode) {
-            params = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(params, getModules()
-            );
+            params = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(params, getModules());
             return params;
         }
         return params;
