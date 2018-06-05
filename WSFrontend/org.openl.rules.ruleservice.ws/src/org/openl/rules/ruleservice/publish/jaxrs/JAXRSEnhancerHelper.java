@@ -320,7 +320,7 @@ public class JAXRSEnhancerHelper {
     public static Object decorateServiceBean(OpenLService service) throws Exception {
         Class<?> serviceClass = service.getServiceClass();
         if (serviceClass == null) {
-            throw new IllegalStateException("Service class is mandatory argument!");
+            throw new IllegalStateException("Service class is null!");
         }
         if (!serviceClass.isInterface()) {
             throw new IllegalStateException("Service class must be an interface!");
