@@ -32,7 +32,7 @@ import org.openl.util.generation.InterfaceTransformer;
  * @author Marat Kamalov
  *
  */
-public class JAXWSInterfaceEnhancerHelper {
+public class JAXWSEnhancerHelper {
 
     private static class JAXWSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$JAXWSAnnotated";
@@ -180,22 +180,22 @@ public class JAXWSInterfaceEnhancerHelper {
         return classLoader;
     }
 
-    public static Class<?> decorateInterface(Class<?> originalClass, OpenLService service) throws Exception {
-        if (originalClass == null) {
-            throw new IllegalArgumentException("Original class is mandatory argument!");
+    public static Class<?> decorateServiceInterface(OpenLService service) throws Exception {
+        if (service.getServiceClass() == null) {
+            throw new IllegalStateException("Service class is null!");
         }
-        if (!originalClass.isInterface()) {
-            throw new IllegalArgumentException("Original class must be an interface!");
+        if (!service.getServiceClass().isInterface()) {
+            throw new IllegalStateException("Service class must be an interface!");
         }
-        String enchancedClassName = originalClass
+        String enchancedClassName = service.getServiceClass()
             .getCanonicalName() + JAXWSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
 
         ClassWriter cw = new ClassWriter(0);
         JAXWSInterfaceAnnotationEnhancerClassVisitor jaxrsAnnotationEnhancerClassVisitor = new JAXWSInterfaceAnnotationEnhancerClassVisitor(
             cw,
-            originalClass,
+            service.getServiceClass(),
             service);
-        InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enchancedClassName);
+        InterfaceTransformer transformer = new InterfaceTransformer(service.getServiceClass(), enchancedClassName);
         transformer.accept(jaxrsAnnotationEnhancerClassVisitor);
         cw.visitEnd();
 

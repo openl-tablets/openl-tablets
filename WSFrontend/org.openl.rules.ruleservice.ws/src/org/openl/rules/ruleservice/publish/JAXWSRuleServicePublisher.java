@@ -25,7 +25,7 @@ import org.openl.rules.ruleservice.logging.CollectOpenLServiceInterceptor;
 import org.openl.rules.ruleservice.logging.CollectOperationResourceInfoInterceptor;
 import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.logging.ObjectSerializer;
-import org.openl.rules.ruleservice.publish.jaxws.JAXWSInterfaceEnhancerHelper;
+import org.openl.rules.ruleservice.publish.jaxws.JAXWSEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSInvocationHandler;
 import org.openl.rules.ruleservice.publish.jaxws.logging.AegisObjectSerializer;
 import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
@@ -113,7 +113,7 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 String serviceAddress = getBaseAddress() + processURL(service.getUrl());
                 svrFactory.setAddress(serviceAddress);
 
-                Class<?> serviceClass = JAXWSInterfaceEnhancerHelper.decorateInterface(service.getServiceClass(), service);
+                Class<?> serviceClass = JAXWSEnhancerHelper.decorateServiceInterface(service);
                 svrFactory.setServiceClass(serviceClass);
 
                 Object target = Proxy.newProxyInstance(service.getClassLoader(), new Class<?>[]{service.getServiceClass()}, new JAXWSInvocationHandler(service.getServiceBean()));

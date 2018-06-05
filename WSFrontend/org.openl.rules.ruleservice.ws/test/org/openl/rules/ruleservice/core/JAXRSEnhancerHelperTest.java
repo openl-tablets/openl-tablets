@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.publish.jaxrs;
+package org.openl.rules.ruleservice.core;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -14,8 +14,9 @@ import javax.ws.rs.core.MediaType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.publish.jaxrs.JAXRSEnhancerHelper;
 
-public class JAXRSInterfaceEnhancerHelperTest {
+public class JAXRSEnhancerHelperTest {
 
     public static interface TestInterface {
         void someMethod(int arg);
@@ -269,13 +270,13 @@ public class JAXRSInterfaceEnhancerHelperTest {
     }
 
     private static Class<?> createService(Class<?> clazz) throws Exception {
-        ClassLoader classLoader = new ClassLoader() {
-        };
+        ClassLoader classLoader = new ClassLoader() {};
         OpenLService service = new OpenLService.OpenLServiceBuilder().setClassLoader(classLoader)
             .setName("test")
             .setServiceClass(clazz)
             .build();
-        Object proxy = JAXRSInterfaceEnhancerHelper.decorateBean(new Object(), service, clazz);
+        service.setServiceBean(new Object());
+        Object proxy = JAXRSEnhancerHelper.decorateServiceBean(service);
         Class<?> decoratedInterface = proxy.getClass().getInterfaces()[0];
 
         return decoratedInterface;
