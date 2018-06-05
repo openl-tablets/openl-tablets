@@ -14,23 +14,23 @@ import org.openl.rules.ruleservice.core.OpenLService;
  * @author Marat Kamalov
  *
  */
-public class CollectOpenLServiceIntercepror extends AbstractPhaseInterceptor<Message> {
+public class CollectOpenLServiceInterceptor extends AbstractPhaseInterceptor<Message> {
 
     private OpenLService service;
     
-    public CollectOpenLServiceIntercepror(String phase, OpenLService service) {
+    public CollectOpenLServiceInterceptor(String phase, OpenLService service) {
         super(phase);
         addBefore(StaxOutInterceptor.class.getName());
         this.service = service;
     }
 
-    public CollectOpenLServiceIntercepror(OpenLService service) {
+    public CollectOpenLServiceInterceptor(OpenLService service) {
         this(Phase.PRE_STREAM, service);
     }
     
     @Override
     public void handleMessage(Message message) throws Fault {
-        RuleServiceLoggingInfo ruleServiceLoggingInfo = RuleServiceLoggingInfoHolder.get();
-        ruleServiceLoggingInfo.setServiceName(service.getName());
+        RuleServiceLogging ruleServiceLogging = RuleServiceLoggingHolder.get();
+        ruleServiceLogging.setServiceName(service.getName());
     }
 }
