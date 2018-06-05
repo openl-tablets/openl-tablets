@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
@@ -48,19 +49,16 @@
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-frontend-jaxws</artifactId>
 		</dependency>
-
 		<!-- RulesService -->
 		<dependency>
 			<groupId>org.openl.rules</groupId>
 			<artifactId>org.openl.rules.ruleservice.ws.logging</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.openl.rules</groupId>
 			<artifactId>org.openl.rules.ruleservice</artifactId>
 			<scope>provided</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.openl.rules</groupId>
 			<artifactId>org.openl.rules.ruleservice.ws.logging.cassandra.annotation</artifactId>
@@ -73,6 +71,10 @@
 		<dependency>
 			<groupId>com.datastax.cassandra</groupId>
 			<artifactId>cassandra-driver-mapping</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
 		</dependency>
 		<!-- OpenL -->
 		<dependency>
