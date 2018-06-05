@@ -19,16 +19,22 @@ import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
-import org.openl.rules.ruleservice.logging.CollectOpenLServiceIntercepror;
+import org.openl.rules.ruleservice.logging.CollectObjectSerializerInterceptor;
+import org.openl.rules.ruleservice.logging.CollectOpenLServiceInterceptor;
 import org.openl.rules.ruleservice.logging.CollectOperationResourceInfoInterceptor;
 import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
+import org.openl.rules.ruleservice.logging.ObjectSerializer;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSInterfaceEnhancerHelper;
+import org.openl.rules.ruleservice.publish.jaxrs.logging.JacksonObjectSerializer;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerStaticFieldsWorkaround;
 import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
 /**
  * DeploymentAdmin to expose services via HTTP using JAXRS.
@@ -47,7 +53,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     private boolean loggingStoreEnable = false;
     private ObjectFactory<? extends Feature> storeLoggingFeatureFactoryBean;
     private boolean swaggerPrettyPrint = false;
-    
+
     public ObjectFactory<? extends Feature> getStoreLoggingFeatureFactoryBean() {
         return storeLoggingFeatureFactoryBean;
     }
@@ -117,16 +123,19 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
             svrFactory.setAddress(url);
             if (isLoggingStoreEnable()) {
                 svrFactory.getFeatures().add(getStoreLoggingFeatureBean());
-                svrFactory.getInInterceptors().add(new CollectOpenLServiceIntercepror(service));
+                svrFactory.getInInterceptors().add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
+                svrFactory.getInInterceptors().add(new CollectOpenLServiceInterceptor(service));
                 svrFactory.getInInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
                 svrFactory.getInInterceptors().add(new CollectOperationResourceInfoInterceptor());
-                svrFactory.getInFaultInterceptors().add(new CollectOpenLServiceIntercepror(service));
+                svrFactory.getInFaultInterceptors().add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
+                svrFactory.getInFaultInterceptors().add(new CollectOpenLServiceInterceptor(service));
                 svrFactory.getInFaultInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
                 svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
             }
 
             Class<?> serviceClass = JAXRSInterfaceEnhancerHelper.decorateInterface(service.getServiceClass(), service);
-            Object target = JAXRSInterfaceEnhancerHelper.decorateBean(service.getServiceBean(), service, serviceClass, service.getServiceClass());
+            Object target = JAXRSInterfaceEnhancerHelper
+                .decorateBean(service.getServiceBean(), service, serviceClass, service.getServiceClass());
 
             svrFactory.setResourceClasses(serviceClass);
 
@@ -149,6 +158,16 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
+    }
+
+    private ObjectSerializer getObjectSeializer(JAXRSServerFactoryBean svrFactory) {
+        for (Object provider : svrFactory.getProviders()) {
+            if (provider instanceof JacksonJsonProvider) {
+                ObjectMapper objectMapper = ((JacksonJsonProvider) provider).locateMapper(null, null);
+                return new JacksonObjectSerializer(objectMapper);
+            }
+        }
+        return null;
     }
 
     private Swagger2Feature getSwagger2Feature(final OpenLService service, Class<?> serviceClass) {

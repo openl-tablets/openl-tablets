@@ -14,7 +14,7 @@ import org.openl.rules.project.model.RulesDeploy.PublisherType;
  * @author Marat Kamalov
  *
  */
-public class RuleServiceLoggingInfo {
+public class RuleServiceLogging {
     private LoggingMessage requestMessage;
     private LoggingMessage responseMessage;
 
@@ -31,6 +31,8 @@ public class RuleServiceLoggingInfo {
     private Method serviceMethod;
     
     private LoggingCustomData loggingCustomData;
+    
+    private ObjectSerializer objectSerializer;
     
     private Map<String, Object> context = new HashMap<String, Object>();
     
@@ -130,5 +132,13 @@ public class RuleServiceLoggingInfo {
     
     public void ignore(){
         this.ignorable = true;
+    }
+    
+    public ObjectSerializer getObjectSerializer() {
+        return objectSerializer;
+    }
+    
+    public void setObjectSerializer(ObjectSerializer objectSerializer) {
+        this.objectSerializer = objectSerializer;
     }
 }
