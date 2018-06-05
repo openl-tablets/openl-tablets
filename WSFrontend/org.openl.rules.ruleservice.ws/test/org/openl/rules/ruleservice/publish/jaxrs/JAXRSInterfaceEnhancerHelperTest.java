@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openl.rules.ruleservice.core.OpenLService;
 
 public class JAXRSInterfaceEnhancerHelperTest {
 
@@ -50,7 +51,7 @@ public class JAXRSInterfaceEnhancerHelperTest {
 
     @Test
     public void testNoAnnotationMethod() throws Exception {
-        Class<?> enchancedClass = JAXRSInterfaceEnhancerHelper.decorateInterface(TestInterface.class, null);
+        Class<?> enchancedClass = createService(TestInterface.class);
         boolean f = false;
         boolean producesAnnotationExists = false;
         boolean consumesAnnotationExists = false;
@@ -126,7 +127,7 @@ public class JAXRSInterfaceEnhancerHelperTest {
 
     @Test
     public void testMethodWithAnnotation() throws Exception {
-        Class<?> enchancedClass = JAXRSInterfaceEnhancerHelper.decorateInterface(TestAnnotatedInterface.class, null);
+        Class<?> enchancedClass = createService(TestAnnotatedInterface.class);
         boolean f = false;
         for (Annotation annotation : enchancedClass.getAnnotations()) {
             if (annotation.annotationType().equals(Path.class)) {
@@ -200,7 +201,7 @@ public class JAXRSInterfaceEnhancerHelperTest {
 
     @Test
     public void testParametersInMethod() throws Exception {
-        Class<?> enchancedClass = JAXRSInterfaceEnhancerHelper.decorateInterface(TestParameterInterface.class, null);
+        Class<?> enchancedClass = createService(TestParameterInterface.class);
         int i = 0;
         for (Method method : enchancedClass.getMethods()) {
             if ("someMethod".equals(method.getName())) {
@@ -238,7 +239,7 @@ public class JAXRSInterfaceEnhancerHelperTest {
 
     @Test
     public void testMethodNamesAndPath() throws Exception {
-        Class<?> enchancedClass = JAXRSInterfaceEnhancerHelper.decorateInterface(TestMethodNameAndPath.class, null);
+        Class<?> enchancedClass = createService(TestMethodNameAndPath.class);
         Method[] methods = enchancedClass.getMethods();
         Assert.assertEquals("Method is not found!", 3, methods.length);
 
@@ -265,5 +266,18 @@ public class JAXRSInterfaceEnhancerHelperTest {
             }
             Assert.assertEquals("Unexpected value in @Path annotation", path, ((Path)pathAnnotation).value());
         }
+    }
+
+    private static Class<?> createService(Class<?> clazz) throws Exception {
+        ClassLoader classLoader = new ClassLoader() {
+        };
+        OpenLService service = new OpenLService.OpenLServiceBuilder().setClassLoader(classLoader)
+            .setName("test")
+            .setServiceClass(clazz)
+            .build();
+        Object proxy = JAXRSInterfaceEnhancerHelper.decorateBean(new Object(), service, clazz);
+        Class<?> decoratedInterface = proxy.getClass().getInterfaces()[0];
+
+        return decoratedInterface;
     }
 }

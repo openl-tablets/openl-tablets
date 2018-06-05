@@ -352,6 +352,7 @@ public final class OpenLService {
         private String url;
         private String serviceClassName;
         private String rmiServiceClassName;
+        private Class<?> serviceClass;
         private boolean provideRuntimeContext = false;
         private boolean provideVariations = false;
         private Collection<Module> modules;
@@ -506,6 +507,11 @@ public final class OpenLService {
             return this;
         }
 
+        public OpenLServiceBuilder setServiceClass(Class<?> serviceClass) {
+            this.serviceClass = serviceClass;
+            return this;
+        }
+
         /**
          * Builds OpenLService.
          * 
@@ -515,7 +521,9 @@ public final class OpenLService {
             if (name == null) {
                 throw new IllegalStateException("Field 'name' is required for building ServiceDescription.");
             }
-            return new OpenLService(this);
+            OpenLService openLService = new OpenLService(this);
+            openLService.setServiceClass(serviceClass);
+            return openLService;
         }
     }
 }
