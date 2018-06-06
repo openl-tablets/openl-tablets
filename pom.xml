@@ -1164,7 +1164,13 @@
                 <version>3.0.7</version>
             </dependency>
             <dependency>
-                <groupId>dom4j</groupId>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <!-- 19.0 is compatible with Swagger and Cassandra -->
+                <version>19.0</version>
+            </dependency>
+            <dependency>
+            <groupId>dom4j</groupId>
                 <artifactId>dom4j</artifactId>
                 <version>1.6.1</version>
                 <!-- Doesn't required for JAVA 1.6 -->

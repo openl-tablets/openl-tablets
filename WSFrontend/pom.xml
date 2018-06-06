@@ -1,40 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.openl.rules</groupId>
-		<artifactId>openl-tablets</artifactId>
-		<version>5.22.0-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
-	<artifactId>org.openl.rules.ruleservice-pom</artifactId>
-	<packaging>pom</packaging>
-	<name>OpenL - RuleService</name>
-	<description>Rules Service Pom Project</description>
-	<modules>
-		<module>org.openl.rules.ruleservice.annotation</module>
-		<module>org.openl.rules.ruleservice</module>
-		<module>org.openl.rules.ruleservice.activiti</module>
-		<module>org.openl.rules.ruleservice.rmi.frontend</module>
-		<module>org.openl.rules.ruleservice.rmi</module>
-		<module>org.openl.rules.ruleservice.ws.databinding</module>
-		<module>org.openl.rules.ruleservice.ws.logging</module>
-		<module>org.openl.rules.ruleservice.ws.logging.cassandra.annotation</module>
-		<module>org.openl.rules.ruleservice.ws.logging.cassandra</module>
-		<module>org.openl.rules.ruleservice.ws.logging.elasticsearch.annotation</module>
-		<module>org.openl.rules.ruleservice.ws.logging.elasticsearch</module>
-		<module>org.openl.rules.ruleservice.ws</module>
-	</modules>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>com.google.guava</groupId>
-				<artifactId>guava</artifactId>
-				<version>19.0</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>openl-tablets</artifactId>
+        <version>5.22.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>org.openl.rules.ruleservice-pom</artifactId>
+    <packaging>pom</packaging>
+    <name>OpenL - RuleService</name>
+    <description>Rules Service Pom Project</description>
+    <modules>
+        <module>org.openl.rules.ruleservice.annotation</module>
+        <module>org.openl.rules.ruleservice</module>
+        <module>org.openl.rules.ruleservice.activiti</module>
+        <module>org.openl.rules.ruleservice.rmi.frontend</module>
+        <module>org.openl.rules.ruleservice.rmi</module>
+        <module>org.openl.rules.ruleservice.ws.databinding</module>
+        <module>org.openl.rules.ruleservice.ws.logging</module>
+        <module>org.openl.rules.ruleservice.ws.logging.cassandra.annotation</module>
+        <module>org.openl.rules.ruleservice.ws.logging.cassandra</module>
+        <module>org.openl.rules.ruleservice.ws.logging.elasticsearch.annotation</module>
+        <module>org.openl.rules.ruleservice.ws.logging.elasticsearch</module>
+        <module>org.openl.rules.ruleservice.ws</module>
+    </modules>
 </project>
