@@ -126,7 +126,7 @@ public class JAXRSInterfaceEnhancerHelper {
 
         String getRequestParameterName(Method method) {
             if (methodRequests == null) {
-                methodRequests = new HashMap<Method, String>();
+                methodRequests = new HashMap<>();
                 List<Method> methods = MethodUtil.sort(Arrays.asList(originalClass.getMethods()));
 
                 for (Method m : methods) {
@@ -134,7 +134,7 @@ public class JAXRSInterfaceEnhancerHelper {
                     String s = name;
                     int i = 1;
                     while (methodRequests.values().contains(s)) {
-                        s = name + "Request" + i;
+                        s = name + i;
                         i++;
                     }
                     methodRequests.put(m, s);
