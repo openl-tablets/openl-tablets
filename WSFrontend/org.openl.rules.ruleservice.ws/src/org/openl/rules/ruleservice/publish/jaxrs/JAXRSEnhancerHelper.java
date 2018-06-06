@@ -134,7 +134,7 @@ public class JAXRSEnhancerHelper {
                     String s = name;
                     int i = 1;
                     while (methodRequests.values().contains(s)) {
-                        s = name + "Request" + i;
+                        s = name + i;
                         i++;
                     }
                     methodRequests.put(m, s);
