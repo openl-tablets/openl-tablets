@@ -29,7 +29,7 @@
                         </goals>
                     </execution>
                 </executions>
-                  <configuration>
+                <configuration>
                     <checkCompileClasspath>false</checkCompileClasspath>
                     <checkRuntimeClasspath>true</checkRuntimeClasspath>
                     <checkTestClasspath>false</checkTestClasspath>
@@ -42,8 +42,8 @@
                         </dependency>
                     </ignoredDependencies>
                     <exceptions>
-                    	<exception>
-                    	    <conflictingDependencies>
+                        <exception>
+                            <conflictingDependencies>
                                 <dependency>
                                     <groupId>xmlpull</groupId>
                                     <artifactId>xmlpull</artifactId>
@@ -53,11 +53,11 @@
                                     <artifactId>xpp3_min</artifactId>
                                 </dependency>
                             </conflictingDependencies>
-                    		<classes>
-                    			<class>org.xmlpull.v1.XmlPullParser</class>
-                    			<class>org.xmlpull.v1.XmlPullParserException</class>
-                    		</classes>
-                    	</exception>
+                            <classes>
+                                <class>org.xmlpull.v1.XmlPullParser</class>
+                                <class>org.xmlpull.v1.XmlPullParserException</class>
+                            </classes>
+                        </exception>
                     </exceptions>
                     <ignoredResourcePatterns>
                         <ignoredResourcePattern>org/apache/cxf/endpoint/dynamic/simple-binding.xjb</ignoredResourcePattern>
@@ -67,7 +67,7 @@
                     </ignoredResourcePatterns>
                 </configuration>
             </plugin>
-        
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -137,10 +137,6 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice.ws.logging</artifactId>
         </dependency>
-        <!-- <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.ruleservice.ws.logging.cassandra</artifactId>
-        </dependency> -->
         <!-- Other -->
         <dependency>
             <groupId>org.apache.cxf</groupId>

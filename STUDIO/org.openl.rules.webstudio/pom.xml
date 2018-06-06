@@ -304,4 +304,14 @@
             <scope>runtime</scope>
         </dependency>
     </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <!-- r08 is required for richfaces -->
+                <version>r08</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>
