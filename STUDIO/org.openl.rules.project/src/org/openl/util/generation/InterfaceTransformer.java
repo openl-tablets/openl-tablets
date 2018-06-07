@@ -108,18 +108,15 @@ public class InterfaceTransformer {
                         true);
                     processAnnotation(annotation, av);
                 }
-                if (processParamAnnotation){
-                    if (method.getParameterAnnotations().length > 0) {
-                        int index = 0;
-                        for (Annotation[] annotatons : method.getParameterAnnotations()) {
-                            for (int j = 0; j < annotatons.length; j++) {
-                                AnnotationVisitor av = methodVisitor.visitParameterAnnotation(index,
-                                    Type.getDescriptor(annotatons[j].annotationType()),
-                                    true);
-                                processAnnotation(annotatons[j], av);
-                            }
-                            index++;
+                if (processParamAnnotation) {
+                    int index = 0;
+                    for (Annotation[] annotatons : method.getParameterAnnotations()) {
+                        for (Annotation annotaton : annotatons) {
+                            String descriptor = Type.getDescriptor(annotaton.annotationType());
+                            AnnotationVisitor av = methodVisitor.visitParameterAnnotation(index, descriptor, true);
+                            processAnnotation(annotaton, av);
                         }
+                        index++;
                     }
                 }
             }
