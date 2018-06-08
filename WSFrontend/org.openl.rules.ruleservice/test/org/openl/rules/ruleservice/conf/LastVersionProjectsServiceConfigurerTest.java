@@ -48,4 +48,26 @@ public class LastVersionProjectsServiceConfigurerTest {
         assertTrue(serviceNames.contains(PROJECT_NAME));
     }
 
+    @Test
+    public void shouldConfigureDeployments_whenDeploymentMatcherIsSet() {
+        LastVersionProjectsServiceConfigurer configurer = new LastVersionProjectsServiceConfigurer();
+        configurer.setRuleNameFilteringPatterns("*Projects*");
+        Collection<ServiceDescription> servicesToBeDeployed = configurer.getServicesToBeDeployed(rulesLoader);
+        assertEquals(2, servicesToBeDeployed.size());
+        Set<String> serviceNames = new HashSet<String>();
+        for (ServiceDescription description : servicesToBeDeployed) {
+            serviceNames.add(description.getName());
+        }
+        assertEquals(serviceNames.size(), servicesToBeDeployed.size());
+        assertTrue(serviceNames.contains(PROJECT_NAME));
+    }
+
+    @Test
+    public void shouldNotMatchAnyDeployments_whenDeploymentMatcherIsSet() {
+        LastVersionProjectsServiceConfigurer configurer = new LastVersionProjectsServiceConfigurer();
+        configurer.setRuleNameFilteringPatterns("Test*");
+        Collection<ServiceDescription> servicesToBeDeployed = configurer.getServicesToBeDeployed(rulesLoader);
+        assertEquals(0, servicesToBeDeployed.size());
+    }
+
 }
