@@ -354,8 +354,8 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         this.filterDeployments = filterDeployments;
     }
 
-    public void setRuleNameFilteringPatterns(String namePatterns) {
-        this.deploymentMatcher = new DeploymentNameMatcher(namePatterns);
+    public void setDatasourceDeploymentPatterns(String deploymentPatterns) {
+        this.deploymentMatcher = new DeploymentNameMatcher(deploymentPatterns);
     }
 
 }

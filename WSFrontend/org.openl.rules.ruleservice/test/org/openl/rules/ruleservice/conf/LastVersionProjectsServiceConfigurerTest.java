@@ -51,7 +51,7 @@ public class LastVersionProjectsServiceConfigurerTest {
     @Test
     public void shouldConfigureDeployments_whenDeploymentMatcherIsSet() {
         LastVersionProjectsServiceConfigurer configurer = new LastVersionProjectsServiceConfigurer();
-        configurer.setRuleNameFilteringPatterns("*Projects*");
+        configurer.setDatasourceDeploymentPatterns("*Projects*");
         Collection<ServiceDescription> servicesToBeDeployed = configurer.getServicesToBeDeployed(rulesLoader);
         assertEquals(2, servicesToBeDeployed.size());
         Set<String> serviceNames = new HashSet<String>();
@@ -65,7 +65,7 @@ public class LastVersionProjectsServiceConfigurerTest {
     @Test
     public void shouldNotMatchAnyDeployments_whenDeploymentMatcherIsSet() {
         LastVersionProjectsServiceConfigurer configurer = new LastVersionProjectsServiceConfigurer();
-        configurer.setRuleNameFilteringPatterns("Test*");
+        configurer.setDatasourceDeploymentPatterns("Test*");
         Collection<ServiceDescription> servicesToBeDeployed = configurer.getServicesToBeDeployed(rulesLoader);
         assertEquals(0, servicesToBeDeployed.size());
     }

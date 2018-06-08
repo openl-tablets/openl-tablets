@@ -9,6 +9,6 @@
 		<property name="supportVariations" value="${ruleservice.isSupportVariations}" />
 		<property name="supportedGroups" value="${ruleservice.datasource.groups}"/>
 		<property name="filterDeployments" value="${version-in-deployment-name}"/>
-		<property name="ruleNameFilteringPatterns" value="${ruleservice.deployment.ruleNamePatterns}"/>
+		<property name="datasourceDeploymentPatterns" value="${ruleservice.datasource.deployments}"/>
 	</bean>
 </beans>
