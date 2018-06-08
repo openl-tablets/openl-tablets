@@ -45,6 +45,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
     private boolean useRuleServiceRuntimeContext = false;
     private String supportedGroups = null;
     private boolean filterDeployments = false;
+    private DeploymentNameMatcher deploymentMatcher = DeploymentNameMatcher.DEFAULT;
 
     private Collection<Deployment> filterDeployments(Collection<Deployment> deployments) {
         if (!filterDeployments) {
@@ -139,6 +140,9 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         Collection<ServiceDescription> serviceDescriptions = new HashSet<ServiceDescription>();
         Set<String> serviceURLs = new HashSet<String>();
         for (Deployment deployment : deployments) {
+            if (!deploymentMatcher.hasMatches(deployment.getDeploymentName())) {
+                continue;
+            }
             String deploymentName = deployment.getDeploymentName();
             CommonVersion deploymentVersion = deployment.getCommonVersion();
             DeploymentDescription deploymentDescription = new DeploymentDescription(deploymentName, deploymentVersion);
@@ -363,4 +367,9 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
     public void setFilterDeployments(boolean filterDeployments) {
         this.filterDeployments = filterDeployments;
     }
+
+    public void setRuleNameFilteringPatterns(String namePatterns) {
+        this.deploymentMatcher = new DeploymentNameMatcher(namePatterns);
+    }
+
 }
