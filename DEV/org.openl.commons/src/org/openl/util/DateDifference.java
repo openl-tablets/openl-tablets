@@ -29,7 +29,7 @@ public class DateDifference {
      * @return positive integer if endDate is greater than startDate, in other
      *         case the result will be negative.
      */
-    public static int getDifferenceInDays(Date endDate, Date startDate) {
+    public static Integer getDifferenceInDays(Date endDate, Date startDate) {
         return getDateDiff(Calendar.DATE, endDate, startDate);
     }
 
@@ -41,7 +41,7 @@ public class DateDifference {
      * @return positive integer if endDate is greater than startDate, in other
      *         case the result will be negative.
      */
-    public static int getDifferenceInWeeks(Date endDate, Date startDate) {
+    public static Integer getDifferenceInWeeks(Date endDate, Date startDate) {
         return getDateDiff(Calendar.WEEK_OF_YEAR, endDate, startDate);
     }
 
@@ -53,7 +53,7 @@ public class DateDifference {
      * @return positive integer if endDate is greater than startDate, in other
      *         case the result will be negative.
      */
-    public static int getDifferenceInMonths(Date endDate, Date startDate) {
+    public static Integer getDifferenceInMonths(Date endDate, Date startDate) {
         return getDateDiff(Calendar.MONTH, endDate, startDate);
     }
 
@@ -65,13 +65,16 @@ public class DateDifference {
      * @return positive integer if endDate is greater than startDate, in other
      *         case the result will be negative.
      */
-    public static int getDifferenceInYears(Date endDate, Date startDate) {
+    public static Integer getDifferenceInYears(Date endDate, Date startDate) {
         return getDateDiff(Calendar.YEAR, endDate, startDate);
     }
 
-    private static int getDateDiff(int calUnit, Date endDate, Date startDate) {
-        if (endDate == null || startDate == null) {
+    private static Integer getDateDiff(int calUnit, Date endDate, Date startDate) {
+        if (startDate == null && endDate == null) {
             return 0;
+        }
+        if (endDate == null || startDate == null) {
+            return null;
         }
         // swap if startDate later than endDate
         boolean neg = false;

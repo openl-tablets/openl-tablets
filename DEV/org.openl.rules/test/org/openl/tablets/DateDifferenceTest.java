@@ -68,9 +68,9 @@ public class DateDifferenceTest {
         
         Date endDate = getDate(dateFormat, "02/08/2010");
         
-        int oldRes = DateTool.monthDiff(endDate, startDate);
-        
-        int newRes = DateDifference.getDifferenceInMonths(endDate, startDate);
+        Integer oldRes = DateTool.monthDiff(endDate, startDate);
+
+        Integer newRes = DateDifference.getDifferenceInMonths(endDate, startDate);
         
         assertEquals(oldRes, newRes);
     }
@@ -86,7 +86,7 @@ public class DateDifferenceTest {
         
         Date endDate = getDate(dateFormat, "02/08/2010");
         
-        assertEquals(40, DateDifference.getDifferenceInYears(endDate, startDate));
+        assertEquals(new Integer(40), DateDifference.getDifferenceInYears(endDate, startDate));
     }
     
     @Test
@@ -95,7 +95,7 @@ public class DateDifferenceTest {
         
         Date endDate = getDate(dateFormat, "01/01/1972");
         
-        assertEquals(0, DateDifference.getDifferenceInYears(endDate, startDate));
+        assertEquals(new Integer(0), DateDifference.getDifferenceInYears(endDate, startDate));
     }
     
     @Test
@@ -104,7 +104,7 @@ public class DateDifferenceTest {
         
         Date endDate = getDate(dateFormat, "01/01/1903");
         
-        assertEquals(-4, DateDifference.getDifferenceInYears(endDate, startDate));
+        assertEquals(new Integer(-4), DateDifference.getDifferenceInYears(endDate, startDate));
     }
     
     @Test
@@ -113,7 +113,7 @@ public class DateDifferenceTest {
         
         Date endDate = getDate(dateFormat, "01/01/1972");
         
-        assertEquals(1, DateDifference.getDifferenceInDays(endDate, startDate));
+        assertEquals(new Integer(1), DateDifference.getDifferenceInDays(endDate, startDate));
     }
     
     @Test
@@ -122,7 +122,7 @@ public class DateDifferenceTest {
         
         Date endDate = getDate(dateFormatWithHours, "01/01/1972 00:00");
         
-        assertEquals(0, DateDifference.getDifferenceInDays(endDate, startDate));
+        assertEquals(new Integer(0), DateDifference.getDifferenceInDays(endDate, startDate));
     }
     
     @Test
@@ -131,7 +131,7 @@ public class DateDifferenceTest {
         
         Date endDate = getDate(dateFormatWithHours, "01/01/1972 00:00");
         
-        assertEquals(0, DateDifference.getDifferenceInDays(endDate, startDate));
+        assertEquals(new Integer(0), DateDifference.getDifferenceInDays(endDate, startDate));
     }
     
     @Test
@@ -140,7 +140,7 @@ public class DateDifferenceTest {
         
         Date endDate = getDate(dateFormat, "25/08/1970");
         
-        assertEquals(7, DateDifference.getDifferenceInMonths(endDate, startDate));
+        assertEquals(new Integer(7), DateDifference.getDifferenceInMonths(endDate, startDate));
     }
     
     @Test
@@ -149,7 +149,7 @@ public class DateDifferenceTest {
         
         Date endDate = getDate(dateFormat, "25/08/1970");
         
-        assertEquals(7, DateDifference.getDifferenceInMonths(endDate, startDate));
+        assertEquals(new Integer(7), DateDifference.getDifferenceInMonths(endDate, startDate));
     }
     
     private Date getDate(String format, String stringDate) {

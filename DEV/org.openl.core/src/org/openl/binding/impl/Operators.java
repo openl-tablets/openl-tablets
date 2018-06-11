@@ -941,7 +941,7 @@ public class Operators {
         return x.remainder(y);
     }
 
-    public static int subtract(Date d1, Date d2) {
+    public static Integer subtract(Date d1, Date d2) {
         return DateDifference.getDifferenceInDays(d1, d2);
     }
 
