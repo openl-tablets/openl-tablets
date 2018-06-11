@@ -2215,19 +2215,19 @@ public class RulesUtils {
         return df.parse(s).doubleValue();
     }
 
-    public static int absMonth(Date d) {
+    public static Integer absMonth(Date d) {
         return DateTool.absMonth(d);
     }
 
-    public static int absQuarter(Date d) {
+    public static Integer absQuarter(Date d) {
         return DateTool.absQuarter(d);
     }
 
-    public static int dayDiff(Date d1, Date d2) {
+    public static Integer dayDiff(Date d1, Date d2) {
         return DateTool.dayDiff(d1, d2);
     }
 
-    public static int dayOfMonth(Date d) {
+    public static Integer dayOfMonth(Date d) {
         return DateTool.dayOfMonth(d);
     }
 
@@ -2239,55 +2239,55 @@ public class RulesUtils {
         return DateTool.lastDateOfQuarter(absQuarter);
     }
 
-    public static int lastDayOfMonth(Date d) {
+    public static Integer lastDayOfMonth(Date d) {
         return DateTool.lastDayOfMonth(d);
     }
 
-    public static int month(Date d) {
+    public static Integer month(Date d) {
         return DateTool.month(d);
     }
 
-    public static int monthDiff(Date d1, Date d2) {
+    public static Integer monthDiff(Date d1, Date d2) {
         return DateTool.monthDiff(d1, d2);
     }
 
-    public static int yearDiff(Date d1, Date d2) {
+    public static Integer yearDiff(Date d1, Date d2) {
         return DateTool.yearDiff(d1, d2);
     }
 
-    public static int weekDiff(Date d1, Date d2) {
+    public static Integer weekDiff(Date d1, Date d2) {
         return DateTool.weekDiff(d1, d2);
     }
 
-    public static int quarter(Date d) {
+    public static Integer quarter(Date d) {
         return DateTool.quarter(d);
     }
 
-    public static int year(Date d) {
+    public static Integer year(Date d) {
         return DateTool.year(d);
     }
 
-    public static int dayOfWeek(Date d) {
+    public static Integer dayOfWeek(Date d) {
         return DateTool.dayOfWeek(d);
     }
 
-    public static int dayOfYear(Date d) {
+    public static Integer dayOfYear(Date d) {
         return DateTool.dayOfYear(d);
     }
 
-    public static int weekOfYear(Date d) {
+    public static Integer weekOfYear(Date d) {
         return DateTool.weekOfYear(d);
     }
 
-    public static int weekOfMonth(Date d) {
+    public static Integer weekOfMonth(Date d) {
         return DateTool.weekOfMonth(d);
     }
 
-    public static int second(Date d) {
+    public static Integer second(Date d) {
         return DateTool.second(d);
     }
 
-    public static int minute(Date d) {
+    public static Integer minute(Date d) {
         return DateTool.minute(d);
     }
 
@@ -2295,7 +2295,7 @@ public class RulesUtils {
      * @param d Date
      * @return hour from 0 to 12
      */
-    public static int hour(Date d) {
+    public static Integer hour(Date d) {
         return DateTool.hour(d);
     }
 
@@ -2303,7 +2303,7 @@ public class RulesUtils {
      * @param d Date
      * @return hour from 0 to 24
      */
-    public static int hourOfDay(Date d) {
+    public static Integer hourOfDay(Date d) {
         return DateTool.hourOfDay(d);
     }
 

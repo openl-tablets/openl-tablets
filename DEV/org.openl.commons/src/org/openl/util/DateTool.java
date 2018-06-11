@@ -14,43 +14,64 @@ public class DateTool {
 
     public static final int MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
 
-    public static int absMonth(Date d) {
-        return year(d) * MONTHS_IN_YEAR + month(d);
+    public static Integer absMonth(Date d) {
+        if (d == null) {
+            return null;
+        }
+        return getYear(d) * MONTHS_IN_YEAR + getMonth(d);
     }
 
-    public static int absQuarter(Date d) {
-        return year(d) * QUARTERS_IN_YEAR + quarter(d);
+    public static Integer absQuarter(Date d) {
+        if (d == null) {
+            return null;
+        }
+        return getYear(d) * QUARTERS_IN_YEAR + getQuarter(d);
     }
 
-    public static int dayDiff(Date endDate, Date startDate) {
+    public static Integer dayDiff(Date endDate, Date startDate) {
         return DateDifference.getDifferenceInDays(endDate, startDate);
     }
 
-    public static int dayOfWeek(Date d) {
+    public static Integer dayOfWeek(Date d) {
+        if (d == null) {
+            return null;
+        }
         Calendar c = Calendar.getInstance();
         c.setTime(d);
         return c.get(Calendar.DAY_OF_WEEK);
     }
 
-    public static int dayOfMonth(Date d) {
+    public static Integer dayOfMonth(Date d) {
+        if (d == null) {
+            return null;
+        }
         Calendar c = Calendar.getInstance();
         c.setTime(d);
         return c.get(Calendar.DAY_OF_MONTH);
     }
 
-    public static int dayOfYear(Date d) {
+    public static Integer dayOfYear(Date d) {
+        if (d == null) {
+            return null;
+        }
         Calendar c = Calendar.getInstance();
         c.setTime(d);
         return c.get(Calendar.DAY_OF_YEAR);
     }
 
-    public static int weekOfMonth(Date d) {
+    public static Integer weekOfMonth(Date d) {
+        if (d == null) {
+            return null;
+        }
         Calendar c = Calendar.getInstance();
         c.setTime(d);
         return c.get(Calendar.WEEK_OF_MONTH);
     }
 
-    public static int weekOfYear(Date d) {
+    public static Integer weekOfYear(Date d) {
+        if (d == null) {
+            return null;
+        }
         Calendar c = Calendar.getInstance();
         c.setTime(d);
         return c.get(Calendar.WEEK_OF_YEAR);
@@ -69,41 +90,61 @@ public class DateTool {
         c.set(Calendar.MILLISECOND, 0);
         c.set(absQuarter / QUARTERS_IN_YEAR, (absQuarter % QUARTERS_IN_YEAR) * MONTHS_IN_QUARTER + 2, 1, 0, 0, 0);
 
-        int lastDay = lastDayOfMonth(c.getTime());
+        int lastDay = getLastDayOfMonth(c.getTime());
 
         c.set(Calendar.DAY_OF_MONTH, lastDay);
         return c.getTime();
     }
 
-    public static int lastDayOfMonth(Date d) {
+    public static Integer lastDayOfMonth(Date d) {
+        if (d == null) {
+            return null;
+        }
+        return getLastDayOfMonth(d);
+    }
+
+    private static int getLastDayOfMonth(Date d) {
         Calendar c = Calendar.getInstance();
         c.setTime(d);
         return c.getActualMaximum(Calendar.DAY_OF_MONTH);
     }
 
-    public static int monthDiff(Date endDate, Date startDate) {
+    public static Integer monthDiff(Date endDate, Date startDate) {
         return DateDifference.getDifferenceInMonths(endDate, startDate);
     }
 
-    public static int yearDiff(Date endDate, Date startDate) {
+    public static Integer yearDiff(Date endDate, Date startDate) {
         return DateDifference.getDifferenceInYears(endDate, startDate);
     }
 
-    public static int weekDiff(Date endDate, Date startDate) {
+    public static Integer weekDiff(Date endDate, Date startDate) {
         return DateDifference.getDifferenceInWeeks(endDate, startDate);
     }
 
-    public static int quarter(Date d) {
-        return month(d) / 3;
+    public static Integer quarter(Date d) {
+        if (d == null) {
+            return null;
+        }
+        return getQuarter(d);
     }
 
-    public static int second(Date d) {
+    private static int getQuarter(Date d) {
+        return getMonth(d) / 3;
+    }
+
+    public static Integer second(Date d) {
+        if (d == null) {
+            return null;
+        }
         Calendar c = Calendar.getInstance();
         c.setTime(d);
         return c.get(Calendar.SECOND);
     }
 
-    public static int minute(Date d) {
+    public static Integer minute(Date d) {
+        if (d == null) {
+            return null;
+        }
         Calendar c = Calendar.getInstance();
         c.setTime(d);
         return c.get(Calendar.MINUTE);
@@ -113,7 +154,10 @@ public class DateTool {
      * @param d Date
      * @return hour from 0 to 12
      */
-    public static int hour(Date d) {
+    public static Integer hour(Date d) {
+        if (d == null) {
+            return null;
+        }
         Calendar c = Calendar.getInstance();
         c.setTime(d);
         return c.get(Calendar.HOUR);
@@ -123,25 +167,45 @@ public class DateTool {
      * @param d Date
      * @return hour from 0 to 24
      */
-    public static int hourOfDay(Date d) {
+    public static Integer hourOfDay(Date d) {
+        if (d == null) {
+            return null;
+        }
         Calendar c = Calendar.getInstance();
         c.setTime(d);
         return c.get(Calendar.HOUR_OF_DAY);
     }
 
-    public static int month(Date d) {
+    public static Integer month(Date d) {
+        if (d == null) {
+            return null;
+        }
+        return getMonth(d);
+    }
+
+    private static int getMonth(Date d) {
         Calendar c = Calendar.getInstance();
         c.setTime(d);
         return c.get(Calendar.MONTH);
     }
 
-    public static int year(Date d) {
+    public static Integer year(Date d) {
+        if (d == null) {
+            return null;
+        }
+        return getYear(d);
+    }
+
+    private static int getYear(Date d) {
         Calendar c = Calendar.getInstance();
         c.setTime(d);
         return c.get(Calendar.YEAR);
     }
 
     public static String amPm(Date d) {
+        if (d == null) {
+            return null;
+        }
         Calendar c = Calendar.getInstance();
         c.setTime(d);
 
@@ -160,6 +224,9 @@ public class DateTool {
      * @return String date format
      */
     public static String dateToString(Date date, String dateFormat) throws Exception {
+        if (date == null) {
+            return null;
+        }
         DateFormat df = dateFormat == null ? DateFormat.getDateInstance(DateFormat.SHORT) : new SimpleDateFormat(dateFormat);
         return df.format(date);
     }
