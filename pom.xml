@@ -310,7 +310,7 @@
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-maven-plugin</artifactId>
                     <!-- Java 7 -->
-                    <version>9.2.24.v20180105</version>
+                    <version>9.2.25.v20180606</version>
                     <configuration>
                         <httpConnector>
                             <!-- To be compatible with Jetty 9.4 -->
