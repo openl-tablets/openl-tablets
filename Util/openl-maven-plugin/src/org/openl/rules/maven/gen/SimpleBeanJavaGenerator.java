@@ -19,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 public class SimpleBeanJavaGenerator extends JavaGenerator {
 
@@ -97,7 +99,8 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         addImport(buf, "javax.xml.bind.annotation.XmlRootElement");
         addImport(buf, "javax.xml.bind.annotation.XmlType");
 
-        String packageName = ClassUtils.getPackageName(getClassForGeneration());
+        Class<?> clazz = getClassForGeneration();
+        String packageName = ClassUtils.getPackageName(clazz);
 
         String[] packageParts = packageName.split("\\.");
         StringBuilder namespace = new StringBuilder("http://");
@@ -108,8 +111,20 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
             }
         }
 
-        buf.append("\n@XmlRootElement(namespace=\"").append(namespace.toString()).append("\")");
-        buf.append("\n@XmlType(namespace=\"").append(namespace.toString()).append("\")");
+        XmlRootElement rootEl = clazz.getAnnotation(XmlRootElement.class);
+        if (rootEl != null) {
+            buf.append("\n@XmlRootElement(");
+            appendNotDefault(buf, "namespace", rootEl.namespace(), "##default");
+            appendNotDefault(buf, "name", rootEl.name(), "##default");
+            buf.append(")");
+        }
+        XmlType type = clazz.getAnnotation(XmlType.class);
+        if (type != null) {
+            buf.append("\n@XmlType(");
+            appendNotDefault(buf, "namespace", type.namespace(), "##default");
+            appendNotDefault(buf, "name", type.name(), "##default");
+            buf.append(")");
+        }
     }
 
     public String generateJavaClass() {
@@ -154,14 +169,10 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
                 if (getterExists(method, datatypeAllFields.keySet())) {
                     XmlElement annotation = method.getAnnotation(XmlElement.class);
                     if (annotation != null) {
-                        buf.append("\n  @XmlElement(name=\"").append(annotation.name()).append('"');
-                        if (annotation.nillable()) {
-                            buf.append(", nillable=true");
-                        }
-                        String defaultValue = annotation.defaultValue();
-                        if (!"\u0000".equals(defaultValue)) {
-                            buf.append(", defaultValue=\"").append(defaultValue).append('"');
-                        }
+                        buf.append("\n  @XmlElement(");
+                        appendNotDefault(buf, "name", annotation.name(), "##default");
+                        appendNotDefault(buf, "nillable", annotation.nillable(), false);
+                        appendNotDefault(buf, "defaultValue", annotation.defaultValue(), "\u0000");
                         buf.append(")");
                     }
                     addGetter(buf, method, datatypeAllFields.keySet());
@@ -180,6 +191,23 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         }
     }
 
+    private void appendNotDefault(StringBuilder buf, String name, Object value, Object defValue) {
+        if (value != null && !value.equals(defValue) ) {
+            if (buf.charAt(buf.length() - 1) != '(') {
+                buf.append(", ");
+            }
+            buf.append(name).append('=');
+            boolean isString = value instanceof String;
+            if (isString) {
+                buf.append('"');
+            }
+            buf.append(value);
+            if (isString) {
+                buf.append('"');
+            }
+        }
+
+    }
     private void addConstructors(StringBuilder buf) {
         /** Write default constructor */
         buf.append(JavaClassGeneratorHelper.getDefaultConstructor(getClassForGeneration().getSimpleName()));
