@@ -55,6 +55,12 @@ public final class TestMojo extends BaseOpenLMojo {
     private File testSourceDirectory;
 
     /**
+     * Base directory where all reports are written to. Reports are surefire format compatible.
+     */
+    @Parameter(defaultValue = "${project.build.directory}/openl-test-reports")
+    private File reportsDirectory;
+
+    /**
      * Thread count to run test cases. The parameter is as follows:
      * <ul>
      *     <li>4 - Runs tests with 4 threads</li>
@@ -294,6 +300,7 @@ public final class TestMojo extends BaseOpenLMojo {
                     } else {
                         result = new TestSuite(test).invokeParallel(testSuiteExecutor, openClass, 1L);
                     }
+                    new JUnitReportWriter(reportsDirectory).write(result);
 
                     int suitTests = result.getNumberOfTestUnits();
                     int suitFailures = result.getNumberOfAssertionFailures();
