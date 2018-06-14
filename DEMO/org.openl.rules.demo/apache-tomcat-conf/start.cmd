@@ -127,19 +127,28 @@ set _MEMORY=%_MEMORY:~0,-9%
 
 %if not defined _JAVA_MEMORY (
 @rem default memory settings
-@set _JAVA_MEMORY=-Xms512m -Xmx2g
+@set _JAVA_MEMORY=-Xms256m -Xmx512m
+
+@rem 2GiB
+@if %_MEMORY% GEQ 2 set _JAVA_MEMORY=-Xms512m -Xmx1024m
+
+@rem 3GiB
+@if %_MEMORY% GEQ 3 set _JAVA_MEMORY=-Xms768m -Xmx1536m
 
 @rem 4GiB
-@if %_MEMORY% GEQ 4 set _JAVA_MEMORY=-Xms2g -Xmx3g
+@if %_MEMORY% GEQ 4 set _JAVA_MEMORY=-Xms1g -Xmx2g
 
 @rem 6GiB
-@if %_MEMORY% GEQ 6 set _JAVA_MEMORY=-Xms3g -Xmx5g
+@if %_MEMORY% GEQ 6 set _JAVA_MEMORY=-Xms2g -Xmx4g
 
 @rem 8GiB
-@if %_MEMORY% GEQ 8 set _JAVA_MEMORY=-Xms4g -Xmx7g
+@if %_MEMORY% GEQ 8 set _JAVA_MEMORY=-Xms4g -Xmx6g
 
 @rem 12GiB
-@if %_MEMORY% GEQ 12 set _JAVA_MEMORY=-Xms8g -Xmx10g
+@if %_MEMORY% GEQ 12 set _JAVA_MEMORY=-Xms4g -Xmx10g
+
+@rem 16GiB
+@if %_MEMORY% GEQ 16 set _JAVA_MEMORY=-Xms4g -Xmx12g
 
 @rem reset to safe settings for 32bit
 @pushd "%_JRE_HOME%"
