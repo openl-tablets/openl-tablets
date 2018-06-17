@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.BindHelper;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.datatype.binding.TopologicalSort.TopoGraphNode;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -17,17 +16,17 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 
-/**
- * Created by dl on 6/13/14.
- */
-public class DatatypesSorter {
+public final class DatatypesSorter {
 
-    public TableSyntaxNode[] sort(TableSyntaxNode[] datatypeNodes, IBindingContext bindingContext) {
+    private DatatypesSorter() {
+    }
+    
+    public static TableSyntaxNode[] sort(TableSyntaxNode[] datatypeNodes, IBindingContext bindingContext) {
         if (datatypeNodes == null) {
             return null;
         }
 
-        Map<String, TableSyntaxNode> datatypes = createTypesMap(datatypeNodes);
+        Map<String, TableSyntaxNode> datatypes = createTypesMap(bindingContext, datatypeNodes);
 
         List<TopoGraphNode<TableSyntaxNode>> nodes = wrapAll(datatypes, bindingContext);
         Set<TopoGraphNode<TableSyntaxNode>> sorted = new TopologicalSort<TableSyntaxNode>().sort(nodes);
@@ -36,7 +35,7 @@ public class DatatypesSorter {
         return tableSyntaxNodes;
     }
 
-    private List<TopoGraphNode<TableSyntaxNode>> wrapAll(Map<String, TableSyntaxNode> datatypes,
+    private static List<TopoGraphNode<TableSyntaxNode>> wrapAll(Map<String, TableSyntaxNode> datatypes,
             IBindingContext bindingContext) {
         List<TopoGraphNode<TableSyntaxNode>> toSort = new ArrayList<TopoGraphNode<TableSyntaxNode>>();
         for (TableSyntaxNode datatype : datatypes.values()) {
@@ -45,7 +44,7 @@ public class DatatypesSorter {
         return toSort;
     }
 
-    private TableSyntaxNode[] unwrapAll(Set<TopoGraphNode<TableSyntaxNode>> sorted) {
+    private static TableSyntaxNode[] unwrapAll(Set<TopoGraphNode<TableSyntaxNode>> sorted) {
         TableSyntaxNode[] result = new TableSyntaxNode[sorted.size()];
         Iterator<TopoGraphNode<TableSyntaxNode>> iterator = sorted.iterator();
         for (int i = 0; iterator.hasNext(); i++) {
@@ -57,7 +56,7 @@ public class DatatypesSorter {
         return result;
     }
 
-    private TopologicalSort.TopoGraphNode<TableSyntaxNode> wrap(TableSyntaxNode datatype,
+    private static TopologicalSort.TopoGraphNode<TableSyntaxNode> wrap(TableSyntaxNode datatype,
             Map<String, TableSyntaxNode> datatypes,
             IBindingContext bindingContext,
             Map<String, TopoGraphNode<TableSyntaxNode>> dependentQueue) {
@@ -95,7 +94,7 @@ public class DatatypesSorter {
 
     }
 
-    private Map<String, TableSyntaxNode> createTypesMap(TableSyntaxNode[] nodes) {
+    private static Map<String, TableSyntaxNode> createTypesMap(IBindingContext bindingContext, TableSyntaxNode[] nodes) {
 
         Map<String, TableSyntaxNode> map = new LinkedHashMap<String, TableSyntaxNode>();
 
@@ -111,7 +110,7 @@ public class DatatypesSorter {
                             String message = String.format("Type with name '%s' already exists", datatypeName);
                             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tsn);
                             tsn.addError(error);
-                            BindHelper.processError(error);
+                            bindingContext.addError(error);
                         } else {
                             map.put(datatypeName, tsn);
                         }
@@ -119,13 +118,13 @@ public class DatatypesSorter {
                         String message = "Cannot recognize type name";
                         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tsn);
                         tsn.addError(error);
-                        BindHelper.processError(error);
+                        bindingContext.addError(error);
                     }
                 } catch (OpenLCompilationException e) {
                     String message = "An error has occurred during compilation";
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, tsn);
                     tsn.addError(error);
-                    BindHelper.processError(error);
+                    bindingContext.addError(error);
                 }
             }
         }

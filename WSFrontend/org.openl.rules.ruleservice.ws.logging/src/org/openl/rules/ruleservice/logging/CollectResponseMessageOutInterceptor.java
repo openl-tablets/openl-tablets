@@ -185,12 +185,12 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private class StoreTask implements Runnable{
-        private RuleServiceLoggingInfo ruleserviceLoggingInfo;
-        public StoreTask(RuleServiceLoggingInfo ruleserviceLoggingInfo) {
+        private RuleServiceLogging ruleserviceLoggingInfo;
+        public StoreTask(RuleServiceLogging ruleserviceLoggingInfo) {
             this.ruleserviceLoggingInfo = ruleserviceLoggingInfo;
         }
         
-        public RuleServiceLoggingInfo getRuleserviceLoggingInfo() {
+        public RuleServiceLogging getRuleserviceLoggingInfo() {
             return ruleserviceLoggingInfo;
         }
         
@@ -206,13 +206,13 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
     
     @Override
     protected void handleMessage(LoggingMessage message) {
-        final RuleServiceLoggingInfo ruleServiceLoggingInfo = RuleServiceLoggingInfoHolder.get();
-        ruleServiceLoggingInfo.setResponseMessage(message);
-        ruleServiceLoggingInfo.setOutcomingMessageTime(new Date());
-        if (!ruleServiceLoggingInfo.isIgnorable()){
-            executorService.submit(new StoreTask(ruleServiceLoggingInfo));
+        final RuleServiceLogging ruleServiceLogging = RuleServiceLoggingHolder.get();
+        ruleServiceLogging.setResponseMessage(message);
+        ruleServiceLogging.setOutcomingMessageTime(new Date());
+        if (!ruleServiceLogging.isIgnorable()){
+            executorService.submit(new StoreTask(ruleServiceLogging));
         }
-        RuleServiceLoggingInfoHolder.remove();
+        RuleServiceLoggingHolder.remove();
     }
 
     protected String formatLoggingMessage(LoggingMessage buffer) {

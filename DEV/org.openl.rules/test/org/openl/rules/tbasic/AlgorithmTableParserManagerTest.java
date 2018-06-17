@@ -15,11 +15,11 @@ public class AlgorithmTableParserManagerTest {
 
     @Test
     public final void testGetAlgorithmSpecification() {
-        TableParserSpecificationBean[] specifications = AlgorithmTableParserManager.instance()
+        TableParserSpecificationBean[] specifications = AlgorithmTableParserManager.getInstance()
                 .getAlgorithmSpecification();
         assertNotNull(specifications);
 
-        TableParserSpecificationBean[] theSameSpecifications = AlgorithmTableParserManager.instance()
+        TableParserSpecificationBean[] theSameSpecifications = AlgorithmTableParserManager.getInstance()
                 .getAlgorithmSpecification();
         assertNotNull(theSameSpecifications);
         assertArrayEquals(specifications, theSameSpecifications);
@@ -27,11 +27,11 @@ public class AlgorithmTableParserManagerTest {
 
     @Test
     public final void testGetConversionRules() {
-        ConversionRuleBean[] conversionRules = AlgorithmTableParserManager.instance().getConversionRules();
+        ConversionRuleBean[] conversionRules = AlgorithmTableParserManager.getInstance().getConversionRules();
 
         assertNotNull(conversionRules);
 
-        ConversionRuleBean[] theSameConversionRules = AlgorithmTableParserManager.instance().getConversionRules();
+        ConversionRuleBean[] theSameConversionRules = AlgorithmTableParserManager.getInstance().getConversionRules();
 
         assertNotNull(theSameConversionRules);
         assertArrayEquals(conversionRules, theSameConversionRules);
@@ -39,11 +39,11 @@ public class AlgorithmTableParserManagerTest {
 
     @Test
     public final void testGetFixedConversionRules() {
-        ConversionRuleBean[] conversionRules = AlgorithmTableParserManager.instance().getFixedConversionRules();
+        ConversionRuleBean[] conversionRules = AlgorithmTableParserManager.getInstance().getFixedConversionRules();
 
         assertNotNull(conversionRules);
 
-        ConversionRuleBean[] theSameConversionRules = AlgorithmTableParserManager.instance().getFixedConversionRules();
+        ConversionRuleBean[] theSameConversionRules = AlgorithmTableParserManager.getInstance().getFixedConversionRules();
 
         assertNotNull(theSameConversionRules);
         assertArrayEquals(conversionRules, theSameConversionRules);
@@ -51,12 +51,12 @@ public class AlgorithmTableParserManagerTest {
 
     @Test
     public final void testInstance() {
-        assertNotNull(AlgorithmTableParserManager.instance());
+        assertNotNull(AlgorithmTableParserManager.getInstance());
     }
 
     @Test
     public final void testWhatIsOperationsGroupName() {
-        AlgorithmTableParserManager parserManager = AlgorithmTableParserManager.instance();
+        AlgorithmTableParserManager parserManager = AlgorithmTableParserManager.getInstance();
 
         List<String> operationsGroup1 = Arrays.asList(new String[] { "IF" });
         assertEquals("IF", parserManager.whatIsOperationsGroupName(operationsGroup1));
@@ -83,10 +83,10 @@ public class AlgorithmTableParserManagerTest {
 
     @Test
     public final void testWhatOperationsToGroup() {
-        String[] operationNames1 = AlgorithmTableParserManager.instance().whatOperationsToGroup("IF");
+        String[] operationNames1 = AlgorithmTableParserManager.getInstance().whatOperationsToGroup("IF");
         assertArrayEquals(new String[] { "ELSE", "END IF" }, operationNames1);
 
-        String[] operationNames2 = AlgorithmTableParserManager.instance().whatOperationsToGroup("VAR");
+        String[] operationNames2 = AlgorithmTableParserManager.getInstance().whatOperationsToGroup("VAR");
         assertNull(operationNames2);
     }
 

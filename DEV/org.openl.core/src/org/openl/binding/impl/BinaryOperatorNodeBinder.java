@@ -4,6 +4,9 @@
 
 package org.openl.binding.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.method.MethodSearch;
@@ -13,10 +16,6 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
-import org.openl.types.NullOpenClass;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author snshor
@@ -41,12 +40,8 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
         IMethodCaller methodCaller = findBinaryOperatorMethodCaller(operatorName, types, bindingContext);
 
         if (methodCaller == null) {
-        	if (!NullOpenClass.isAnyNull(types)){
-        		String message = errorMsg(operatorName, types[0], types[1]);
-        		BindHelper.processError(message, node, bindingContext, false);
-        	}	
-
-            return new ErrorBoundNode(node);
+            String message = errorMsg(operatorName, types[0], types[1]);
+            return makeErrorNode(message, node, bindingContext);
         }
 
         return new BinaryOpNode(node, new IBoundNode[] { b1, b2 }, methodCaller);

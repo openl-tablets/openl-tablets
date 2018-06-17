@@ -1,8 +1,6 @@
-/**
- * Created Feb 16, 2007
- */
 package org.openl.rules.table.actions;
 
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -16,8 +14,8 @@ public class UndoableClearAction extends AUndoableCellAction {
 
     private GridRegion toRestore;
 
-    public UndoableClearAction(int col, int row) {
-        super(col, row);
+    public UndoableClearAction(int col, int row, MetaInfoWriter metaInfoWriter) {
+        super(col, row, metaInfoWriter);
     }
 
     public void doAction(IGridTable table) {
@@ -26,6 +24,7 @@ public class UndoableClearAction extends AUndoableCellAction {
         savePrevCell(grid);
 
         grid.clearCell(getCol(), getRow());
+        metaInfoWriter.setMetaInfo(getRow(), getCol(), null);
         clearRegion(grid);
     }
 
@@ -39,7 +38,7 @@ public class UndoableClearAction extends AUndoableCellAction {
         restorePrevCell(grid);
     }
 
-    void clearRegion(IWritableGrid grid) {
+    private void clearRegion(IWritableGrid grid) {
         IGridRegion rrTo = grid.getRegionStartingAt(getCol(), getRow());
 
         if (rrTo == null) {

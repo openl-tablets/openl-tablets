@@ -1,13 +1,9 @@
 package org.openl.rules.data;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.BindHelper;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.OpenlToolAdaptor;
@@ -24,16 +20,16 @@ import org.openl.vm.IRuntimeEnv;
 
 public class Table implements ITable {
 
-    protected ILogicalTable logicalTable;
-    protected ITableModel dataModel;
+    private ILogicalTable logicalTable;
+    private ITableModel dataModel;
 
-    protected String tableName;
-    protected TableSyntaxNode tableSyntaxNode;
+    private String tableName;
+    private TableSyntaxNode tableSyntaxNode;
 
-    protected Object dataArray;
+    private Object dataArray;
 
-    protected BiMap<Integer, Object> rowIndexMap;
-    protected BiMap<Integer, String> primaryIndexMap;
+    private BiMap<Integer, Object> rowIndexMap;
+    private BiMap<Integer, String> primaryIndexMap;
 
     public Table(ITableModel dataModel, ILogicalTable data) {
         this.dataModel = dataModel;
@@ -47,6 +43,11 @@ public class Table implements ITable {
 
     public void setData(ILogicalTable dataWithHeader) {
         logicalTable = dataWithHeader;
+    }
+
+    @Override
+    public ILogicalTable getData() {
+        return logicalTable;
     }
 
     public void setModel(ITableModel dataModel) {
@@ -113,6 +114,11 @@ public class Table implements ITable {
         return dataModel.getDescriptor().length;
     }
 
+    @Override
+    public ColumnDescriptor getColumnDescriptor(int i) {
+        return dataModel.getDescriptor()[i];
+    }
+
     public int getNumberOfRows() {
         return logicalTable.getHeight() - 1;
     }
@@ -147,13 +153,6 @@ public class Table implements ITable {
         return descriptor.getUniqueIndex(this, columnIndex);
     }
 
-    public Map<String, Integer> getFormattedUniqueIndex(int columnIndex) throws SyntaxNodeException {
-
-        ColumnDescriptor descriptor = dataModel.getDescriptor()[columnIndex];
-
-        return descriptor.getFormattedUniqueIndex(this, columnIndex);
-    }
-
     public Object getValue(int col, int row) {
 
         Object rowObject = Array.get(getDataArray(), row);
@@ -163,7 +162,7 @@ public class Table implements ITable {
 
     public Map<String, Integer> makeUniqueIndex(int colIdx) throws SyntaxNodeException {
 
-        Map<String, Integer> index = new HashMap<String, Integer>();
+        Map<String, Integer> index = new HashMap<>();
 
         int rows = logicalTable.getHeight();
 
@@ -190,33 +189,32 @@ public class Table implements ITable {
         return index;
     }
 
-    public Map<String, Integer> makeFormattedUniqueIndex(int colIdx) throws SyntaxNodeException {
+    @Override
+    public List<Object> getUniqueValues(int colIdx) throws SyntaxNodeException {
 
-        Map<String, Integer> index = new HashMap<String, Integer>();
+        List<Object> values = new ArrayList<>();
 
         int rows = logicalTable.getHeight();
 
         for (int i = 1; i < rows; i++) {
 
             IGridTable gridTable = logicalTable.getSubtable(colIdx, i, 1, 1).getSource();
-            String key = gridTable.getCell(0, 0).getFormattedValue();
+            Object value = gridTable.getCell(0, 0).getObjectValue();
 
-            if (key == null) {
+            if (value == null) {
                 throw SyntaxNodeExceptionUtils.createError("Empty key in an unique index",
                     new GridCellSourceCodeModule(gridTable));
             }
 
-            key = key.trim();
-
-            if (index.containsKey(key)) {
-                throw SyntaxNodeExceptionUtils.createError("Duplicated key in an unique index: " + key,
+            if (values.contains(value)) {
+                throw SyntaxNodeExceptionUtils.createError("Duplicated key in an unique index: " + value,
                     new GridCellSourceCodeModule(gridTable));
             }
 
-            index.put(key, i - 1);
+            values.add(value);
         }
 
-        return index;
+        return values;
     }
 
     public void populate(IDataBase dataBase, IBindingContext bindingContext) throws Exception {
@@ -226,21 +224,7 @@ public class Table implements ITable {
 
         int startRow = 1;
 
-        Collection<SyntaxNodeException> errorSyntaxNodeExceptions = new ArrayList<SyntaxNodeException>(0);
-
-        if (!bindingContext.isExecutionMode()) {
-            for (int j = 0; j < columns; j++) {
-                ColumnDescriptor descriptor = dataModel.getDescriptor()[j];
-
-                if (descriptor != null && (descriptor instanceof ForeignKeyColumnDescriptor)) {
-                    ForeignKeyColumnDescriptor fkDescriptor = (ForeignKeyColumnDescriptor) descriptor;
-
-                    if (fkDescriptor.isReference()) {
-                        fkDescriptor.setForeignKeyCellMetaInfo(dataBase);
-                    }
-                }
-            }
-        }
+        Collection<SyntaxNodeException> errorSyntaxNodeExceptions = new ArrayList<>(0);
 
         for (int i = startRow; i < rows; i++) {
 
@@ -250,7 +234,7 @@ public class Table implements ITable {
 
                 ColumnDescriptor descriptor = dataModel.getDescriptor()[j];
 
-                if (descriptor != null && (descriptor instanceof ForeignKeyColumnDescriptor)) {
+                if (descriptor instanceof ForeignKeyColumnDescriptor) {
                     ForeignKeyColumnDescriptor fkDescriptor = (ForeignKeyColumnDescriptor) descriptor;
 
                     if (fkDescriptor.isReference()) {
@@ -283,7 +267,7 @@ public class Table implements ITable {
         }
         if (!errorSyntaxNodeExceptions.isEmpty()) {
             throw new CompositeSyntaxNodeException("Parsing Error:",
-                errorSyntaxNodeExceptions.toArray(new SyntaxNodeException[errorSyntaxNodeExceptions.size()]));
+                errorSyntaxNodeExceptions.toArray(new SyntaxNodeException[0]));
         }
     }
 
@@ -293,13 +277,13 @@ public class Table implements ITable {
         int startRow = getStartRowForData();
 
         dataArray = Array.newInstance(dataModel.getInstanceClass(), rows - startRow);
-
+        
         for (int rowNum = startRow; rowNum < rows; rowNum++) {
             processRow(openlAdapter, startRow, rowNum);
         }
     }
 
-    protected void processRow(OpenlToolAdaptor openlAdapter,
+    private void processRow(OpenlToolAdaptor openlAdapter,
             int startRow,
             int rowNum) throws OpenLCompilationException {
 
@@ -342,7 +326,7 @@ public class Table implements ITable {
         Array.set(dataArray, rowNum - startRow, literal);
     }
 
-    protected Object processColumn(OpenlToolAdaptor openlAdapter,
+    private Object processColumn(OpenlToolAdaptor openlAdapter,
             boolean constructor,
             int rowNum,
             Object literal,
@@ -361,16 +345,10 @@ public class Table implements ITable {
                     ILogicalTable lTable = logicalTable.getSubtable(columnNum, rowNum, 1, 1);
                     if (!(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0).getStringValue() != null) { //EPBDS-6104. For empty values should be used data type default value.
                         return columnDescriptor.populateLiteral(literal, lTable, openlAdapter, env);
-                    } else {
-                        // Set meta info for empty cells. To suggest an appropriate editor
-                        // according to cell type.
-                        if (!openlAdapter.getBindingContext().isExecutionMode()) {
-                            columnDescriptor.setCellMetaInfo(lTable);
-                        }
                     }
                 } catch (SyntaxNodeException ex) {
                     tableSyntaxNode.addError(ex);
-                    BindHelper.processError(ex);
+                    openlAdapter.getBindingContext().addError(ex);
                 }
             }
         }
@@ -380,7 +358,7 @@ public class Table implements ITable {
 
     public synchronized void setPrimaryIndexKey(int row, String value) {
         if (primaryIndexMap == null){
-            primaryIndexMap = new BiMap<Integer, String>();
+            primaryIndexMap = new BiMap<>();
         }
         Integer oldRow = primaryIndexMap.getKey(value);
         if (oldRow != null && row != oldRow) {
@@ -404,7 +382,7 @@ public class Table implements ITable {
 
     private void addToRowIndex(int rowIndex, Object target) {
         if (rowIndexMap == null){
-            rowIndexMap = new BiMap<Integer, Object>();
+            rowIndexMap = new BiMap<>();
         }
         rowIndexMap.put(rowIndex, target);
     }
@@ -413,7 +391,7 @@ public class Table implements ITable {
      * @return Start row for data rows from Data_With_Titles rows. It depends on
      *         if table has or no column title row.
      */
-    protected int getStartRowForData() {
+    private int getStartRowForData() {
 
         if (dataModel.hasColumnTitleRow()) {
             return 1;

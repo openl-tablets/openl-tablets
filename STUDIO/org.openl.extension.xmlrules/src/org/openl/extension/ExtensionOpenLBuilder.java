@@ -1,8 +1,11 @@
 package org.openl.extension;
 
-import org.openl.*;
+import org.openl.ICompileContext;
+import org.openl.IOpenBinder;
+import org.openl.IOpenParser;
+import org.openl.IOpenVM;
+import org.openl.OpenL;
 import org.openl.conf.BaseOpenLBuilder;
-import org.openl.conf.IConfigurableResourceContext;
 import org.openl.conf.OpenConfigurationException;
 import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.rules.vm.SimpleRulesVM;

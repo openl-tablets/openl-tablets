@@ -6,16 +6,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
-import org.apache.poi.hssf.record.CellValueRecordInterface;
-import org.apache.poi.hssf.record.ExtendedFormatRecord;
-import org.apache.poi.hssf.record.FormatRecord;
-import org.apache.poi.hssf.record.Record;
+import org.apache.poi.hssf.record.*;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 
 public class StyleTrackingListener implements HSSFListener {
     private final HSSFListener delegate;
     private final Map<Integer, FormatRecord> customFormats = new HashMap<>();
     private final List<ExtendedFormatRecord> extendedFormats = new ArrayList<>();
+    private final List<FontRecord> fonts = new ArrayList<>();
 
     StyleTrackingListener(HSSFListener delegate) {
         this.delegate = delegate;
@@ -31,6 +29,9 @@ public class StyleTrackingListener implements HSSFListener {
             ExtendedFormatRecord xr = (ExtendedFormatRecord) record;
             extendedFormats.add(xr);
         }
+        if (record instanceof FontRecord) {
+            fonts.add((FontRecord) record);
+        }
 
         delegate.processRecord(record);
     }
@@ -41,7 +42,7 @@ public class StyleTrackingListener implements HSSFListener {
         }
 
         String format;
-        if (formatIndex >= HSSFDataFormat.getNumberOfBuiltinBuiltinFormats()) {
+        if (formatIndex >= HSSFDataFormat.getNumberOfBuiltinBuiltinFormats() || customFormats.get(formatIndex) != null) {
             format = customFormats.get(formatIndex).getFormatString();
         } else {
             format = HSSFDataFormat.getBuiltinFormat((short) formatIndex);
@@ -69,4 +70,15 @@ public class StyleTrackingListener implements HSSFListener {
         return xfr == null ? 0 : xfr.getIndent();
     }
 
+    List<ExtendedFormatRecord> getExtendedFormats() {
+        return extendedFormats;
+    }
+
+    Map<Integer,FormatRecord> getCustomFormats() {
+        return customFormats;
+    }
+
+    List<FontRecord> getFonts() {
+        return fonts;
+    }
 }

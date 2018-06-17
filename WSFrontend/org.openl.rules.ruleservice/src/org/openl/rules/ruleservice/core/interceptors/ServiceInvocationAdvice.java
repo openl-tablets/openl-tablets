@@ -360,12 +360,10 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         boolean isUserException = false;
         boolean isRulesException = false;
         boolean isCompilationException = false;
-        boolean isValidationException = false;
 
         String userDetailMessage = null;
         String rulesRuntimeDetailMessage = null;
         String compilationDetailMessage = null;
-        String validationDetailMessage = null;
 
         boolean f = true;
         while (f) {
@@ -387,9 +385,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             }
         }
 
-        if (isValidationException) {
-            return new ImmutablePair<ExceptionType, String>(ExceptionType.VALIDATION, validationDetailMessage);
-        } else if (isCompilationException) {
+        if (isCompilationException) {
             return new ImmutablePair<ExceptionType, String>(ExceptionType.COMPILATION, compilationDetailMessage);
         } else if (isUserException) {
             return new ImmutablePair<ExceptionType, String>(ExceptionType.USER_ERROR, userDetailMessage);

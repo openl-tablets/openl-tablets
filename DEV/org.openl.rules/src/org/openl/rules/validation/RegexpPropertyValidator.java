@@ -1,7 +1,11 @@
 package org.openl.rules.validation;
 
+import java.util.Collection;
+import java.util.LinkedHashSet;
+
 import org.openl.OpenL;
 import org.openl.message.OpenLErrorMessage;
+import org.openl.message.OpenLMessage;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.constraints.RegexpValueConstraint;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -11,7 +15,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.validation.ValidationResult;
-import org.openl.validation.ValidationStatus;
 
 /**
  * Validator for string properties that have to correspond to some regexp
@@ -30,28 +33,23 @@ public class RegexpPropertyValidator extends TablesValidator {
 
     @Override
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
-        ValidationResult validationResult = null;
+        Collection<OpenLMessage> messages = new LinkedHashSet<>();
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
-            if (PropertiesChecker.isPropertySuitableForTableType(propertyName, tsn.getType()) && ( tsn.getTableProperties() != null && tsn.getTableProperties()
-                .getPropertyLevelDefinedOn(propertyName) == InheritanceLevel.TABLE)) {
+            if (PropertiesChecker.isPropertySuitableForTableType(propertyName,
+                tsn.getType()) && (tsn.getTableProperties() != null && tsn.getTableProperties()
+                    .getPropertyLevelDefinedOn(propertyName) == InheritanceLevel.TABLE)) {
                 String propertyValue = (String) tsn.getTableProperties().getPropertyValue(propertyName);
                 if (propertyValue == null || !propertyValue.matches(constraintsStr)) {
-                    if (validationResult == null) {
-                        validationResult = new ValidationResult(ValidationStatus.FAIL);
-                    }
-                    SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(String.format(
-                            "Incorrect value \"%s\" for property \"%s\"", propertyValue,
+                    SyntaxNodeException exception = SyntaxNodeExceptionUtils
+                        .createError(String.format("Incorrect value \"%s\" for property \"%s\"",
+                            propertyValue,
                             TablePropertyDefinitionUtils.getPropertyDisplayName(propertyName)), tsn);
                     tsn.addError(exception);
-                    ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(exception));
+                    messages.add(new OpenLErrorMessage(exception));
                 }
             }
         }
-        if (validationResult != null) {
-            return validationResult;
-        } else {
-            return ValidationUtils.validationSuccess();
-        }
+        return ValidationUtils.withMessages(messages);
     }
 
 }

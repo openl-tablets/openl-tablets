@@ -1,8 +1,6 @@
 package org.openl.rules.data;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.lang.reflect.Field;
 
@@ -30,7 +28,7 @@ public class DataTableArrayInitTest extends BaseOpenlBuilderHelper{
 
     @Test
     public void testTypeWithArrayColumns() {
-        String tableName = "Data TestHelperDataBean_v10 testArray ";
+        String tableName = "Data TestHelperDataBean_v10 testArray";
         TableSyntaxNode resultTsn = findTable(tableName);
         if (resultTsn != null) {
             DataOpenField member = (DataOpenField)resultTsn.getMember();
@@ -39,12 +37,12 @@ public class DataTableArrayInitTest extends BaseOpenlBuilderHelper{
 
             Object[] typeWitharray = (Object[]) member.getTable().getDataArray();
 
-            assertTrue(typeWitharray.length == 15);
+            assertEquals(15, typeWitharray.length);
             try {
-                assertTrue(getAddressArry(typeWitharray[3]).length == 3);
-                assertTrue(getAddressArry(typeWitharray[12])[1] == null);
-                assertTrue(getZip(getAddressArry(typeWitharray[12])[0]) == 37);
-                assertTrue(getZip(getAddressArry(typeWitharray[12])[2]) == 51);
+                assertEquals(3, getAddressArry(typeWitharray[3]).length);
+                assertNull(getAddressArry(typeWitharray[12])[1]);
+                assertEquals(37, getZip(getAddressArry(typeWitharray[12])[0]));
+                assertEquals(51, getZip(getAddressArry(typeWitharray[12])[2]));
             } catch (Exception e) {
                e.printStackTrace();
                fail();
@@ -65,12 +63,12 @@ public class DataTableArrayInitTest extends BaseOpenlBuilderHelper{
 
             Object[] typeWitharray = (Object[]) member.getTable().getDataArray();
 
-            assertTrue(typeWitharray.length == 15);
+            assertEquals(15, typeWitharray.length);
             try {
-                assertTrue(getVehicles(getP(typeWitharray[3])).length == 3);
-                assertTrue(getModel(getVehicles(getP(typeWitharray[12]))[2]).equals("37"));
-                assertTrue(getModel(getVehicles(getP(typeWitharray[12]))[1]).equals("51"));
-                assertTrue(getVehicles(getP(typeWitharray[12]))[0] == null);
+                assertEquals(3, getVehicles(getP(typeWitharray[3])).length);
+                assertEquals("37", getModel(getVehicles(getP(typeWitharray[12]))[2]));
+                assertEquals("51", getModel(getVehicles(getP(typeWitharray[12]))[1]));
+                assertNull(getVehicles(getP(typeWitharray[12]))[0]);
             } catch (Exception e) {
                e.printStackTrace();
                fail();

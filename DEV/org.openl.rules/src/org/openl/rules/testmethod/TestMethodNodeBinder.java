@@ -4,7 +4,7 @@
 package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -14,7 +14,6 @@ import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.MethodNotFoundException;
 import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessages;
 import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.DataTableBindHelper;
@@ -22,6 +21,7 @@ import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.DataTableMetaInfoReader;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
@@ -68,8 +68,16 @@ public class TestMethodNodeBinder extends DataNodeBinder {
 
 
     @Override
-    protected ATableBoundNode makeNode(TableSyntaxNode tableSyntaxNode, XlsModuleOpenClass module) {
-        return new TestMethodBoundNode(tableSyntaxNode, module);
+    protected ATableBoundNode makeNode(TableSyntaxNode tableSyntaxNode,
+            XlsModuleOpenClass module,
+            IBindingContext bindingContext) {
+        TestMethodBoundNode boundNode = new TestMethodBoundNode(tableSyntaxNode, module);
+
+        if (!bindingContext.isExecutionMode()) {
+            tableSyntaxNode.setMetaInfoReader(new DataTableMetaInfoReader(boundNode));
+        }
+
+        return boundNode;
     }
 
     @Override
@@ -122,20 +130,21 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         SyntaxNodeException[] bestCaseErrors = null;
         TestMethodOpenClass bestTestMethodOpenClass = null;
         ITable bestDataTable = null;
-        List<OpenLMessage> bestMessages = Collections.emptyList();
 
         boolean hasNoErrorBinding = false;
-        List<OpenLMessage> messages = OpenLMessages.getCurrentInstance().getMessages();
         SyntaxNodeException[] errors = tableSyntaxNode.getErrors();
+        Collection<OpenLMessage> bestMessages = null;
+        SyntaxNodeException[] bestBindingContextErrors = null;
+        
         for (IOpenMethod testedMethod : testedMethods) {
-            OpenLMessages.getCurrentInstance().clear();
             tableSyntaxNode.clearErrors();
             if (errors != null) {
                 for (SyntaxNodeException error : errors) {
                     tableSyntaxNode.addError(error);
                 }
             }
-            TestMethodBoundNode testMethodBoundNode = (TestMethodBoundNode) makeNode(tableSyntaxNode, module);
+            TestMethodBoundNode testMethodBoundNode = (TestMethodBoundNode) makeNode(tableSyntaxNode, module,
+                    bindingContext);
             TestSuiteMethod testSuite = new TestSuiteMethod(testedMethod, header, testMethodBoundNode);
             testMethodBoundNode.setTestSuite(testSuite);
             TestMethodOpenClass testMethodOpenClass = new TestMethodOpenClass(tableName, testedMethod);
@@ -147,6 +156,8 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                 throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TESTED_METHOD_INDEX]);
             }
             try {
+                bindingContext.pushErrors();
+                bindingContext.pushMessages();
                 ITable dataTable = makeTable(module,
                     tableSyntaxNode,
                     tableName,
@@ -162,7 +173,8 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                     bestCaseOpenMethod = testedMethod;
                     bestTestMethodOpenClass = testMethodOpenClass;
                     bestDataTable = dataTable;
-                    bestMessages = OpenLMessages.getCurrentInstance().getMessages();
+                    bestMessages = bindingContext.getMessages();
+                    bestBindingContextErrors = bindingContext.getErrors();
                 } else {
                     if (!testMethodBoundNode.getTableSyntaxNode().hasErrors()) {
                         if (!hasNoErrorBinding) {
@@ -171,14 +183,15 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                             bestTestMethodOpenClass = testMethodOpenClass;
                             hasNoErrorBinding = true;
                             bestDataTable = dataTable;
+                            bestMessages = bindingContext.getMessages();
+                            bestBindingContextErrors = bindingContext.getErrors();
                         } else {
-                            List<IOpenMethod> list = new ArrayList<IOpenMethod>();
+                            List<IOpenMethod> list = new ArrayList<>();
                             list.add(testedMethod);
                             list.add(bestCaseOpenMethod);
                             throw new AmbiguousMethodException(tableName, IOpenClass.EMPTY, list);
                         }
                         bestCaseErrors = new SyntaxNodeException[0];
-                        bestMessages = OpenLMessages.getCurrentInstance().getMessages();
                     }
                 }
             } catch (AmbiguousMethodException e) {
@@ -188,32 +201,38 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                     continue;
                 }
                 throw e;
+            } finally {
+                bindingContext.popErrors();
+                bindingContext.popMessages();
             }
         }
 
         if (bestCaseTestMethodBoundNode != null) {
-            if (bindingContext.isExecutionMode() && ((TableSyntaxNode) bestCaseTestMethodBoundNode.getSyntaxNode()).hasErrors()) {
-                // In execution mode we don't need test tables that can't be run because of errors (even if isKeepTestsInExecutionMode() == true)
-                return null;
-            }
             tableSyntaxNode.clearErrors();
-            OpenLMessages.getCurrentInstance().clear();
-            for (OpenLMessage message : messages) {
-                OpenLMessages.getCurrentInstance().addMessage(message);
-            }
-            for (OpenLMessage message : bestMessages) {
-                OpenLMessages.getCurrentInstance().addMessage(message);
-            }
             if (errors != null) {
                 for (SyntaxNodeException error : errors) {
                     tableSyntaxNode.addError(error);
                 }
             }
-
-            DataNodeBinder.putSubTableForBussinesView(tableSyntaxNode, bestTestMethodOpenClass);
             bestCaseTestMethodBoundNode.setTable(bestDataTable);
+            
+            DataNodeBinder.putSubTableForBussinesView(tableSyntaxNode, bestTestMethodOpenClass);
+
             for (SyntaxNodeException error : bestCaseErrors) {
                 tableSyntaxNode.addError(error);
+            }
+            
+            for (OpenLMessage message : bestMessages) {
+                bindingContext.addMessage(message);
+            }
+            
+            for (SyntaxNodeException syntaxNodeException : bestBindingContextErrors) {
+                bindingContext.addError(syntaxNodeException);
+            }
+
+            if (bindingContext.isExecutionMode() && ((TableSyntaxNode) bestCaseTestMethodBoundNode.getSyntaxNode()).hasErrors()) {
+                // In execution mode we don't need test tables that can't be run because of errors (even if isKeepTestsInExecutionMode() == true)
+                return null;
             }
 
             return bestCaseTestMethodBoundNode;

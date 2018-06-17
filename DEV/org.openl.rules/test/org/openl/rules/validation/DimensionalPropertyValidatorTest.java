@@ -28,10 +28,10 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
         super(SRC);
     }
 
-    private static List<OpenLMessage> getWarningsForTable(List<OpenLMessage> allMessages, TableSyntaxNode tsn) {
-        List<OpenLMessage> warningMessages = OpenLMessagesUtils.filterMessagesBySeverity(allMessages, Severity.WARN);
+    private static List<OpenLMessage> getWarningsForTable(Collection<OpenLMessage> messages, TableSyntaxNode tsn) {
         List<OpenLMessage> warningsForTable = new ArrayList<OpenLMessage>();
-        for (OpenLMessage message : warningMessages) {
+        Collection<OpenLMessage> warnMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
+        for (OpenLMessage message : warnMessages) {
             if (message instanceof OpenLWarnMessage) {// there can be simple
                                                       // OpenLMessages with
                                                       // severity WARN

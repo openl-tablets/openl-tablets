@@ -9,12 +9,6 @@ class String2OpenClassConvertor implements IString2DataConvertor<IOpenClass>, IS
     public static final String ARRAY_SUFFIX = "[]";
 
     @Override
-    public String format(IOpenClass data, String format) {
-        if (data == null) return null;
-        return data.toString();
-    }
-
-    @Override
     public IOpenClass parse(String data, String format) {
         throw new UnsupportedOperationException();
     }

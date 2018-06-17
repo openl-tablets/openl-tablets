@@ -6,6 +6,7 @@
 
 package org.openl.rules.data;
 
+import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.IBindingContext;
@@ -44,6 +45,8 @@ public interface ITable {
 
     int getNumberOfColumns();
 
+    ColumnDescriptor getColumnDescriptor(int i);
+
     int getNumberOfRows();
 
     String getPrimaryIndexKey(int row);
@@ -57,18 +60,20 @@ public interface ITable {
     TableSyntaxNode getTableSyntaxNode();
 
     Map<String, Integer> getUniqueIndex(int columnIndex) throws SyntaxNodeException;
-    Map<String, Integer> getFormattedUniqueIndex(int columnIndex) throws SyntaxNodeException;
 
     Object getValue(int col, int row);
 
     Map<String, Integer> makeUniqueIndex(int idx) throws SyntaxNodeException;
-    Map<String, Integer> makeFormattedUniqueIndex(int colIdx) throws SyntaxNodeException;
+
+    List<Object> getUniqueValues(int colIdx) throws SyntaxNodeException;
 
     void populate(IDataBase db, IBindingContext bindingContext) throws Exception;
 
     void preLoad(OpenlToolAdaptor ota) throws Exception;
 
     void setData(ILogicalTable dataWithHeader);
+
+    ILogicalTable getData();
 
     void setModel(ITableModel dataModel);
 

@@ -11,14 +11,14 @@ import java.util.*;
  * This class is used to find a classes in file system.
  *
  * @author NSamatov
- */
+ */ 
 public class ClassFinder {
     private final Logger log = LoggerFactory.getLogger(ClassFinder.class);
 
     private Map<String, ClassLocator> locators = new HashMap<String, ClassLocator>();
 
     public ClassFinder() {
-        this(Arrays.asList(new LoggingExceptionHandler(), new OpenLMessageExceptionHandler()));
+        this(Arrays.asList(new LoggingExceptionHandler()));
     }
 
     public ClassFinder(List<? extends LocatorExceptionHandler> handlers) {

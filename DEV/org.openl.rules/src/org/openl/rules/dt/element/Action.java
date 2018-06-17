@@ -5,20 +5,15 @@ import java.util.Map;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.data.RuleExecutionObject;
 import org.openl.rules.dt.storage.IStorage;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.types.IDynamicObject;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenMethodHeader;
-import org.openl.types.IParameterDeclaration;
+import org.openl.types.*;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
@@ -105,7 +100,7 @@ public class Action extends FunctionalRow implements IAction {
         return getMethod().invoke(target, mergeParams(target, params, env, ruleN), env);
     }
 
-    private IOpenClass exctractMethodTypeForCollectReturnAction(IOpenClass type) throws Exception {
+    private IOpenClass exctractMethodTypeForCollectReturnAction(IOpenClass type) {
         if (type.isArray()){
             return type.getComponentClass();
         }
@@ -122,8 +117,10 @@ public class Action extends FunctionalRow implements IAction {
             IMethodSignature signature,
             OpenL openl,
             ComponentOpenClass componentOpenClass,
-            IBindingContextDelegator bindingContextDelegator,
-            RuleRow ruleRow, IOpenClass ruleExecutionType) throws Exception {
+            IBindingContext bindingContext,
+            RuleRow ruleRow,
+            IOpenClass ruleExecutionType,
+            TableSyntaxNode tableSyntaxNode) throws Exception {
         
         this.returnType = header.getType();
         
@@ -140,7 +137,7 @@ public class Action extends FunctionalRow implements IAction {
             }
         }
         
-        prepare(methodType, signature, openl, componentOpenClass, bindingContextDelegator, ruleRow);
+        prepare(methodType, signature, openl, componentOpenClass, bindingContext, ruleRow, tableSyntaxNode);
         this.ruleExecutionType = ruleExecutionType;
 
         IParameterDeclaration[] params = getParams();
@@ -162,9 +159,6 @@ public class Action extends FunctionalRow implements IAction {
             IBindingContext bindingContext) throws Exception {
 
         if (EXTRA_RET.equals(methodSource.getCode()) && (isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction()) && getParams() == null) {
-            if (!bindingContext.isExecutionMode()) {
-                setCellMetaInfo(0, methodType);
-            }
             ParameterDeclaration extraParam = new ParameterDeclaration(methodType, EXTRA_RET);
 
             IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[] { extraParam };

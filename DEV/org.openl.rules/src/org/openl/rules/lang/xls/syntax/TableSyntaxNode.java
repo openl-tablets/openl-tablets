@@ -15,6 +15,8 @@ import org.openl.meta.StringValue;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.rules.lang.xls.types.meta.EmptyMetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -43,11 +45,13 @@ public class TableSyntaxNode extends NaryNode {
 
     private IOpenMember member;
 
-    private Map<String, ILogicalTable> subTables = new HashMap<String, ILogicalTable>();
+    private Map<String, ILogicalTable> subTables = new HashMap<>();
 
     private ArrayList<SyntaxNodeException> errors;
 
     private Object validationResult;
+
+    private MetaInfoReader metaInfoReader = EmptyMetaInfoReader.getInstance();
 
     public TableSyntaxNode(String type, GridLocation pos, XlsSheetSourceCodeModule module, IGridTable gridtable,
             HeaderSyntaxNode header) {
@@ -63,7 +67,7 @@ public class TableSyntaxNode extends NaryNode {
 
     public void addError(SyntaxNodeException error) {
         if (errors == null) {
-            errors = new ArrayList<SyntaxNodeException>();
+            errors = new ArrayList<>();
         }
         for (SyntaxNodeException exception : errors) {
             if (exception.getMessage().equals(error.getMessage())) {
@@ -92,7 +96,7 @@ public class TableSyntaxNode extends NaryNode {
     }
 
     public SyntaxNodeException[] getErrors() {
-        return errors == null ? null : errors.toArray(new SyntaxNodeException[errors.size()]);
+        return errors == null ? null : errors.toArray(new SyntaxNodeException[0]);
     }
 
     public boolean hasErrors() {
@@ -223,4 +227,11 @@ public class TableSyntaxNode extends NaryNode {
         return XlsNodeTypes.getEnumByValue(getType());
     }
 
+    public MetaInfoReader getMetaInfoReader() {
+        return metaInfoReader;
+    }
+
+    public void setMetaInfoReader(MetaInfoReader metaInfoReader) {
+        this.metaInfoReader = metaInfoReader;
+    }
 }

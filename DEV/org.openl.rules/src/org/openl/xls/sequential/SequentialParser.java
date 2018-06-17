@@ -11,7 +11,7 @@ import org.openl.syntax.code.IParsedCode;
 public class SequentialParser extends BaseParser {
     private final IUserContext userContext;
 
-    SequentialParser(IUserContext userContext) {
+    public SequentialParser(IUserContext userContext) {
         this.userContext = userContext;
     }
 

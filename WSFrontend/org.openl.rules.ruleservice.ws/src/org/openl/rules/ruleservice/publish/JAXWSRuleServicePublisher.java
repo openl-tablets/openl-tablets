@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.Feature;
@@ -19,11 +20,14 @@ import org.apache.cxf.frontend.ServerFactoryBean;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
-import org.openl.rules.ruleservice.logging.CollectOpenLServiceIntercepror;
+import org.openl.rules.ruleservice.logging.CollectObjectSerializerInterceptor;
+import org.openl.rules.ruleservice.logging.CollectOpenLServiceInterceptor;
 import org.openl.rules.ruleservice.logging.CollectOperationResourceInfoInterceptor;
 import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
-import org.openl.rules.ruleservice.publish.jaxws.JAXWSInterfaceEnhancerHelper;
+import org.openl.rules.ruleservice.logging.ObjectSerializer;
+import org.openl.rules.ruleservice.publish.jaxws.JAXWSEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSInvocationHandler;
+import org.openl.rules.ruleservice.publish.jaxws.logging.AegisObjectSerializer;
 import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.slf4j.Logger;
@@ -93,13 +97,8 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
         throw new IllegalArgumentException("loggingInfoStoringService isn't defined.");
     }
 
-    protected Class<?> enhanceServiceClassWithJAXWSAnnotations(Class<?> serviceClass,
-            OpenLService service) throws Exception {
-        return JAXWSInterfaceEnhancerHelper.decorateInterface(serviceClass, service);
-    }
-
-    protected Object createWrappedBean(Object serviceBean, OpenLService service) {
-        return Proxy.newProxyInstance(service.getClassLoader(), new Class<?>[] {service.getServiceClass()}, new JAXWSInvocationHandler(serviceBean));
+    private ObjectSerializer getObjectSeializer(ServerFactoryBean svrFactory) {
+        return new AegisObjectSerializer((AegisDatabinding) svrFactory.getDataBinding());
     }
 
     @Override
@@ -113,21 +112,25 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
             try {
                 String serviceAddress = getBaseAddress() + processURL(service.getUrl());
                 svrFactory.setAddress(serviceAddress);
-                
-                Class<?> serviceClass = enhanceServiceClassWithJAXWSAnnotations(service.getServiceClass(), service);
+
+                Class<?> serviceClass = JAXWSEnhancerHelper.decorateServiceInterface(service);
                 svrFactory.setServiceClass(serviceClass);
 
-                Object target = createWrappedBean(service.getServiceBean(), service);
+                Object target = Proxy.newProxyInstance(service.getClassLoader(),
+                    new Class<?>[] { service.getServiceClass() },
+                    new JAXWSInvocationHandler(service.getServiceBean()));
 
                 svrFactory.setServiceBean(target);
 
                 svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
                 if (isLoggingStoreEnable()) {
                     svrFactory.getFeatures().add(getStoreLoggingFeatureBean());
-                    svrFactory.getInInterceptors().add(new CollectOpenLServiceIntercepror(service));
+                    svrFactory.getInInterceptors().add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
+                    svrFactory.getInInterceptors().add(new CollectOpenLServiceInterceptor(service));
                     svrFactory.getInInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
                     svrFactory.getInInterceptors().add(new CollectOperationResourceInfoInterceptor());
-                    svrFactory.getInFaultInterceptors().add(new CollectOpenLServiceIntercepror(service));
+                    svrFactory.getInFaultInterceptors().add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
+                    svrFactory.getInFaultInterceptors().add(new CollectOpenLServiceInterceptor(service));
                     svrFactory.getInFaultInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
                     svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
                 }

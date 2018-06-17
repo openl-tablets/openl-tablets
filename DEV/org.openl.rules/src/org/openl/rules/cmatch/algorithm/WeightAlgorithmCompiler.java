@@ -27,7 +27,7 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
     public static final int ROW_TOTAL_SCORE_IDX = 1;
     public static final int ROW_SCORE_IDX = 2;
 
-    protected static final List<ColumnDefinition> WEIGHT_COLUMN_DEFINITION = new LinkedList<ColumnDefinition>();
+    protected static final List<ColumnDefinition> WEIGHT_COLUMN_DEFINITION = new LinkedList<>();
     private static final WeightAlgorithmExecutor WEIGHT_EXECUTOR = new WeightAlgorithmExecutor();
 
     static {
@@ -101,7 +101,6 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
 
         parseCheckValues(bindingContext, columnMatch, totalScoreRow, totalScore, retValuesCount);
         columnMatch.setTotalScore(totalScore);
-        bindMetaInfo(columnMatch, "Total Scores", totalScoreRow.get(VALUES), totalScore.getCheckValues());
 
         // score
         TableRow scoreRow = columnMatch.getRows().get(ROW_SCORE_IDX);
@@ -118,7 +117,6 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
             scores[i] = (Integer) objScores[i];
         }
         columnMatch.setColumnScores(scores);
-        bindMetaInfo(columnMatch, "Scores", scoreRow.get(VALUES), objScores);
     }
 
     @Override
@@ -134,7 +132,7 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
             SubValue weightSV = row.get(WEIGHT)[0];
             
             ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, weightSV.getString());
-            Integer rowWeight = null;
+            Integer rowWeight;
             if (constantOpenField != null && constantOpenField.getValue() != null) {
                 setMetaInfoForConstant(bindingContext, columnMatch, weightSV, weightSV.getString(), constantOpenField);
                 rowWeight = (Integer) RuleRowHelper.castConstantToExpectedType(bindingContext, constantOpenField, JavaOpenClass.getOpenClass(Integer.class));
@@ -154,7 +152,7 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
      * @see #buildTree
      */
     @Override
-    protected void validateTree(MatchNode rootNode, List<TableRow> rows, MatchNode[] nodes) throws SyntaxNodeException {
+    protected void validateTree(MatchNode rootNode, List<TableRow> rows, MatchNode[] nodes) {
         // DO NOTHING!!!
     }
 }

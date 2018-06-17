@@ -14,6 +14,8 @@ try {
     // Check total tests statistics
     assert lines.any { it.contains('Total tests run: 2, Failures: 0, Errors: 0') }
 
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL-Simple Rules-halfTest.xml").exists();
+
     return true
 } catch (Throwable e) {
     e.printStackTrace()

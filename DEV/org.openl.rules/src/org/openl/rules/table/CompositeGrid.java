@@ -88,7 +88,7 @@ public class CompositeGrid extends AGrid {
                 Transform t1 = transform(0, delegate.getHeight());//Properties parsing and merge
                 if (t1 != null){
                     ICell delegate1 = t1.grid().getCell(t1.getCol(), t1.getRow());
-                    if (row < delegate.getHeight() + delegate1.getHeight() && PropertiesHelper.PROPERTIES_HEADER.equals(delegate1.getFormattedValue())){
+                    if (row < delegate.getHeight() + delegate1.getHeight() && PropertiesHelper.PROPERTIES_HEADER.equals(delegate1.getStringValue())){
                         Transform t2 = transform(delegate1.getWidth(), row);
                         if (t2 != null){
                             ICell delegate2 = t2.grid().getCell(t2.getCol(), t2.getRow());

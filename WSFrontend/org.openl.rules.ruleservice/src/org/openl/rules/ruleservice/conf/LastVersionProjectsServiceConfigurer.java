@@ -42,9 +42,9 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
     private IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
     private boolean provideRuntimeContext = false;
     private boolean supportVariations = false;
-    private boolean useRuleServiceRuntimeContext = false;
     private String supportedGroups = null;
     private boolean filterDeployments = false;
+    private DeploymentNameMatcher deploymentMatcher = DeploymentNameMatcher.DEFAULT;
 
     private Collection<Deployment> filterDeployments(Collection<Deployment> deployments) {
         if (!filterDeployments) {
@@ -139,6 +139,9 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         Collection<ServiceDescription> serviceDescriptions = new HashSet<ServiceDescription>();
         Set<String> serviceURLs = new HashSet<String>();
         for (Deployment deployment : deployments) {
+            if (!deploymentMatcher.hasMatches(deployment.getDeploymentName())) {
+                continue;
+            }
             String deploymentName = deployment.getDeploymentName();
             CommonVersion deploymentVersion = deployment.getCommonVersion();
             DeploymentDescription deploymentDescription = new DeploymentDescription(deploymentName, deploymentVersion);
@@ -150,8 +153,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                     ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder()
                         .setProvideRuntimeContext(provideRuntimeContext)
                         .setProvideVariations(supportVariations)
-                        .setDeployment(deploymentDescription)
-                        .setUseRuleServiceRuntimeContext(useRuleServiceRuntimeContext);
+                        .setDeployment(deploymentDescription);
 
                     serviceDescriptionBuilder.setModules(modulesOfProject);
 
@@ -181,10 +183,6 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                                 }
                                 if (rulesDeploy.isProvideVariations() != null) {
                                     serviceDescriptionBuilder.setProvideVariations(rulesDeploy.isProvideVariations());
-                                }
-                                if (rulesDeploy.isUseRuleServiceRuntimeContext() != null) {
-                                    serviceDescriptionBuilder
-                                        .setUseRuleServiceRuntimeContext(rulesDeploy.isUseRuleServiceRuntimeContext());
                                 }
                                 if (rulesDeploy.getPublishers() != null) {
                                     for (RulesDeploy.PublisherType key : rulesDeploy.getPublishers()) {
@@ -344,14 +342,6 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         this.supportVariations = supportVariations;
     }
 
-    public boolean isUseRuleServiceRuntimeContext() {
-        return useRuleServiceRuntimeContext;
-    }
-
-    public void setUseRuleServiceRuntimeContext(boolean useRuleServiceRuntimeContext) {
-        this.useRuleServiceRuntimeContext = useRuleServiceRuntimeContext;
-    }
-
     public void setSupportedGroups(String supportedGroups) {
         this.supportedGroups = supportedGroups;
     }
@@ -363,4 +353,9 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
     public void setFilterDeployments(boolean filterDeployments) {
         this.filterDeployments = filterDeployments;
     }
+
+    public void setDatasourceDeploymentPatterns(String deploymentPatterns) {
+        this.deploymentMatcher = new DeploymentNameMatcher(deploymentPatterns);
+    }
+
 }

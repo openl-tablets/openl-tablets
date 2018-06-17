@@ -18,14 +18,10 @@ import org.openl.OpenL;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
-import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.ExtendableModuleOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessagesUtils;
-import org.openl.message.Severity;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.data.DataOpenField;
@@ -37,7 +33,6 @@ import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.prebind.ILazyMember;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.property.PropertiesOpenField;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
@@ -494,27 +489,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         super.clearOddDataForExecutionMode();
         dataBase = null;
         rulesModuleBindingContext = null;
-    }
-
-    @Override
-    public void addError(Throwable error) {
-        if (error instanceof DuplicatedMethodException || error instanceof DuplicatedVarException || error instanceof DuplicatedTableException || error instanceof DuplicatedFieldException || error instanceof SyntaxNodeException) {
-            if (VirtualSourceCodeModule.SOURCE_URI.equals(metaInfo.getSourceUrl())) {
-                // Avoid duplication of error messages. This error was defined
-                // in dependent module already.
-                for (CompiledDependency dependency : getDependencies()) {
-                    List<OpenLMessage> errors = OpenLMessagesUtils
-                        .filterMessagesBySeverity(dependency.getCompiledOpenClass().getMessages(), Severity.ERROR);
-                    for (OpenLMessage message : errors) {
-                        if (message.getSummary() != null && message.getSummary().equals(error.getMessage())) {
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-
-        super.addError(error);
     }
 
     public void completeOpenClassBuilding() {

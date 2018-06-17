@@ -135,9 +135,9 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
 
     @Override
     protected void handleMessage(LoggingMessage message) {
-        RuleServiceLoggingInfo ruleServiceLoggingData = RuleServiceLoggingInfoHolder.get();
-        ruleServiceLoggingData.setRequestMessage(message);
-        ruleServiceLoggingData.setIncomingMessageTime(new Date());
+        RuleServiceLogging ruleServiceLogging = RuleServiceLoggingHolder.get();
+        ruleServiceLogging.setRequestMessage(message);
+        ruleServiceLogging.setIncomingMessageTime(new Date());
     }
 
     protected void logReader(Message message, Reader reader, LoggingMessage buffer) {

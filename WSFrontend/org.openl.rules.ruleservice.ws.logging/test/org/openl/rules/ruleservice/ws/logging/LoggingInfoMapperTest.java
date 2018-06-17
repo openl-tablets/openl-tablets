@@ -14,7 +14,7 @@ import org.openl.rules.ruleservice.logging.LoggingCustomData;
 import org.openl.rules.ruleservice.logging.LoggingInfo;
 import org.openl.rules.ruleservice.logging.LoggingInfoConvertor;
 import org.openl.rules.ruleservice.logging.LoggingInfoMapper;
-import org.openl.rules.ruleservice.logging.RuleServiceLoggingInfo;
+import org.openl.rules.ruleservice.logging.RuleServiceLogging;
 import org.openl.rules.ruleservice.logging.TypeConvertor;
 import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue1;
 import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue2;
@@ -68,7 +68,7 @@ public class LoggingInfoMapperTest {
     public void testPublisherFilteringMapping() {
         LoggingInfoMapper mapper = new LoggingInfoMapper();
 
-        RuleServiceLoggingInfo ruleServiceLoggingInfo = new RuleServiceLoggingInfo();
+        RuleServiceLogging ruleServiceLoggingInfo = new RuleServiceLogging();
         final String customString1 = RandomStringUtils.random(10, true, true);
         final String customString2 = RandomStringUtils.random(10, true, true);
 
@@ -104,7 +104,7 @@ public class LoggingInfoMapperTest {
     public void testPublisherConvertorMapping() {
         LoggingInfoMapper mapper = new LoggingInfoMapper();
 
-        RuleServiceLoggingInfo ruleServiceLoggingInfo = new RuleServiceLoggingInfo();
+        RuleServiceLogging ruleServiceLoggingInfo = new RuleServiceLogging();
         final String customString1 = RandomStringUtils.random(10, true, true);
 
         LoggingCustomData loggingCustomData = new LoggingCustomData();
@@ -125,7 +125,7 @@ public class LoggingInfoMapperTest {
 
     @Test
     public void testSimpleMapping() {
-        RuleServiceLoggingInfo ruleServiceLoggingInfo = new RuleServiceLoggingInfo();
+        RuleServiceLogging ruleServiceLoggingInfo = new RuleServiceLogging();
 
         Random rnd = new Random(System.currentTimeMillis());
 

@@ -11,7 +11,7 @@ import org.openl.rules.helpers.RulesUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.StringTool;
+import org.openl.util.ClassUtils;
 
 public class XmlRules {
     public static void Push(String cell, Object value) {
@@ -237,7 +237,7 @@ public class XmlRules {
 
         Class<?> targetClass = target.getClass();
         JavaOpenClass openClass = JavaOpenClass.getOpenClass(targetClass);
-        IOpenMethod method = openClass.getMethod(StringTool.getGetterName(fieldName), new IOpenClass[0]);
+        IOpenMethod method = openClass.getMethod(ClassUtils.getter(fieldName), new IOpenClass[0]);
         if (method == null) {
             throw new OpenLRuntimeException("There is no field '" + fieldName + "' in type '" + targetClass.getSimpleName() + "'");
         }

@@ -1,9 +1,3 @@
-/*
- * Created on May 9, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.syntax.impl;
 
 import java.util.ArrayList;
@@ -21,12 +15,10 @@ import org.openl.util.text.TextInterval;
  */
 public class SyntaxTreeBuilder implements ISyntaxConstants {
 
-    static class Marker {
-    }
-
+    private static final SyntaxNodeException[] SYNTAX_NODE_EXCEPTIONS = new SyntaxNodeException[0];
     private IOpenSourceCodeModule module;
     private List<SyntaxNodeException> parseErrors;
-    private Stack<Object> stack = new Stack<Object>();
+    private Stack<Object> stack = new Stack<>();
 
     public IOpenSourceCodeModule getModule() {
         return module;
@@ -37,23 +29,16 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
     }
 
     public SyntaxNodeException[] getSyntaxErrors() {
-        return parseErrors == null ? new SyntaxNodeException[0] : (SyntaxNodeException[]) parseErrors
-            .toArray(new SyntaxNodeException[parseErrors.size()]);
+        return parseErrors == null ? SYNTAX_NODE_EXCEPTIONS : parseErrors.toArray(SYNTAX_NODE_EXCEPTIONS);
     }
 
     public void addError(SyntaxNodeException exc) {
         if (parseErrors == null) {
-            parseErrors = new ArrayList<SyntaxNodeException>();
+            parseErrors = new ArrayList<>(1);
         }
         parseErrors.add(exc);
     }
 
-    public Object marker() {
-        Object marker = new Marker();
-        stack.push(marker);
-        return marker;
-    }
-    
     public ISyntaxNode getTopnode() {
 
         // TODO exception?
@@ -133,10 +118,6 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
         stack.push(sn);
     }
 
-    public void toMarker(String type, TextInterval pos, Object marker) {
-        push(new NaryNode(type, pos, popToMarker(marker), module));
-    }
-
     private ISyntaxNode pop() {
         Object x = stack.pop();
         if (x instanceof ISyntaxNode) {
@@ -145,7 +126,7 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
         return null;
     }
 
-    protected ISyntaxNode[] popN(int n) {
+    private ISyntaxNode[] popN(int n) {
         ISyntaxNode[] nodes = new ISyntaxNode[n];
 
         for (int i = 0; i < n; ++i) {
@@ -154,17 +135,4 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
 
         return nodes;
     }
-
-    public ISyntaxNode[] popToMarker(Object marker) {
-        for (int i = 0, size = stack.size(); i < size; ++i) {
-            if (stack.get(size - i - 1) == marker) {
-                ISyntaxNode[] sn = popN(i);
-                stack.pop(); // remove marker
-                return sn;
-            }
-        }
-
-        throw new RuntimeException("Marker is not found");
-    };
-
 }

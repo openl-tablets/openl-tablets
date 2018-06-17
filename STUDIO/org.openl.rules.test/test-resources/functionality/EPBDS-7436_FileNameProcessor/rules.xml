@@ -1,0 +1,18 @@
+<project>
+  <name>FileVersioning</name>
+  <modules>
+    <module>
+      <name>AUTO</name>
+      <rules-root path="AUTO-*.xlsx"/>
+    </module>
+    <module>
+      <name>HOME</name>
+      <rules-root path="HOME-*.xlsx"/>
+    </module>
+    <module>
+      <name>Test</name>
+      <rules-root path="Test.xlsx"/>
+    </module>
+  </modules>
+  <properties-file-name-pattern>%lob%-%state%-%startRequestDate:yyyy-MM-dd%</properties-file-name-pattern>
+</project>

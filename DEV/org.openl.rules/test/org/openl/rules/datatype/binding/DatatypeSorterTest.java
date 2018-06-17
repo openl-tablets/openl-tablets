@@ -18,7 +18,7 @@ public class DatatypeSorterTest {
 
     @Test
     public void testOrderDatatypes_Inheritance_Null() {
-        assertNull(new DatatypesSorter().sort(null, null));
+        assertNull(DatatypesSorter.sort(null, null));
     }
 
     @Test
@@ -32,7 +32,7 @@ public class DatatypeSorterTest {
         String[][] independent = new String[1][1];
         independent[0][0] = "Datatype Independent";
 
-        TableSyntaxNode[] ordered = new DatatypesSorter().sort(
+        TableSyntaxNode[] ordered = DatatypesSorter.sort(
                 new TableSyntaxNode[]{
                         getTableSyntaxNode(child),
                         getTableSyntaxNode(independent),
@@ -71,7 +71,7 @@ public class DatatypeSorterTest {
         table3[2][0] = "Boolean";
         table3[2][1] = "flag";
 
-        TableSyntaxNode[] ordered = new DatatypesSorter().sort(
+        TableSyntaxNode[] ordered = DatatypesSorter.sort(
                         new TableSyntaxNode[]{
                                 getTableSyntaxNode(table1),
                                 getTableSyntaxNode(table2),
@@ -114,7 +114,7 @@ public class DatatypeSorterTest {
         table3[2][0] = "Boolean";
         table3[2][1] = "flag";
 
-        TableSyntaxNode[] ordered = new DatatypesSorter().sort(
+        TableSyntaxNode[] ordered = DatatypesSorter.sort(
                         new TableSyntaxNode[]{
                                 getTableSyntaxNode(table1),
                                 getTableSyntaxNode(table2),
@@ -147,7 +147,7 @@ public class DatatypeSorterTest {
         tableChild[2][1] = "flag";
 
         // Shouldn't throw StackOverflowError
-        TableSyntaxNode[] ordered = new DatatypesSorter().sort(
+        TableSyntaxNode[] ordered = DatatypesSorter.sort(
                         new TableSyntaxNode[]{
                                 getTableSyntaxNode(tableParent),
                                 getTableSyntaxNode(tableChild)},
@@ -183,7 +183,7 @@ public class DatatypeSorterTest {
         table3[2][0] = "Boolean";
         table3[2][1] = "flag";
 
-        TableSyntaxNode[] ordered = new DatatypesSorter().sort(
+        TableSyntaxNode[] ordered = DatatypesSorter.sort(
                         new TableSyntaxNode[]{
                                 getTableSyntaxNode(table1),
                                 getTableSyntaxNode(table2),

@@ -8,48 +8,22 @@ import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
 
 public class CellMetaInfo {
-
-    public static enum Type {
-        TABLE_HEADER,
-        TABLE_PROPERTIES,
-        DT_CA_HEADER,
-        DT_CA_CODE,
-        DT_CA_DISPLAY,
-        DT_DATA_CELL
-    }
-
-    private Type type;
     private IOpenClass domain;
-    private String paramName;
     private boolean multiValue;
     private List<? extends NodeUsage> usedNodes;
 
-    public CellMetaInfo(Type type, String paramName, IOpenClass domain, boolean multiValue) {
-        this(type, paramName, domain, multiValue, null);
+    public CellMetaInfo(IOpenClass domain, boolean multiValue) {
+        this(domain, multiValue, null);
     }
     
-    public CellMetaInfo(Type type, String paramName, IOpenClass domain, boolean multiValue, List<? extends NodeUsage> usedNodes) {
-        this.type = type;
+    public CellMetaInfo(IOpenClass domain, boolean multiValue, List<? extends NodeUsage> usedNodes) {
         this.domain = domain;
-        this.paramName = paramName;
-        this.setMultiValue(multiValue);
+        this.multiValue = multiValue;
         this.usedNodes = usedNodes;
     }
 
     public IOpenClass getDataType() {
         return domain;
-    }
-
-    public String getParamName() {
-        return paramName;
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-    public void setMultiValue(boolean multiValue) {
-        this.multiValue = multiValue;
     }
 
     public boolean isMultiValue() {
@@ -64,11 +38,11 @@ public class CellMetaInfo {
         this.usedNodes = usedNodes;
     }
     
-    public boolean hasNodeUsagesInCell() {
+    private boolean hasNodeUsagesInCell() {
         return CollectionUtils.isNotEmpty(getUsedNodes());
     }
 
-    public static boolean isCellContainsNodeUsages(ICell cell){
-        return cell.getMetaInfo() != null && cell.getMetaInfo().hasNodeUsagesInCell();
+    public static boolean isCellContainsNodeUsages(CellMetaInfo metaInfo) {
+        return metaInfo != null && metaInfo.hasNodeUsagesInCell();
     }
 }

@@ -17,7 +17,6 @@ import org.openl.OpenL;
 import org.openl.classloader.ClassLoaderUtils;
 import org.openl.conf.ClassLoaderFactory;
 import org.openl.conf.OpenLConfiguration;
-import org.openl.message.OpenLMessages;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
@@ -192,7 +191,5 @@ abstract class BaseOpenLMojo extends AbstractMojo {
         OpenL.reset();
         OpenLConfiguration.reset();
         ClassLoaderFactory.reset();
-
-        OpenLMessages.removeCurrentInstance();
     }
 }

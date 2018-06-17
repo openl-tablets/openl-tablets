@@ -1,20 +1,10 @@
 package org.openl.rules.ui;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.CREATE_TABLES;
-import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
-import static org.openl.rules.security.Privileges.EDIT_TABLES;
+import static org.openl.rules.security.Privileges.*;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
@@ -28,7 +18,6 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.extension.ExtensionWrapperGrid;
 import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
@@ -47,11 +36,7 @@ import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.project.instantiation.ReloadType;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
-import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
-import org.openl.rules.project.instantiation.SimpleProjectDependencyLoader;
+import org.openl.rules.project.instantiation.*;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -63,11 +48,7 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.testmethod.ProjectHelper;
-import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.TestSuiteExecutor;
-import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.testmethod.*;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.benchmark.Benchmark;
 import org.openl.rules.ui.benchmark.BenchmarkInfo;
@@ -589,7 +570,7 @@ public class ProjectModel {
         return compiledOpenClass;
     }
 
-    public List<OpenLMessage> getModuleMessages() {
+    public Collection<OpenLMessage> getModuleMessages() {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
         if (compiledOpenClass != null) {
             return compiledOpenClass.getMessages();
@@ -933,9 +914,6 @@ public class ProjectModel {
     public void clearModuleInfo() {
         this.moduleInfo = null;
 
-        // Clear project messages (errors, warnings)
-        clearOpenLMessages();
-
         clearModuleResources(); // prevent memory leak
 
         compiledOpenClass = null;
@@ -966,13 +944,6 @@ public class ProjectModel {
         
         if (moduleInfo != this.moduleInfo) {
             moduleInfoWasChanged = true;
-            // Current module changed - mark the previous one as read only
-            XlsModuleSyntaxNode moduleSyntaxNode = xlsModuleSyntaxNode;
-            if (moduleSyntaxNode != null) {
-                for (WorkbookSyntaxNode workbookSyntaxNode : moduleSyntaxNode.getWorkbookSyntaxNodes()) {
-                    workbookSyntaxNode.getWorkbookSourceCodeModule().getWorkbookLoader().setCanUnload(true);
-                }
-            }
         }
 
         if (reloadType != ReloadType.NO) {
@@ -996,9 +967,6 @@ public class ProjectModel {
             this.moduleInfo = moduleInfo;
         }
         
-
-        // Clear project messages (errors, warnings)
-        clearOpenLMessages();
 
         clearModuleResources(); // prevent memory leak
 
@@ -1028,8 +996,11 @@ public class ProjectModel {
         }
         instantiationStrategy.setExternalParameters(externalParameters);
         instantiationStrategy.setServiceClass(SimpleProjectDependencyLoader.EmptyInterface.class);
-        
-        LazyWorkbookLoaderFactory factory = new LazyWorkbookLoaderFactory();
+
+        // If autoCompile is false we can't unload workbook during editing because we must show to a user latest edited
+        // data (not parsed and compiled data).
+        boolean canUnload = studio.isAutoCompile();
+        LazyWorkbookLoaderFactory factory = new LazyWorkbookLoaderFactory(canUnload);
 
         try {
             if (reloadType == ReloadType.FORCED) {
@@ -1040,7 +1011,6 @@ public class ProjectModel {
             }
 
             WorkbookLoaders.setCurrentFactory(factory);
-            factory.disallowUnload();
 
             // Find all dependent XlsModuleSyntaxNode-s
             final String moduleName = moduleInfo.getName();
@@ -1068,24 +1038,11 @@ public class ProjectModel {
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(webStudioWorkspaceDependencyManager);
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
 
-            factory.allowUnload();
             WorkbookLoaders.resetCurrentFactory();
-
-            // Edit current module, others should be read only
-            // TODO Set edit mode only when actually editing: cell edit, table creating wizards etc
-            WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
-            if (workbookNodes != null) {
-                for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
-                    XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
-                    boolean currentModule = this.moduleInfo.getRulesRootPath() == null ||
-                            module.getSourceFile().getName().equals(FileUtils.getName(this.moduleInfo.getRulesRootPath().getPath()));
-                    module.getWorkbookLoader().setCanUnload(!currentModule);
-                }
-            }
         } catch (Throwable t) {
             Log.error("Problem Loading OpenLWrapper", t);
-            List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
-            for (OpenLMessage openLMessage : OpenLMessagesUtils.newMessages(t)) {
+            Collection<OpenLMessage> messages = new LinkedHashSet<>();
+            for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(t)) {
                 String message = String.format("Can't load the module: %s", openLMessage.getSummary());
                 messages.add(new OpenLMessage(message, Severity.ERROR));
             }
@@ -1093,7 +1050,6 @@ public class ProjectModel {
             compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages, new SyntaxNodeException[0],
                     new SyntaxNodeException[0]);
 
-            factory.allowUnload();
             WorkbookLoaders.resetCurrentFactory();
         }
 
@@ -1127,20 +1083,6 @@ public class ProjectModel {
                 openedInSingleModuleMode = singleModuleMode;
             }
         }
-    }
-
-    /**
-     * To prevent memory leaks. OpenLMessages instance is ThreadLocal and we
-     * have to clear previous OpenLMessages instance if it was created from
-     * another thread(due to running as web application).
-     */
-    private OpenLMessages previousUsedMessages;
-
-    private void clearOpenLMessages() {
-        if (previousUsedMessages != null) {
-            previousUsedMessages.clear();
-        }
-        previousUsedMessages = OpenLMessages.getCurrentInstance();
     }
 
     public void traceElement(TestSuite testSuite) {

@@ -1,15 +1,15 @@
 package org.openl.rules.table.formatters;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openl.util.ArrayTool;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.openl.util.formatters.IFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A formatter for converting an array of elements,
@@ -31,13 +31,13 @@ public class ArrayFormatter implements IFormatter {
      * is needed when the element contains separator as part of object name,
      * e.g: Mike\\,Sara`s Son.
      */
-    public static final String ARRAY_ELEMENTS_SEPARATOR_ESCAPER = "\\";
+    private static final String ARRAY_ELEMENTS_SEPARATOR_ESCAPER = "\\";
 
     /**
      * Separator for elements of array, represented as
      * <code>{@link String}</code>.
      */
-    public static final String ARRAY_ELEMENTS_SEPARATOR = ",";
+    private static final String ARRAY_ELEMENTS_SEPARATOR = ",";
 
     private IFormatter elementFormat;
 
@@ -64,7 +64,7 @@ public class ArrayFormatter implements IFormatter {
         if (value != null) {
             if (!(value.getClass().isArray())) {
                 log.debug("Should be an array: {}", value);
-                return result;
+                return null;
             }
 
             Object[] array = ArrayTool.toArray(value);
@@ -92,7 +92,7 @@ public class ArrayFormatter implements IFormatter {
                     ARRAY_ELEMENTS_SEPARATOR,
                     ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
 
-            List<Object> elements = new ArrayList<Object>();
+            List<Object> elements = new ArrayList<>();
             Class<?> elementType = null;
 
             for (String elementValue : elementValues) {
@@ -115,5 +115,9 @@ public class ArrayFormatter implements IFormatter {
         }
 
         return result;
+    }
+
+    public IFormatter getElementFormat() {
+        return elementFormat;
     }
 }

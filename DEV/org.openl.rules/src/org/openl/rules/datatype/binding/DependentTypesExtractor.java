@@ -103,7 +103,7 @@ class DependentTypesExtractor {
             // Suppress the exception
             //
         }
-        if (idn.length == 1) {
+        if (idn.length >= 1) {
             String type = idn[0].getIdentifier();
             if (type.contains("[")) {
                 // Use the clean type, without array declarations

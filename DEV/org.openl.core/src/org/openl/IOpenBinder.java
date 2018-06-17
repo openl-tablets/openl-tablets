@@ -7,7 +7,6 @@
 package org.openl;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.INameSpacedMethodFactory;
@@ -25,7 +24,7 @@ public interface IOpenBinder {
 
     IBoundCode bind(IParsedCode parsedCode);
 
-    IBoundCode bind(IParsedCode parsedCode, IBindingContextDelegator delegator);
+    IBoundCode bind(IParsedCode parsedCode, IBindingContext bindingContext);
 
     ICastFactory getCastFactory();
 
@@ -38,4 +37,5 @@ public interface IOpenBinder {
     INameSpacedVarFactory getVarFactory();
 
     IBindingContext makeBindingContext();
+    
 }

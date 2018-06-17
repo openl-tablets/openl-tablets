@@ -3,7 +3,6 @@ package org.openl.excel.parser.sax;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.junit.Test;
@@ -22,7 +21,7 @@ public class SAXReaderFromFileTest extends BaseReaderTest {
         SAXReader saxReader = (SAXReader) reader;
         List<SAXSheetDescriptor> sheets = saxReader.getSheets();
 
-        assertEquals(3, sheets.size());
+        assertEquals(4, sheets.size());
 
         assertNotNull(sheets.get(0).getRelationId());
         assertNotNull(sheets.get(1).getRelationId());

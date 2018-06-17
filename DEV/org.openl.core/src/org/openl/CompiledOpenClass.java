@@ -1,7 +1,8 @@
 package org.openl;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -22,21 +23,25 @@ public class CompiledOpenClass {
 
     private SyntaxNodeException[] bindingErrors;
 
-    private List<OpenLMessage> messages;
+    private Collection<OpenLMessage> messages;
 
     private IOpenClass openClass;
     
     private ClassLoader classLoader;
 
     public CompiledOpenClass(IOpenClass openClass,
-            List<OpenLMessage> messages,
+            Collection<OpenLMessage> messages,
             SyntaxNodeException[] parsingErrors,
             SyntaxNodeException[] bindingErrors) {
         
         this.openClass = openClass;
         this.parsingErrors = parsingErrors;
         this.bindingErrors = bindingErrors;
-        this.messages = messages;
+        if (messages == null) {
+            this.messages = Collections.emptyList();
+        } else {
+            this.messages = new LinkedHashSet<>(messages);
+        }
         this.classLoader = Thread.currentThread().getContextClassLoader();
     }
 
@@ -60,32 +65,30 @@ public class CompiledOpenClass {
     }
 
     public boolean hasErrors() {
-        List<OpenLMessage> errorMessages = getErrorMessages();
+        Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(getMessages(), Severity.ERROR);
         return (parsingErrors.length > 0) || (bindingErrors.length > 0) || 
             (errorMessages != null && !errorMessages.isEmpty());
     }
 
-    private List<OpenLMessage> getErrorMessages() {
-        return OpenLMessagesUtils.filterMessagesBySeverity(getMessages(), Severity.ERROR);
-    }
-
     public void throwErrorExceptionsIfAny() {
+        Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(getMessages(), Severity.ERROR);
+        
         if (parsingErrors.length > 0) {
-            throw new CompositeOpenlException("Parsing Error(s):", parsingErrors, getErrorMessages());
+            throw new CompositeOpenlException("Parsing Error(s):", parsingErrors, errorMessages);
         }
 
         if (bindingErrors.length > 0) {
-            throw new CompositeOpenlException("Binding Error(s):", bindingErrors, getErrorMessages());
+            throw new CompositeOpenlException("Binding Error(s):", bindingErrors, errorMessages);
         }
         
-        if (getErrorMessages().size() > 0) {
-        	throw new CompositeOpenlException("Module contains critical errors", null, getErrorMessages());
+        if (!errorMessages.isEmpty()) {
+        	throw new CompositeOpenlException("Module contains critical errors", null, errorMessages);
         }
 
     }
 
-    public List<OpenLMessage> getMessages() {
-        return messages;
+    public Collection<OpenLMessage> getMessages() {
+        return Collections.unmodifiableCollection(messages);
     }
     
     public Collection<IOpenClass> getTypes() {

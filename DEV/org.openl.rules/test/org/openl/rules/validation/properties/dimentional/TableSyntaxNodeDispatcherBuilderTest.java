@@ -16,7 +16,6 @@ public class TableSyntaxNodeDispatcherBuilderTest {
 		RulesModuleBindingContext context = Mockito.mock(RulesModuleBindingContext.class);
 		XlsModuleOpenClass moduleOpenClass = Mockito.mock(XlsModuleOpenClass.class);
 		TableSyntaxNodeDispatcherBuilder builder = new TableSyntaxNodeDispatcherBuilder(context, moduleOpenClass, dispatcher);
-		assertFalse(builder.needToBuild());
 		assertNull(builder.build());
 	}
 		

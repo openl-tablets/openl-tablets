@@ -31,7 +31,6 @@ import org.openl.engine.OpenLManager;
 import org.openl.main.OpenLProjectPropertiesLoader;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
@@ -85,11 +84,12 @@ public class GenerateInterface {
         setIgnoreTestMethods(true);
     }
 
-    private static CompiledOpenClass createWrapper(String openlName, IUserContext userContext, String filename,
-                                                   IDependencyManager dependencyManager) {
+    private static CompiledOpenClass createWrapper(String openlName,
+            IUserContext userContext,
+            String filename,
+            IDependencyManager dependencyManager) {
         IOpenSourceCodeModule source = new URLSourceCodeModule(filename);
         OpenL openl = OpenL.getInstance(openlName, userContext);
-        OpenLMessages.getCurrentInstance().clear();
         CompiledOpenClass openClass = OpenLManager.compileModuleWithErrors(openl, source, false, dependencyManager);
 
         return openClass;
@@ -151,7 +151,8 @@ public class GenerateInterface {
             ve.setProperty("string.resource.loader.repository.static", false);
             ve.init();
             if (!ve.resourceExists(unitTestTemplatePath)) {
-                StringResourceRepository repo = (StringResourceRepository) ve.getApplicationAttribute(StringResourceLoader.REPOSITORY_NAME_DEFAULT);
+                StringResourceRepository repo = (StringResourceRepository) ve
+                    .getApplicationAttribute(StringResourceLoader.REPOSITORY_NAME_DEFAULT);
                 repo.putStringResource(unitTestTemplatePath, getTemplateFromResource(unitTestTemplatePath));
             }
 
@@ -264,7 +265,8 @@ public class GenerateInterface {
 
     // TODO extract the code that writes rules.xml, to another class
     protected void writeRulesXML() {
-        File rulesDescriptor = new File(getResourcesPath() + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+        File rulesDescriptor = new File(
+            getResourcesPath() + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
 
         ProjectDescriptor projectToWrite;
@@ -298,7 +300,9 @@ public class GenerateInterface {
                 }
                 projectToWrite = existedDescriptor;
             } catch (Exception e) {
-                log("Can't read previously created project descriptor file '" + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME + "'.", e, MSG_ERR);
+                log("Can't read previously created project descriptor file '" + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME + "'.",
+                    e,
+                    MSG_ERR);
                 throw new IllegalStateException(e);
             }
         } else {
@@ -313,15 +317,17 @@ public class GenerateInterface {
             fous = new FileOutputStream(rulesDescriptor);
             manager.writeDescriptor(projectToWrite, fous);
         } catch (Exception e) {
-            log("Can't write project descriptor file '" + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME+"'.", e, MSG_ERR);
+            log("Can't write project descriptor file '" + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME + "'.",
+                e,
+                MSG_ERR);
         } finally {
             IOUtils.closeQuietly(fous);
         }
     }
 
     /**
-     * Copy the module without {@link Module#getProject()}, as it prevents
-     * to Circular dependency.
+     * Copy the module without {@link Module#getProject()}, as it prevents to Circular dependency.
+     * 
      * @param module income module
      * @return copy of income module without project field
      */
@@ -364,6 +370,7 @@ public class GenerateInterface {
     public void setCreateProjectDescriptor(boolean createProjectDescriptor) {
         this.createProjectDescriptor = createProjectDescriptor;
     }
+
     private IOpenClass openClass;
 
     private String goal = GenerateInterface.GOAL_ALL;
@@ -384,8 +391,8 @@ public class GenerateInterface {
     private String deplUserHome;
 
     /**
-     * The root path where resources (such as rules.xml and rules) are located
-     * For example in maven: "src/main/openl. Default is "".
+     * The root path where resources (such as rules.xml and rules) are located For example in maven: "src/main/openl.
+     * Default is "".
      */
     private String resourcesPath = "";
     private String srcFile;
@@ -413,8 +420,8 @@ public class GenerateInterface {
     private boolean generateDataType = true;
 
     /*
-             * Full or relative path to directory where properties will be saved
-             */
+     * Full or relative path to directory where properties will be saved
+     */
     private String classpathPropertiesOutputDir = ".";
 
     public void execute() throws Exception {
@@ -426,7 +433,8 @@ public class GenerateInterface {
             setMethods(StringTool.tokenize(getIgnoreMethods(), ", "));
         }
 
-        if (getGoal().equals(GenerateInterface.GOAL_ALL) || getGoal().contains(GenerateInterface.GOAL_UPDATE_PROPERTIES)) {
+        if (getGoal().equals(GenerateInterface.GOAL_ALL) || getGoal()
+            .contains(GenerateInterface.GOAL_UPDATE_PROPERTIES)) {
             saveProjectProperties();
         }
 
@@ -448,7 +456,8 @@ public class GenerateInterface {
             writeContentToFile(content, fileName, true);
         }
 
-        if (getGoal().equals(GenerateInterface.GOAL_ALL) || getGoal().contains(GenerateInterface.GOAL_GENERATE_DATATYPES) && isGenerateDataType()) {
+        if (getGoal().equals(GenerateInterface.GOAL_ALL) || getGoal()
+            .contains(GenerateInterface.GOAL_GENERATE_DATATYPES) && isGenerateDataType()) {
             writeDatatypeBeans(getOpenClass().getTypes());
         }
 
@@ -490,8 +499,7 @@ public class GenerateInterface {
     }
 
     /*
-     * Get full or relative path to directory where classpath properties will be
-     * save
+     * Get full or relative path to directory where classpath properties will be save
      */
     public String getClasspathPropertiesOutputDir() {
         return classpathPropertiesOutputDir;
@@ -614,11 +622,12 @@ public class GenerateInterface {
 
         if (usedRuleXmlForGenerate) {
             SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> simpleProjectEngineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
-            SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = simpleProjectEngineFactoryBuilder.setExecutionMode(false)
-                    .setProvideRuntimeContext(false)
-                    .setWorkspace(resourcesPath)
-                    .setProject(resourcesPath)
-                    .build();
+            SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = simpleProjectEngineFactoryBuilder
+                .setExecutionMode(false)
+                .setProvideRuntimeContext(false)
+                .setWorkspace(resourcesPath)
+                .setProject(resourcesPath)
+                .build();
 
             compiledOpenClass = simpleProjectEngineFactory.getCompiledOpenClass();
         } else {
@@ -638,8 +647,8 @@ public class GenerateInterface {
             }
         }
 
-        List<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(
-                compiledOpenClass.getMessages(), Severity.ERROR);
+        Collection<OpenLMessage> errorMessages = OpenLMessagesUtils
+            .filterMessagesBySeverity(compiledOpenClass.getMessages(), Severity.ERROR);
         if (errorMessages != null && !errorMessages.isEmpty()) {
             String message = getErrorMessage(errorMessages);
             // throw new OpenLCompilationException(message);
@@ -672,19 +681,21 @@ public class GenerateInterface {
         return dependecyManager;
     }
 
-    private String getErrorMessage(List<OpenLMessage> errorMessages) {
+    private String getErrorMessage(Collection<OpenLMessage> errorMessages) {
         StringBuilder buf = new StringBuilder();
         buf.append("There are critical errors in wrapper:\n");
-        for (int i = 0; i < errorMessages.size(); i++) {
-            if (errorMessages.get(i) instanceof OpenLErrorMessage) {
-                OpenLErrorMessage openlError = (OpenLErrorMessage) errorMessages.get(i);
+        int i = 0;
+        for (OpenLMessage message : errorMessages) {
+            if (message instanceof OpenLErrorMessage) {
+                OpenLErrorMessage openlError = (OpenLErrorMessage) message;
                 buf.append(openlError.getError().toString());
                 buf.append("\n\n");
             } else {
                 // shouldn`t happen
-                buf.append(String.format("[%s] %s", i + 1, errorMessages.get(i).getSummary()));
+                buf.append(String.format("[%s] %s", i + 1, message.getSummary()));
                 buf.append("\n");
             }
+            i++;
         }
         return buf.toString();
     }
@@ -776,8 +787,7 @@ public class GenerateInterface {
     }
 
     /*
-     * Set full or relative path to directory where classpath properties will be
-     * save
+     * Set full or relative path to directory where classpath properties will be save
      */
     public void setClasspathPropertiesOutputDir(String classpathPropertiesOutputDir) {
         this.classpathPropertiesOutputDir = classpathPropertiesOutputDir;
@@ -840,8 +850,8 @@ public class GenerateInterface {
     }
 
     public void setResourcesPath(String resourcesPath) {
-        this.resourcesPath = resourcesPath.isEmpty() || resourcesPath.endsWith(File.separator) ? resourcesPath
-                                                                                               : resourcesPath + File.separator;
+        this.resourcesPath = resourcesPath.isEmpty() || resourcesPath
+            .endsWith(File.separator) ? resourcesPath : resourcesPath + File.separator;
     }
 
     public void setSrcFile(String srcFile) {

@@ -1,8 +1,6 @@
 package org.openl;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
-
 import org.openl.binding.IBindingContext;
 import org.openl.engine.OpenLManager;
 import org.openl.meta.StringValue;
@@ -11,6 +9,8 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
+
+import junit.framework.TestCase;
 
 /*
  * Created on Mar 11, 2004
@@ -64,7 +64,7 @@ public class OpenlToolTest extends TestCase {
         IOpenClass ioc = OpenLManager.makeType(openl, new StringSourceCodeModule(type, "<internal_string>"), null);
         Assert.assertEquals(xx.getClass(), ioc.getInstanceClass());
 
-        type = "String [] [] xyz";
+        type = "String [] []";
         ioc = OpenLManager.makeType(openl, new StringSourceCodeModule(type, "<internal_string>"), null);
         Assert.assertEquals(xx.getClass(), ioc.getInstanceClass());
 

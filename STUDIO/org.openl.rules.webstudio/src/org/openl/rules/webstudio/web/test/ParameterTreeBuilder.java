@@ -6,12 +6,15 @@ import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.SubGridTable;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
+import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.ClassUtils;
@@ -86,7 +89,7 @@ public class ParameterTreeBuilder {
         }
     }
 
-    public static ParameterDeclarationTreeNode createSpreadsheetResultTreeNode(IOpenClass fieldType,
+    private static ParameterDeclarationTreeNode createSpreadsheetResultTreeNode(IOpenClass fieldType,
                                                                                Object value,
                                                                                String fieldName,
                                                                                ParameterDeclarationTreeNode parent, boolean hasExplainLinks) {
@@ -113,7 +116,7 @@ public class ParameterTreeBuilder {
         }
     }
 
-    public static ParameterDeclarationTreeNode createSimpleNode(IOpenClass fieldType,
+    private static ParameterDeclarationTreeNode createSimpleNode(IOpenClass fieldType,
                                                                 Object value,
                                                                 String fieldName,
                                                                 ParameterDeclarationTreeNode parent) {
@@ -216,26 +219,30 @@ public class ParameterTreeBuilder {
     }
 
     public String tableToHtml(Object value) {
-        if (value != null && value instanceof ParameterWithValueDeclaration) {
+        if (value instanceof ParameterWithValueDeclaration) {
             StringBuilder result = new StringBuilder();
             if (Utils.isCollection(((ParameterWithValueDeclaration) value).getType())) {
                 Iterator<Object> iterator = ((ParameterWithValueDeclaration) value).getType().getAggregateInfo()
                         .getIterator(((ParameterWithValueDeclaration) value).getValue());
+                ProjectModel model = WebStudioUtils.getWebStudio().getModel();
                 while (iterator.hasNext()) {
                     Object singleValue = iterator.next();
 
                     if (singleValue instanceof GridTable) {
-                        int numRows = HTMLRenderer.getMaxNumRowsToDisplay((GridTable) singleValue);
+                        GridTable gridTable = (GridTable) singleValue;
+                        MetaInfoReader metaInfoReader = model.getNode(gridTable.getUri()).getMetaInfoReader();
+                        int numRows = HTMLRenderer.getMaxNumRowsToDisplay(gridTable);
                         HTMLRenderer.TableRenderer tableRenderer = new HTMLRenderer.
-                                TableRenderer(TableModel.initializeTableModel((GridTable) singleValue, numRows));
+                                TableRenderer(TableModel.initializeTableModel(gridTable, numRows, metaInfoReader));
 
                         result.append(tableRenderer.render(false, null, "testId", null)).append("<br/>");
                     } else if (singleValue instanceof SubGridTable) {
                         SubGridTable sgTable = (SubGridTable) singleValue;
                         GridTable gridTable = new GridTable(sgTable.getRegion(), sgTable.getGrid());
+                        MetaInfoReader metaInfoReader = model.getNode(gridTable.getUri()).getMetaInfoReader();
                         int numRows = HTMLRenderer.getMaxNumRowsToDisplay(gridTable);
                         HTMLRenderer.TableRenderer tableRenderer = new HTMLRenderer.
-                                TableRenderer(TableModel.initializeTableModel(gridTable, numRows));
+                                TableRenderer(TableModel.initializeTableModel(gridTable, numRows, metaInfoReader));
 
                         result.append(tableRenderer.render(false, null, "testId", null)).append("<br/>");
                     }

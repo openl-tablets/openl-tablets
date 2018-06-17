@@ -1,36 +1,40 @@
 package org.openl.rules.project.resolving;
 
-import org.openl.exception.OpenlNotCheckedException;
-import org.openl.rules.project.model.Module;
-import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.table.properties.TableProperties;
-
 import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.TableProperties;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.util.StringUtils;
+
 public class DefaultPropertiesFileNameProcessor implements PropertiesFileNameProcessor, FileNamePatternValidator {
-    private static Pattern pattern = Pattern.compile("(\\%[^%]*\\%)");
-    private static final String EMPTY_STRING = ""; 
+    private static Pattern pattern = Pattern.compile("(\\%[^%]+\\%)");
+    private static final String EMPTY_STRING = "";
 
     @Override
     public ITableProperties process(Module module, String fileNamePattern) throws NoMatchFileNameException,
-            InvalidFileNamePatternException {
-        if (fileNamePattern == null){
+                                                                           InvalidFileNamePatternException {
+        if (fileNamePattern == null) {
             fileNamePattern = EMPTY_STRING;
         }
-        ITableProperties props = new TableProperties();
 
         PatternModel patternModel = getPatternModel(fileNamePattern);
         String fileNameRegexpPattern = patternModel.getFileNameRegexpPattern();
         List<String> propertyNames = patternModel.getPropertyNames();
-        Map<String, SimpleDateFormat> dateFormats = patternModel.getDateFormats();
 
         Pattern p;
         try {
@@ -41,20 +45,26 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         String fileName = FilenameExtractorUtil.extractFileNameFromModule(module);
         Matcher fileNameMatcher = p.matcher(fileName);
         if (fileNameMatcher.matches()) {
+            TableProperties props = new TableProperties();
             int n = fileNameMatcher.groupCount();
-            try{
-                for (int i = 0; i < n; i++) {
-                    String group = fileNameMatcher.group(i + 1);
-                    String propertyName = propertyNames.get(i);
-                    setProperty(propertyName, group, props, dateFormats.get(propertyName));
+            for (int i = 0; i < n; i++) {
+                String group = fileNameMatcher.group(i + 1);
+                String propertyName = propertyNames.get(i);
+                try {
+                    Object value = patternModel.convert(propertyName, group);
+                    props.setFieldValue(propertyName, value);
+                } catch (Exception e) {
+                    throw new NoMatchFileNameException(
+                        "Module '" + fileName + "' doesn't match file name pattern!" + "\n File name pattern: " + fileNamePattern + ".\n Failed property: " + propertyName + ".\n Message:" + e
+                            .getMessage());
                 }
-            }catch(NoMatchFileNameException e){
-                throw new NoMatchFileNameException("Module '" + fileName + "' doesn't match file name pattern! File name pattern: " + fileNamePattern + ". " + e.getMessage());
             }
+
+            return props;
         } else {
-            throw new NoMatchFileNameException("Module '" + fileName + "' doesn't match file name pattern! File name pattern: " + fileNamePattern);
+            throw new NoMatchFileNameException(
+                "Module '" + fileName + "' doesn't match file name pattern! File name pattern: " + fileNamePattern);
         }
-        return props;
     }
 
     protected PatternModel getPatternModel(String fileNamePattern) throws InvalidFileNamePatternException {
@@ -78,7 +88,8 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 Date parsedDate = format.parse(format.format(date));
 
                 if (!correctFormat.format(parsedDate).equals(dateForCheck)) {
-                    throw new InvalidFileNamePatternException("Wrong date format for property '" + entry.getKey() + "'.");
+                    throw new InvalidFileNamePatternException(
+                        "Wrong date format for property '" + entry.getKey() + "'.");
                 }
             } catch (ParseException e) {
                 throw new InvalidFileNamePatternException("Wrong date format for property '" + entry.getKey() + "'.");
@@ -86,90 +97,14 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         }
 
         // Check for duplicate property declarations
-        Set<String> propertyNames = new HashSet<String>();
+        Set<String> propertyNames = new HashSet<>();
         for (String propertyName : patternModel.getPropertyNames()) {
             if (propertyNames.contains(propertyName)) {
-                throw new InvalidFileNamePatternException(String.format("Property '%s' is declared in pattern '%s' several times.", propertyName, pattern));
+                throw new InvalidFileNamePatternException(
+                    String.format("Property '%s' is declared in pattern '%s' several times.", propertyName, pattern));
             }
             propertyNames.add(propertyName);
         }
-    }
-
-    protected void setProperty(String propertyName, String value, ITableProperties props, SimpleDateFormat dateFormat) throws NoMatchFileNameException {
-        try {
-            Class<?> returnType = getReturnTypeByPropertyName(propertyName);
-            Method setMethod = ITableProperties.class.getMethod("set" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1),
-                    returnType);
-            if (Boolean.class.equals(returnType)) {
-                if ("YES".equals(value.toUpperCase()) || "TRUE".equals(value.toUpperCase())) {
-                    setMethod.invoke(props, Boolean.TRUE);
-                } else {
-                    setMethod.invoke(props, Boolean.FALSE);
-                }
-            } else if (String.class.equals(returnType)) {
-                setMethod.invoke(props, value);
-            } else if (Date.class.equals(returnType)) {
-                try {
-                    Date date = dateFormat.parse(value);
-                    setMethod.invoke(props, date);
-                } catch (ParseException e) {
-                    throw new NoMatchFileNameException("Wrong date format for property '" + propertyName + "'");
-                }
-            } else if (returnType.isEnum()) {
-
-                Method valueOfMethod = returnType.getMethod("valueOf", Class.class, String.class);
-                if (valueOfMethod != null) {
-                    Object enumObject = valueOfMethod.invoke(null, returnType, value);
-                    setMethod.invoke(props, enumObject);
-                }
-            } else if (returnType.isArray()) {
-                Class<?> componentClass = returnType.getComponentType();
-                if (Boolean.class.equals(componentClass)) {
-                    if ("YES".equals(value.toUpperCase()) || "TRUE".equals(value.toUpperCase())) {
-                        setMethod.invoke(props, createArray(Boolean.class, Boolean.TRUE));
-                    } else {
-                        setMethod.invoke(props, createArray(Boolean.class, Boolean.FALSE));
-                    }
-                } else if (String.class.equals(componentClass)) {
-                    setMethod.invoke(props, createArray(String.class, value));
-                } else if (Date.class.equals(componentClass)) {
-                    try {
-                        Date date = dateFormat.parse(value);
-                        setMethod.invoke(props, createArray(Date.class, date));
-                    } catch (ParseException e) {
-                        throw new NoMatchFileNameException("Wrong date format for property '" + propertyName + "'");
-                    }
-                } else if (componentClass.isEnum()) {
-                    Method valueOfMethod = componentClass.getMethod("valueOf", String.class);
-                    Object enumObject;
-                    try {
-                        enumObject = valueOfMethod.invoke(componentClass, value);
-                    } catch (InvocationTargetException e) {
-                        throw new NoMatchFileNameException("Wrong '" + propertyName + "' property value in file name");
-                    }
-                    setMethod.invoke(props, createArray(componentClass, enumObject));
-                } else if (componentClass.isArray()) {
-                    throw new OpenlNotCheckedException("Two dim arrays aren't supported!");
-                }
-            }
-        } catch (NoSuchMethodException e) {
-            throw new OpenlNotCheckedException(e);
-        } catch (InvocationTargetException e) {
-            throw new OpenlNotCheckedException(e);
-        } catch (IllegalAccessException e) {
-            throw new OpenlNotCheckedException(e);
-        }
-    }
-
-    private Object createArray(Class<?> type, Object value) {
-        Object arrObject = Array.newInstance(type, 1);
-        Array.set(arrObject, 0, value);
-        return arrObject;
-    }
-
-    public static Class<?> getReturnTypeByPropertyName(String propertyName) throws NoSuchMethodException {
-        Method getMethod = ITableProperties.class.getMethod("get" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1));
-        return getMethod.getReturnType();
     }
 
     public static class PatternModel {
@@ -178,8 +113,8 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         private final String fileNameRegexpPattern;
 
         public PatternModel(String fileNamePattern) throws InvalidFileNamePatternException {
-            this.propertyNames = new ArrayList<String>();
-            this.dateFormats = new HashMap<String, SimpleDateFormat>();
+            this.propertyNames = new ArrayList<>();
+            this.dateFormats = new HashMap<>();
             this.fileNameRegexpPattern = buildRegexpPattern(fileNamePattern);
         }
 
@@ -211,32 +146,18 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                             propertyName = p;
                         }
                     } catch (RuntimeException e) {
-                        throw new InvalidFileNamePatternException("Wrong file name pattern! Wrong at: " + propertyMatch);
+                        throw new InvalidFileNamePatternException(
+                            "Wrong file name pattern! Wrong at: " + propertyMatch);
+                    }
+                    if (!TablePropertyDefinitionUtils.isPropertyExist(propertyName)) {
+                        throw new InvalidFileNamePatternException(
+                            "Wrong file name pattern! Unknown property: " + propertyName);
                     }
                     propertyNames.add(propertyName);
-                    Class<?> returnType;
-                    try {
-                        returnType = getReturnTypeByPropertyName(propertyName);
-                    } catch (NoSuchMethodException e) {
-                        throw new InvalidFileNamePatternException("Wrong file name pattern! Wrong property: " + propertyName + ". This property isn't supported!.");
-                    }
-                    if (returnType == null) {
-                        fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch, "(.*)");
-                    } else if (Boolean.class.equals(returnType)) {
-                        fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch,
-                                "(true|false|True|False|TRUE|FALSE|Yes|No|yes|no)");
-                    } else if (String.class.equals(returnType)) {
-                        fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch, "(.*)");
-                    } else if (Date.class.equals(returnType)) {
-                        if (!dateFormats.containsKey(propertyName)) {
-                            throw new InvalidFileNamePatternException("Date property '" + propertyName + "' must define date format!");
-                        }
-                        fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch, "(.*)");
-                    } else if (returnType.isEnum()) {
-                        fileNameRegexpPattern = processEnumArray(fileNameRegexpPattern, propertyMatch, returnType);
-                    } else if (returnType.isArray()) {
-                        fileNameRegexpPattern = processArrayReturnType(fileNameRegexpPattern, propertyMatch, propertyName, returnType);
-                    }
+                    Class<?> returnType = TablePropertyDefinitionUtils.getTypeByPropertyName(propertyName);
+                    
+                    String pattern = getPattern(propertyName, returnType);
+                    fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch, "(" + pattern + ")");
                     start = matcher.end();
                 } else {
                     start = fileNamePattern.length();
@@ -246,50 +167,75 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
             return fileNameRegexpPattern;
         }
 
-        private String processArrayReturnType(String fileNameRegexpPattern, String propertyMatch, String propertyName, Class<?> returnType) throws InvalidFileNamePatternException {
-            Class<?> componentClass = returnType.getComponentType();
-            if (componentClass == null) {
-                fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch, "(.*)");
-            } else if (Boolean.class.equals(componentClass)) {
-                fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch,
-                        "(true|false|True|False|TRUE|FALSE|Yes|No|yes|no)");
-            } else if (String.class.equals(componentClass)) {
-                fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch, "(.*)");
-            } else if (Date.class.equals(componentClass)) {
+        private String getPattern(String propertyName, Class<?> returnType) throws InvalidFileNamePatternException {
+            String pattern = ".*"; // Default pattern for non-restricted values.
+            if (Boolean.class.equals(returnType)) {
+                pattern = "true|false|True|False|TRUE|FALSE|Yes|No|yes|no";
+            } else if (Date.class.equals(returnType)) {
                 if (!dateFormats.containsKey(propertyName)) {
-                    throw new InvalidFileNamePatternException("Date property doesn't define date format!");
+                    throw new InvalidFileNamePatternException(
+                        "Date property '" + propertyName + "' must define date format!");
                 }
-                fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch, "(.*)");
-            } else if (componentClass.isEnum()) {
-                fileNameRegexpPattern = processEnumArray(fileNameRegexpPattern, propertyMatch, componentClass);
-            } else if (componentClass.isArray()) {
-                throw new OpenlNotCheckedException("Two dim arrays aren't supported!");
+            } else if (returnType.isEnum()) {
+                Enum<?>[] enums = (Enum<?>[]) returnType.getEnumConstants();
+                List<String> list = new ArrayList<>(enums.length + 1);
+
+                for (Enum<?> value : enums) {
+                    list.add(value.name());
+                }
+                list = processEnumArray(propertyName, list);
+                pattern = StringUtils.join(list, "|");
+            } else if (returnType.isArray()) {
+                Class<?> componentClass = returnType.getComponentType();
+                if (componentClass.isArray()) {
+                    throw new OpenlNotCheckedException("Two dim arrays aren't supported!");
+                }
+                pattern = getPattern(propertyName, componentClass);
             }
-            return fileNameRegexpPattern;
+            return pattern;
         }
 
-        protected String processEnumArray(String fileNameRegexpPattern, String propertyMatch, Class<?> componentClass) {
-            try {
-                Method getValuesMethod = componentClass.getMethod("values");
-                Object[] values = (Object[]) getValuesMethod.invoke(componentClass);
-                Method getNameMethod = componentClass.getMethod("name");
-                StringBuilder sBuilder = new StringBuilder("(");
-                boolean first = true;
-                for (Object value : values) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        sBuilder.append("|");
-                    }
-                    String name = (String) getNameMethod.invoke(value);
-                    sBuilder.append(name);
+        protected List<String> processEnumArray(String propertyName, List<String> values) {
+            return values;
+        }
+
+        protected Object convert(String propertyName, String value) {
+            Class<?> returnType = TablePropertyDefinitionUtils.getTypeByPropertyName(propertyName);
+            return getObject(propertyName, value, returnType);
+        }
+
+        protected Object getObject(String propertyName, String value, Class<?> clazz) {
+            Object propValue;
+            if (Boolean.class.equals(clazz)) {
+                if ("YES".equals(value.toUpperCase()) || "TRUE".equals(value.toUpperCase())) {
+                    propValue = Boolean.TRUE;
+                } else {
+                    propValue = Boolean.FALSE;
                 }
-                sBuilder.append(")");
-                fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch, sBuilder.toString());
-            } catch (Exception e) {
-                fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch, "(.*)");
+            } else if (String.class.equals(clazz)) {
+                propValue = value;
+            } else if (Date.class.equals(clazz)) {
+                try {
+                    propValue = getDateFormats().get(propertyName).parse(value);
+                } catch (ParseException e) {
+                    throw new OpenlNotCheckedException("Wrong date format");
+                }
+            } else if (clazz.isEnum()) {
+                propValue = Enum.valueOf((Class) clazz, value);
+                ;
+            } else if (clazz.isArray()) {
+                Class<?> componentClass = clazz.getComponentType();
+                if (componentClass.isArray()) {
+                    throw new OpenlNotCheckedException("Two dim arrays aren't supported!");
+                }
+                Object arrayValue = getObject(propertyName, value, componentClass);
+                Object arrObject = Array.newInstance(componentClass, 1);
+                Array.set(arrObject, 0, arrayValue);
+                propValue = arrObject;
+            } else {
+                throw new OpenlNotCheckedException("Unsupported data type");
             }
-            return fileNameRegexpPattern;
+            return propValue;
         }
     }
 }

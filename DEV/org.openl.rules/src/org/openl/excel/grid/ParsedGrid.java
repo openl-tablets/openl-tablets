@@ -1,33 +1,53 @@
 package org.openl.excel.grid;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
 
-import org.openl.excel.parser.AlignedValue;
-import org.openl.excel.parser.MergedCell;
-import org.openl.excel.parser.ExtendedValue;
-import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.excel.parser.*;
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.rules.lang.xls.XlsWorkbookListener;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.*;
+import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ParsedGrid extends AGrid {
+    private final Logger log = LoggerFactory.getLogger(ParsedGrid.class);
+
+    private final String workbookPath;
     private final Object[][] cells;
     private final String uri;
-    private final int firstRowNum;
-    private final int firstColNum;
+    private final XlsSheetSourceCodeModule sheetSource;
+    private final SheetDescriptor sheetDescriptor;
     private final boolean use1904Windowing;
-    private List<IGridRegion> regions = new ArrayList<>();
+    private final List<IGridRegion> regions = new ArrayList<>();
 
-    private Map<CellKey, CellMetaInfo> metaInfoMap = new HashMap<>();
+    private XlsSheetGridModel writableGrid;
 
-    ParsedGrid(Object[][] cells, String uri, int firstRowNum, int firstColNum, boolean use1904Windowing) {
+    private transient IGridTable[] tables;
+    private transient TableStyles currentTableStyles;
+
+    ParsedGrid(String workbookPath,
+            XlsSheetSourceCodeModule sheetSource,
+            SheetDescriptor sheet,
+            Object[][] cells,
+            boolean use1904Windowing) {
+        this.workbookPath = workbookPath;
         this.cells = cells;
-        this.uri = uri;
-        this.firstRowNum = firstRowNum;
-        this.firstColNum = firstColNum;
+        this.sheetSource = sheetSource;
+        this.uri = sheetSource.getUri();
+        this.sheetDescriptor = sheet;
         this.use1904Windowing = use1904Windowing;
 
         findRegions();
+
+        sheetSource.getWorkbookSource().addListener(new WorkbookSaveListener());
     }
 
     @Override
@@ -42,15 +62,17 @@ public class ParsedGrid extends AGrid {
 
     @Override
     public int getMaxColumnIndex(int row) {
-        if (cells.length <= row) {
+        int internalRow = row - getFirstRowNum();
+
+        if (cells.length <= internalRow) {
             return 0;
         }
-        return cells[row].length - 1;
+        return getFirstColNum() + cells[internalRow].length - 1;
     }
 
     @Override
     public int getMaxRowIndex() {
-        return cells.length - 1;
+        return getFirstRowNum() + cells.length - 1;
     }
 
     @Override
@@ -59,13 +81,13 @@ public class ParsedGrid extends AGrid {
     }
 
     @Override
-    public int getMinColumnIndex(int i) {
-        return 0;
+    public int getMinColumnIndex(int row) {
+        return getFirstColNum();
     }
 
     @Override
     public int getMinRowIndex() {
-        return 0;
+        return getFirstRowNum();
     }
 
     @Override
@@ -82,6 +104,15 @@ public class ParsedGrid extends AGrid {
     public boolean isEmpty(int col, int row) {
         Object value = getCellValue(row, col);
         return value == null || value instanceof String && StringUtils.isBlank((String) value);
+    }
+
+    @Override
+    public IGridTable[] getTables() {
+        tables = super.getTables();
+        for (int t = 0; t < tables.length; t++) {
+            tables[t] = new EditableGridTable(tables[t]);
+        }
+        return tables;
     }
 
     private void findRegions() {
@@ -104,23 +135,26 @@ public class ParsedGrid extends AGrid {
         // Find bottom right points and create regions
         for (CellRowCol start : startPoints) {
             CellRowCol end = findBottomRight(start.row, start.col);
-            regions.add(new GridRegion(start.row, start.col, end.row, end.col));
+            regions.add(new GridRegion(getFirstRowNum() + start.row,
+                    getFirstColNum() + start.col,
+                    getFirstRowNum() + end.row,
+                    getFirstColNum() + end.col));
         }
     }
 
-    private CellRowCol findTopLeft(int i, int j) {
-        while (cells[i][j] == MergedCell.MERGE_WITH_LEFT) {
-            j--;
+    private CellRowCol findTopLeft(int internalRow, int internalCol) {
+        while (cells[internalRow][internalCol] == MergedCell.MERGE_WITH_LEFT) {
+            internalCol--;
         }
-        while (cells[i][j] == MergedCell.MERGE_WITH_UP) {
-            i--;
+        while (cells[internalRow][internalCol] == MergedCell.MERGE_WITH_UP) {
+            internalRow--;
         }
-        return new CellRowCol(i, j);
+        return new CellRowCol(internalRow, internalCol);
     }
 
-    private CellRowCol findBottomRight(int row, int col) {
-        int endRow = row;
-        int endCol = col;
+    private CellRowCol findBottomRight(int internalRow, int internalCol) {
+        int endRow = internalRow;
+        int endCol = internalCol;
         while (endRow < cells.length - 1 && cells[endRow + 1][endCol] == MergedCell.MERGE_WITH_UP) {
             endRow++;
         }
@@ -134,13 +168,16 @@ public class ParsedGrid extends AGrid {
     /////////////////////////// Methods used in ParsedCell ///////////////////////////////////
 
     protected Object getCellValue(int row, int column) {
-        if (cells.length <= row || cells[row].length <= column) {
+        int internalRow = row - getFirstRowNum();
+        int internalCol = column - getFirstColNum();
+
+        if (internalRow < 0 || internalCol < 0 || cells.length <= internalRow || cells[internalRow].length <= internalCol) {
             return null;
         }
 
-        Object value = cells[row][column];
+        Object value = cells[internalRow][internalCol];
         if (value instanceof MergedCell) {
-            CellRowCol topLeft = findTopLeft(row, column);
+            CellRowCol topLeft = findTopLeft(internalRow, internalCol);
             value = cells[topLeft.row][topLeft.col];
         }
         if (value instanceof ExtendedValue) {
@@ -150,17 +187,65 @@ public class ParsedGrid extends AGrid {
         return value;
     }
 
-    protected ICellStyle getCellStyle(int row, int col) {
-        if (cells.length <= row || cells[row].length <= col) {
+    protected ICellStyle getCellStyle(int row, int column) {
+        int internalRow = row - getFirstRowNum();
+        int internalCol = column - getFirstColNum();
+
+        if (internalRow < 0 || internalCol < 0 || cells.length <= internalRow || cells[internalRow].length <= internalCol) {
             return null;
         }
 
-        Object value = cells[row][col];
-        if (value instanceof AlignedValue) {
-            return new IndentedStyle(((AlignedValue) value).getIndent());
+        Object value = cells[internalRow][internalCol];
+        short indent = value instanceof AlignedValue ? ((AlignedValue) value).getIndent() : 0;
+        return new IndentedStyle(indent, this, row, column);
+    }
+
+    protected TableStyles getTableStyles(int row, int column) {
+        int internalRow = row - getFirstRowNum();
+        int internalCol = column - getFirstColNum();
+
+        if (internalRow >= 0 && internalCol >= 0 && cells.length > internalRow && cells[internalRow].length > internalCol) {
+            CellRowCol topLeft = findTopLeft(internalRow, internalCol);
+            row -= internalRow - topLeft.row;
+            column -= internalCol - topLeft.col;
         }
 
-        return null;
+        if (currentTableStyles == null || !IGridRegion.Tool.contains(currentTableStyles.getRegion(), column, row)) {
+            currentTableStyles = readTableStyles(row, column);
+        }
+
+        return currentTableStyles;
+    }
+
+    private TableStyles readTableStyles(int row, int column) {
+        if (workbookPath == null) {
+            // No need to show styles in read only mode (when access workbook through stream)
+            return null;
+        }
+
+        TableStyles styles = null;
+        for (IGridTable table : tables) {
+            IGridRegion region = table.getRegion();
+
+            // Sometimes we need extra column and row to show the border of a table.
+            // We need to know the styles of the cells lefter, above, righter and below the table.
+            int left = region.getLeft() == 0 ? 0 : region.getLeft() - 1;
+            int top = region.getTop() == 0 ? 0 : region.getTop() - 1;
+            IGridRegion extendedRegion = new GridRegion(top, left, region.getBottom() + 1, region.getRight() + 1);
+
+            if (IGridRegion.Tool.contains(extendedRegion, column, row)) {
+                try (ExcelReader excelReader = ExcelReaderFactory.sequentialFactory().create(workbookPath)) {
+                    styles = excelReader.getTableStyles(sheetDescriptor, extendedRegion);
+                } catch (Exception e) {
+                    // Fallback to empty style
+                    log.error("Can't read styles for sheet '{}'", sheetDescriptor.getName(), e);
+                    styles = new EmptyTableStyles(extendedRegion);
+                }
+
+                break;
+            }
+        }
+        return styles;
     }
 
     protected IGridRegion getRegion(int row, int col) {
@@ -174,30 +259,41 @@ public class ParsedGrid extends AGrid {
         return null;
     }
 
-    protected CellMetaInfo getCellMetaInfo(int col, int row) {
-        CellKey ck = CellKey.CellKeyFactory.getCellKey(col, row);
-        return metaInfoMap.get(ck);
+    protected Object[][] getCells() {
+        return cells;
     }
 
-    protected synchronized void setCellMetaInfo(int col, int row, CellMetaInfo meta) {
-        CellKey ck = CellKey.CellKeyFactory.getCellKey(col, row);
-        if (meta == null) {
-            metaInfoMap.remove(ck);
-        } else {
-            metaInfoMap.put(ck, meta);
-        }
+    private int getFirstRowNum() {
+        return sheetDescriptor.getFirstRowNum();
     }
 
-    protected int getFirstRowNum() {
-        return firstRowNum;
-    }
-
-    protected int getFirstColNum() {
-        return firstColNum;
+    private int getFirstColNum() {
+        return sheetDescriptor.getFirstColNum();
     }
 
     protected boolean isUse1904Windowing() {
         return use1904Windowing;
+    }
+
+    protected IWritableGrid getWritableGrid() {
+        if (writableGrid == null) {
+            sheetSource.getWorkbookSource().getWorkbookLoader().setCanUnload(false);
+            writableGrid = new XlsSheetGridModel(sheetSource);
+            // Prepare workbook for edit (load it to memory before editing starts)
+            sheetSource.getSheet();
+        }
+        return writableGrid;
+    }
+
+    protected void stopEditing() {
+        if (isEditing()) {
+            sheetSource.getWorkbookSource().getWorkbookLoader().setCanUnload(true);
+            writableGrid = null;
+        }
+    }
+
+    protected boolean isEditing() {
+        return writableGrid != null;
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -228,4 +324,48 @@ public class ParsedGrid extends AGrid {
         }
     }
 
+    private static class EmptyTableStyles implements TableStyles {
+        private final IGridRegion extendedRegion;
+
+        public EmptyTableStyles(IGridRegion extendedRegion) {
+            this.extendedRegion = extendedRegion;
+        }
+
+        @Override
+        public IGridRegion getRegion() {
+            return extendedRegion;
+        }
+
+        @Override
+        public ICellStyle getStyle(int row, int column) {
+            return null;
+        }
+
+        @Override
+        public ICellFont getFont(int row, int column) {
+            return null;
+        }
+
+        @Override
+        public ICellComment getComment(int row, int column) {
+            return null;
+        }
+
+        @Override
+        public String getFormula(int row, int column) {
+            return null;
+        }
+    }
+
+    private class WorkbookSaveListener implements XlsWorkbookListener {
+        @Override
+        public void beforeSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
+            // Do nothing
+        }
+
+        @Override
+        public void afterSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
+            stopEditing();
+        }
+    }
 }

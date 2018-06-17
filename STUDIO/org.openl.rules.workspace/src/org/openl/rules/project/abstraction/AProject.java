@@ -432,6 +432,7 @@ public class AProject extends AProjectFolder {
             for (AProjectArtefact artefact : projectFrom.getArtefacts()) {
                 writeArtefact(zipOutputStream, artefact);
             }
+            zipOutputStream.finish();
 
             fileData.setAuthor(user.getUserName());
             fileData.setSize(out.size());

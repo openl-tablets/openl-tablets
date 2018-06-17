@@ -12,9 +12,17 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.excel.parser.*;
+import org.openl.rules.table.ICellComment;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.ui.ICellFont;
+import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.xls.XlsCellComment;
+import org.openl.rules.table.xls.XlsCellFont;
+import org.openl.rules.table.xls.XlsCellStyle;
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 import org.openl.util.NumberUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,12 +35,14 @@ public class DOMReader implements ExcelReader {
 
     public DOMReader(String fileName) {
         this.fileName = fileName;
+        ExcelUtils.configureZipBombDetection();
     }
 
     public DOMReader(InputStream is) {
         // Save to temp file because using an InputStream has a higher memory footprint than using a File. See POI javadocs.
         tempFile = FileTool.toTempFile(is, "stream.xls");
         this.fileName = tempFile.getAbsolutePath();
+        ExcelUtils.configureZipBombDetection();
     }
 
     @Override
@@ -42,7 +52,7 @@ public class DOMReader implements ExcelReader {
             int numberOfSheets = workbook.getNumberOfSheets();
             List<DOMSheetDescriptor> sheets = new ArrayList<>(numberOfSheets);
             for (int i = 0; i < numberOfSheets; i++) {
-                sheets.add(new DOMSheetDescriptor(workbook.getSheetName(i)));
+                sheets.add(new DOMSheetDescriptor(workbook.getSheetName(i), i));
             }
 
             return sheets;
@@ -158,6 +168,50 @@ public class DOMReader implements ExcelReader {
     }
 
     @Override
+    public TableStyles getTableStyles(final SheetDescriptor sheet, final IGridRegion tableRegion) {
+        try {
+            initializeWorkbook();
+
+            // This is not optimal implementation. But because this class is used for comparing purposes only, it's ok.
+            return new TableStyles() {
+                @Override
+                public IGridRegion getRegion() {
+                    return tableRegion;
+                }
+
+                @Override
+                public ICellStyle getStyle(int row, int column) {
+                    return new XlsCellStyle(getCell(row, column).getCellStyle(), workbook);
+                }
+
+                @Override
+                public ICellFont getFont(int row, int column) {
+                    Font font = workbook.getFontAt(getCell(row, column).getCellStyle().getFontIndex());
+                    return new XlsCellFont(font, workbook);
+                }
+
+                @Override
+                public ICellComment getComment(int row, int column) {
+                    return new XlsCellComment(getCell(row, column).getCellComment());
+                }
+
+                @SuppressWarnings("deprecation")
+                @Override
+                public String getFormula(int row, int column) {
+                    Cell cell = getCell(row, column);
+                    return cell.getCellType() == CellType.FORMULA.getCode() ? cell.getCellFormula() : null;
+                }
+
+                private Cell getCell(int row, int column) {
+                    return workbook.getSheet(sheet.getName()).getRow(row).getCell(column);
+                }
+            };
+        } catch (IOException | InvalidFormatException e) {
+            throw new ExcelParseException(e);
+        }
+    }
+
+    @Override
     public void close() {
         try {
             if (workbook != null) {
@@ -201,7 +255,7 @@ public class DOMReader implements ExcelReader {
                     double value = cell.getNumericCellValue();
                     return NumberUtils.intOrDouble(value);
                 case Cell.CELL_TYPE_STRING:
-                    return cell.getStringCellValue();
+                    return StringUtils.trimToNull(cell.getStringCellValue());
                 default:
                     return "unknown type: " + cell.getCellType();
             }

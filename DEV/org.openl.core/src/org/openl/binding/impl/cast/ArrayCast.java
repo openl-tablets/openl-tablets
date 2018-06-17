@@ -38,7 +38,10 @@ public class ArrayCast implements IOpenCast {
             c = c.getComponentType();
             if (length > 0) {
                 f = Array.get(f, 0);
-            }
+                if (Object.class.equals(c) && f != null) {
+                    c = f.getClass();
+                }
+            } 
         }
         if (dim == dims.size()) {
             int[] dimensions = new int[dims.size()];
@@ -58,7 +61,7 @@ public class ArrayCast implements IOpenCast {
                     j++;
                 }
                 Object t = Array.get(p, x[j]);
-                if (t != null && t.getClass().isArray() && dimensions[j + 1] == 0) {
+                if (t != null && t.getClass().isArray() && j < dimensions.length - 1 && dimensions[j + 1] == 0) {
                     int[] y = new int[dimensions.length - j - 1];
                     t = Array.newInstance(toComponentType.getInstanceClass(), y);
                 } else {

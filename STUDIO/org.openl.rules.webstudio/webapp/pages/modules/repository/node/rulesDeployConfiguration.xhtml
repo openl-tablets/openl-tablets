@@ -37,9 +37,6 @@
       <h:outputLabel for="#{prefix}provideRuntimeContext" value="Provide runtime context"/>
       <h:selectBooleanCheckbox id="#{prefix}provideRuntimeContext" value="#{rulesDeploy.provideRuntimeContext}" disabled="#{!openedForEditing}"/>
 
-      <h:outputLabel for="#{prefix}useRuleServiceRuntimeContext" value="Use RuleService runtime context"/>
-      <h:selectBooleanCheckbox id="#{prefix}useRuleServiceRuntimeContext" value="#{rulesDeploy.useRuleServiceRuntimeContext}" disabled="#{!openedForEditing}"/>
-
       <h:outputLabel for="#{prefix}provideVariations" value="Provide variations"/>
       <h:selectBooleanCheckbox id="#{prefix}provideVariations" value="#{rulesDeploy.provideVariations}" disabled="#{!openedForEditing}"/>
 

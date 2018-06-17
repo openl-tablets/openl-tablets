@@ -6,57 +6,48 @@ import org.openl.syntax.exception.SyntaxNodeException;
 
 public class BExGrammarWithParsingHelp extends BExGrammar {
 	
-	
-	public void parseTopNode(String type)
-	{
-	        try
-	        {
-	                if (type.equals("method.body"))
-	                parseTopNodeInternal();
-	            else if (type.equals("method.header"))
-	               MethodHeader();
-	            else if (type.equals("module"))
-	               parseModuleInternal();
-	        else if (type.equals("type"))
-	                Type();
+    public void parseTopNode(String type) {
+        try {
+            if (type.equals("method.body"))
+                parseTopNodeInternal();
+            else if (type.equals("method.header"))
+                parseMethodHeader();
+            else if (type.equals("module"))
+                parseModuleInternal();
+            else if (type.equals("type"))
+                parseType();
+            else if (type.equals("range.literal.real"))
+                RangeLiteralFloat();
+            else if (type.equals("range.literal"))
+                RangeLiteral();
+        } catch (ParseException pe) {
 
-	        else if (type.equals("range.literal.real"))
-	                RangeLiteralFloat();
-	        else if (type.equals("range.literal"))
-	                RangeLiteral();
-	        }
-	        catch (ParseException pe)
-	        {
+            SyntaxNodeException sne = reparseTokens(pe);
+            if (sne == null)
+                sne = new org.openl.syntax.exception.SyntaxNodeException(pe.getMessage(),
+                    null,
+                    pos(pe.currentToken),
+                    syntaxBuilder.getModule());
+            // pe.printStackTrace();
+            // throw pe;
+            syntaxBuilder.addError(sne);
+        } catch (TokenMgrError err) {
+            org.openl.util.text.TextInterval loc = new org.openl.util.text.TextInterval(
+                pos(err.getStartLine(), err.getStartCol()),
+                pos(err.getEndLine(), err.getEndCol()));
 
-	            SyntaxNodeException sne = reparseTokens(pe);
-	            if (sne == null)
-	            	sne = new org.openl.syntax.exception.SyntaxNodeException(
-                            pe.getMessage(),
-                            null,
-                            pos(pe.currentToken),
-                            syntaxBuilder.getModule());
-	                //pe.printStackTrace();
-	                //throw pe;
-	                syntaxBuilder.addError(sne);
-	        }
-	        catch (TokenMgrError err)
-	        {
-	        	org.openl.util.text.TextInterval loc = new org.openl.util.text.TextInterval(
-	                    pos(err.getStartLine(), err.getStartCol()),
-	                    pos(err.getEndLine(), err.getEndCol()));
-
-	                syntaxBuilder.addError(
-	                        new org.openl.syntax.exception.SyntaxNodeException(err.getMessage(), null, loc, syntaxBuilder.getModule()));
-	        }
-	        catch (Exception e)
-	        {
-	                syntaxBuilder.addError(new org.openl.syntax.exception.SyntaxNodeException("", e, pos(token), syntaxBuilder.getModule()));
-	        }
-	        catch (Throwable t)
-	        {
-	                syntaxBuilder.addError(new org.openl.syntax.exception.SyntaxNodeException("", t, pos(token), syntaxBuilder.getModule()));
-	        }
-	}
+            syntaxBuilder.addError(new org.openl.syntax.exception.SyntaxNodeException(err.getMessage(),
+                null,
+                loc,
+                syntaxBuilder.getModule()));
+        } catch (Exception e) {
+            syntaxBuilder.addError(
+                new org.openl.syntax.exception.SyntaxNodeException("", e, pos(token), syntaxBuilder.getModule()));
+        } catch (Throwable t) {
+            syntaxBuilder.addError(
+                new org.openl.syntax.exception.SyntaxNodeException("", t, pos(token), syntaxBuilder.getModule()));
+        }
+    }
 
 	private SyntaxNodeException reparseTokens(ParseException pe) {
 		

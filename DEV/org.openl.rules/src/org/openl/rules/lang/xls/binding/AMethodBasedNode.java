@@ -1,22 +1,11 @@
 package org.openl.rules.lang.xls.binding;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openl.OpenL;
-import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
-import org.openl.binding.exception.DuplicatedMethodException;
-import org.openl.binding.impl.BindHelper;
-import org.openl.binding.impl.NodeType;
-import org.openl.binding.impl.NodeUsage;
-import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -29,8 +18,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.OpenMethodHeader;
-import org.openl.types.java.JavaOpenClass;
-import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
@@ -80,7 +67,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         openClass.addMethod(method);
         getTableSyntaxNode().setMember(method);
         if (hasServiceName()) {
-            addServiceMethod(openClass, method);
+            openClass.addMethod(getServiceMethod(method));
         }
     }
 
@@ -119,24 +106,6 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         }
     }
 
-    /**
-     * Add auxiliary method with name specified in property "id" for direct call
-     * for this rule.
-     *
-     * @param openClass Module open class
-     * @param originalMethod original method
-     */
-    protected void addServiceMethod(ModuleOpenClass openClass, IOpenMethod originalMethod) {
-        try {
-            openClass.addMethod(getServiceMethod(originalMethod));
-        } catch (DuplicatedMethodException e) {
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, getTableSyntaxNode());
-            getTableSyntaxNode().addError(error);
-            OpenLMessagesUtils.addError(error);
-        }
-
-    }
-
     protected abstract ExecutableRulesMethod createMethodShell();
 
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
@@ -151,14 +120,11 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
     @Override
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
         if (!bindingContext.isExecutionMode() && header instanceof OpenMethodHeader) {
+            // Validate that there are no errors in dependent types.
             OpenMethodHeader tableHeader = (OpenMethodHeader) header;
 
-            List<NodeUsage> nodeUsages = new ArrayList<NodeUsage>();
-            ICell cell = getTableSyntaxNode().getGridTable().getCell(0, 0);
-            TextInfo tableHeaderText = new TextInfo(cell.getStringValue());
-
             int startPosition = getSignatureStartIndex();
-            // Link to return type
+            // Return type
             IOpenClass type = tableHeader.getType();
             IMetaInfo metaInfo = type.getMetaInfo();
             while (metaInfo == null && type.isArray()) {
@@ -174,19 +140,12 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
 
             ILocation typeLocation = tableHeader.getTypeLocation();
             if (metaInfo != null && typeLocation != null) {
-                int start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
-                int end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText);
-                nodeUsages.add(new SimpleNodeUsage(start,
-                    end,
-                    metaInfo.getDisplayName(INamedThing.SHORT),
-                    metaInfo.getSourceUrl(),
-                    NodeType.DATATYPE));
                 if (type.getInstanceClass() == null) {
-                    addTypeError(type, typeLocation, headerSyntaxNode);
+                    addTypeError(bindingContext, type, typeLocation, headerSyntaxNode);
                 }
             }
 
-            // Link to input parameters
+            // Input parameters
             ILocation[] paramTypeLocations = tableHeader.getParamTypeLocations();
             if (paramTypeLocations != null) {
                 for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
@@ -199,36 +158,23 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
 
                     if (metaInfo != null) {
                         ILocation sourceLocation = paramTypeLocations[i];
-                        int start = startPosition + sourceLocation.getStart().getAbsolutePosition(tableHeaderText);
-                        int end = startPosition + sourceLocation.getEnd().getAbsolutePosition(tableHeaderText);
-                        nodeUsages.add(new SimpleNodeUsage(start,
-                            end,
-                            metaInfo.getDisplayName(INamedThing.SHORT),
-                            metaInfo.getSourceUrl(),
-                            NodeType.DATATYPE));
-
                         if (parameterType.getInstanceClass() == null) {
-                            addTypeError(parameterType, sourceLocation, headerSyntaxNode);
+                            addTypeError(bindingContext, parameterType, sourceLocation, headerSyntaxNode);
                         }
                     }
                 }
             }
-
-            if (CollectionUtils.isNotEmpty(nodeUsages)) {
-                cell.setMetaInfo(
-                    new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, nodeUsages));
-            }
         }
     }
 
-    protected void addTypeError(IOpenClass type, ILocation location, IOpenSourceCodeModule syntaxNode) {
+    protected void addTypeError(IBindingContext bindingContext, IOpenClass type, ILocation location, IOpenSourceCodeModule syntaxNode) {
         String message = String.format("Type '%s' was defined with errors", type.getName());
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, null, location, syntaxNode);
         getTableSyntaxNode().addError(error);
-        BindHelper.processError(error);
+        bindingContext.addError(error);
     }
 
-    protected int getSignatureStartIndex() {
+    public int getSignatureStartIndex() {
         ICell cell = getTableSyntaxNode().getGridTable().getCell(0, 0);
         TextInfo tableHeaderText = new TextInfo(cell.getStringValue());
         return getTableSyntaxNode().getHeader().getHeaderToken().getLocation().getEnd().getAbsolutePosition(

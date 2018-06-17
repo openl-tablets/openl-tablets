@@ -17,7 +17,7 @@ public class SimpleLookupTest extends BaseOpenlBuilderHelper {
     
     @Test
     public void testMergedConditions() {
-        final String tableName = "SimpleLookup DoubleValue CarPrice (String country, String carBrand, String carModel) ";
+        final String tableName = "SimpleLookup DoubleValue CarPrice (String country, String carBrand, String carModel)";
         TableSyntaxNode resultTsn = findTable(tableName);
         assertFalse(resultTsn.hasErrors());
 

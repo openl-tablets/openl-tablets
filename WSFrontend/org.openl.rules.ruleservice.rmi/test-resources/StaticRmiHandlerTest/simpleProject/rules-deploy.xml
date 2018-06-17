@@ -1,7 +1,6 @@
 <rules-deploy>
 	<isProvideRuntimeContext>false</isProvideRuntimeContext>
 	<isProvideVariations>false</isProvideVariations>
-	<useRuleServiceRuntimeContext>false</useRuleServiceRuntimeContext>
 	<serviceName>staticRmiHandlerTest</serviceName>
 
 	<rmiServiceClass>org.openl.rules.ruleservice.publish.StaticRmiHandler</rmiServiceClass>

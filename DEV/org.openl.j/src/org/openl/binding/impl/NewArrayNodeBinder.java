@@ -32,9 +32,7 @@ public class NewArrayNodeBinder extends ANodeBinder {
         int childrenCount = node.getNumberOfChildren();
 
         if (childrenCount != 1) {
-            BindHelper.processError("New array node must have 1 subnode", node, bindingContext, false);
-
-            return new ErrorBoundNode(node);
+            return makeErrorNode("New array node must have 1 subnode", node, bindingContext);
         }
 
         ISyntaxNode indexChild = node.getChild(0);
@@ -52,7 +50,7 @@ public class NewArrayNodeBinder extends ANodeBinder {
             indexChild = indexChild.getChild(0);
         }
 
-        List<ISyntaxNode> expressions = new ArrayList<ISyntaxNode>();
+        List<ISyntaxNode> expressions = new ArrayList<>();
 
         while (indexChild.getType().equals("array.index.expression")) {
             expressions.add(indexChild.getChild(1));
@@ -74,11 +72,7 @@ public class NewArrayNodeBinder extends ANodeBinder {
         IOpenClass componentType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
 
         if (componentType == null) {
-
-            String message = String.format("Type '%s' is not found", typeName);
-            BindHelper.processError(message, typeNode, bindingContext, false);
-
-            return new ErrorBoundNode(node);
+            return makeErrorNode("Type '" + typeName + "' is not found", typeNode, bindingContext);
         }
 
         IAggregateInfo info = componentType.getAggregateInfo();

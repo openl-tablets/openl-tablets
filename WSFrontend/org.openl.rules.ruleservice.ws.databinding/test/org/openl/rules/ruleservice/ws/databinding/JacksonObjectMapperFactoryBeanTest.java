@@ -25,7 +25,6 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean;
-import org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.ruleservice.context.IRulesRuntimeContextType;
 import org.openl.rules.table.Point;
 import org.openl.rules.variation.ArgumentReplacementVariation;
 import org.openl.rules.variation.ComplexVariation;
@@ -247,7 +246,6 @@ public class JacksonObjectMapperFactoryBeanTest {
     @Test
     public void testIRulesRuntimeContext() throws JsonProcessingException, IOException {
         
-        Assert.assertNull("Not use this annotation for simple JSON!", IRulesRuntimeContextType.class.getAnnotation(JsonTypeInfo.class));
         Assert.assertNull("Not use this annotation for simple JSON!", org.openl.rules.serialization.jackson.org.openl.rules.context.IRulesRuntimeContextType.class.getAnnotation(JsonTypeInfo.class));
         
         DefaultRulesRuntimeContext context = new DefaultRulesRuntimeContext();

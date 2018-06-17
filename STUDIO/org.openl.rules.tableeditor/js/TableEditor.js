@@ -190,15 +190,19 @@ var TableEditor = Class.create({
     doOperation: function(operation, params, successCallback) {
         var self = this;
 
+        self.actions && self.actions.requestStart && self.actions.requestStart();
+
         new Ajax.Request(this.buildUrl(operation), {
             parameters: params,
 
             onSuccess: function(response) {
                 self.handleResponse(response, successCallback);
+                self.actions && self.actions.requestEnd && self.actions.requestEnd();
             },
 
             onFailure: function(response) {
                 self.handleError(response);
+                self.actions && self.actions.requestEnd && self.actions.requestEnd();
             }
         });
     },
@@ -312,6 +316,9 @@ var TableEditor = Class.create({
         }
 
         this.setCellValue();
+        if (elt && elt.hasClassName("title")) {
+            elt = elt.parentNode;
+        }
         if (this.isCell(elt)) {
             this.selectElement(elt);
             this.isFormated(elt);

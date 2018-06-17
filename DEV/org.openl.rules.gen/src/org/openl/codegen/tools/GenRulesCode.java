@@ -67,12 +67,6 @@ public class GenRulesCode {
 
         System.out.println("Generating Activiti Integration Code...");
         generateIRulesRuntimeContextUtils();
-        
-        System.out.println("Generating Rules Service Code...");
-        // RulesService context generation
-        generateIRulesRuntimeContextCodeInRuleServiceModule();
-        generateDefaultRulesRuntimeContextCodeInRuleServiceModule();
-        generateRuntimeContextConvertor();
     }
 
     private void generateDefaultPropertyDefinitionsCode() throws IOException {
@@ -142,32 +136,6 @@ public class GenRulesCode {
         processSourceCode(sourceFilePath, "IRulesContext-properties.vm", variables);
     }
 
-    private void generateDefaultRulesRuntimeContextCodeInRuleServiceModule() throws IOException {
-
-        Map<String, Object> variables = new HashMap<String, Object>();
-        variables.put("tool", new VelocityTool());
-        variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
-
-        String sourceFilePath = CodeGenConstants.RULESERVICE_CONTEXT_SOURCE_LOCATION
-                + CodeGenConstants.RULESERVICE_IRULESRUNTIMECONTEXT_PACKAGE_PATH
-                + CodeGenConstants.RULESERVICE_DEFAULTRULESRUNTIMECONTEXT_CLASSNAME + ".java";
-
-        processSourceCode(sourceFilePath, "RuleService-DefaultRulesContext-properties.vm", variables);
-    }
-    
-    private void generateRuntimeContextConvertor() throws IOException {
-
-        Map<String, Object> variables = new HashMap<String, Object>();
-        variables.put("tool", new VelocityTool());
-        variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
-
-        String sourceFilePath = CodeGenConstants.RULESERVICE_SOURCE_LOCATION
-                + CodeGenConstants.RULESERVICE_RUNTIMECONTEXTCONVERTOR_PACKAGE_PATH
-                + CodeGenConstants.RULESERVICE_RUNTIMECONTEXTCONVERTOR_CLASSNAME + ".java";
-
-        processSourceCode(sourceFilePath, "RuleService-RuntimeContextConvertor.vm", variables);
-    }
-    
     private void generateIRulesRuntimeContextUtils() throws IOException {
         Map<String, Object> variables = new HashMap<String, Object>();
         variables.put("tool", new VelocityTool());
@@ -177,20 +145,6 @@ public class GenRulesCode {
                 + CodeGenConstants.ACTIVITI_IRULESRUNTIMECONTEXTUTILS_PACKAGE_PATH
                 + CodeGenConstants.ACTIVITI_IRULESRUNTIMECONTEXTUTILS_CLASSNAME + ".java";
         processSourceCode(sourceFilePath, "IRulesRuntimeContextUtils-properties.vm", variables);
-    }
-
-    
-    private void generateIRulesRuntimeContextCodeInRuleServiceModule() throws IOException {
-        Map<String, Object> variables = new HashMap<String, Object>();
-        variables.put("tool", new VelocityTool());
-        variables.put("typesPackage", CodeGenConstants.RULESERVICE_ENUMS_PACKAGE);
-        variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
-        
-
-        String sourceFilePath = CodeGenConstants.RULESERVICE_CONTEXT_SOURCE_LOCATION
-                + CodeGenConstants.RULESERVICE_IRULESRUNTIMECONTEXT_PACKAGE_PATH
-                + CodeGenConstants.RULESERVICE_IRULESRUNTIMECONTEXT_CLASSNAME + ".java";
-        processSourceCode(sourceFilePath, "RuleService-IRulesContext-properties.vm", variables);
     }
 
     private void generateRulesCompileContextCode() throws IOException {
@@ -273,7 +227,7 @@ public class GenRulesCode {
         for (TablePropertyDefinitionWrapper wrapper : tablePropertyDefinitionWrappers.asList()) {
             if (wrapper.isEnum()) {
                 String name = wrapper.getEnumName();
-                String enumName = EnumHelper.getEnumName(name);
+                String enumName = GenRulesTypes.getEnumName(name);
                 String fullEnumName = CodeGenConstants.ENUMS_PACKAGE + "." + enumName;
 
                 boolean isArray = wrapper.getDefinition().getType().getInstanceClass().isArray();
@@ -288,7 +242,7 @@ public class GenRulesCode {
 
             if (wrapper.isEnum()) {
                 String name = wrapper.getEnumName();
-                String enumName = EnumHelper.getEnumName(name);
+                String enumName = GenRulesTypes.getEnumName(name);
                 String fullEnumName = CodeGenConstants.ENUMS_PACKAGE + "." + enumName;
 
                 boolean isArray = wrapper.getDefinition().getType().getInstanceClass().isArray();

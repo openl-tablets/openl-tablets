@@ -7,6 +7,8 @@ import java.util.List;
 import org.openl.excel.parser.ExcelParseException;
 import org.openl.excel.parser.ExcelReader;
 import org.openl.excel.parser.SheetDescriptor;
+import org.openl.excel.parser.TableStyles;
+import org.openl.rules.table.IGridRegion;
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 
@@ -47,6 +49,18 @@ public class EventReader implements ExcelReader {
             initialize();
         }
         return listener.isUse1904Windowing();
+    }
+
+    @Override
+    public TableStyles getTableStyles(SheetDescriptor sheet, IGridRegion tableRegion) {
+        try {
+            TableStyleListener listener = new TableStyleListener((EventSheetDescriptor) sheet, tableRegion);
+            listener.process(fileName);
+
+            return listener.getTableStyles();
+        } catch (java.io.IOException e) {
+            throw new ExcelParseException(e);
+        }
     }
 
     private void initialize() {

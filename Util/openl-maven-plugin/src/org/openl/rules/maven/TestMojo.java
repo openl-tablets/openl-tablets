@@ -10,7 +10,13 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.maven.plugin.MojoFailureException;
@@ -28,8 +34,14 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.testmethod.*;
+import org.openl.rules.testmethod.ProjectHelper;
+import org.openl.rules.testmethod.TestMethodNodeBinder;
 import org.openl.rules.testmethod.TestStatus;
+import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.testmethod.TestSuiteExecutor;
+import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.testmethod.TestUnit;
+import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.ThisField;
@@ -55,12 +67,18 @@ public final class TestMojo extends BaseOpenLMojo {
     private File testSourceDirectory;
 
     /**
+     * Base directory where all reports are written to. Reports are surefire format compatible.
+     */
+    @Parameter(defaultValue = "${project.build.directory}/openl-test-reports")
+    private File reportsDirectory;
+
+    /**
      * Thread count to run test cases. The parameter is as follows:
      * <ul>
-     *     <li>4 - Runs tests with 4 threads</li>
-     *     <li>1.5C - 1.5 thread per cpu core</li>
-     *     <li>none - Run tests sequentially (don't create threads to run tests)</li>
-     *     <li>auto - Threads count will be configured automatically</li>
+     * <li>4 - Runs tests with 4 threads</li>
+     * <li>1.5C - 1.5 thread per cpu core</li>
+     * <li>none - Run tests sequentially (don't create threads to run tests)</li>
+     * <li>auto - Threads count will be configured automatically</li>
      * </ul>
      * Default value is "auto".
      */
@@ -68,10 +86,9 @@ public final class TestMojo extends BaseOpenLMojo {
     private String threadCount;
 
     /**
-     * Compile the project in Single module mode.
-     * If true each module will be compiled in sequence and tests from that module will be run. Needed for big projects.
-     * If false all modules will be compiled at once and all tests from all modules will be run.
-     * By default false.
+     * Compile the project in Single module mode. If true each module will be compiled in sequence and tests from that
+     * module will be run. Needed for big projects. If false all modules will be compiled at once and all tests from all
+     * modules will be run. By default false.
      */
     @Parameter(defaultValue = "false")
     private boolean singleModuleMode;
@@ -107,7 +124,12 @@ public final class TestMojo extends BaseOpenLMojo {
         }
 
         info("");
-        info("Total tests run: ", summary.getRunTests(), ", Failures: ", summary.getFailedTests(), ", Errors: ", summary.getErrors());
+        info("Total tests run: ",
+            summary.getRunTests(),
+            ", Failures: ",
+            summary.getFailedTests(),
+            ", Errors: ",
+            summary.getErrors());
         info("");
         if (summary.getFailedTests() > 0 || summary.getErrors() > 0) {
             throw new MojoFailureException("There are errors in the OpenL tests");
@@ -116,11 +138,10 @@ public final class TestMojo extends BaseOpenLMojo {
         }
     }
 
-    private Summary runAllTests(String sourcePath, boolean hasDependencies) throws
-                                                                       IOException,
-                                                                       RulesInstantiationException,
-                                                                       ProjectResolvingException,
-                                                                       ClassNotFoundException {
+    private Summary runAllTests(String sourcePath, boolean hasDependencies) throws IOException,
+                                                                            RulesInstantiationException,
+                                                                            ProjectResolvingException,
+                                                                            ClassNotFoundException {
 
         String path = sourcePath;
 
@@ -141,16 +162,14 @@ public final class TestMojo extends BaseOpenLMojo {
             }
         }
 
-        return singleModuleMode ?
-               executeModuleByModule(path, hasDependencies) :
-               executeAllAtOnce(path, hasDependencies);
+        return singleModuleMode ? executeModuleByModule(path, hasDependencies)
+                                : executeAllAtOnce(path, hasDependencies);
     }
 
-    private Summary executeAllAtOnce(String sourcePath, boolean hasDependencies) throws
-                                                        MalformedURLException,
-                                                        RulesInstantiationException,
-                                                        ProjectResolvingException,
-                                                        ClassNotFoundException {
+    private Summary executeAllAtOnce(String sourcePath, boolean hasDependencies) throws MalformedURLException,
+                                                                                 RulesInstantiationException,
+                                                                                 ProjectResolvingException,
+                                                                                 ClassNotFoundException {
         URL[] urls = toURLs(classpath);
         ClassLoader classLoader = null;
         try {
@@ -161,10 +180,10 @@ public final class TestMojo extends BaseOpenLMojo {
                 builder.setWorkspace(workspaceFolder.getPath());
             }
             SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
-                    .setClassLoader(classLoader)
-                    .setExecutionMode(true)
-                    .setExternalParameters(externalParameters)
-                    .build();
+                .setClassLoader(classLoader)
+                .setExecutionMode(true)
+                .setExternalParameters(externalParameters)
+                .build();
 
             CompiledOpenClass openLRules;
             try {
@@ -179,11 +198,10 @@ public final class TestMojo extends BaseOpenLMojo {
         }
     }
 
-    private Summary executeModuleByModule(String sourcePath, boolean hasDependencies) throws
-                                                             MalformedURLException,
-                                                             RulesInstantiationException,
-                                                             ProjectResolvingException,
-                                                             ClassNotFoundException {
+    private Summary executeModuleByModule(String sourcePath, boolean hasDependencies) throws MalformedURLException,
+                                                                                      RulesInstantiationException,
+                                                                                      ProjectResolvingException,
+                                                                                      ClassNotFoundException {
         ProjectDescriptor pd = ProjectResolver.instance().resolve(new File(sourcePath));
         if (pd == null) {
             throw new ProjectResolvingException("Failed to resolve project. Defined location is not an OpenL project.");
@@ -225,11 +243,11 @@ public final class TestMojo extends BaseOpenLMojo {
                     builder.setWorkspace(workspaceFolder.getPath());
                 }
                 SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
-                        .setClassLoader(classLoader)
-                        .setExecutionMode(true)
-                        .setModule(module.getName())
-                        .setExternalParameters(externalParameters)
-                        .build();
+                    .setClassLoader(classLoader)
+                    .setExecutionMode(true)
+                    .setModule(module.getName())
+                    .setExternalParameters(externalParameters)
+                    .build();
 
                 info("Searching tests in the module '", module.getName(), "'...");
                 CompiledOpenClass openLRules;
@@ -261,12 +279,12 @@ public final class TestMojo extends BaseOpenLMojo {
         if (openLRules.hasErrors()) {
             error("");
             error("There are compilation errors. It can affect test execution.");
-            List<OpenLMessage> errors = OpenLMessagesUtils.filterMessagesBySeverity(openLRules.getMessages(),
-                    Severity.ERROR);
-            for (int i = 0; i < errors.size(); i++) {
-                OpenLMessage error = errors.get(i);
-                String location = error.getSourceLocation() == null ? "" : " at " + error.getSourceLocation();
-                error((i + 1) + ". '", error.getSummary(), "'", location);
+            Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(openLRules.getMessages(), Severity.ERROR);
+            int i = 0;
+            for (OpenLMessage message : errorMessages) {
+                String location = message.getSourceLocation() == null ? "" : " at " + message.getSourceLocation();
+                error((i + 1) + ". '", message.getSummary(), "'", location);
+                i++;
             }
             error("");
         }
@@ -294,16 +312,22 @@ public final class TestMojo extends BaseOpenLMojo {
                     } else {
                         result = new TestSuite(test).invokeParallel(testSuiteExecutor, openClass, 1L);
                     }
+                    new JUnitReportWriter(reportsDirectory).write(result);
 
                     int suitTests = result.getNumberOfTestUnits();
                     int suitFailures = result.getNumberOfAssertionFailures();
                     int suitErrors = result.getNumberOfErrors();
 
-                    info("Tests run: ", suitTests,
-                            ", Failures: ", suitFailures,
-                            ", Errors: ", suitErrors,
-                            ". Time elapsed: ", formatTime(result.getExecutionTime()), " sec.",
-                            result.getNumberOfFailures() > 0 ? " " + FAILURE : "");
+                    info("Tests run: ",
+                        suitTests,
+                        ", Failures: ",
+                        suitFailures,
+                        ", Errors: ",
+                        suitErrors,
+                        ". Time elapsed: ",
+                        formatTime(result.getExecutionTime()),
+                        " sec.",
+                        result.getNumberOfFailures() > 0 ? " " + FAILURE : "");
 
                     if (result.getNumberOfFailures() > 0) {
                         showFailures(test, result, summaryFailures, summaryErrors);
@@ -332,7 +356,10 @@ public final class TestMojo extends BaseOpenLMojo {
         }
     }
 
-    private void showFailures(TestSuiteMethod test, TestUnitsResults result, List<String> summaryFailures, List<String> summaryErrors) {
+    private void showFailures(TestSuiteMethod test,
+            TestUnitsResults result,
+            List<String> summaryFailures,
+            List<String> summaryErrors) {
         int num = 1;
         String moduleName = test.getModuleName();
         String modulePrefix = moduleName == null ? "" : moduleName + ".";
@@ -343,10 +370,13 @@ public final class TestMojo extends BaseOpenLMojo {
                 String failureType = status == TR_NEQ ? FAILURE : ERROR;
                 String description = testUnit.getDescription();
 
-                info("  Test case: #", num,
-                        TestUnit.DEFAULT_DESCRIPTION.equals(description) ? "" : " (" + description + ")",
-                        ". Time elapsed: ", formatTime(testUnit.getExecutionTime()), " sec. ",
-                        failureType);
+                info("  Test case: #",
+                    num,
+                    TestUnit.DEFAULT_DESCRIPTION.equals(description) ? "" : " (" + description + ")",
+                    ". Time elapsed: ",
+                    formatTime(testUnit.getExecutionTime()),
+                    " sec. ",
+                    failureType);
 
                 if (status == TR_NEQ) {
                     StringBuilder summaryBuilder = new StringBuilder(modulePrefix + test.getName() + "#" + num);
@@ -356,35 +386,27 @@ public final class TestMojo extends BaseOpenLMojo {
                     for (ComparedResult comparisonResult : comparisonResults) {
                         if (comparisonResult.getStatus() != TR_OK) {
                             if (comparisonResult.getFieldName().equals(ThisField.THIS)) {
-                                info("    Expected: <"
-                                        + comparisonResult.getExpectedValue()
-                                        + "> but was: <"
-                                        + comparisonResult.getActualValue()
-                                        + ">");
+                                info("    Expected: <" + comparisonResult
+                                    .getExpectedValue() + "> but was: <" + comparisonResult.getActualValue() + ">");
                                 summaryBuilder.append(" expected: <")
-                                        .append(comparisonResult.getExpectedValue())
-                                        .append("> but was <")
-                                        .append(comparisonResult.getActualValue())
-                                        .append(">");
+                                    .append(comparisonResult.getExpectedValue())
+                                    .append("> but was <")
+                                    .append(comparisonResult.getActualValue())
+                                    .append(">");
                             } else {
                                 if (rowNum > 0) {
                                     summaryBuilder.append(",");
                                 }
-                                info("    Field "
-                                        + comparisonResult.getFieldName()
-                                        + " expected: <"
-                                        + comparisonResult.getExpectedValue()
-                                        + "> but was: <"
-                                        + comparisonResult.getActualValue()
-                                        + ">");
+                                info("    Field " + comparisonResult.getFieldName() + " expected: <" + comparisonResult
+                                    .getExpectedValue() + "> but was: <" + comparisonResult.getActualValue() + ">");
 
                                 summaryBuilder.append(" field ")
-                                        .append(comparisonResult.getFieldName())
-                                        .append(" expected: <")
-                                        .append(comparisonResult.getExpectedValue())
-                                        .append("> but was <")
-                                        .append(comparisonResult.getActualValue())
-                                        .append(">");
+                                    .append(comparisonResult.getFieldName())
+                                    .append(" expected: <")
+                                    .append(comparisonResult.getExpectedValue())
+                                    .append("> but was <")
+                                    .append(comparisonResult.getActualValue())
+                                    .append(">");
                             }
                             rowNum++;
                         }
@@ -459,7 +481,8 @@ public final class TestMojo extends BaseOpenLMojo {
                 int failedTests,
                 int errors,
                 List<String> summaryFailures,
-                List<String> summaryErrors, boolean hasCompilationErrors) {
+                List<String> summaryErrors,
+                boolean hasCompilationErrors) {
             this.runTests = runTests;
             this.failedTests = failedTests;
             this.errors = errors;

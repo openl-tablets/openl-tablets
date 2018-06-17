@@ -1,13 +1,13 @@
 package org.openl.rules.validation;
 
-import java.util.List;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Collection;
 
 import org.junit.Test;
 import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessages;
 import org.openl.message.Severity;
 import org.openl.rules.BaseOpenlBuilderHelper;
-import static org.junit.Assert.*;
 
 public class ActivePropetyValidatorTest extends BaseOpenlBuilderHelper {
 
@@ -19,18 +19,21 @@ public class ActivePropetyValidatorTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testOddActiveTable() {
-        assertTrue(isMessageOccured(ActivePropertyValidator.ODD_ACTIVE_TABLE_MESSAGE, Severity.ERROR));
+        assertTrue(isMessageOccured(getCompiledOpenClass().getMessages(),
+            ActivePropertyValidator.ODD_ACTIVE_TABLE_MESSAGE,
+            Severity.ERROR));
     }
 
     @Test
     public void testNoActiveTable() {
-        assertTrue(isMessageOccured(ActivePropertyValidator.NO_ACTIVE_TABLE_MESSAGE, Severity.WARN));
+        assertTrue(isMessageOccured(getCompiledOpenClass().getMessages(),
+            ActivePropertyValidator.NO_ACTIVE_TABLE_MESSAGE,
+            Severity.WARN));
     }
 
-    private boolean isMessageOccured(String message, Severity severity) {
-        List<OpenLMessage> messages = OpenLMessages.getCurrentInstance().getMessages();
-        for (OpenLMessage openLMessage : messages) {
-            if (openLMessage.getSummary().equals(message) && openLMessage.getSeverity() == severity) {
+    private boolean isMessageOccured(Collection<OpenLMessage> messages, String message, Severity severity) {
+        for (OpenLMessage m : messages) {
+            if (m.getSummary().equals(message) && m.getSeverity() == severity) {
                 return true;
             }
         }

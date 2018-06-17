@@ -3,6 +3,7 @@ package org.openl.message;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
 import org.openl.exception.OpenLExceptionUtils;
 import org.openl.main.SourceCodeURLConstants;
@@ -40,7 +41,7 @@ public class OpenLErrorMessage extends OpenLMessage {
         PrintWriter printWriter = new PrintWriter(stringWriter);
 
         printWriter.println(super.toString());
-        
+
         if (getError() != null) {
             String url = SourceCodeURLTool.makeSourceLocationURL(getError().getLocation(),
                 getError().getSourceModule());
@@ -49,7 +50,7 @@ public class OpenLErrorMessage extends OpenLMessage {
                 printWriter.print(SourceCodeURLConstants.AT_PREFIX + url);
             }
         }
-        
+
         printWriter.close();
 
         return stringWriter.toString();
@@ -58,6 +59,49 @@ public class OpenLErrorMessage extends OpenLMessage {
     @Override
     public String getSourceLocation() {
         return SourceCodeURLTool.makeSourceLocationURL(error.getLocation(), error.getSourceModule());
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((error == null) ? 0
+                                                   : ((error.getMessage() == null) ? 0
+                                                                                   : error.getMessage().hashCode()));
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        OpenLErrorMessage other = (OpenLErrorMessage) obj;
+        if (error == null) {
+            if (other.error != null)
+                return false;
+        } else if (other.error == null) {
+            if (error != null)
+                return false;
+        }
+
+        if (!StringUtils.equals(error.getMessage(), other.error.getMessage())) {
+            return false;
+        }
+
+        if (error instanceof OpenLCompilationException && other.error instanceof OpenLCompilationException) {
+            String location = ((OpenLCompilationException) error).getSourceLocation();
+            String otherLocation = ((OpenLCompilationException) other.error).getSourceLocation();
+            if (!StringUtils.equals(location, otherLocation)) {
+                return false;
+            }
+
+        }
+        
+        return true;
     }
 
 }

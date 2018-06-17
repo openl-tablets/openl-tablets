@@ -38,10 +38,4 @@ public class String2ByteConvertorTest {
         converter.parse("1.3", null);
     }
 
-    @Test
-    public void testFormat() {
-        String2ByteConvertor converter = new String2ByteConvertor();
-        String result = converter.format(Byte.MIN_VALUE, null);
-        assertEquals("-128", result);
-    }
 }

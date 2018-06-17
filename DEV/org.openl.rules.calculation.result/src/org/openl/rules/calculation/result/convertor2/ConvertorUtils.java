@@ -22,14 +22,9 @@ import java.util.Map;
 
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calculation.result.convertor2.CalculationStep;
-import org.openl.rules.calculation.result.convertor2.CompoundStep;
-import org.openl.rules.calculation.result.convertor2.ConvertationMetadata;
 import org.openl.rules.calculation.result.convertor2.ConvertationMetadata.NestedType;
-import org.openl.rules.calculation.result.convertor2.SpreadsheetResultPoint;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 import org.openl.util.ClassUtils;
-import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -170,7 +165,7 @@ public class ConvertorUtils {
 
     private static Method getGetterMethod(CalculationStep step, String propertyName) {
         Method getterMethod = null;
-        String getterrName = StringTool.getGetterName(propertyName);
+        String getterrName = ClassUtils.getter(propertyName);
         try {
             getterMethod = step.getClass().getMethod(getterrName);
         } catch (Exception e) {

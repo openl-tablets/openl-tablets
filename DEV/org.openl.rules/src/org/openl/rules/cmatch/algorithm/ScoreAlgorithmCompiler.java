@@ -25,7 +25,7 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
 
     public static final int ROW_SCORE_IDX = 0;
 
-    protected static final List<ColumnDefinition> SCORE_COLUMN_DEFINITION = new LinkedList<ColumnDefinition>();
+    protected static final List<ColumnDefinition> SCORE_COLUMN_DEFINITION = new LinkedList<>();
     private static final ScoreAlgorithmExecutor SCORE_EXECUTOR = new ScoreAlgorithmExecutor();
 
     static {
@@ -107,7 +107,6 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
             scores[i] = (Integer) objScores[i];
         }
         columnMatch.setColumnScores(scores);
-        bindMetaInfo(columnMatch, "Scores", scoreRow.get(VALUES), objScores);
     }
 
     @Override
@@ -123,7 +122,7 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
             SubValue weightSV = row.get(WEIGHT)[0];
             
             ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, weightSV.getString());
-            Integer rowWeight = null;
+            Integer rowWeight;
             if (constantOpenField != null && constantOpenField.getValue() != null) {
                 setMetaInfoForConstant(bindingContext, columnMatch, weightSV, weightSV.getString(), constantOpenField);
                 rowWeight = (Integer) RuleRowHelper.castConstantToExpectedType(bindingContext, constantOpenField, JavaOpenClass.getOpenClass(Integer.class));
@@ -143,7 +142,7 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
      * @see #buildTree
      */
     @Override
-    protected void validateTree(MatchNode rootNode, List<TableRow> rows, MatchNode[] nodes) throws SyntaxNodeException {
+    protected void validateTree(MatchNode rootNode, List<TableRow> rows, MatchNode[] nodes) {
         // DO NOTHING!!!
     }
 }

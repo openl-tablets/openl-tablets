@@ -12,9 +12,4 @@ public class String2OpenClassConvertorTest {
         assertNull(converter.parse(null, null, null));
     }
 
-    @Test
-    public void testFormatNull() {
-        String2OpenClassConvertor converter = new String2OpenClassConvertor();
-        assertNull(converter.format(null, null));
-    }
 }

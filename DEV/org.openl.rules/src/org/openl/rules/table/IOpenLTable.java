@@ -1,8 +1,9 @@
 package org.openl.rules.table;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.openl.message.OpenLMessage;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.properties.ITableProperties;
 
 public interface IOpenLTable {
@@ -15,7 +16,7 @@ public interface IOpenLTable {
 
     String getType();
 
-    List<OpenLMessage> getMessages();
+    Collection<OpenLMessage> getMessages();
 
     /**
      * @return Table name for user. (Firstly will be searched in table
@@ -42,5 +43,7 @@ public interface IOpenLTable {
     String getId();
 
     boolean isCanContainProperties();
+
+    MetaInfoReader getMetaInfoReader();
 
 }

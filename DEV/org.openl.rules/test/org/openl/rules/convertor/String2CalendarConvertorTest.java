@@ -45,25 +45,6 @@ public class String2CalendarConvertorTest {
         assertEquals(time, result);
     }
 
-    @Ignore            // Test is time-zone sensitive
-    public void testFormat() {
-        Calendar time = Calendar.getInstance();
-        time.setTime(new Date(1402952400000L));
-        					  
-        String2CalendarConvertor converter = new String2CalendarConvertor();
-        String result = converter.format(time, null);
-        assertEquals("6/17/14", result);
-    }
-
-    @Ignore            // Test is time-zone sensitive
-    public void testFormatByPattern() {
-        Calendar time = Calendar.getInstance();
-        time.setTime(new Date(1402952400000L));
-        String2CalendarConvertor converter = new String2CalendarConvertor();
-        String result = converter.format(time, "MM/dd/yyyy");
-        assertEquals("06/17/2014", result);
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void testParseEmpty() {
         String2CalendarConvertor converter = new String2CalendarConvertor();
@@ -82,9 +63,4 @@ public class String2CalendarConvertorTest {
         assertNull(converter.parse(null, null));
     }
 
-    @Test
-    public void testFormatNull() {
-        String2CalendarConvertor converter = new String2CalendarConvertor();
-        assertNull(converter.format(null, null));
-    }
 }

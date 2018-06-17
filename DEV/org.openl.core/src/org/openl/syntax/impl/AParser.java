@@ -108,7 +108,7 @@ public abstract class AParser implements IOpenParser {
 
         ISyntaxNode node = grammar.getTopNode();
 
-        return new ParsedCode(node, source, grammar.getErrors());
+        return new ParsedCode(node, source, grammar.getErrors(), null);
     }
 
 }

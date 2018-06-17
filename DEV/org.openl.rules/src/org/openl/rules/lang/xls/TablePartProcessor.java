@@ -1,15 +1,19 @@
 package org.openl.rules.lang.xls;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.openl.exception.OpenLCompilationException;
+import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.GridTable;
@@ -21,25 +25,30 @@ import org.openl.source.IOpenSourceCodeModule;
 
 public class TablePartProcessor {
 
+    private Collection<OpenLMessage> messages = new LinkedHashSet<>();
+
+    public TablePartProcessor() {
+    }
+
     /**
      * 
      * @return a list of TableParts with tables merged
      */
     public List<TablePart> mergeAllNodes() {
         List<TablePart> tables = new ArrayList<TablePart>();
-        for (TreeSet<TablePart> set : tableParts.values()) {
+        for (SortedSet<TablePart> set : tableParts.values()) {
             try {
                 TablePart mergedTable = validateAndMerge(set);
                 tables.add(mergedTable);
             } catch (OpenLCompilationException e) {
-                OpenLMessagesUtils.addError(e);
+                messages.add(OpenLMessagesUtils.newErrorMessage(e));
             }
         }
 
         return tables;
     }
 
-    private TablePart validateAndMerge(TreeSet<TablePart> set) throws OpenLCompilationException {
+    private TablePart validateAndMerge(SortedSet<TablePart> set) throws OpenLCompilationException {
 
         int cnt = 0;
         int n = set.size();
@@ -60,20 +69,20 @@ public class TablePartProcessor {
             }
 
             if (tablePart.getSize() != n) {
-                String message = "TablePart " + tablePart.getPartName() + " number " + tablePart.getPart()
-                        + " has wrong number of parts: " + tablePart.getSize() + ". There are " + n
-                        + " parts with the same name";
+                String message = "TablePart " + tablePart.getPartName() + " number " + tablePart
+                    .getPart() + " has wrong number of parts: " + tablePart
+                        .getSize() + ". There are " + n + " parts with the same name";
                 throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
             }
-            
+
             ICell cell00 = tablePart.getTable().getCell(0, 0);
-            
+
             IGridTable table = tablePart.getTable().getRows(cell00.getHeight());
-            if (table == null){
-                String message = "TablePart " + tablePart.getPartName() + " number " + tablePart.getPart()
-                        + " has wrong content.";
+            if (table == null) {
+                String message = "TablePart " + tablePart.getPartName() + " number " + tablePart
+                    .getPart() + " has wrong content.";
                 throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
-               
+
             }
             boolean myVert = tablePart.isVertical();
             int myDim = myVert ? table.getWidth() : table.getHeight();
@@ -84,18 +93,22 @@ public class TablePartProcessor {
                 dimension = myDim;
             } else {
                 if (myVert != vertical) {
-                    String message = "TablePart number " + tablePart.getPart() + " must use "
-                            + (vertical ? "row" : "column");
+                    String message = "TablePart number " + tablePart
+                        .getPart() + " must use " + (vertical ? "row" : "column");
                     throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
                 }
 
                 if (myDim != dimension) {
-                    String message = "TablePart number " + tablePart.getPart() + " has "
-                            + (vertical ? "width" : "height") + " = " + myDim + " instead of " + dimension;
+                    String message = "TablePart number " + tablePart
+                        .getPart() + " has " + (vertical ? "width"
+                                                         : "height") + " = " + myDim + " instead of " + dimension;
                     if (vertical) {
-                        throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
+                        throw new OpenLCompilationException(message,
+                            null,
+                            null,
+                            makeSourceModule(tablePart.getTable()));
                     } else {
-                        OpenLMessagesUtils.addWarn(message);
+                        messages.add(OpenLMessagesUtils.newErrorMessage(message));
                     }
                 }
             }
@@ -121,7 +134,7 @@ public class TablePartProcessor {
         addToParts(tablePart);
     }
 
-    private Pattern pattern = Pattern.compile("\\w+\\s+(\\w+)\\s+(column|row)\\s+(\\d+)\\s+of\\s+(\\d+)\\s*($)");
+    private static Pattern pattern = Pattern.compile("\\w+\\s+(\\w+)\\s+(column|row)\\s+(\\d+)\\s+of\\s+(\\d+)\\s*($)");
 
     private void parseHeader(TablePart tablePart) throws OpenLCompilationException {
 
@@ -160,5 +173,9 @@ public class TablePartProcessor {
             String message = "Duplicated TablePart part # = " + tablePart.getPart();
             throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
         }
+    }
+
+    public Collection<OpenLMessage> getMessages() {
+        return messages;
     }
 }

@@ -16,6 +16,7 @@ import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.MergedCell;
 import org.openl.excel.parser.SheetDescriptor;
 import org.openl.util.NumberUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,7 @@ public class WorkbookListener implements HSSFListener {
                 break;
             case BoundSheetRecord.sid:
                 BoundSheetRecord bsr = (BoundSheetRecord) record;
-                sheets.add(new EventSheetDescriptor(bsr.getSheetname(), bsr.getPositionOfBof()));
+                sheets.add(new EventSheetDescriptor(bsr.getSheetname(), sheets.size(), bsr.getPositionOfBof()));
                 break;
             case BOFRecord.sid:
                 BOFRecord bof = (BOFRecord) record;
@@ -144,12 +145,12 @@ public class WorkbookListener implements HSSFListener {
                 if (outputNextStringRecord) {
                     // String for formula
                     StringRecord srec = (StringRecord) record;
-                    value = srec.getString();
+                    value = StringUtils.trimToNull(srec.getString());
                     row = nextRow;
                     column = nextColumn;
                     outputNextStringRecord = false;
 
-                    if (indent > 0) {
+                    if (value != null && indent > 0) {
                         value = new AlignedValue(value, indent);
                         indent = 0;
                     }
@@ -161,9 +162,9 @@ public class WorkbookListener implements HSSFListener {
 
                 row = lrec.getRow();
                 column = lrec.getColumn();
-                value = lrec.getValue();
+                value = StringUtils.trimToNull(lrec.getValue());
                 indent = formatListener.getIndent(lrec);
-                if (indent > 0) {
+                if (value != null && indent > 0) {
                     value = new AlignedValue(value, indent);
                 }
                 setValue(row, column, value);
@@ -176,9 +177,9 @@ public class WorkbookListener implements HSSFListener {
                 if(sstRecord == null) {
                     throw new IllegalStateException("No SST Record, can't identify string");
                 } else {
-                    value = sstRecord.getString(lsrec.getSSTIndex()).toString();
+                    value = StringUtils.trimToNull(sstRecord.getString(lsrec.getSSTIndex()).toString());
                     indent = formatListener.getIndent(lsrec);
-                    if (indent > 0) {
+                    if (value != null && indent > 0) {
                         value = new AlignedValue(value, indent);
                     }
                     setValue(row, column, value);

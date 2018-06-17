@@ -1,14 +1,6 @@
 package org.openl.rules.dt;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,8 +14,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.NodeType;
-import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.constants.ConstantOpenField;
@@ -38,16 +28,9 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.load.SimpleSheetLoader;
 import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.CompositeGrid;
-import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.GridTable;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGrid;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.IWritableGrid;
-import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
+import org.openl.rules.table.*;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -56,7 +39,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DomainOpenClass;
-import org.openl.types.java.JavaOpenClass;
 
 public class DecisionTableHelper {
 
@@ -67,7 +49,7 @@ public class DecisionTableHelper {
      * Vertical table is when conditions are represented from left to right,
      * table is reading from top to bottom.</br>
      * Example of vertical table:
-     * 
+     *
      * <table cellspacing="2">
      * <tr>
      * <td align="center" bgcolor="#ccffff"><b>Rule</b></td>
@@ -105,7 +87,7 @@ public class DecisionTableHelper {
      * <td align="center" bgcolor="#ffff99">value23</td>
      * </tr>
      * </table>
-     * 
+     *
      * @param table checked table
      * @return <code>TRUE</code> if table is vertical.
      */
@@ -155,12 +137,12 @@ public class DecisionTableHelper {
         return s.length() >= 3 && s.startsWith(
             DecisionTableColumnHeaders.RETURN.getHeaderKey()) && (s.length() == 3 || Character.isDigit(s.charAt(3)));
     }
-    
+
     public static boolean isValidKeyHeader(String s) {
         return s.length() >= 3 && s.startsWith(
             DecisionTableColumnHeaders.KEY.getHeaderKey()) && (s.length() == 3 || Character.isDigit(s.charAt(3)));
     }
-    
+
     public static boolean isValidCRetHeader(String s) {
         return s.length() >= 4 && s.startsWith(
             DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey()) && (s.length() == 4 || Character.isDigit(s.charAt(4)));
@@ -198,7 +180,7 @@ public class DecisionTableHelper {
 
     /**
      * Checks if given table contain any horizontal condition header.
-     * 
+     *
      * @param table checked table
      * @return true if there is is any horizontal condition header in the table.
      */
@@ -209,7 +191,7 @@ public class DecisionTableHelper {
     /**
      * Creates virtual headers for condition and return columns to load simple
      * Decision Table as an usual Decision Table
-     * 
+     *
      * @param decisionTable method description for simple Decision Table.
      * @param originalTable The original body of simple Decision Table.
      * @param numberOfHcondition The number of horizontal conditions. In
@@ -259,7 +241,7 @@ public class DecisionTableHelper {
             grid));
     }
 
-    private static void writeVirtualHeadersForSimpleDecisionTable(TableSyntaxNode tableSyntaxNode, 
+    private static void writeVirtualHeadersForSimpleDecisionTable(TableSyntaxNode tableSyntaxNode,
             IWritableGrid grid,
             ILogicalTable originalTable,
             DecisionTable decisionTable,
@@ -306,7 +288,7 @@ public class DecisionTableHelper {
             c = c + originalTable.getSource().getCell(c, 0).getWidth();
             compoundTypeParameterCount++;
         }
-        
+
         IOpenClass returnType = decisionTable.getType();
         if (isCollectTable){
             return compoundTypeParameterCount > 1;
@@ -325,7 +307,7 @@ public class DecisionTableHelper {
         }
     }
 
-    private static void writeCompoundReturnColumns(TableSyntaxNode tableSyntaxNode, 
+    private static void writeCompoundReturnColumns(TableSyntaxNode tableSyntaxNode,
             IWritableGrid grid,
             ILogicalTable originalTable,
             DecisionTable decisionTable,
@@ -357,33 +339,33 @@ public class DecisionTableHelper {
         validateCompoundReturnType(compoundType);
 
         StringBuilder sb = new StringBuilder();
-        sb.append(compoundType.getName() + " ret = new " + compoundType.getName() + "();");
+        sb.append(compoundType.getName()).append(" ret = new ").append(compoundType.getName()).append("();");
 
         if (isSmartDecisionTable) {
             // Set conditions parameters to compound type. Recursively search is not supported.
-            for (int i = 0; i < numberOfConditions; i++) {
-                String descriptionOfCondition = conditions[i].getDescription();
+            for (Condition condition : conditions) {
+                String descriptionOfCondition = condition.getDescription();
                 try {
                     IOpenMethod bestMatchConditionMethod = findBestMatchOpenMethod(descriptionOfCondition,
-                        compoundType, true);
+                            compoundType, true);
                     sb.append("ret.");
                     sb.append(bestMatchConditionMethod.getName());
                     sb.append("(");
                     sb.append(String
-                        .valueOf(decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex())));
+                            .valueOf(decisionTable.getSignature().getParameterName(condition.getParameterIndex())));
                     sb.append(");");
                 } catch (OpenLCompilationException e) {
                 }
             }
         }
 
-        Set<String> generatedNames = new HashSet<String>();
+        Set<String> generatedNames = new HashSet<>();
         while (generatedNames.size() < compoundReturnColumnsCount) {
             generatedNames.add(RandomStringUtils.random(8, true, false));
         }
         String[] compoundColumnParamNames = generatedNames.toArray(new String[] {});
         int column = firstReturnColumn;
-        Map<String, Map<IOpenMethod, String>> variables = new HashMap<String, Map<IOpenMethod, String>>();
+        Map<String, Map<IOpenMethod, String>> variables = new HashMap<>();
         for (int i = 0; i < compoundReturnColumnsCount; i++) {
             StringBuilder fieldChainSb = null;
             IOpenClass type = compoundType;
@@ -395,19 +377,19 @@ public class DecisionTableHelper {
 
                 previoush = h;
                 h = h + originalTable.getSource().getCell(column, h).getHeight();
-                
+
                 IOpenMethod[] m = null;
-                
+
                 if (h < numberOfMergedRows) {
                     IOpenMethod bestMatchMethod = findBestMatchOpenMethod(description, type, false);
                     if (bestMatchMethod != null){
                         m = new IOpenMethod[] { bestMatchMethod };
                     }
-                } 
+                }
                 if (m == null){
                     m = findBestMatchOpenMethodRecursively(description, type);
                 }
-                
+
                 if (!bindingContext.isExecutionMode()) {
                     if (fieldChainSb == null) {
                         fieldChainSb = new StringBuilder();
@@ -424,7 +406,7 @@ public class DecisionTableHelper {
                         t = m[j].getSignature().getParameterType(0);
                     }
                 }
-                
+
                 /*
                  * if (type.isArray()){ throw new
                  * OpenLCompilationException(String.
@@ -444,15 +426,20 @@ public class DecisionTableHelper {
                                 var = RandomStringUtils.random(8, true, false);
                             }
                             generatedNames.add(var);
-                            sb.append(type.getName() + " " + var + " = new " + type.getName() + "();");
-                            vm = new HashMap<IOpenMethod, String>();
+                            sb.append(type.getName())
+                                    .append(" ")
+                                    .append(var)
+                                    .append(" = new ")
+                                    .append(type.getName())
+                                    .append("();");
+                            vm = new HashMap<>();
                             vm.put(m[j], var);
                             variables.put(currentVariable, vm);
                         } else {
                             var = vm.get(m[j]);
                         }
                     }
-                    sb.append(currentVariable + ".");
+                    sb.append(currentVariable).append(".");
                     sb.append(m[j].getName());
                     sb.append("(");
                     if (h < numberOfMergedRows || j < m.length - 1) {
@@ -473,20 +460,14 @@ public class DecisionTableHelper {
             }
 
             if (!bindingContext.isExecutionMode()) {
-                String stringValue = originalTable.getSource().getCell(column, numberOfMergedRows - 1).getStringValue();
-                String description = "Return: " + type.getDisplayName(0) + " " + fieldChainSb.toString();
                 ICell cell = originalTable.getSource().getCell(column, previoush);
-                SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
-                    stringValue.length() - 1,
-                    description,
-                    null,
-                    NodeType.OTHER);
-                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
-                    null,
-                    JavaOpenClass.STRING,
-                    false,
-                    Collections.singletonList(simpleNodeUsage));
-                cell.setMetaInfo(meta);
+                String description = "Return: " + type.getDisplayName(0) + " " + fieldChainSb.toString();
+
+                MetaInfoReader metaReader = tableSyntaxNode.getMetaInfoReader();
+                if (metaReader instanceof DecisionTableMetaInfoReader) {
+                    DecisionTableMetaInfoReader metaInfoReader = (DecisionTableMetaInfoReader) metaReader;
+                    metaInfoReader.addSimpleRulesReturn(cell.getAbsoluteRow(), cell.getAbsoluteColumn(), description);
+                }
             }
 
             column += mergedColumnsCounts;
@@ -542,7 +523,7 @@ public class DecisionTableHelper {
 
         return openClassFuzzyTokens.get(fuzzyBestMatches[0])[0];
     }
-    
+
     private static IOpenMethod[] findBestMatchOpenMethodRecursively(String description,
             IOpenClass openClass) throws OpenLCompilationException {
         Map<Token, IOpenMethod[][]> openClassFuzzyTokens = OpenLFuzzySearch.tokensMapToOpenClassSetterMethodsRecursively(openClass);
@@ -570,7 +551,7 @@ public class DecisionTableHelper {
         }
         return openClassFuzzyTokens.get(fuzzyBestMatches[0])[0];
     }
-    
+
     private static void validateCollectSyntaxNode(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             ILogicalTable originalTable,
@@ -631,9 +612,9 @@ public class DecisionTableHelper {
         //
         int firstReturnColumn = firstColumnAfterConditionColumns;
         int retParameterIndex = 0;
-        if (isCollectTable) { 
+        if (isCollectTable) {
             validateCollectSyntaxNode(tableSyntaxNode, decisionTable, originalTable, bindingContext);
-            
+
             if (Map.class.isAssignableFrom(decisionTable.getType().getInstanceClass())){
                 grid.setCellValue(firstReturnColumn, 0, KEY1_COLUMN_NAME);
                 if (tableSyntaxNode.getHeader().getCollectParameters().length > 0){
@@ -644,7 +625,7 @@ public class DecisionTableHelper {
                 int mergedColumnsCounts = originalTable.getSource().getCell(firstReturnColumn, numberOfMergedRows).getWidth();
                 firstReturnColumn = firstReturnColumn + mergedColumnsCounts;
             }
-            
+
             grid.setCellValue(firstReturnColumn, 0, CRET1_COLUMN_NAME);
             if (tableSyntaxNode.getHeader().getCollectParameters().length > 0){
                 grid.setCellValue(firstReturnColumn, 1, "extraRet");
@@ -781,10 +762,14 @@ public class DecisionTableHelper {
             grid.setCellValue(column, 2, typeOfValue.getLeft());
 
             if (!bindingContext.isExecutionMode()) {
-                writeMetaInfoForCondition(originalTable,
-                    column,
-                    decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()),
-                    typeOfValue.getRight());
+                MetaInfoReader metaReader = decisionTable.getSyntaxNode().getMetaInfoReader();
+                if (metaReader instanceof DecisionTableMetaInfoReader) {
+                    DecisionTableMetaInfoReader metaInfoReader = (DecisionTableMetaInfoReader) metaReader;
+                    ICell cell = originalTable.getSource().getCell(column, 0);
+                    metaInfoReader.addSimpleRulesCondition(cell.getAbsoluteRow(),
+                            cell.getAbsoluteColumn(),
+                            conditions[i].getParameterIndex());
+                }
             }
 
             // merge columns
@@ -813,7 +798,7 @@ public class DecisionTableHelper {
                 hColumn);
         }
 
-        return new ImmutablePair<Condition[], Integer>(conditions, column);
+        return new ImmutablePair<>(conditions, column);
     }
 
     private static void writeMetaInfoForHConditions(ILogicalTable originalTable,
@@ -822,45 +807,25 @@ public class DecisionTableHelper {
             int numberOfHcondition,
             int numberOfConditions,
             int hColumn) {
+        MetaInfoReader metaInfoReader = decisionTable.getSyntaxNode().getMetaInfoReader();
         int j = 0;
         for (int i = numberOfConditions - numberOfHcondition; i < numberOfConditions; i++) {
             int c = hColumn;
             while (c <= originalTable.getSource().getWidth()) {
-                String cellValue = originalTable.getSource().getCell(c, j).getFormattedValue();
-                String text = String.format("Condition for %s: %s",
-                    decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()), decisionTable.getSignature().getParameterType(i).getDisplayName(0));
                 ICell cell = originalTable.getSource().getCell(c, j);
-                SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
-                    cellValue.length() - 1,
-                    text,
-                    null,
-                    NodeType.OTHER);
-                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
-                    null,
-                    JavaOpenClass.STRING,
-                    false,
-                    Collections.singletonList(simpleNodeUsage));
-                cell.setMetaInfo(meta);
-                c = c + originalTable.getSource().getCell(c, j).getWidth();
+
+                String cellValue = cell.getStringValue();
+                if (cellValue != null) {
+                    if (metaInfoReader instanceof DecisionTableMetaInfoReader) {
+                        ((DecisionTableMetaInfoReader) metaInfoReader).addSimpleRulesCondition(cell.getAbsoluteRow(),
+                                cell.getAbsoluteColumn(),
+                                conditions[i].getParameterIndex());
+                    }
+                }
+                c = c + cell.getWidth();
             }
             j++;
         }
-    }
-
-    private static void writeMetaInfoForCondition(ILogicalTable originalTable,
-            int column,
-            String parameterName,
-            String typeOfValue) {
-        String cellValue = originalTable.getSource().getCell(column, 0).getFormattedValue();
-        String text = String.format("Condition for %s: %s", parameterName, typeOfValue);
-        ICell cell = originalTable.getSource().getCell(column, 0);
-        SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0, cellValue.length() - 1, text, null, NodeType.OTHER);
-        CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
-            null,
-            JavaOpenClass.STRING,
-            false,
-            Collections.singletonList(simpleNodeUsage));
-        cell.setMetaInfo(meta);
     }
 
     private final static class Condition {
@@ -901,9 +866,7 @@ public class DecisionTableHelper {
             if (getClass() != obj.getClass())
                 return false;
             Condition other = (Condition) obj;
-            if (parameterIndex != other.parameterIndex)
-                return false;
-            return true;
+            return parameterIndex == other.parameterIndex;
         }
 
     }
@@ -914,14 +877,13 @@ public class DecisionTableHelper {
             boolean isCollectTable) throws OpenLCompilationException {
         int numberOfParameters = decisionTable.getSignature().getNumberOfParameters();
         int column = 0;
-        List<List<Condition>> vConditions = new ArrayList<List<Condition>>();
+        List<List<Condition>> vConditions = new ArrayList<>();
 
-        BidiMap<String, Integer> parameterTokensMap = new DualHashBidiMap<String, Integer>();
+        BidiMap<String, Integer> parameterTokensMap = new DualHashBidiMap<>();
         Token[] parameterTokens = new Token[numberOfParameters - numberOfHcondition];
         for (int i = 0; i < numberOfParameters - numberOfHcondition; i++) {
             String tokenString = OpenLFuzzySearch.toTokenString(decisionTable.getSignature().getParameterName(i));
-            parameterTokensMap.put(tokenString,
-                Integer.valueOf(i));
+            parameterTokensMap.put(tokenString, i);
             parameterTokens[i] = new Token(tokenString, 0);
         }
         int j = 0;
@@ -951,7 +913,7 @@ public class DecisionTableHelper {
             }
 
             if (bestMatchedTokens.length > 1) {
-                List<Condition> conditions = new ArrayList<Condition>();
+                List<Condition> conditions = new ArrayList<>();
                 for (Token token : bestMatchedTokens) {
                     conditions.add(new Condition(parameterTokensMap.get(token.getValue()), description));
                 }
@@ -1072,9 +1034,9 @@ public class DecisionTableHelper {
             // if the name row is merged then we have Array
             if (isMerged) {
                 if (!type.isArray()) {
-                    return new ImmutablePair<String, String>(type.getName() + "[]", type.getDisplayName(0) + "[]");
+                    return new ImmutablePair<>(type.getName() + "[]", type.getDisplayName(0) + "[]");
                 } else {
-                    return new ImmutablePair<String, String>(type.getName(), type.getDisplayName(0));
+                    return new ImmutablePair<>(type.getName(), type.getDisplayName(0));
                 }
             }
         }
@@ -1094,7 +1056,7 @@ public class DecisionTableHelper {
             
             ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, cellValue.getSource().getCell(0, 0).getStringValue());
             if (constantOpenField != null && (IntRange.class.equals(constantOpenField.getType().getInstanceClass()) || DoubleRange.class.equals(constantOpenField.getType().getInstanceClass()))) {
-                return new ImmutablePair<String, String>(constantOpenField.getType().getInstanceClass().getSimpleName(),
+                return new ImmutablePair<>(constantOpenField.getType().getInstanceClass().getSimpleName(),
                         constantOpenField.getType().getInstanceClass().getSimpleName());
             }
 
@@ -1104,14 +1066,13 @@ public class DecisionTableHelper {
                 String typeName = type instanceof DomainOpenClass ? type.getInstanceClass().getCanonicalName()
                                                                   : type.getName();
 
-                /** try to create range by values **/
+                /* try to create range by values **/
                 if (intType.contains(typeName)) {
                     try {
                         range = new IntRange(cellValue.getSource().getCell(0, 0).getStringValue());
 
-                        /** Return name of a class without a package prefix **/
-                        return new ImmutablePair<String, String>(range.getClass().getSimpleName(),
-                            range.getClass().getSimpleName());
+                        /* Return name of a class without a package prefix **/
+                        return new ImmutablePair<>(range.getClass().getSimpleName(), range.getClass().getSimpleName());
                     } catch (Exception e) {
                         continue;
                     }
@@ -1119,9 +1080,8 @@ public class DecisionTableHelper {
                     try {
                         range = new DoubleRange(cellValue.getSource().getCell(0, 0).getStringValue());
 
-                        /** Return name of a class without a package prefix **/
-                        return new ImmutablePair<String, String>(range.getClass().getSimpleName(),
-                            range.getClass().getSimpleName());
+                        /* Return name of a class without a package prefix **/
+                        return new ImmutablePair<>(range.getClass().getSimpleName(), range.getClass().getSimpleName());
                     } catch (Exception e) {
                         continue;
                     }
@@ -1129,9 +1089,9 @@ public class DecisionTableHelper {
             }
         }
         if (!type.isArray()) {
-            return new ImmutablePair<String, String>(type.getName() + "[]", type.getDisplayName(0) + "[]");
+            return new ImmutablePair<>(type.getName() + "[]", type.getDisplayName(0) + "[]");
         } else {
-            return new ImmutablePair<String, String>(type.getName(), type.getDisplayName(0));
+            return new ImmutablePair<>(type.getName(), type.getDisplayName(0));
         }
     }
 

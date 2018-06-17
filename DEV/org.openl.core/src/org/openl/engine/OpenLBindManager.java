@@ -3,7 +3,6 @@ package org.openl.engine;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.impl.ANodeBinder;
@@ -41,15 +40,15 @@ public class OpenLBindManager extends OpenLHolder {
      * @param parsedCode parsed code
      * @return bound code
      */
-    public IBoundCode bindCode(IBindingContextDelegator bindingContextDelegator, IParsedCode parsedCode) {
+    public IBoundCode bindCode(IBindingContext bindingContext, IParsedCode parsedCode) {
 
         IOpenBinder binder = getOpenL().getBinder();
 
-        if (bindingContextDelegator == null) {
+        if (bindingContext == null) {
             return binder.bind(parsedCode);
         }
 
-        return binder.bind(parsedCode, bindingContextDelegator);
+        return binder.bind(parsedCode, bindingContext);
     }
 
     /**

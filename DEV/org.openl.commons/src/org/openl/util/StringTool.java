@@ -220,22 +220,4 @@ public class StringTool {
         }
         return strBuf.toString();
     }
-
-    /**
-     * Returns the setter name, by adding set, to the field name, and upper case
-     * the first field name symbol.
-     * 
-     * @param fieldName
-     * @return setFieldName
-     */
-    public static String getSetterName(String fieldName) {
-        final StringBuilder builder = new StringBuilder(64);
-        return builder.append("set").append(StringUtils.capitalize(fieldName)).toString();
-    }
-
-    public static String getGetterName(String fieldName) {
-        final StringBuilder builder = new StringBuilder(64);
-        return builder.append("get").append(StringUtils.capitalize(fieldName)).toString();
-    }
-
 }

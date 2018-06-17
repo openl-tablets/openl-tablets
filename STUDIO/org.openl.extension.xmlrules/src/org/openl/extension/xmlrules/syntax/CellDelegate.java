@@ -2,13 +2,11 @@ package org.openl.extension.xmlrules.syntax;
 
 import java.util.Date;
 
-import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.util.formatters.IFormatter;
 
 public class CellDelegate implements ICell {
     private final ICell delegate;
@@ -72,11 +70,6 @@ public class CellDelegate implements ICell {
     }
 
     @Override
-    public String getFormattedValue() {
-        return delegate.getFormattedValue();
-    }
-
-    @Override
     public ICellFont getFont() {
         return delegate.getFont();
     }
@@ -127,22 +120,8 @@ public class CellDelegate implements ICell {
     }
 
     @Override
-    public CellMetaInfo getMetaInfo() {
-        return delegate.getMetaInfo();
-    }
-
-    @Override
-    public void setMetaInfo(CellMetaInfo metaInfo) {
-        delegate.setMetaInfo(metaInfo);
-    }
-
-    @Override
     public ICellComment getComment() {
         return delegate.getComment();
     }
 
-    @Override
-    public IFormatter getDataFormatter() {
-        return delegate.getDataFormatter();
-    }
 }

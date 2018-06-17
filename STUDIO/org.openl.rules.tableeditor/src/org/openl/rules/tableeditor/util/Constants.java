@@ -18,6 +18,8 @@ public final class Constants {
     public static final String ATTRIBUTE_ON_BEFORE_SAVE = "onBeforeSave";
     public static final String ATTRIBUTE_ON_AFTER_SAVE = "onAfterSave";
     public static final String ATTRIBUTE_ON_ERROR = "onError";
+    public static final String ATTRIBUTE_ON_REQUEST_START = "onRequestStart";
+    public static final String ATTRIBUTE_ON_REQUEST_END = "onRequestEnd";
     public static final String ATTRIBUTE_EXCLUDE_SCRIPTS = "excludeScripts";
     public static final String ATTRIBUTE_ROW_INDEX = "rowIndex";
     public static final String ATTRIBUTE_LINK_BUILDER = "linkBuilder";

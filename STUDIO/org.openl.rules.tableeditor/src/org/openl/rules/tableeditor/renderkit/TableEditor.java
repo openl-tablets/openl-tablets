@@ -33,6 +33,8 @@ public class TableEditor {
     private String onBeforeSave;
     private String onAfterSave;
     private String onError;
+    private String onRequestStart;
+    private String onRequestEnd;
     private String excludeScripts;
     private LinkBuilder linkBuilder;
     private Integer rowIndex;
@@ -58,6 +60,8 @@ public class TableEditor {
         onBeforeSave = (String) attributes.get(Constants.ATTRIBUTE_ON_BEFORE_SAVE);
         onError = (String) attributes.get(Constants.ATTRIBUTE_ON_ERROR);
         onAfterSave = (String) attributes.get(Constants.ATTRIBUTE_ON_AFTER_SAVE);
+        onRequestStart = (String) attributes.get(Constants.ATTRIBUTE_ON_REQUEST_START);
+        onRequestEnd = (String) attributes.get(Constants.ATTRIBUTE_ON_REQUEST_END);
         excludeScripts = (String) attributes.get(Constants.ATTRIBUTE_EXCLUDE_SCRIPTS);
         rowIndex = (Integer) attributes.get(Constants.ATTRIBUTE_ROW_INDEX);
     }
@@ -72,7 +76,7 @@ public class TableEditor {
         } else if (filtersParam instanceof Collection) {
             @SuppressWarnings("unchecked")
             Collection<IGridFilter> collection = (Collection<IGridFilter>) filtersParam;
-            filters = collection.toArray(new IGridFilter[collection.size()]);
+            filters = collection.toArray(new IGridFilter[0]);
         } else {
             throw new IllegalArgumentException(String.format("Unsupported type of parameter \"%s\"",
                     Constants.ATTRIBUTE_FILTERS));
@@ -205,6 +209,22 @@ public class TableEditor {
 
     public void setOnError(String onError) {
         this.onError = onError;
+    }
+
+    public String getOnRequestStart() {
+        return onRequestStart;
+    }
+
+    public void setOnRequestStart(String onRequestStart) {
+        this.onRequestStart = onRequestStart;
+    }
+
+    public String getOnRequestEnd() {
+        return onRequestEnd;
+    }
+
+    public void setOnRequestEnd(String onRequestEnd) {
+        this.onRequestEnd = onRequestEnd;
     }
 
     public LinkBuilder getLinkBuilder() {

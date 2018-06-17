@@ -4,17 +4,24 @@ import org.openl.excel.parser.SheetDescriptor;
 
 public class DOMSheetDescriptor implements SheetDescriptor {
     private final String name;
+    private final int index;
 
     private int firstRowNum;
     private int firstColNum;
 
-    DOMSheetDescriptor(String name) {
+    DOMSheetDescriptor(String name, int index) {
         this.name = name;
+        this.index = index;
     }
 
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public int getIndex() {
+        return index;
     }
 
     @Override

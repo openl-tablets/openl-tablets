@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
@@ -53,19 +52,15 @@ public class CollectionElementField extends AOpenField {
         }
 
         Object res = null;
-        try {
-            Object v = field.get(target, env);
-            if (collectionType.isArray()) {
-                res = getForArray(v);
-            }
-            if (collectionType.isList()) {
-                res = getForList(v);
-            }
-            if (collectionType.isMap()) {
-                res = getForMap(v);
-            }
-        } catch (SecurityException e) {
-            processError(e);
+        Object v = field.get(target, env);
+        if (collectionType.isArray()) {
+            res = getForArray(v);
+        }
+        if (collectionType.isList()) {
+            res = getForList(v);
+        }
+        if (collectionType.isMap()) {
+            res = getForMap(v);
         }
         return res != null ? res : getType().nullObject();
     }
@@ -100,21 +95,16 @@ public class CollectionElementField extends AOpenField {
             throw new OpenLRuntimeException(String.format("Can not set [%s] field to \"null\" object", this.getName()));
         }
 
-        try {
-            Object v = field.get(target, env);
-            if (collectionType.isArray()) {
-                setForArray(target, value, env, v);
-            }
-            if (collectionType.isList()) {
-                setForList(target, value, env, v);
-            }
-            if (collectionType.isMap()) {
-                setForMap(target, value, env, v);
-            }
-        } catch (SecurityException e) {
-            processError(e);
+        Object v = field.get(target, env);
+        if (collectionType.isArray()) {
+            setForArray(target, value, env, v);
         }
-
+        if (collectionType.isList()) {
+            setForList(target, value, env, v);
+        }
+        if (collectionType.isMap()) {
+            setForMap(target, value, env, v);
+        }
     }
 
     private void setForArray(Object target, Object value, IRuntimeEnv env, Object v) {
@@ -166,11 +156,6 @@ public class CollectionElementField extends AOpenField {
             Map<Object, Object> map = (Map<Object, Object>) v; 
             map.put(mapKey, value);
         }
-    }
-
-    private void processError(Throwable e1) {
-        log.error("{}", this, e1);
-        OpenLMessagesUtils.addError(e1);
     }
 
     public boolean isWritable() {

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Before;
@@ -89,7 +90,8 @@ public class MessagesDelegatingTest {
             compiledMultiModule.getMessages().containsAll(compiledModule.getMessages());
         }
 
-        assertFalse("During compilation DuplicatedMethodException must not be thrown", hasDuplicatedMethodException(compiledMultiModule));
+        assertFalse("During compilation DuplicatedMethodException must not be thrown",
+            hasDuplicatedMethodException(compiledMultiModule));
     }
 
     @Test
@@ -106,13 +108,16 @@ public class MessagesDelegatingTest {
             compiledMultiModule.getMessages().containsAll(compiledModule.getMessages());
         }
 
-        assertTrue("During compilation DuplicatedMethodException must be thrown", hasDuplicatedMethodException(compiledMultiModule));
+        assertTrue("During compilation DuplicatedMethodException must be thrown",
+            hasDuplicatedMethodException(compiledMultiModule));
     }
 
-    private boolean hasDuplicatedMethodException(CompiledOpenClass compiledMultiModule) {
+    private boolean hasDuplicatedMethodException(CompiledOpenClass compiledOpenClass) {
         boolean hasDuplicatedMethodException = false;
-        for (OpenLMessage error : OpenLMessagesUtils.filterMessagesBySeverity(compiledMultiModule.getMessages(), Severity.ERROR)) {
-            if (error instanceof OpenLErrorMessage){
+        
+        Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(compiledOpenClass.getMessages(), Severity.ERROR);
+        for (OpenLMessage error : errorMessages) {
+            if (error instanceof OpenLErrorMessage) {
                 Throwable cause = ((OpenLErrorMessage) error).getError().getCause();
                 if (cause instanceof DuplicatedMethodException) {
                     hasDuplicatedMethodException = true;

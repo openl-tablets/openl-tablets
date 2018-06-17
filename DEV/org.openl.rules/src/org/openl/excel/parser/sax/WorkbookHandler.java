@@ -27,7 +27,7 @@ public class WorkbookHandler extends DefaultHandler {
             }
 
             String referenceId = attributes.getValue(rIdQName);
-            sheetDescriptors.add(new SAXSheetDescriptor(name, referenceId));
+            sheetDescriptors.add(new SAXSheetDescriptor(name, sheetDescriptors.size(), referenceId));
         } else if ("workbookPr".equals(localName)) {
             String date1904 = attributes.getValue("date1904");
             if (date1904 != null) {

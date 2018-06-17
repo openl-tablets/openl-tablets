@@ -13,15 +13,13 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.OpenClassHelper;
-import org.openl.util.StringUtils;
+import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public abstract class AEngineFactory {
-    private static final String FIELD_PREFIX = "get";
-    
+
     /**
      * This method deprecated. Use newInstance method. 
-     * @return
      */
     @Deprecated
     public final Object makeInstance(){
@@ -75,7 +73,7 @@ public abstract class AEngineFactory {
 
         // Methods map.
         //
-        Map<Method, IOpenMember> methodMap = new HashMap<Method, IOpenMember>();
+        Map<Method, IOpenMember> methodMap = new HashMap<>();
         // Get declared by engine interface methods.
         //
         Method[] interfaceMethods = engineInterface.getDeclaredMethods();
@@ -99,16 +97,16 @@ public abstract class AEngineFactory {
                 // Try to find appropriate method candidate in openClass's
                 // fields.
                 //
-                if (interfaceMethodName.startsWith(FIELD_PREFIX)) {
+                if (interfaceMethodName.startsWith("get")) {
                     // Build field name to find.
                     //
-                    String fieldName = StringUtils.uncapitalize(interfaceMethodName.substring(FIELD_PREFIX.length()));
+                    String fieldName = ClassUtils.toFieldName(interfaceMethodName);
                     // Try to find appropriate field.
                     //
                     IOpenField rulesField = moduleOpenClass.getField(fieldName, true);
 
                     if (rulesField == null) {
-                        fieldName = StringUtils.capitalize(fieldName);
+                        fieldName = ClassUtils.capitalize(fieldName);
                         rulesField = moduleOpenClass.getField(fieldName, true);
                     }
 

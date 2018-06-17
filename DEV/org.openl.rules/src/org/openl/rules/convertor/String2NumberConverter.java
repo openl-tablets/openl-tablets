@@ -6,29 +6,13 @@ import java.text.ParsePosition;
 import java.util.Locale;
 
 /**
- * A base converter class which implements logic for parsing and formatting Java's numbers.
- * This converter uses US locale for parsing and formatting numbers.
+ * A base converter class which implements logic for parsing Java's numbers.
+ * This converter uses US locale for parsing numbers.
  *
  * @param <T> type of a number
  * @author Yury Molchan
  */
 abstract class String2NumberConverter<T extends Number> implements IString2DataConvertor<T> {
-
-    /**
-     * Format a number to String according to a format. If the input string is null then null will be returned.
-     *
-     * @param data   a number to format
-     * @param format a format of a number. If it is null then a default format will be used.
-     * @return a String or null
-     */
-    @Override
-    public String format(T data, String format) {
-        if (data == null) return null;
-
-        DecimalFormat df = getFormatter(format);
-
-        return df.format(data);
-    }
 
     /**
      * Parse an input string to a number. If the input string is null then null will be returned.

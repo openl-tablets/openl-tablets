@@ -13,6 +13,7 @@ import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.ExcelParseException;
 import org.openl.excel.parser.MergedCell;
 import org.openl.util.NumberUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
@@ -152,7 +153,7 @@ public class SheetHandler extends DefaultHandler {
                     // To be precise it's a formula with String type. But we care only about a value.
                     // Fallback to INLINE_STRING
                 case INLINE_STRING:
-                    parsedValue = value.toString();
+                    parsedValue = StringUtils.trimToNull(value.toString());
                     break;
                 case SHARED_STRING_TABLE_STRING:
                     String sstIndex = value.toString();
@@ -163,7 +164,7 @@ public class SheetHandler extends DefaultHandler {
                             strValue = new XSSFRichTextString(sharedStringsTable.getEntryAt(idx)).toString();
                             lruCache.put(idx, strValue);
                         }
-                        parsedValue = strValue;
+                        parsedValue = StringUtils.trimToNull(strValue);
                     } catch (NumberFormatException ex) {
                         throw new ExcelParseException("Failed to parse SST index '" + sstIndex, ex);
                     }
@@ -204,26 +205,40 @@ public class SheetHandler extends DefaultHandler {
     }
 
     private void setCell(int row, int col, Object parsedValue) {
-        // According to specification "dimension" is optional and is not required. We must expand array if it's too small
-        ensureCorrectSize(row, col);
-        cells[row][col] = parsedValue;
-    }
+        // Sometimes sheet dimension is defined like C1:E63 but exists cell in B65 in same sheet. It's a strange case
+        // but we must support it too.
+        int rowShift = 0;
+        int colShift = 0;
 
-    private void ensureCorrectSize(int row, int col) {
-        int maxRows = Math.max(row + 1, cells.length);
+        if (row < 0) {
+            rowShift = -row;
+            row = 0;
+        }
+
+        if (col < 0) {
+            colShift = -col;
+            col = 0;
+        }
+
+        // According to specification "dimension" is optional and is not required. We must expand array if it's too small
+        int maxRows = Math.max(row + 1, cells.length + rowShift);
 
         int columnCount = cells.length == 0 ? 0 : cells[0].length;
-        int maxCols = Math.max(col + 1, columnCount);
+        int maxCols = Math.max(col + 1, columnCount + colShift);
+
+        if (rowShift > 0 || colShift > 0) {
+            start = new CellAddress(start.getRow() - rowShift, start.getColumn() - colShift);
+        }
 
         if (maxRows > cells.length || maxCols > columnCount) {
             // Should not occur in theory.
             log.debug("Extend cells array. Current: {}:{}, new: {}:{}", cells.length, columnCount, maxRows, maxCols);
             Object[][] copy = new Object[maxRows][maxCols];
-
-            arrayCopy(cells, copy);
-
+            arrayCopy(cells, copy, rowShift, colShift);
             cells = copy;
         }
+
+        cells[row][col] = parsedValue;
     }
 
     private boolean isTextTag(String name) {
@@ -258,9 +273,9 @@ public class SheetHandler extends DefaultHandler {
         }
     }
 
-    private void arrayCopy(Object[][] from, Object[][] to) {
+    private void arrayCopy(Object[][] from, Object[][] to, int toRow, int toCol) {
         for (int i = 0; i < from.length; i++) {
-            System.arraycopy(from[i], 0, to[i], 0, from[i].length);
+            System.arraycopy(from[i], 0, to[toRow + i], toCol, from[i].length);
         }
     }
 

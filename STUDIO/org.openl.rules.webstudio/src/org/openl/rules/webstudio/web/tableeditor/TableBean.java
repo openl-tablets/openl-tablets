@@ -32,7 +32,10 @@ import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.*;
 import org.openl.rules.types.IUriMember;
-import org.openl.rules.ui.*;
+import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.RecentlyVisitedTables;
+import org.openl.rules.ui.TableSyntaxNodeUtils;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.util.XSSFOptimizer;
 import org.openl.rules.webstudio.web.test.TestDescriptionWithPreview;
@@ -70,8 +73,8 @@ public class TableBean {
     private boolean canBeOpenInExcel;
     private boolean copyable;
 
-    private List<OpenLMessage> errors;
-    private List<OpenLMessage> warnings;
+    private Collection<OpenLMessage> errors;
+    private Collection<OpenLMessage> warnings;
     // Errors + Warnings
     private List<OpenLMessage> problems;
 
@@ -152,18 +155,18 @@ public class TableBean {
         initErrors();
         initWarnings();
 
-        problems = new ArrayList<OpenLMessage>();
+        problems = new ArrayList<>();
         problems.addAll(errors);
         problems.addAll(warnings);
     }
 
     private void initErrors() {
-        List<OpenLMessage> messages = table.getMessages();
+        Collection<OpenLMessage> messages = table.getMessages();
         errors = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
     }
 
     private void initWarnings() {
-        warnings = new ArrayList<OpenLMessage>();
+        warnings = new ArrayList<>();
         
         if (targetTables != null) {
             boolean warningWasAdded = false;
@@ -182,10 +185,8 @@ public class TableBean {
 
         ProjectModel model = WebStudioUtils.getProjectModel();
 
-        List<OpenLMessage> messages = model.getModuleMessages();
-
-        List<OpenLMessage> warningMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
-        for (OpenLMessage message : warningMessages) {
+        Collection<OpenLMessage> warnMessages = OpenLMessagesUtils.filterMessagesBySeverity(model.getModuleMessages(), Severity.WARN);
+        for (OpenLMessage message : warnMessages) {
             if (message instanceof OpenLWarnMessage) {//there can be simple OpenLMessages with severity WARN
                 OpenLWarnMessage warning = (OpenLWarnMessage) message;
                 ISyntaxNode syntaxNode = warning.getSource();
@@ -237,11 +238,11 @@ public class TableBean {
         return table;
     }
 
-    public List<OpenLMessage> getErrors() {
+    public Collection<OpenLMessage> getErrors() {
         return errors;
     }
 
-    public List<OpenLMessage> getWarnings() {
+    public Collection<OpenLMessage> getWarnings() {
         return warnings;
     }
 
@@ -292,7 +293,7 @@ public class TableBean {
         if (targetTables == null) {
             return  null;
         }
-        List<TableDescription> tableDescriptions = new ArrayList<TableDescription>(targetTables.size());
+        List<TableDescription> tableDescriptions = new ArrayList<>(targetTables.size());
         for (IOpenLTable targetTable : targetTables) {
             tableDescriptions.add(new TableDescription(targetTable.getUri(),
                     targetTable.getId(),
@@ -361,7 +362,7 @@ public class TableBean {
         if (allTests == null) {
             return null;
         }
-        List<TableDescription> tableDescriptions = new ArrayList<TableDescription>(allTests.length);
+        List<TableDescription> tableDescriptions = new ArrayList<>(allTests.length);
         for (IOpenMethod test : allTests) {
             String tableUri = ((IUriMember) test).getUri();
             TableSyntaxNode syntaxNode = (TableSyntaxNode) test.getInfo().getSyntaxNode();
@@ -373,7 +374,7 @@ public class TableBean {
                 return o1.getName().compareTo(o2.getName());
             }
         });
-        return tableDescriptions.toArray(new TableDescription[tableDescriptions.size()]);
+        return tableDescriptions.toArray(new TableDescription[0]);
     }
     
     public String getTestName(Object testMethod){
@@ -388,9 +389,13 @@ public class TableBean {
             final WebStudio studio = WebStudioUtils.getWebStudio();
             IGridTable gridTable = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
 
+            gridTable.edit();
             new TableServiceImpl().removeTable(gridTable);
             XlsSheetGridModel sheetModel = (XlsSheetGridModel) gridTable.getGrid();
             sheetModel.getSheetSource().getWorkbookSource().save();
+            gridTable.stopEditing();
+            FacesUtils.removeSessionParam(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
+
             studio.compile();
             RecentlyVisitedTables visitedTables = studio.getModel().getRecentlyVisitedTables();
             visitedTables.remove(table);

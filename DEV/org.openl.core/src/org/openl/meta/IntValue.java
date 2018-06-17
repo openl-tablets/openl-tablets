@@ -66,9 +66,9 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
         Integer[] unwrappedArray = unwrap(values);
         Double avg = MathUtils.avg(unwrappedArray);
-        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg),
+        return avg != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg),
             NumberOperations.AVG,
-            toDoubleValues(values));
+            toDoubleValues(values)) : null;
     }
 
     /**
@@ -83,7 +83,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
         Integer[] unwrappedArray = unwrap(values);
         Integer sum = MathUtils.sum(unwrappedArray);
-        return new org.openl.meta.IntValue(new org.openl.meta.IntValue(sum), NumberOperations.SUM, values);
+        return sum != null ? new org.openl.meta.IntValue(new org.openl.meta.IntValue(sum), NumberOperations.SUM, values) : null;
     }
 
     /**
@@ -98,9 +98,9 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
         Integer[] unwrappedArray = unwrap(values);
         Double median = MathUtils.median(unwrappedArray);
-        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median),
+        return median != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median),
             NumberOperations.MEDIAN,
-            toDoubleValues(values));
+            toDoubleValues(values)) : null;
     }
 
     /**
@@ -369,24 +369,6 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
             return new LongValue(result, NumberOperations.QUOTIENT, null);
         }
         return null;
-    }
-
-    // generated product function for types that are wrappers over primitives
-    /**
-     * Multiplies the numbers from the provided array and returns the product as
-     * a number.
-     * 
-     * @param values an array of IntValue which will be converted to DoubleValue
-     * @return the product as a number
-     */
-    public static DoubleValue product(org.openl.meta.IntValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
-        Integer[] unwrappedArray = unwrap(values);
-        double product = MathUtils.product(unwrappedArray);
-        // we loose the parameters, but not the result of computation.
-        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
     }
 
     /**
@@ -806,5 +788,4 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
         return intArray;
     }
-
 }

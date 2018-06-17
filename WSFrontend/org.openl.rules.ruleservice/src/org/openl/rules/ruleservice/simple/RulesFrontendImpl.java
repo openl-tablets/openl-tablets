@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.beanutils.MethodUtils;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
-import org.openl.util.StringTool;
+import org.openl.util.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,7 +156,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
         if (service != null) {
             try {
                 Method serviceMethod = MethodUtils.getMatchingAccessibleMethod(service.getServiceBean().getClass(),
-                    StringTool.getGetterName(fieldName),
+                        ClassUtils.getter(fieldName),
                     new Class<?>[] {});
                 result = serviceMethod.invoke(service.getServiceBean(), new Object[] {});
             } catch (Exception e) {

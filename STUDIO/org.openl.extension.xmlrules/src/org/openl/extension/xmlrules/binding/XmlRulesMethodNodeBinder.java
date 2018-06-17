@@ -21,6 +21,7 @@ import org.openl.extension.xmlrules.model.single.Attribute;
 import org.openl.extension.xmlrules.model.single.ParameterImpl;
 import org.openl.extension.xmlrules.model.single.node.IfErrorNode;
 import org.openl.extension.xmlrules.model.single.node.expression.ExpressionContext;
+import org.openl.extension.xmlrules.syntax.SimpleCell;
 import org.openl.extension.xmlrules.utils.HelperFunctions;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
@@ -48,9 +49,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
         int childrenCount = node.getNumberOfChildren();
 
         if (childrenCount < 1) {
-            BindHelper.processError("Method node should have at least one subnode", node, bindingContext, false);
-
-            return new ErrorBoundNode(node);
+            return makeErrorNode("Method node should have at least one subnode", node, bindingContext);
         }
 
         ISyntaxNode lastNode = node.getChild(childrenCount - 1);
@@ -251,13 +250,18 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
         }
         if (src instanceof GridCellSourceCodeModule) {
             ICell cell = ((GridCellSourceCodeModule) src).getCell();
-            CellMetaInfo metaInfo = cell.getMetaInfo();
+            if (!(cell instanceof SimpleCell)) {
+                return;
+            }
+
+            // TODO: Refactor to use MetaInfoReader
+            CellMetaInfo metaInfo = ((SimpleCell) cell).getMetaInfo();
             if (metaInfo == null) {
-                metaInfo = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false,  new ArrayList<NodeUsage>());
-                cell.setMetaInfo(metaInfo);
+                metaInfo = new CellMetaInfo(JavaOpenClass.STRING, false,  new ArrayList<NodeUsage>());
+                ((SimpleCell) cell).setMetaInfo(metaInfo);
             }
             List<NodeUsage> usedNodes = metaInfo.getUsedNodes() == null ? new ArrayList<NodeUsage>() :
-                                        new ArrayList<NodeUsage>(metaInfo.getUsedNodes());
+                                        new ArrayList<>(metaInfo.getUsedNodes());
             metaInfo.setUsedNodes(usedNodes);
 
             int start = startIndex + absoluteStart;
@@ -333,7 +337,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
                 parameterType = defaultType;
             }
 
-            String[] split = parameterType.split("\\[\\]", -1);
+            String[] split = parameterType.split("\\[]", -1);
             parameterType = split[0];
             int dimensions = split.length - 1;
 
@@ -341,8 +345,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
             if (type == null) {
                 BindHelper.processError("Can't find type " + parameterType,
                         methodNode,
-                        bindingContext,
-                        false);
+                        bindingContext);
             } else if (dimensions > 0) {
                 type = type.getAggregateInfo().getIndexedAggregateType(type, dimensions);
             }
@@ -427,7 +430,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
                 new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.OBJECT });
         IMethodCaller restoreContext = bindingContext.findMethodCaller(ISyntaxConstants.THIS_NAMESPACE,
                 "restoreContext",
-                new IOpenClass[] {});
+                IOpenClass.EMPTY);
         ProjectData instance = ProjectData.getCurrentInstance();
 
         List<Function> overloadedFunctions = instance.getOverloadedFunctions(methodName);
@@ -480,7 +483,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
     }
 
     private List<String> getUniqueAttributeNames(List<Attribute> attributes) {
-        List<String> attributeNames = new ArrayList<String>();
+        List<String> attributeNames = new ArrayList<>();
         for (Attribute attribute : attributes) {
             String attributeName = attribute.getName();
             if (!attributeNames.contains(attributeName)) {
@@ -491,7 +494,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
     }
 
     private List<Integer> getArrayCallArguments(IBoundNode[] children, IOpenClass[] parameterTypes) {
-        List<Integer> arrayCallArguments = new ArrayList<Integer>();
+        List<Integer> arrayCallArguments = new ArrayList<>();
 
         for (int i = 0; i < children.length; i++) {
             IBoundNode child = children[i];

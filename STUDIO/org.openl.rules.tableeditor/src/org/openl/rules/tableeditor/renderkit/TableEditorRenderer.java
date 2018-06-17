@@ -19,7 +19,6 @@ import org.openl.rules.tableeditor.model.ui.ActionLink;
 import org.openl.rules.tableeditor.util.Constants;
 
 public class TableEditorRenderer extends TableViewerRenderer {
-
     @Override
     public void encodeBegin(FacesContext context, UIComponent component) throws IOException {
         ResponseWriter writer = context.getResponseWriter();
@@ -57,7 +56,7 @@ public class TableEditorRenderer extends TableViewerRenderer {
     }
 
     private List<ActionLink> getActionLinks(UIComponent component) {
-        List<ActionLink> links = new ArrayList<ActionLink>();
+        List<ActionLink> links = new ArrayList<>();
         List<UIComponent> children = component.getChildren();
         for (Object child : children) {
             if (child instanceof HtmlOutputLink) {

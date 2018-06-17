@@ -6,7 +6,6 @@ import java.util.Map;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.prebind.ILazyMember;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
@@ -126,7 +125,7 @@ public abstract class LazyMember<T extends IOpenMember> implements ILazyMember<T
                             }
                             return compiledOpenClass;
                         } catch (Exception ex) {
-                            OpenLMessagesUtils.addError("Failed to load dependency '" + getModule().getName() + "'.");
+                            log.error("Failed to load dependency '" + getModule().getName() + "'.", ex);
                             return compiledOpenClass;
                         } finally {
                             LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);

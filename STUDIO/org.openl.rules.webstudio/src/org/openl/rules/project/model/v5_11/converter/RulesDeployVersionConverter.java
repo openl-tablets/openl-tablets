@@ -17,7 +17,6 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
 
         rulesDeploy.setServiceClass(oldVersion.getServiceClass());
         rulesDeploy.setServiceName(oldVersion.getServiceName());
-        rulesDeploy.setUseRuleServiceRuntimeContext(oldVersion.isUseRuleServiceRuntimeContext());
         rulesDeploy.setUrl(oldVersion.getUrl());
 
         return rulesDeploy;
@@ -34,7 +33,6 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
         rulesDeploy.setProvideVariations(currentVersion.isProvideVariations());
         rulesDeploy.setServiceClass(currentVersion.getServiceClass());
         rulesDeploy.setServiceName(currentVersion.getServiceName());
-        rulesDeploy.setUseRuleServiceRuntimeContext(currentVersion.isUseRuleServiceRuntimeContext());
         rulesDeploy.setUrl(currentVersion.getUrl());
 
         return rulesDeploy;

@@ -1,6 +1,7 @@
 package org.openl.syntax.code;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.openl.binding.IBoundCode;
 import org.openl.message.OpenLMessage;
@@ -20,6 +21,8 @@ public class ProcessedCode {
      * {@link IBoundCode} instance.
      */
     private IBoundCode boundCode;
+
+    private Collection<OpenLMessage> messages;
 
     /**
      * Gets parsed code.
@@ -85,7 +88,15 @@ public class ProcessedCode {
         return boundCode.getErrors();
     }
 
-    public List<OpenLMessage> getMessagesFromDependencies() {
-        return parsedCode.getMessagesFromDependencies();
+    public Collection<OpenLMessage> getMessages() {
+        if (messages != null) {
+            return Collections.unmodifiableCollection(messages);
+        }
+        return Collections.emptyList();
     }
+
+    public void setMessages(Collection<OpenLMessage> messages) {
+        this.messages = messages;
+    }
+
 }

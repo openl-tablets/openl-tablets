@@ -21,18 +21,4 @@ public class String2BigDecimalConvertorTest {
         Number result = converter.parse("-12", null);
         assertEquals(BigDecimal.valueOf(-12L), result);
     }
-
-    @Test
-    public void testFormat() {
-        String2BigDecimalConvertor converter = new String2BigDecimalConvertor();
-        String result = converter.format(new BigDecimal("-1234.56789012345678901234567890"), null);
-        assertEquals("-1234.5678901234567890123456789", result);
-    }
-
-    @Test
-    public void testFormatZero() {
-        String2BigDecimalConvertor converter = new String2BigDecimalConvertor();
-        String result = converter.format(BigDecimal.ZERO, null);
-        assertEquals("0.0", result);
-    }
 }

@@ -2320,51 +2320,19 @@ public class RulesUtils {
     // Math functions
 
     // PRODUCT
-    public static double product(byte[] values) {
+    public static Long product(long[] values) {
         return MathUtils.product(values);
     }
 
-    public static double product(short[] values) {
+    public static Double product(double[] values) {
         return MathUtils.product(values);
     }
 
-    public static double product(int[] values) {
+    public static Long product(Long[] values) {
         return MathUtils.product(values);
     }
 
-    public static double product(long[] values) {
-        return MathUtils.product(values);
-    }
-
-    public static double product(float[] values) {
-        return MathUtils.product(values);
-    }
-
-    public static double product(double[] values) {
-        return MathUtils.product(values);
-    }
-
-    public static double product(Byte[] values) {
-        return MathUtils.product(values);
-    }
-
-    public static double product(Short[] values) {
-        return MathUtils.product(values);
-    }
-
-    public static double product(Integer[] values) {
-        return MathUtils.product(values);
-    }
-
-    public static double product(Long[] values) {
-        return MathUtils.product(values);
-    }
-
-    public static double product(Float[] values) {
-        return MathUtils.product(values);
-    }
-
-    public static double product(Double[] values) {
+    public static Double product(Double[] values) {
         return MathUtils.product(values);
     }
 

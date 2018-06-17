@@ -10,58 +10,58 @@ import org.openl.rules.project.model.RulesDeploy.PublisherType;
 
 public class LoggingInfo {
     
-    private RuleServiceLoggingInfo ruleServiceLoggingInfo;
+    private RuleServiceLogging ruleServiceLogging;
     
-    public LoggingInfo(RuleServiceLoggingInfo ruleServiceLoggingInfo) {
-        this.ruleServiceLoggingInfo = ruleServiceLoggingInfo;
+    public LoggingInfo(RuleServiceLogging ruleServiceLoggingInfo) {
+        this.ruleServiceLogging = ruleServiceLoggingInfo;
     }
 
     public PublisherType getPublisherType() {
-        return ruleServiceLoggingInfo.getPublisherType();
+        return ruleServiceLogging.getPublisherType();
     }
 
     public LoggingMessage getRequestMessage() {
-        return ruleServiceLoggingInfo.getRequestMessage();
+        return ruleServiceLogging.getRequestMessage();
     }
 
     public LoggingMessage getResponseMessage() {
-        return ruleServiceLoggingInfo.getResponseMessage();
+        return ruleServiceLogging.getResponseMessage();
     }
 
     public String getServiceName() {
-        return ruleServiceLoggingInfo.getServiceName();
+        return ruleServiceLogging.getServiceName();
     }
 
     public Date getIncomingMessageTime() {
-        return ruleServiceLoggingInfo.getIncomingMessageTime();
+        return ruleServiceLogging.getIncomingMessageTime();
     }
 
     public Date getOutcomingMessageTime() {
-        return ruleServiceLoggingInfo.getOutcomingMessageTime();
+        return ruleServiceLogging.getOutcomingMessageTime();
     }
 
     public String getInputName() {
-        return ruleServiceLoggingInfo.getInputName();
+        return ruleServiceLogging.getInputName();
     }
 
     public Object[] getParameters() {
-        return ruleServiceLoggingInfo.getParameters();
+        return ruleServiceLogging.getParameters();
     }
 
     public LoggingCustomData getLoggingCustomData() {
-        return ruleServiceLoggingInfo.getLoggingCustomData();
+        return ruleServiceLogging.getLoggingCustomData();
     }
 
     public Method getServiceMethod() {
-        return ruleServiceLoggingInfo.getServiceMethod();
+        return ruleServiceLogging.getServiceMethod();
     }
 
     public Map<String, Object> getContext() {
-        return Collections.unmodifiableMap(ruleServiceLoggingInfo.getContext());
+        return Collections.unmodifiableMap(ruleServiceLogging.getContext());
     }
 
     public boolean isIgnorable() {
-        return ruleServiceLoggingInfo.isIgnorable();
+        return ruleServiceLogging.isIgnorable();
     }
     
     

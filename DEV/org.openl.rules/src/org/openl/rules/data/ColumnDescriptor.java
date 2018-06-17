@@ -39,10 +39,9 @@ public class ColumnDescriptor {
      * Flag indicating that current column descriptor is a constructor.<br>
      * See {@link DataTableBindHelper#CONSTRUCTOR_FIELD}.
      */
-    private boolean constructor = false;
+    private boolean constructor;
 
     private Map<String, Integer> uniqueIndex = null;
-    private Map<String, Integer> formattedUniqueIndex = null;
     private IdentifierNode[] fieldChainTokens;
 
     public ColumnDescriptor(IOpenField field,
@@ -97,13 +96,11 @@ public class ColumnDescriptor {
     /**
      * Method is using to load data. Is used when data table is represents <b>AS</b> a constructor (see
      * {@link #isConstructor()}).
-     * 
-     * @throws SyntaxNodeException
      */
     public Object getLiteral(IOpenClass paramType,
             ILogicalTable valuesTable,
             OpenlToolAdaptor ota) throws SyntaxNodeException {
-        Object resultLiteral = null;
+        Object resultLiteral;
         boolean valuesAnArray = isValuesAnArray(paramType);
 
         valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
@@ -145,13 +142,6 @@ public class ColumnDescriptor {
         return uniqueIndex;
     }
 
-    public synchronized Map<String, Integer> getFormattedUniqueIndex(ITable table, int idx) throws SyntaxNodeException {
-        if (formattedUniqueIndex == null) {
-            formattedUniqueIndex = table.makeFormattedUniqueIndex(idx);
-        }
-        return formattedUniqueIndex;
-    }
-
     public boolean isConstructor() {
         return constructor;
     }
@@ -163,8 +153,6 @@ public class ColumnDescriptor {
     /**
      * Method is using to load data. Is used when data table is represents as <b>NOT</b> a constructor (see
      * {@link #isConstructor()}). Support loading single value, array of values.
-     * 
-     * @throws SyntaxNodeException
      */
     public Object populateLiteral(Object literal,
             ILogicalTable valuesTable,
@@ -197,7 +185,7 @@ public class ColumnDescriptor {
                 return env.popThis();
             } else {
                 env.pushThis(literal);
-                Object arrayValues = null;
+                Object arrayValues;
                 if (supportMultirows) {
                     processWithMultiRowsSupport(literal, valuesTable, toolAdapter, env, paramType, valuesAnArray);
                 } else {
@@ -207,7 +195,7 @@ public class ColumnDescriptor {
                 return env.popThis();
             }
         } else {
-            /**
+            /*
              * field == null, in this case don`t do anything. The appropriate information why it is null would have been
              * processed during prepDaring column descriptor. See
              * {@link DataTableBindHelper#makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type, OpenL openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow, boolean hasColumnTytleRow)}
@@ -229,7 +217,7 @@ public class ColumnDescriptor {
         Object prevRes = PREV_RES_EMPTY;
         for (int i = 0; i < valuesTable.getSource().getHeight(); i++) {
             datatypeArrayMultiRowElementContext.setRow(i);
-            Object res = null;
+            Object res;
             ILogicalTable logicalTable = LogicalTableHelper
                 .logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1))
                 .getSubtable(0, 0, 1, 1);
@@ -293,7 +281,7 @@ public class ColumnDescriptor {
         // get height of table without empty cells at the end
         //
         int valuesTableHeight = RuleRowHelper.calculateHeight(logicalTable);/* logicalTable.getHeight(); */
-        ArrayList<Object> values = new ArrayList<Object>(valuesTableHeight);
+        ArrayList<Object> values = new ArrayList<>(valuesTableHeight);
 
         for (int i = 0; i < valuesTableHeight; i++) {
 
@@ -322,32 +310,15 @@ public class ColumnDescriptor {
         return arrayValues;
     }
 
-    public void setCellMetaInfo(ILogicalTable cell) {
-        if (field != null) {
-            IOpenClass paramType = field.getType();
-            String paramName = field.getName();
-
-            if (valuesAnArray) {
-                paramType = paramType.getAggregateInfo().getComponentType(paramType);
-            }
-
-            if (cell.getHeight() == 1 && cell.getWidth() == 1) {
-                RuleRowHelper.setCellMetaInfo(cell, paramName, paramType, valuesAnArray);
-            } else {
-                cell = LogicalTableHelper.make1ColumnTable(cell);
-                int valuesTableHeight = RuleRowHelper.calculateHeight(cell);
-                for (int i = 0; i < valuesTableHeight; i++) {
-                    RuleRowHelper.setCellMetaInfo(cell.getRow(i), paramName, paramType, false);
-                }
-            }
-        }
-    }
-
     public boolean isSupportMultirows() {
         return supportMultirows;
     }
 
     public void setSupportMultirows(boolean supportMultirows) {
         this.supportMultirows = supportMultirows;
+    }
+
+    public boolean isValuesAnArray() {
+        return valuesAnArray;
     }
 }

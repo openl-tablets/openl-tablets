@@ -1,5 +1,10 @@
 package org.openl.rules.webstudio.web;
 
+import java.util.Collection;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
@@ -7,12 +12,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-import java.util.List;
 
 /**
  * Request scope managed bean providing logic for problems tree page of OpenL Studio.
@@ -42,21 +42,21 @@ public class ProblemsBean {
         if (studio.getCurrentProject() != null) {
             ProjectModel model = studio.getModel();
 
-            List<OpenLMessage> messages = model.getModuleMessages();
-
             TreeNode root = new TreeNode();
+            Collection<OpenLMessage> messages = model.getModuleMessages();
+            
+            Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
 
-            List<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
-            if (CollectionUtils.isNotEmpty(errorMessages)) {
+            if (!errorMessages.isEmpty()) {
                 TreeNode errorsRoot = createMessagesRoot(ERRORS_ROOT_NAME, errorMessages.size());
                 addMessageNodes(errorsRoot, ERROR_NODE_NAME, errorMessages, model);
                 root.addChild(nodeCount++, errorsRoot);
             }
 
-            List<OpenLMessage> warningMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
-            if (CollectionUtils.isNotEmpty(warningMessages)) {
-                TreeNode warningsRoot = createMessagesRoot(WARNINGS_ROOT_NAME, warningMessages.size());
-                addMessageNodes(warningsRoot, WARNING_NODE_NAME, warningMessages, model);
+            Collection<OpenLMessage> warnMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
+            if (!warnMessages.isEmpty()) {
+                TreeNode warningsRoot = createMessagesRoot(WARNINGS_ROOT_NAME, warnMessages.size());
+                addMessageNodes(warningsRoot, WARNING_NODE_NAME, warnMessages, model);
                 root.addChild(nodeCount++, warningsRoot);
             }
 
@@ -74,13 +74,22 @@ public class ProblemsBean {
         return new TreeNode(rootName, rootName, null, 0, messagesNumber, rootName.toLowerCase(), true);
     }
 
-    private void addMessageNodes(TreeNode parent, String nodeName, List<OpenLMessage> messages, ProjectModel model) {
+    private void addMessageNodes(TreeNode parent,
+            String nodeName,
+            Collection<OpenLMessage> messages,
+            ProjectModel model) {
         int nodeCount = 1;
 
         for (OpenLMessage message : messages) {
             String url = getNodeUrl(message, model);
             TreeNode messageNode = new TreeNode(true,
-                    message.getSummary(), "", url, 0, 0, nodeName.toLowerCase(), true);
+                message.getSummary(),
+                "",
+                url,
+                0,
+                0,
+                nodeName.toLowerCase(),
+                true);
             parent.addChild(nodeCount++, messageNode);
         }
     }

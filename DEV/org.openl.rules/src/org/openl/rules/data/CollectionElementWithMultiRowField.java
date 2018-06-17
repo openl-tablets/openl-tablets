@@ -5,17 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.AOpenField;
 import org.openl.types.impl.CollectionType;
 import org.openl.vm.IRuntimeEnv;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class CollectionElementWithMultiRowField extends AOpenField {
-    private final Logger log = LoggerFactory.getLogger(CollectionElementWithMultiRowField.class);
     private IOpenField field;
     private String fieldPathFromRoot;
     private boolean pkField = false;
@@ -50,16 +46,12 @@ public class CollectionElementWithMultiRowField extends AOpenField {
         int elementIndex = context.getIndex(fieldPathFromRoot, target);
 
         Object res = null;
-        try {
-            Object v = field.get(target, env);
-            if (collectionType.isArray()) {
-                res = getForArray(elementIndex, v);
-            }
-            if (collectionType.isList()) {
-                res = getForList(elementIndex, v);
-            }
-        } catch (SecurityException e) {
-            processError(e);
+        Object v = field.get(target, env);
+        if (collectionType.isArray()) {
+            res = getForArray(elementIndex, v);
+        }
+        if (collectionType.isList()) {
+            res = getForList(elementIndex, v);
         }
         return res != null ? res : getType().nullObject();
     }
@@ -88,18 +80,14 @@ public class CollectionElementWithMultiRowField extends AOpenField {
             throw new OpenLRuntimeException(String.format("Can not set [%s] field to \"null\" object", this.getName()));
         }
 
-        try {
-            Object v = field.get(target, env);
-            DatatypeArrayMultiRowElementContext context = (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
-            int elementIndex = context.getIndex(fieldPathFromRoot, target);
-            if (collectionType.isArray()) {
-                setForArray(target, value, env, v, elementIndex);
-            }
-            if (collectionType.isList()) {
-                setForList(target, value, env, v, elementIndex);
-            }
-        } catch (SecurityException e) {
-            processError(e);
+        Object v = field.get(target, env);
+        DatatypeArrayMultiRowElementContext context = (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
+        int elementIndex = context.getIndex(fieldPathFromRoot, target);
+        if (collectionType.isArray()) {
+            setForArray(target, value, env, v, elementIndex);
+        }
+        if (collectionType.isList()) {
+            setForList(target, value, env, v, elementIndex);
         }
 
     }
@@ -151,11 +139,6 @@ public class CollectionElementWithMultiRowField extends AOpenField {
                 list.set(elementIndex, value);
             }
         }
-    }
-
-    private void processError(Throwable e1) {
-        log.error("{}", this, e1);
-        OpenLMessagesUtils.addError(e1);
     }
 
     public boolean isWritable() {

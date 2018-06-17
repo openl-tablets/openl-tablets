@@ -4,19 +4,26 @@ import org.openl.excel.parser.SheetDescriptor;
 
 public final class SAXSheetDescriptor implements SheetDescriptor {
     private final String name;
+    private final int index;
     private final String relationId;
 
     private int firstRowNum;
     private int firstColNum;
 
-    SAXSheetDescriptor(String name, String relationId) {
+    SAXSheetDescriptor(String name, int index, String relationId) {
         this.name = name;
+        this.index = index;
         this.relationId = relationId;
     }
 
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public int getIndex() {
+        return index;
     }
 
     public String getRelationId() {

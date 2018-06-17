@@ -30,7 +30,7 @@ public class JavaMapAggregateInfo implements IAggregateInfo {
 
         @SuppressWarnings("unchecked")
         public Object getValue(Object container, Object index) {
-            return ((Map<Object, Object>) container).get(index);
+            return container == null ? null : ((Map<Object, Object>) container).get(index);
         }
 
         public boolean isWritable() {

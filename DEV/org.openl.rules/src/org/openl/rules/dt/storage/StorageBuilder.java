@@ -41,17 +41,17 @@ public abstract class StorageBuilder<T> implements IStorageBuilder<T> {
 		if (loadedValue == null || loadedValue == SPACE)
 		{
 			writeSpace(index);
-			info.addSpaceIndex(index);
+			info.addSpaceIndex();
 		}	
 		else if (loadedValue == ELSE)
 		{
 			writeElse(index);
-			info.addElseIndex(index);
+			info.addElseIndex();
 		}
 		else if (isFormula(loadedValue))
 		{
 			writeFormula(loadedValue, index);
-			info.addFormulaIndex(index);
+			info.addFormulaIndex();
 		}	
 		else
 		{
@@ -63,14 +63,14 @@ public abstract class StorageBuilder<T> implements IStorageBuilder<T> {
 	
 	
 	
-	protected int checkDiffValues(Object loadedValue, int currentIndex)
+	protected void checkDiffValues(Object loadedValue, int currentIndex)
 	{
 
 		Map<Object, Integer> diffValues = info.getUniqueIndex();  
 		
 		Integer index = diffValues.get(loadedValue); 
 		if (index != null)
-			return index;
+			return;
 		
 		
 		
@@ -86,8 +86,7 @@ public abstract class StorageBuilder<T> implements IStorageBuilder<T> {
 		
 		int size = diffValues.size();
 		diffValues.put(loadedValue, size);
-		return size;
-		
+
 	}
 
 	/* (non-Javadoc)

@@ -6,25 +6,29 @@ import java.util.Map;
 
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
-import org.openl.binding.IBindingContextDelegator;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.XmlRulesPath;
 import org.openl.extension.xmlrules.utils.LazyCellExecutor;
 import org.openl.rules.dt.DTInfo;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.IBaseAction;
+import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
-import org.openl.rules.dt.IBaseAction;
-import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.types.*;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
+import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
 // This decorator must not implement IOpenWrapper
@@ -180,7 +184,7 @@ public class XmlRulesDecisionTableDecorator extends DecisionTable {
             RuleRow ruleRow,
             OpenL openl,
             ComponentOpenClass componentOpenClass,
-            IBindingContextDelegator cxtd,
+            IBindingContext cxtd,
             int columns) throws Exception {
         delegate.bindTable(conditionRows, actionRows, ruleRow, openl, componentOpenClass, cxtd, columns);
     }

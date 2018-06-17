@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
-import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.excel.parser.TableStyles;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ICellComment;
@@ -12,12 +12,13 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsUtil;
-import org.openl.util.formatters.IFormatter;
 
 public class ParsedCell implements ICell {
     private final int row;
     private final int column;
     private final ParsedGrid grid;
+
+    private transient TableStyles tableStyles;
 
     ParsedCell(int row, int column, ParsedGrid grid) {
         this.row = row;
@@ -83,14 +84,9 @@ public class ParsedCell implements ICell {
     }
 
     @Override
-    public String getFormattedValue() {
-        String value = getStringValue();
-        return value == null ? "" : value;
-    }
-
-    @Override
     public ICellFont getFont() {
-        return null;
+        initializeStyles();
+        return tableStyles == null ? null : tableStyles.getFont(row, column);
     }
 
     @Override
@@ -100,7 +96,8 @@ public class ParsedCell implements ICell {
 
     @Override
     public String getFormula() {
-        return getStringValue();
+        initializeStyles();
+        return tableStyles == null ? null : tableStyles.getFormula(row, column);
     }
 
     @SuppressWarnings("deprecation")
@@ -121,7 +118,7 @@ public class ParsedCell implements ICell {
 
     @Override
     public String getUri() {
-        return XlsUtil.xlsCellPresentation(grid.getFirstColNum() + column, grid.getFirstRowNum() + row);
+        return XlsUtil.xlsCellPresentation(column, row);
     }
 
     @Override
@@ -175,28 +172,20 @@ public class ParsedCell implements ICell {
     }
 
     @Override
-    public CellMetaInfo getMetaInfo() {
-        return grid.getCellMetaInfo(column, row);
-    }
-
-    @Override
-    public void setMetaInfo(CellMetaInfo cellMetaInfo) {
-        grid.setCellMetaInfo(column, row, cellMetaInfo);
-    }
-
-    @Override
     public ICellComment getComment() {
-        return null;
-    }
-
-    @Override
-    public IFormatter getDataFormatter() {
-        return null;
+        initializeStyles();
+        return tableStyles == null ? null : tableStyles.getComment(row, column);
     }
 
     @Override
     public ICell getTopLeftCellFromRegion() {
         IGridRegion region = getRegion();
         return region == null ? this : grid.getCell(region.getLeft(), region.getTop());
+    }
+
+    private void initializeStyles() {
+        if (tableStyles == null) {
+            tableStyles = grid.getTableStyles(row, column);
+        }
     }
 }

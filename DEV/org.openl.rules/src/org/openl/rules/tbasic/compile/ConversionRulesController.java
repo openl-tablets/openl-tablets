@@ -22,7 +22,7 @@ public class ConversionRulesController {
     }
 
     private ConversionRulesController() {
-        conversionRules = AlgorithmTableParserManager.instance().getFixedConversionRules();
+        conversionRules = AlgorithmTableParserManager.getInstance().getFixedConversionRules();
     }
 
     /**
@@ -39,7 +39,7 @@ public class ConversionRulesController {
 
         // Resolve the name of the group defined in the Algorithm Specification
         //
-        String operationGroupName = AlgorithmTableParserManager.instance().whatIsOperationsGroupName(
+        String operationGroupName = AlgorithmTableParserManager.getInstance().whatIsOperationsGroupName(
                 groupedOperationNames);
 
         boolean isMultilineOperation;

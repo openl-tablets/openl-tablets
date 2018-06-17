@@ -56,7 +56,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     private Set<CompiledDependency> usingModules = new HashSet<CompiledDependency>();
 
-    private List<Throwable> errors = new ArrayList<Throwable>();
+    private List<Exception> errors = new ArrayList<Exception>();
 
     public ModuleOpenClass(String name, OpenL openl) {
         super(name, openl);
@@ -252,11 +252,11 @@ public class ModuleOpenClass extends ComponentOpenClass {
         return internalTypes.get(name);
     }
 
-    public void addError(Throwable error) {
+    public void addError(Exception error) {
         errors.add(error);
     }
 
-    public List<Throwable> getErrors() {
+    public List<Exception> getErrors() {
         return errors;
     }
 }

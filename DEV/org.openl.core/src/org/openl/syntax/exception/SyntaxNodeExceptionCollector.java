@@ -8,46 +8,29 @@ import org.openl.util.StringUtils;
 public class SyntaxNodeExceptionCollector {
     private List<SyntaxNodeException> syntaxNodeExceptions = new ArrayList<>();
 
-    public void run(Runnable r, boolean filter) throws Exception {
+    public void run(Runnable r) throws Exception {
         try {
             r.run();
         } catch (SyntaxNodeException e) {
-            addSyntaxNodeException(e, filter);
+            syntaxNodeExceptions.add(e);
         } catch (CompositeSyntaxNodeException e) {
             if (e.getErrors() != null) {
                 for (SyntaxNodeException sne : e.getErrors()) {
-                    addSyntaxNodeException(sne, filter);
+                    syntaxNodeExceptions.add(sne);
                 }
             }
         }
     }
 
-    public void run(Runnable r) throws Exception {
-        run(r, false);
-    }
-
     public void addSyntaxNodeException(SyntaxNodeException e) {
-        addSyntaxNodeException(e, false);
-    }
-
-    public void addSyntaxNodeException(SyntaxNodeException e, boolean filter) {
-        if (!filter || filter && !contains(e)) {
-            syntaxNodeExceptions.add(e);
-        }
-    }
-
-    public boolean contains(SyntaxNodeException syntaxNodeException) {
-        boolean f = false;
-        for (SyntaxNodeException e : syntaxNodeExceptions) {
-            if (StringUtils.equals(e.getMessage(),
-                syntaxNodeException.getMessage()) && e.getSourceModule() != null && syntaxNodeException
-                    .getSourceModule() != null && StringUtils.equals(e.getSourceModule().getUri(),
-                        syntaxNodeException.getSourceModule().getUri())) {
-                f = true;
-                break;
+        for (SyntaxNodeException sne : syntaxNodeExceptions) {
+            if (StringUtils.equals(sne.getMessage(), e.getMessage()) && sne.getSourceModule() != null && e
+                .getSourceModule() != null && StringUtils.equals(sne.getSourceModule().getUri(),
+                    e.getSourceModule().getUri())) {
+                return;
             }
         }
-        return f;
+        syntaxNodeExceptions.add(e);
     }
 
     public void throwIfAny() throws SyntaxNodeException {
