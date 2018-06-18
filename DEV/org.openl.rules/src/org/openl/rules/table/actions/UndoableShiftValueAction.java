@@ -1,6 +1,7 @@
 package org.openl.rules.table.actions;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
@@ -19,8 +20,8 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
     private IGridRegion toRestore;
     private IGridRegion toRemove;
 
-    public UndoableShiftValueAction(int colFrom, int rowFrom, int colTo, int rowTo) {
-        super(colTo, rowTo);
+    public UndoableShiftValueAction(int colFrom, int rowFrom, int colTo, int rowTo, MetaInfoWriter metaInfoWriter) {
+        super(colTo, rowTo, metaInfoWriter);
         this.colFrom = colFrom;
         this.rowFrom = rowFrom;
     }
@@ -37,7 +38,7 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         setPrevFormula(cell.getFormula());
         setPrevStyle(cell.getStyle());
         setPrevComment(cell.getComment());
-        setPrevMetaInfo(cell.getMetaInfo());
+        setPrevMetaInfo(metaInfoWriter.getMetaInfo(rowFrom, colFrom));
 
         if (rrFrom != null) {
             toRestore = rrFrom;
@@ -52,7 +53,7 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         grid.setCellValue(getCol(), getRow(), getPrevValue());
         grid.setCellStyle(getCol(), getRow(), getPrevStyle());
         grid.setCellComment(getCol(), getRow(), getPrevComment());
-        grid.getCell(getCol(), getRow()).setMetaInfo(getPrevMetaInfo());
+        metaInfoWriter.setMetaInfo(getRow(), getCol(), getPrevMetaInfo());
 
         ICell newCell = grid.getCell(getCol(), getRow());
         if (cell.getType() == Cell.CELL_TYPE_STRING && newCell.getType() == Cell.CELL_TYPE_FORMULA) {
@@ -81,7 +82,7 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         grid.setCellValue(colFrom, rowFrom, getPrevValue());
         grid.setCellStyle(colFrom, rowFrom, getPrevStyle());
         grid.setCellComment(colFrom, rowFrom, getPrevComment());
-        grid.getCell(colFrom, rowFrom).setMetaInfo(getPrevMetaInfo());
+        metaInfoWriter.setMetaInfo(rowFrom, colFrom, getPrevMetaInfo());
     }
 
 }

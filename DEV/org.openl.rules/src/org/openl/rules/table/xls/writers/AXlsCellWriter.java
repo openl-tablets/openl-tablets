@@ -1,9 +1,7 @@
 package org.openl.rules.table.xls.writers;
 
 import org.apache.poi.ss.usermodel.Cell;
-import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.types.java.JavaOpenClass;
 
 public abstract class AXlsCellWriter {
     
@@ -31,10 +29,6 @@ public abstract class AXlsCellWriter {
         return xlsSheetGridModel;
     }
 
-    public void setXlsSheetGridModel(XlsSheetGridModel xlsSheetGridModel) {
-        this.xlsSheetGridModel = xlsSheetGridModel;
-    }
-
     public Cell getCellToWrite() {
         return cellToWrite;
     }
@@ -56,17 +50,6 @@ public abstract class AXlsCellWriter {
         return strValue;
     }
 
-    public abstract void writeCellValue(boolean writeMetaInfo);
-
-    protected void setMetaInfo(Class<?> valueClass, boolean multiValue) {
-        // We need to set cell meta info for the cell, to open appropriate editor for it on UI.
-        CellMetaInfo cellMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue,
-                JavaOpenClass.getOpenClass(valueClass), multiValue);
-        xlsSheetGridModel.setCellMetaInfo(cellToWrite.getColumnIndex(), cellToWrite.getRowIndex(), cellMeta);
-    }
-
-    protected void setMetaInfo(Class<?> valueClass) {
-        setMetaInfo(valueClass, false);
-    }
+    public abstract void writeCellValue();
 
 }

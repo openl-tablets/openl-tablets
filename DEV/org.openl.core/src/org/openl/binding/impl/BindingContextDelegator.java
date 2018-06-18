@@ -1,11 +1,6 @@
-/*
- * Created on Jul 25, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -17,9 +12,9 @@ import org.openl.binding.INodeBinder;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedVarException;
-import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.message.OpenLMessage;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodCaller;
@@ -34,34 +29,18 @@ public class BindingContextDelegator implements IBindingContextDelegator {
 
     protected IBindingContext delegate;
 
-    public String getContextProperty(String name) {
-        return delegate.getContextProperty(name);
-    }
-
-    public void setContextProperty(String name, String value) {
-        delegate.setContextProperty(name, value);
-    }
-
     public BindingContextDelegator(IBindingContext delegate) {
         this.delegate = delegate;
     }
 
-    public void addAlias(String name, String value) {
-        delegate.addAlias(name, value);
-    }
-
     public IOpenField findRange(String namespace,
             String rangeStartName,
-            String rangeEndName) throws AmbiguousVarException, FieldNotFoundException, OpenLCompilationException {
+            String rangeEndName) throws AmbiguousVarException, OpenLCompilationException {
         return delegate.findRange(namespace, rangeStartName, rangeEndName);
     }
 
     public void addError(SyntaxNodeException error) {
         delegate.addError(error);
-    }
-
-    public ILocalVar addParameter(String namespace, String name, IOpenClass type) throws DuplicatedVarException {
-        return delegate.addParameter(namespace, name, type);
     }
 
     public void addType(String namespace, IOpenClass type) throws OpenLCompilationException {
@@ -94,17 +73,13 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         return delegate.findVar(namespace, name, strictMatch);
     }
 
-    public String getAlias(String name) {
-        return delegate.getAlias(name);
-    }
-
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {
         return delegate.getCast(from, to);
     }
 
     @Override
-    public IOpenClass findImplicitCastableClassInAutocasts(IOpenClass openClass1, IOpenClass openClass2) {
-        return delegate.findImplicitCastableClassInAutocasts(openClass1, openClass2);
+    public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
+        return delegate.findClosestClass(openClass1, openClass2);
     }
 
     public IBindingContext getDelegate() {
@@ -119,16 +94,8 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         return delegate.getLocalVarFrameSize();
     }
 
-    public int getNumberOfErrors() {
-        return delegate.getNumberOfErrors();
-    }
-
     public OpenL getOpenL() {
         return delegate.getOpenL();
-    }
-
-    public int getParamFrameSize() {
-        return delegate.getParamFrameSize();
     }
 
     public IOpenClass getReturnType() {
@@ -147,6 +114,16 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         delegate.pushErrors();
     }
 
+    @Override
+    public Collection<OpenLMessage> popMessages() {
+        return delegate.popMessages();
+    }
+
+    @Override
+    public void pushMessages() {
+        delegate.pushMessages();
+    }
+
     public void pushLocalVarContext() {
         delegate.pushLocalVarContext();
     }
@@ -162,8 +139,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     /*
      * (non-Javadoc)
      * 
-     * @see org.openl.binding.IBindingContextDelegator#setTopDelegate(org.openl.
-     * binding .IBindingContext)
+     * @see org.openl.binding.IBindingContextDelegator#setTopDelegate(org.openl. binding .IBindingContext)
      */
     public void setTopDelegate(IBindingContext delegate) {
         if (this.delegate == null) {
@@ -180,11 +156,31 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         return delegate.isExecutionMode();
     }
 
+    @Override
+    public void setExecutionMode(boolean exectionMode) {
+        delegate.setExecutionMode(exectionMode);
+    }
+
     public Map<String, Object> getExternalParams() {
         return delegate.getExternalParams();
     }
 
     public void setExternalParams(Map<String, Object> params) {
         delegate.setExternalParams(params);
+    }
+
+    @Override
+    public Collection<OpenLMessage> getMessages() {
+        return delegate.getMessages();
+    }
+
+    @Override
+    public void addMessage(OpenLMessage message) {
+        delegate.addMessage(message);
+    }
+
+    @Override
+    public void addMessages(Collection<OpenLMessage> messages) {
+        delegate.addMessages(messages);
     }
 }

@@ -2,27 +2,14 @@ package org.openl.rules.table.xls;
 
 import java.util.Date;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Comment;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.openl.rules.lang.xls.load.CellLoader;
-import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.ICellComment;
-import org.openl.rules.table.IGrid;
-import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.*;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
-import org.openl.rules.table.xls.writers.AXlsCellWriter;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringPool;
 import org.openl.util.StringUtils;
-import org.openl.util.formatters.IFormatter;
 
 public class XlsCell implements ICell {
 
@@ -111,33 +98,6 @@ public class XlsCell implements ICell {
         }
     }
 
-    @SuppressWarnings("deprecation")
-    public void setObjectValue(Object value) {
-        Cell cell = getCell();
-        if (value != null) {
-            boolean writeCellMetaInfo = true;
-
-            // Don't write meta info for predefined String arrays to avoid
-            // removing Enum Domain meta info.
-            if (gridModel.hasEnumDomainMetaInfo(column, row)) {
-                writeCellMetaInfo = false;
-            }
-
-            // Don't write meta info for predefined String arrays to avoid
-            // removing Range Domain meta info.
-            if (gridModel.hasRangeDomainMetaInfo(column, row)) {
-                writeCellMetaInfo = false;
-            }
-
-            AXlsCellWriter cellWriter = gridModel.getCellWriter(value);
-            cellWriter.setCellToWrite(cell);
-            cellWriter.setValueToWrite(value);
-            cellWriter.writeCellValue(writeCellMetaInfo);
-        } else {
-            cell.setCellType(IGrid.CELL_TYPE_BLANK);
-        }
-    }
-
     public String getStringValue() {
         Object res = null;
         try {
@@ -150,42 +110,6 @@ public class XlsCell implements ICell {
 
     public void setStringValue(String value) {
         getCell().setCellValue(value);
-    }
-
-    public String getFormattedValue() {
-        String formattedValue = null;
-
-        Object value = getObjectValue();
-
-        if (value != null) {
-            IFormatter cellDataFormatter = getDataFormatter();
-
-            if (cellDataFormatter == null && value instanceof Date) {
-                // Cell type is unknown but in Excel it's stored as a Date.
-                // We can't override getDataFormatter() or XlsDataFormatterFactory.getFormatter() to support this case
-                // because they are also invoked when editing a cell. When editing cells with unknown type null must be
-                // returned to be able to edit such cell as if it can contain any text.
-                // But we can safely format it's value when just viewing it's value.
-                cellDataFormatter = XlsDataFormatterFactory.getDateFormatter(this);
-            }
-
-            if (cellDataFormatter != null) {
-                formattedValue = cellDataFormatter.format(value);
-            }
-        }
-
-        if (formattedValue == null) {
-            formattedValue = getStringValue();
-            if (formattedValue == null) {
-                formattedValue = StringUtils.EMPTY;
-            }
-        }
-
-        return formattedValue;
-    }
-
-    public IFormatter getDataFormatter() {
-        return XlsDataFormatterFactory.getFormatter(this);
     }
 
     @Override
@@ -233,7 +157,7 @@ public class XlsCell implements ICell {
                     double value = cell.getNumericCellValue();
                     return NumberUtils.intOrDouble(value);
                 case Cell.CELL_TYPE_STRING:
-                    String str = cell.getStringCellValue();
+                    String str = StringUtils.trimToNull(cell.getStringCellValue());
                     return StringPool.intern(str);
                 default:
                     return "unknown type: " + cell.getCellType();
@@ -333,14 +257,6 @@ public class XlsCell implements ICell {
         } catch (NullPointerException npe){
             throw new IllegalStateException("Cannot parse the value as a date : " + cell.getNumericCellValue());
         }
-    }
-
-    public CellMetaInfo getMetaInfo() {
-        return gridModel.getCellMetaInfo(column, row);
-    }
-
-    public void setMetaInfo(CellMetaInfo metaInfo) {
-        gridModel.setCellMetaInfo(column, row, metaInfo);
     }
 
     private ICellStyle getCellStyle(Cell cell) {

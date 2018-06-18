@@ -6,8 +6,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.rules.table.Point.AdapterPoint;
 
 /**
@@ -76,25 +74,16 @@ public final class Point implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        EqualsBuilder builder = new EqualsBuilder();
         if (!(obj instanceof Point)) {
             return false;
         }
         Point another = (Point)obj;
-        builder.append(another.column, column);
-        builder.append(another.row, row);
-        
-        return builder.isEquals();
+        return another.column == column && another.row == row;
     }
     
     @Override
     public int hashCode() {
-        int hashCode = new HashCodeBuilder()
-            .append(column)
-            .append(row)
-            .toHashCode();
-        
-        return hashCode;
+        return column + row * 31;
     }
 
     @Override

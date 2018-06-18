@@ -23,7 +23,7 @@ public class WrongAliasDatatypeArrayTest extends BaseOpenlBuilderHelper {
 	public void test() {
 		assertTrue(getCompiledOpenClass().getBindingErrors().length == 1);
 		assertTrue(getCompiledOpenClass().getMessages().size() == 1);
-		OpenLMessage message = getCompiledOpenClass().getMessages().get(0);
+		OpenLMessage message = getCompiledOpenClass().getMessages().iterator().next();
 		assertNotNull(message);
 		assertEquals("The value 'Val23' is outside of valid domain 'TestAlias1'. Valid values: [Val1, Val2, Val3]", message.getSummary());
 	}

@@ -124,78 +124,9 @@ public class String2NumberConverterTest {
     }
 
     @Test
-    public void testFormat() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        String result = converter.format(1234567.8901d, null);
-        assertEquals("1234567.8901", result);
-    }
-
-    @Test
-    public void testFormat2() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        String result = converter.format(1234567.8901d, "#,###.###");
-        assertEquals("1,234,567.89", result);
-    }
-
-    @Test
-    public void testFormatZero() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        String result = converter.format(0d, null);
-        assertEquals("0", result);
-    }
-
-    @Test
-    public void testFormatFraction() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        String result = converter.format(0.001d, null);
-        assertEquals("0.001", result);
-    }
-
-    @Test
-    public void testFormatZeroEmptyFormat() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        String result = converter.format(0d, "");
-        assertEquals("0", result);
-    }
-
-    @Test
-    public void testFormatFractionEmptyFormat() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        String result = converter.format(0.001d, "");
-        assertEquals(".001", result);
-    }
-
-    @Test
-    public void testFormatByPatternWithRound() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        String result = converter.format(3.1415d, "#,###.###");
-        assertEquals("3.142", result);
-    }
-
-    @Test
-    public void testFormatByPatternWithRequiredDigits() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        String result = converter.format(3.1d, "0,000.00");
-        assertEquals("0,003.10", result);
-    }
-
-    @Test
-    public void testFormatByPatternWithSymbols() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        String result = converter.format(1234.10, "$ #,000.0# USD");
-        assertEquals("$ 1,234.1 USD", result);
-    }
-
-    @Test
     public void testParseNull() {
         String2NumberConverter<Number> converter = getNumberConverter();
         assertNull(converter.parse(null, null));
-    }
-
-    @Test
-    public void testFormatNull() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        assertNull(converter.format(null, null));
     }
 
     @Test
@@ -206,13 +137,6 @@ public class String2NumberConverterTest {
     }
 
     @Test
-    public void testFormatNaN() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        String result = converter.format(Double.NaN, null);
-        assertEquals("NaN", result);
-    }
-
-    @Test
     public void testParsePlusInfinity() {
         String2NumberConverter<Number> converter = getNumberConverter();
         Number result = converter.parse("Infinity", null);
@@ -220,24 +144,10 @@ public class String2NumberConverterTest {
     }
 
     @Test
-    public void testFormatPlusInfinity() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        String result = converter.format(Double.POSITIVE_INFINITY, null);
-        assertEquals("Infinity", result);
-    }
-
-    @Test
     public void testParseMinusInfinity() {
         String2NumberConverter<Number> converter = getNumberConverter();
         Number result = converter.parse("-Infinity", null);
         assertEquals(Double.NEGATIVE_INFINITY, result);
-    }
-
-    @Test
-    public void testFormatMinusInfinity() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        String result = converter.format(Double.NEGATIVE_INFINITY, "#.###");
-        assertEquals("-Infinity", result);
     }
 
     @Test(expected = NumberFormatException.class)

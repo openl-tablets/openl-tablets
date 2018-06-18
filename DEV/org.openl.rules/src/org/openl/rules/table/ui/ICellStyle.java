@@ -5,10 +5,7 @@
  */
 package org.openl.rules.table.ui;
 
-import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.usermodel.*;
 
 /**
  * @author snshor Temporary we copy POI constants in here, we will provide more
@@ -58,10 +55,8 @@ public interface ICellStyle {
     /**
      * get the number of spaces to indent the text in the cell
      * @return indent - number of spaces
-     * 
-     * TODO: rename to getIndent() (wrong spelling)
      */
-    int getIdent();
+    int getIndent();
     
     /**
      * get the degree of rotation for the text in the cell
@@ -81,4 +76,14 @@ public interface ICellStyle {
      */
     boolean isWrappedText();
 
+    /**
+     * Get the index of the data format. Built-in formats are defined in {@link BuiltinFormats}.
+     * @see DataFormat
+     */
+    short getFormatIndex();
+
+    /**
+     * Get the format string
+     */
+    String getFormatString();
 }

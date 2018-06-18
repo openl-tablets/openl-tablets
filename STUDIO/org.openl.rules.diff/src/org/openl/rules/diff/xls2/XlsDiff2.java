@@ -1,19 +1,14 @@
 package org.openl.rules.diff.xls2;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.io.File;
+import java.net.URL;
+import java.util.*;
 
 import org.openl.binding.IBoundCode;
 import org.openl.conf.UserContext;
-import org.openl.rules.diff.print.SimpleDiffTreePrinter;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls.XlsProjectionDiffer;
 import org.openl.rules.lang.xls.XlsBinder;
-import org.openl.rules.lang.xls.XlsParser;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
@@ -23,6 +18,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.types.IOpenClass;
+import org.openl.xls.sequential.SequentialParser;
 
 /**
  * Find difference between two XLS files.
@@ -52,38 +48,22 @@ public class XlsDiff2 {
 
     public XlsDiff2() {
         // TreeMap -- Key as a weight
-        diffGuess = new TreeMap<String, List<DiffPair>>();
+        diffGuess = new TreeMap<>();
     }
 
-    public static void main(String[] args) {
-        XlsDiff2 diff = new XlsDiff2();
+    private List<XlsTable> load(IOpenSourceCodeModule src) {
 
-        diff.load("test/diff-1.xls", "test/diff-2.xls");
-        diff.diff();
-        DiffTreeNode root = diff.buildTree();
-        SimpleDiffTreePrinter p = new SimpleDiffTreePrinter(root, System.out);
-        p.print();
-    }
+        UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
 
-    public static XlsMetaInfo getXlsMetaInfo(String srcFile) {
-
-    	UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
-
-        IOpenSourceCodeModule src = new URLSourceCodeModule(srcFile);
-
-        IParsedCode pc = new XlsParser(ucxt).parseAsModule(src);
+        IParsedCode pc = new SequentialParser(ucxt).parseAsModule(src);
         IBoundCode bc = new XlsBinder(ucxt).bind(pc);
         IOpenClass ioc = bc.getTopNode().getType();
 
-        return (XlsMetaInfo) ioc.getMetaInfo();
-    }
-
-    protected List<XlsTable> load(String fileName) {
-        XlsMetaInfo xmi = getXlsMetaInfo(fileName);
+        XlsMetaInfo xmi = (XlsMetaInfo) ioc.getMetaInfo();
         XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
 
         TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
-        List<XlsTable> tables = new ArrayList<XlsTable>(nodes.length);
+        List<XlsTable> tables = new ArrayList<>(nodes.length);
         for (TableSyntaxNode node : nodes) {
             tables.add(new XlsTable(node));
         }
@@ -91,27 +71,32 @@ public class XlsDiff2 {
         return tables;
     }
 
-    public DiffTreeNode diffFiles(String xlsFile1, String xlsFile2) {
+    public DiffTreeNode diffFiles(File xlsFile1, File xlsFile2) {
         load(xlsFile1, xlsFile2);
         diff();
         return buildTree();
     }
 
-    public void load(String xlsFile1, String xlsFile2) {
-        tables1 = load(xlsFile1);
-        tables2 = load(xlsFile2);
+    private void load(File xlsFile1, File xlsFile2) {
+        URL url1 = URLSourceCodeModule.toUrl(xlsFile1);
+        URL url2 = URLSourceCodeModule.toUrl(xlsFile2);
+        IOpenSourceCodeModule src1 = new URLSourceCodeModule(url1);
+        IOpenSourceCodeModule src2 = new URLSourceCodeModule(url2);
+
+        tables1 = load(src1);
+        tables2 = load(src2);
     }
 
-    protected void add(String guess, DiffPair r) {
+    private void add(String guess, DiffPair r) {
         List<DiffPair> list = diffGuess.get(guess);
         if (list == null) {
-            list = new LinkedList<DiffPair>();
+            list = new LinkedList<>();
             diffGuess.put(guess, list);
         }
         list.add(r);
     }
 
-    protected void diff() {
+    private void diff() {
         // 1. Simple cases
         iterate(new IterClosure() {
             // @Override
@@ -157,7 +142,7 @@ public class XlsDiff2 {
         });
     }
 
-    protected void iterate(IterClosure closure) {
+    private void iterate(IterClosure closure) {
         Iterator<XlsTable> i1 = tables1.iterator();
         while (i1.hasNext()) {
             XlsTable t1 = i1.next();
@@ -175,7 +160,7 @@ public class XlsDiff2 {
         }
     }
 
-    protected DiffTreeNode buildTree() {
+    private DiffTreeNode buildTree() {
         DiffTreeBuilder2 builder = new DiffTreeBuilder2();
         builder.setProjectionDiffer(new XlsProjectionDiffer());
 
@@ -200,12 +185,12 @@ public class XlsDiff2 {
         return builder.compare();
     }
 
-    protected void checkGrid(DiffPair pair) {
+    private void checkGrid(DiffPair pair) {
         IGridTable grid1 = pair.getTable1().getTable().getGridTable();
         IGridTable grid2 = pair.getTable2().getTable().getGridTable();
 
-        List<ICell> diff1 = new ArrayList<ICell>();
-        List<ICell> diff2 = new ArrayList<ICell>();
+        List<ICell> diff1 = new ArrayList<>();
+        List<ICell> diff2 = new ArrayList<>();
 
         if (grid1.getWidth() == grid2.getWidth() && grid1.getHeight() == grid2.getHeight()) {
             //Same Size
@@ -233,7 +218,7 @@ public class XlsDiff2 {
         }
     }
 
-    protected void compareRows(IGridTable grid1, IGridTable grid2, List<ICell> diff) {
+    private void compareRows(IGridTable grid1, IGridTable grid2, List<ICell> diff) {
         //TODO Review the algorithm. Seems like it is not optimal.
         boolean matched[] = new boolean[grid1.getHeight()];
         int[] match2 = new int[grid1.getHeight()];
@@ -300,7 +285,7 @@ public class XlsDiff2 {
                     for (int x = 0; x < grid1.getWidth(); x++) {
                         ICell c1 = grid1.getCell(x, i1);
                         ICell c2 = grid2.getCell(x, i2);
-                        if (!compareCells(c1, c2)) {
+                        if (notEquals(c1, c2)) {
                             diff.add(c1);
                         }
                     }
@@ -329,17 +314,17 @@ public class XlsDiff2 {
         for (int x = 0; x < grid1.getWidth(); x++) {
             ICell c1 = grid1.getCell(x, y1);
             ICell c2 = grid2.getCell(x, y2);
-            if (!compareCells(c1, c2)) {
+            if (notEquals(c1, c2)) {
                 nDiff++;
             }
         }
         return nDiff;
     }
 
-    protected void compareCols(IGridTable grid1, IGridTable grid2, List<ICell> diff) {
+    private void compareCols(IGridTable grid1, IGridTable grid2, List<ICell> diff) {
         // compareRows is hard enough :)
         // let reuse it
-        List<ICell> iDiff = new ArrayList<ICell>();
+        List<ICell> iDiff = new ArrayList<>();
         compareRows(grid1.transpose(), grid2.transpose(), iDiff);
 
         // fix diff -- invert coordinates
@@ -348,15 +333,15 @@ public class XlsDiff2 {
         }
     }
 
-    protected boolean compareCells(ICell c1, ICell c2) {
+    private boolean notEquals(ICell c1, ICell c2) {
         Object o1 = c1.getObjectValue();
         Object o2 = c2.getObjectValue();
 
         // TODO compare value, comment, value and so on...
         if (o1 == null) {
-            return (o1 == o2);
+            return (o2 != null);
         } else {
-            return o1.equals(o2);
+            return !o1.equals(o2);
         }
     }
 }

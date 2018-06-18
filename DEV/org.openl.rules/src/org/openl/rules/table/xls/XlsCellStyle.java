@@ -83,7 +83,7 @@ public class XlsCellStyle implements ICellStyle {
     }
 
     @Override
-    public int getIdent() {
+    public int getIndent() {
         return xlsStyle.getIndention();
     }
 
@@ -95,6 +95,16 @@ public class XlsCellStyle implements ICellStyle {
     @Override
     public boolean isWrappedText() {
         return xlsStyle.getWrapText();
+    }
+
+    @Override
+    public short getFormatIndex() {
+        return xlsStyle.getDataFormat();
+    }
+
+    @Override
+    public String getFormatString() {
+        return xlsStyle.getDataFormatString();
     }
 
     public CellStyle getXlsStyle() {

@@ -18,7 +18,7 @@ public class RuleServiceWrapperException extends RuleServiceRuntimeException {
      * Constructs a new RuleServiceWrapperException with the specified detail
      * message and cause.
      * 
-     * @param details the message of error
+     * @param simpleMessage the message of error
      * @param type the message type
      * @param message the detail message (which is saved for later retrieval by
      *            the {@link #getMessage()} method).
@@ -34,25 +34,7 @@ public class RuleServiceWrapperException extends RuleServiceRuntimeException {
     }
 
     /**
-     * Constructs a new RuleServiceWrapperException with the cause.
-     *
-     * @param details the message of error
-     * @param type the message type
-     * @param cause the cause (which is saved for later retrieval by the
-     *            {@link #getCause()} method). (A <tt>null</tt> value is
-     *            permitted, and indicates that the cause is nonexistent or
-     *            unknown.)
-     */
-    public RuleServiceWrapperException(String simpleMessage, ExceptionType type, Throwable cause) {
-        super(cause);
-        this.simpleMessage = simpleMessage;
-        this.type = type;
-    }
-
-    /**
      * Returns simple Message
-     * 
-     * @return
      */
     public String getSimpleMessage() {
         return simpleMessage;
@@ -60,8 +42,6 @@ public class RuleServiceWrapperException extends RuleServiceRuntimeException {
     
     /**
      * Returns error type
-     * 
-     * @return
      */
     public ExceptionType getType() {
         return type;

@@ -5,8 +5,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 
-import org.apache.commons.lang3.time.DateUtils;
-
 /**
  * Domain for range of dates.
  * 
@@ -86,14 +84,34 @@ public class DateRangeDomain extends FixedSizeDomain<Date> {
      * Sets left bound of range.
      */
     public void setMin(Date min) {
-        this.min.setTime(DateUtils.truncate(min, Calendar.DAY_OF_MONTH));
+        this.min.setTime(truncate(min));
     }
 
     /**
      * Sets right bound of range.
      */
     public void setMax(Date max) {
-        this.max.setTime(DateUtils.truncate(max, Calendar.DAY_OF_MONTH));
+        this.max.setTime(truncate(max));
+    }
+
+    private Date truncate(Date min) {
+        final Calendar cal = Calendar.getInstance();
+        cal.setTime(min);
+        Date date = cal.getTime();
+        long time = date.getTime();
+
+        // see http://issues.apache.org/jira/browse/LANG-59
+        time -= cal.get(Calendar.MILLISECOND);
+        time -= cal.get(Calendar.SECOND) * 1000;
+        time -= cal.get(Calendar.MINUTE) * 1000 * 60;
+        // reset time
+        if (date.getTime() != time) {
+            date.setTime(time);
+            cal.setTime(date);
+        }
+
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        return cal.getTime();
     }
 
     public Iterator<Date> iterator() {

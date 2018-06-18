@@ -61,7 +61,7 @@ public class SearchBean {
     private String query;
     private String[] tableTypes;
     private String tableHeader;
-    private List<TableProperty> properties = new ArrayList<TableProperty>();
+    private List<TableProperty> properties = new ArrayList<>();
 
     private List<IOpenLTable> searchResults;
 
@@ -134,7 +134,7 @@ public class SearchBean {
         for (Map.Entry<String, String> entry: requestParams.entrySet()) {
             String paramName = entry.getKey();
             if (!ArrayUtils.contains(SEARCH_PARAMS, paramName)
-                    && TablePropertyDefinitionUtils.doesPropertyExist(paramName)) {
+                    && TablePropertyDefinitionUtils.isPropertyExist(paramName)) {
                 TableProperty property = getPropertyByName(paramName);
                 String propertyValue = entry.getValue();
                 property.setStringValue(propertyValue);
@@ -148,11 +148,11 @@ public class SearchBean {
                 return property;
             }
         }
-        return null;
+        throw new IllegalArgumentException("Incorrect property '" + name + "'");
     }
 
     private Map<String, Object> getSearchProperties() {
-        Map<String, Object> properties = new HashMap<String, Object>();
+        Map<String, Object> properties = new HashMap<>();
 
         for (TableProperty prop : this.properties) {
             Object propValue = prop.getValue();

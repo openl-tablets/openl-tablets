@@ -1,5 +1,6 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.locks.Lock;
@@ -19,7 +20,7 @@ class TopClassMethodCache {
         return TopClassMethodCacheHolder.INSTANCE;
     }
 
-    private Map<IOpenClass, Map<IOpenMethodWrapper, IOpenMethod>> classToWrapperMethodCache = new WeakHashMap<>();
+    private Map<IOpenClass, Map<IOpenMethodWrapper, WeakReference<IOpenMethod>>> classToWrapperMethodCache = new WeakHashMap<>();
     private ReentrantReadWriteLock wrapperMethodCacheReadWriteLock = new ReentrantReadWriteLock();
 
     public IOpenMethod getTopClassMethod(IOpenClass topClass, IOpenMethodWrapper wrapper) {
@@ -29,11 +30,14 @@ class TopClassMethodCache {
         Lock lock = wrapperMethodCacheReadWriteLock.readLock();
         try {
             lock.lock();
-            Map<IOpenMethodWrapper, IOpenMethod> wrapperToMethodCache = classToWrapperMethodCache.get(topClass);
+            Map<IOpenMethodWrapper, WeakReference<IOpenMethod>> wrapperToMethodCache = classToWrapperMethodCache.get(topClass);
             if (wrapperToMethodCache != null) {
-                IOpenMethod method = wrapperToMethodCache.get(wrapper);
-                if (method != null) {
-                    return method;
+                WeakReference<IOpenMethod> reference = wrapperToMethodCache.get(wrapper);
+                if (reference != null) {
+                    IOpenMethod method = reference.get();
+                    if (method != null) {
+                        return method;
+                    }
                 }
             }
         } finally {
@@ -44,12 +48,12 @@ class TopClassMethodCache {
             writeLock.lock();
             IOpenMethod method = topClass.getMethod(wrapper.getDelegate().getName(),
                 wrapper.getDelegate().getSignature().getParameterTypes());
-            Map<IOpenMethodWrapper, IOpenMethod> wrapperToMethodCache = classToWrapperMethodCache.get(topClass);
+            Map<IOpenMethodWrapper, WeakReference<IOpenMethod>> wrapperToMethodCache = classToWrapperMethodCache.get(topClass);
             if (wrapperToMethodCache == null) {
                 wrapperToMethodCache = new WeakHashMap<>();
                 classToWrapperMethodCache.put(topClass, wrapperToMethodCache);
             }
-            wrapperToMethodCache.put(wrapper, method);
+            wrapperToMethodCache.put(wrapper, new WeakReference<>(method));
             return method;
         } finally {
             writeLock.unlock();

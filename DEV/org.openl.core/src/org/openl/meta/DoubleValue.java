@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.binding.impl.operator.Comparison;
 import org.openl.exception.OpenLRuntimeException;
@@ -19,6 +18,7 @@ import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
 import org.openl.rules.util.Round;
 import org.openl.util.ArrayTool;
+import org.openl.util.CollectionUtils;
 import org.openl.util.math.MathUtils;
 
 @XmlRootElement
@@ -161,12 +161,12 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      * @return the average value from the array
      */
     public static org.openl.meta.DoubleValue avg(org.openl.meta.DoubleValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Double[] unwrappedArray = unwrap(values);
         Double avg = MathUtils.avg(unwrappedArray);
-        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg), NumberOperations.AVG, values);
+        return avg != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg), NumberOperations.AVG, values) : null;
     }
      /**
      * sum
@@ -174,12 +174,12 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      * @return the sum value from the array
      */
     public static org.openl.meta.DoubleValue sum(org.openl.meta.DoubleValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Double[] unwrappedArray = unwrap(values);
         Double sum = MathUtils.sum(unwrappedArray);
-        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(sum), NumberOperations.SUM, values);
+        return sum != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(sum), NumberOperations.SUM, values) : null;
     }
      /**
      * median
@@ -187,12 +187,12 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      * @return the median value from the array
      */
     public static org.openl.meta.DoubleValue median(org.openl.meta.DoubleValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Double[] unwrappedArray = unwrap(values);
         Double median = MathUtils.median(unwrappedArray);
-        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median), NumberOperations.MEDIAN, values);
+        return median != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median), NumberOperations.MEDIAN, values) : null;
     }
 
      /**
@@ -442,13 +442,13 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      * @return the product as a number
      */
     public static DoubleValue product(org.openl.meta.DoubleValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Double[] unwrappedArray = unwrap(values);
-        double product = MathUtils.product(unwrappedArray);
+        Double product = MathUtils.product(unwrappedArray);
         // we loose the parameters, but not the result of computation.
-        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
+        return product != null ? new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null) : null;
     }
      /**
      *   
@@ -471,7 +471,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.DoubleValue small(org.openl.meta.DoubleValue[] values, int position) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Double[] unwrappedArray = unwrap(values);
@@ -487,7 +487,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.DoubleValue big(org.openl.meta.DoubleValue[] values, int position) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Double[] unwrappedArray = unwrap(values);
@@ -687,30 +687,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      * Indicates whether some other object is "equal to" this org.openl.meta.DoubleValue variable. 
      */
     public boolean equals(Object obj) {
-        if (obj instanceof org.openl.meta.DoubleValue) {
-            org.openl.meta.DoubleValue secondObj = (org.openl.meta.DoubleValue) obj;
-            return Comparison.eq(getValue(), secondObj.getValue());
-        }
-
-        // FIXME: Temporary fix for the commercial line to support
-        // var == "0" where var is of type DoubleValue
-        // In this case autocast should work, need investigation
-        //
-        if (obj instanceof String) {
-            double d;
-            try
-            {
-                d = Double.parseDouble((String)obj);
-            }
-            catch(NumberFormatException nfe)
-            {
-                return false;
-            }
-
-            return Comparison.eq(getValue(), d);
-        }
-
-        return false;
+        return obj instanceof DoubleValue && value == ((DoubleValue) obj).value;
     }
 
     public static boolean isNumeric(String str)

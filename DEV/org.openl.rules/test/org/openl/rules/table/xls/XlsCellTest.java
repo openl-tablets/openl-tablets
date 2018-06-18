@@ -8,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
@@ -45,7 +44,6 @@ public class XlsCellTest {
         assertEquals(1, gridRegion.getLeft());
         assertEquals(2, gridRegion.getRight());
         
-        gridRegion = null;
         gridRegion = cell.getRegion();
         assertEquals(3, gridRegion.getTop());
         assertEquals(4, gridRegion.getBottom());
@@ -83,10 +81,6 @@ public class XlsCellTest {
         ICellFont font = cell.getFont();
         assertEquals("Arial", font.getName());
         
-        CellMetaInfo metaInfo = cell.getMetaInfo();
-        assertNull(metaInfo); // meta info sets during compilation of OpenL
-                              // so we consider it to be null now.
-        
         Object objectValue = cell.getObjectValue();
         assertTrue(objectValue instanceof String);
         assertEquals("hello everybody!", objectValue.toString());
@@ -108,7 +102,6 @@ public class XlsCellTest {
         assertEquals(4, gridRegion.getLeft());
         assertEquals(7, gridRegion.getRight());
         
-        gridRegion = null;
         gridRegion = cell.getRegion();
         assertEquals(7, gridRegion.getTop());
         assertEquals(9, gridRegion.getBottom());
@@ -139,13 +132,9 @@ public class XlsCellTest {
         ICellFont font = cell.getFont();
         assertEquals("Arial", font.getName());
         
-        CellMetaInfo metaInfo = cell.getMetaInfo();
-        assertNull(metaInfo); // meta info sets during compilation of OpenL
-                              // so we consider it to be null now.
-        
-        Object objectValue = cell.getObjectValue(); 
+        Object objectValue = cell.getObjectValue();
         assertTrue(objectValue instanceof Double);
-        assertEquals(123.343, ((Double)objectValue).doubleValue(), 0.001); // the value will be taken from the top left 
+        assertEquals(123.343, (Double) objectValue, 0.001); // the value will be taken from the top left
                                                                            // cell from the region 
     }
 }

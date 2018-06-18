@@ -9,12 +9,8 @@ public class XlsCellEnumWriter extends AXlsCellWriter {
     }
 
     @Override
-    public void writeCellValue(boolean writeMetaInfo) {
+    public void writeCellValue() {
         getCellToWrite().setCellValue(((Enum<?>) getValueToWrite()).name());
-
-        if (writeMetaInfo) {
-            setMetaInfo(getValueToWrite().getClass());
-        }
     }
 
 }

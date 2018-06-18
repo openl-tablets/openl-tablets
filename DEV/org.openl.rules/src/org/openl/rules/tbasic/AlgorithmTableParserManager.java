@@ -4,12 +4,8 @@
 package org.openl.rules.tbasic;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.OpenL;
-import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessages;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.tbasic.compile.ConversionRuleBean;
 
@@ -20,7 +16,8 @@ import org.openl.rules.tbasic.compile.ConversionRuleBean;
 public final class AlgorithmTableParserManager implements IAlgorithmTableParserManager {
     // To make class serializable, change synchronization
 
-    private static volatile AlgorithmTableParserManager instance;
+    private static volatile AlgorithmTableParserManager INSTANCE;
+    
     private static Object synchObjectForInstance = new Object();
 
     private final IAlgorithmTableParserManager rulesWrapperInstance;
@@ -33,38 +30,29 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
 
     private Object synchObjectForFixedConvertionRules = new Object();
 
-    public static AlgorithmTableParserManager instance() {
+    public static AlgorithmTableParserManager getInstance() {
         lazyLoadInstance();
-        return instance;
+        return INSTANCE;
     }
 
     private static void lazyLoadInstance() {
-        if (instance == null) {
+        if (INSTANCE == null) {
             synchronized (synchObjectForInstance) {
-                if (instance == null) {
-                    instance = new AlgorithmTableParserManager();
+                if (INSTANCE == null) {
+                    INSTANCE = new AlgorithmTableParserManager();
                 }
             }
         }
     }
 
     private AlgorithmTableParserManager() {
-        String sourceType = OpenL.OPENL_JAVA_RULE_NAME;
         URL sourceFile = AlgorithmTableParserManager.class.getResource("AlgorithmTableSpecification.xls");
 
         RulesEngineFactory<IAlgorithmTableParserManager> engineFactory = new RulesEngineFactory<IAlgorithmTableParserManager>(
                 sourceFile, IAlgorithmTableParserManager.class);
         engineFactory.setExecutionMode(true);
         
-        // get the errors before compiling inside component.
-        // As inside they are cleaned in EngineFactory
-        //
-        List<OpenLMessage> oldMessages = new ArrayList<OpenLMessage>(OpenLMessages.getCurrentInstance().getMessages());        
         rulesWrapperInstance = (IAlgorithmTableParserManager) engineFactory.makeInstance();
-        
-        // add to the current messages instance old messages
-        //
-        OpenLMessages.getCurrentInstance().addMessages(oldMessages);
     }
 
     private ConversionRuleBean[] fixBrokenValues(ConversionRuleBean[] conversionRules) {

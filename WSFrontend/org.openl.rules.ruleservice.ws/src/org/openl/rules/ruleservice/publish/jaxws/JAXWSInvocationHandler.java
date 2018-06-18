@@ -6,8 +6,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.cxf.binding.soap.SoapFault;
 import org.openl.rules.ruleservice.core.ExceptionType;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
+import org.w3c.dom.Element;
 
 public class JAXWSInvocationHandler implements InvocationHandler {
 
@@ -36,24 +38,30 @@ public class JAXWSInvocationHandler implements InvocationHandler {
                 }
             }
 
-            FaultInfo faultInfo = new FaultInfo();
-
+            String message = t.getMessage();
+            ExceptionType type = ExceptionType.SYSTEM;
             if (t instanceof RuleServiceWrapperException) {
                 RuleServiceWrapperException ruleServiceWrapperException = (RuleServiceWrapperException) t;
-                faultInfo.setType(ruleServiceWrapperException.getType().toString());
-                boolean detailedFault = ExceptionType.SYSTEM
-                    .equals(ruleServiceWrapperException.getType()) || ExceptionType.RULES_RUNTIME
-                        .equals(ruleServiceWrapperException.getType()) || ExceptionType.COMPILATION
-                            .equals(ruleServiceWrapperException.getType());
-                if (detailedFault) {
-                    faultInfo.setDetails(ExceptionUtils.getStackTrace(e.getCause()));
-                }
-                throw new JAXWSException(ruleServiceWrapperException.getSimpleMessage(), faultInfo); 
-            } else {
-                faultInfo.setType(ExceptionType.SYSTEM.toString());
-                faultInfo.setDetails(ExceptionUtils.getStackTrace(e.getCause()));
-                throw new JAXWSException(t.getMessage(), faultInfo);
+                type = ruleServiceWrapperException.getType();
+                message = ruleServiceWrapperException.getSimpleMessage();
             }
+
+            // Create a standart fault
+            SoapFault fault = new SoapFault(message, SoapFault.FAULT_CODE_SERVER);
+
+            // <detail> <type>TYPE</type> <stackTrace>stacktrace of cause</stackTrace> </detail>
+            Element detailEl = fault.getOrCreateDetail();
+            Element typeEl = detailEl.getOwnerDocument().createElement("type");
+            typeEl.setTextContent(type.toString());
+            detailEl.appendChild(typeEl);
+
+            if (!ExceptionType.USER_ERROR.equals(type)) {
+                Element stackTraceEl = detailEl.getOwnerDocument().createElement("stackTrace");
+                stackTraceEl.setTextContent(ExceptionUtils.getStackTrace(e.getCause()));
+                detailEl.appendChild(stackTraceEl);
+            }
+
+            throw fault;
         }
     }
 }

@@ -56,7 +56,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     private Set<CompiledDependency> usingModules = new HashSet<CompiledDependency>();
 
-    private List<Throwable> errors = new ArrayList<Throwable>();
+    private List<Exception> errors = new ArrayList<Exception>();
 
     public ModuleOpenClass(String name, OpenL openl) {
         super(name, openl);
@@ -114,18 +114,15 @@ public class ModuleOpenClass extends ComponentOpenClass {
     }
 
     protected boolean isDependencyFieldIgnorable(IOpenField openField) {
-        if (openField instanceof ThisField || openField instanceof org.openl.types.impl.ThisField) {
-            return true;
-        }
-        return false;
+        return true;
     }
 
     protected void addFields(CompiledDependency dependency) {
         CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
-        for (IOpenField depMethod : compiledOpenClass.getOpenClassWithErrors().getFields().values()) {
+        for (IOpenField depField : compiledOpenClass.getOpenClassWithErrors().getFields().values()) {
             try {
-                if (!isDependencyFieldIgnorable(depMethod)) {
-                    addField(depMethod);
+                if (!isDependencyFieldIgnorable(depField)) {
+                    addField(depField);
                 }
             } catch (OpenlNotCheckedException e) {
                 if (Log.isDebugEnabled()) {
@@ -255,11 +252,11 @@ public class ModuleOpenClass extends ComponentOpenClass {
         return internalTypes.get(name);
     }
 
-    public void addError(Throwable error) {
+    public void addError(Exception error) {
         errors.add(error);
     }
 
-    public List<Throwable> getErrors() {
+    public List<Exception> getErrors() {
         return errors;
     }
 }

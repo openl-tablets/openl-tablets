@@ -1,7 +1,0 @@
-<rules-deploy>
-	<isProvideRuntimeContext>true</isProvideRuntimeContext>
-	<useRuleServiceRuntimeContext>true</useRuleServiceRuntimeContext>
-	<isProvideVariations>false</isProvideVariations>
-	<serviceName>multi-module-overloaded-dynamic</serviceName>
-	<url></url>
-</rules-deploy>

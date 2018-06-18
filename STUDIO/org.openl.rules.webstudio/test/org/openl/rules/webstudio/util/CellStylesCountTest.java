@@ -30,12 +30,12 @@ public class CellStylesCountTest {
     private XlsWorkbookSourceCodeModule wbSrc;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         wbSrc = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule("test/rules/TooManyStyles.xls"));
     }
 
     @Test
-    public void testXlsSheetGridModel() throws Exception {
+    public void testXlsSheetGridModel() {
         XlsSheetGridModel grid = new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc));
 
         grid.setCellStyle(0, 0, grid.getCell(1, 1).getStyle());
@@ -55,7 +55,7 @@ public class CellStylesCountTest {
     }
 
     @Test
-    public void testPoiExcelHelper() throws Exception {
+    public void testPoiExcelHelper() {
         Cell cellFrom = PoiExcelHelper.getOrCreateCell(0, 0, new XlsSheetSourceCodeModule(0, wbSrc).getSheet());
 
         PoiExcelHelper.cloneStyleFrom(cellFrom);
@@ -63,19 +63,19 @@ public class CellStylesCountTest {
     }
 
     @Test
-    public void testXlsCellDateWriter() throws Exception {
+    public void testXlsCellDateWriter() {
         XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(0, wbSrc);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheetSource);
 
         XlsCellDateWriter writer = new XlsCellDateWriter(grid);
         writer.setCellToWrite(PoiExcelHelper.getOrCreateCell(0, 0, sheetSource.getSheet()));
         writer.setValueToWrite(new Date());
-        writer.writeCellValue(false);
+        writer.writeCellValue();
         assertTrue("Styles count should be less than " + MAX_STYLES, wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES);
     }
 
     @Test
-    public void testCellStyleCreator() throws Exception {
+    public void testCellStyleCreator() {
         XlsSheetGridModel grid = new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc));
 
         new CellStyleCreator(grid).getCellStyle(null);

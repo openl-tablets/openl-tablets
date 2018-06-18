@@ -197,7 +197,7 @@ public class RelationExpressionTest {
 		assertFalse(instance.testRangeIndexedEvaluator(1.0));
 		assertTrue(instance.testRangeIndexedEvaluator(1.2));
 		assertFalse(instance.testRangeIndexedEvaluator(1.3));
-		assertFalse(instance.testRangeIndexedEvaluator(1.3 - Math.ulp(1.3)));
+		assertTrue(instance.testRangeIndexedEvaluator(1.3 - Math.ulp(1.3)));
 	}
 
 }

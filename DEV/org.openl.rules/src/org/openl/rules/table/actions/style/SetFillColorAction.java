@@ -1,5 +1,6 @@
 package org.openl.rules.table.actions.style;
 
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.actions.AUndoableCellAction;
@@ -10,8 +11,8 @@ public class SetFillColorAction extends AUndoableCellAction {
     private short[] prevColor;
     private short[] newColor;
 
-    public SetFillColorAction(int col, int row, short[] color) {
-        super(col, row);
+    public SetFillColorAction(int col, int row, short[] color, MetaInfoWriter metaInfoWriter) {
+        super(col, row, metaInfoWriter);
         this.newColor = color;
     }
 

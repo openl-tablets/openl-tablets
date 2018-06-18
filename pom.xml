@@ -83,14 +83,15 @@
         <cglib.version>3.1</cglib.version>
 
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
-        <org.apache.cxf.version>3.1.14</org.apache.cxf.version>
+        <org.apache.cxf.version>3.1.15</org.apache.cxf.version>
         <openl.mapping.version>1.1.2</openl.mapping.version>
         <org.slf4j.version>1.7.25</org.slf4j.version>
         <org.apache.poi.version>3.17</org.apache.poi.version>
         <org.apache.jackrabbit.version>2.8.0</org.apache.jackrabbit.version>
-        <com.fasterxml.jackson.version>2.9.2</com.fasterxml.jackson.version>
+        <com.fasterxml.jackson.version>2.9.5</com.fasterxml.jackson.version>
         <maven.api.version>3.2.5</maven.api.version>
         <maven.plugin.version>3.5</maven.plugin.version>
+        <jetty.http.port>9999</jetty.http.port>
         <!-- Empty for building without JaCoCo agent -->
         <jacococ.argLine/>
     </properties>
@@ -116,6 +117,7 @@
         </snapshotRepository>
     </distributionManagement>
     <build>
+        <defaultGoal>clean verify</defaultGoal>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>test</testSourceDirectory>
         <resources>
@@ -139,16 +141,10 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-archetype-plugin</artifactId>
-                    <version>2.4</version>
-                    <dependencies>
-                        <!-- Fix for Maven 3.3.x -->
-                        <!-- https://issues.apache.org/jira/browse/ARCHETYPE-488 -->
-                        <dependency>
-                            <groupId>org.apache.maven.shared</groupId>
-                            <artifactId>maven-invoker</artifactId>
-                            <version>2.2</version>
-                        </dependency>
-                    </dependencies>
+                    <version>3.0.1</version>
+                    <configuration>
+                        <skip>true</skip>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -309,6 +305,31 @@
                     <configuration>
                         <siteDirectory>${basedir}/site</siteDirectory>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-maven-plugin</artifactId>
+                    <!-- Java 7 -->
+                    <version>9.2.25.v20180606</version>
+                    <configuration>
+                        <httpConnector>
+                            <!-- To be compatible with Jetty 9.4 -->
+                            <port>${jetty.http.port}</port>
+                        </httpConnector>
+                        <systemProperties>
+                            <systemProperty>
+                                <name>openl.home</name>
+                                <value>${project.build.directory}/openl-jetty</value>
+                            </systemProperty>
+                        </systemProperties>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.h2database</groupId>
+                            <artifactId>h2</artifactId>
+                            <version>1.4.196</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -1129,7 +1150,12 @@
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>3.9.3</version>
+                <version>3.14.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-jaxrs</artifactId>
+                <version>1.5.19</version>
             </dependency>
             <!-- Apache CXF Runtime CORBA Binding -->
             <dependency>
@@ -1164,7 +1190,13 @@
                 <version>3.0.7</version>
             </dependency>
             <dependency>
-                <groupId>dom4j</groupId>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <!-- 19.0 is compatible with Swagger and Cassandra -->
+                <version>19.0</version>
+            </dependency>
+            <dependency>
+            <groupId>dom4j</groupId>
                 <artifactId>dom4j</artifactId>
                 <version>1.6.1</version>
                 <!-- Doesn't required for JAVA 1.6 -->
@@ -1547,11 +1579,6 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.annotation</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.context</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

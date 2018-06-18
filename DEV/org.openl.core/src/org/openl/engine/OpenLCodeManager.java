@@ -2,24 +2,20 @@ package org.openl.engine;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundMethodHeader;
 import org.openl.binding.IBoundMethodNode;
-import org.openl.binding.impl.Binder;
-import org.openl.binding.impl.BindingContext;
-import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.module.MethodBindingContext;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
 import org.openl.syntax.code.ProcessedCode;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenMethodHeader;
-import org.openl.types.java.JavaOpenClass;
 
 /**
  * Class that defines OpenL engine manager implementation for operations with
@@ -51,17 +47,13 @@ public class OpenLCodeManager extends OpenLHolder {
      * @param bindingContextDelegator binding context
      * @return {@link IOpenClass} instance
      */
-    public IOpenClass makeType(IOpenSourceCodeModule source, IBindingContextDelegator bindingContextDelegator) {
-
+    public IOpenClass makeType(IOpenSourceCodeModule source, IBindingContext bindingContext) {
         try {
-
-            if (bindingContextDelegator == null) {
-                bindingContextDelegator = new BindingContextDelegator(getOpenL().getBinder().makeBindingContext());
+            if (bindingContext != null) {
+                bindingContext.pushErrors();
             }
 
-            bindingContextDelegator.pushErrors();
-
-            ProcessedCode processedCode = sourceManager.processSource(source, SourceType.TYPE, bindingContextDelegator,
+            ProcessedCode processedCode = sourceManager.processSource(source, SourceType.TYPE, bindingContext,
                     false, null);
 
             IBoundCode boundCode = processedCode.getBoundCode();
@@ -69,7 +61,9 @@ public class OpenLCodeManager extends OpenLHolder {
             return boundCode.getTopNode().getType();
 
         } finally {
-            bindingContextDelegator.popErrors();
+            if (bindingContext != null) {
+                bindingContext.popErrors();
+            }
         }
     }
 
@@ -99,25 +93,23 @@ public class OpenLCodeManager extends OpenLHolder {
      * @return {@link IOpenMethodHeader} instance
      */
     public IOpenMethodHeader makeMethodHeader(IOpenSourceCodeModule source,
-            IBindingContextDelegator bindingContextDelegator) {
-
-        if (bindingContextDelegator == null) {
-            bindingContextDelegator = new BindingContextDelegator(new BindingContext((Binder) getOpenL().getBinder(),
-                    JavaOpenClass.VOID, getOpenL()));
-        }
-
+            IBindingContext bindingContext) {
         try {
-            bindingContextDelegator.pushErrors();
+            if (bindingContext != null) {
+                bindingContext.pushErrors();
+            }
 
             ProcessedCode processedCode = sourceManager.processSource(source, SourceType.METHOD_HEADER,
-                    bindingContextDelegator, false, null);
+                bindingContext, false, null);
 
             IBoundCode boundCode = processedCode.getBoundCode();
 
             return ((IBoundMethodHeader) boundCode.getTopNode()).getMethodHeader();
 
         } finally {
-            bindingContextDelegator.popErrors();
+            if (bindingContext != null) {
+                bindingContext.popErrors();
+            }
         }
     }
 
@@ -158,7 +150,11 @@ public class OpenLCodeManager extends OpenLHolder {
             header.setTypeClass(retType);
 
             IBoundMethodNode boundMethodNode = bindManager.bindMethod(boundCode, header, bindingContext);
-
+            
+            if (bindingContext.getErrors().length > 0) {
+                throw new CompositeSyntaxNodeException("Parsing Error:", bindingContext.getErrors());
+            }
+            
             return new CompositeMethod(header, boundMethodNode);
         } finally {
             bindingContext.popErrors();

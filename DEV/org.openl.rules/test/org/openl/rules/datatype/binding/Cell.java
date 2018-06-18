@@ -9,7 +9,6 @@ import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.util.formatters.IFormatter;
 
 public class Cell implements ICell {
 
@@ -23,7 +22,6 @@ public class Cell implements ICell {
 
     private Object objectValue;
     private String stringValue;
-    private String formattedValue;
 
     private ICellFont font;
 
@@ -38,8 +36,6 @@ public class Cell implements ICell {
     private CellMetaInfo metaInfo;
 
     private ICellComment comment;
-
-    private IFormatter dataFormatter;
 
     public Cell() {
     }
@@ -116,10 +112,6 @@ public class Cell implements ICell {
         this.stringValue = stringValue;
     }
 
-    public String getFormattedValue() {
-        return formattedValue;
-    }
-
     public ICellFont getFont() {
         return font;
     }
@@ -179,14 +171,6 @@ public class Cell implements ICell {
         return false;
     }
 
-    public CellMetaInfo getMetaInfo() {
-        return metaInfo;
-    }
-
-    public void setMetaInfo(CellMetaInfo metaInfo) {
-        this.metaInfo = metaInfo;
-    }
-
     public ICellComment getComment() {
         return comment;
     }
@@ -195,15 +179,7 @@ public class Cell implements ICell {
         this.comment = comment;
     }
 
-    public IFormatter getDataFormatter() {
-        return dataFormatter;
-    }
-    
-    public void setDataFormatter(IFormatter dataFormatter) {
-        this.dataFormatter = dataFormatter;
-    }
-
-	@Override
+    @Override
 	public ICell getTopLeftCellFromRegion() {
 		// TODO Auto-generated method stub
 		return null;

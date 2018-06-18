@@ -62,4 +62,7 @@ public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundN
         field.setTable(null);
     }
 
+    public IDataBase getDataBase() {
+        return module.getDataBase();
+    }
 }

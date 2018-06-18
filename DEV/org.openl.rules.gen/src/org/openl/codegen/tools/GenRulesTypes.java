@@ -16,83 +16,75 @@ import org.openl.vm.IRuntimeEnv;
 
 public class GenRulesTypes {
 
-    private EnumerationDescriptor[] enumerationDefinitions;
-
     public static void main(String[] args) throws Exception {
         new GenRulesTypes().run();
     }
 
-    public void run() throws Exception {
+    public static String getEnumName(String sourceName) {
 
-        loadEnumerationDefinitions();
-        
+        return String.format("%s%sEnum", sourceName.substring(0, 1).toUpperCase(), sourceName.substring(1));
+    }
+
+    private void run() throws Exception {
+
+        List<EnumerationDescriptor> enumerationDefinitions = loadEnumerations();
+
         System.out.println("Generating Rules enumerations...");
-        generateEnumerations();
+        generateEnumerations(enumerationDefinitions);
 
-        // RuleService Enums
-        System.out.println("Generating Rules Service enumerations...");
-        generateRulesServiceEnumerations();
     }
 
-    private void loadEnumerationDefinitions() {
-        enumerationDefinitions = loadEnumerations();
-    }
+    private List<EnumerationDescriptor> loadEnumerations() {
 
-    private EnumerationDescriptor[] loadEnumerations() {
+        List<EnumerationDescriptor> descriptors = new ArrayList<>();
 
-        List<EnumerationDescriptor> descriptors = new ArrayList<EnumerationDescriptor>();
-
-        RulesEngineFactory<IEmptyLoader> engineFactory = new RulesEngineFactory<IEmptyLoader>(
-                CodeGenConstants.DEFINITIONS_XLS, IEmptyLoader.class);
+        RulesEngineFactory<IEmptyLoader> engineFactory = new RulesEngineFactory<>(CodeGenConstants.DEFINITIONS_XLS,
+            IEmptyLoader.class);
 
         IOpenClass openClass = engineFactory.getCompiledOpenClass().getOpenClass();
         IRuntimeEnv env = engineFactory.getOpenL().getVm().getRuntimeEnv();
         Object openClassInstance = openClass.newInstance(env);
 
-        List<IOpenField> enumerationFields = EnumHelper.findEnumerationFields(openClass);
+        for (IOpenField field : openClass.getFields().values()) {
 
-        for (IOpenField field : enumerationFields) {
+            IOpenClass type = field.getType();
+            Class<?> clazz = type.getInstanceClass();
 
-            String name = field.getName();
-            EnumPropertyDefinition[] values = (EnumPropertyDefinition[]) field.get(openClassInstance, env);
+            if (clazz.equals(EnumPropertyDefinition[].class)) {
+                String name = field.getName();
+                String enumName = getEnumName(name);
 
-            EnumerationDescriptor descriptor = EnumHelper.createDescriptor(name, values);
+                EnumPropertyDefinition[] values = (EnumPropertyDefinition[]) field.get(openClassInstance, env);
 
-            descriptors.add(descriptor);
+                EnumerationDescriptor descriptor = new EnumerationDescriptor();
+                descriptor.setEnumName(enumName);
+                descriptor.setValues(values);
+
+                descriptors.add(descriptor);
+            }
         }
 
-        return descriptors.toArray(new EnumerationDescriptor[descriptors.size()]);
+        return descriptors;
     }
 
-    private void generateEnumerations() throws Exception {
+    private void generateEnumerations(List<EnumerationDescriptor> enumerationDefinitions) throws Exception {
 
         for (EnumerationDescriptor descriptor : enumerationDefinitions) {
-            String enumName = EnumHelper.getEnumName(descriptor.getEnumName());
-            String sourceFilePath = CodeGenConstants.RULES_SOURCE_LOCATION + CodeGenConstants.ENUMS_PACKAGE_PATH
-                    + enumName + ".java";
-            Map<String, Object> variables = new HashMap<String, Object>();
+            String enumName = descriptor.getEnumName();
+            String sourceFilePath = CodeGenConstants.RULES_SOURCE_LOCATION + CodeGenConstants.ENUMS_PACKAGE_PATH + enumName + ".java";
+            Map<String, Object> variables = new HashMap<>();
             variables.put("enumPackage", CodeGenConstants.ENUMS_PACKAGE);
             generateEnumeration(descriptor, sourceFilePath, variables, "rules-enum.vm");
         }
     }
 
-    private void generateRulesServiceEnumerations() throws Exception {
+    private void generateEnumeration(EnumerationDescriptor descriptor,
+            String sourceFilePath,
+            Map<String, Object> variables,
+            String template) throws Exception {
+        String enumName = descriptor.getEnumName();
 
-        for (EnumerationDescriptor descriptor : enumerationDefinitions) {
-            String enumName = EnumHelper.getEnumName(descriptor.getEnumName());
-            String sourceFilePath = CodeGenConstants.RULESERVICE_CONTEXT_SOURCE_LOCATION
-                    + CodeGenConstants.RULESERVICE_ENUMS_PACKAGE_PATH + enumName + ".java";
-            Map<String, Object> variables = new HashMap<String, Object>();
-            variables.put("enumPackage", CodeGenConstants.RULESERVICE_ENUMS_PACKAGE);
-            generateEnumeration(descriptor, sourceFilePath, variables, "RuleService-rules-enum.vm");
-        }
-    }
-
-    private void generateEnumeration(EnumerationDescriptor descriptor, String sourceFilePath,
-            Map<String, Object> variables, String template) throws Exception {
-        String enumName = EnumHelper.getEnumName(descriptor.getEnumName());
-
-        Map<String, Object> vars = new HashMap<String, Object>(variables);
+        Map<String, Object> vars = new HashMap<>(variables);
         vars.put("enumName", enumName);
         vars.put("values", descriptor.getValues());
 

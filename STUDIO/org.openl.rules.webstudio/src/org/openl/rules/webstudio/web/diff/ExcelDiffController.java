@@ -38,8 +38,7 @@ public class ExcelDiffController extends AbstractDiffController {
                 // further calculations.
                 setDiffTree(null);
                 XlsDiff2 x = new XlsDiff2();
-                DiffTreeNode diffTree = x.diffFiles(
-                        file1.getAbsolutePath(), file2.getAbsolutePath());
+                DiffTreeNode diffTree = x.diffFiles(file1, file2);
                 setDiffTree(diffTree);
             } catch (Exception e) {
                 FacesUtils.addErrorMessage(e.getMessage());

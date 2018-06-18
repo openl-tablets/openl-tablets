@@ -1,21 +1,23 @@
 package org.openl.rules.validation;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
 import org.openl.OpenL;
 import org.openl.domain.IDomain;
-import org.openl.message.OpenLErrorMessage;
-import org.openl.message.OpenLWarnMessage;
+import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.dt.type.domains.DomainAdaptorFactory;
 import org.openl.rules.dt.type.domains.IDomainAdaptor;
 import org.openl.rules.dt.validator.DecisionTableAnalyzer;
+import org.openl.rules.dt.validator.DecisionTableValidationResult;
 import org.openl.rules.dt.validator.DecisionTableValidator;
 import org.openl.rules.enumeration.ValidateDTEnum;
-import org.openl.rules.dt.validator.DecisionTableValidationResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -24,7 +26,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
 import org.openl.validation.ValidationResult;
-import org.openl.validation.ValidationStatus;
 
 /**
  * Gap/overlap analysis for Decision Tables with property "validateDT" == "on".
@@ -35,12 +36,11 @@ public class GapOverlapValidator extends TablesValidator {
 
     private static final String VALIDATION_FAILED = "Validation failed for node : ";
 
-    private ValidationResult validationResult;
-
     @Override
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
-        validationResult = null;
         List<IOpenMethod> allModuleMethods = OpenMethodDispatcherHelper.extractMethods(openClass);
+
+        Collection<OpenLMessage> messages = new LinkedHashSet<>();
 
         for (IOpenMethod method : allModuleMethods) {
             if (method instanceof ExecutableRulesMethod) {
@@ -50,32 +50,41 @@ public class GapOverlapValidator extends TablesValidator {
                     // only to DT.
                     //
                     IDecisionTable decisionTable = (IDecisionTable) executableMethod;
-                    DecisionTableValidationResult dtValidResult = validate(openClass, decisionTable);
+                    DecisionTableValidationResult dtValidResult = validate(messages, openClass, decisionTable);
                     if (dtValidResult != null && dtValidResult.hasProblems()) {
                         decisionTable.getSyntaxNode().setValidationResult(dtValidResult);
-                        if (dtValidResult.hasErrors())
-                            addError(decisionTable.getSyntaxNode(), dtValidResult.toString());
-                        else
-                            addWarning(decisionTable.getSyntaxNode(), dtValidResult.toString());
+                        if (dtValidResult.hasErrors()) {
+                            addError(messages, decisionTable.getSyntaxNode(), dtValidResult.toString());
+                        } else {
+                            messages.add(OpenLMessagesUtils.newWarnMessage(dtValidResult.toString(),
+                                decisionTable.getSyntaxNode()));
+                        }
                     }
                 }
             }
         }
-        if (validationResult != null) {
-            return validationResult;
-        }
-        return ValidationUtils.validationSuccess();
+        return ValidationUtils.withMessages(messages);
     }
 
-    private DecisionTableValidationResult validate(IOpenClass openClass, IDecisionTable decisionTable) {
+    private void addError(Collection<OpenLMessage> messages, TableSyntaxNode tableSyntaxNode, String message) {
+        SyntaxNodeException sne = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
+        tableSyntaxNode.addError(sne);
+        messages.add(OpenLMessagesUtils.newErrorMessage(sne));
+    }
+
+    private DecisionTableValidationResult validate(Collection<OpenLMessage> messages,
+            IOpenClass openClass,
+            IDecisionTable decisionTable) {
         DecisionTableValidationResult dtValidResult = null;
         try {
             Map<String, IDomainAdaptor> domains = gatherDomains(decisionTable);
             dtValidResult = DecisionTableValidator.validateTable(decisionTable, domains, openClass);
         } catch (Exception t) {
-            String errorMessage = String.format("%s%s.Reason : %s", VALIDATION_FAILED, decisionTable.getSyntaxNode()
-                .getDisplayName(), t.getMessage());
-            addError(decisionTable.getSyntaxNode(), errorMessage);
+            String errorMessage = String.format("%s%s.Reason : %s",
+                VALIDATION_FAILED,
+                decisionTable.getSyntaxNode().getDisplayName(),
+                t.getMessage());
+            addError(messages, decisionTable.getSyntaxNode(), errorMessage);
         }
         return dtValidResult;
     }
@@ -106,7 +115,9 @@ public class GapOverlapValidator extends TablesValidator {
                     domain = condition.getConditionEvaluator().getConditionParameterDomain(i, condition);
                     if (domain != null) {
                         IDomainAdaptor adaptor = DomainAdaptorFactory.getAdaptor(domain);
-                        domainsMap.put(DecisionTableValidator.getUniqueConditionParamName(condition, cparams[i].getName()), adaptor);
+                        domainsMap.put(
+                            DecisionTableValidator.getUniqueConditionParamName(condition, cparams[i].getName()),
+                            adaptor);
                     }
 
                 }
@@ -152,27 +163,8 @@ public class GapOverlapValidator extends TablesValidator {
     // return domain;
     // }
 
-    private void addError(TableSyntaxNode sourceNode, String message) {
-        if (validationResult == null) {
-            validationResult = new ValidationResult(ValidationStatus.FAIL);
-        }
-        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, sourceNode);
-        sourceNode.addError(error);
-        ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(error));
-    }
-
-    private void addWarning(TableSyntaxNode sourceNode, String message) {
-        if (validationResult == null) {
-            validationResult = new ValidationResult(ValidationStatus.FAIL);
-        }
-//        SyntaxNodeException error = new SyntaxNodeException(message, null, sourceNode);
-//        sourceNode.addError(error);
-        ValidationUtils.addValidationMessage(validationResult, new OpenLWarnMessage(message, sourceNode));
-    }
-    
-    
     private static boolean isValidatableMethod(ExecutableRulesMethod executableMethod) {
-        return executableMethod.getMethodProperties() != null && ValidateDTEnum.ON.equals(executableMethod.getMethodProperties()
-            .getValidateDT());
+        return executableMethod.getMethodProperties() != null && ValidateDTEnum.ON
+            .equals(executableMethod.getMethodProperties().getValidateDT());
     }
 }

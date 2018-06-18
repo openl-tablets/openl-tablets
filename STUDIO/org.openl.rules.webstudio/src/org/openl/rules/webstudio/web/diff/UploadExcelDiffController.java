@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
@@ -18,7 +19,7 @@ import org.richfaces.model.UploadedFile;
 @SessionScoped
 public class UploadExcelDiffController extends ExcelDiffController {
 
-    private List<UploadedFile> uploadedFiles = new ArrayList<UploadedFile>();
+    private List<UploadedFile> uploadedFiles = new ArrayList<>();
 
     public List<UploadedFile> getUploadedFiles() {
         return uploadedFiles;
@@ -42,21 +43,22 @@ public class UploadExcelDiffController extends ExcelDiffController {
         if (uploadedFiles.size() >= MAX_FILES_COUNT) {
             // Clear selection to handle NPE bug. See EPBDS-3992 for details.
             UITree treeComponent = (UITree) FacesContext.getCurrentInstance().getViewRoot().findComponent("diffTreeForm:newTree");
-            treeComponent.setSelection(new ArrayList<Object>());
+            treeComponent.setSelection(new ArrayList<>());
 
-            List<File> filesToCompare = new ArrayList<File>();
+            deleteTempFiles();
+            List<File> filesToCompare = new ArrayList<>();
             for (UploadedFile uploadedFile : uploadedFiles) {
                 File fileToCompare = FileTool.toTempFile(
                         uploadedFile.getInputStream(), FileUtils.getName(uploadedFile.getName()));
                 filesToCompare.add(fileToCompare);
+                // Files can be reloaded lazily later. We can't delete them immediately. Instead delete them when Bean
+                // is destroyed (on session timeout) or before next comparison.
+                addTempFile(fileToCompare);
             }
             compare(filesToCompare);
 
             // Clear uploaded files
             uploadedFiles.clear();
-            for (File file : filesToCompare) {
-                file.delete();
-            }
         }
 
         return null;
@@ -65,5 +67,10 @@ public class UploadExcelDiffController extends ExcelDiffController {
     public void compare(List<File> files) {
         setFilesToCompare(files);
         super.compare();
+    }
+
+    @PreDestroy
+    public void destroy() {
+        deleteTempFiles();
     }
 }

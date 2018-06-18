@@ -38,10 +38,4 @@ public class String2IntConvertorTest {
         converter.parse("1.3", null);
     }
 
-    @Test
-    public void testFormat() {
-        String2IntConvertor converter = new String2IntConvertor();
-        String result = converter.format(Integer.MIN_VALUE, null);
-        assertEquals("-2147483648", result);
-    }
 }

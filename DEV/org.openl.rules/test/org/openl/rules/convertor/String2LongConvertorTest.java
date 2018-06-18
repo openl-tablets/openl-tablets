@@ -38,10 +38,4 @@ public class String2LongConvertorTest {
         converter.parse("1.3", null);
     }
 
-    @Test
-    public void testFormat() {
-        String2LongConvertor converter = new String2LongConvertor();
-        String result = converter.format(Long.MIN_VALUE, null);
-        assertEquals("-9223372036854775808", result);
-    }
 }

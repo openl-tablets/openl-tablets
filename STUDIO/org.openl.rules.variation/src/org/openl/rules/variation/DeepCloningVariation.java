@@ -29,7 +29,7 @@ public class DeepCloningVariation extends Variation {
      */
     public static final String DEEP_CLONING_SUFFIX = "[Deep Cloning]";
     
-    private static final Cloner cloner = ArgumentsClonerFactory.getCloner();
+    private final Cloner cloner = ArgumentsClonerFactory.getCloner();
     
     private Variation variation;
     
@@ -41,7 +41,7 @@ public class DeepCloningVariation extends Variation {
     
     /**
      * Constructs deep-cloning variation with the generated ID(ID of delegated
-     * variation + {@link DeepCloningVariation.DEEP_CLONING_SUFFIX}).
+     * variation + {@link DeepCloningVariation#DEEP_CLONING_SUFFIX}).
      * 
      * @param variation Delegated variation.
      */

@@ -1,5 +1,8 @@
 package org.openl.rules.tableeditor.event;
 
+import java.io.IOException;
+import java.util.Date;
+
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;
 import org.apache.poi.ss.formula.FormulaParseException;
@@ -7,6 +10,7 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.formatters.FormulaFormatter;
@@ -14,6 +18,7 @@ import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.tableeditor.model.CellEditorSelector;
 import org.openl.rules.tableeditor.model.ICellEditor;
 import org.openl.rules.tableeditor.model.TableEditorModel;
@@ -24,9 +29,6 @@ import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.IFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.Date;
 
 /**
  * Table editor controller.
@@ -51,7 +53,7 @@ public class TableEditorController extends BaseTableEditorController {
         int row = getRow();
         int col = getCol();
         String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
+        TableEditorModel editorModel = startEditing(editorId);
         if (editorModel != null) {
             TableModificationResponse response = new TableModificationResponse(null, editorModel);
             try {
@@ -74,7 +76,7 @@ public class TableEditorController extends BaseTableEditorController {
         int col = getCol();
         int row = getRow();
         String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
+        TableEditorModel editorModel = startEditing(editorId);
         if (editorModel != null) {
             TableModificationResponse response = new TableModificationResponse(null, editorModel);
             try {
@@ -94,18 +96,13 @@ public class TableEditorController extends BaseTableEditorController {
     }
 
     public String getCellEditor() {
-        TableEditorModel editorModel = getEditorModel(getEditorId());
+        TableEditorModel editorModel = startEditing(getEditorId());
         if (editorModel != null) {
-            String beforeEditAction = editorModel.getBeforeEditAction();
-            if (beforeEditAction != null) {
-                boolean successful = (Boolean) FacesUtils.invokeMethodExpression(beforeEditAction);
-                if (!successful) {
-                    return "";
-                }
-            }
-
-            ICell cell = editorModel.getOriginalGridTable().getCell(getCol(), getRow());
-            ICellEditor editor = new CellEditorSelector().selectEditor(cell);
+            int row = getRow();
+            int col = getCol();
+            ICell cell = editorModel.getOriginalGridTable().getCell(col, row);
+            CellMetaInfo meta = getMetaInfo(editorModel, row, col);
+            ICellEditor editor = new CellEditorSelector().selectEditor(cell, meta);
             EditorTypeResponse editorResponse = editor.getEditorTypeAndMetadata();
 
             String editorType = editorResponse.getEditor();
@@ -122,16 +119,23 @@ public class TableEditorController extends BaseTableEditorController {
 
         if (editorType.equals(ICellEditor.CE_NUMERIC)) {
             value = cell.getStringValue();
-
         } else if (editorType.equals(ICellEditor.CE_FORMULA)) {
             value = "=" + cell.getFormula();
-        } else if (CellMetaInfo.isCellContainsNodeUsages(cell)) {
+        } else if (editorType.equals(ICellEditor.CE_TEXT)) {
             value = cell.getStringValue();
         } else if (editorType.equals(ICellEditor.CE_DATE)) {
             // Format must be same as in DateEditor.js
             value = FormattersManager.format(cell.getObjectValue());
         }
         return value;
+    }
+
+    private CellMetaInfo getMetaInfo(TableEditorModel editorModel, int row, int col) {
+        IGridTable originalGridTable = editorModel.getOriginalGridTable();
+        IGridRegion originalRegion = originalGridTable.getRegion();
+        int gcol = originalRegion.getLeft() + col;
+        int grow = originalRegion.getTop() + row;
+        return editorModel.getMetaInfoReader().getMetaInfo(grow, gcol);
     }
 
     private int getCol() {
@@ -180,7 +184,7 @@ public class TableEditorController extends BaseTableEditorController {
         int row = getRow();
         int col = getCol();
         String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
+        TableEditorModel editorModel = startEditing(editorId);
         if (editorModel != null
                 && row >= 0 && col >= 0) {
             editorModel.removeRows(1, row, col);
@@ -193,7 +197,7 @@ public class TableEditorController extends BaseTableEditorController {
         int col = getCol();
         int row = getRow();
         String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
+        TableEditorModel editorModel = startEditing(editorId);
         if (editorModel != null && col >= 0 && row >= 0) {
             editorModel.removeColumns(1, col, row);
             return pojo2json(new TableModificationResponse(render(editorId), editorModel));
@@ -205,14 +209,14 @@ public class TableEditorController extends BaseTableEditorController {
         int row = getRow();
         int col = getCol();
         String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
+        TableEditorModel editorModel = startEditing(editorId);
         if (editorModel != null) {
             TableModificationResponse response = new TableModificationResponse(null, editorModel);
 
             int indent = getRequestIntParam(Constants.REQUEST_PARAM_INDENT);
 
             ICellStyle style = editorModel.getOriginalGridTable().getCell(col, row).getStyle();
-            int currentIndent = style != null ? style.getIdent() : 0;
+            int currentIndent = style != null ? style.getIndent() : 0;
             int resultIndent = currentIndent + indent;
 
             try {
@@ -235,7 +239,7 @@ public class TableEditorController extends BaseTableEditorController {
         String newEditor = getRequestParam(Constants.REQUEST_PARAM_EDITOR);
 
         String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
+        TableEditorModel editorModel = startEditing(editorId);
         if (editorModel != null) {
             IFormatter newFormatter = getCellFormatter(newEditor, editorModel, row, col);
             String message = null;
@@ -263,7 +267,8 @@ public class TableEditorController extends BaseTableEditorController {
         if (ICellEditor.CE_FORMULA.equals(cellEditor)) {
             ICell cell = editorModel.getOriginalGridTable().getCell(col, row);
 
-            IFormatter currentFormatter = cell.getDataFormatter();
+            CellMetaInfo meta = getMetaInfo(editorModel, row, col);
+            IFormatter currentFormatter = XlsDataFormatterFactory.getFormatter(cell, meta);
             IFormatter formulaResultFormatter = null;
             if (!(currentFormatter instanceof FormulaFormatter)) {
                 formulaResultFormatter = currentFormatter;
@@ -276,7 +281,8 @@ public class TableEditorController extends BaseTableEditorController {
         } else if (cellEditor == null) {
             // Format must be same as in DateEditor.js
             ICell cell = editorModel.getOriginalGridTable().getCell(col, row);
-            ICellEditor editor = new CellEditorSelector().selectEditor(cell);
+            CellMetaInfo meta = getMetaInfo(editorModel, row, col);
+            ICellEditor editor = new CellEditorSelector().selectEditor(cell, meta);
             if (ICellEditor.CE_DATE.equals(editor.getEditorTypeAndMetadata().getEditor())) {
                 return FormattersManager.getFormatter(Date.class);
             }
@@ -285,11 +291,11 @@ public class TableEditorController extends BaseTableEditorController {
         return formatter;
     }
 
-    public String setProperty() throws Exception {
+    public String setProperty() {
         String name = getRequestParam(Constants.REQUEST_PARAM_PROP_NAME);
         String value = getRequestParam(Constants.REQUEST_PARAM_PROP_VALUE);
         String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
+        TableEditorModel editorModel = startEditing(editorId);
         if (editorModel != null) {
             editorModel.setProperty(name, value);
             PropertyModificationResponse response = new PropertyModificationResponse(editorModel);
@@ -314,7 +320,7 @@ public class TableEditorController extends BaseTableEditorController {
         int row = getRow();
         int col = getCol();
         String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
+        TableEditorModel editorModel = startEditing(editorId);
         if (editorModel != null) {
             TableModificationResponse response = new TableModificationResponse(null, editorModel);
             String align = getRequestParam(Constants.REQUEST_PARAM_ALIGN);
@@ -349,7 +355,7 @@ public class TableEditorController extends BaseTableEditorController {
         int row = getRow();
         int col = getCol();
         String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
+        TableEditorModel editorModel = startEditing(editorId);
         if (editorModel != null) {
             TableModificationResponse response = new TableModificationResponse(null, editorModel);
             Boolean bold = getRequestBooleanParam(Constants.REQUEST_PARAM_FONT_BOLD);
@@ -375,7 +381,7 @@ public class TableEditorController extends BaseTableEditorController {
         int row = getRow();
         int col = getCol();
         String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
+        TableEditorModel editorModel = startEditing(editorId);
         if (editorModel != null) {
             TableModificationResponse response = new TableModificationResponse(null, editorModel);
             Boolean italic = getRequestBooleanParam(Constants.REQUEST_PARAM_FONT_ITALIC);
@@ -400,7 +406,7 @@ public class TableEditorController extends BaseTableEditorController {
         int row = getRow();
         int col = getCol();
         String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
+        TableEditorModel editorModel = startEditing(editorId);
         if (editorModel != null) {
             TableModificationResponse response = new TableModificationResponse(null, editorModel);
             Boolean underlined = getRequestBooleanParam(Constants.REQUEST_PARAM_FONT_UNDERLINE);
@@ -425,7 +431,7 @@ public class TableEditorController extends BaseTableEditorController {
         int row = getRow();
         int col = getCol();
         String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
+        TableEditorModel editorModel = startEditing(editorId);
         if (editorModel != null) {
             TableModificationResponse response = new TableModificationResponse(null, editorModel);
             String colorStr = getRequestParam(Constants.REQUEST_PARAM_COLOR);
@@ -457,7 +463,7 @@ public class TableEditorController extends BaseTableEditorController {
         int row = getRow();
         int col = getCol();
         String editorId = getEditorId();
-        TableEditorModel editorModel = getEditorModel(editorId);
+        TableEditorModel editorModel = startEditing(editorId);
         if (editorModel != null) {
             TableModificationResponse response = new TableModificationResponse(null, editorModel);
             String colorStr = getRequestParam(Constants.REQUEST_PARAM_COLOR);
@@ -579,6 +585,7 @@ public class TableEditorController extends BaseTableEditorController {
         TableEditorModel editorModel = getEditorModel(getEditorId());
         if (editorModel != null) {
             editorModel.cancel();
+            removeEditorModel();
         }
     }
 
@@ -600,6 +607,8 @@ public class TableEditorController extends BaseTableEditorController {
                     StringUtils.isNotBlank(newId) ? new String[]{newId} : null,
                     StringUtils.isNotBlank(newId) ? new Class[]{String.class} : null);
         }
+
+        removeEditorModel();
     }
 
     private static String pojo2json(Object pojo) {

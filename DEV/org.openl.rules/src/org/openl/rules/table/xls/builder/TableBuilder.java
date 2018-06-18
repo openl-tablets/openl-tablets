@@ -1,31 +1,20 @@
 package org.openl.rules.table.xls.builder;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import java.io.IOException;
-
-import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.Comment;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.openl.rules.table.ICellComment;
+import org.apache.poi.ss.usermodel.*;
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
+import org.openl.rules.table.*;
+import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsCellComment;
 import org.openl.rules.table.xls.XlsCellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.rules.table.xls.formatters.XlsDateFormatter;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ui.ICellStyle;
-import org.apache.poi.ss.usermodel.BuiltinFormats;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.openl.rules.table.ICell;
+import org.openl.rules.table.xls.formatters.FormatConstants;
 
 /**
  * Class that allows creating tables in specified excel sheet.
@@ -60,17 +49,24 @@ public class TableBuilder {
      */
     private Map<CellStyle, CellStyle> style2style;
 
+    private MetaInfoWriter metaInfoWriter;
+
     /**
      * Creates new instance.
      * 
      * @param gridModel represents interface for operations with excel sheets
      */
     public TableBuilder(XlsSheetGridModel gridModel) {
+        this(gridModel, null);
+    }
+
+    public TableBuilder(XlsSheetGridModel gridModel, MetaInfoWriter metaInfoWriter) {
         if (gridModel == null) {
             throw new IllegalArgumentException("gridModel is null");
         }
         this.gridModel = gridModel;
         style2style = new HashMap<CellStyle, CellStyle>();
+        this.metaInfoWriter = metaInfoWriter;
     }
 
     /**
@@ -144,7 +140,7 @@ public class TableBuilder {
         try {
             gridModel.getSheetSource().getWorkbookSource().save();
         } catch (IOException e) {
-            throw new CreateTableException("�ould not save table. " + e.getMessage());
+            throw new CreateTableException("Could not save table. " + e.getMessage());
         }
     }
 
@@ -182,7 +178,7 @@ public class TableBuilder {
             cellStyle.setBorderLeft(BorderStyle.THIN);
             cellStyle.setBorderRight(BorderStyle.THIN);
 
-            cellStyle.setDataFormat((short) BuiltinFormats.getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
+            cellStyle.setDataFormat((short) BuiltinFormats.getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
 
             defaultDateCellStyle = cellStyle;
         }
@@ -299,7 +295,7 @@ public class TableBuilder {
         cell.setCellStyle(PoiExcelHelper.createCellStyle(cell.getSheet().getWorkbook()));
         cell.getCellStyle().cloneStyleFrom(previousStyle);
         cell.getCellStyle()
-            .setDataFormat((short) BuiltinFormats.getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
+            .setDataFormat((short) BuiltinFormats.getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
         return cell.getCellStyle();
     }
 
@@ -404,6 +400,11 @@ public class TableBuilder {
                     comment.setAuthor(xlxComment.getAuthor());
                     comment.setString(xlxComment.getString());
                     newCell.setCellComment(comment);
+                }
+                if (metaInfoWriter != null && newCell != null) {
+                    metaInfoWriter.setMetaInfo(newCell.getRowIndex(),
+                            newCell.getColumnIndex(),
+                            metaInfoWriter.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn()));
                 }
             }
         }

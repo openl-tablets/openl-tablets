@@ -1,13 +1,9 @@
 package org.openl.rules.validation.properties.dimentional;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import org.openl.binding.IBindingContextDelegator;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.BindingContextDelegator;
@@ -16,21 +12,18 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.DecisionTableHelper;
-import org.openl.rules.dt.DecisionTableLoader;
+import org.openl.rules.dt.*;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dt.builder.ConditionsBuilder;
 import org.openl.rules.dt.builder.DecisionTableBuilder;
 import org.openl.rules.dt.builder.ReturnColumnBuilder;
 import org.openl.rules.dt.builder.TableHeaderBuilder;
-import org.openl.rules.dt.IBaseAction;
-import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.Point;
@@ -42,11 +35,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
-import org.openl.types.IMethodCaller;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.types.NullOpenClass;
+import org.openl.types.*;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
@@ -59,23 +48,23 @@ import org.slf4j.LoggerFactory;
  *
  * @author DLiauchuk
  */
-public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode> {
+class TableSyntaxNodeDispatcherBuilder {
 
     private static final String DISPATCHER_TABLES_SHEET_FORMAT = "$%sDispatcher Tables Sheet";
-    public static final String ARGUMENT_PREFIX_IN_SIGNATURE = "arg_";
+    private static final String ARGUMENT_PREFIX_IN_SIGNATURE = "arg_";
 
     private final Logger log = LoggerFactory.getLogger(TableSyntaxNodeDispatcherBuilder.class);
 
     //LinkedHashMap to save the sequence of params
-    public static final LinkedHashMap<String, IOpenClass> incomeParams;
+    private static final LinkedHashMap<String, IOpenClass> incomeParams;
 
-    /**
+    /*
      * Initialize a map of parameters from context, that will be used as income parameters to newly 
      * created dispatcher tables.
      *
      */
     static {
-        incomeParams = new LinkedHashMap<String, IOpenClass>();
+        incomeParams = new LinkedHashMap<>();
         Method[] methods = IRulesRuntimeContext.class.getDeclaredMethods();
         for (Method method : methods) {
             String methodName = method.getName();
@@ -90,7 +79,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
     private XlsModuleOpenClass moduleOpenClass;
     private MatchingOpenMethodDispatcher dispatcher;
 
-    public TableSyntaxNodeDispatcherBuilder(RulesModuleBindingContext moduleContext,
+    TableSyntaxNodeDispatcherBuilder(RulesModuleBindingContext moduleContext,
                                             XlsModuleOpenClass moduleOpenClass, MatchingOpenMethodDispatcher dispatcher) {
         if (moduleContext == null || moduleOpenClass == null || dispatcher == null) {
             throw new IllegalArgumentException("None of the constructor parameters can be null");
@@ -100,14 +89,14 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         this.dispatcher = dispatcher;
     }
 
-    public static String getDispatcherParameterNameForOriginalParameter(String parameterName) {
+    static String getDispatcherParameterNameForOriginalParameter(String parameterName) {
         return ARGUMENT_PREFIX_IN_SIGNATURE + parameterName;
     }
 
     /**
      * Build dispatcher table for dimensional properties for particular overloaded method group.
      */
-    public TableSyntaxNode build() {
+    TableSyntaxNode build() {
         TableSyntaxNode tsn = null;
         if (needToBuild()) {
             // build source of decision table
@@ -122,7 +111,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
             try {
                 tsn = XlsHelper.createTableSyntaxNode(decisionTableSource, sheetSource);
             } catch (OpenLCompilationException e) {
-                OpenLMessagesUtils.addError(e);
+                moduleContext.addMessages(OpenLMessagesUtils.newErrorMessages(e));
                 return null;
             }
 
@@ -130,6 +119,8 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
             //
             Builder<DecisionTable> dtOpenLBuilder = initDecisionTableOpenlBuilder(tsn);
             DecisionTable decisionTable = dtOpenLBuilder.build();
+            // Dispatcher tables are shown in Trace
+            tsn.setMetaInfoReader(new DecisionTableMetaInfoReader((DecisionTableBoundNode) decisionTable.getBoundNode(), decisionTable));
 
             loadCreatedTable(decisionTable, tsn);
 
@@ -173,7 +164,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
      *
      * @return flag if it is needed to build the table for given methods properties
      */
-    public boolean needToBuild() {
+    private boolean needToBuild() {
         List<TablePropertyDefinition> dimensionalPropertiesDef =
                 TablePropertyDefinitionUtils.getDimensionalTableProperties();
 
@@ -295,7 +286,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         List<TablePropertyDefinition> dimensionalPropertiesDef =
                 TablePropertyDefinitionUtils.getDimensionalTableProperties();
 
-        List<IDecisionTableColumn> conditions = new ArrayList<IDecisionTableColumn>();
+        List<IDecisionTableColumn> conditions = new ArrayList<>();
 
         // get only dimensional properties from methods properties
         //
@@ -350,7 +341,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
 
     private Map<String, IOpenClass> updateIncomeParams() {
         //LinkedHashMap to save the sequence of params
-        LinkedHashMap<String, IOpenClass> updatedIncomeParams = new LinkedHashMap<String, IOpenClass>();
+        LinkedHashMap<String, IOpenClass> updatedIncomeParams = new LinkedHashMap<>();
         IMethodSignature originalSignature = getMethodSignature();
         for (int j = 0; j < originalSignature.getNumberOfParameters(); j++) {
             updatedIncomeParams.put(getDispatcherParameterNameForOriginalParameter(originalSignature.getParameterName(j)),
@@ -367,7 +358,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
      * @return properties values from tables in group.
      */
     private List<ITableProperties> getMethodsProperties() {
-        List<ITableProperties> propertiesValues = new ArrayList<ITableProperties>();
+        List<ITableProperties> propertiesValues = new ArrayList<>();
         for (IOpenMethod method : dispatcher.getCandidates()) {
             propertiesValues.add(PropertiesHelper.getTableProperties(method));
         }
@@ -407,7 +398,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
      * @param decisionTable created decision table.
      * @param tsn           created table syntax node.
      */
-    private TableSyntaxNode loadCreatedTable(DecisionTable decisionTable, TableSyntaxNode tsn) {
+    private void loadCreatedTable(DecisionTable decisionTable, TableSyntaxNode tsn) {
         tsn.setMember(decisionTable);
 
         PropertiesLoader propLoader = new PropertiesLoader(moduleOpenClass.getOpenl(), moduleContext, moduleOpenClass);
@@ -420,17 +411,16 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
             dtLoader.loadAndBind(tsn, decisionTable, moduleOpenClass.getOpenl(), null, createContextWithAuxiliaryMethods());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            OpenLMessagesUtils.addWarn(e.getMessage(), tsn);
+            moduleContext.addMessages(OpenLMessagesUtils.newErrorMessages(e));
         }
-        return tsn;
     }
 
-    public static final String AUXILIARY_METHOD_DELIMETER = "$";
+    static final String AUXILIARY_METHOD_DELIMETER = "$";
 
     private static class InternalMethodDelegator extends MethodDelegator {
         String auxiliaryMethodName;
         
-        public InternalMethodDelegator(IMethodCaller methodCaller, String auxiliaryMethodName) {
+        InternalMethodDelegator(IMethodCaller methodCaller, String auxiliaryMethodName) {
             super(methodCaller);
             this.auxiliaryMethodName = auxiliaryMethodName;
         }
@@ -446,11 +436,11 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         return new InternalMethodDelegator(originalMethod, auxiliaryMethodName);
     }
     
-    private static class InternalBindingContextDelegator extends BindingContextDelegator{
+    private static class InternalBindingContextDelegator extends BindingContextDelegator {
         
         private Map<MethodKey, IOpenMethod> auxiliaryMethods;
         
-        public InternalBindingContextDelegator(RulesModuleBindingContext context, Map<MethodKey, IOpenMethod> auxiliaryMethods) {
+        InternalBindingContextDelegator(RulesModuleBindingContext context, Map<MethodKey, IOpenMethod> auxiliaryMethods) {
             super(context);
             this.auxiliaryMethods = auxiliaryMethods;
         }
@@ -466,9 +456,9 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         }
     }
 
-    private IBindingContextDelegator createContextWithAuxiliaryMethods() {
+    private IBindingContext createContextWithAuxiliaryMethods() {
         List<IOpenMethod> candidates = dispatcher.getCandidates();
-        final Map<MethodKey, IOpenMethod> auxiliaryMethods = new HashMap<MethodKey, IOpenMethod>(candidates.size());
+        final Map<MethodKey, IOpenMethod> auxiliaryMethods = new HashMap<>(candidates.size());
         for (int i = 0; i < candidates.size(); i++) {
             IOpenMethod auxiliaryMethod = generateAuxiliaryMethod(candidates.get(i), i);
             auxiliaryMethods.put(new MethodKey(auxiliaryMethod), auxiliaryMethod);

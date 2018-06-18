@@ -2,7 +2,6 @@ package org.openl.engine;
 
 import org.openl.IOpenParser;
 import org.openl.OpenL;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
 import org.openl.syntax.code.IParsedCode;
@@ -61,7 +60,6 @@ public class OpenLParseManager extends OpenLHolder {
      * @return parser
      */
     private IOpenParser getParser() {
-
         return getOpenL().getParser();
     }
 
@@ -72,13 +70,9 @@ public class OpenLParseManager extends OpenLHolder {
      * @return {@link IParsedCode} instance
      */
     private IParsedCode getInvalidCode(IOpenSourceCodeModule source) {
-
         String message = String.format("Invalid source type: %s", source.getUri());
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, source);
-
-        OpenLMessagesUtils.addError(error);
-
-        return new ParsedCode(null, source, new SyntaxNodeException[] { error });
+        return new ParsedCode(null, source, new SyntaxNodeException[] { error }, null);
     }
 
 }

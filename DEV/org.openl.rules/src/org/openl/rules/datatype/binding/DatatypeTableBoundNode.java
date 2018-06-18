@@ -6,38 +6,35 @@ package org.openl.rules.datatype.binding;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang3.text.WordUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
-import org.openl.binding.impl.NodeType;
+import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.meta.IMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.datatype.gen.FieldDescription;
-import org.openl.rules.datatype.gen.SimpleBeanByteCodeGenerator;
+import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass.OpenFieldsConstructor;
+import org.openl.rules.lang.xls.types.meta.BaseMetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.DatatypeTableMetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.utils.ParserUtils;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
+import org.openl.syntax.exception.*;
 import org.openl.syntax.exception.Runnable;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
@@ -48,7 +45,6 @@ import org.openl.types.impl.DatatypeOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.util.ClassUtils;
-import org.openl.util.StringTool;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
 import org.slf4j.Logger;
@@ -140,6 +136,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private void addFields(final IBindingContext cxt) throws Exception {
 
         final ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
+        // Save normalized table to work with it later
+        this.table = dataTable;
 
         int tableHeight = 0;
 
@@ -150,7 +148,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         // map of fields that will be used for byte code generation.
         // key: name of the field, value: field type.
         //
-        final Map<String, FieldDescription> fields = new LinkedHashMap<String, FieldDescription>();
+        final Map<String, FieldDescription> fields = new LinkedHashMap<>();
         SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         for (int i = 0; i < tableHeight; i++) {
             final int index = i;
@@ -201,9 +199,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
         if (parentClassName != null) {
             IOpenClass parentClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, parentClassName);
-            if (parentClass.getInstanceClass() == null) {
-                return false;// parent bean was not generated
-            }
+            return parentClass.getInstanceClass() != null;
         }
         return true;
     }
@@ -213,22 +209,20 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
      *
      * @param fields fields for bean class
      * @return Class descriptor of generated bean class.
-     * @throws SyntaxNodeException is can`t generate bean for datatype table.
      */
-    private byte[] createBeanForDatatype(Map<String, FieldDescription> fields) throws SyntaxNodeException {
+    private byte[] createBeanForDatatype(Map<String, FieldDescription> fields) {
         String beanName = dataType.getJavaName();
         IOpenClass superOpenClass = dataType.getSuperClass();
-        SimpleBeanByteCodeGenerator beanGenerator;
-        LinkedHashMap<String, FieldDescription> parentFields = new LinkedHashMap<String, FieldDescription>();
-        Class<?> superClass = Object.class;
+        JavaBeanClassBuilder beanBuilder = new JavaBeanClassBuilder(beanName);
         if (superOpenClass != null) {
-            superClass = superOpenClass.getInstanceClass();
+            Class<?> superClass = superOpenClass.getInstanceClass();
+            beanBuilder.setParentClass(superClass);
             for (Entry<String, IOpenField> field : superOpenClass.getFields().entrySet()) {
-                parentFields.put(field.getKey(), new FieldDescription(field.getValue().getType().getJavaName()));
+                beanBuilder.addParentField(field.getKey(), field.getValue().getType().getJavaName());
             }
         }
-        beanGenerator = new SimpleBeanByteCodeGenerator(beanName, fields, superClass, parentFields);
-        return beanGenerator.byteCode();
+        beanBuilder.addFields(fields);
+        return beanBuilder.byteCode();
     }
 
     private void validateBeanForDatatype(Class<?> beanClass,
@@ -257,7 +251,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
             }
 
-            String getterMethodName = StringTool.getGetterName(fieldName);
+            String getterMethodName = ClassUtils.getter(fieldName);
             try {
                 Method getterMethod = beanClass.getMethod(getterMethodName);
                 if (!getterMethod.getReturnType().getName().equals(fieldDescription.getTypeName())) {
@@ -275,7 +269,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
             }
 
-            String setterMethodName = StringTool.getSetterName(fieldName);
+            String setterMethodName = ClassUtils.setter(fieldName);
             Method[] methods = beanClass.getMethods();
             boolean found = false;
             for (Method method : methods) {
@@ -320,14 +314,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             IOpenClass fieldType = getFieldType(cxt, row, rowSrc);
             IOpenField field = new DatatypeOpenField(dataType, fieldName, fieldType);
 
-            if (!cxt.isExecutionMode()) {
-                IdentifierNode[] parsedHeader = Tokenizer.tokenize(rowSrc, "[]\n\r");
-                IMetaInfo metaInfo = fieldType.getMetaInfo();
-
-                // Link to field type table
-                RuleRowHelper.setCellMetaInfoWithNodeUsage(row, parsedHeader[0], metaInfo, NodeType.DATATYPE);
-            }
-
             if (!isRecursiveField(field) && getRootComponentClass(field.getType()).getInstanceClass() == null) {
                 // For example type A depends on B and B depends on A. At this
                 // point B is not generated yet.
@@ -346,14 +332,14 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     throw SyntaxNodeExceptionUtils.createError(String.format("Field '%s' has already been defined!",
                         fieldName), null, null, getCellSource(row, cxt, 1));
                 }
-                if (fields.containsKey(WordUtils.uncapitalize(fieldName)) || fields
-                    .containsKey(WordUtils.capitalize(fieldName))) {
+                if (fields.containsKey(ClassUtils.decapitalize(fieldName)) || fields
+                    .containsKey(ClassUtils.capitalize(fieldName))) {
                     String f = null;
-                    if (fields.containsKey(WordUtils.uncapitalize(fieldName))) {
-                        f = WordUtils.uncapitalize(fieldName);
+                    if (fields.containsKey(ClassUtils.decapitalize(fieldName))) {
+                        f = ClassUtils.decapitalize(fieldName);
                     }
-                    if (fields.containsKey(WordUtils.capitalize(fieldName))) {
-                        f = WordUtils.capitalize(fieldName);
+                    if (fields.containsKey(ClassUtils.capitalize(fieldName))) {
+                        f = ClassUtils.capitalize(fieldName);
                     }
                     throw SyntaxNodeExceptionUtils.createError(
                         String.format("Field '%s' conflicts with '%s' field!", fieldName, f),
@@ -389,42 +375,53 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
             if (row.getWidth() > 2) {
                 String defaultValue = getDefaultValue(row, cxt);
-                
+
                 ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(cxt, defaultValue);
                 if (constantOpenField != null) {
                     fieldDescription.setDefaultValue(constantOpenField.getValue());
                     fieldDescription.setDefaultValueAsString(constantOpenField.getValueAsString());
-                    RuleRowHelper.setMetaInfoWithNodeUsageForConstantCell(getCellSource(row, cxt, 2).getCell(), defaultValue, constantOpenField, cxt);
-                } else {
-                    fieldDescription.setDefaultValueAsString(defaultValue);
-                
-                    if (fieldDescription.getTypeName().equals(Date.class.getName())) {
-                        // EPBDS-6068 add metainfo for XlsDataFormatterFactory.getFormatter can define correct formater for
-                        // cell.
-                        Object value = row.getColumn(2).getCell(0, 0).getObjectValue();
-                        if (value != null && fieldDescription.getTypeName().equals(value.getClass().getName())) {
-                            RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, fieldType, false);
-                            fieldDescription.setDefaultValue(value);
+                    if (!cxt.isExecutionMode()) {
+                        ICell cell = getCellSource(row, cxt, 2).getCell();
+                        MetaInfoReader metaInfoReader = tableSyntaxNode.getMetaInfoReader();
+                        if (metaInfoReader instanceof BaseMetaInfoReader) {
+                            SimpleNodeUsage nodeUsage = RuleRowHelper.createConstantNodeUsage(defaultValue, constantOpenField);
+                            ((BaseMetaInfoReader) metaInfoReader).addConstant(cell, nodeUsage);
                         }
                     }
+                } else {
+                    fieldDescription.setDefaultValueAsString(defaultValue);
+
+                    if (!String.class.equals(fieldType.getInstanceClass())) {
+                        ICell theCellValue = row.getColumn(2).getCell(0, 0);
+                        if (theCellValue.hasNativeType()) {
+                            Object value = RuleRowHelper.loadNativeValue(theCellValue, fieldType);
+                            if (value != null) {
+                                fieldDescription.setDefaultValue(value);
+                            }
+                        }
+                    }
+
                     Object value;
                     try {
                         value = fieldDescription.getDefaultValue();
                     } catch (RuntimeException e) {
                         String message = String.format("Can't parse cell value '%s'", defaultValue);
                         IOpenSourceCodeModule cellSourceCodeModule = getCellSource(row, cxt, 2);
-    
+
                         if (e instanceof CompositeSyntaxNodeException) {
                             CompositeSyntaxNodeException exception = (CompositeSyntaxNodeException) e;
                             if (exception.getErrors() != null && exception.getErrors().length == 1) {
                                 SyntaxNodeException syntaxNodeException = exception.getErrors()[0];
-                                throw SyntaxNodeExceptionUtils
-                                    .createError(message, null, syntaxNodeException.getLocation(), cellSourceCodeModule);
+                                throw SyntaxNodeExceptionUtils.createError(message,
+                                    null,
+                                    syntaxNodeException.getLocation(),
+                                    cellSourceCodeModule);
                             }
                             throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
                         } else {
                             TextInterval location = defaultValue == null ? null
-                                                                         : LocationUtils.createTextInterval(defaultValue);
+                                                                         : LocationUtils
+                                                                             .createTextInterval(defaultValue);
                             throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
                         }
                     }
@@ -434,7 +431,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         try {
                             RuleRowHelper.validateValue(value, fieldType);
                         } catch (Exception e) {
-                            throw SyntaxNodeExceptionUtils.createError(e.getMessage(), e, null, getCellSource(row, cxt, 2));
+                            throw SyntaxNodeExceptionUtils
+                                .createError(e.getMessage(), e, null, getCellSource(row, cxt, 2));
                         }
                     }
                 }
@@ -479,11 +477,11 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return defaultValue;
     }
 
-    private IOpenClass getFieldType(IBindingContext cxt,
+    private IOpenClass getFieldType(IBindingContext bindingContext,
             ILogicalTable row,
             GridCellSourceCodeModule tableSrc) throws SyntaxNodeException {
 
-        IOpenClass fieldType = OpenLManager.makeType(openl, tableSrc, (IBindingContextDelegator) cxt);
+        IOpenClass fieldType = OpenLManager.makeType(openl, tableSrc, bindingContext);
 
         if (fieldType == null || fieldType instanceof NullOpenClass) {
             String errorMessage = String.format("Type %s is not found", tableSrc.getCode());
@@ -503,6 +501,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     public void finalizeBind(IBindingContext cxt) throws Exception {
+        if (!cxt.isExecutionMode()) {
+            tableSyntaxNode.setMetaInfoReader(new DatatypeTableMetaInfoReader(this));
+        }
         if (parentClassName != null) {
             IOpenClass parentClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, parentClassName);
             if (parentClass == null) {
@@ -528,15 +529,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             }
 
             dataType.setSuperClass(parentClass);
-
-            if (!cxt.isExecutionMode()) {
-                // Link to parent class table
-                RuleRowHelper.setCellMetaInfoWithNodeUsage(table,
-                    parentClassIdentifier,
-                    parentClass.getMetaInfo(),
-                    NodeType.DATATYPE);
-            }
-
         }
         addFields(cxt);
         // adding constructor with all fields after all fields have been added
@@ -563,15 +555,15 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         if (fieldInParent != null) {
                             if (fieldInParent.getType().getInstanceClass().equals(
                                 field.getValue().getType().getInstanceClass())) {
-                                BindHelper.processWarn(String.format("Field [%s] has been already defined in class \"%s\"",
-                                    field.getKey(),
-                                    fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
-                            } else {
-                                throw SyntaxNodeExceptionUtils.createError(
-                                    String.format("Field [%s] has been already defined in class \"%s\" with another type",
+                                BindHelper
+                                    .processWarn(String.format("Field [%s] has been already defined in class \"%s\"",
                                         field.getKey(),
-                                        fieldInParent.getDeclaringClass().getDisplayName(0)),
-                                    tableSyntaxNode);
+                                        fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
+                            } else {
+                                throw SyntaxNodeExceptionUtils.createError(String.format(
+                                    "Field [%s] has been already defined in class \"%s\" with another type",
+                                    field.getKey(),
+                                    fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode);
                             }
                         }
                     }
@@ -581,8 +573,23 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
     }
 
-    public void removeDebugInformation(IBindingContext cxt) throws Exception {
+    public void removeDebugInformation(IBindingContext cxt) {
         // nothing to remove
     }
 
+    public TableSyntaxNode getTableSyntaxNode() {
+        return tableSyntaxNode;
+    }
+
+    public DatatypeOpenClass getDataType() {
+        return dataType;
+    }
+
+    public ILogicalTable getTable() {
+        return table;
+    }
+
+    public IdentifierNode getParentClassIdentifier() {
+        return parentClassIdentifier;
+    }
 }

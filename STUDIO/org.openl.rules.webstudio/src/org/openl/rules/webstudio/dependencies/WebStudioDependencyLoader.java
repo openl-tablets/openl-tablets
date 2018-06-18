@@ -1,8 +1,7 @@
 package org.openl.rules.webstudio.dependencies;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.LinkedHashSet;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
@@ -31,8 +30,8 @@ final class WebStudioDependencyLoader extends SimpleProjectDependencyLoader {
     private CompiledDependency createFailedCompiledDependency(String dependencyName,
             ClassLoader classLoader,
             Exception ex) {
-        List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
-        for (OpenLMessage openLMessage : OpenLMessagesUtils.newMessages(ex)) {
+        Collection<OpenLMessage> messages = new LinkedHashSet<>();
+        for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(ex)) {
             String message = String.format("Failed to load dependent module '%s': %s",
                 dependencyName,
                 openLMessage.getSummary());

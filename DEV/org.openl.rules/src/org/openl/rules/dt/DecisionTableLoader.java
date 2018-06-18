@@ -101,7 +101,7 @@ public class DecisionTableLoader {
             DecisionTable decisionTable,
             OpenL openl,
             ModuleOpenClass module,
-            IBindingContextDelegator bindingContext) throws Exception {
+            IBindingContext bindingContext) throws Exception {
 
         loadTableStructure(tableSyntaxNode, decisionTable, bindingContext);
 

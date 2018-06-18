@@ -102,6 +102,11 @@ public class AlgorithmWrapper extends Algorithm implements IOpenMethodWrapper{
     }
 
     @Override
+    public List<RuntimeOperation> getAlgorithmSteps() {
+        return delegate.getAlgorithmSteps();
+    }
+
+    @Override
     public void setLabels(Map<String, RuntimeOperation> labels) {
         delegate.setLabels(labels);
     }

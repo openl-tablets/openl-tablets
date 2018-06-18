@@ -2,11 +2,9 @@ package org.openl.rules.table;
 
 import java.util.Date;
 
-import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.IncorrectFormulaException;
-import org.openl.util.formatters.IFormatter;
 
 public interface ICell {
 
@@ -45,8 +43,6 @@ public interface ICell {
 
     String getStringValue();
 
-    String getFormattedValue();
-
     // TODO: move this method to ICellStyle
     ICellFont getFont();
     
@@ -82,13 +78,8 @@ public interface ICell {
     boolean getNativeBoolean();
     Date getNativeDate();
 
-    CellMetaInfo getMetaInfo();
-    void setMetaInfo(CellMetaInfo metaInfo);
-
     ICellComment getComment();
 
-    IFormatter getDataFormatter();
-
-	ICell getTopLeftCellFromRegion();
+    ICell getTopLeftCellFromRegion();
 
 }

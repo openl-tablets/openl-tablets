@@ -109,6 +109,11 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
     }
 
     @Override
+    public List<RuntimeOperation> getAlgorithmSteps() {
+        return delegate.getAlgorithmSteps();
+    }
+
+    @Override
     public void setLabels(Map<String, RuntimeOperation> localLabelsRegister) {
         delegate.setLabels(localLabelsRegister);
     }

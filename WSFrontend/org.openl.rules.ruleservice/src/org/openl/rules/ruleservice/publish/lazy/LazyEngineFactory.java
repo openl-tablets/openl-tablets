@@ -14,7 +14,6 @@ import org.openl.OpenL;
 import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLSourceManager;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.message.OpenLMessages;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
@@ -146,7 +145,6 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
 
     public CompiledOpenClass getCompiledOpenClass() {
         if (compiledOpenClass == null) {
-            OpenLMessages.getCurrentInstance().clear();
             compiledOpenClass = initializeOpenClass();
         }
         return compiledOpenClass;

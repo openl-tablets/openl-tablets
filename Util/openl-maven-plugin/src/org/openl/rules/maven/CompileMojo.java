@@ -2,6 +2,7 @@ package org.openl.rules.maven;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -36,27 +37,30 @@ public final class CompileMojo extends BaseOpenLMojo {
     @Override
     public void execute(String sourcePath, boolean hasDependencies) throws Exception {
         URL[] urls = toURLs(classpath);
-        ClassLoader classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
+        ClassLoader classLoader = null;
+        try {
+            classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
 
-        SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
-        if (hasDependencies) {
-            builder.setWorkspace(workspaceFolder.getPath());
+            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+            if (hasDependencies) {
+                builder.setWorkspace(workspaceFolder.getPath());
+            }
+            SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
+                    .setClassLoader(classLoader)
+                    .setExecutionMode(true)
+                    .setExternalParameters(externalParameters)
+                    .build();
+
+            CompiledOpenClass openLRules = factory.getCompiledOpenClass();
+            IOpenClass openClass = openLRules.getOpenClass();
+            Collection<OpenLMessage> warnMessages = OpenLMessagesUtils.filterMessagesBySeverity(openLRules.getMessages(), Severity.WARN); 
+            info("Compilation has finished.");
+            info("DataTypes: " + openClass.getTypes().size());
+            info("Methods  : " + openClass.getMethods().size());
+            info("Warnings : " + warnMessages.size());
+        } finally {
+            releaseResources(classLoader);
         }
-        SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
-                .setClassLoader(classLoader)
-                .setExecutionMode(true)
-                .setExternalParameters(externalParameters)
-                .build();
-
-        CompiledOpenClass openLRules = factory.getCompiledOpenClass();
-        IOpenClass openClass = openLRules.getOpenClass();
-        List<OpenLMessage> messages = openLRules.getMessages();
-        List<OpenLMessage> warnings = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
-        info("Compilation has finished.");
-        info("DataTypes: " + openClass.getTypes().size());
-        info("Methods  : " + openClass.getMethods().size());
-        info("Fields   : " + openClass.getFields().size());
-        info("Warnings : " + warnings.size());
     }
 
     @Override

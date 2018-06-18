@@ -10,6 +10,6 @@ package org.openl.rules.ruleservice.databinding;
  * #L%
  */
 
-public class JacksonObjectMapperFactoryBean extends org.openl.rules.serialization.JacksonObjectMapperFactoryBean{
+public class JacksonObjectMapperFactoryBean extends org.openl.rules.serialization.JacksonObjectMapperFactoryBean {
 
 }

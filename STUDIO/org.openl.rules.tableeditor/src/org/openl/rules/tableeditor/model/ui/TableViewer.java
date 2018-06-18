@@ -4,12 +4,10 @@ import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 
 import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.ICellComment;
-import org.openl.rules.table.IGrid;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridTable;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
+import org.openl.rules.table.*;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.Log;
 import org.openl.util.StringUtils;
@@ -28,6 +26,8 @@ public class TableViewer {
     private String mode;
     
     private String view;
+
+    private MetaInfoReader metaInfoReader;
 
     private void setStyle(ICell cell, CellModel cm) {
         ICellStyle style = cell.getStyle();
@@ -69,8 +69,8 @@ public class TableViewer {
                 break;
         }
 
-        if (style.getIdent() > 0) {
-            cm.setIdent(style.getIdent());
+        if (style.getIndent() > 0) {
+            cm.setIndent(style.getIndent());
         }
 
         short[] rgb = style.getFillForegroundColor();
@@ -86,23 +86,22 @@ public class TableViewer {
 
     }
 
-    /**
-     * Two argument constructor
-     */
-    public TableViewer(IGrid grid, IGridRegion reg, LinkBuilder linkBuilder, String mode) {
-        this(grid, reg, linkBuilder, mode, null);
-    }
-
-    public TableViewer(IGrid grid, IGridRegion reg, LinkBuilder linkBuilder, String mode, String view) {
+    public TableViewer(IGrid grid,
+            IGridRegion reg,
+            LinkBuilder linkBuilder,
+            String mode,
+            String view,
+            MetaInfoReader metaInfoReader) {
         super();
         this.grid = grid;
         this.reg = reg;
         this.linkBuilder = linkBuilder;
         this.mode = mode;
         this.view = view;
+        this.metaInfoReader = metaInfoReader;
     }
 
-    CellModel buildCell(ICell cell, CellModel cm) {
+    CellModel buildCell(ICell cell, CellModel cm, CellMetaInfo metaInfo) {
         cm.setColspan(getColSpan(cell));
         cm.setRowspan(getRowSpan(cell));
 
@@ -110,22 +109,22 @@ public class TableViewer {
             cm.setWidth(getWidth(cell));
         }
 
-        String formattedValue = cell.getFormattedValue();
+        String formattedValue = XlsDataFormatterFactory.getFormattedValue(cell, metaInfo);
         if (StringUtils.isNotBlank(formattedValue)) {
             String content;
             if (Constants.MODE_EDIT.equals(mode)) {
                 // In edit mode there should be no links: it's difficult to start cell editing.
-                if (CellMetaInfo.isCellContainsNodeUsages(cell)) {
-                    content = createCellWithMetaInfo(formattedValue, cell.getMetaInfo(), false);
+                if (CellMetaInfo.isCellContainsNodeUsages(metaInfo)) {
+                    content = createCellWithMetaInfo(formattedValue, metaInfo, false);
                 } else {
                     content = escapeHtml4(formattedValue);
                 }
             } else if (link(formattedValue)) {
                 // has Explanation link
                 content = formattedValue;
-            } else if (isShowLinks() && CellMetaInfo.isCellContainsNodeUsages(cell)) {
+            } else if (isShowLinks() && CellMetaInfo.isCellContainsNodeUsages(metaInfo)) {
                 // has method call
-                content = createCellWithMetaInfo(formattedValue, cell.getMetaInfo(), true);
+                content = createCellWithMetaInfo(formattedValue, metaInfo, true);
             } else if (image(formattedValue)) {
                 // has image
                 content = formattedValue;
@@ -210,6 +209,8 @@ public class TableViewer {
         TableModel tm = new TableModel(w, h, gt, showHeader);
         tm.setNumRowsToDisplay(numRows);
 
+        metaInfoReader.prepare(reg);
+
         for (int row = reg.getTop(); row <= reg.getBottom(); row++) {
             for (int column = reg.getLeft(); column <= reg.getRight(); column++) {
                 int c = column - reg.getLeft();
@@ -219,7 +220,8 @@ public class TableViewer {
                 }
                 ICell cell = grid.getCell(column, row);
 
-                CellModel cm = buildCell(cell, new CellModel(r, c));
+                CellMetaInfo metaInfo = metaInfoReader.getMetaInfo(row, column);
+                CellModel cm = buildCell(cell, new CellModel(r, c), metaInfo);
 
                 tm.addCell(cm, r, c);
                 if (cm.getColspan() > 1 || cm.getRowspan() > 1) {

@@ -1,8 +1,0 @@
-<rules-deploy>
-	<isProvideRuntimeContext>true</isProvideRuntimeContext>
-	<isProvideVariations>false</isProvideVariations>
-	<useRuleServiceRuntimeContext>true</useRuleServiceRuntimeContext>
-	<serviceClass>org.openl.rules.ruleservice.context.StaticInterface</serviceClass>
-	<serviceName>multi-module-overloaded-static</serviceName>
-	<url></url>
-</rules-deploy>

@@ -11,12 +11,6 @@ class String2ClassConvertor implements IString2DataConvertor<Class<?>>, IString2
     public static final String ARRAY_SUFIX = "[]";
 
     @Override
-    public String format(Class<?> data, String format) {
-        if (data == null) return null;
-        return data.toString();
-    }
-
-    @Override
     public Class<?> parse(String data, String format) {
         throw new UnsupportedOperationException();
     }

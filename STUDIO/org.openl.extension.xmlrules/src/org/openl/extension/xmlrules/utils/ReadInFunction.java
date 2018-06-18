@@ -9,7 +9,7 @@ import java.util.List;
 import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.model.Type;
 import org.openl.extension.xmlrules.model.single.FieldImpl;
-import org.openl.util.StringTool;
+import org.openl.util.ClassUtils;
 
 public class ReadInFunction {
     public static Object[] readIn(String typeName, Object[][] array) {
@@ -49,7 +49,7 @@ public class ReadInFunction {
                     continue;
                 }
 
-                String setterName = StringTool.getSetterName(field.getName());
+                String setterName = ClassUtils.setter(field.getName());
                 Method method = null;
                 for (Method m : clazz.getMethods()) {
                     if (m.getName().equals(setterName)) {

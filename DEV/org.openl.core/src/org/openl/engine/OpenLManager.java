@@ -3,7 +3,6 @@ package org.openl.engine;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.exception.MethodNotFoundException;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenLRuntimeException;
@@ -31,11 +30,11 @@ public class OpenLManager {
      */
     public static IOpenClass makeType(OpenL openl,
             IOpenSourceCodeModule source,
-            IBindingContextDelegator bindingContextDelegator) {
+            IBindingContext bindingContext) {
 
         OpenLCodeManager codeManager = new OpenLCodeManager(openl);
 
-        return codeManager.makeType(source, bindingContextDelegator);
+        return codeManager.makeType(source, bindingContext);
 
     }
 
@@ -68,11 +67,11 @@ public class OpenLManager {
      */
     public static IOpenMethodHeader makeMethodHeader(OpenL openl,
             IOpenSourceCodeModule source,
-            IBindingContextDelegator bindingContextDelegator) {
+            IBindingContext bindingContext) {
 
         OpenLCodeManager codeManager = new OpenLCodeManager(openl);
 
-        return codeManager.makeMethodHeader(source, bindingContextDelegator);
+        return codeManager.makeMethodHeader(source, bindingContext);
     }
 
     /**

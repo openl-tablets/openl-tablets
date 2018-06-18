@@ -10,8 +10,8 @@ package org.openl.rules.ruleservice.databinding;
  * #L%
  */
 
-
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -30,7 +30,7 @@ import org.openl.rules.table.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractAegisDatabindingFactoryBean { 
+public abstract class AbstractAegisDatabindingFactoryBean {
 
     private final Logger log = LoggerFactory.getLogger(AbstractAegisDatabindingFactoryBean.class);
 
@@ -45,7 +45,7 @@ public abstract class AbstractAegisDatabindingFactoryBean {
     private Collection<DOMSource> schemas;
     private Map<String, String> namespaceMap;
     private boolean supportVariations = false;
-    
+
     public AegisDatabinding createAegisDatabinding() {
         AegisDatabinding aegisDatabinding = new AegisDatabinding();
         if (getConfiguration() != null) {
@@ -87,90 +87,142 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         }
 
         TypeMapping typeMapping = aegisDatabinding.getAegisContext().getTypeMapping();
-        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.context.RuntimeContextBeanType.class, typeMapping);
-        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.ruleservice.context.RuleServiceRuntimeContextBeanType.class,
-                typeMapping);
-        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.calc.SpreadsheetResultType.class, typeMapping);
-        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.table.PointType.class, typeMapping);
+        loadAegisTypeClassAndRegister(
+            org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.context.RuntimeContextBeanType.class,
+            typeMapping);
+        loadAegisTypeClassAndRegister(
+            org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.calc.SpreadsheetResultType.class,
+            typeMapping);
+        loadAegisTypeClassAndRegister(
+            org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.table.PointType.class,
+            typeMapping);
 
         if (supportVariations) {
             registerVariationTypes(typeMapping);
         }
-        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.helper.IntRangeBeanType.class, typeMapping);
-        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.helper.DoubleRangeBeanType.class, typeMapping);
+        loadAegisTypeClassAndRegister(
+            org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.helper.IntRangeBeanType.class,
+            typeMapping);
+        loadAegisTypeClassAndRegister(
+            org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.helper.DoubleRangeBeanType.class,
+            typeMapping);
 
         registerCustomJavaTypes(typeMapping);
-        
+
         registerOpenLTypes(typeMapping);
         
         return aegisDatabinding;
     }
 
     protected void registerVariationTypes(TypeMapping typeMapping) {
-        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.VariationsResultType.class, typeMapping);
-        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.JXPathVariationType.class, typeMapping);
-        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.ArgumentReplacementVariationType.class,
-                typeMapping);
-        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.DeepCloningVariationType.class,
-                typeMapping);
-        loadAegisTypeClassAndRegister(org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.ComplexVariationType.class, typeMapping);
+        loadAegisTypeClassAndRegister(
+            org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.VariationsResultType.class,
+            typeMapping);
+        loadAegisTypeClassAndRegister(
+            org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.JXPathVariationType.class,
+            typeMapping);
+        loadAegisTypeClassAndRegister(
+            org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.ArgumentReplacementVariationType.class,
+            typeMapping);
+        loadAegisTypeClassAndRegister(
+            org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.DeepCloningVariationType.class,
+            typeMapping);
+        loadAegisTypeClassAndRegister(
+            org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.ComplexVariationType.class,
+            typeMapping);
     }
 
-	protected abstract void registerOpenLTypes(TypeMapping typeMapping);
-	
-	protected abstract void registerCustomJavaTypes(TypeMapping typeMapping);
+    protected abstract void registerOpenLTypes(TypeMapping typeMapping);
+
+    protected abstract void registerCustomJavaTypes(TypeMapping typeMapping);
 
     protected void loadAegisTypeClassAndRegister(String aegisTypeClassName, TypeMapping typeMapping) {
         try {
             Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(aegisTypeClassName);
-            Constructor<?> constructor = clazz.getConstructor();
-            AegisType aegisType = (AegisType) constructor.newInstance();
+            AegisType aegisType = instatiateAegisType(clazz);
             typeMapping.register(aegisType);
         } catch (Exception e) {
             log.warn("Aegis type \"{}\" registration failed!", aegisTypeClassName, e);
         }
     }
 
+    private AegisType instatiateAegisType(Class<?> clazz) throws NoSuchMethodException,
+                                                          InstantiationException,
+                                                          IllegalAccessException,
+                                                          InvocationTargetException {
+        Constructor<?> constructor = clazz.getConstructor();
+        AegisType aegisType = (AegisType) constructor.newInstance();
+        return aegisType;
+    }
+
     protected void loadAegisTypeClassAndRegister(Class<?> aegisTypeClass, TypeMapping typeMapping) {
         try {
-            Constructor<?> constructor = aegisTypeClass.getConstructor();
-            AegisType aegisType = (AegisType) constructor.newInstance();
+            AegisType aegisType = instatiateAegisType(aegisTypeClass);
             typeMapping.register(aegisType);
         } catch (Exception e) {
             log.warn("Aegis type \"{}\" registration failed!", aegisTypeClass.getName(), e);
         }
     }
 
-    protected void loadAegisTypeClassAndRegister(String typeClassName, Class<?> aegisTypeClass, QName qName,
-                                                 TypeMapping typeMapping) {
+    protected void loadAegisTypeClassAndRegister(String typeClassName,
+            Class<?> aegisTypeClass,
+            QName qName,
+            TypeMapping typeMapping) {
         try {
             Class<?> typeClazz = Thread.currentThread().getContextClassLoader().loadClass(typeClassName);
-            Constructor<?> constructor = aegisTypeClass.getConstructor();
-            AegisType aegisType = (AegisType) constructor.newInstance();
+            AegisType aegisType = instatiateAegisType(aegisTypeClass);
             typeMapping.register(typeClazz, qName, aegisType);
         } catch (Exception e) {
             log.warn("Type \"{}\" registration failed!", typeClassName, e);
         }
     }
 
+    protected void loadAegisTypeClassAndRegister(Class<?> typeClazz,
+            Class<?> aegisTypeClass,
+            QName qName,
+            TypeMapping typeMapping) {
+        try {
+            AegisType aegisType = instatiateAegisType(aegisTypeClass);
+            typeMapping.register(typeClazz, qName, aegisType);
+        } catch (Exception e) {
+            log.warn("Type \"{}\" registration failed!", typeClazz.getName(), e);
+        }
+    }
+
+    private void tryToLoadClass(String className) {
+        try {
+            Thread.currentThread().getContextClassLoader().loadClass(className);
+        } catch (ClassNotFoundException e) {
+            log.warn("Class '{}' hasn't been found!", className, e);
+        }
+    }
+    
     protected Set<String> getOverrideTypesWithDefaultOpenLTypes() {
         Set<String> overrideTypes = new HashSet<String>();
         if (getOverrideTypes() != null) {
+            for (String className : getOverrideTypes()) {
+                tryToLoadClass(className);
+            }
             overrideTypes.addAll(getOverrideTypes());
         }
         overrideTypes.add(SpreadsheetResult.class.getCanonicalName());
         overrideTypes.add(Point.class.getCanonicalName());
 
         if (supportVariations) {
-            overrideTypes.add("org.openl.rules.variation.VariationsResult");
-            overrideTypes.add("org.openl.rules.variation.Variation");
-            overrideTypes.add("org.openl.rules.variation.ComplexVariation");
-            overrideTypes.add("org.openl.rules.variation.NoVariation");
-            overrideTypes.add("org.openl.rules.variation.JXPathVariation");
-            overrideTypes.add("org.openl.rules.variation.DeepCloningVariation");
-            overrideTypes.add("org.openl.rules.variation.ArgumentReplacementVariation");
+            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.VariationsResult");
+            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.Variation");
+            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.ComplexVariation");
+            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.NoVariation");
+            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.JXPathVariation");
+            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.DeepCloningVariation");
+            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.ArgumentReplacementVariation");
         }
         return overrideTypes;
+    }
+
+    private void tryToLoadAndAppend(Set<String> overrideTypes, String className) {
+        tryToLoadClass(className);
+        overrideTypes.add(className);
     }
 
     public Boolean getWriteXsiTypes() {
@@ -252,13 +304,12 @@ public abstract class AbstractAegisDatabindingFactoryBean {
     public void setSupportVariations(boolean supportVariations) {
         this.supportVariations = supportVariations;
     }
-    
+
     public Boolean getReadXsiTypes() {
         return readXsiTypes;
     }
-    
+
     public void setReadXsiTypes(Boolean readXsiTypes) {
         this.readXsiTypes = readXsiTypes;
     }
 }
-

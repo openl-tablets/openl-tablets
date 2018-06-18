@@ -2,7 +2,7 @@ package org.openl.engine;
 
 import java.lang.reflect.Field;
 
-import org.openl.binding.IBindingContextDelegator;
+import org.openl.binding.IBindingContext;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
@@ -13,7 +13,7 @@ import org.openl.syntax.impl.IdentifierNode;
 class FullClassnameSupport {
 
     private static StringBuilder tryFixChainWithPackage(ISyntaxNode syntaxNode,
-            IBindingContextDelegator bindingContextDelegator) {
+            IBindingContext bindingContext) {
         if (syntaxNode instanceof IdentifierNode) {
             IdentifierNode identifierNode = (IdentifierNode) syntaxNode;
             return new StringBuilder(identifierNode.getIdentifier());
@@ -21,8 +21,8 @@ class FullClassnameSupport {
             if (syntaxNode instanceof BinaryNode) {
                 BinaryNode binaryNode = (BinaryNode) syntaxNode;
                 if ("chain.suffix.dot.identifier".equals(binaryNode.getType())) {
-                    StringBuilder sb = tryFixChainWithPackage(binaryNode.getChild(0), bindingContextDelegator);
-                    if (bindingContextDelegator.findType(ISyntaxConstants.THIS_NAMESPACE, sb.toString()) != null) {
+                    StringBuilder sb = tryFixChainWithPackage(binaryNode.getChild(0), bindingContext);
+                    if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, sb.toString()) != null) {
                         try {
                             Field field = BinaryNode.class.getDeclaredField("left");
                             field.setAccessible(true);
@@ -37,7 +37,7 @@ class FullClassnameSupport {
                         }
                     }
                     sb.append(".");
-                    sb.append(tryFixChainWithPackage(binaryNode.getChild(1), bindingContextDelegator));
+                    sb.append(tryFixChainWithPackage(binaryNode.getChild(1), bindingContext));
                     return sb;
                 } else {
                     throw new OpenlNotCheckedException();
@@ -47,14 +47,14 @@ class FullClassnameSupport {
         throw new OpenlNotCheckedException();
     }
 
-    static void rec(ISyntaxNode syntaxNode, IBindingContextDelegator bindingContextDelegator) {
+    static void rec(ISyntaxNode syntaxNode, IBindingContext bindingContext) {
         if (syntaxNode == null) {
             return;
         }
         if ("chain.suffix.dot.identifier".equals(syntaxNode.getType())) {
             try { 
-                String fieldName = tryFixChainWithPackage(syntaxNode, bindingContextDelegator).toString();
-                if (bindingContextDelegator.findType(ISyntaxConstants.THIS_NAMESPACE, fieldName) != null) {
+                String fieldName = tryFixChainWithPackage(syntaxNode, bindingContext).toString();
+                if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fieldName) != null) {
                     try {
                         Field field = BinaryNode.class.getDeclaredField("left");
                         field.setAccessible(true);
@@ -72,22 +72,22 @@ class FullClassnameSupport {
             } catch (OpenlNotCheckedException e) {
                 int n = syntaxNode.getNumberOfChildren();
                 for (int i = 0; i < n; i++) {
-                    rec(syntaxNode.getChild(i), bindingContextDelegator);
+                    rec(syntaxNode.getChild(i), bindingContext);
                 }
             }
         } else {
             int n = syntaxNode.getNumberOfChildren();
             for (int i = 0; i < n; i++) {
-                rec(syntaxNode.getChild(i), bindingContextDelegator);
+                rec(syntaxNode.getChild(i), bindingContext);
             }
         }
     }
 
-    static void transformIdentifierBindersWithBindingContextInfo(IBindingContextDelegator bindingContextDelegator,
+    static void transformIdentifierBindersWithBindingContextInfo(IBindingContext bindingContext,
             IParsedCode parsedCode) {
         ISyntaxNode topNode = parsedCode.getTopNode();
-        if (bindingContextDelegator != null) {
-            rec(topNode, bindingContextDelegator);
+        if (bindingContext != null) {
+            rec(topNode, bindingContext);
         }
     }
 }

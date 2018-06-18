@@ -75,7 +75,9 @@ public class CharRange extends IntRange {
             return true;
         return false;
     }
-
     
+    public static CharRange autocast(char x, CharRange y) {
+        return new CharRange(x);
+    }
     
 }

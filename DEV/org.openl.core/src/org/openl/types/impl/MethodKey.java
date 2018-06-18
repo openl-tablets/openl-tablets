@@ -3,11 +3,12 @@
  */
 package org.openl.types.impl;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
+
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * 
@@ -99,13 +100,15 @@ public final class MethodKey {
 
         MethodKey mk = (MethodKey) obj;
 
-        return new EqualsBuilder().append(name, mk.name).append(internalParameters, mk.internalParameters).append(isConstructor, mk.isConstructor).isEquals();
+        return Objects.equals(name, mk.name) &&
+                isConstructor == mk.isConstructor &&
+                Arrays.equals(internalParameters, mk.internalParameters);
     }
 
     @Override
     public int hashCode() {
         if (hashCode == 0) {
-            hashCode = new HashCodeBuilder().append(name).append(internalParameters).append(isConstructor).toHashCode();
+            hashCode = Objects.hash(name, isConstructor) * 17 + Arrays.hashCode(internalParameters);
         }
         return hashCode;
     }

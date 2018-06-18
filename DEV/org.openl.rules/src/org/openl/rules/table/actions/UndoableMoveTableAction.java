@@ -1,5 +1,6 @@
 package org.openl.rules.table.actions;
 
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.service.TableServiceException;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.GridTable;
@@ -15,8 +16,10 @@ public class UndoableMoveTableAction extends UndoableEditTableAction {
 
     private IGridRegion prevRegion = null;
     private IGridRegion newRegion = null;
+    private MetaInfoWriter metaInfoWriter;
 
-    public UndoableMoveTableAction() {
+    public UndoableMoveTableAction(MetaInfoWriter metaInfoWriter) {
+        this.metaInfoWriter = metaInfoWriter;
     }
 
     /**
@@ -29,7 +32,7 @@ public class UndoableMoveTableAction extends UndoableEditTableAction {
     public void doAction(IGridTable table) {
         IGridTable fullTable = getOriginalTable(table);
         prevRegion = fullTable.getRegion();
-        TableServiceImpl tableService = new TableServiceImpl();
+        TableServiceImpl tableService = new TableServiceImpl(metaInfoWriter);
         try {
             if (newRegion == null) {
                 newRegion = tableService.moveTable(fullTable);
@@ -44,7 +47,7 @@ public class UndoableMoveTableAction extends UndoableEditTableAction {
     public void undoAction(IGridTable table) {
         if (newRegion != null) {
             try {
-                new TableServiceImpl().moveTableTo(new GridTable(newRegion, table.getGrid()), prevRegion);
+                new TableServiceImpl(metaInfoWriter).moveTableTo(new GridTable(newRegion, table.getGrid()), prevRegion);
             } catch (TableServiceException e) {
                 throw new RuntimeException(e);
             }

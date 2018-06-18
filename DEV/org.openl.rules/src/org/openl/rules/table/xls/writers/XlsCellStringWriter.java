@@ -10,13 +10,9 @@ public class XlsCellStringWriter extends AXlsCellWriter {
     }
 
     @Override
-    public void writeCellValue(boolean writeMetaInfo) {
+    public void writeCellValue() {
         getCellToWrite().setCellType(Cell.CELL_TYPE_BLANK);
         getCellToWrite().setCellValue(getStringValue());
-
-        if (writeMetaInfo) {
-            setMetaInfo(String.class);
-        }
     }
 
 }

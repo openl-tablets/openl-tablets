@@ -44,7 +44,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
         } else {
             String message = String.format("Can`t create expression for \"%s\" property validation.", 
                 getProperty().getName());
-            OpenLMessagesUtils.addWarn(message);
+            throw new OpenlNotCheckedException(message);
         }
         return result;
     }

@@ -1,10 +1,11 @@
 package org.openl.rules.lang.xls.types;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessages;
 import org.openl.message.Severity;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -44,7 +45,7 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
     @Test
     public void testWarning() {
         boolean wasFound = false;
-        for (OpenLMessage message : OpenLMessages.getCurrentInstance().getMessages()) {
+        for (OpenLMessage message : getCompiledOpenClass().getMessages()) {
             if (message.getSeverity() == Severity.WARN) {
                 if (message.getSummary().equals("Field [field1] has been already defined in class \"ParentType\"")) {
                     wasFound = true;
@@ -57,7 +58,7 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
     @Test
     public void testError() {
         boolean wasFound = false;
-        for (OpenLMessage message : OpenLMessages.getCurrentInstance().getMessages()) {
+        for (OpenLMessage message : getCompiledOpenClass().getMessages()) {
             if (message.getSeverity() == Severity.ERROR) {
                 if (message.getSummary().equals(
                         "Field [field1] has been already defined in class \"ParentType\" with another type")) {

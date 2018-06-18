@@ -1,6 +1,6 @@
 package org.openl.util;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
+import java.util.Objects;
 
 public class RangeWithBounds {
     public static enum BoundType {
@@ -22,23 +22,6 @@ public class RangeWithBounds {
         this.max = max;
         this.leftBoundType = leftBoundType;
         this.rightBoundType = rightBoundType;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof RangeWithBounds)) {
-            return false;
-        }
-        final RangeWithBounds other = (RangeWithBounds) obj;
-        EqualsBuilder builder = new EqualsBuilder();
-        builder.append(max, other.getMax());
-        builder.append(min, other.getMin());
-        builder.append(leftBoundType, other.getLeftBoundType());
-        builder.append(rightBoundType, other.getRightBoundType());
-        return builder.isEquals();
     }
 
     public BoundType getLeftBoundType() {
@@ -65,23 +48,28 @@ public class RangeWithBounds {
         return min;
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((max == null) ? 0 : max.hashCode());
-        result = prime * result + ((min == null) ? 0 : min.hashCode());
-        result = prime * result + leftBoundType.hashCode();
-        result = prime * result + rightBoundType.hashCode();
-        return result;
-    }
-
     public void setMax(Number max) {
         this.max = max;
     }
 
     public void setMin(Number min) {
         this.min = min;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof RangeWithBounds)) return false;
+        RangeWithBounds that = (RangeWithBounds) o;
+        return Objects.equals(min, that.min) &&
+                Objects.equals(max, that.max) &&
+                leftBoundType == that.leftBoundType &&
+                rightBoundType == that.rightBoundType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(min, max, leftBoundType, rightBoundType);
     }
 
     @Override

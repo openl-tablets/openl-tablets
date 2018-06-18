@@ -264,7 +264,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     }
 
     private boolean canIndex(IConditionEvaluator evaluator, ICondition condition) {
-        return evaluator.isIndexed() && !condition.hasFormulasInStorage();
+        return evaluator.isIndexed() && !condition.hasFormulas();
     }
 
     private void indexNodes(ARuleIndex index, int condN, IndexInfo info) {
@@ -332,7 +332,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             IOpenClass methodType,
             IBindingContext bindingContext) throws SyntaxNodeException {
         
-        if (condition.hasFormulasInStorage()) {
+        if (condition.hasFormulas()) {
             return new DefaultConditionEvaluator();
         }
         

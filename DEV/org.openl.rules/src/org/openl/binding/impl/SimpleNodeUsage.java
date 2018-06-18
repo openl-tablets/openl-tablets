@@ -1,5 +1,7 @@
 package org.openl.binding.impl;
 
+import java.util.Objects;
+
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.util.text.TextInfo;
 
@@ -52,5 +54,24 @@ public class SimpleNodeUsage implements NodeUsage {
     @Override
     public NodeType getNodeType() {
         return nodeType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        SimpleNodeUsage that = (SimpleNodeUsage) o;
+        return start == that.start &&
+                end == that.end &&
+                Objects.equals(description, that.description) &&
+                Objects.equals(uri, that.uri) &&
+                nodeType == that.nodeType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(start, end, description, uri, nodeType);
     }
 }

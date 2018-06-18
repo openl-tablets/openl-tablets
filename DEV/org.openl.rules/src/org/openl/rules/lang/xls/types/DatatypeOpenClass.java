@@ -11,9 +11,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IMemberMetaInfo;
@@ -165,7 +164,7 @@ public class DatatypeOpenClass extends ADynamicClass {
      */
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(superClass).append(getMetaInfo()).append(javaName).toHashCode();
+        return Objects.hash(superClass, javaName);
     }
 
     /**
@@ -184,7 +183,9 @@ public class DatatypeOpenClass extends ADynamicClass {
             return false;
         DatatypeOpenClass other = (DatatypeOpenClass) obj;
 
-        return new EqualsBuilder().append(superClass, other.getSuperClass()).append(getMetaInfo(), other.getMetaInfo()).append(javaName, other.getJavaName()).isEquals();
+        return Objects.equals(superClass, other.getSuperClass()) &&
+                Objects.equals(getMetaInfo(), other.getMetaInfo()) &&
+                Objects.equals(javaName, other.getJavaName());
     }
 
     @Override

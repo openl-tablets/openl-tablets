@@ -29,6 +29,13 @@ try {
 
     assert lines.any { it =~ /Run tests using \d+ threads/ }
 
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL-Rules With Error-TryFailedGreetingTest.xml").exists();
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL-Rules With Error-TryGreetingTest.xml").exists();
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL-Simple Rules-GreetingSuccessful1.xml").exists();
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL-Simple Rules-GreetingSuccessful2.xml").exists();
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL-Simple Rules-GreetingTest.xml").exists();
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL-Spreadsheets-calcTest.xml").exists();
+
     return true
 } catch(Throwable e) {
     e.printStackTrace()

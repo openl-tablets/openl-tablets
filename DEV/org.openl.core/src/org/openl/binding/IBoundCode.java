@@ -6,6 +6,9 @@
 
 package org.openl.binding;
 
+import java.util.Collection;
+
+import org.openl.message.OpenLMessage;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 
@@ -24,6 +27,8 @@ public interface IBoundCode {
      * @return syntax errors
      */
     SyntaxNodeException[] getErrors();
+    
+    Collection<OpenLMessage> getMessages();
 
     /**
      * Gets link to parsed code that was used in binding process.

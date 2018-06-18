@@ -28,11 +28,13 @@ public class CellStyle implements ICellStyle {
     private BorderStyle[] borderStyle;
 
     private short[][] borderRGB;
-    private int ident;
+    private int indent;
 
     private boolean wrappedText;
 
     private int rotation;
+    private short formatIndex;
+    private String formatString;
 
     public CellStyle(ICellStyle cellStyle) {
         if (cellStyle == null) {
@@ -53,11 +55,14 @@ public class CellStyle implements ICellStyle {
         borderStyle = cellStyle.getBorderStyle();
         borderRGB = cellStyle.getBorderRGB();
 
-        ident = cellStyle.getIdent();
+        indent = cellStyle.getIndent();
 
         wrappedText = cellStyle.isWrappedText();
 
         rotation = cellStyle.getRotation();
+
+        formatIndex = cellStyle.getFormatIndex();
+        formatString = cellStyle.getFormatString();
     }
 
     public short[][] getBorderRGB() {
@@ -80,8 +85,8 @@ public class CellStyle implements ICellStyle {
         return horizontalAlignment;
     }
 
-    public int getIdent() {
-        return ident;
+    public int getIndent() {
+        return indent;
     }
 
     public int getRotation() {
@@ -124,4 +129,13 @@ public class CellStyle implements ICellStyle {
         return fillPattern;
     }
 
+    @Override
+    public short getFormatIndex() {
+        return formatIndex;
+    }
+
+    @Override
+    public String getFormatString() {
+        return formatString;
+    }
 }

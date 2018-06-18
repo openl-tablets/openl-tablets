@@ -122,7 +122,7 @@ public class ReturnAnalyzer {
 
     private boolean canBeGrouped(AlgorithmTreeNode nodeToAnalyze) {
         String currentNodeKeyword = nodeToAnalyze.getSpecificationKeyword();
-        String[] operationNamesToGroup = AlgorithmTableParserManager.instance().whatOperationsToGroup(
+        String[] operationNamesToGroup = AlgorithmTableParserManager.getInstance().whatOperationsToGroup(
                 currentNodeKeyword);
         return operationNamesToGroup != null;
     }

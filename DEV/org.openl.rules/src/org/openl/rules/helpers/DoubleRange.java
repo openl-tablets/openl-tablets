@@ -1,21 +1,18 @@
-/*
- * Created on Jul 7, 2005
- */
 package org.openl.rules.helpers;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Objects;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.openl.meta.DoubleValue;
+import org.openl.meta.*;
 import org.openl.util.RangeWithBounds;
 import org.openl.util.RangeWithBounds.BoundType;
 
 /**
- * The <code>DoubleRange</code> class stores range of floats. Examples :
- * "1.2-3", "2 .. 4", "123.456 ... 1000.00001" (Important: using of ".." and
- * "..." requires spaces between numbers and separator).
+ * The <code>DoubleRange</code> class stores range of floats. Examples : "1.2-3", "2 .. 4", "123.456 ... 1000.00001"
+ * (Important: using of ".." and "..." requires spaces between numbers and separator).
  */
 @XmlRootElement
 public class DoubleRange implements INumberRange {
@@ -24,6 +21,10 @@ public class DoubleRange implements INumberRange {
 
     private BoundType lowerBoundType;
     private BoundType upperBoundType;
+
+    public DoubleRange(double range) {
+        this(range, range);
+    }
 
     public DoubleRange(double lowerBound, double upperBound) {
         this(lowerBound, upperBound, BoundType.INCLUDING, BoundType.INCLUDING);
@@ -43,7 +44,7 @@ public class DoubleRange implements INumberRange {
         lowerBound = 0;
         upperBound = 0;
     }
-    
+
     public DoubleRange(String range) {
         RangeWithBounds res = getRangeWithBounds(range);
 
@@ -81,9 +82,8 @@ public class DoubleRange implements INumberRange {
      * Compares lower bounds.
      *
      * @param range the DoubleRange to be compared
-     * @return a negative integer, zero, or a positive integer as lower bound of
-     *         this range is less than, equal to, or greater than the lower
-     *         bound of specified range.
+     * @return a negative integer, zero, or a positive integer as lower bound of this range is less than, equal to, or
+     *         greater than the lower bound of specified range.
      */
     public int compareLowerBound(DoubleRange range) {
         if (lowerBound < range.lowerBound) {
@@ -102,9 +102,8 @@ public class DoubleRange implements INumberRange {
      * Compares upper bounds.
      *
      * @param range the DoubleRange to be compared
-     * @return a negative integer, zero, or a positive integer as upper bound of
-     *         this range is less than, equal to, or greater than the upper
-     *         bound of specified range.
+     * @return a negative integer, zero, or a positive integer as upper bound of this range is less than, equal to, or
+     *         greater than the upper bound of specified range.
      */
     public int compareUpperBound(DoubleRange range) {
         if (upperBound < range.upperBound) {
@@ -143,20 +142,19 @@ public class DoubleRange implements INumberRange {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public int hashCode() {
+        return Objects.hash(lowerBound, upperBound, lowerBoundType, upperBoundType);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
             return true;
-        }
-        if (!(obj instanceof DoubleRange)) {
+        if (!(o instanceof DoubleRange))
             return false;
-        }
-        DoubleRange other = (DoubleRange) obj;
-        EqualsBuilder builder = new EqualsBuilder();
-        builder.append(lowerBound, other.lowerBound);
-        builder.append(upperBound, other.upperBound);
-        builder.append(upperBoundType, other.upperBoundType);
-        builder.append(upperBoundType, other.upperBoundType);
-        return builder.isEquals();
+        DoubleRange that = (DoubleRange) o;
+        return Double.compare(that.lowerBound, lowerBound) == 0 && Double.compare(that.upperBound,
+            upperBound) == 0 && lowerBoundType == that.lowerBoundType && upperBoundType == that.upperBoundType;
     }
 
     /**
@@ -216,18 +214,89 @@ public class DoubleRange implements INumberRange {
 
     @Override
     public String toString() {
+        if (lowerBound == Double.NEGATIVE_INFINITY) {
+            return (upperBoundType == BoundType.INCLUDING ? "<=" : "<") + upperBound;
+        } else if (upperBound == Double.POSITIVE_INFINITY) {
+            return (lowerBoundType == BoundType.INCLUDING ? ">=" : ">") + lowerBound;
+        }
+
         StringBuilder builder = new StringBuilder();
-        if(lowerBoundType == BoundType.INCLUDING){
+        if (lowerBoundType == BoundType.INCLUDING) {
             builder.append('[');
-        } else{
+        } else {
             builder.append('(');
         }
         builder.append(lowerBound).append("; ").append(upperBound);
-        if(upperBoundType == BoundType.INCLUDING){
+        if (upperBoundType == BoundType.INCLUDING) {
             builder.append(']');
-        } else{
+        } else {
             builder.append(')');
         }
         return builder.toString();
     }
+
+    public static DoubleRange autocast(byte x, DoubleRange y) {
+        return new DoubleRange(x);
+    }
+
+    public static DoubleRange autocast(short x, DoubleRange y) {
+        return new DoubleRange(x);
+    }
+
+    public static DoubleRange autocast(int x, DoubleRange y) {
+        return new DoubleRange(x);
+    }
+
+    public static DoubleRange autocast(long x, DoubleRange y) {
+        return new DoubleRange(x);
+    }
+
+    public static DoubleRange autocast(float x, DoubleRange y) {
+        return new DoubleRange(x);
+    }
+
+    public static DoubleRange autocast(double x, DoubleRange y) {
+        return new DoubleRange(x);
+    }
+
+    public static DoubleRange cast(BigInteger x, DoubleRange y) {
+        return new DoubleRange(x.doubleValue());
+    }
+
+    public static DoubleRange cast(BigDecimal x, DoubleRange y) {
+        return new DoubleRange(x.doubleValue());
+    }
+    
+    public static DoubleRange cast(ByteValue x, DoubleRange y) {
+        return new DoubleRange(x.intValue());
+    }
+
+    public static DoubleRange cast(ShortValue x, DoubleRange y) {
+        return new DoubleRange(x.intValue());
+    }
+
+    public static DoubleRange cast(IntValue x, DoubleRange y) {
+        return new DoubleRange(x.intValue());
+    }
+
+    public static DoubleRange cast(LongValue x, DoubleRange y) {
+        return new DoubleRange(x.intValue());
+    }
+
+    public static DoubleRange cast(FloatValue x, DoubleRange y) {
+        return new DoubleRange(x.intValue());
+    }
+
+    public static DoubleRange cast(DoubleValue x, DoubleRange y) {
+        return new DoubleRange(x.intValue());
+    }
+
+    public static DoubleRange cast(BigIntegerValue x, DoubleRange y) {
+        return new DoubleRange(x.intValue());
+    }
+
+    public static DoubleRange cast(BigDecimalValue x, DoubleRange y) {
+        return new DoubleRange(x.intValue());
+    }
+
 }

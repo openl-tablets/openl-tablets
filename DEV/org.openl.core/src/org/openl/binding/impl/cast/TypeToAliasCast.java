@@ -24,12 +24,21 @@ public class TypeToAliasCast implements IOpenCast {
      * Result type of object after conversion.
      */
     private IOpenClass toClass;
+    private IOpenCast typeCast;
 
-    public TypeToAliasCast(IOpenClass from, IOpenClass to) {
+    public TypeToAliasCast(IOpenClass to) {
+        this.toClass = to;
+    }
+
+    public TypeToAliasCast(IOpenClass to, IOpenCast typeCast) {
         this.toClass = to;
     }
 
     public Object convert(Object from) {
+        if (typeCast != null) {
+            from = typeCast.convert(from);
+        }
+
         if (from == null) {
             return null;
         }
@@ -44,14 +53,17 @@ public class TypeToAliasCast implements IOpenCast {
         // throws runtime exception if object doesn't belong to domain.
         //
         @SuppressWarnings("unchecked")
-		boolean isInDomain = domain.selectObject(from);
+        boolean isInDomain = domain.selectObject(from);
 
         // If object doesn't belong to domain throw runtime exception with
         // appropriate message.
         //
         if (!isInDomain) {
-            throw new OutsideOfValidDomainException( 
-                String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s", from, toClass.getName(), DomainUtils.toString(domain)));
+            throw new OutsideOfValidDomainException(
+                String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
+                    from,
+                    toClass.getName(),
+                    DomainUtils.toString(domain)));
         }
 
         // Return object as a converted value.
@@ -60,7 +72,11 @@ public class TypeToAliasCast implements IOpenCast {
     }
 
     public int getDistance(IOpenClass from, IOpenClass to) {
-        return CastFactory.TYPE_TO_ALIAS_CAST_DISTANCE;
+        if (typeCast == null) {
+            return CastFactory.TYPE_TO_ALIAS_CAST_DISTANCE;
+        } else {
+            return typeCast.getDistance(from, to) - 1; //This cast has higher priority
+        }
     }
 
     public boolean isImplicit() {

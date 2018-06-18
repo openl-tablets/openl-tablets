@@ -1,10 +1,10 @@
 package org.openl.rules.calculation.result.convertor2;
 
-/*
+/*-
  * #%L
  * OpenL - DEV - Rules - Calculation Result
  * %%
- * Copyright (C) 2015 - 2016 OpenL Tablets
+ * Copyright (C) 2015 - 2018 OpenL Tablets
  * %%
  * See the file LICENSE.txt for copying permission.
  * #L%
@@ -12,9 +12,6 @@ package org.openl.rules.calculation.result.convertor2;
 
 
 import java.io.Serializable;
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class SpreadsheetResultPoint implements Serializable {
 
@@ -38,22 +35,16 @@ public class SpreadsheetResultPoint implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        EqualsBuilder builder = new EqualsBuilder();
         if (!(obj instanceof SpreadsheetResultPoint)) {
             return false;
         }
         SpreadsheetResultPoint another = (SpreadsheetResultPoint) obj;
-        builder.append(another.columnIndex, columnIndex);
-        builder.append(another.rowIndex, rowIndex);
-
-        return builder.isEquals();
+        return another.columnIndex == columnIndex && another.rowIndex == rowIndex;
     }
 
     @Override
     public int hashCode() {
-        int hashCode = new HashCodeBuilder().append(columnIndex).append(rowIndex).toHashCode();
-
-        return hashCode;
+        return columnIndex + rowIndex * 31;
     }
 
     @Override

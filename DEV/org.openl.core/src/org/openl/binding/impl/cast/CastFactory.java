@@ -37,38 +37,40 @@ import org.openl.util.ClassUtils;
  */
 public class CastFactory implements ICastFactory {
 
-    public static final int NO_CAST_DISTANCE = 0;
-    public static final int ALIAS_TO_TYPE_CAST_DISTANCE = 0;
-    public static final int TYPE_TO_ALIAS_CAST_DISTANCE = 1;
-    public static final int JAVA_UP_ARRAY_TO_ARRAY_CAST_DISTANCE = 2;
-    public static final int JAVA_UP_CAST_DISTANCE = 3;
+    public static final int NO_CAST_DISTANCE = 1;
+    public static final int ALIAS_TO_TYPE_CAST_DISTANCE = 1;
 
-    public static final int THROWABLE_VOID_CAST_DISTANCE = 4;
+    // USE ONLY EVEN NUMBERS FOR DISTANCES
+    
+    public static final int TYPE_TO_ALIAS_CAST_DISTANCE = 2;
+    public static final int JAVA_UP_ARRAY_TO_ARRAY_CAST_DISTANCE = 4;
+    public static final int JAVA_UP_CAST_DISTANCE = 6;
 
-    public static final int PRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 5;
+    public static final int THROWABLE_VOID_CAST_DISTANCE = 8;
 
-    public static final int TYPE_TO_ALIAS_WITH_JAVA_BOXING_CAST_DISTANCE = 6;
-    public static final int JAVA_BOXING_CAST_DISTANCE = 7;
+    public static final int PRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 10;
 
-    public static final int PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 8;
-    public static final int JAVA_BOXING_UP_CAST_DISTANCE = 9;
+    public static final int JAVA_BOXING_CAST_DISTANCE = 14;
 
-    public static final int TYPE_TO_ALIAS_WITH_JAVA_UNBOXING_CAST_DISTANCE = 10;
-    public static final int JAVA_UNBOXING_CAST_DISTANCE = 11;
+    public static final int PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 16;
+    public static final int JAVA_BOXING_UP_CAST_DISTANCE = 18;
 
-    public static final int NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 12;
+    public static final int JAVA_UNBOXING_CAST_DISTANCE = 22;
 
-    public static final int ENUM_TO_STRING_CAST_DISTANCE = 13;
+    public static final int NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 24;
 
-    public static final int NONPRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 14;
+    public static final int ENUM_TO_STRING_CAST_DISTANCE = 26;
 
-    public static final int JAVA_DOWN_CAST_DISTANCE = 30;
-    public static final int PRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE = 31;
-    public static final int NONPRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE = 32;
-    public static final int NONPRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE = 33;
-    public static final int PRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE = 34;
+    public static final int NONPRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 28;
+
+    public static final int JAVA_DOWN_CAST_DISTANCE = 60;
+    public static final int PRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE = 62;
+    public static final int NONPRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE = 64;
+    public static final int NONPRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE = 66;
+    public static final int PRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE = 68;
 
     public static final int ARRAY_CAST_DISTANCE = 1000;
+    public static final int ONE_ELEMENT_ARRAY_CAST_DISTANCE = 2000;
 
     public static final String AUTO_CAST_METHOD_NAME = "autocast";
     public static final String CAST_METHOD_NAME = "cast";
@@ -113,17 +115,17 @@ public class CastFactory implements ICastFactory {
     }
 
     @Override
-    public IOpenClass findImplicitCastableClassInAutocasts(IOpenClass openClass1, IOpenClass openClass2) {
+    public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
         Iterable<IOpenMethod> autocastMethods = methodFactory.methods(AUTO_CAST_METHOD_NAME);
-        return findImplicitCastableClassInAutocasts(openClass1, openClass2, this, autocastMethods);
+        return findClosestClass(openClass1, openClass2, this, autocastMethods);
     }
 
-    public static IOpenClass findImplicitCastableClassInAutocasts(IOpenClass openClass1,
+    public static IOpenClass findClosestClass(IOpenClass openClass1,
             IOpenClass openClass2,
             ICastFactory casts,
-            Iterable<IOpenMethod> autocastMethods) {
+            Iterable<IOpenMethod> methods) {
 
-        Iterator<IOpenMethod> itr = autocastMethods.iterator();
+        Iterator<IOpenMethod> itr = methods.iterator();
         Set<IOpenClass> openClass1Candidates = new HashSet<>();
         addClassToCandidates(openClass1, openClass1Candidates);
         Set<IOpenClass> openClass2Candidates = new HashSet<>();
@@ -236,6 +238,10 @@ public class CastFactory implements ICastFactory {
             IOpenCast cast = castCache.get(key);
             if (cast != null) {
                 return cast;
+            } else {
+                if (castCache.containsKey(key)) {
+                    return null;
+                }
             }
         } finally {
             readLock.unlock();
@@ -257,9 +263,22 @@ public class CastFactory implements ICastFactory {
         if (typeCast != null) {
             return typeCast;
         }
+
         typeCast = findAliasCast(from, to);
         IOpenCast javaCast = findJavaCast(from, to);
         // Select minimum between alias cast and java cast
+        typeCast = useCastWithBetterDistance(from, to, typeCast, javaCast);
+
+        IOpenCast methodBasedCast = findMethodBasedCast(from, to, methodFactory);
+        typeCast = useCastWithBetterDistance(from, to, typeCast, methodBasedCast);
+
+        return typeCast;
+    }
+
+    private IOpenCast useCastWithBetterDistance(IOpenClass from,
+            IOpenClass to,
+            IOpenCast typeCast,
+            IOpenCast javaCast) {
         if (typeCast == null) {
             typeCast = javaCast;
         } else {
@@ -267,18 +286,6 @@ public class CastFactory implements ICastFactory {
                 typeCast = javaCast;
             }
         }
-
-        IOpenCast methodBasedCast = findMethodBasedCast(from, to, methodFactory);
-
-        // Select minimum between alias cast and java cast
-        if (typeCast == null) {
-            typeCast = methodBasedCast;
-        } else {
-            if (methodBasedCast != null && typeCast.getDistance(from, to) > methodBasedCast.getDistance(from, to)) {
-                typeCast = methodBasedCast;
-            }
-        }
-
         return typeCast;
     }
 
@@ -293,8 +300,8 @@ public class CastFactory implements ICastFactory {
         Class<?> fromClass = from.getInstanceClass();
         if ((from.isArray() || Object.class.equals(fromClass)) && to.isArray()) {
             if (to.getInstanceClass().isAssignableFrom(fromClass) && !(to instanceof DomainOpenClass)) { // Improve
-                                                                     // for up
-                                                                     // cast
+                // for up
+                // cast
                 return getUpCast(fromClass, to.getInstanceClass());
             }
             int dimf = 0;
@@ -320,6 +327,13 @@ public class CastFactory implements ICastFactory {
                 if (arrayElementCast != null) {
                     return new ArrayCast(t, arrayElementCast, dimt);
                 }
+            }
+        }
+        if (!from.isArray() && to.isArray() && !to.getComponentClass().isArray()) {
+            IOpenClass componentClass = to.getComponentClass();
+            IOpenCast cast = getCast(from, componentClass);
+            if (cast != null) {
+                return new OneElementArrayCast(componentClass, cast);
             }
         }
         return null;
@@ -463,28 +477,30 @@ public class CastFactory implements ICastFactory {
 
             if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass) && to.getInstanceClass()
                 .isAssignableFrom(from.getInstanceClass())) {
-                return new AliasToTypeCast(from, to);
+                return new AliasToTypeCast(from);
             }
 
             if (to instanceof DomainOpenClass && !(from instanceof DomainOpenClass) && from.getInstanceClass()
                 .isAssignableFrom(to.getInstanceClass())) {
-                return new TypeToAliasCast(from, to);
-            }
-
-            if (to instanceof DomainOpenClass && !(from instanceof DomainOpenClass) && isPrimitive(from) && ClassUtils
-                .primitiveToWrapper(from.getInstanceClass())
-                .isAssignableFrom(to.getInstanceClass())) {
-                return new TypeToAliasWithJavaBoxingCast(from, to);
-            }
-
-            if (to instanceof DomainOpenClass && !(from instanceof DomainOpenClass) && org.apache.commons.lang3.ClassUtils
-                .isPrimitiveWrapper(from.getInstanceClass()) && ClassUtils.wrapperToPrimitive(from.getInstanceClass())
-                    .isAssignableFrom(to.getInstanceClass())) {
-                return new TypeToAliasWithJavaUnboxingCast(from, to);
+                return new TypeToAliasCast(to);
             }
 
             if (from instanceof DomainOpenClass && to.getInstanceClass().isAssignableFrom(from.getClass())) {
-                return JAVA_UP_CAST;
+                return JAVA_UP_CAST; 
+            }
+
+            if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass)) {
+                IOpenCast openCast = this.findCast(JavaOpenClass.getOpenClass(from.getInstanceClass()), to);
+                if (openCast != null) {
+                    return new AliasToTypeCast(from, openCast);
+                }
+            }
+
+            if (to instanceof DomainOpenClass && !(from instanceof DomainOpenClass)) {
+                IOpenCast openCast = this.findCast(from, JavaOpenClass.getOpenClass(to.getInstanceClass()));
+                if (openCast != null) {
+                    return new TypeToAliasCast(to, openCast);
+                }
             }
         }
 

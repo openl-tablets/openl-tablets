@@ -21,20 +21,6 @@ public class String2BooleanConvertorTest {
         assertEquals(Boolean.FALSE, result);
     }
 
-    @Test
-    public void testFormatTrue() {
-        String2BooleanConvertor converter = new String2BooleanConvertor();
-        String result = converter.format(true, null);
-        assertEquals("true", result);
-    }
-
-    @Test
-    public void testFormatFalse() {
-        String2BooleanConvertor converter = new String2BooleanConvertor();
-        String result = converter.format(false, null);
-        assertEquals("false", result);
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void testParseEmpty() {
         String2BooleanConvertor converter = new String2BooleanConvertor();
@@ -53,9 +39,4 @@ public class String2BooleanConvertorTest {
         assertNull(converter.parse(null, null));
     }
 
-    @Test
-    public void testFormatNull() {
-        String2BooleanConvertor converter = new String2BooleanConvertor();
-        assertNull(converter.format(null, null));
-    }
 }

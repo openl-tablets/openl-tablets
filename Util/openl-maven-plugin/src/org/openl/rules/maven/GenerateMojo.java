@@ -343,33 +343,38 @@ public final class GenerateMojo extends BaseOpenLMojo {
             info("Cleaning up '", outputDirectory, "' directory...");
             FileUtils.delete(outputDirectory);
         }
-        ClassLoader classLoader = composeClassLoader();
+        ClassLoader classLoader = null;
+        try {
+            classLoader = composeClassLoader();
 
-        SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
-        if (hasDependencies) {
-            builder.setWorkspace(workspaceFolder.getPath());
+            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+            if (hasDependencies) {
+                builder.setWorkspace(workspaceFolder.getPath());
+            }
+            SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
+                .setClassLoader(classLoader)
+                .setProvideRuntimeContext(isProvideRuntimeContext)
+                .setProvideVariations(isProvideVariations)
+                .setExecutionMode(true)
+                .setExternalParameters(externalParameters)
+                .build();
+
+            CompiledOpenClass openLRules = factory.getCompiledOpenClass();
+
+            // Generate Java beans from OpenL dataTypes
+            writeJavaBeans(openLRules.getTypes());
+
+            // Generate interface is optional.
+            if (interfaceClass != null) {
+                Class<?> interfaceClass = factory.getInterfaceClass();
+                IOpenClass openClass = openLRules.getOpenClass();
+                writeInterface(interfaceClass, openClass);
+            }
+
+            project.addCompileSourceRoot(outputDirectory.getPath());
+        } finally {
+            releaseResources(classLoader);
         }
-        SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
-            .setClassLoader(classLoader)
-            .setProvideRuntimeContext(isProvideRuntimeContext)
-            .setProvideVariations(isProvideVariations)
-            .setExecutionMode(true)
-            .setExternalParameters(externalParameters)
-            .build();
-
-        CompiledOpenClass openLRules = factory.getCompiledOpenClass();
-
-        // Generate Java beans from OpenL dataTypes
-        writeJavaBeans(openLRules.getTypes());
-
-        // Generate interface is optional.
-        if (interfaceClass != null) {
-            Class<?> interfaceClass = factory.getInterfaceClass();
-            IOpenClass openClass = openLRules.getOpenClass();
-            writeInterface(interfaceClass, openClass);
-        }
-
-        project.addCompileSourceRoot(outputDirectory.getPath());
     }
 
     private ClassLoader composeClassLoader() throws Exception {

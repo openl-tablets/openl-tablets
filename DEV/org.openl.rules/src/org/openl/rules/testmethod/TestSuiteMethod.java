@@ -28,7 +28,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CollectionType;
-import org.openl.types.impl.DatatypeCollectionElementField;
+import org.openl.types.impl.CollectionElementField;
 import org.openl.types.impl.DynamicObject;
 import org.openl.types.impl.ThisField;
 import org.openl.types.java.JavaOpenClass;
@@ -316,7 +316,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                 } else {
                     IOpenField[] fieldSequence;
                     boolean resIsArray = nodes[0].getIdentifier()
-                        .matches(DataTableBindHelper.ARRAY_ACCESS_BY_INDEX_PATTERN);
+                        .matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN);
                     int startIndex = 0;
                     IOpenClass currentType = resultType;
 
@@ -324,8 +324,8 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                         startIndex = 1;
                         fieldSequence = new IOpenField[nodes.length];
                         IOpenField arrayField = new ThisField(resultType);
-                        int arrayIndex = getArrayIndex(nodes[0]);
-                        IOpenField arrayAccessField = new DatatypeCollectionElementField(arrayField, arrayIndex, arrayField.getType().getComponentClass(), CollectionType.ARRAY);
+                        int index = DataTableBindHelper.getCollectionIndex(nodes[0]);
+                        IOpenField arrayAccessField = new CollectionElementField(arrayField, index, arrayField.getType().getComponentClass(), CollectionType.ARRAY);
                         if (arrayAccessField.getType().isArray()) {
                             currentType = arrayAccessField.getType().getComponentClass();
                         } else {
@@ -337,10 +337,10 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                     }
                     int i;
                     for (i = startIndex; i < fieldSequence.length; i++) {
-                        boolean isArray = nodes[i + 1 - startIndex].getIdentifier()
-                            .matches(DataTableBindHelper.ARRAY_ACCESS_BY_INDEX_PATTERN);
-                        if (isArray) {
-                            IOpenField arrayField = currentType.getField(getArrayName(nodes[i + 1 - startIndex]));
+                        boolean isCollection = nodes[i + 1 - startIndex].getIdentifier()
+                            .matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN);
+                        if (isCollection) {
+                            IOpenField arrayField = currentType.getField(DataTableBindHelper.getCollectionName(nodes[i + 1 - startIndex]));
                             // Try process field as SpreadsheetResult
                             if (arrayField == null && currentType
                                 .equals(JavaOpenClass.OBJECT) && nodes[i + 1 - startIndex].getIdentifier()
@@ -348,11 +348,11 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                                 SpreadsheetResultOpenClass spreadsheetResultOpenClass = new SpreadsheetResultOpenClass(
                                     SpreadsheetResult.class);
                                 arrayField = spreadsheetResultOpenClass
-                                    .getField(getArrayName(nodes[i + 1 - startIndex]));
+                                    .getField(DataTableBindHelper.getCollectionName(nodes[i + 1 - startIndex]));
                             }
                             if (arrayField != null) {
-                                int arrayIndex = getArrayIndex(nodes[i + 1 - startIndex]);
-                                IOpenField arrayAccessField = new DatatypeCollectionElementField(arrayField, arrayIndex, arrayField.getType().getComponentClass(), CollectionType.ARRAY);
+                                int arrayIndex = DataTableBindHelper.getCollectionIndex(nodes[i + 1 - startIndex]);
+                                IOpenField arrayAccessField = new CollectionElementField(arrayField, arrayIndex, arrayField.getType().getComponentClass(), CollectionType.ARRAY);
                                 fieldSequence[i] = arrayAccessField;
                             }
                         } else {
@@ -371,7 +371,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                         if (fieldSequence[i] == null) {
                             break;
                         }
-                        if (fieldSequence[i].getType().isArray() && isArray) {
+                        if (fieldSequence[i].getType().isArray() && isCollection) {
                             currentType = fieldSequence[i].getType().getComponentClass();
                         } else {
                             currentType = fieldSequence[i].getType();
@@ -406,17 +406,5 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
             }
         }
         return fieldsToTest;
-    }
-
-    private static int getArrayIndex(IdentifierNode fieldNameNode) {
-        String fieldName = fieldNameNode.getIdentifier();
-        String txtIndex = fieldName.substring(fieldName.indexOf("[") + 1, fieldName.indexOf("]"));
-
-        return Integer.parseInt(txtIndex);
-    }
-
-    private static String getArrayName(IdentifierNode fieldNameNode) {
-        String fieldName = fieldNameNode.getIdentifier();
-        return fieldName.substring(0, fieldName.indexOf("["));
     }
 }

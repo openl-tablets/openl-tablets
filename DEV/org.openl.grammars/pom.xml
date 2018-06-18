@@ -17,7 +17,7 @@
 
 	<profiles>
 		<profile>
-			<id>generateGrammar</id>
+			<id>generateGrammars</id>
 			<build>
 				<plugins>
 					<plugin>

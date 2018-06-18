@@ -1,6 +1,9 @@
 package org.openl.rules.table.properties.inherit;
 
-import org.openl.binding.impl.BindHelper;
+import java.util.Arrays;
+import java.util.Set;
+
+import org.openl.binding.IBindingContext;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -11,9 +14,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
-import java.util.Set;
 
 /**
  * Class to check properties according to some situations.
@@ -34,16 +34,16 @@ public class PropertiesChecker {
      *                             in table.
      *                             TODO: Refactor with strategy pattern
      */
-    public static void checkProperties(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode,
+    public static void checkProperties(IBindingContext bindingContext, Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode,
                                        InheritanceLevel level) {
-        checkForErrors(propertyNamesToCheck, tableSyntaxNode, level);
-        checkForDeprecation(propertyNamesToCheck, tableSyntaxNode);
+        checkForErrors(bindingContext, propertyNamesToCheck, tableSyntaxNode, level);
+        checkForDeprecation(bindingContext, propertyNamesToCheck, tableSyntaxNode);
     }
 
     /**
      * Checks if properties can be defined for given type of table and for given inheritance level.
      */
-    private static void checkForErrors(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode,
+    private static void checkForErrors(IBindingContext bindingContext, Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode,
             InheritanceLevel level) {
         String tableType = tableSyntaxNode.getType();
         String typeName = getTypeName(tableSyntaxNode);
@@ -54,33 +54,32 @@ public class PropertiesChecker {
                         propertyNameToCheck,
                         typeName);
 
-                addError(tableSyntaxNode, message);
+                addError(bindingContext, tableSyntaxNode, message);
             } else if (level != null && !PropertiesChecker.isPropertySuitableForLevel(level, propertyNameToCheck)) {
                 String message = String.format("Property '%s' can't be defined on the '%s' level",
                         propertyNameToCheck,
                         level.getDisplayName());
 
-                addError(tableSyntaxNode, message);
+                addError(bindingContext, tableSyntaxNode, message);
             }
         }
     }
 
-    private static void addError(TableSyntaxNode tableSyntaxNode, String message) {
+    private static void addError(IBindingContext bindingContext, TableSyntaxNode tableSyntaxNode, String message) {
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
         tableSyntaxNode.addError(error);
-        BindHelper.processError(error);
+        bindingContext.addError(error);
     }
 
     /**
      * Checks if properties were deprecated.
      */
-    private static void checkForDeprecation(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode) {
+    private static void checkForDeprecation(IBindingContext bindingContext, Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode) {
         for (String propertyNameToCheck : propertyNamesToCheck) {
             TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(propertyNameToCheck);
             if (propertyDefinition != null && propertyDefinition.getDeprecation() != null && !propertyDefinition.getDeprecation().isEmpty()) {
                 String message = String.format("Property '%s' was deprecated. Please remove it!", propertyNameToCheck);
-
-                OpenLMessagesUtils.addWarn(message, tableSyntaxNode);
+                bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, tableSyntaxNode));
             }
         }
     }

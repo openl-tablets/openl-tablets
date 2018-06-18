@@ -1,8 +1,9 @@
 package org.openl.rules.testmethod;
 
-import static org.junit.Assert.*;
-
-import java.util.List;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 import org.openl.message.OpenLMessage;
@@ -42,10 +43,9 @@ public class TestTableErrorsTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testAllErrorsHaveSyntaxNodes() {
-        List<OpenLMessage> messages = getCompiledOpenClass().getMessages();
         TableSyntaxNode[] syntaxNodes = getTableSyntaxNodes();
 
-        for (OpenLMessage message : messages) {
+        for (OpenLMessage message : getCompiledOpenClass().getMessages()) {
             // Search syntax node with same error message
             boolean found = false;
             for (TableSyntaxNode node : syntaxNodes) {

@@ -1,5 +1,6 @@
 package org.openl.rules.tableeditor.model.ui;
 
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.filters.IGridFilter;
@@ -7,6 +8,7 @@ import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.CollectionUtils;
 
 public class TableModel {
@@ -17,30 +19,35 @@ public class TableModel {
 
     private int numRowsToDisplay = -1;
     
-    private boolean showHeader = true;
+    private final boolean showHeader;
 
-    public static TableModel initializeTableModel(IGridTable table) {
-        return initializeTableModel(table, null);
+    public static TableModel initializeTableModel(IGridTable table, int numRows, MetaInfoReader metaInfoReader) {
+        return initializeTableModel(table, null, numRows, null, null, null, metaInfoReader);
     }
 
-    public static TableModel initializeTableModel(IGridTable table, int numRows) {
-        return initializeTableModel(table, null, numRows, null, null, null);
+    public static TableModel initializeTableModel(IGridTable table, IGridFilter[] filters, MetaInfoReader metaInfoReader) {
+        return initializeTableModel(table, filters, -1, null, null, null, metaInfoReader);
     }
 
-    public static TableModel initializeTableModel(IGridTable table, IGridFilter[] filters) {
-        return initializeTableModel(table, filters, -1, null, null, null);
-    }
-
-    public static TableModel initializeTableModel(IGridTable table, IGridFilter[] filters, int numRows,
-            LinkBuilder linkBuilder, String mode, String view) {
+    public static TableModel initializeTableModel(IGridTable table,
+            IGridFilter[] filters,
+            int numRows,
+            LinkBuilder linkBuilder,
+            String mode,
+            String view,
+            MetaInfoReader metaInfoReader) {
         if (table == null) {
             return null;
         }
-
+        boolean editing = Constants.MODE_EDIT.equals(mode);
+        if (editing) {
+            // Prepare workbook for edit (load it to memory before editing starts)
+            table.edit();
+        }
         IGrid grid;
 
         if (CollectionUtils.isNotEmpty(filters)) {
-            grid = new FilteredGrid(table.getGrid(), filters);
+            grid = new FilteredGrid(table.getGrid(), filters, metaInfoReader);
         } else {
             grid = table.getGrid();
         }
@@ -51,7 +58,7 @@ public class TableModel {
             ((GridRegion) region).setBottom(region.getTop() + numRows - 1);
         }
 
-        return new TableViewer(grid, region, linkBuilder, mode, view).buildModel(table, numRows);
+        return new TableViewer(grid, region, linkBuilder, mode, view, metaInfoReader).buildModel(table, numRows);
     }
     
     public boolean isShowHeader() {

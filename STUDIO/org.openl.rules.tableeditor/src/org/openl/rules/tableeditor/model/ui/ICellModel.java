@@ -12,7 +12,7 @@ public interface ICellModel {
 
     ICellFont getFont();
 
-    int getIdent();
+    int getIndent();
 
     short[] getRgbBackground();
 
@@ -28,7 +28,7 @@ public interface ICellModel {
 
     void setFont(ICellFont font);
 
-    void setIdent(int ident);
+    void setIndent(int indent);
 
     void setRgbBackground(short[] rgbBackground);
 

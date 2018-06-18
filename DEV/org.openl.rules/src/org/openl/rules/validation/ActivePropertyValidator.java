@@ -1,8 +1,15 @@
 package org.openl.rules.validation;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+
 import org.openl.OpenL;
-import org.openl.message.OpenLErrorMessage;
-import org.openl.message.OpenLWarnMessage;
+import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
@@ -11,12 +18,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.validation.ValidationResult;
-import org.openl.validation.ValidationStatus;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Validator that checks correctness of "active" property. Only one active table
@@ -31,8 +32,6 @@ public class ActivePropertyValidator extends TablesValidator {
 
     @Override
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
-        ValidationResult validationResult = null;
-
         // Group methods not TableSyntaxNodes as we may have dependent modules,
         // and no sources for them,
         // represented in current module. The only information about dependency
@@ -40,6 +39,8 @@ public class ActivePropertyValidator extends TablesValidator {
         //
         Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupedMethods = groupExecutableMethods(
             tableSyntaxNodes);
+        
+        Collection<OpenLMessage> messages = new LinkedHashSet<>();
 
         for (DimensionPropertiesMethodKey key : groupedMethods.keySet()) {
             List<TableSyntaxNode> methodsGroup = groupedMethods.get(key);
@@ -58,35 +59,22 @@ public class ActivePropertyValidator extends TablesValidator {
             }
 
             if (activeTableFoundCount > 1) {
-                if (validationResult == null) {
-                    validationResult = new ValidationResult(ValidationStatus.FAIL);
-                }
                 for (TableSyntaxNode executableMethodTable : activeExecutableMethodTable) {
-                    SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(ODD_ACTIVE_TABLE_MESSAGE,
+                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(ODD_ACTIVE_TABLE_MESSAGE,
                         executableMethodTable);
-                    executableMethodTable.addError(exception);
-                    ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(exception));
+                    executableMethodTable.addError(error);
+                    messages.add(OpenLMessagesUtils.newErrorMessage(error));
                 }
             }
 
             if (activeTableFoundCount == 0) {
-                if (validationResult == null) {
-                    validationResult = new ValidationResult(ValidationStatus.SUCCESS);
-                }
-                // warning is attached to all table syntax node
-
                 for (TableSyntaxNode tsn : methodsGroup) {
-                    ValidationUtils.addValidationMessage(validationResult,
-                        new OpenLWarnMessage(NO_ACTIVE_TABLE_MESSAGE, tsn));
+                    messages.add(OpenLMessagesUtils.newWarnMessage(NO_ACTIVE_TABLE_MESSAGE, tsn));
                 }
             }
         }
 
-        if (validationResult != null) {
-            return validationResult;
-        } else {
-            return ValidationUtils.validationSuccess();
-        }
+        return ValidationUtils.withMessages(messages);
     }
 
     private boolean isActive(TableSyntaxNode executableMethodTable) {

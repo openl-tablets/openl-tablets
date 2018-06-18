@@ -123,10 +123,6 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
     
     /**
      * Added to allow using other openl names, such as org.openl.xls.ce
-     *
-     * @param source
-     * @param userHome
-     * @param openlName
      */
     public RulesEngineFactory(IOpenSourceCodeModule source, String userHome, String openlName) {
         super(openlName, source, userHome);

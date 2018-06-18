@@ -44,6 +44,9 @@ public class JavaListAggregateInfo extends AAggregateInfo {
 
         @SuppressWarnings("unchecked")
         public Object getValue(Object container, Object index) {
+            if (container == null || index == null) {
+                return null;
+            }
             return ((List<Object>) container).get((Integer) index);
         }
 

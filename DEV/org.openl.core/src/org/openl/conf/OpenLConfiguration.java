@@ -13,13 +13,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.impl.NotExistNodeBinder;
+import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.cache.GenericKey;
+import org.openl.conf.TypeCastFactory.JavaCastComponent;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.grammar.IGrammar;
 import org.openl.types.IMethodCaller;
@@ -134,16 +140,63 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return parent == null ? null : parent.getCast(from, to);
     }
 
-    @Override
-    public IOpenClass findImplicitCastableClassInAutocasts(IOpenClass openClass1, IOpenClass openClass2) {
-        IOpenClass openClass = typeCastFactory == null ? null
-                                                       : typeCastFactory.findImplicitCastableClassInAutocasts(openClass1,
-                                                           openClass2,
-                                                           configurationContext);
-        if (openClass != null) {
-            return openClass;
+    protected Collection<JavaCastComponent> getAllJavaCastComponents() {
+        Collection<JavaCastComponent> javaCastComponents = new ArrayList<>();
+        if (typeCastFactory != null) {
+            javaCastComponents.addAll(typeCastFactory.getJavaCastComponents());
         }
-        return parent == null ? null : parent.findImplicitCastableClassInAutocasts(openClass1, openClass2);
+        if (parent != null && parent instanceof OpenLConfiguration) {
+            javaCastComponents.addAll(((OpenLConfiguration) parent).getAllJavaCastComponents());
+        }
+        return javaCastComponents;
+    }
+
+    private Map<Key, IOpenClass> closestClassCache = new HashMap<>();
+    private ReadWriteLock closestClassCacheLock = new ReentrantReadWriteLock();
+
+    @Override
+    public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
+        Key key = new Key(openClass1, openClass2);
+        IOpenClass closestClass = null;
+        Lock readlock = closestClassCacheLock.readLock();
+        try {
+            readlock.lock();
+            closestClass = closestClassCache.get(key);
+        } finally {
+            readlock.unlock();
+        }
+        if (closestClass == null) {
+            Collection<JavaCastComponent> components = getAllJavaCastComponents();
+            Collection<IOpenMethod> allMethods = new ArrayList<>();
+            for (JavaCastComponent component : components) {
+                CastFactory castFactory = component.getCastFactory(configurationContext);
+                Iterable<IOpenMethod> methods = castFactory.getMethodFactory()
+                    .methods(CastFactory.AUTO_CAST_METHOD_NAME);
+                for (IOpenMethod method : methods) {
+                    allMethods.add(method);
+                }
+            }
+
+            closestClass = CastFactory.findClosestClass(openClass1, openClass2, new ICastFactory() {
+                @Override
+                public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public IOpenCast getCast(IOpenClass from, IOpenClass to) {
+                    return OpenLConfiguration.this.getCast(from, to);
+                }
+            }, allMethods);
+            Lock writelock = closestClassCacheLock.readLock();
+            try {
+                writelock.lock();
+                closestClassCache.put(key, closestClass);
+            } finally {
+                writelock.unlock();
+            }
+        }
+        return closestClass;
     }
 
     public IConfigurableResourceContext getConfigurationContext() {
@@ -222,7 +275,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         if (binder != null) {
             return binder;
         }
-        return parent == null ? null : parent.getNodeBinder(node);
+        return parent == null ? NotExistNodeBinder.the : parent.getNodeBinder(node);
     }
 
     public IOpenFactory getOpenFactory(String name) {
@@ -271,7 +324,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     public TypeCastFactory getTypeCastFactory() {
         return typeCastFactory;
     }
-    
+
     public TypeCastFactory createTypeCastFactory() {
         this.typeCastFactory = new TypeCastFactory(this);
         return this.typeCastFactory;
@@ -359,6 +412,48 @@ public class OpenLConfiguration implements IOpenLConfiguration {
             }
         }
 
+    }
+
+    private static class Key {
+        IOpenClass openClass1;
+        IOpenClass openClass2;
+
+        public Key(IOpenClass openClass1, IOpenClass openClass2) {
+            super();
+            this.openClass1 = openClass1;
+            this.openClass2 = openClass2;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((openClass1 == null) ? 0 : openClass1.hashCode());
+            result = prime * result + ((openClass2 == null) ? 0 : openClass2.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Key other = (Key) obj;
+            if (openClass1 == null) {
+                if (other.openClass1 != null)
+                    return false;
+            } else if (!openClass1.equals(other.openClass1))
+                return false;
+            if (openClass2 == null) {
+                if (other.openClass2 != null)
+                    return false;
+            } else if (!openClass2.equals(other.openClass2))
+                return false;
+            return true;
+        }
     }
 
 }

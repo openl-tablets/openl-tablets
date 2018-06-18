@@ -4,9 +4,10 @@
 
 package org.openl.syntax.code.impl;
 
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,28 +27,43 @@ public class ParsedCode implements IParsedCode {
 
     private ISyntaxNode topNode;
     private SyntaxNodeException[] syntaxErrors;
+    private Collection<OpenLMessage> messages;
     private IOpenSourceCodeModule source;
-    
+
     private Map<String, Object> params;
     private IDependency[] dependencies;
-    
-    List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
-    
+
     private Set<CompiledDependency> compiledDependencies = new HashSet<CompiledDependency>();
-    
-    public ParsedCode(ISyntaxNode topnode, IOpenSourceCodeModule source, SyntaxNodeException[] syntaxErrors) {
-        this(topnode, source, syntaxErrors, new IDependency[0]);
+
+    public ParsedCode(ISyntaxNode topnode,
+            IOpenSourceCodeModule source,
+            SyntaxNodeException[] syntaxErrors,
+            Collection<OpenLMessage> messages) {
+        this(topnode, source, syntaxErrors, messages, new IDependency[0]);
     }
-    
-    public ParsedCode(ISyntaxNode topNode, IOpenSourceCodeModule source, SyntaxNodeException[] syntaxErrors, IDependency[] dependencies) {
+
+    public ParsedCode(ISyntaxNode topNode,
+            IOpenSourceCodeModule source,
+            SyntaxNodeException[] syntaxErrors,
+            Collection<OpenLMessage> messages,
+            IDependency[] dependencies) {
         this.topNode = topNode;
         this.syntaxErrors = syntaxErrors;
         this.source = source;
+        if (messages == null) {
+            this.messages = Collections.emptyList();
+        } else {
+            this.messages = new LinkedHashSet<>(messages);
+        }
         this.dependencies = dependencies;
     }
 
     public SyntaxNodeException[] getErrors() {
         return syntaxErrors;
+    }
+
+    public Collection<OpenLMessage> getMessages() {
+        return Collections.unmodifiableCollection(messages);
     }
 
     public IOpenSourceCodeModule getSource() {
@@ -65,21 +81,13 @@ public class ParsedCode implements IParsedCode {
     public void setExternalParams(Map<String, Object> params) {
         this.params = params;
     }
-    
-    public Set<CompiledDependency> getCompiledDependencies() {        
+
+    public Set<CompiledDependency> getCompiledDependencies() {
         return new HashSet<CompiledDependency>(compiledDependencies);
     }
 
     public void setCompiledDependencies(Set<CompiledDependency> compiledDependencies) {
         this.compiledDependencies = new HashSet<CompiledDependency>(compiledDependencies);
-    }
-    
-    public void setMessagesFromDependencies(List<OpenLMessage> messages){
-        this.messages = messages;
-    }
-    
-    public List<OpenLMessage> getMessagesFromDependencies(){
-        return messages;
     }
 
     public IDependency[] getDependencies() {

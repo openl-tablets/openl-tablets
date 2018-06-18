@@ -6,7 +6,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
+import org.openl.rules.table.xls.formatters.FormatConstants;
 
 public class XlsCellNumberWriter extends AXlsCellWriter {
 
@@ -15,7 +15,7 @@ public class XlsCellNumberWriter extends AXlsCellWriter {
     }
 
     @Override
-    public void writeCellValue(boolean writeMetaInfo) {
+    public void writeCellValue() {
         Number numberValue = (Number) getValueToWrite();
         Cell cellToWrite = getCellToWrite();
         cellToWrite.setCellValue(numberValue.doubleValue());
@@ -29,12 +29,7 @@ public class XlsCellNumberWriter extends AXlsCellWriter {
                     .getWorkbook());
             cellToWrite.setCellStyle(newStyle);
             newStyle.cloneStyleFrom(previousStyle);
-            newStyle.setDataFormat((short) BuiltinFormats.getBuiltinFormat(XlsDataFormatterFactory.GENERAL_FORMAT));
-        }
-
-        if (writeMetaInfo) {
-            // We need to set cell meta info for the cell, to open appropriate editor for it on UI.
-            setMetaInfo(numberValue.getClass());
+            newStyle.setDataFormat((short) BuiltinFormats.getBuiltinFormat(FormatConstants.GENERAL_FORMAT));
         }
     }
 

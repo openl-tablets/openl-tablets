@@ -1,5 +1,6 @@
 package org.openl.rules.table.actions;
 
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridTool;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -13,11 +14,13 @@ public class UndoableRemoveColumnsAction extends UndoableRemoveAction {
     private int nCols;
     private int startCol;
     private int row;
+    private MetaInfoWriter metaInfoWriter;
 
-    public UndoableRemoveColumnsAction(int nCols, int startCol, int row) {
+    public UndoableRemoveColumnsAction(int nCols, int startCol, int row, MetaInfoWriter metaInfoWriter) {
         this.nCols = nCols;
         this.startCol = startCol;
         this.row = row;
+        this.metaInfoWriter = metaInfoWriter;
     }
     
     @Override
@@ -37,7 +40,7 @@ public class UndoableRemoveColumnsAction extends UndoableRemoveAction {
 
     @Override
     protected IUndoableGridTableAction performAction(int numberToRemove, IGridRegion fullTableRegion, IGridTable table) {
-        return GridTool.removeColumns(numberToRemove, startCol, fullTableRegion, table.getGrid());
+        return GridTool.removeColumns(numberToRemove, startCol, fullTableRegion, table.getGrid(), metaInfoWriter);
     }
 
     @Override

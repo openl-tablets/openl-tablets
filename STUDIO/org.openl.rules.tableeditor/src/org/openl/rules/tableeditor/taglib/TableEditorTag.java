@@ -17,6 +17,8 @@ public class TableEditorTag extends TableViewerTag {
     private ValueExpression onBeforeSave = null;
     private ValueExpression onAfterSave = null;
     private ValueExpression onError = null;
+    private ValueExpression onRequestStart = null;
+    private ValueExpression onRequestEnd = null;
 
     @Override
     public String getComponentType() {
@@ -63,6 +65,14 @@ public class TableEditorTag extends TableViewerTag {
         this.onError = onError;
     }
 
+    public void setOnRequestStart(ValueExpression onRequestStart) {
+        this.onRequestStart = onRequestStart;
+    }
+
+    public void setOnRequestEnd(ValueExpression onRequestEnd) {
+        this.onRequestEnd = onRequestEnd;
+    }
+
     @Override
     public String getRendererType() {
         return Constants.TABLE_EDITOR_TYPE;
@@ -81,6 +91,8 @@ public class TableEditorTag extends TableViewerTag {
         component.setValueExpression(Constants.ATTRIBUTE_ON_BEFORE_SAVE, onBeforeSave);
         component.setValueExpression(Constants.ATTRIBUTE_ON_AFTER_SAVE, onAfterSave);
         component.setValueExpression(Constants.ATTRIBUTE_ON_ERROR, onError);
+        component.setValueExpression(Constants.ATTRIBUTE_ON_REQUEST_START, onRequestStart);
+        component.setValueExpression(Constants.ATTRIBUTE_ON_REQUEST_END, onRequestEnd);
     }
 
     @Override

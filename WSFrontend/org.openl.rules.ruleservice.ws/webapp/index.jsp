@@ -178,7 +178,7 @@
                 html += "<a href='" + url + "?wsdl'\>WSDL</a>";
             } else if (name == "REST") {
                 html += "<a href='" + url + "?_wadl'\>WADL</a>";
-                html += "<a href='" + url + "/api-docs?url=swagger.json'\>Swagger (UI)</a>";
+                html += "<a href='" + url + "/api-docs/index.html?url=../swagger.json'\>Swagger (UI)</a>";
                 html += "<a href='" + url + "/swagger.json'\>Swagger (JSON)</a>";
                 html += "<a href='" + url + "/swagger.yaml'\>Swagger (YAML)</a>";
             } else {

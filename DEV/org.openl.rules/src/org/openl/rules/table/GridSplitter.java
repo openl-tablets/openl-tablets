@@ -122,7 +122,7 @@ public class GridSplitter {
             }
         }
 
-        return tables.toArray(new GridTable[tables.size()]);
+        return tables.toArray(new IGridTable[0]);
 
     }
 

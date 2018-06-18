@@ -1,4 +1,0 @@
-#foreach( $contextPropertyDefinition in $contextPropertyDefinitions )
-	$tool.getTypeName($contextPropertyDefinition.Type.InstanceClass).replaceAll('org.openl.rules.enumeration','org.openl.rules.ruleservice.context.enumeration') get$tool.formatAccessorName($contextPropertyDefinition.Name)();
-	void set$tool.formatAccessorName($contextPropertyDefinition.Name)($tool.getTypeName($contextPropertyDefinition.Type.InstanceClass).replaceAll('org.openl.rules.enumeration','org.openl.rules.ruleservice.context.enumeration') $contextPropertyDefinition.Name);	
-#end

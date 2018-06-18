@@ -64,15 +64,51 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void testProductByte() {
-        byte[] byteArray = new byte[] { 3, 4 };
-        assertEquals(12, MathUtils.product(byteArray), 0.01);
+    public void testSumLong() {
+        long[] array = new long[] { 3, 4 };
+        assertEquals(Long.valueOf(7), MathUtils.sum(array));
+        
+        Long[] array1 = new Long[] { null, null, null };
+        assertEquals(null, MathUtils.sum(array1));
+        
+        Long[] array2 = new Long[] { null, 2l, null };
+        assertEquals(Long.valueOf(2l), MathUtils.sum(array2));
+    }
+    
+    @Test
+    public void testSumDouble() {
+        double[] doubleArray = new double[] { 3, 4, 4.5, -6.78 };
+        assertEquals(4.72d, MathUtils.sum(doubleArray), 0.01);
+        
+        Double[] doubleArray1 = new Double[] { null, null, null };
+        assertEquals(null, MathUtils.sum(doubleArray1));
+        
+        Double[] doubleArray2 = new Double[] { null, 2.1, null };
+        assertEquals(Double.valueOf(2.1), MathUtils.sum(doubleArray2), 0.01d);
+    }
+
+    @Test
+    public void testProductLong() {
+        long[] array = new long[] { 3, 4 };
+        assertEquals(Long.valueOf(12), MathUtils.product(array));
+        
+        Long[] array1 = new Long[] { null, null, null };
+        assertEquals(null, MathUtils.product(array1));
+        
+        Long[] array2 = new Long[] { null, 2l, null };
+        assertEquals(Long.valueOf(2), MathUtils.product(array2));
     }
 
     @Test
     public void testProductDouble() {
         double[] doubleArray = new double[] { 3, 4, 4.5, -6.78 };
         assertEquals(-366.12, MathUtils.product(doubleArray), 0.01);
+        
+        Double[] doubleArray1 = new Double[] { null, null, null };
+        assertEquals(null, MathUtils.product(doubleArray1));
+        
+        Double[] doubleArray2 = new Double[] { null, 2.1, null };
+        assertEquals(Double.valueOf(2.1), MathUtils.product(doubleArray2), 0.01d);
     }
 
     @Test

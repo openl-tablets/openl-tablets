@@ -2,17 +2,12 @@ package org.openl.rules;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.util.Map.Entry;
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Assert;
 import org.openl.CompiledOpenClass;
-import org.openl.dependency.IDependencyManager;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.runtime.RulesEngineFactory;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.runtime.EngineFactory;
@@ -33,64 +28,18 @@ public abstract class BaseOpenlBuilderHelper {
 
     private XlsModuleSyntaxNode xsn;
     private CompiledOpenClass compiledOpenClass;
-    private EngineFactory<Object> engineFactory;
-    private IDependencyManager dependencyManager;
-    private boolean executionMode = false;
-
-    public BaseOpenlBuilderHelper() {
-
-    }
 
     public BaseOpenlBuilderHelper(String src) {
-        build(src);
-    }
-
-    public BaseOpenlBuilderHelper(String src, IDependencyManager dependencyManager) {
-        this(src, dependencyManager, false);
-    }
-
-    public BaseOpenlBuilderHelper(String src, boolean executionMode) {
-        this(src, null, executionMode);
-    }
-
-    public BaseOpenlBuilderHelper(String src, IDependencyManager dependencyManager, boolean executionMode) {
-        this.dependencyManager = dependencyManager;
-        this.executionMode = executionMode;
-        build(src);
-    }
-
-    public void build(String sourceFile) {
-        buildEngineFactory(sourceFile);
-        buildCompiledOpenClass();
-        if (!executionMode) {
-            XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
-            xsn = xmi.getXlsModuleNode();
-        }
-    }
-
-    protected EngineFactory<Object> buildEngineFactory(String sourceFile) {
-        if (engineFactory == null) {
-            engineFactory = new RulesEngineFactory<Object>(sourceFile);
-            engineFactory.setDependencyManager(dependencyManager);
-            engineFactory.setExecutionMode(executionMode);
-        }
-        return engineFactory;
-    }
-
-    public EngineFactory<Object> getEngineFactory() {
-        return engineFactory;
+        EngineFactory<Object> engineFactory = new RulesEngineFactory<>(src);
+        engineFactory.setExecutionMode(false);
+        compiledOpenClass = engineFactory.getCompiledOpenClass();
+        XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
+        xsn = xmi.getXlsModuleNode();
     }
 
     public Object newInstance() {
         SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         return getCompiledOpenClass().getOpenClass().newInstance(env);
-    }
-
-    protected CompiledOpenClass buildCompiledOpenClass() {
-        if (compiledOpenClass == null) {
-            compiledOpenClass = getEngineFactory().getCompiledOpenClass();
-        }
-        return compiledOpenClass;
     }
 
     public CompiledOpenClass getCompiledOpenClass() {
@@ -103,39 +52,11 @@ public abstract class BaseOpenlBuilderHelper {
         return clazz;
     }
 
-    @Deprecated
-    protected TableSyntaxNode findTable(String tableName, TableSyntaxNode[] tsns) {
-        TableSyntaxNode result = null;
-        for (TableSyntaxNode tsn : tsns) {
-            if (tableName.equals(tsn.getDisplayName())) {
-                result = tsn;
-            }
-        }
-        return result;
-    }
-
     protected TableSyntaxNode findTable(String tableName) {
         TableSyntaxNode result = null;
         for (TableSyntaxNode tsn : getTableSyntaxNodes()) {
             if (tableName.equals(tsn.getDisplayName())) {
                 result = tsn;
-            }
-        }
-        return result;
-    }
-
-    protected TableSyntaxNode findTable(String tableName, ITableProperties properties) {
-        TableSyntaxNode result = null;
-        for (TableSyntaxNode tsn : getTableSyntaxNodes()) {
-            if (tableName.equals(tsn.getDisplayName())) {
-                EqualsBuilder equalsBuilder = new EqualsBuilder();
-                for (Entry<String, Object> property : properties.getAllProperties().entrySet()) {
-                    equalsBuilder.append(property.getValue(),
-                        tsn.getTableProperties().getPropertyValue(property.getKey()));
-                }
-                if (equalsBuilder.isEquals()) {
-                    result = tsn;
-                }
             }
         }
         return result;
@@ -155,12 +76,7 @@ public abstract class BaseOpenlBuilderHelper {
     }
 
     protected TableSyntaxNode[] getTableSyntaxNodes() {
-        TableSyntaxNode[] tsns = xsn.getXlsTableSyntaxNodes();
-        return tsns;
-    }
-
-    protected XlsModuleSyntaxNode getModuleSuntaxNode() {
-        return xsn;
+        return xsn.getXlsTableSyntaxNodes();
     }
 
     protected Object invokeMethod(IOpenMethod testMethod, Object[] paramValues) {

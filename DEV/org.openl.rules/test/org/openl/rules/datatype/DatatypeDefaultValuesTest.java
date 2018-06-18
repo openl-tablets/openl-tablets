@@ -34,7 +34,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
     private void testNoErrors() {
         Assert.assertTrue("No binding errors", getCompiledOpenClass().getBindingErrors().length == 0);
         Assert.assertTrue("No parsing errors", getCompiledOpenClass().getParsingErrors().length == 0);
-        Assert.assertTrue("No warnings", getCompiledOpenClass().getMessages().size() == 0);        
+        Assert.assertTrue("No warnings", getCompiledOpenClass().getMessages().isEmpty());        
     }
     
     @Test    
@@ -221,7 +221,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
 		methodName = "getIntVal";
 		testValue(clazz, instance, methodName, new Integer(1000));
 
-		methodName = "getDVal";
+		methodName = "getdVal";
 		testValue(clazz, instance, methodName, new Double(1.26));
 		
 		methodName = "getStr";

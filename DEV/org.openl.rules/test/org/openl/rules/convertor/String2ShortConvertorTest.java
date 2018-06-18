@@ -38,10 +38,4 @@ public class String2ShortConvertorTest {
         converter.parse("1.3", null);
     }
 
-    @Test
-    public void testFormat() {
-        String2ShortConvertor converter = new String2ShortConvertor();
-        String result = converter.format(Short.MIN_VALUE, null);
-        assertEquals("-32768", result);
-    }
 }

@@ -24,7 +24,6 @@ public final class ServiceDescription {
     private String rmiServiceClassName;
     private String annotationTemplateClassName;
     private boolean provideRuntimeContext;
-    private boolean useRuleServiceRuntimeContext;
     private boolean provideVariations;
     private Map<String, Object> configuration;
     private Collection<Module> modules;
@@ -47,7 +46,6 @@ public final class ServiceDescription {
             String rmiServiceClassName,
             String annotationTemplateClassName,
             boolean provideRuntimeContext,
-            boolean useRuleServiceRuntimeContext,
             boolean provideVariations,
             Collection<Module> modules,
             DeploymentDescription deployment,
@@ -58,7 +56,6 @@ public final class ServiceDescription {
         this.serviceClassName = serviceClassName;
         this.provideRuntimeContext = provideRuntimeContext;
         this.rmiServiceClassName = rmiServiceClassName;
-        this.useRuleServiceRuntimeContext = useRuleServiceRuntimeContext;
         this.provideVariations = provideVariations;
         this.annotationTemplateClassName = annotationTemplateClassName;
         if (configuration == null) {
@@ -83,7 +80,6 @@ public final class ServiceDescription {
             builder.rmiServiceClassName,
             builder.annotationTemplateClassName,
             builder.provideRuntimeContext,
-            builder.useRuleServiceRuntimeContext,
             builder.provideVariations,
             builder.modules,
             builder.deployment,
@@ -98,15 +94,6 @@ public final class ServiceDescription {
      */
     public String getAnnotationTemplateClassName() {
         return annotationTemplateClassName;
-    }
-
-    /**
-     * Return useRuleServiceRuntimeContext
-     * 
-     * @return
-     */
-    public boolean isUseRuleServiceRuntimeContext() {
-        return useRuleServiceRuntimeContext;
     }
 
     /**
@@ -235,7 +222,6 @@ public final class ServiceDescription {
         private String annotationTemplateClassName;
         private boolean provideRuntimeContext;
         private boolean provideVariations = false;
-        private boolean useRuleServiceRuntimeContext = false;
         private Map<String, Object> configuration;
         private Collection<Module> modules;
         private DeploymentDescription deployment;
@@ -267,16 +253,6 @@ public final class ServiceDescription {
          */
         public ServiceDescriptionBuilder setAnnotationTemplateClassName(String annotationTemplateClassName) {
             this.annotationTemplateClassName = annotationTemplateClassName;
-            return this;
-        }
-
-        /**
-         * Sets useRuleServiceRuntimeContext
-         * 
-         * @param useRuleServiceRuntimeContext
-         */
-        public ServiceDescriptionBuilder setUseRuleServiceRuntimeContext(boolean useRuleServiceRuntimeContext) {
-            this.useRuleServiceRuntimeContext = useRuleServiceRuntimeContext;
             return this;
         }
 

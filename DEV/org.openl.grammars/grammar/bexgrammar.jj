@@ -80,11 +80,11 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar
       if (type.equals("method.body")) 
       parseTopNodeInternal();
       else if (type.equals("method.header")) 
-      MethodHeader();
+      parseMethodHeader();
       else if (type.equals("module")) 
       parseModuleInternal();
       else if (type.equals("type")) 
-      Type();
+      parseType();
       else if (type.equals("range.literal.real")) 
       RangeLiteralFloat();
       else if (type.equals("range.literal")) 
@@ -1273,6 +1273,20 @@ void TypeDimension() :
   {
     syntaxBuilder.uop("type.index", pos(x1, x2));
   }
+}
+
+void parseType() :
+{}
+{
+  Type()
+  < EOF >
+}
+
+void parseMethodHeader() :
+{}
+{
+  MethodHeader()
+  < EOF >
 }
 
 void Type() :

@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenLCompilationException;
@@ -81,10 +80,10 @@ public class LazyCompiledOpenClass extends CompiledOpenClass {
     }
 
     @Override
-    public List<OpenLMessage> getMessages() {
+    public Collection<OpenLMessage> getMessages() {
         return getCompiledOpenClass().getMessages();
     }
-
+    
     @Override
     public Collection<IOpenClass> getTypes() {
         return getCompiledOpenClass().getTypes();

@@ -5,8 +5,6 @@
  */
 package org.openl.source.impl;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +17,7 @@ import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Objects;
 
 /**
  * @author snshor
@@ -104,18 +103,12 @@ public class URLSourceCodeModule extends ASourceCodeModule {
 
         URLSourceCodeModule urlSource = (URLSourceCodeModule) obj;
 
-        return new EqualsBuilder()
-                .append(url, urlSource.url)
-                .isEquals();
+        return Objects.equals(url, urlSource.url);
     }
 
     @Override
     public int hashCode() {
-        int hashCode = new HashCodeBuilder()
-                .append(url)
-                .toHashCode();
-
-        return hashCode;
+        return Objects.hashCode(url);
     }
 
     @Override

@@ -53,15 +53,6 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
     }
 
     @Override
-    protected boolean isDependencyFieldIgnorable(IOpenField openField) {
-        if (openField instanceof ILazyMember) {
-            ILazyMember<IOpenField> lazyOpenField = (ILazyMember<IOpenField>) openField;
-            return super.isDependencyFieldIgnorable(lazyOpenField.getMember());
-        }
-        return super.isDependencyFieldIgnorable(openField);
-    }
-    
-    @Override
     protected IOpenMethod decorateForMultimoduleDispatching(IOpenMethod openMethod) {
         if (openMethod instanceof OpenMethodDispatcher){
             return super.decorateForMultimoduleDispatching(openMethod);

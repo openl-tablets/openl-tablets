@@ -1,6 +1,7 @@
 package org.openl.extension.xmlrules.parsing;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.openl.extension.xmlrules.model.DataInstance;
@@ -13,6 +14,7 @@ import org.openl.extension.xmlrules.model.single.FieldImpl;
 import org.openl.extension.xmlrules.model.single.Reference;
 import org.openl.extension.xmlrules.model.single.ValuesRow;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
+import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +23,7 @@ public final class DataInstanceGridBuilder {
     private DataInstanceGridBuilder() {
     }
 
-    public static void build(StringGridBuilder gridBuilder, ExtensionModule module, Sheet sheet) {
+    public static void build(StringGridBuilder gridBuilder, ExtensionModule module, Sheet sheet, Collection<OpenLMessage> messages) {
         try {
             if (sheet.getDataInstances() == null) {
                 return;
@@ -107,7 +109,7 @@ public final class DataInstanceGridBuilder {
         } catch (RuntimeException e) {
             Logger log = LoggerFactory.getLogger(DataInstanceGridBuilder.class);
             log.error(e.getMessage(), e);
-            OpenLMessagesUtils.addError(e);
+            messages.addAll(OpenLMessagesUtils.newErrorMessages(e));
             gridBuilder.nextRow();
         }
     }

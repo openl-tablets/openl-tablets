@@ -2,6 +2,7 @@ package org.openl.binding.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
@@ -101,6 +102,22 @@ public class MethodUsagesSearcher {
             return buff.toString();
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+            MethodUsage that = (MethodUsage) o;
+            return startPos == that.startPos &&
+                    endPos == that.endPos &&
+                    Objects.equals(method, that.method);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(startPos, endPos, method);
+        }
     }
 
     /**
@@ -112,7 +129,7 @@ public class MethodUsagesSearcher {
      *            start of OpenL expression.
      */
     public static List<MethodUsage> findAllMethods(IBoundNode boundNode, String sourceString, int startIndex) {
-        List<MethodUsage> methods = new ArrayList<MethodUsage>();
+        List<MethodUsage> methods = new ArrayList<>();
         findAllMethods(boundNode, methods, sourceString, startIndex);
         return methods;
     }
@@ -121,6 +138,9 @@ public class MethodUsagesSearcher {
             List<MethodUsage> methods,
             String sourceString,
             int startIndex) {
+        if (boundNode == null) {
+            return;
+        }
         if (boundNode instanceof MethodBoundNode) {
             MethodBoundNode methodBoundNode = (MethodBoundNode) boundNode;
             ILocation location = methodBoundNode.getSyntaxNode().getSourceLocation();

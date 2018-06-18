@@ -287,27 +287,6 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 		setFieldValue("datatypePackage", datatypePackage);
 		allProperties = null;
 	}	
-	public java.lang.String[] getTransaction() {
-		return (java.lang.String[]) getPropertyValue("transaction"); 
-	}
-	public void setTransaction(java.lang.String[] transaction) {
-		setFieldValue("transaction", transaction);
-		allProperties = null;
-	}	
-	public java.lang.String[] getCustom1() {
-		return (java.lang.String[]) getPropertyValue("custom1"); 
-	}
-	public void setCustom1(java.lang.String[] custom1) {
-		setFieldValue("custom1", custom1);
-		allProperties = null;
-	}	
-	public java.lang.String[] getCustom2() {
-		return (java.lang.String[]) getPropertyValue("custom2"); 
-	}
-	public void setCustom2(java.lang.String[] custom2) {
-		setFieldValue("custom2", custom2);
-		allProperties = null;
-	}	
 	public java.lang.Boolean getCacheable() {
 		return (java.lang.Boolean) getPropertyValue("cacheable"); 
 	}

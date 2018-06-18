@@ -9,11 +9,11 @@ package org.openl.rules.method.table;
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.MethodTableMetaInfoReader;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -44,6 +44,10 @@ public class MethodTableBoundNode extends AMethodBasedNode {
     }
 
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
+        if (!bindingContext.isExecutionMode()) {
+            getTableSyntaxNode().setMetaInfoReader(new MethodTableMetaInfoReader(this));
+        }
+
         super.finalizeBind(bindingContext);
 
         TableSyntaxNode tsn = getTableSyntaxNode();
@@ -56,7 +60,7 @@ public class MethodTableBoundNode extends AMethodBasedNode {
             String errorMessage = "Method table must contain a body section";
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage, tsn);
             tsn.addError(error);
-            BindHelper.processError(error);
+            bindingContext.addError(error);
         } else {
             int height = bodyTable.getHeight();
 

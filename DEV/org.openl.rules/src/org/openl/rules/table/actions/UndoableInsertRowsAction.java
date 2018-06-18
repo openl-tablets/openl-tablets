@@ -1,6 +1,10 @@
 package org.openl.rules.table.actions;
 
-import org.openl.rules.table.*;
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
+import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridTool;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
 
 /**
@@ -11,8 +15,12 @@ public class UndoableInsertRowsAction extends UndoableInsertAction {
     private int nRows;
     private int beforeRow;
     private int col;
-  
-    public UndoableInsertRowsAction(int nRows, int beforeRow, int col) {
+
+    public UndoableInsertRowsAction(int nRows,
+            int beforeRow,
+            int col,
+            MetaInfoWriter metaInfoWriter) {
+        super(metaInfoWriter);
         this.nRows = nRows;
         this.beforeRow = beforeRow;
         this.col = col;
@@ -23,9 +31,9 @@ public class UndoableInsertRowsAction extends UndoableInsertAction {
         GridRegion newRegion = new GridRegion(region.getBottom() + 1, region.getLeft() - 1,
                 region.getBottom() + 1 + nRows, region.getRight() + 1);
         IGridTable[] allGridTables = table.getGrid().getTables();
-        for (int i = 0; i < allGridTables.length; i++) {
-            if (!table.getUri().equals(allGridTables[i].getUri())
-                    && IGridRegion.Tool.intersects(newRegion, allGridTables[i].getRegion())) {
+        for (IGridTable allGridTable : allGridTables) {
+            if (!table.getUri().equals(allGridTable.getUri())
+                    && IGridRegion.Tool.intersects(newRegion, allGridTable.getRegion())) {
                 return false;
             }
         }
@@ -54,6 +62,6 @@ public class UndoableInsertRowsAction extends UndoableInsertAction {
 
     @Override
     protected IUndoableGridTableAction performAction(int numberToInsert, IGridRegion fullTableRegion, IGridTable table) {        
-        return GridTool.insertRows(numberToInsert, beforeRow, fullTableRegion, table.getGrid());
+        return GridTool.insertRows(numberToInsert, beforeRow, fullTableRegion, table.getGrid(), metaInfoWriter);
     }
 }

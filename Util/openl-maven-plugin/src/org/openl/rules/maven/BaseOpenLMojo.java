@@ -13,6 +13,12 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.openl.OpenL;
+import org.openl.classloader.ClassLoaderUtils;
+import org.openl.conf.ClassLoaderFactory;
+import org.openl.conf.OpenLConfiguration;
+import org.openl.rules.convertor.String2DataConvertorFactory;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.util.ZipUtils;
 
@@ -23,6 +29,7 @@ abstract class BaseOpenLMojo extends AbstractMojo {
     /**
      * Folder that contains all OpenL-related resources (OpenL rules, project
      * descriptor etc.). For example: "${project.basedir}/src/main/openl".
+     *
      * @since 5.19.0
      */
     @Parameter(defaultValue = "${project.build.sourceDirectory}/../openl")
@@ -167,5 +174,22 @@ abstract class BaseOpenLMojo extends AbstractMojo {
         }
 
         return dependencies;
+    }
+
+    /**
+     * Release classLoader and reset OpenL Configurations etc used before.
+     *
+     * @param classLoader class loader to release
+     */
+    protected void releaseResources(ClassLoader classLoader) {
+        if (classLoader != null) {
+            JavaOpenClass.resetClassloader(classLoader);
+            String2DataConvertorFactory.unregisterClassLoader(classLoader);
+            ClassLoaderUtils.close(classLoader);
+        }
+
+        OpenL.reset();
+        OpenLConfiguration.reset();
+        ClassLoaderFactory.reset();
     }
 }

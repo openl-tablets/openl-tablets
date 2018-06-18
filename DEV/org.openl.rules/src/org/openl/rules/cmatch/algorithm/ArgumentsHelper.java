@@ -12,7 +12,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
-class ArgumentsHelper {
+public class ArgumentsHelper {
     private final IMethodSignature methodSignature;
 
     private final Map<String, Argument> argTypes;

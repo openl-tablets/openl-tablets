@@ -11,6 +11,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import org.openl.rules.BaseOpenlBuilderHelper;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -40,6 +41,7 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
 
     private TableProperties initTableProperties() {
         TableProperties tableProperties = new TableProperties();
+        tableProperties.setCurrentTableType(XlsNodeTypes.XLS_METHOD.toString());
         tableProperties.setFieldValue(PROPERTY_NAME, "newName");
         tableProperties.setFieldValue(PROPERTY_DESCRIPTION, "newDescription");
         tableProperties.setFieldValue(PROPERTY_CREATED_BY, "tableLevelCreatedBy");

@@ -1,8 +1,11 @@
 package org.openl.rules.validation;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.BeforeClass;
@@ -28,10 +31,10 @@ public class DispatcherTableBuildingTest extends BaseOpenlBuilderHelper {
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_JAVA);
     }
 
-    private static List<OpenLMessage> getWarningsForTable(List<OpenLMessage> allMessages, TableSyntaxNode tsn) {
-        List<OpenLMessage> warningMessages = OpenLMessagesUtils.filterMessagesBySeverity(allMessages, Severity.WARN);
+    private static List<OpenLMessage> getWarningsForTable(Collection<OpenLMessage> messages, TableSyntaxNode tsn) {
         List<OpenLMessage> warningsForTable = new ArrayList<OpenLMessage>();
-        for (OpenLMessage message : warningMessages) {
+        Collection<OpenLMessage> warnMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
+        for (OpenLMessage message : warnMessages) {
             if (message instanceof OpenLWarnMessage) {// there can be simple
                                                       // OpenLMessages with
                                                       // severity WARN

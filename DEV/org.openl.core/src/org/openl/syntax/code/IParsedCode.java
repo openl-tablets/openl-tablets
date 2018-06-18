@@ -6,12 +6,10 @@
 
 package org.openl.syntax.code;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.openl.dependency.CompiledDependency;
-import org.openl.message.OpenLMessage;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -50,18 +48,10 @@ public interface IParsedCode {
     IDependency[] getDependencies();
     
     void setExternalParams(Map<String, Object> params);
+    
     Map<String, Object> getExternalParams();
     
     void setCompiledDependencies(Set<CompiledDependency> compliedDependencies);
-    
-    void setMessagesFromDependencies(List<OpenLMessage> messages);
-    
-    /**
-     * Gets a list of messages from dependent modules
-     * 
-     * @return messages from dependencies
-     */
-    public List<OpenLMessage> getMessagesFromDependencies();
     
     /**
      * Returns set of compiled dependency modules.

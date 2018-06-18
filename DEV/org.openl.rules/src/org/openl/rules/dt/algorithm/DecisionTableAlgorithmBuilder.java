@@ -1,7 +1,7 @@
 package org.openl.rules.dt.algorithm;
 
 import org.openl.OpenL;
-import org.openl.binding.IBindingContextDelegator;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.TypeBoundNode;
@@ -19,11 +19,7 @@ import org.openl.syntax.exception.Runnable;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.IMethodCaller;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethodHeader;
-import org.openl.types.NullOpenClass;
+import org.openl.types.*;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterMethodCaller;
 import org.openl.types.impl.SourceCodeMethodCaller;
@@ -40,7 +36,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     OpenL openl;
     ComponentOpenClass componentOpenClass;
     ComponentOpenClass module;
-    IBindingContextDelegator bindingContextDelegator;
+    IBindingContext bindingContext;
     IMethodSignature signature;
     private RuleRow ruleRow;
 
@@ -48,14 +44,14 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
             IOpenMethodHeader header,
             OpenL openl,
             ComponentOpenClass module,
-            IBindingContextDelegator bindingContextDelegator) {
+            IBindingContext bindingContext) {
 
         this.table = decisionTable;
         this.header = header;
         this.signature = header.getSignature();
         this.openl = openl;
         this.module = module;
-        this.bindingContextDelegator = bindingContextDelegator;
+        this.bindingContext = bindingContext;
         this.ruleRow = table.getRuleRow();
     }
 
@@ -112,29 +108,28 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 
         DecisionTableDataType ruleExecutionType = getRuleExecutionType(openl);
 
-        IBindingContextDelegator actionBindingContextDelegator = new ComponentBindingContext(bindingContextDelegator,
+        IBindingContext actionBindingContext = new ComponentBindingContext(bindingContext,
             ruleExecutionType);
 
         int nActions = table.getNumberOfActions();
         for (int i = 0; i < nActions; i++) {
             IAction action = table.getAction(i);
-            prepareAction(action, actionBindingContextDelegator, ruleExecutionType);
+            prepareAction(action, actionBindingContext, ruleExecutionType);
         }
     }
     
 
     protected void prepareAction(IAction action,
-            IBindingContextDelegator actionBindingContextDelegator,
+            IBindingContext actionBindingContext,
             DecisionTableDataType ruleExecutionType) throws Exception {
-       
         action.prepareAction(header,
-            signature,
-            openl,
-            componentOpenClass,
-            actionBindingContextDelegator,
-            ruleRow,
-            ruleExecutionType);
-
+                signature,
+                openl,
+                componentOpenClass,
+                actionBindingContext,
+                ruleRow,
+                ruleExecutionType,
+                table.getSyntaxNode());
     }
 
     protected IConditionEvaluator[] prepareConditions() throws Exception {
@@ -186,7 +181,8 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         // return condition.prepareCondition(signature, openl,
         // componentOpenClass, bindingContextDelegator, ruleRow);
 
-        condition.prepare(NullOpenClass.the, signature, openl, componentOpenClass, bindingContextDelegator, ruleRow);
+        condition.prepare(NullOpenClass.the, signature, openl, componentOpenClass, bindingContext, ruleRow,
+                table.getSyntaxNode());
         IBoundMethodNode methodNode = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode();
         IOpenSourceCodeModule source = methodNode.getSyntaxNode().getModule();
 
@@ -213,7 +209,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
             }
 
             condition.setConditionEvaluator(conditionEvaluator = DependentParametersOptimizedAlgorithm
-                .makeEvaluator(condition, signature, bindingContextDelegator));
+                .makeEvaluator(condition, signature, bindingContext));
 
             if (conditionEvaluator != null) {
                 condition.setEvaluator(evaluator = makeOptimizedConditionMethodEvaluator(condition,
@@ -233,7 +229,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 
         IConditionEvaluator dtcev = DecisionTableOptimizedAlgorithm.makeEvaluator(condition,
             methodType,
-            bindingContextDelegator);
+            bindingContext); 
 
         condition.setEvaluator(evaluator = makeOptimizedConditionMethodEvaluator(condition, signature));
 

@@ -1,10 +1,8 @@
-/**
- * Created Feb 15, 2007
- */
 package org.openl.rules.table;
 
+import java.io.IOException;
+
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.ICellStyle;
 
 /**
@@ -35,7 +33,7 @@ public interface IWritableGrid extends IGrid {
 
     void removeMergedRegion(IGridRegion to);
 
-    void setCellMetaInfo(int col, int row, CellMetaInfo meta);
+    void removeMergedRegion(int x, int y);
 
     void setCellStyle(int col, int row, ICellStyle style);
     
@@ -58,15 +56,6 @@ public interface IWritableGrid extends IGrid {
     void setCellComment(int col, int row, ICellComment comment);
 
     void setCellValue(int col, int row, Object value);
-
-    /**
-     * Set the cell value to the given position
-     *
-     * @param position position where there value should be set
-     * @param value the value itself
-     * @return the position where the value was set
-     */
-    Point setCellValue(Point position, Object value);
 
     void setCellStringValue(int col, int row, String value);
 

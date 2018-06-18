@@ -1,12 +1,12 @@
 package org.openl.rules.lang.xls.syntax;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Objects;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
@@ -49,9 +49,9 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
         return tsn.getType();
     }
 
-    public List<OpenLMessage> getMessages() {
+    public Collection<OpenLMessage> getMessages() {
         SyntaxNodeException[] errors = tsn.getErrors();
-        return OpenLMessagesUtils.newMessages(errors);
+        return OpenLMessagesUtils.newErrorMessages(errors);
     }
 
     public String getName() {
@@ -95,7 +95,7 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
     }
 
     public int hashCode() {
-        return new HashCodeBuilder(17, 31).append(getUri()).toHashCode();
+        return Objects.hashCode(getUri());
     }
 
     public boolean equals(Object obj) {
@@ -111,7 +111,7 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
 
         TableSyntaxNodeAdapter table = (TableSyntaxNodeAdapter) obj;
 
-        return new EqualsBuilder().append(getUri(), table.getUri()).isEquals();
+        return Objects.equals(getUri(), table.getUri());
     }
 
     public boolean isCanContainProperties() {
@@ -122,4 +122,8 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
                 && !tableType.equals(XlsNodeTypes.XLS_PROPERTIES.toString());
     }
 
+    @Override
+    public MetaInfoReader getMetaInfoReader() {
+        return tsn.getMetaInfoReader();
+    }
 }

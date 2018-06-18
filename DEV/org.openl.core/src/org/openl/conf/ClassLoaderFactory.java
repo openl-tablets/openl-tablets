@@ -15,10 +15,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringTokenizer;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.OpenL;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
@@ -57,16 +56,14 @@ public class ClassLoaderFactory {
             }
             Key k = (Key) obj;
 
-            return new EqualsBuilder()
-            // .append(name, k.name)
-                    .append(classpath, k.classpath).append(cxt, k.cxt).append(parent, k.parent).isEquals();
+            return Objects.equals(classpath, k.classpath) &&
+                    Objects.equals(cxt, k.cxt) &&
+                    Objects.equals(parent, k.parent);
         }
 
         @Override
         public int hashCode() {
-            return new HashCodeBuilder()
-            // .append(name)
-                    .append(parent).append(cxt).append(classpath).toHashCode();
+            return Objects.hash(parent, cxt, classpath);
         }
 
     }

@@ -1,13 +1,16 @@
 package org.openl.rules.validation;
 
 import java.lang.reflect.Array;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.openl.OpenL;
-import org.openl.message.OpenLWarnMessage;
+import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
@@ -18,7 +21,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.validation.IOpenLValidator;
 import org.openl.validation.ValidationResult;
-import org.openl.validation.ValidationStatus;
 
 public class DimentionalPropertyValidator implements IOpenLValidator {
     private enum OverlapState {
@@ -31,7 +33,7 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
 
     @Override
     public ValidationResult validate(OpenL openl, IOpenClass openClass) {
-        ValidationResult validationResult = null;
+        Collection<OpenLMessage> messages = new LinkedHashSet<>();
         Set<String> dimensionalProperties = getDimensionalProperties();
         for (IOpenMethod method : openClass.getMethods()) {
             if (method instanceof OpenMethodDispatcher) {
@@ -147,9 +149,6 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
                             }
                         }
                         if (overlapState == OverlapState.OVERLAP) {
-                            if (validationResult == null) {
-                                validationResult = new ValidationResult(ValidationStatus.SUCCESS);
-                            }
                             StringBuilder sb = new StringBuilder();
                             if (vResult.containsKey(OverlapState.OVERLAP)) {
                                 String pKey = vResult.get(OverlapState.OVERLAP);
@@ -181,18 +180,14 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
                                 writeMessageforProperty(sb, pKey2, value2B);
                                 sb.append(")");
                             }
-                            addValidationError(validationResult, sb.toString(), methods[i]);
-                            addValidationError(validationResult, sb.toString(), methods[j]);
+                            addValidationWarn(messages, sb.toString(), methods[i]);
+                            addValidationWarn(messages, sb.toString(), methods[j]);
                         }
                     }
                 }
             }
         }
-        if (validationResult != null) {
-            return validationResult;
-        } else {
-            return ValidationUtils.validationSuccess();
-        }
+        return ValidationUtils.withMessages(messages);
     }
 
     private void writeMessageforProperty(StringBuilder sb, String pKey, Object value) {
@@ -231,12 +226,12 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
         return dProperties;
     }
 
-    private void addValidationError(ValidationResult validationResult, String message, IOpenMethod method) {
+    private void addValidationWarn(Collection<OpenLMessage> messages, String message, IOpenMethod method) {
         IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) method;
         if (memberMetaInfo.getSyntaxNode() != null) {
             if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
-                ValidationUtils.addValidationMessage(validationResult,
-                    new OpenLWarnMessage("Ambiguous definition of properties values. Details: " + message,
+                messages.add(
+                    OpenLMessagesUtils.newWarnMessage("Ambiguous definition of properties values. Details: " + message,
                         memberMetaInfo.getSyntaxNode()));
             }
         }

@@ -484,8 +484,15 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             try {
                 DatabaseMetaData metaData = connection.getMetaData();
                 String databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
-                log.info("Database product name is [{}]", databaseCode);
-                settings = new Settings(databaseCode);
+                int majorVersion = metaData.getDatabaseMajorVersion();
+                int minorVersion = metaData.getDatabaseMinorVersion();
+
+                log.info("Driver name      : {}", metaData.getDriverName());
+                log.info("Driver version   : {}", metaData.getDriverVersion());
+                log.info("Database name    : {}", metaData.getDatabaseProductName());
+                log.info("Database version : {}", metaData.getDatabaseProductVersion());
+                log.info("Database code    : {}-v{}.{}", databaseCode, majorVersion, minorVersion);
+                settings = new Settings(databaseCode, majorVersion, minorVersion);
                 initializeDatabase(connection, databaseCode);
                 monitor = new ChangesMonitor(new DBRepositoryRevisionGetter(), settings.timerPeriod);
             } catch (Exception e) {

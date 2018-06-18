@@ -4,6 +4,5 @@ public enum ExceptionType {
     USER_ERROR,
     RULES_RUNTIME,
     COMPILATION,
-    VALIDATION,
     SYSTEM;
 }

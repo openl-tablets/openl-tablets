@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.binding.impl.operator.Comparison;
 import org.openl.exception.OpenLRuntimeException;
@@ -19,6 +18,7 @@ import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
 import org.openl.rules.util.Round;
 import org.openl.util.ArrayTool;
+import org.openl.util.CollectionUtils;
 import org.openl.util.math.MathUtils;
 
 @XmlRootElement
@@ -132,12 +132,12 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      * @return the average value from the array
      */
     public static org.openl.meta.FloatValue avg(org.openl.meta.FloatValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Float[] unwrappedArray = unwrap(values);
         Float avg = MathUtils.avg(unwrappedArray);
-        return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(avg), NumberOperations.AVG, values);
+        return avg != null ? new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(avg), NumberOperations.AVG, values) : null;
     }
 
     /**
@@ -147,12 +147,12 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      * @return the sum value from the array
      */
     public static org.openl.meta.FloatValue sum(org.openl.meta.FloatValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Float[] unwrappedArray = unwrap(values);
         Float sum = MathUtils.sum(unwrappedArray);
-        return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(sum), NumberOperations.SUM, values);
+        return sum != null ? new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(sum), NumberOperations.SUM, values) : null;
     }
 
     /**
@@ -162,12 +162,12 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      * @return the median value from the array
      */
     public static org.openl.meta.FloatValue median(org.openl.meta.FloatValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Float[] unwrappedArray = unwrap(values);
         Float median = MathUtils.median(unwrappedArray);
-        return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(median), NumberOperations.MEDIAN, values);
+        return median != null ? new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(median), NumberOperations.MEDIAN, values) : null;
     }
 
     /**
@@ -433,24 +433,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         return null;
     }
 
-    // generated product function for types that are wrappers over primitives
-    /**
-     * Multiplies the numbers from the provided array and returns the product as
-     * a number.
-     * 
-     * @param values an array of IntValue which will be converted to DoubleValue
-     * @return the product as a number
-     */
-    public static DoubleValue product(org.openl.meta.FloatValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
-            return null;
-        }
-        Float[] unwrappedArray = unwrap(values);
-        double product = MathUtils.product(unwrappedArray);
-        // we loose the parameters, but not the result of computation.
-        return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
-    }
-
     /**
      * 
      * @param number
@@ -478,7 +460,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.FloatValue small(org.openl.meta.FloatValue[] values, int position) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Float[] unwrappedArray = unwrap(values);
@@ -498,7 +480,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.FloatValue big(org.openl.meta.FloatValue[] values, int position) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Float[] unwrappedArray = unwrap(values);
