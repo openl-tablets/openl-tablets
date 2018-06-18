@@ -52,7 +52,7 @@ import org.openl.util.text.LocationUtils;
 
 public class RuleRowHelper {
 
-    private static final String COMMETARY = "//";
+    private static final String COMMENTARY = "//";
     public static final String ARRAY_ELEMENTS_SEPARATOR_ESCAPER = "\\";
     public static final String ARRAY_ELEMENTS_SEPARATOR = ",";
     public static final String CONSTRUCTOR = "constructor";
@@ -237,7 +237,7 @@ public class RuleRowHelper {
                         if ((theCell.getAbsoluteRegion().getTop() != cell.getAbsoluteRegion().getTop() || theCell
                             .getAbsoluteRegion()
                             .getLeft() != cell.getAbsoluteRegion().getLeft()) && cell.getStringValue() != null) {
-                            if (!cell.getStringValue().startsWith(COMMETARY)) {
+                            if (!cell.getStringValue().startsWith(COMMENTARY)) {
                                 IGridTable cellTable = getTopLeftCellFromMergedRegion(table.getSource());
                                 throw SyntaxNodeExceptionUtils.createError(
                                     "Table structure is wrong. More than one cell with data found where only one cell is expected.",
