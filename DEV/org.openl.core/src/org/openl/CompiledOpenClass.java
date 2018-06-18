@@ -2,7 +2,6 @@ package org.openl;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -25,7 +24,7 @@ public class CompiledOpenClass {
 
     private Collection<OpenLMessage> messages;
 
-    private List<OpenLMessage> errorMessages;
+    private Collection<OpenLMessage> errorMessages;
 
     private IOpenClass openClass;
 
@@ -39,14 +38,16 @@ public class CompiledOpenClass {
         this.openClass = openClass;
         this.parsingErrors = parsingErrors;
         this.bindingErrors = bindingErrors;
-        if (messages != null) {
-            this.messages = Collections.unmodifiableList(messages);
-            this.errorMessages = Collections.unmodifiableList(getErrorMessages(messages));
+        if (messages == null) {
+            this.messages = Collections.emptyList();
+        } else {
+            this.messages = Collections.unmodifiableCollection(messages);
+            this.errorMessages = Collections.unmodifiableCollection(getErrorMessages(messages));
         }
         this.classLoader = Thread.currentThread().getContextClassLoader();
     }
 
-    private static List<OpenLMessage> getErrorMessages(List<OpenLMessage> messages) {
+    private static Collection<OpenLMessage> getErrorMessages(Collection<OpenLMessage> messages) {
         return OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
     }
 
@@ -75,8 +76,6 @@ public class CompiledOpenClass {
     }
 
     public void throwErrorExceptionsIfAny() {
-        Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(getMessages(), Severity.ERROR);
-        
         if (parsingErrors.length > 0) {
             throw new CompositeOpenlException("Parsing Error(s):", parsingErrors, errorMessages);
         }
