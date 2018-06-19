@@ -2,18 +2,38 @@ package org.openl.excel.parser.event;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
 import org.apache.poi.hssf.eventusermodel.HSSFRequest;
-import org.apache.poi.hssf.record.*;
+import org.apache.poi.hssf.record.BOFRecord;
+import org.apache.poi.hssf.record.BoolErrRecord;
+import org.apache.poi.hssf.record.BoundSheetRecord;
+import org.apache.poi.hssf.record.CellValueRecordInterface;
+import org.apache.poi.hssf.record.DateWindow1904Record;
+import org.apache.poi.hssf.record.DimensionsRecord;
+import org.apache.poi.hssf.record.FormulaRecord;
+import org.apache.poi.hssf.record.LabelRecord;
+import org.apache.poi.hssf.record.LabelSSTRecord;
+import org.apache.poi.hssf.record.MergeCellsRecord;
+import org.apache.poi.hssf.record.NumberRecord;
+import org.apache.poi.hssf.record.RKRecord;
+import org.apache.poi.hssf.record.Record;
+import org.apache.poi.hssf.record.SSTRecord;
+import org.apache.poi.hssf.record.StringRecord;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.MergedCell;
+import org.openl.excel.parser.ParserDateUtil;
 import org.openl.excel.parser.SheetDescriptor;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringUtils;
@@ -24,6 +44,7 @@ public class WorkbookListener implements HSSFListener {
     private final Logger log = LoggerFactory.getLogger(WorkbookListener.class);
 
     private final List<EventSheetDescriptor> sheets = new ArrayList<>();
+    private final ParserDateUtil parserDateUtil = new ParserDateUtil();
     private Map<String, Object[][]> cellsMap = new HashMap<>();
 
     private boolean use1904Windowing = false;
@@ -87,7 +108,8 @@ public class WorkbookListener implements HSSFListener {
                 int rowsCount = dr.getLastRow() - dr.getFirstRow();
                 int colsCount = dr.getLastCol() - dr.getFirstCol();
                 if (rowsCount == 0) {
-                    // To make it consistent with SAX and DOM (both xls and xlsx) parsers.
+                    // To make it consistent with SAX and DOM (both xls and
+                    // xlsx) parsers.
                     rowsCount = 1;
                     colsCount = 1;
                 }
@@ -174,7 +196,7 @@ public class WorkbookListener implements HSSFListener {
 
                 row = lsrec.getRow();
                 column = lsrec.getColumn();
-                if(sstRecord == null) {
+                if (sstRecord == null) {
                     throw new IllegalStateException("No SST Record, can't identify string");
                 } else {
                     value = StringUtils.trimToNull(sstRecord.getString(lsrec.getSSTIndex()).toString());
@@ -228,7 +250,8 @@ public class WorkbookListener implements HSSFListener {
                         }
                     }
 
-                    // Mark cells merged with Up. Only first column starting from second row.
+                    // Mark cells merged with Up. Only first column starting
+                    // from second row.
                     for (int r = firstMergeRow + 1; r <= lastMergeRow; r++) {
                         setValue(r, firstMergeCol, MergedCell.MERGE_WITH_UP);
                     }
@@ -243,7 +266,7 @@ public class WorkbookListener implements HSSFListener {
         Object value;
         int formatIndex = formatListener.getFormatIndex(record);
         String formatString = formatListener.getFormatString(formatIndex);
-        if (DateUtil.isValidExcelDate(d) && DateUtil.isADateFormat(formatIndex, formatString)) {
+        if (DateUtil.isValidExcelDate(d) && parserDateUtil.isADateFormat(formatIndex, formatString)) {
             value = DateUtil.getJavaDate(d, use1904Windowing);
         } else {
             value = NumberUtils.intOrDouble(d);
@@ -279,12 +302,12 @@ public class WorkbookListener implements HSSFListener {
             cellsMap.put(sheetName, cells);
         }
     }
+
     private void arrayCopy(Object[][] from, Object[][] to) {
         for (int i = 0; i < from.length; i++) {
             System.arraycopy(from[i], 0, to[i], 0, from[i].length);
         }
     }
-
 
     private EventSheetDescriptor getSheet() {
         return sheets.get(sheetIndex);

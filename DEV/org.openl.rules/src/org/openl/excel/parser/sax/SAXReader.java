@@ -24,6 +24,9 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 public class SAXReader implements ExcelReader {
+    
+    private final ParserDateUtil parserDateUtil = new ParserDateUtil();
+    
     private final String fileName;
     private File tempFile;
 
@@ -78,7 +81,7 @@ public class SAXReader implements ExcelReader {
             initializeNeededData(r);
 
             XMLReader parser = SAXHelper.newXMLReader();
-            SheetHandler handler = new SheetHandler(r.getSharedStringsTable(), use1904Windowing, styleTable);
+            SheetHandler handler = new SheetHandler(r.getSharedStringsTable(), use1904Windowing, styleTable, parserDateUtil);
             parser.setContentHandler(handler);
 
             try (InputStream sheetData = r.getSheet(saxSheet.getRelationId())) {
@@ -140,6 +143,7 @@ public class SAXReader implements ExcelReader {
 
         FileUtils.deleteQuietly(tempFile);
         tempFile = null;
+        parserDateUtil.reset();
     }
 
     private void initializeNeededData(XSSFReader r) {

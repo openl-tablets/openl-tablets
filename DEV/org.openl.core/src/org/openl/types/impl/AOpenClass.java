@@ -127,7 +127,7 @@ public abstract class AOpenClass implements IOpenClass {
                 return searchFieldFromSuperClass(fname, strictMatch);
             }
         }
-
+        
         String lfname = fname.toLowerCase();
 
         Map<String, IOpenField> uniqueLowerCaseFields = getUniqueLowerCaseFieldMap();

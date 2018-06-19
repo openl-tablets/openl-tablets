@@ -7,6 +7,8 @@
 package org.openl.rules.lang.xls.binding;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -72,8 +74,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     private IDataBase dataBase = null;
 
     /**
-     * Whether DecisionTable should be used as a dispatcher for overloaded tables. By default(this flag equals false)
-     * dispatching logic will be performed in Java code.
+     * Whether DecisionTable should be used as a dispatcher for overloaded
+     * tables. By default(this flag equals false) dispatching logic will be
+     * performed in Java code.
      */
     private boolean useDescisionTableDispatcher;
 
@@ -289,14 +292,17 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         Map<String, IOpenField> fields = fieldMap();
         if (fields.containsKey(field.getName())) {
             IOpenField existedField = fields.get(field.getName());
-            if (field instanceof ConstantOpenField && existedField instanceof ConstantOpenField) { // Ignore constants
-                                                                                                   // with the same
+            if (field instanceof ConstantOpenField && existedField instanceof ConstantOpenField) { // Ignore
+                                                                                                   // constants
+                                                                                                   // with
+                                                                                                   // the
+                                                                                                   // same
                                                                                                    // values
-                if (field.getType().equals(existedField.getType()) && Objects.equals(((ConstantOpenField) field).getValue(),
-                    ((ConstantOpenField) existedField).getValue())) {
+                if (field.getType().equals(existedField.getType()) && Objects
+                    .equals(((ConstantOpenField) field).getValue(), ((ConstantOpenField) existedField).getValue())) {
                     return;
                 }
-                
+
                 throw new DuplicatedFieldException("", field.getName());
             }
 
@@ -313,7 +319,20 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             }
         }
         fieldMap().put(field.getName(), field);
+        if (field instanceof ConstantOpenField) {
+            constantFields.put(field.getName(), (ConstantOpenField) field);
+        }
         addFieldToLowerCaseMap(field);
+    }
+
+    private Map<String, ConstantOpenField> constantFields = new HashMap<>();
+
+    public ConstantOpenField getConstantField(String fname) {
+        return constantFields.get(fname);
+    }
+
+    public Map<String, ConstantOpenField> getConstantFields() {
+        return Collections.unmodifiableMap(constantFields);
     }
 
     /**
@@ -457,13 +476,15 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     /**
-     * Dispatcher method should be added by adding all candidates of the specified dispatcher to current
-     * XlsModuleOpenClass(it will cause adding methods to dispatcher of current module or creating new dispatcher in
+     * Dispatcher method should be added by adding all candidates of the
+     * specified dispatcher to current XlsModuleOpenClass(it will cause adding
+     * methods to dispatcher of current module or creating new dispatcher in
      * current module).
      *
-     * Previously there was problems because dispatcher from dependency was either added to dispatcher of current
-     * module(dispatcher as a candidate in another dispatcher) or added to current module and was modified during the
-     * current module processing. FIXME
+     * Previously there was problems because dispatcher from dependency was
+     * either added to dispatcher of current module(dispatcher as a candidate in
+     * another dispatcher) or added to current module and was modified during
+     * the current module processing. FIXME
      *
      * @param dispatcher Dispatcher methods to add.
      */

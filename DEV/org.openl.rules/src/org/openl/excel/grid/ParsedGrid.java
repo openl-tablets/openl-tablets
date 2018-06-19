@@ -27,6 +27,7 @@ public class ParsedGrid extends AGrid {
     private final SheetDescriptor sheetDescriptor;
     private final boolean use1904Windowing;
     private final List<IGridRegion> regions = new ArrayList<>();
+    private final RegionsPool regionsPool = new RegionsPool();
 
     private XlsSheetGridModel writableGrid;
 
@@ -135,10 +136,12 @@ public class ParsedGrid extends AGrid {
         // Find bottom right points and create regions
         for (CellRowCol start : startPoints) {
             CellRowCol end = findBottomRight(start.row, start.col);
-            regions.add(new GridRegion(getFirstRowNum() + start.row,
-                    getFirstColNum() + start.col,
-                    getFirstRowNum() + end.row,
-                    getFirstColNum() + end.col));
+            GridRegion region = new GridRegion(getFirstRowNum() + start.row,
+                getFirstColNum() + start.col,
+                getFirstRowNum() + end.row,
+                getFirstColNum() + end.col);
+            regions.add(region);
+            regionsPool.add(region);
         }
     }
 
@@ -249,14 +252,7 @@ public class ParsedGrid extends AGrid {
     }
 
     protected IGridRegion getRegion(int row, int col) {
-        for (IGridRegion region : regions) {
-            if (region.getTop() <= row && row <= region.getBottom() &&
-                    region.getLeft() <= col && col <= region.getRight()) {
-                return region;
-            }
-        }
-
-        return null;
+        return regionsPool.getRegionContaining(col, row);
     }
 
     protected Object[][] getCells() {
