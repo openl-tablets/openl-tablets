@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.util.LinkedHashMap;
+import java.util.Map.Entry;
+
 import org.openl.base.INameSpacedThing;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
@@ -9,9 +12,6 @@ import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.LinkedHashMap;
-import java.util.Map.Entry;
 
 public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     private final Logger log = LoggerFactory.getLogger(ComplexParameterTreeNode.class);
@@ -117,7 +117,12 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                 String fieldName = (String) fieldEntry.getKey();
                 IOpenField field = getType().getField(fieldName);
                 if (field.isWritable()) {
-                    field.set(value, fieldEntry.getValue().getValueForced(), env);
+                    try {
+                        field.set(value, fieldEntry.getValue().getValueForced(), env);
+                    } catch (Exception e) {
+                        // Can throw UnsupportedOperationException for example or doesn't accept nulls.
+                        log.debug("Exception while trying to set a value of a field:", e);
+                    }
                 }
             }
         }
