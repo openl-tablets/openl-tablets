@@ -24,9 +24,9 @@ public class CompiledOpenClass {
 
     private Collection<OpenLMessage> messages;
 
-    private Collection<OpenLMessage> errorMessages;
-
     private IOpenClass openClass;
+    
+    private boolean hasErrors;
 
     private ClassLoader classLoader;
 
@@ -42,7 +42,7 @@ public class CompiledOpenClass {
             this.messages = Collections.emptyList();
         } else {
             this.messages = Collections.unmodifiableCollection(messages);
-            this.errorMessages = Collections.unmodifiableCollection(getErrorMessages(messages));
+            this.hasErrors = !getErrorMessages(messages).isEmpty();
         }
         this.classLoader = Thread.currentThread().getContextClassLoader();
     }
@@ -71,23 +71,25 @@ public class CompiledOpenClass {
     }
 
     public boolean hasErrors() {
-        return (parsingErrors.length > 0) || (bindingErrors.length > 0) || (errorMessages != null && !errorMessages
-            .isEmpty());
+        return hasErrors;
     }
 
     public void throwErrorExceptionsIfAny() {
-        if (parsingErrors.length > 0) {
-            throw new CompositeOpenlException("Parsing Error(s):", parsingErrors, errorMessages);
-        }
-
-        if (bindingErrors.length > 0) {
-            throw new CompositeOpenlException("Binding Error(s):", bindingErrors, errorMessages);
-        }
-
         if (hasErrors()) {
-            throw new CompositeOpenlException("Module contains critical errors", null, errorMessages);
-        }
+            Collection<OpenLMessage> errorMessages = getErrorMessages(messages);
+            
+            if (parsingErrors.length > 0) {
+                throw new CompositeOpenlException("Parsing Error(s):", parsingErrors, errorMessages);
+            }
 
+            if (bindingErrors.length > 0) {
+                throw new CompositeOpenlException("Binding Error(s):", bindingErrors, errorMessages);
+            }
+
+            if (errorMessages != null && !errorMessages.isEmpty()) {
+                throw new CompositeOpenlException("Module contains critical errors", null, errorMessages);
+            }
+        }
     }
 
     public Collection<OpenLMessage> getMessages() {

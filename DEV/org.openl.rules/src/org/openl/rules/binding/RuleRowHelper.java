@@ -10,10 +10,12 @@ import java.util.List;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.MethodUtil;
+import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.BigDecimalValue;
@@ -27,12 +29,15 @@ import org.openl.rules.convertor.ObjectToDataConvertorFactory;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.dt.element.ArrayHolder;
 import org.openl.rules.helpers.INumberRange;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.SingleCellGridTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.SingleCellGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -44,7 +49,6 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
@@ -363,13 +367,28 @@ public class RuleRowHelper {
         }
     }
 
+    private static XlsModuleOpenClass getComponentOpenClass(IBindingContext bindingContext) {
+        if (bindingContext instanceof ComponentBindingContext) {
+            IOpenClass openClass = ((ComponentBindingContext) bindingContext).getComponentOpenClass();
+            if (openClass instanceof XlsModuleOpenClass) {
+                return (XlsModuleOpenClass) openClass;
+            }
+        }
+        if (bindingContext instanceof BindingContextDelegator) {
+            BindingContextDelegator bindingContextDelegator = (BindingContextDelegator) bindingContext;
+            return getComponentOpenClass(bindingContextDelegator.getDelegate());
+        }
+        return null;
+    }
+    
     public static ConstantOpenField findConstantField(IBindingContext bindingContext, String source) {
         if (source == null) {
             return null;
         }
-        IOpenField openField = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, source.trim(), true);
-        if (openField instanceof ConstantOpenField) {
-            return (ConstantOpenField) openField;
+        
+        XlsModuleOpenClass xlsModuleOpenClass = getComponentOpenClass(bindingContext);
+        if (xlsModuleOpenClass != null) {
+            return xlsModuleOpenClass.getConstantField(source.trim());
         }
         return null;
     }

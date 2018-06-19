@@ -149,11 +149,9 @@ public class ModuleOpenClass extends ComponentOpenClass {
             //
             for (CompiledDependency dependency : usingModules) {
                 CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
-                if (!compiledOpenClass.hasErrors()) {
-                    field = compiledOpenClass.getOpenClass().getField(fname, strictMatch);
-                    if (field != null) {
-                        return field;
-                    }
+                field = compiledOpenClass.getOpenClassWithErrors().getField(fname, strictMatch);
+                if (field != null) {
+                    return field;
                 }
             }
         }
@@ -174,9 +172,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
                     dependencyFields = new HashMap<String, IOpenField>();
                     for (CompiledDependency dependency : usingModules) {
                         CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
-                        if (!compiledOpenClass.hasErrors()) {
-                            dependencyFields.putAll(compiledOpenClass.getOpenClass().getFields());
-                        }
+                        dependencyFields.putAll(compiledOpenClass.getOpenClassWithErrors().getFields());
                     }
                 }
             }
