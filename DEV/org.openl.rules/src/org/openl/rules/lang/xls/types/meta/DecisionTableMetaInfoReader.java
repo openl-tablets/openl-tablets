@@ -195,10 +195,11 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                 if (storageValue instanceof CompositeMethod) {
                     // Some expression
                     String stringValue = cell.getStringValue();
+                    int startIndex = stringValue.indexOf('=') + 1;
                     List<NodeUsage> nodeUsages = OpenLCellExpressionsCompiler.getNodeUsages(
                             (CompositeMethod) storageValue,
-                            stringValue,
-                            stringValue.indexOf('=') + 1
+                            stringValue.substring(startIndex),
+                            startIndex
                     );
                     setPreparedMetaInfo(row, col, new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages));
                     continue;
