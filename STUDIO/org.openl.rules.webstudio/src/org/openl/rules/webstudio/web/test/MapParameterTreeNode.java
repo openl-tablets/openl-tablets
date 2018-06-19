@@ -4,8 +4,12 @@ import java.util.*;
 
 import org.openl.types.java.JavaOpenClass;
 import org.richfaces.model.TreeNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MapParameterTreeNode extends CollectionParameterTreeNode {
+    private final Logger log = LoggerFactory.getLogger(MapParameterTreeNode.class);
+
     public MapParameterTreeNode(ParameterRenderConfig config) {
         super(config);
     }
@@ -30,9 +34,14 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
             LinkedHashMap<Object, ParameterDeclarationTreeNode> elements = new LinkedHashMap<>();
             Map<Object, Object> map = getMap();
             int i = 0;
-            for (Map.Entry<Object, Object> entry : map.entrySet()) {
-                elements.put(i, createNode(entry.getKey(), entry.getValue()));
-                i++;
+            try {
+                for (Map.Entry<Object, Object> entry : map.entrySet()) {
+                    elements.put(i, createNode(entry.getKey(), entry.getValue()));
+                    i++;
+                }
+            } catch (Exception e) {
+                // Can throw UnsupportedOperationException for example.
+                log.debug(e.getMessage(), e);
             }
             return elements;
         }
