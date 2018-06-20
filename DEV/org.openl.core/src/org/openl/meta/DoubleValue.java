@@ -75,12 +75,14 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public static final DoubleValue MINUS_ONE = new DoubleValue(-1);
 
     private double value;
+    private int hashCode;
 
     /**
      * EPBDS-6107
      */
     public void setValue(double value) {
         this.value = value;
+        this.hashCode = ((Double) value).hashCode();
     }
 
     /**
@@ -640,18 +642,21 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     // Constructors
     public DoubleValue(double value) { 
         this.value = value;
+        this.hashCode = ((Double) this.value).hashCode();
     }
 
     /**Formula constructor**/
     public DoubleValue(org.openl.meta.DoubleValue lv1, org.openl.meta.DoubleValue lv2, double value, Formulas operand) {
         super(lv1, lv2, operand);
         this.value = value;
+        this.hashCode = ((Double) this.value).hashCode();
     }
 
     /**Cast constructor**/
     public DoubleValue(double value, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
         super(beforeCastValue, new CastOperand("DoubleValue", autocast));
         this.value = value;
+        this.hashCode = ((Double) this.value).hashCode();
     }
 
     /**
@@ -916,7 +921,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
 
     @Override
     public int hashCode() {
-        return ((Double) value).hashCode();
+        return hashCode;
     }
 
     private static Double[] unwrap(DoubleValue[] values) {

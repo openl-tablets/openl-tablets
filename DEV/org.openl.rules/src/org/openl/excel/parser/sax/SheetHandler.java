@@ -12,6 +12,7 @@ import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.ExcelParseException;
 import org.openl.excel.parser.MergedCell;
+import org.openl.excel.parser.ParserDateUtil;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ public class SheetHandler extends DefaultHandler {
     private final Logger log = LoggerFactory.getLogger(SheetHandler.class);
 
     private final SharedStringsTable sharedStringsTable;
+    private final ParserDateUtil parserDateUtil;
     private final boolean use1904Windowing;
     private final MinimalStyleTable stylesTable;
 
@@ -50,10 +52,11 @@ public class SheetHandler extends DefaultHandler {
     // Cell indent
     private Short indent;
 
-    SheetHandler(SharedStringsTable sharedStringsTable, boolean use1904Windowing, MinimalStyleTable stylesTable) {
+    SheetHandler(SharedStringsTable sharedStringsTable, boolean use1904Windowing, MinimalStyleTable stylesTable, ParserDateUtil parserDateUtil) {
         this.sharedStringsTable = sharedStringsTable;
         this.use1904Windowing = use1904Windowing;
         this.stylesTable = stylesTable;
+        this.parserDateUtil = parserDateUtil;
     }
 
     public Object[][] getCells() {
@@ -176,7 +179,7 @@ public class SheetHandler extends DefaultHandler {
                             parsedValue = null;
                         } else {
                             double d = Double.parseDouble(n);
-                            if (DateUtil.isValidExcelDate(d) && DateUtil.isADateFormat(formatIndex, formatString)) {
+                            if (DateUtil.isValidExcelDate(d) && parserDateUtil.isADateFormat(formatIndex, formatString)) {
                                 parsedValue = DateUtil.getJavaDate(d, use1904Windowing);
                             } else {
                                 parsedValue = NumberUtils.intOrDouble(d);
@@ -284,6 +287,7 @@ public class SheetHandler extends DefaultHandler {
     }
 
     private static class LruCache<A, B> extends LinkedHashMap<A, B> {
+        private static final long serialVersionUID = -6937158218983475882L;
         private final int maxEntries;
 
         LruCache(final int maxEntries) {

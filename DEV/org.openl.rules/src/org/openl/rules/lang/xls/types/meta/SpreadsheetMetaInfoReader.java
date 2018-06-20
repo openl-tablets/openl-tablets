@@ -56,9 +56,10 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
 
                 IOpenMethod method = spreadsheetCell.getMethod();
                 if (method instanceof CompositeMethod) {
+                    int startIndex = from + 1;
                     List<NodeUsage> parsedNodeUsages = OpenLCellExpressionsCompiler.getNodeUsages(
                             (CompositeMethod) method,
-                            stringValue, from + 1
+                            stringValue.substring(startIndex), startIndex
                     );
                     nodeUsages.addAll(parsedNodeUsages);
                 }

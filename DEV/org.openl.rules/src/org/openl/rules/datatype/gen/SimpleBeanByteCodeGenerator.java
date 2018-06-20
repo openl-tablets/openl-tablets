@@ -151,14 +151,16 @@ class SimpleBeanByteCodeGenerator {
 
     private static void visitJAXBAnnotation(ClassWriter classWriter, String beannameWithPackage) {
         String namespace = getNamespace(beannameWithPackage);
+        String name = beannameWithPackage.substring(beannameWithPackage.lastIndexOf('/') + 1);
 
         AnnotationVisitor av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlRootElement;", true);
         av.visit("namespace", namespace);
+        av.visit("name", name);
         av.visitEnd();
 
         av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlType;", true);
         av.visit("namespace", namespace);
-        av.visit("name", beannameWithPackage.substring(beannameWithPackage.lastIndexOf('/') + 1));
+        av.visit("name", name);
         av.visitEnd();
     }
 

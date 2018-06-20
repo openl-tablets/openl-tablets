@@ -42,7 +42,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
 
     private final float value;
-
+    private final int hashCode;
+    
     /**
      * Compares two values
      * 
@@ -646,18 +647,21 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     // Constructors
     public FloatValue(float value) {
         this.value = value;
+        this.hashCode = ((Float) this.value).hashCode();
     }
 
     /** Formula constructor **/
     public FloatValue(org.openl.meta.FloatValue lv1, org.openl.meta.FloatValue lv2, float value, Formulas operand) {
         super(lv1, lv2, operand);
         this.value = value;
+        this.hashCode = ((Float) this.value).hashCode();
     }
 
     /** Cast constructor **/
     public FloatValue(float value, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
         super(beforeCastValue, new CastOperand("FloatValue", autocast));
         this.value = value;
+        this.hashCode = ((Float) this.value).hashCode();
     }
 
     /**
@@ -844,13 +848,15 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
 
     public FloatValue(String valueString) {
-        value = Float.parseFloat(valueString);
+        this.value = Float.parseFloat(valueString);
+        this.hashCode = ((Float) this.value).hashCode();
     }
 
     /** Function constructor **/
     public FloatValue(FloatValue result, NumberOperations function, FloatValue... params) {
         super(function, params);
         this.value = result.floatValue();
+        this.hashCode = ((Float) this.value).hashCode();
     }
 
     @Override
@@ -879,7 +885,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 
     @Override
     public int hashCode() {
-        return ((Float) value).hashCode();
+        return hashCode;
     }
 
     private static Float[] unwrap(FloatValue[] values) {

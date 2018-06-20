@@ -20,6 +20,7 @@
                 <configuration>
                     <interfaceClass>com.example.Service</interfaceClass>
                     <threadCount>5</threadCount>
+                    <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
                 </configuration>
                 <executions>
                     <execution>

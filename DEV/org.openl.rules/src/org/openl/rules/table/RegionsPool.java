@@ -50,6 +50,9 @@ public class RegionsPool {
             }
         }
     }
+    
+    public RegionsPool() {
+    }
 
     /**
      * @param region Region to register in the pool

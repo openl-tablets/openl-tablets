@@ -88,7 +88,7 @@ public class ParsedCell implements ICell {
         initializeStyles();
         return tableStyles == null ? null : tableStyles.getFont(row, column);
     }
-
+    
     @Override
     public IGridRegion getRegion() {
         return grid.getRegion(row, column);

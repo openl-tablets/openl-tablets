@@ -91,6 +91,7 @@
         <com.fasterxml.jackson.version>2.9.5</com.fasterxml.jackson.version>
         <maven.api.version>3.2.5</maven.api.version>
         <maven.plugin.version>3.5</maven.plugin.version>
+        <jetty.http.port>9999</jetty.http.port>
         <!-- Empty for building without JaCoCo agent -->
         <jacococ.argLine/>
     </properties>
@@ -304,6 +305,31 @@
                     <configuration>
                         <siteDirectory>${basedir}/site</siteDirectory>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-maven-plugin</artifactId>
+                    <!-- Java 7 -->
+                    <version>9.2.25.v20180606</version>
+                    <configuration>
+                        <httpConnector>
+                            <!-- To be compatible with Jetty 9.4 -->
+                            <port>${jetty.http.port}</port>
+                        </httpConnector>
+                        <systemProperties>
+                            <systemProperty>
+                                <name>openl.home</name>
+                                <value>${project.build.directory}/openl-jetty</value>
+                            </systemProperty>
+                        </systemProperties>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.h2database</groupId>
+                            <artifactId>h2</artifactId>
+                            <version>1.4.196</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
             </plugins>
         </pluginManagement>
