@@ -1,18 +1,8 @@
 package org.openl.rules.java;
 
 import org.openl.OpenL;
-import org.openl.conf.AOpenLBuilder;
-import org.openl.conf.JavaImportTypeConfiguration;
-import org.openl.conf.JavaLibraryConfiguration;
-import org.openl.conf.LibraryFactoryConfiguration;
-import org.openl.conf.NameSpacedLibraryConfiguration;
-import org.openl.conf.NameSpacedTypeConfiguration;
-import org.openl.conf.NoAntOpenLTask;
-import org.openl.conf.NodeBinderFactoryConfiguration;
+import org.openl.conf.*;
 import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
-import org.openl.conf.OpenConfigurationException;
-import org.openl.conf.TypeCastFactory;
-import org.openl.conf.TypeFactoryConfiguration;
 import org.openl.syntax.impl.ISyntaxConstants;
 
 public class OpenLBuilder extends AOpenLBuilder {
@@ -23,6 +13,7 @@ public class OpenLBuilder extends AOpenLBuilder {
             org.openl.rules.util.Strings.class.getName(),
             org.openl.rules.util.Arrays.class.getName(),
             org.openl.rules.util.Miscs.class.getName(),
+            org.openl.rules.util.Dates.class.getName(),
             org.openl.rules.helpers.RulesUtils.class.getName(),
             org.openl.rules.dt.algorithm.evaluator.CtrUtils.class.getName(),
             org.openl.meta.ByteValue.class.getName(),

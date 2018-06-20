@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.openl.rules.util.dates.DateInterval;
+
 public class DateTool {
 
     public static final int MONTHS_IN_YEAR = 12;
@@ -29,7 +31,7 @@ public class DateTool {
     }
 
     public static Integer dayDiff(Date endDate, Date startDate) {
-        return DateDifference.getDifferenceInDays(endDate, startDate);
+        return castToInteger(DateInterval.between(startDate, endDate).toDays());
     }
 
     public static Integer dayOfWeek(Date d) {
@@ -110,15 +112,15 @@ public class DateTool {
     }
 
     public static Integer monthDiff(Date endDate, Date startDate) {
-        return DateDifference.getDifferenceInMonths(endDate, startDate);
+        return castToInteger(DateInterval.between(startDate, endDate).toMonths(DateInterval.Scale.INT));
     }
 
     public static Integer yearDiff(Date endDate, Date startDate) {
-        return DateDifference.getDifferenceInYears(endDate, startDate);
+        return castToInteger(DateInterval.between(startDate, endDate).toYears(DateInterval.Scale.INT));
     }
 
     public static Integer weekDiff(Date endDate, Date startDate) {
-        return DateDifference.getDifferenceInWeeks(endDate, startDate);
+        return castToInteger(DateInterval.between(startDate, endDate).toWeeks(DateInterval.Scale.FRAC));
     }
 
     public static Integer quarter(Date d) {
@@ -223,7 +225,7 @@ public class DateTool {
      * @param dateFormat
      * @return String date format
      */
-    public static String dateToString(Date date, String dateFormat) throws Exception {
+    public static String dateToString(Date date, String dateFormat) {
         if (date == null) {
             return null;
         }
@@ -236,9 +238,13 @@ public class DateTool {
      * 
      * @param date
      * @return String date format
-     * @throws Exception
      */
-    public static String dateToString(Date date) throws Exception {
+    public static String dateToString(Date date) {
         return dateToString(date, null);
     }
+
+    private static Integer castToInteger(Double d) {
+        return d == null ? null : d.intValue();
+    }
+
 }

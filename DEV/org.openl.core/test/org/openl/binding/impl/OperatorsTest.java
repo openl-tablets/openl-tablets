@@ -1,6 +1,6 @@
 package org.openl.binding.impl;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,7 +26,7 @@ public class OperatorsTest {
 
     @Test
     public void testSubtractDates() throws Exception {
-        int diff = Operators.subtract(dateFormat.parse("2013-01-29"), dateFormat.parse("2012-10-01"));
-        assertEquals(120, diff);
+        Integer diff = Operators.subtract(dateFormat.parse("2013-01-29"), dateFormat.parse("2012-10-01"));
+        assertEquals(new Integer(120), diff);
     }
 }

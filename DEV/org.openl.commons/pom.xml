@@ -18,5 +18,9 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.rules.util</artifactId>
+        </dependency>
     </dependencies>
 </project>

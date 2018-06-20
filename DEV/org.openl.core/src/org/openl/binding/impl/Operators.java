@@ -13,7 +13,7 @@ import java.math.MathContext;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.openl.util.DateDifference;
+import org.openl.rules.util.dates.DateInterval;
 
 /**
  * @author snshor
@@ -894,7 +894,8 @@ public class Operators {
     }
 
     public static Integer subtract(Date d1, Date d2) {
-        return DateDifference.getDifferenceInDays(d1, d2);
+        Double diff = DateInterval.between(d2, d1).toDays();
+        return diff == null ? null : diff.intValue();
     }
 
     public static Date subtract(Date d, int days) {

@@ -3,11 +3,13 @@ package org.openl.extension.xmlrules.utils;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.openl.util.DateDifference;
+import org.openl.rules.util.dates.DateInterval;
+import org.openl.rules.util.dates.DateInterval.Scale;
+import org.openl.rules.util.dates.DateInterval.Unit;
 
 public class DateFunctions {
 
-    public static int diff(Object startDate, Object endDate, String unitName) {
+    public static Integer diff(Object startDate, Object endDate, String unitName) {
         Unit unit = Unit.getUnit(unitName);
 
         if (unit == null) {
@@ -17,26 +19,27 @@ public class DateFunctions {
         Calendar startCalendar = HelperFunctions.getCalendar(startDate);
         Calendar endCalendar = HelperFunctions.getCalendar(endDate);
 
+        DateInterval interval = DateInterval.between(startCalendar, endCalendar);
         switch (unit) {
             case YEARS:
-                return DateDifference.getDifferenceInYears(endCalendar.getTime(), startCalendar.getTime());
+                return castToInteger(interval.toYears(Scale.INT));
             case MONTHS:
-                return DateDifference.getDifferenceInMonths(endCalendar.getTime(), startCalendar.getTime());
+                return castToInteger(interval.toMonths(Scale.INT));
             case DAYS:
-                return DateDifference.getDifferenceInDays(endCalendar.getTime(), startCalendar.getTime());
-            case DAYS_WITHOUT_MONTHS_AND_YEARS:
-                startCalendar.set(Calendar.YEAR, endCalendar.get(Calendar.YEAR));
-                startCalendar.set(Calendar.MONTH, endCalendar.get(Calendar.MONTH));
-                return DateDifference.getDifferenceInDays(endCalendar.getTime(), startCalendar.getTime());
-            case DAYS_WITHOUT_YEARS:
-                startCalendar.set(Calendar.YEAR, endCalendar.get(Calendar.YEAR));
-                return DateDifference.getDifferenceInDays(endCalendar.getTime(), startCalendar.getTime());
-            case MONTHS_WITHOUT_YEARS:
-                startCalendar.set(Calendar.YEAR, endCalendar.get(Calendar.YEAR));
-                return DateDifference.getDifferenceInMonths(endCalendar.getTime(), startCalendar.getTime());
+                return castToInteger(interval.toDays());
+            case DAYS_EXCLUDE_MONTHS_AND_YEARS:
+                return castToInteger(interval.toDaysExcludeYearsAndMonths());
+            case DAYS_EXCLUDE_YEARS:
+                return castToInteger(interval.toDaysExcludeYears());
+            case MONTHS_EXCLUDE_YEARS:
+                return castToInteger(interval.toMonthsExcludeYears(Scale.INT));
             default:
                 throw new IllegalArgumentException("Unsupported unit '" + unitName + "'");
         }
+    }
+
+    private static Integer castToInteger(Double d) {
+        return d == null ? null : d.intValue();
     }
 
     public static Date now() {
@@ -83,30 +86,5 @@ public class DateFunctions {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
-    }
-
-    private enum Unit {
-        YEARS("Y"),
-        MONTHS("M"),
-        DAYS("D"),
-        DAYS_WITHOUT_MONTHS_AND_YEARS("MD"),
-        MONTHS_WITHOUT_YEARS("YM"),
-        DAYS_WITHOUT_YEARS("YD");
-
-        public static Unit getUnit(String unitName) {
-            for (Unit unit : values()) {
-                if (unit.unitName.equals(unitName)) {
-                    return unit;
-                }
-            }
-
-            return null;
-        }
-
-        private final String unitName;
-
-        Unit(String unitName) {
-            this.unitName = unitName;
-        }
     }
 }
