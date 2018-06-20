@@ -121,7 +121,7 @@ public class TableEditorController extends BaseTableEditorController {
             value = cell.getStringValue();
         } else if (editorType.equals(ICellEditor.CE_FORMULA)) {
             value = "=" + cell.getFormula();
-        } else if (editorType.equals(ICellEditor.CE_TEXT)) {
+        } else if (editorType.equals(ICellEditor.CE_TEXT) || editorType.equals(ICellEditor.CE_MULTILINE)) {
             value = cell.getStringValue();
         } else if (editorType.equals(ICellEditor.CE_DATE)) {
             // Format must be same as in DateEditor.js
