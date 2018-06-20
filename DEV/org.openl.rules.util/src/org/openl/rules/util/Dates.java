@@ -13,7 +13,10 @@ import org.openl.rules.util.dates.DateInterval.Unit;
  *
  * @author Vladyslav Pikus
  */
-public class Dates {
+public final class Dates {
+
+    private Dates() {
+        /* NON */}
 
     /**
      * Calculate difference between two dates
