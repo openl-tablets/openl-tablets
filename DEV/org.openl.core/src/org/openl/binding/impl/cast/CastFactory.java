@@ -6,6 +6,7 @@
 
 package org.openl.binding.impl.cast;
 
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -752,15 +753,12 @@ public class CastFactory implements ICastFactory {
             return true;
         }
 
-        if (!from.isPrimitive() && to.isInterface()) {
+        if (!from.isPrimitive() && !Modifier.isFinal(from.getModifiers()) && to.isInterface()) {
             return true;
         }
 
-        if (!to.isPrimitive() && from.isInterface()) {
-            return true;
-        }
+        return !to.isPrimitive() && !Modifier.isFinal(to.getModifiers()) && from.isInterface();
 
-        return false;
     }
 
     public IMethodFactory getMethodFactory() {

@@ -53,7 +53,6 @@ import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.DomainUtils;
-import org.openl.util.Log;
 import org.openl.util.StringPool;
 import org.openl.util.StringTool;
 import org.openl.util.text.LocationUtils;
@@ -606,15 +605,7 @@ public class RuleRowHelper {
         if (oneCellTable && !paramType.isArray()) {
             // attempt to load as a single paramType(will work in case of
             // expressions)
-            try {
-                return loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
-            } catch (Exception e) {
-
-                Log.debug(e);
-                // do nothing, assume the type was wrong or this was not an
-                // expression
-                // let the regular flow of events take it's course
-            }
+            return loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
         }
 
         // Load parameter value as an array of values.

@@ -1,6 +1,11 @@
 package org.openl.binding.impl.cast;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import java.lang.reflect.Array;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -10,12 +15,12 @@ import org.openl.types.java.JavaOpenClass;
 
 public class CastFactoryTest {
 
+    private final CastFactory factory;
+
     public CastFactoryTest() {
         factory = new CastFactory();
         factory.setMethodFactory(NullOpenClass.the);
     }
-
-    CastFactory factory;
 
     @Test
     public void testPrimitives() {
@@ -26,7 +31,7 @@ public class CastFactoryTest {
         javaCastTest(Void.class, void.class);
         javaCastTest(void.class, Void.class);
     }
-    
+
     @Test
     public void typeToOneElementArrayCastTest() {
         javaCastTest(Integer.class, Integer[].class);
@@ -54,7 +59,7 @@ public class CastFactoryTest {
         int[][][][] y = (int[][][][]) cast.convert(x);
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 4; j++) {
-                Assert.assertEquals(0, Array.getLength(y[i][j]));
+                assertEquals(0, Array.getLength(y[i][j]));
             }
         }
         x = new Integer[5][4][1][1];
@@ -62,7 +67,7 @@ public class CastFactoryTest {
             for (int j = 0; j < 4; j++) {
                 for (int k = 0; k < 1; k++) {
                     for (int w = 0; w < 1; w++) {
-                        x[i][j][k][w] = 31 + i * 101 ^ j >>> 3 + k * 721 - w * 13 ;
+                        x[i][j][k][w] = 31 + i * 101 ^ j >>> 3 + k * 721 - w * 13;
                     }
                 }
             }
@@ -72,7 +77,7 @@ public class CastFactoryTest {
             for (int j = 0; j < 4; j++) {
                 for (int k = 0; k < 1; k++) {
                     for (int w = 0; w < 1; w++) {
-                        Assert.assertEquals(x[i][j][k][w].intValue(), y[i][j][k][w]);
+                        assertEquals(x[i][j][k][w].intValue(), y[i][j][k][w]);
                     }
                 }
             }
@@ -85,7 +90,7 @@ public class CastFactoryTest {
             for (int j = 0; j < 4; j++) {
                 for (int k = 0; k < 1; k++) {
                     for (int w = 0; w < 1; w++) {
-                        Assert.assertEquals(x[i][j][k][w], z[i][j][k][w]);
+                        assertEquals(x[i][j][k][w], z[i][j][k][w]);
                     }
                 }
             }
@@ -97,7 +102,7 @@ public class CastFactoryTest {
             for (int j = 0; j < 4; j++) {
                 for (int k = 0; k < 1; k++) {
                     for (int w = 0; w < 1; w++) {
-                        Assert.assertEquals(x[i][j][k][w].intValue(), y[i][j][k][w]);
+                        assertEquals(x[i][j][k][w].intValue(), y[i][j][k][w]);
                     }
                 }
             }
@@ -117,8 +122,110 @@ public class CastFactoryTest {
         } catch (ClassCastException e) {
         }
 
-        Assert.assertNull(factory.getCast(JavaOpenClass.getOpenClass(Integer[][][][][].class),
+        assertNull(factory.getCast(JavaOpenClass.getOpenClass(Integer[][][][][].class),
             JavaOpenClass.getOpenClass(int[][][][].class)));
+    }
+
+    @Test
+    public void interfacesDownCastTest() {
+        // should allow downcast from Object -> List
+        IOpenCast cast = factory.getCast(JavaOpenClass.getOpenClass(Object.class),
+            JavaOpenClass.getOpenClass(List.class));
+        assertNotNull(cast);
+        assertEquals(JavaDownCast.class, cast.getClass());
+
+        // should allow downcast from Apple -> List
+        cast = factory.getCast(JavaOpenClass.getOpenClass(Apple.class), JavaOpenClass.getOpenClass(List.class));
+        assertNotNull(cast);
+        assertEquals(JavaDownCast.class, cast.getClass());
+
+        // should allow downcast from Number -> Integer when target class is final and implements this interface
+        cast = factory.getCast(JavaOpenClass.getOpenClass(Number.class), JavaOpenClass.getOpenClass(Integer.class));
+        assertNotNull(cast);
+        assertEquals(JavaDownCast.class, cast.getClass());
+
+        // should allow downcast from List -> Apple
+        cast = factory.getCast(JavaOpenClass.getOpenClass(List.class), JavaOpenClass.getOpenClass(Apple.class));
+        assertNotNull(cast);
+        assertEquals(JavaDownCast.class, cast.getClass());
+
+        // should allow downcast from Apple -> Fruit when target class extends source class
+        cast = factory.getCast(JavaOpenClass.getOpenClass(Apple.class), JavaOpenClass.getOpenClass(Fruit.class));
+        assertNotNull(cast);
+        assertEquals(JavaDownCast.class, cast.getClass());
+
+        cast = factory.getCast(JavaOpenClass.getOpenClass(Object[][].class),
+            JavaOpenClass.getOpenClass(Apple[][].class));
+        assertNotNull(cast);
+        assertEquals(ArrayCast.class, cast.getClass());
+
+        cast = factory.getCast(JavaOpenClass.getOpenClass(Object[].class), JavaOpenClass.getOpenClass(Apple[][].class));
+        assertNotNull(cast);
+        assertEquals(JavaDownCast.class, cast.getClass());
+    }
+
+    @Test
+    public void interfacesUpCastTest() {
+        // should allow upcast from List -> Object
+        IOpenCast cast = factory.getCast(JavaOpenClass.getOpenClass(List.class),
+            JavaOpenClass.getOpenClass(Object.class));
+        assertNotNull(cast);
+        assertEquals(JavaUpCast.class, cast.getClass());
+
+        // should allow upcast from AppleFinalList -> List
+        cast = factory.getCast(JavaOpenClass.getOpenClass(Integer.class), JavaOpenClass.getOpenClass(Number.class));
+        assertNotNull(cast);
+        assertEquals(JavaUpCast.class, cast.getClass());
+
+        // should allow upcast from Fruit -> Apple
+        cast = factory.getCast(JavaOpenClass.getOpenClass(Fruit.class), JavaOpenClass.getOpenClass(Apple.class));
+        assertNotNull(cast);
+        assertEquals(JavaUpCast.class, cast.getClass());
+
+        cast = factory.getCast(JavaOpenClass.getOpenClass(Apple[][].class), JavaOpenClass.getOpenClass(Object[].class));
+        assertNotNull(cast);
+        assertEquals(JavaUpCast.class, cast.getClass());
+    }
+
+    @Test
+    public void shouldNotAllowCast() {
+        // should not allow downcast from Integer -> Apple when source class is final
+        IOpenCast cast = factory.getCast(JavaOpenClass.getOpenClass(Integer.class),
+            JavaOpenClass.getOpenClass(Apple.class));
+        assertNull(cast);
+
+        // should not allow downcast from List -> Integer when target class is final and doesn't implement source
+        cast = factory.getCast(JavaOpenClass.getOpenClass(List.class), JavaOpenClass.getOpenClass(Integer.class));
+        assertNull(cast);
+
+        // should not allow downcast from Integer -> List
+        cast = factory.getCast(JavaOpenClass.getOpenClass(Integer.class), JavaOpenClass.getOpenClass(List.class));
+        assertNull(cast);
+
+        // should not allow downcast from String[][] -> List when source class is array
+        cast = factory.getCast(JavaOpenClass.getOpenClass(String[][].class), JavaOpenClass.getOpenClass(List.class));
+        assertNull(cast);
+
+        cast = factory.getCast(JavaOpenClass.getOpenClass(Object[][].class), JavaOpenClass.getOpenClass(List.class));
+        assertNull(cast);
+
+        // should not allow downcast from Apple -> Dog
+        cast = factory.getCast(JavaOpenClass.getOpenClass(Apple.class), JavaOpenClass.getOpenClass(Dog.class));
+        assertNull(cast);
+
+        // should not allow downcast from List -> String[][]
+        cast = factory.getCast(JavaOpenClass.getOpenClass(List.class), JavaOpenClass.getOpenClass(String[][].class));
+        assertNull(cast);
+
+        cast = factory.getCast(JavaOpenClass.getOpenClass(List.class), JavaOpenClass.getOpenClass(Object[][].class));
+        assertNull(cast);
+
+        cast = factory.getCast(JavaOpenClass.getOpenClass(Apple[][].class),
+            JavaOpenClass.getOpenClass(Integer[][].class));
+        assertNull(cast);
+
+        cast = factory.getCast(JavaOpenClass.getOpenClass(Apple[].class), JavaOpenClass.getOpenClass(Object[][].class));
+        assertNull(cast);
     }
 
     void javaCastTest(Class<?> from, Class<?> to) {
@@ -134,6 +241,15 @@ public class CastFactoryTest {
         IOpenCast cast = factory.getCast(JavaOpenClass.getOpenClass(from), JavaOpenClass.getOpenClass(to));
         Assert.assertNotNull(cast);
 
+    }
+
+    private static class Apple {
+    }
+
+    private static class Fruit extends Apple {
+    }
+
+    private static class Dog {
     }
 
 }
