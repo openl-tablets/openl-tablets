@@ -8,7 +8,9 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -539,6 +541,11 @@ public class DateToolTest {
             this.expected = expected;
         }
 
+        @Before
+        public void before() {
+            Locale.setDefault(Locale.US);
+        }
+        
         @Test
         public void test_weekOfMonth() {
             int actual = DateTool.weekOfMonth(inputDate);
