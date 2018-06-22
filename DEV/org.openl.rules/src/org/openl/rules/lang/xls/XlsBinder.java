@@ -926,7 +926,7 @@ public class XlsBinder implements IOpenBinder {
                     if (memberBoundNode != null) {
                         try {
                             memberBoundNode.addTo(module);
-                        } catch (OpenlNotCheckedException e) {
+                        } catch (Exception e) {
                             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);
                             processError(error, tableSyntaxNode, moduleContext);
                         }
