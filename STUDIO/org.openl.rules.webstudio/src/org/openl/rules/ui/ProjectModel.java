@@ -939,6 +939,15 @@ public class ProjectModel {
         allXlsModuleSyntaxNodes.clear();
         projectRoot = null;
     }
+    
+    private void resetWebStudioWorkspaceDependencyManagerForSingleMode(Module moduleInfo, Module previousModuleInfo) {
+        for (Module module : previousModuleInfo.getProject().getModules()) {
+            webStudioWorkspaceDependencyManager.reset(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null)));
+        }
+        for (Module module : moduleInfo.getProject().getModules()) {
+            webStudioWorkspaceDependencyManager.reset(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null)));
+        }
+    }
 
     public void setModuleInfo(Module moduleInfo) throws Exception {
         setModuleInfo(moduleInfo, ReloadType.NO);
@@ -954,10 +963,8 @@ public class ProjectModel {
             return;
         }
 
-        boolean moduleInfoWasChanged = false;
+        Module previousModuleInfo = this.moduleInfo;
         
-        if (moduleInfo != this.moduleInfo) {
-            moduleInfoWasChanged = true;
             // Current module changed - mark the previous one as read only
             XlsModuleSyntaxNode moduleSyntaxNode = xlsModuleSyntaxNode;
             if (moduleSyntaxNode != null) {
@@ -965,8 +972,6 @@ public class ProjectModel {
                     workbookSyntaxNode.getWorkbookSourceCodeModule().getWorkbookLoader().setCanUnload(true);
                 }
             }
-        }
-
         if (reloadType != ReloadType.NO) {
             uriTableCache.clear();
             idTableCache.clear();
@@ -999,7 +1004,7 @@ public class ProjectModel {
         xlsModuleSyntaxNode = null;
         allXlsModuleSyntaxNodes.clear();
         
-        prepareWebstudioWorkspaceDependencyManager(singleModuleMode, moduleInfoWasChanged);
+        prepareWebstudioWorkspaceDependencyManager(singleModuleMode, previousModuleInfo);
         
         Map<String, Object> externalParameters;
         RulesInstantiationStrategy instantiationStrategy;
@@ -1098,7 +1103,7 @@ public class ProjectModel {
 
     }
 
-    private void prepareWebstudioWorkspaceDependencyManager(boolean singleModuleMode, boolean moduleInfoWasChanged) {
+    private void prepareWebstudioWorkspaceDependencyManager(boolean singleModuleMode, Module previousModuleInfo) {
         if (webStudioWorkspaceDependencyManager == null) {
             webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                 .getDependencyManager(this.moduleInfo, singleModuleMode);
@@ -1113,11 +1118,14 @@ public class ProjectModel {
                         break;
                     }
                 }
-                if (!found || moduleInfoWasChanged && singleModuleMode) {
+                if (!found) { 
                     webStudioWorkspaceDependencyManager.resetAll();
                     webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                         .getDependencyManager(this.moduleInfo, singleModuleMode);
                     openedInSingleModuleMode = singleModuleMode;
+                }
+                if (this.moduleInfo != previousModuleInfo && singleModuleMode) {
+                    resetWebStudioWorkspaceDependencyManagerForSingleMode(this.moduleInfo, previousModuleInfo);
                 }
             } else {
                 webStudioWorkspaceDependencyManager.resetAll();
