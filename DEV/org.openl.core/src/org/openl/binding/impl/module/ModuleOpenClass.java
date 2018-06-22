@@ -77,8 +77,8 @@ public class ModuleOpenClass extends ComponentOpenClass {
         }
     }
 
-    protected boolean isDependencyMethodIgnorable(IOpenMethod method) {
-        return false;
+    protected boolean isDependencyMethodInheritable(IOpenMethod method) {
+        return true;
     }
 
     /**
@@ -100,7 +100,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
                             methodDependencyInfo.setModuleName(dependency.getDependencyName());
                         }
                     }
-                    if (!isDependencyMethodIgnorable(depMethod)) {
+                    if (isDependencyMethodInheritable(depMethod)) {
                         addMethod(depMethod);
                     }
                 } catch (OpenlNotCheckedException e) {
@@ -113,15 +113,15 @@ public class ModuleOpenClass extends ComponentOpenClass {
         }
     }
 
-    protected boolean isDependencyFieldIgnorable(IOpenField openField) {
-        return true;
+    protected boolean isDependencyFieldInheritable(IOpenField openField) {
+        return false;
     }
 
     protected void addFields(CompiledDependency dependency) {
         CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
         for (IOpenField depField : compiledOpenClass.getOpenClassWithErrors().getFields().values()) {
             try {
-                if (!isDependencyFieldIgnorable(depField)) {
+                if (isDependencyFieldInheritable(depField)) {
                     addField(depField);
                 }
             } catch (OpenlNotCheckedException e) {
