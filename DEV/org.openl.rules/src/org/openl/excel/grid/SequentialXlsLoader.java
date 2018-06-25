@@ -67,7 +67,7 @@ public class SequentialXlsLoader extends XlsLoader {
         String uri = workbookSourceModule.getSource().getUri();
         log.debug("Workbook uri: {}", uri);
         String path = null;
-        if (!uri.startsWith("jar:")) {
+        if (!uri.startsWith("jar:") && !uri.startsWith("vfs:")) {
             path = workbookSourceModule.getSourceFile().getAbsolutePath();
         }
         return path;
