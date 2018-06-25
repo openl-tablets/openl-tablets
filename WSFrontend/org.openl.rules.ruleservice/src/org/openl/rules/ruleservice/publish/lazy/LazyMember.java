@@ -58,7 +58,7 @@ public abstract class LazyMember<T extends IOpenMember> implements ILazyMember<T
         this.externalParameters = externalParameters;
     }
 
-    public abstract T getMember();
+    protected abstract T getMember();
 
     protected T getCachedMember() {
         return cachedMember;
@@ -177,27 +177,27 @@ public abstract class LazyMember<T extends IOpenMember> implements ILazyMember<T
     }
 
     public String getDisplayName(int mode) {
-        return original.getDisplayName(mode);
+        return getOriginal().getDisplayName(mode);
     }
 
     public String getName() {
-        return original.getName();
+        return getOriginal().getName();
     }
 
     public IOpenClass getType() {
-        return original.getType();
+        return getOriginal().getType();
     }
 
     public boolean isStatic() {
-        return original.isStatic();
+        return getOriginal().isStatic();
     }
 
     public IMemberMetaInfo getInfo() {
-        return original.getInfo();
+        return getOriginal().getInfo();
     }
 
     public IOpenClass getDeclaringClass() {
-        return original.getDeclaringClass();
+        return getOriginal().getDeclaringClass();
     }
 
     public Map<String, Object> getExternalParameters() {

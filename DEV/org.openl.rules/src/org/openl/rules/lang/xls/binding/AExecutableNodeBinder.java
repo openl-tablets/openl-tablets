@@ -9,7 +9,6 @@ import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.binding.RulesModuleBindingContext;

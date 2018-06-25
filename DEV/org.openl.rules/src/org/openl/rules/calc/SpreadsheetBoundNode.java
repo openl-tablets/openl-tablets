@@ -53,7 +53,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
          * the spreadsheet is SpreadsheetResult and the customspreadsheet
          * property is true
          */
-        boolean isCustomSpreadsheetType = getType().getInstanceClass().equals(SpreadsheetResult.class) && (!(getType() instanceof CustomSpreadsheetResultOpenClass)) && OpenLSystemProperties.isCustomSpreadsheetType(bindingContext
+        boolean isCustomSpreadsheetType = SpreadsheetResult.class.equals(getType().getInstanceClass()) && (!(getType() instanceof CustomSpreadsheetResultOpenClass)) && OpenLSystemProperties.isCustomSpreadsheetType(bindingContext
             .getExternalParams());
 
         return new Spreadsheet(getHeader(), this, isCustomSpreadsheetType);

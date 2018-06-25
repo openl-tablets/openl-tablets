@@ -9,6 +9,7 @@ import org.openl.conf.IUserContext;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.binding.RulesModuleBindingContext;
+import org.openl.rules.constants.ConstantsTableBoundNode;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.datatype.binding.AliasDatatypeBoundNode;
 import org.openl.rules.datatype.binding.DatatypeTableBoundNode;
@@ -39,7 +40,7 @@ public class XlsPreBinder extends XlsBinder {
     protected void finilizeBind(IMemberBoundNode memberBoundNode,
             TableSyntaxNode tableSyntaxNode,
             RulesModuleBindingContext moduleContext) {
-        if (memberBoundNode instanceof DatatypeTableBoundNode || memberBoundNode instanceof AliasDatatypeBoundNode || memberBoundNode instanceof PropertyTableBoundNode) {
+        if (memberBoundNode instanceof DatatypeTableBoundNode || memberBoundNode instanceof AliasDatatypeBoundNode || memberBoundNode instanceof PropertyTableBoundNode || memberBoundNode instanceof ConstantsTableBoundNode) {
             try {
                 memberBoundNode.finalizeBind(moduleContext);
             } catch (SyntaxNodeException error) {

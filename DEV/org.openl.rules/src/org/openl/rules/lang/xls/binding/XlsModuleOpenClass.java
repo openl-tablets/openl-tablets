@@ -166,27 +166,37 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     @SuppressWarnings("unchecked")
-    @Override
-    protected boolean isDependencyMethodIgnorable(IOpenMethod method) {
+    protected IOpenMethod extractNonLazyMethod(IOpenMethod method) {
         if (method instanceof ILazyMember) {
-            return isDependencyMethodIgnorable(((ILazyMember<IOpenMethod>) method).getMember());
+            return extractNonLazyMethod(((ILazyMember<IOpenMethod>) method).getOriginal());
         }
+        return method;
+    }
+
+    @Override
+    protected boolean isDependencyMethodInheritable(IOpenMethod openMethod) {
+        IOpenMethod method = extractNonLazyMethod(openMethod);
         if (method instanceof TestSuiteMethod) {
-            return true;
+            return false;
         }
-        return false;
+        return super.isDependencyMethodInheritable(method);
     }
 
     @SuppressWarnings("unchecked")
-    @Override
-    protected boolean isDependencyFieldIgnorable(IOpenField openField) {
+    protected IOpenField extractNonLazyMember(IOpenField openField) {
         if (openField instanceof ILazyMember) {
-            return isDependencyFieldIgnorable(((ILazyMember<IOpenField>) openField).getMember());
+            return extractNonLazyMember(((ILazyMember<IOpenField>) openField).getOriginal());
         }
-        if (openField instanceof ConstantOpenField) {
-            return false;
+        return openField;
+    }
+
+    @Override
+    protected boolean isDependencyFieldInheritable(IOpenField openField) {
+        IOpenField field = extractNonLazyMember(openField);
+        if (field instanceof ConstantOpenField) {
+            return true;
         }
-        return super.isDependencyFieldIgnorable(openField);
+        return super.isDependencyFieldInheritable(field);
     }
 
     @Override
@@ -288,10 +298,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return WrapperLogic.wrapOpenMethod(openMethod, this);
     }
 
-    public void addField(IOpenField field) {
+    public void addField(IOpenField openField) {
         Map<String, IOpenField> fields = fieldMap();
-        if (fields.containsKey(field.getName())) {
-            IOpenField existedField = fields.get(field.getName());
+        IOpenField field = extractNonLazyMember(openField);
+        if (fields.containsKey(openField.getName())) {
+            IOpenField existedField = extractNonLazyMember(fields.get(openField.getName()));
             if (field instanceof ConstantOpenField && existedField instanceof ConstantOpenField) { // Ignore
                                                                                                    // constants
                                                                                                    // with
@@ -306,32 +317,33 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 throw new DuplicatedFieldException("", field.getName());
             }
 
-            if (field instanceof IUriMember && existedField instanceof IUriMember) {
-                if (!UriMemberHelper.isTheSame((IUriMember) field, (IUriMember) existedField)) {
-                    throw new DuplicatedFieldException("", field.getName());
+            if (openField instanceof IUriMember && existedField instanceof IUriMember) {
+                if (!UriMemberHelper.isTheSame((IUriMember) openField, (IUriMember) existedField)) {
+                    throw new DuplicatedFieldException("", openField.getName());
                 }
             } else {
-                if (existedField != field) {
-                    throw new DuplicatedFieldException("", field.getName());
+                if (existedField != openField) {
+                    throw new DuplicatedFieldException("", openField.getName());
                 } else {
                     return;
                 }
             }
         }
-        fieldMap().put(field.getName(), field);
+        fieldMap().put(openField.getName(), openField);
         if (field instanceof ConstantOpenField) {
-            constantFields.put(field.getName(), (ConstantOpenField) field);
+            constantFields.put(openField.getName(), openField);
         }
-        addFieldToLowerCaseMap(field);
+        addFieldToLowerCaseMap(openField);
     }
 
-    private Map<String, ConstantOpenField> constantFields = new HashMap<>();
+    private Map<String, IOpenField> constantFields = new HashMap<>();
 
     public ConstantOpenField getConstantField(String fname) {
-        return constantFields.get(fname);
+        IOpenField openField = constantFields.get(fname);
+        return (ConstantOpenField) extractNonLazyMember(openField);
     }
 
-    public Map<String, ConstantOpenField> getConstantFields() {
+    public Map<String, IOpenField> getConstantFields() {
         return Collections.unmodifiableMap(constantFields);
     }
 
