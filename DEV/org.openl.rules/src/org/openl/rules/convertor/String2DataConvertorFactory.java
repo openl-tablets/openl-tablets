@@ -16,6 +16,9 @@ import org.openl.types.IOpenClass;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @author snshor
@@ -29,7 +32,8 @@ public class String2DataConvertorFactory {
 
     @SuppressWarnings("rawtypes")
     private static Map<Class<?>, IString2DataConvertor> convertorsCache = new WeakHashMap<Class<?>, IString2DataConvertor>();
-
+    private static ReadWriteLock convertorsLock = new ReentrantReadWriteLock();
+    
     static {
         convertors = new HashMap<Class<?>, IString2DataConvertor<?>>();
         convertors.put(Object.class, new String2StringConvertor());
@@ -61,11 +65,16 @@ public class String2DataConvertorFactory {
         convertors.put(DoubleRange.class, new String2DoubleRangeConvertor());
         convertors.put(BigInteger.class, new String2BigIntegerConvertor());
         convertors.put(BigDecimal.class, new String2BigDecimalConvertor());
-
-        convertorsCache.putAll(convertors);
+        Lock writeLock = convertorsLock.writeLock();
+        try {
+            writeLock.lock();
+            convertorsCache.putAll(convertors);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
-    public static synchronized <T> T parse(Class<T> clazz, String data, IBindingContext bindingContext) {
+    public static <T> T parse(Class<T> clazz, String data, IBindingContext bindingContext) {
         IString2DataConvertor<T> convertor = getConvertor(clazz);
         if (convertor instanceof IString2DataConverterWithContext) {
             @SuppressWarnings("unchecked")
@@ -79,12 +88,18 @@ public class String2DataConvertorFactory {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static synchronized <T> IString2DataConvertor<T> getConvertor(Class<T> clazz) {
 
-        IString2DataConvertor<T> convertor = convertorsCache.get(clazz);
-
-        if (convertor != null) {
-            return convertor;
+        Lock readLock = convertorsLock.readLock();
+        try {
+            readLock.lock();
+            if (convertorsCache.containsKey(clazz)) {
+                return convertorsCache.get(clazz);
+            }
+        } finally {
+            readLock.unlock();
         }
-
+        
+        IString2DataConvertor<T> convertor = null;
+        
         // FIXME String2EnumConvertor and String2ConstructorConvertor hold strong reference 
         // to Class, so classloader for them can't be unloaded without unregisterClassLoader() method.
         if (clazz.isEnum()) {
@@ -96,7 +111,13 @@ public class String2DataConvertorFactory {
             convertor = new String2ConstructorConvertor<T>(clazz);
         }
 
-        convertorsCache.put(clazz, convertor);
+        Lock writeLock = convertorsLock.writeLock();
+        try {
+            writeLock.lock();
+            convertorsCache.put(clazz, convertor);
+        } finally {
+            writeLock.unlock();
+        }
 
         return convertor;
     }
@@ -107,7 +128,13 @@ public class String2DataConvertorFactory {
      * @param clazz Class to unregister.
      */
     private static void unregisterConvertorForClass(Class<?> clazz) {
-        convertorsCache.remove(clazz);
+        Lock writeLock = convertorsLock.writeLock();
+        try {
+            writeLock.lock();
+            convertorsCache.remove(clazz);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     /**
@@ -115,25 +142,31 @@ public class String2DataConvertorFactory {
      *
      * @param classLoader ClassLoader to unregister.
      */
-    public static synchronized void unregisterClassLoader(ClassLoader classLoader) {
-        List<Class<?>> toRemove = new ArrayList<Class<?>>();
-        for (Class<?> clazz : convertorsCache.keySet()) {
-            if (convertors.containsKey(clazz)) {
-                // Don't remove common converters
-                continue;
-            }
-            ClassLoader cl = clazz.getClassLoader();
-            if (cl == classLoader) {
-                toRemove.add(clazz);
-            }
-            if (classLoader instanceof OpenLBundleClassLoader) {
-                if (((OpenLBundleClassLoader) classLoader).containsClassLoader(cl)) {
+    public static void unregisterClassLoader(ClassLoader classLoader) {
+        Lock writeLock = convertorsLock.writeLock();
+        try {
+            writeLock.lock();
+            List<Class<?>> toRemove = new ArrayList<Class<?>>();
+            for (Class<?> clazz : convertorsCache.keySet()) {
+                if (convertors.containsKey(clazz)) {
+                    // Don't remove common converters
+                    continue;
+                }
+                ClassLoader cl = clazz.getClassLoader();
+                if (cl == classLoader) {
                     toRemove.add(clazz);
                 }
+                if (classLoader instanceof OpenLBundleClassLoader) {
+                    if (((OpenLBundleClassLoader) classLoader).containsClassLoader(cl)) {
+                        toRemove.add(clazz);
+                    }
+                }
             }
-        }
-        for (Class<?> clazz : toRemove) {
-            unregisterConvertorForClass(clazz);
+            for (Class<?> clazz : toRemove) {
+                unregisterConvertorForClass(clazz);
+            }
+        } finally {
+            writeLock.unlock();
         }
     }
 }

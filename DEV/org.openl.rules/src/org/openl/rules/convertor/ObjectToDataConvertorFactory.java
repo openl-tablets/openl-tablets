@@ -9,6 +9,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
@@ -78,16 +81,17 @@ public class ObjectToDataConvertorFactory {
             }
         }
     }
-    
+
     /**
-     * Contains static method as a private field for constructing new objects of appropriate type.
+     * Contains static method as a private field for constructing new objects of
+     * appropriate type.
      * 
      * @author DLiauchuk
      *
      */
     public static class StaticMethodConvertor implements IObjectToDataConvertor {
         private Method staticMethod;
-        
+
         public StaticMethodConvertor(Method staticMethod) {
             if (!Modifier.isStatic(staticMethod.getModifiers())) {
                 throw new IllegalArgumentException("Income method should be static");
@@ -97,7 +101,8 @@ public class ObjectToDataConvertorFactory {
 
         public Object convert(Object data, IBindingContext bindingContext) {
             try {
-                // first argument is null as field staticMethod represents only static method.
+                // first argument is null as field staticMethod represents only
+                // static method.
                 //
                 return staticMethod.invoke(null, data);
             } catch (Exception e) {
@@ -110,13 +115,13 @@ public class ObjectToDataConvertorFactory {
         public Object convert(Object data, IBindingContext bindingContext) {
             return data;
         }
-        
+
         static public CopyConvertor the = new CopyConvertor();
     }
-    
+
     /**
-     * Convertor that looks for the instance method 'getValue' for conversion to the
-     * appropriate type.
+     * Convertor that looks for the instance method 'getValue' for conversion to
+     * the appropriate type.
      * 
      * @author DLiauchuk
      *
@@ -129,22 +134,26 @@ public class ObjectToDataConvertorFactory {
                     getValueMethod = data.getClass().getMethod("getValue", new Class<?>[0]);
                 } catch (Exception e) {
                     throw RuntimeExceptionWrapper.wrap(e);
-                } 
+                }
                 Object value = null;
                 try {
                     value = getValueMethod.invoke(data, new Object[0]);
                 } catch (Exception e) {
                     throw RuntimeExceptionWrapper.wrap(e);
-                } 
-                return value;                
+                }
+                return value;
             }
             return data;
         }
     }
 
     private static Map<ClassCastPair, IObjectToDataConvertor> convertors = new HashMap<ClassCastPair, IObjectToDataConvertor>();
+    private static ReadWriteLock convertorsLock = new ReentrantReadWriteLock();
+
     static {
+        Lock writeLock = convertorsLock.writeLock();
         try {
+            writeLock.lock();
             convertors.put(new ClassCastPair(Integer.class, IntRange.class), new IObjectToDataConvertor() {
 
                 public Object convert(Object data, IBindingContext bindingContext) {
@@ -160,8 +169,7 @@ public class ObjectToDataConvertorFactory {
                 }
 
             });
-            
-            
+
             convertors.put(new ClassCastPair(Double.class, DoubleValue.class), new IObjectToDataConvertor() {
 
                 public Object convert(Object data, IBindingContext bindingContext) {
@@ -173,15 +181,14 @@ public class ObjectToDataConvertorFactory {
             convertors.put(new ClassCastPair(double.class, Double.class), CopyConvertor.the);
             convertors.put(new ClassCastPair(int.class, Integer.class), CopyConvertor.the);
             convertors.put(new ClassCastPair(Integer.class, int.class), CopyConvertor.the);
-            
+
             convertors.put(new ClassCastPair(double.class, DoubleValue.class), new IObjectToDataConvertor() {
-                
+
                 public Object convert(Object data, IBindingContext bindingContext) {
-                    return new DoubleValue((Double)data);
+                    return new DoubleValue((Double) data);
                 }
             });
-            
-            
+
             convertors.put(new ClassCastPair(Date.class, Calendar.class), new IObjectToDataConvertor() {
 
                 public Object convert(Object data, IBindingContext bindingContext) {
@@ -201,8 +208,10 @@ public class ObjectToDataConvertorFactory {
                 }
 
             });
-            
-            /** convertors from Openl types with meta info to common java types*/
+
+            /**
+             * convertors from Openl types with meta info to common java types
+             */
             convertors.put(new ClassCastPair(ByteValue.class, Byte.class), new GetValueConvertor());
             convertors.put(new ClassCastPair(ShortValue.class, Short.class), new GetValueConvertor());
             convertors.put(new ClassCastPair(IntValue.class, Integer.class), new GetValueConvertor());
@@ -212,10 +221,11 @@ public class ObjectToDataConvertorFactory {
             convertors.put(new ClassCastPair(BigIntegerValue.class, BigInteger.class), new GetValueConvertor());
             convertors.put(new ClassCastPair(BigDecimalValue.class, BigDecimal.class), new GetValueConvertor());
             convertors.put(new ClassCastPair(StringValue.class, String.class), new GetValueConvertor());
-            
-            
+
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            writeLock.unlock();
         }
     }
 
@@ -230,41 +240,58 @@ public class ObjectToDataConvertorFactory {
     /**
      * @return NO_Convertor if value is not convertable to expected type.
      */
-    public static synchronized IObjectToDataConvertor getConvertor(Class<?> toClass, Class<?> fromClass) {
-        
+    public static IObjectToDataConvertor getConvertor(Class<?> toClass, Class<?> fromClass) {
+
         if (toClass == fromClass)
             return CopyConvertor.the;
         ClassCastPair pair = new ClassCastPair(fromClass, toClass);
         IObjectToDataConvertor convertor = NO_Convertor;
-        if (!convertors.containsKey(pair)) {
-            // at first try to find static initialization method, for some numeric classes(e.g. Integer, Double, etc)
-            // there are predefined cached values(see Integer.valueOf(int a)).
-            //
-            Method method = MethodUtils.getAccessibleMethod(toClass, "valueOf", fromClass);
-            if (method != null) {
-                convertor = new StaticMethodConvertor(method);
-            } else {
-                // try to find appropriate constructor.
-                //
-                Constructor<?> ctr = ConstructorUtils.getMatchingAccessibleConstructor(toClass, new Class[] { fromClass });
-                
-                if (ctr != null) {
-                    convertor = new MatchedConstructorConvertor(ctr);
-                } else {
-                    convertor = NO_Convertor;
-                }
-            }            
-            convertors.put(pair, convertor);
+
+        Lock readLock = convertorsLock.readLock();
+        try {
+            readLock.lock();
+            if (convertors.containsKey(pair)) {
+                return convertors.get(pair);
+            }
+        } finally {
+            readLock.unlock();
+        }
+
+        Method method = MethodUtils.getAccessibleMethod(toClass, "valueOf", fromClass);
+        if (method != null) {
+            convertor = new StaticMethodConvertor(method);
         } else {
-            convertor = convertors.get(pair);
+            // try to find appropriate constructor.
+            //
+            Constructor<?> ctr = ConstructorUtils.getMatchingAccessibleConstructor(toClass, new Class[] { fromClass });
+
+            if (ctr != null) {
+                convertor = new MatchedConstructorConvertor(ctr);
+            } else {
+                convertor = NO_Convertor;
+            }
+        }
+        Lock writeLock = convertorsLock.writeLock();
+        try {
+            writeLock.lock();
+            convertors.put(pair, convertor);
+        } finally {
+            writeLock.unlock();
         }
         return convertor;
     }
 
-    public static IObjectToDataConvertor registerConvertor(Class<?> toClass, Class<?> fromClass,
+    public static IObjectToDataConvertor registerConvertor(Class<?> toClass,
+            Class<?> fromClass,
             IObjectToDataConvertor convertor) {
         ClassCastPair pair = new ClassCastPair(fromClass, toClass);
-        return convertors.put(pair, convertor);
+        Lock writeLock = convertorsLock.writeLock();
+        try {
+            writeLock.lock();
+            return convertors.put(pair, convertor);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
 }
