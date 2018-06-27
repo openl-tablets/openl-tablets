@@ -114,7 +114,7 @@ public class WebStudio {
     private boolean testsFailuresOnly;
     private int testsFailuresPerTest;
     private boolean showComplexResult;
-    private boolean singleModuleModeByDefault;
+    private ModuleMode defaultModuleMode = ModuleMode.MULTI;
 
     private ProjectDescriptor currentProject;
     private Module currentModule;
@@ -172,7 +172,15 @@ public class WebStudio {
         testsFailuresOnly = userSettingsManager.getBooleanProperty("test.failures.only");
         testsFailuresPerTest = userSettingsManager.getIntegerProperty("test.failures.pertest");
         showComplexResult = userSettingsManager.getBooleanProperty("test.result.complex.show");
-        singleModuleModeByDefault = userSettingsManager.getBooleanProperty("project.dependency.modules.single");
+
+        String defaultModuleMode = userSettingsManager.getStringProperty("project.module.default.mode");
+        if (StringUtils.isNotEmpty(defaultModuleMode)) {
+            try {
+                this.defaultModuleMode = ModuleMode.valueOf(defaultModuleMode.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                log.warn(e.getMessage(), e);
+            }
+        }
     }
 
     public ConfigurationManager getSystemConfigManager() {
@@ -946,12 +954,19 @@ public class WebStudio {
     }
 
     public boolean isSingleModuleModeByDefault() {
-        return singleModuleModeByDefault;
+        return defaultModuleMode == ModuleMode.SINGLE || defaultModuleMode == ModuleMode.SINGLE_ONLY;
     }
 
-    public void setSingleModuleModeByDefault(boolean singleModuleModeByDefault) {
-        this.singleModuleModeByDefault = singleModuleModeByDefault;
-        userSettingsManager.setProperty("project.dependency.modules.single", singleModuleModeByDefault);
+    public boolean isChangeableModuleMode() {
+        return defaultModuleMode == ModuleMode.MULTI || defaultModuleMode == ModuleMode.SINGLE;
+    }
+
+    public void setDefaultModuleMode(ModuleMode defaultModuleMode) {
+        if (defaultModuleMode == null) {
+            throw new IllegalArgumentException("ModuleMode cannot be null");
+        }
+        this.defaultModuleMode = defaultModuleMode;
+        userSettingsManager.setProperty("project.dependency.modules.single", defaultModuleMode.name());
     }
 
     public void setNeedRestart(boolean needRestart) {

@@ -52,6 +52,7 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
 
         WebStudio ws = mock(WebStudio.class);
         when(ws.getSystemConfigManager()).thenReturn(new ConfigurationManager(true, null));
+        when(ws.isChangeableModuleMode()).thenReturn(true);
 
         //EhCacheUtils.createCache();
 
