@@ -22,6 +22,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Various generic helpful methods to simplify common operations with JSF.
  *
@@ -30,7 +32,8 @@ import javax.servlet.http.HttpSession;
  */
 public abstract class FacesUtils {
     /**
-     * Creates an array of <code>SelectItem</code>s from collection of <code>String</code>s.
+     * Creates an array of <code>SelectItem</code>s from collection of
+     * <code>String</code>s.
      *
      * @param values an array of <code>SelectItem</code> values.
      * @return array of JSF objects representing items.
@@ -45,7 +48,8 @@ public abstract class FacesUtils {
     }
 
     /**
-     * Creates an array of <code>SelectItem</code>s from array of <code>String</code>s.
+     * Creates an array of <code>SelectItem</code>s from array of
+     * <code>String</code>s.
      *
      * @param values an array of <code>SelectItem</code> values.
      * @return array of JSF objects representing items.
@@ -80,8 +84,9 @@ public abstract class FacesUtils {
     public static ValueExpression createValueExpression(String expressionString) {
         FacesContext context = FacesContext.getCurrentInstance();
         ELContext elContext = context.getELContext();
-        ValueExpression valueExpression = context.getApplication().getExpressionFactory().
-            createValueExpression(elContext, expressionString, Object.class);
+        ValueExpression valueExpression = context.getApplication()
+            .getExpressionFactory()
+            .createValueExpression(elContext, expressionString, Object.class);
         return valueExpression;
     }
 
@@ -92,9 +97,9 @@ public abstract class FacesUtils {
     public static MethodExpression createMethodExpression(String expressionString, Class<?>[] paramTypes) {
         FacesContext context = FacesContext.getCurrentInstance();
         ELContext elContext = context.getELContext();
-        MethodExpression methodExpression = context.getApplication().getExpressionFactory().
-            createMethodExpression(elContext, expressionString, null,
-                    paramTypes == null ? new Class[0] : paramTypes);
+        MethodExpression methodExpression = context.getApplication()
+            .getExpressionFactory()
+            .createMethodExpression(elContext, expressionString, null, paramTypes == null ? new Class[0] : paramTypes);
         return methodExpression;
     }
 
@@ -142,11 +147,13 @@ public abstract class FacesUtils {
     }
 
     /**
-     * Returns request parameter from HttpServletRequest object through current FacesContext.
+     * Returns request parameter from HttpServletRequest object through current
+     * FacesContext.
      *
      * @param parameterName parameter name
      *
-     * @return parameter value - if parameter exists, <code>null</code> - otherwise.
+     * @return parameter value - if parameter exists, <code>null</code> -
+     *         otherwise.
      */
     public static String getRequestParameter(String parameterName) {
         return getRequestParameterMap().get(parameterName);
@@ -215,7 +222,12 @@ public abstract class FacesUtils {
 
     public static void addCookie(String name, String value, int age) {
         Cookie cookie = new Cookie(name, value);
-        cookie.setPath(((HttpServletRequest) getRequest()).getContextPath());
+        String contextPath = ((HttpServletRequest) getRequest()).getContextPath();
+        if (!StringUtils.isEmpty(contextPath)) {
+            cookie.setPath(contextPath);
+        } else {
+            cookie.setPath("/"); //EPBDS-7613
+        }
         cookie.setMaxAge(age);
         FacesUtils.addCookie(cookie);
     }

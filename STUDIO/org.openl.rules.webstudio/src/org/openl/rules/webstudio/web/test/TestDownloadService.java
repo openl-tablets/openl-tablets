@@ -16,6 +16,7 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.ui.ProjectModel;
@@ -55,7 +56,9 @@ public class TestDownloadService {
         return prepareResponse(request, cookieName, new TestResultExport(results, testsPerPage));
     }
 
-    private Response prepareResponse(@Context HttpServletRequest request, String cookieName, final ResultExport export) {
+    private Response prepareResponse(@Context HttpServletRequest request,
+            String cookieName,
+            final ResultExport export) {
         try {
             final File file = export.createExcelFile();
 
@@ -65,23 +68,24 @@ public class TestDownloadService {
                     try {
                         IOUtils.copyAndClose(new FileInputStream(file), output);
                     } finally {
-                        // Delete temporary files when stream writing is completed
+                        // Delete temporary files when stream writing is
+                        // completed
                         export.close();
                     }
                 }
             };
             return Response.ok(streamingOutput, "application/" + FileUtils.getExtension(file.getName()))
-                    .cookie(newCookie(cookieName, "success", request.getContextPath()))
-                    .header("Content-Disposition", "attachment;filename=\"" + file.getName() + "\"")
-                    .build();
+                .cookie(newCookie(cookieName, "success", request.getContextPath()))
+                .header("Content-Disposition", "attachment;filename=\"" + file.getName() + "\"")
+                .build();
         } catch (Exception e) {
             String message = "Failed to export results.";
             log.error(message, e);
 
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(e.getMessage())
-                    .cookie(newCookie(cookieName, message, request.getContextPath()))
-                    .build();
+                .entity(e.getMessage())
+                .cookie(newCookie(cookieName, message, request.getContextPath()))
+                .build();
         }
     }
 
@@ -103,22 +107,16 @@ public class TestDownloadService {
 
         String failure = "Test data isn't available anymore";
         return Response.status(Response.Status.NOT_FOUND)
-                .entity("Input parameters not found")
-                .cookie(newCookie(cookieName, failure, request.getContextPath()))
-                .build();
+            .entity("Input parameters not found")
+            .cookie(newCookie(cookieName, failure, request.getContextPath()))
+            .build();
     }
 
     private NewCookie newCookie(String cookieName, String value, String contextPath) {
-        return new NewCookie(cookieName,
-                value,
-                contextPath,
-                null,
-                1,
-                null,
-                -1,
-                null,
-                false,
-                false);
+        if (StringUtils.isEmpty(contextPath)) {
+            contextPath = "/"; // //EPBDS-7613
+        }
+        return new NewCookie(cookieName, value, contextPath, null, 1, null, -1, null, false, false);
     }
 
 }
