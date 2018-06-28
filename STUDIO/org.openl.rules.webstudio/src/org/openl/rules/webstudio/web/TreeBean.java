@@ -3,6 +3,8 @@ package org.openl.rules.webstudio.web;
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.RUN;
 
+import java.util.Collection;
+
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
@@ -13,11 +15,14 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.richfaces.ProjectTreeBuilder;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
 import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.TreeNode;
@@ -34,6 +39,7 @@ public class TreeBean {
 
     public void setHideUtilityTables(boolean hideUtilityTables) {
         this.hideUtilityTables = hideUtilityTables;
+        WebStudioUtils.getWebStudio().getModel().resetProjectTree();
     }
 
     public boolean isHideUtilityTables() {
@@ -57,6 +63,11 @@ public class TreeBean {
 
     public TreeNode getTree() {
         WebStudio studio = WebStudioUtils.getWebStudio();
+        
+        if (!hideUtilityTables) {
+            generateDispatcherTables(studio.getModel().getCompiledOpenClass().getOpenClass());
+        }
+        
         ITreeElement<?> tree = studio.getModel().getProjectTree();
         if (tree != null) {
             Module module = studio.getCurrentModule();
@@ -69,6 +80,16 @@ public class TreeBean {
         }
         // Empty tree
         return new TreeNodeImpl();
+    }
+
+    private void generateDispatcherTables(IOpenClass openClass) {
+        Collection<IOpenMethod> methods = openClass.getMethods();
+        for (IOpenMethod method : methods) {
+            if (method instanceof OpenMethodDispatcher) {
+                OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) method;
+                openMethodDispatcher.getDispatcherTable();
+            }
+        }
     }
 
     private CollectionUtils.Predicate<ITreeElement> getUtilityTablePredicate(WebStudio studio, Module module) { 
