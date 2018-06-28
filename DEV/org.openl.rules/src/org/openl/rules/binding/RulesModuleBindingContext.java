@@ -8,6 +8,7 @@ import java.util.Map;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.method.MethodSearch;
+import org.openl.binding.impl.method.VarArgsOpenMethod;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLSystemProperties;
@@ -95,13 +96,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             });
         IMethodCaller method = MethodSearch.findMethod(methodName, parTypes, this, select);
         if (method != null) {
-            RecursiveOpenMethodPreBinder openMethodBinder = null;
-            if (method instanceof RecursiveOpenMethodPreBinder) {
-                openMethodBinder = (RecursiveOpenMethodPreBinder) method;
-            }
-            if (method instanceof CastingMethodCaller) {
-                openMethodBinder = (RecursiveOpenMethodPreBinder) ((CastingMethodCaller) method).getMethod();
-            }
+            RecursiveOpenMethodPreBinder openMethodBinder = extractOpenMethodPrebinder(method);
             method = null;
             if (openMethodBinder.isPreBinding()) {
                 method = super.findMethodCaller(namespace, methodName, parTypes);
@@ -136,6 +131,20 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             method = MethodSearch.findMethod(methodName, parTypes, this, internalselect);
         }
         return method;
+    }
+
+    private RecursiveOpenMethodPreBinder extractOpenMethodPrebinder(IMethodCaller method) {
+        RecursiveOpenMethodPreBinder openMethodBinder = null;
+        if (method instanceof RecursiveOpenMethodPreBinder) {
+            openMethodBinder = (RecursiveOpenMethodPreBinder) method;
+        }
+        if (method instanceof CastingMethodCaller) {
+            openMethodBinder = (RecursiveOpenMethodPreBinder) ((CastingMethodCaller) method).getMethod();
+        }
+        if (method instanceof VarArgsOpenMethod) {
+            openMethodBinder = (RecursiveOpenMethodPreBinder) ((VarArgsOpenMethod) method).getDelegate();
+        }
+        return openMethodBinder;
     }
 
     protected synchronized void add(String namespace,
