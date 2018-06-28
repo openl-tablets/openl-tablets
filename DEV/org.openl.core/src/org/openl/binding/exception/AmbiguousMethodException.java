@@ -6,6 +6,7 @@
 
 package org.openl.binding.exception;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.openl.binding.MethodUtil;
@@ -31,7 +32,11 @@ public class AmbiguousMethodException extends OpenlNotCheckedException {
     public AmbiguousMethodException(String methodName, IOpenClass[] pars, List<IOpenMethod> matchingMethods) {
         this.methodName = methodName;
         this.pars = pars;
-        this.matchingMethods = matchingMethods;
+        this.matchingMethods = Collections.unmodifiableList(matchingMethods);
+    }
+    
+    public List<IOpenMethod> getMatchingMethods() {
+        return matchingMethods;
     }
 
     @Override

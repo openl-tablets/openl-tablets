@@ -886,7 +886,7 @@ public class XlsBinder implements IOpenBinder {
 
         @Override
         public IOpenClass getDeclaringClass() {
-            throw new UnsupportedOperationException();
+            return module;
         }
 
         public void preBind() {
