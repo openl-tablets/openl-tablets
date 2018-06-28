@@ -94,31 +94,42 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                     return methodName.equals(method.getName());
                 }
             });
-        IMethodCaller method = MethodSearch.findMethod(methodName, parTypes, this, select);
-        if (method != null) {
-            RecursiveOpenMethodPreBinder openMethodBinder = extractOpenMethodPrebinder(method);
-            method = null;
-            if (openMethodBinder.isPreBinding()) {
-                method = super.findMethodCaller(namespace, methodName, parTypes);
-                if (method == null) {
-                    Iterable<IOpenMethod> internalselect = CollectionUtils.findAll(internalMethods,
-                        new CollectionUtils.Predicate<IOpenMethod>() {
-                            @Override
-                            public boolean evaluate(IOpenMethod method) {
-                                return methodName.equals(method.getName());
-                            }
-                        });
-                    method = MethodSearch.findMethod(methodName, parTypes, this, internalselect);
+        IMethodCaller method = null;
+        try {
+            method = MethodSearch.findMethod(methodName, parTypes, this, select);
+            if (method != null) {
+                RecursiveOpenMethodPreBinder openMethodBinder = extractOpenMethodPrebinder(method);
+                method = null;
+                if (openMethodBinder.isPreBinding()) {
+                    method = super.findMethodCaller(namespace, methodName, parTypes);
+                    if (method == null) {
+                        Iterable<IOpenMethod> internalselect = CollectionUtils.findAll(internalMethods,
+                            new CollectionUtils.Predicate<IOpenMethod>() {
+                                @Override
+                                public boolean evaluate(IOpenMethod method) {
+                                    return methodName.equals(method.getName());
+                                }
+                            });
+                        method = MethodSearch.findMethod(methodName, parTypes, this, internalselect);
+                    }
+                    if (method != null) {
+                        return method;
+                    }
+                    throw new RecursiveMethodPreBindingException();
                 }
-                if (method != null) {
-                    return method;
-                }
-                throw new RecursiveMethodPreBindingException();
+                openMethodBinder.preBind();
+                preBinderMethods.remove(openMethodBinder.getHeader());
             }
-            openMethodBinder.preBind();
-            preBinderMethods.remove(openMethodBinder.getHeader());
+        } catch (AmbiguousMethodException e) {
+            List<IOpenMethod> methods = e.getMatchingMethods();
+            for (IOpenMethod m : methods) {
+                RecursiveOpenMethodPreBinder openMethodBinder = extractOpenMethodPrebinder(m);
+                if (!openMethodBinder.isPreBinding()) {
+                    openMethodBinder.preBind();
+                    preBinderMethods.remove(openMethodBinder.getHeader());
+                }
+            }
         }
-
         method = super.findMethodCaller(namespace, methodName, parTypes);
         if (method == null) {
             Iterable<IOpenMethod> internalselect = CollectionUtils.findAll(internalMethods,
