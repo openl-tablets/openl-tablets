@@ -10,10 +10,12 @@ import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.richfaces.ProjectTreeBuilder;
+import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.util.CollectionUtils;
@@ -69,10 +71,10 @@ public class TreeBean {
         return new TreeNodeImpl();
     }
 
-    private CollectionUtils.Predicate<ITreeElement> getUtilityTablePredicate(WebStudio studio, Module module) {
+    private CollectionUtils.Predicate<ITreeElement> getUtilityTablePredicate(WebStudio studio, Module module) { 
         CollectionUtils.Predicate<ITreeElement> utilityTablePredicate;
         if (module.getExtension() == null) {
-            utilityTablePredicate = new OtherTablePredicate();
+            utilityTablePredicate = new UtilityTablePredicate();
         } else {
             ClassLoader classLoader = null;
             try {
@@ -87,14 +89,21 @@ public class TreeBean {
         return utilityTablePredicate;
     }
 
-    private static class OtherTablePredicate implements CollectionUtils.Predicate<ITreeElement> {
+    private static class UtilityTablePredicate implements CollectionUtils.Predicate<ITreeElement> {
         @Override
         public boolean evaluate(ITreeElement tableNode) {
             if (tableNode.isLeaf() && tableNode.getObject() instanceof ISyntaxNode) {
                 String tableType = ((ISyntaxNode) tableNode.getObject()).getType();
-                return XlsNodeTypes.XLS_OTHER.toString().equals(tableType);
+                if (XlsNodeTypes.XLS_OTHER.toString().equals(tableType)) {
+                    return true;
+                }
+                if (tableNode.getObject() instanceof TableSyntaxNode) {
+                    String tableName = ((TableSyntaxNode)tableNode.getObject()).getMember().getName();
+                    if (tableName.startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME)) {
+                        return true;
+                    }
+                }
             }
-
             return false;
         }
     }
