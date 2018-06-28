@@ -1237,11 +1237,15 @@ public class ProjectModel {
     }
 
     public void useSingleModuleMode() throws Exception {
-        setModuleInfo(moduleInfo, ReloadType.SINGLE, true);
+        if (studio.isChangeableModuleMode()) {
+            setModuleInfo(moduleInfo, ReloadType.SINGLE, true);
+        }
     }
 
     public void useMultiModuleMode() throws Exception {
-        setModuleInfo(moduleInfo, ReloadType.SINGLE, false);
+        if (studio.isChangeableModuleMode()) {
+            setModuleInfo(moduleInfo, ReloadType.SINGLE, false);
+        }
     }
 
     /**
