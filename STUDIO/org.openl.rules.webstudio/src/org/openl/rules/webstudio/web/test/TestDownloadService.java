@@ -16,6 +16,7 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -78,6 +79,10 @@ public class TestDownloadService {
     }
 
     private NewCookie newCookie(String cookieName, String value, String contextPath) {
+        if (StringUtils.isEmpty(contextPath)) {
+            contextPath = "/"; // //EPBDS-7613
+        }
+        
         return new NewCookie(cookieName,
                 value,
                 contextPath,
