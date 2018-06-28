@@ -2842,8 +2842,12 @@ public class RulesUtilsTest {
     @Test
     public void testGetMonth() {
         Calendar c = Calendar.getInstance();
-
-        assertEquals(c.get(Calendar.MONTH), instance.testGetMonth(c.getTime()));
+        //set Dec 1
+        c.set(2010, 11, 1, 0, 0, 0);
+        assertEquals(12, instance.testGetMonth(c.getTime()));
+        //set Jan 1
+        c.set(2010, 0, 1, 0, 0, 0);
+        assertEquals(1, instance.testGetMonth(c.getTime()));
     }
 
     @Test
