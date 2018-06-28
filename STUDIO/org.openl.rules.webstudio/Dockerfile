@@ -3,6 +3,7 @@ FROM tomcat:8.5-alpine
 RUN apk add --update \
       bash \
       unzip \
+      ttf-dejavu \
     && rm -rf /var/cache/apk/*
 
 COPY ./target/*.war /tmp/
