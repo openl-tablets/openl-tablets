@@ -225,7 +225,7 @@ public class MethodNodeBinder extends ANodeBinder {
         MethodUtil.printMethod(methodName, types, buf);
         buf.append("' is not found");
         if (target != null) {
-            buf.append("in '").append(target.getName()).append("'");
+            buf.append(" in '").append(target.getName()).append("'");
         }
         return makeErrorNode(buf.toString(), node, bindingContext);
     }
