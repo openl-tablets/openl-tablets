@@ -877,7 +877,7 @@ public class XlsBinder implements IOpenBinder {
 
         @Override
         public IOpenMethod getMethod() {
-            throw new UnsupportedOperationException();
+            return this;
         }
 
         @Override
