@@ -65,7 +65,7 @@ public class TreeBean {
         WebStudio studio = WebStudioUtils.getWebStudio();
         
         if (!hideUtilityTables) {
-            generateDispatcherTables(studio.getModel().getCompiledOpenClass().getOpenClass());
+            generateDispatcherTables(studio.getModel().getCompiledOpenClass().getOpenClassWithErrors());
         }
         
         ITreeElement<?> tree = studio.getModel().getProjectTree();
