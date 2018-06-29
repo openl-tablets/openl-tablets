@@ -52,7 +52,7 @@ public class ShowExplainTableBean {
                     return new GridRegion(top, left, bottom, right);
                 }
             } else {
-                if (XlsUrlUtils.intersects(p1, gridTable.getUri())) {
+                if (XlsUrlUtils.intersects(p1, gridTable.getUriParser())) {
                     IGridRegion region2 =  gridTable.getRegion();
                     IGridRegion region3 =  compositeGrid.getMappedRegion(i);
                     IGridRegion tmp = region;

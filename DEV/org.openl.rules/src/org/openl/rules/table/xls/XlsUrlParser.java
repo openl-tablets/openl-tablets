@@ -24,6 +24,12 @@ public class XlsUrlParser implements XlsURLConstants {
 
     private String range;
     private String cell;
+
+    public XlsUrlParser() { /* NON */ }
+
+    public XlsUrlParser(String url) {
+        parse(url);
+    }
     
     public void parse(String url) {
 

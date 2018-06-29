@@ -1,11 +1,15 @@
 package org.openl.rules.table;
 
+import org.openl.rules.table.xls.XlsUrlParser;
+
 /**
  * Default implementation for grid tables.
  * 
  * @author snshor
  */
 public abstract class AGridTable implements IGridTable {
+
+    private XlsUrlParser cacheUrlParser;
 
     public IGridRegion getRegion() {
         int left = getGridColumn(0, 0);
@@ -30,6 +34,14 @@ public abstract class AGridTable implements IGridTable {
         int h = getHeight();
         return getGrid().getRangeUri(getGridColumn(0, 0), getGridRow(0, 0), getGridColumn(w - 1, h - 1),
                 getGridRow(w - 1, h - 1));
+    }
+
+    @Override
+    public XlsUrlParser getUriParser() {
+        if (cacheUrlParser == null) {
+            cacheUrlParser = new XlsUrlParser(getUri());
+        }
+        return cacheUrlParser;
     }
 
     public String getUri(int col, int row) {

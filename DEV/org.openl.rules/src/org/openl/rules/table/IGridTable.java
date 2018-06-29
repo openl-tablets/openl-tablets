@@ -1,5 +1,7 @@
 package org.openl.rules.table;
 
+import org.openl.rules.table.xls.XlsUrlParser;
+
 /**
  * Table based on Grid coordinates.
  * 
@@ -21,6 +23,8 @@ public interface IGridTable extends ITable<IGridTable> {
     IGridRegion getRegion();
 
     String getUri();
+
+    XlsUrlParser getUriParser();
 
     String getUri(int col, int row);
 

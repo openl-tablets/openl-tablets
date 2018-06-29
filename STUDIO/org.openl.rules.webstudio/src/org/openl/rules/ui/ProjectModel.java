@@ -237,7 +237,7 @@ public class ProjectModel {
                     return true;
                 }
             } else {
-                if (XlsUrlUtils.intersects(p1, gridTable.getUri())) {
+                if (XlsUrlUtils.intersects(p1, gridTable.getUriParser())) {
                     return true;
                 }
             }
@@ -250,7 +250,7 @@ public class ProjectModel {
         TableSyntaxNode[] nodes = getAllTableSyntaxNodes();
 
         for (int i = 0; i < nodes.length; i++) {
-            if (XlsUrlUtils.intersects(p1, nodes[i].getGridTable().getUri())) {
+            if (XlsUrlUtils.intersects(p1, nodes[i].getGridTable().getUriParser())) {
                 TableSyntaxNode tsn = nodes[i];
                 if (XlsNodeTypes.XLS_TABLEPART.equals(tsn.getNodeType())) {
                     for (int j = 0; j < nodes.length; j++) {

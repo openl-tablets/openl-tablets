@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.xls.XlsUrlParser;
 
 public interface IOpenLTable {
 
@@ -39,6 +40,8 @@ public interface IOpenLTable {
     boolean isVersionable();
 
     String getUri();
+
+    XlsUrlParser getUriParser();
 
     String getId();
 
