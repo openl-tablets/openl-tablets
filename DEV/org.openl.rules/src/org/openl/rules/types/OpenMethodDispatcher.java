@@ -1,13 +1,6 @@
 package org.openl.rules.types;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -60,6 +53,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      * List of method candidates.
      */
     private List<IOpenMethod> candidates = new ArrayList<IOpenMethod>();
+    private Map<Integer, DimensionPropertiesMethodKey> candidatesToDimensionKey = new HashMap<>();
     
     private final Invokable invokeInner = new Invokable() {
         @Override
@@ -93,6 +87,10 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         // First method candidate is himself.
         //
         this.candidates.add(delegate);
+        if (delegate instanceof ITablePropertiesMethod) {
+            int idx = this.candidates.size() - 1;
+            this.candidatesToDimensionKey.put(idx, new DimensionPropertiesMethodKey(delegate));
+        }
     }
 
     /**
@@ -156,7 +154,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     }
 
     public List<IOpenMethod> getCandidates() {
-        return candidates;
+        return Collections.unmodifiableList(candidates);
     }
 
     private Map<UUID, IOpenMethod> cache = new LinkedHashMap<UUID, IOpenMethod>();
@@ -295,18 +293,13 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         return existedMethod;
     }
 
-    private int searchTheSameMethod(IOpenMethod candidate) {
-        int i = 0;
-        for (IOpenMethod existedMethod : candidates) {
-            if (existedMethod instanceof ITablePropertiesMethod && candidate instanceof ITablePropertiesMethod) {
-                DimensionPropertiesMethodKey existedMethodPropertiesKey = new DimensionPropertiesMethodKey(
-                    existedMethod);
-                DimensionPropertiesMethodKey newMethodPropertiesKey = new DimensionPropertiesMethodKey(candidate);
-                if (newMethodPropertiesKey.equals(existedMethodPropertiesKey)) {
-                    return i;
-                }
+    private int searchTheSameMethod(DimensionPropertiesMethodKey newMethodPropertiesKey) {
+        for (Map.Entry<Integer, DimensionPropertiesMethodKey> it : candidatesToDimensionKey.entrySet()) {
+            DimensionPropertiesMethodKey existedMethodPropertiesKey = it.getValue();
+            if (existedMethodPropertiesKey.hashCode() == newMethodPropertiesKey.hashCode() &&
+                    newMethodPropertiesKey.equals(existedMethodPropertiesKey)) {
+                return it.getKey();
             }
-            i++;
         }
         return -1;
     }
@@ -330,14 +323,24 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         // methods and delegate cannot be overloaded by candidate.
         //
         if (delegateKey.equals(candidateKey)) {
-            int i = searchTheSameMethod(candidate);
+            int i = -1;
+            DimensionPropertiesMethodKey dimensionMethodKey = null;
+            if (candidate instanceof ITablePropertiesMethod) {
+                dimensionMethodKey = new DimensionPropertiesMethodKey(candidate);
+                i = searchTheSameMethod(dimensionMethodKey);
+            }
             if (i < 0) {
                 candidates.add(candidate);
+                if (dimensionMethodKey != null) {
+                    int idx = candidates.size() - 1;
+                    candidatesToDimensionKey.put(idx, dimensionMethodKey);
+                }
             } else {
                 IOpenMethod existedMethod = candidates.get(i);
                 try {
                     candidate = useActiveOrNewerVersion(existedMethod, candidate, candidateKey);
                     candidates.set(i, candidate);
+                    candidatesToDimensionKey.put(i, new DimensionPropertiesMethodKey(candidate));
                 } catch (DuplicatedMethodException e) {
                     if (!candidateKeys.contains(candidateKey)) {
                         if (existedMethod instanceof IMemberMetaInfo) {
