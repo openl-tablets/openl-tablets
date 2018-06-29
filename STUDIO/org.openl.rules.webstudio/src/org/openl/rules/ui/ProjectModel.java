@@ -1074,7 +1074,7 @@ public class ProjectModel {
                 boolean found = false;
                 for (ProjectDescriptor projectDescriptor : webStudioWorkspaceDependencyManager
                     .getProjectDescriptors()) {
-                    if (this.moduleInfo.getProject().equals(projectDescriptor)) {
+                    if (this.moduleInfo.getProject().getName().equals(projectDescriptor.getName())) {
                         found = true;
                         break;
                     }
