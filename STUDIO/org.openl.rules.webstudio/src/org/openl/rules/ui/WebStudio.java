@@ -961,12 +961,9 @@ public class WebStudio {
         return defaultModuleMode == ModuleMode.MULTI || defaultModuleMode == ModuleMode.SINGLE;
     }
 
-    public void setDefaultModuleMode(ModuleMode defaultModuleMode) {
-        if (defaultModuleMode == null) {
-            throw new IllegalArgumentException("ModuleMode cannot be null");
-        }
-        this.defaultModuleMode = defaultModuleMode;
-        userSettingsManager.setProperty("project.dependency.modules.single", defaultModuleMode.name());
+    public void setSingleModuleModeByDefault(boolean singleMode) {
+        this.defaultModuleMode = singleMode ? ModuleMode.SINGLE : ModuleMode.MULTI;
+        userSettingsManager.setProperty("project.module.default.mode", defaultModuleMode.name());
     }
 
     public void setNeedRestart(boolean needRestart) {
