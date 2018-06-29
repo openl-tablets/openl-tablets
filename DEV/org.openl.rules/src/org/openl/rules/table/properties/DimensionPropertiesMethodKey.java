@@ -22,6 +22,7 @@ import java.util.Objects;
 public final class DimensionPropertiesMethodKey {
     
     private final IOpenMethod method;
+    private int hashCode = 0;
     
     public DimensionPropertiesMethodKey(IOpenMethod method) {
         this.method = method;
@@ -68,17 +69,19 @@ public final class DimensionPropertiesMethodKey {
 
     @Override
     public int hashCode() {
-
-        String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
-        Map<String, Object> methodProperties = PropertiesHelper.getMethodProperties(method);
-        int hash = new MethodKey(method).hashCode();
-        if (methodProperties != null) {
-            for (String dimensionalPropertyName : dimensionalPropertyNames) {
-                Object property = methodProperties.get(dimensionalPropertyName);
-                hash = 31 * hash + (property instanceof Object[] ? Arrays.deepHashCode((Object[]) property) : Objects.hashCode(property));
+        if (hashCode  == 0) {
+            String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
+            Map<String, Object> methodProperties = PropertiesHelper.getMethodProperties(method);
+            int hash = new MethodKey(method).hashCode();
+            if (methodProperties != null) {
+                for (String dimensionalPropertyName : dimensionalPropertyNames) {
+                    Object property = methodProperties.get(dimensionalPropertyName);
+                    hash = 31 * hash + (property instanceof Object[] ? Arrays.deepHashCode((Object[]) property) : Objects.hashCode(property));
+                }
             }
+            hashCode = hash;
         }
-        return hash;
+        return hashCode;
     }
 
     @Override
@@ -106,7 +109,7 @@ public final class DimensionPropertiesMethodKey {
      * Check if propertyValue is null or it contains only null values
      * 
      * @param propertyValue checking value
-     * @return true if propertyValue is null or it contains only null values. If it contains any not null value - false; 
+     * @return true if propertyValue is null or it contains only null values. If it contains any not null value - falseT;
      */
     private boolean isEmpty(Object propertyValue) {
         if (propertyValue == null) {
