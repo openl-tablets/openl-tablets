@@ -5,6 +5,8 @@ import java.io.Reader;
 
 public class FastStringReader extends Reader {
 
+    private static final IOException$1 IO_EXC = new IOException$1();
+
     private String str;
     private int length;
     private int next = 0;
@@ -23,7 +25,7 @@ public class FastStringReader extends Reader {
     /** Check to make sure that the stream has not been closed */
     private void ensureOpen() throws IOException {
         if (str == null)
-            throw new IOException$1();
+            throw IO_EXC;
     }
 
     private static final class IOException$1 extends IOException {
@@ -33,7 +35,7 @@ public class FastStringReader extends Reader {
         public Throwable fillInStackTrace() {
             return this;
         }
-    };
+    }
 
     /**
      * Reads a single character.
@@ -44,12 +46,10 @@ public class FastStringReader extends Reader {
      * @exception IOException If an I/O error occurs
      */
     public int read() throws IOException {
-        synchronized (lock) {
-            ensureOpen();
-            if (next >= length)
-                return -1;
-            return str.charAt(next++);
-        }
+        ensureOpen();
+        if (next >= length)
+            return -1;
+        return str.charAt(next++);
     }
 
     /**
@@ -65,20 +65,18 @@ public class FastStringReader extends Reader {
      * @exception IOException If an I/O error occurs
      */
     public int read(char cbuf[], int off, int len) throws IOException {
-        synchronized (lock) {
-            ensureOpen();
-            if ((off < 0) || (off > cbuf.length) || (len < 0) || ((off + len) > cbuf.length) || ((off + len) < 0)) {
-                throw new IndexOutOfBoundsException();
-            } else if (len == 0) {
-                return 0;
-            }
-            if (next >= length)
-                return -1;
-            int n = Math.min(length - next, len);
-            str.getChars(next, next + n, cbuf, off);
-            next += n;
-            return n;
+        ensureOpen();
+        if ((off < 0) || (off > cbuf.length) || (len < 0) || ((off + len) > cbuf.length) || ((off + len) < 0)) {
+            throw new IndexOutOfBoundsException();
+        } else if (len == 0) {
+            return 0;
         }
+        if (next >= length)
+            return -1;
+        int n = Math.min(length - next, len);
+        str.getChars(next, next + n, cbuf, off);
+        next += n;
+        return n;
     }
 
     /**
@@ -100,16 +98,14 @@ public class FastStringReader extends Reader {
      * @exception IOException If an I/O error occurs
      */
     public long skip(long ns) throws IOException {
-        synchronized (lock) {
-            ensureOpen();
-            if (next >= length)
-                return 0;
-            // Bound skip by beginning and end of the source
-            long n = Math.min(length - next, ns);
-            n = Math.max(-next, n);
-            next += n;
-            return n;
-        }
+        ensureOpen();
+        if (next >= length)
+            return 0;
+        // Bound skip by beginning and end of the source
+        long n = Math.min(length - next, ns);
+        n = Math.max(-next, n);
+        next += n;
+        return n;
     }
 
     /**
@@ -120,10 +116,8 @@ public class FastStringReader extends Reader {
      * @exception IOException If the stream is closed
      */
     public boolean ready() throws IOException {
-        synchronized (lock) {
-            ensureOpen();
-            return true;
-        }
+        ensureOpen();
+        return true;
     }
 
     /**
@@ -149,10 +143,8 @@ public class FastStringReader extends Reader {
         if (readAheadLimit < 0) {
             throw new IllegalArgumentException("Read-ahead limit < 0");
         }
-        synchronized (lock) {
-            ensureOpen();
-            mark = next;
-        }
+        ensureOpen();
+        mark = next;
     }
 
     /**
@@ -162,10 +154,8 @@ public class FastStringReader extends Reader {
      * @exception IOException If an I/O error occurs
      */
     public void reset() throws IOException {
-        synchronized (lock) {
-            ensureOpen();
-            next = mark;
-        }
+        ensureOpen();
+        next = mark;
     }
 
     /**
