@@ -63,11 +63,11 @@ public class TreeBean {
 
     public TreeNode getTree() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        
+
         if (!hideUtilityTables) {
             generateDispatcherTables(studio.getModel().getCompiledOpenClass().getOpenClassWithErrors());
         }
-        
+
         ITreeElement<?> tree = studio.getModel().getProjectTree();
         if (tree != null) {
             Module module = studio.getCurrentModule();
@@ -92,7 +92,7 @@ public class TreeBean {
         }
     }
 
-    private CollectionUtils.Predicate<ITreeElement> getUtilityTablePredicate(WebStudio studio, Module module) { 
+    private CollectionUtils.Predicate<ITreeElement> getUtilityTablePredicate(WebStudio studio, Module module) {
         CollectionUtils.Predicate<ITreeElement> utilityTablePredicate;
         if (module.getExtension() == null) {
             utilityTablePredicate = new UtilityTablePredicate();
@@ -100,9 +100,9 @@ public class TreeBean {
             ClassLoader classLoader = null;
             try {
                 classLoader = new SimpleBundleClassLoader(Thread.currentThread().getContextClassLoader());
-                utilityTablePredicate = ExtensionDescriptorFactory.getExtensionDescriptor(
-                        module.getExtension(), classLoader
-                ).getUtilityTablePredicate(studio.getModel().getXlsModuleNode());
+                utilityTablePredicate = ExtensionDescriptorFactory
+                    .getExtensionDescriptor(module.getExtension(), classLoader)
+                    .getUtilityTablePredicate(studio.getModel().getXlsModuleNode());
             } finally {
                 ClassLoaderUtils.close(classLoader);
             }
@@ -118,8 +118,8 @@ public class TreeBean {
                 if (XlsNodeTypes.XLS_OTHER.toString().equals(tableType)) {
                     return true;
                 }
-                if (tableNode.getObject() instanceof TableSyntaxNode) {
-                    String tableName = ((TableSyntaxNode)tableNode.getObject()).getMember().getName();
+                if (XlsNodeTypes.XLS_DT.toString().equals(tableType)) {
+                    String tableName = ((TableSyntaxNode) tableNode.getObject()).getMember().getName();
                     if (tableName.startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME)) {
                         return true;
                     }
