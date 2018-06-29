@@ -23,6 +23,7 @@ import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.syntax.GridLocation;
+import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.NaryNode;
@@ -162,6 +163,10 @@ public class TableSyntaxNode extends NaryNode {
 
     public String getUri() {
         return getGridTable().getUri();
+    }
+
+    public XlsUrlParser getUriParser() {
+        return getGridTable().getUriParser();
     }
 
     public String getId() {

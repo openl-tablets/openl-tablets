@@ -197,7 +197,7 @@ public class TableBean {
 
                     XlsUrlParser uriParser = new XlsUrlParser();
                     uriParser.parse(warnUri);
-                    if (XlsUrlUtils.intersects(uriParser, table.getUri())) {
+                    if (XlsUrlUtils.intersects(uriParser, table.getUriParser())) {
                         warnings.add(warning);
                     }
                 }
