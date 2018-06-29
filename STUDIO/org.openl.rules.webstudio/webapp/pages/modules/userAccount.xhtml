@@ -112,15 +112,17 @@
                 </rich:tab>
                 <rich:tab header="Settings" id="userProfileSettings">
                     <div class="fields">
-                        <section>
-                            <h3>Project Settings</h3>
-                            <div>
-                                <h:panelGrid columns="2" columnClasses="titleColumn">
-                                    <label>View project in Single module mode</label>
-                                    <h:selectBooleanCheckbox id="singleModuleMode" value="#{studio.singleModuleModeByDefault}" />
-                                </h:panelGrid>
-                            </div>
-                        </section>
+                        <h:panelGroup rendered="#{studio.changeableModuleMode}">
+                            <section>
+                                <h3>Project Settings</h3>
+                                <div>
+                                    <h:panelGrid columns="2" columnClasses="titleColumn">
+                                        <label>View project in Single module mode</label>
+                                        <h:selectBooleanCheckbox id="singleModuleMode" value="#{studio.singleModuleModeByDefault}" />
+                                    </h:panelGrid>
+                                </div>
+                            </section>
+                        </h:panelGroup>
                         <section>
                             <h3>Table Settings</h3>
                             <div>
