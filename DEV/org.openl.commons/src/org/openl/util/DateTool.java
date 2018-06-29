@@ -182,7 +182,7 @@ public class DateTool {
         if (d == null) {
             return null;
         }
-        return getMonth(d);
+        return getMonth(d) + 1;
     }
 
     private static int getMonth(Date d) {

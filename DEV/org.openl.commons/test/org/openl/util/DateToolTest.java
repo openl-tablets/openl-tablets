@@ -339,13 +339,13 @@ public class DateToolTest {
 
         @Parameters(name = "{index}: DateTool.month({0})={1}")
         public static Iterable<Object[]> data() {
-            return Arrays.asList(new Object[][] { { "5/14/2015", 4 },
-                    { "12/31/2015", 11 },
-                    { "6/14/1789", 5 },
-                    { "1/1/0001", 0 },
-                    { "3/1/1900", 2 },
-                    { "2/28/1899", 1 },
-                    { "7/14/3892", 6 } });
+            return Arrays.asList(new Object[][] { { "5/14/2015", 5 },
+                    { "12/31/2015", 12 },
+                    { "6/14/1789", 6 },
+                    { "1/1/0001", 1 },
+                    { "3/1/1900", 3 },
+                    { "2/28/1899", 2 },
+                    { "7/14/3892", 7 } });
         }
 
         private final Date inputDate;
@@ -499,7 +499,8 @@ public class DateToolTest {
                     { "5/14/1789", 20 },
                     { "1/1/0001", 1 },
                     { "2/28/1899", 9 },
-                    { "5/14/3892", 20 } });
+                    { "5/14/3892", 20 },
+                    { "12/28/2013", 52}});
         }
 
         private final Date inputDate;
