@@ -22,6 +22,7 @@ import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
 import org.openl.util.tree.ITreeElement;
@@ -119,9 +120,12 @@ public class TreeBean {
                     return true;
                 }
                 if (XlsNodeTypes.XLS_DT.toString().equals(tableType)) {
-                    String tableName = ((TableSyntaxNode) tableNode.getObject()).getMember().getName();
-                    if (tableName.startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME)) {
-                        return true;
+                    IOpenMember member = ((TableSyntaxNode) tableNode.getObject()).getMember();
+                    if (member != null) {
+                        String tableName = member.getName();
+                        if (tableName.startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME)) {
+                            return true;
+                        }
                     }
                 }
             }
