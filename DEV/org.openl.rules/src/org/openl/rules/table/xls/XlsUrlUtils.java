@@ -10,10 +10,7 @@ import org.openl.rules.table.IGridRegion;
  */
 public class XlsUrlUtils {
 
-    public static boolean intersects(XlsUrlParser p1, String url2) {
-        XlsUrlParser p2 = new XlsUrlParser();
-        p2.parse(url2);
-
+    public static boolean intersects(XlsUrlParser p1, XlsUrlParser p2) {
         if (!p1.getWbPath().equals(p2.getWbPath()) || !p1.getWbName().equals(p2.getWbName()) || !p1.getWsName()
             .equals(p2.getWsName())) {
             return false;

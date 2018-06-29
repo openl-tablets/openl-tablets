@@ -12,6 +12,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
+import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenMember;
 import org.openl.util.StringUtils;
@@ -84,6 +85,11 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
 
     public String getUri() {
         return tsn.getUri();
+    }
+
+    @Override
+    public XlsUrlParser getUriParser() {
+        return tsn.getUriParser();
     }
 
     public String getId() {
