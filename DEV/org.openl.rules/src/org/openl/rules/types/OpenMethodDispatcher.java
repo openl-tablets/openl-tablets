@@ -1,6 +1,7 @@
 package org.openl.rules.types;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -156,7 +157,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     }
 
     public List<IOpenMethod> getCandidates() {
-        return candidates;
+        return Collections.unmodifiableList(candidates);
     }
 
     private Map<UUID, IOpenMethod> cache = new LinkedHashMap<UUID, IOpenMethod>();
