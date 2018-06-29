@@ -9,6 +9,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Map.Entry;
 
 /**
  * Immutable Key to check identity of {@link ExecutableRulesMethod} methods.
@@ -42,18 +43,17 @@ public final class DimensionPropertiesMethodKey {
         if (!new MethodKey(method).equals(new MethodKey(key.getMethod()))) {
             return false;
         }
-        String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
-        for (String dimensionalPropertyName : dimensionalPropertyNames) {
-            Map<String, Object> thisMethodProperties = PropertiesHelper.getMethodProperties(method);
-            Map<String, Object> otherMethodProperties = PropertiesHelper.getMethodProperties(key.getMethod());
-            if (thisMethodProperties == null || otherMethodProperties == null) {
-                // There is no meaning in properties with "null" values.
-                // If such properties exists, we should skip them like there is no empty properties.
-                continue;
-            }
+        
+        Map<String, Object> thisMethodProperties = PropertiesHelper.getTableProperties(method).getAllDimensionalProperties();
+        Map<String, Object> otherMethodProperties = PropertiesHelper.getTableProperties(key.getMethod()).getAllDimensionalProperties();
 
-            Object propertyValue1 = thisMethodProperties.get(dimensionalPropertyName);
-            Object propertyValue2 = otherMethodProperties.get(dimensionalPropertyName);
+        if (thisMethodProperties.size() != otherMethodProperties.size()) {
+            return false;
+        }
+        
+        for (Entry<String, Object> entry : thisMethodProperties.entrySet()) {
+            Object propertyValue1 = entry.getValue();
+            Object propertyValue2 = otherMethodProperties.get(entry.getKey());
 
             if (isEmpty(propertyValue1) && isEmpty(propertyValue2)) {
                 // There is no meaning in properties with "null" values.
