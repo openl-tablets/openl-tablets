@@ -52,7 +52,7 @@ public class JavaOpenClass extends AOpenClass {
     public static final JavaOpenClass DOUBLE = new JavaPrimitiveClass(double.class, Double.class, 0.0);
     public static final JavaOpenClass FLOAT = new JavaPrimitiveClass(float.class, Float.class, 0.0f);
     public static final JavaOpenClass SHORT = new JavaPrimitiveClass(short.class, Short.class, (short) 0);
-    public static final JavaOpenClass CHAR = new JavaPrimitiveClass(char.class, Character.class,'\0');
+    public static final JavaOpenClass CHAR = new JavaPrimitiveClass(char.class, Character.class, '\0');
     public static final JavaOpenClass BYTE = new JavaPrimitiveClass(byte.class, Byte.class, (byte) 0);
     public static final JavaOpenClass BOOLEAN = new JavaPrimitiveClass(boolean.class, Boolean.class, Boolean.FALSE);
     public static final JavaOpenClass VOID = new JavaPrimitiveClass(void.class, Void.class, null);
@@ -492,6 +492,18 @@ public class JavaOpenClass extends AOpenClass {
         private Class<?> proxyClass;
 
         private InvocationHandler beanInterfaceHandler;
+
+        @Override
+        protected Map<MethodKey, IOpenMethod> initMethodMap() {
+            Map<MethodKey, IOpenMethod> methodMap = new HashMap<>();
+            methodMap.putAll(super.initMethodMap());
+
+            for (IOpenMethod om : JavaOpenClass.OBJECT.getMethods()) { //Any interface has Object methods. For example: toString()
+                methodMap.put(new MethodKey(om), om);
+            }
+
+            return Collections.unmodifiableMap(methodMap);
+        }
 
         static {
             try {
