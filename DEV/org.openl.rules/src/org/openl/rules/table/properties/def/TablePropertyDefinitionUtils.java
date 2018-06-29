@@ -22,10 +22,10 @@ import org.openl.rules.table.properties.inherit.PropertiesChecker;
  *
  */
 public class TablePropertyDefinitionUtils {
-    
+
     private static final List<TablePropertyDefinition> PROPERTIES_TO_BE_SET_BY_DEFAULT;
     private static final Map<String, Object> PROPERTIES_MAP_TO_BE_SET_BY_DEFAULT;
-    
+
     static {
         List<TablePropertyDefinition> propertiesToBeSetByDefault = new ArrayList<TablePropertyDefinition>();
         for (TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
@@ -34,7 +34,7 @@ public class TablePropertyDefinitionUtils {
             }
         }
         PROPERTIES_TO_BE_SET_BY_DEFAULT = Collections.unmodifiableList(propertiesToBeSetByDefault);
-        
+
         Map<String, Object> propertiesMapToBeSetByDefault = new HashMap<String, Object>();
 
         for (TablePropertyDefinition propertyWithDefaultValue : propertiesToBeSetByDefault) {
@@ -49,9 +49,11 @@ public class TablePropertyDefinitionUtils {
 
             propertiesMapToBeSetByDefault.put(defaultPropertyName, defaultValue);
         }
-        
+
         PROPERTIES_MAP_TO_BE_SET_BY_DEFAULT = Collections.unmodifiableMap(propertiesMapToBeSetByDefault);
     }
+
+    private static String[] dimensionalTablePropertiesNames = null;
 
     /**
      * Gets the array of properties names that are dimensional.
@@ -59,15 +61,20 @@ public class TablePropertyDefinitionUtils {
      * @return names of properties that are dimensional.
      */
     public static String[] getDimensionalTablePropertiesNames() {
-        List<String> names = new ArrayList<String>();
-        List<TablePropertyDefinition> dimensionalProperties = getDimensionalTableProperties();
+        if (dimensionalTablePropertiesNames == null) {
+            List<String> names = new ArrayList<String>();
+            List<TablePropertyDefinition> dimensionalProperties = getDimensionalTableProperties();
 
-        for (TablePropertyDefinition definition : dimensionalProperties) {
-            names.add(definition.getName());
+            for (TablePropertyDefinition definition : dimensionalProperties) {
+                names.add(definition.getName());
+            }
+
+            dimensionalTablePropertiesNames = names.toArray(new String[names.size()]);
         }
-
-        return names.toArray(new String[names.size()]);
+        return dimensionalTablePropertiesNames;
     }
+
+    private static List<TablePropertyDefinition> dimensionalTableProperties = null;
 
     /**
      * Gets the array of properties names that are dimensional.
@@ -75,16 +82,19 @@ public class TablePropertyDefinitionUtils {
      * @return names of properties that are dimensional.
      */
     public static List<TablePropertyDefinition> getDimensionalTableProperties() {
-        List<TablePropertyDefinition> dimensionalProperties = new ArrayList<TablePropertyDefinition>();
-        TablePropertyDefinition[] definitions = DefaultPropertyDefinitions.getDefaultDefinitions();
+        if (dimensionalTableProperties == null) {
+            List<TablePropertyDefinition> dimensionalProperties = new ArrayList<TablePropertyDefinition>();
+            TablePropertyDefinition[] definitions = DefaultPropertyDefinitions.getDefaultDefinitions();
 
-        for (TablePropertyDefinition definition : definitions) {
-            if (definition.isDimensional()) {
-                dimensionalProperties.add(definition);
+            for (TablePropertyDefinition definition : definitions) {
+                if (definition.isDimensional()) {
+                    dimensionalProperties.add(definition);
+                }
             }
-        }
 
-        return dimensionalProperties;
+            dimensionalTableProperties = Collections.unmodifiableList(dimensionalProperties);
+        }
+        return dimensionalTableProperties;
     }
 
     /**
@@ -131,7 +141,7 @@ public class TablePropertyDefinitionUtils {
         }
         return null;
     }
-    
+
     public static Class<?> getTypeByPropertyName(String propertyName) {
         TablePropertyDefinition tablePropertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(propertyName);
         if (tablePropertyDefinition != null) {
