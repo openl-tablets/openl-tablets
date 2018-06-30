@@ -14,7 +14,6 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -47,7 +46,8 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
                         ITableProperties propsB = PropertiesHelper.getTableProperties(methods[j]);
                         Map<String, Object> propertiesB = propsB.getAllDimensionalProperties();
 
-                        Set<String> usedKeys = new HashSet<String>(); //Performance improvement
+                        Set<String> usedKeys = new HashSet<String>(); // Performance
+                                                                      // improvement
                         for (String propKey : propertiesA.keySet()) {
                             if (OverlapState.NOT_OVERLAP == overlapState) {
                                 break;
@@ -121,7 +121,7 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
         }
         if (!OverlapState.OVERLAP.equals(overlapState)) {
             if (prop == null) {
-                if (OverlapState.INCLUDE_TO_B.equals(overlapState)) {
+                if (OverlapState.INCLUDE_TO_B == overlapState) {
                     overlapState = OverlapState.OVERLAP;
                 } else {
                     overlapState = OverlapState.INCLUDE_TO_A;
@@ -130,7 +130,7 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
                 return overlapState;
             }
             if (p == null) {
-                if (OverlapState.INCLUDE_TO_A.equals(overlapState)) {
+                if (OverlapState.INCLUDE_TO_A == overlapState) {
                     overlapState = OverlapState.OVERLAP;
                 } else {
                     overlapState = OverlapState.INCLUDE_TO_B;
@@ -149,51 +149,40 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
             boolean f1 = false;
             boolean f2 = false;
             int d = 0;
-            if (!OverlapState.OVERLAP.equals(overlapState)) {
+            int k = 0;
+            int q = 0;
+            while (k < length1 && q < length2) {
+                if ((Array.get(prop, k).equals(Array.get(p, q)))) {
+                    d++;
+                    k++;
+                    q++;
+                }
+                k++;
+            }
+            
+            if (OverlapState.OVERLAP != overlapState) {
                 if (length1 < length2) {
-                    for (int k = 0; k < length2; k++) {
-                        for (int q = 0; q < length1; q++) {
-                            if (Array.get(p, k).equals(Array.get(prop, q))) {
-                                d++;
-                            }
-                        }
-                    }
                     f2 = (d == length1);
                 } else {
-                    for (int k = 0; k < length1; k++) {
-                        for (int q = 0; q < length2; q++) {
-                            if (Array.get(prop, k).equals(Array.get(p, q))) {
-                                d++;
-                            }
-                        }
-                    }
                     f1 = (d == length2);
                     if (length1 == length2) {
                         f2 = f1;
                     }
-                } 
-            } else {
-                for (int k = 0; k < length1; k++) {
-                    for (int q = 0; q < length2; q++) {
-                        if (Array.get(prop, k).equals(Array.get(p, q))) {
-                            d++;
-                        }
-                    }
                 }
             }
-            
+
             boolean f3 = d == 0;
-            
+
             if (f3) {
                 overlapState = OverlapState.NOT_OVERLAP;
                 return overlapState;
             }
-            if (!OverlapState.OVERLAP.equals(overlapState)) {
+            if (OverlapState.OVERLAP != overlapState) {
                 if (f1 && f2) {
                     return overlapState;
                 }
                 if (f1) {
-                    if (OverlapState.INCLUDE_TO_B.equals(overlapState)) {
+                    if (OverlapState.INCLUDE_TO_B == overlapState) {
                         overlapState = OverlapState.OVERLAP;
                     } else {
                         overlapState = OverlapState.INCLUDE_TO_A;
@@ -202,7 +191,7 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
                     return overlapState;
                 }
                 if (f2) {
-                    if (OverlapState.INCLUDE_TO_A.equals(overlapState)) {
+                    if (OverlapState.INCLUDE_TO_A == overlapState) {
                         overlapState = OverlapState.OVERLAP;
                     } else {
                         overlapState = OverlapState.INCLUDE_TO_B;
