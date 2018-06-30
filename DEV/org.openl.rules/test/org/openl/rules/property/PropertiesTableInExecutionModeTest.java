@@ -44,20 +44,20 @@ public class PropertiesTableInExecutionModeTest {
             ITableProperties tableProperties = PropertiesHelper.getTableProperties(method);
             assertNotNull(tableProperties);
 
-            Map<String, Object> moduleProperties = tableProperties.getPropertiesAppliedForModule();
+            Map<String, Object> moduleProperties = tableProperties.getModuleProperties();
             assertTrue(moduleProperties.size() == 3);
             assertEquals(InheritanceLevel.MODULE.getDisplayName(), (String) moduleProperties.get("scope"));
             assertEquals("Any phase", (String) moduleProperties.get("buildPhase"));
             assertEquals(ValidateDTEnum.ON, (ValidateDTEnum) moduleProperties.get("validateDT"));
 
-            Map<String, Object> categoryProperties = tableProperties.getPropertiesAppliedForCategory();
+            Map<String, Object> categoryProperties = tableProperties.getCategoryProperties();
             assertTrue(categoryProperties.size() == 4);
             assertEquals(InheritanceLevel.CATEGORY.getDisplayName(), (String) categoryProperties.get("scope"));
             assertEquals("newLob", (String) categoryProperties.get("lob"));
             assertEquals(UsRegionsEnum.SE.name(), ((UsRegionsEnum[]) categoryProperties.get("usregion"))[0].name());
             assertEquals(RegionsEnum.NCSA.name(), ((RegionsEnum[]) categoryProperties.get("region"))[0].name());
 
-            Map<String, Object> defaultProperties = tableProperties.getPropertiesAppliedByDefault();
+            Map<String, Object> defaultProperties = tableProperties.getDefaultProperties();
             // assertTrue(defaultProperties.size() == 5);
             // assertEquals("US",(String) defaultProperties.get("country"));
 
