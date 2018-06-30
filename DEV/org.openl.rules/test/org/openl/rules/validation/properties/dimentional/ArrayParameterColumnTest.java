@@ -1,18 +1,19 @@
 package org.openl.rules.validation.properties.dimentional;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.enumeration.CountriesEnum;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
-import org.openl.rules.table.properties.ITableProperties;
 
 public class ArrayParameterColumnTest {
     
@@ -67,8 +68,8 @@ public class ArrayParameterColumnTest {
         
         assertEquals(2, arrayColumn.getRulesNumber());
         assertEquals(1, arrayColumn.getNumberOfLocalParameters());
-        assertEquals("CL,BA,AT,SA", arrayColumn.getRuleValue(0, 0));
-        assertEquals("CA,BE,AU", arrayColumn.getRuleValue(1, 0));        
+        assertEquals("AT,BA,CL,SA", arrayColumn.getRuleValue(0, 0));
+        assertEquals("AU,BE,CA", arrayColumn.getRuleValue(1, 0));        
     }
     
     @Test

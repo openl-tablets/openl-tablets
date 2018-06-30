@@ -25,17 +25,7 @@ public interface ITableProperties {
      * 
      * @return <code>{@link Map}</code> of properties defined in table.
      */
-    Map<String, Object> getPropertiesDefinedInTable();
-    
-    /**
-     * Gets the <code>{@link Map}</code> of properties with name as key and value as value, this map contains 
-     * properties defined in source table, excluding system properties. No inherited and no default properties.
-     * To find out which property is system see property definitions 
-     * {@link TablePropertyDefinitionUtils#getSystemProperties()}.
-     * 
-     * @return <code>{@link Map}</code> of properties defined in table excluding system properties.
-     */
-    Map<String, Object> getPropertiesDefinedInTableIgnoreSystem();
+    Map<String, Object> getTableProperties();
     
     /**
      * Gets the <code>{@link Map}</code> of properties with name as key and value as value, this map contains 
@@ -52,16 +42,16 @@ public interface ITableProperties {
      * 
      * @return <code>{@link Map}</code> of properties applied to the category this table belongs to.
      */
-    Map<String, Object> getPropertiesAppliedForCategory();
+    Map<String, Object> getCategoryProperties();
     
     /**
      * <code>{@link Map}</code> of properties applied to the module this table belongs to.
      * 
      * @return <code>{@link Map}</code> of properties applied to the module this table belongs to.
      */
-    Map<String, Object> getPropertiesAppliedForModule();
+    Map<String, Object> getModuleProperties();
     
-    Map<String, Object> getExternalPropertiesAppliedForModule();
+    Map<String, Object> getExternalProperties();
     
     /**
      * <code>{@link Map}</code> of properties that must be set by default. Default properties are set to the table when 
@@ -71,7 +61,7 @@ public interface ITableProperties {
      * 
      * @return <code>{@link Map}</code> of properties that must be set by default.
      */
-    Map<String, Object> getPropertiesAppliedByDefault();
+    Map<String, Object> getDefaultProperties();
     
     /**
      * Gets the value of the property by its name.
@@ -207,13 +197,13 @@ public interface ITableProperties {
 // <<< END INSERT >>>
 	
 	
-    void setPropertiesAppliedForCategory(Map<String, Object> categoryProperties);
+    void setCategoryProperties(Map<String, Object> categoryProperties);
     
-    void setPropertiesAppliedForModule(Map<String, Object> moduleProperties);  
+    void setModuleProperties(Map<String, Object> moduleProperties);  
     
-    void setExternalPropertiesAppliedForModule(Map<String, Object> moduleProperties);
+    void setExternalProperties(Map<String, Object> moduleProperties);
     
-    void setPropertiesAppliedByDefault(Map<String, Object> defaultProperties);    
+    void setDefaultProperties(Map<String, Object> defaultProperties);    
     
     void setCurrentTableType(String currentTableType);
 
