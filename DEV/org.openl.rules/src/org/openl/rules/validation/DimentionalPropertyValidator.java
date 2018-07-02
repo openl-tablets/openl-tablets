@@ -2,7 +2,6 @@ package org.openl.rules.validation;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -33,6 +32,7 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
     @Override
     public ValidationResult validate(OpenL openl, IOpenClass openClass) {
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
+        String[] vResult = new String[3]; // 0 - INCLUDE_TO_A, 1 - INCLUDE_TO_B, 2 - OVERLAP
         for (IOpenMethod method : openClass.getMethods()) {
             if (method instanceof OpenMethodDispatcher) {
                 OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) method;
@@ -42,7 +42,9 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
                     Map<String, Object> propertiesA = propsA.getAllDimensionalProperties();
                     for (int j = i + 1; j < methods.length; j++) {
                         OverlapState overlapState = OverlapState.UNKNOWN;
-                        Map<OverlapState, String> vResult = new HashMap<DimentionalPropertyValidator.OverlapState, String>();
+                        for (int q = 0; q < 3; q++) {
+                            vResult[q] = null;
+                        }
                         ITableProperties propsB = PropertiesHelper.getTableProperties(methods[j]);
                         Map<String, Object> propertiesB = propsB.getAllDimensionalProperties();
 
@@ -71,8 +73,8 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
 
                         if (overlapState == OverlapState.OVERLAP) {
                             StringBuilder sb = new StringBuilder();
-                            if (vResult.containsKey(OverlapState.OVERLAP)) {
-                                String pKey = vResult.get(OverlapState.OVERLAP);
+                            if (vResult[2] != null) {
+                                String pKey = vResult[2];
                                 Object valueA = propertiesA.get(pKey);
                                 Object valueB = propertiesB.get(pKey);
                                 sb.append("(");
@@ -83,10 +85,10 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
                                 writeMessageforProperty(sb, pKey, valueB);
                                 sb.append(")");
                             } else {
-                                String pKey1 = vResult.get(OverlapState.INCLUDE_TO_A);
+                                String pKey1 = vResult[0];
                                 Object value1A = propertiesA.get(pKey1);
                                 Object value1B = propertiesB.get(pKey1);
-                                String pKey2 = vResult.get(OverlapState.INCLUDE_TO_B);
+                                String pKey2 = vResult[1];
                                 Object value2A = propertiesA.get(pKey2);
                                 Object value2B = propertiesB.get(pKey2);
                                 sb.append("(");
@@ -112,7 +114,7 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
     }
 
     private OverlapState loopInternal(OverlapState overlapState,
-            Map<OverlapState, String> vResult,
+            String[] vResult,
             String propKey,
             Object prop,
             Object p) {
@@ -126,7 +128,7 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
                 } else {
                     overlapState = OverlapState.INCLUDE_TO_A;
                 }
-                vResult.put(OverlapState.INCLUDE_TO_A, propKey);
+                vResult[0] = propKey;
                 return overlapState;
             }
             if (p == null) {
@@ -135,7 +137,7 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
                 } else {
                     overlapState = OverlapState.INCLUDE_TO_B;
                 }
-                vResult.put(OverlapState.INCLUDE_TO_B, propKey);
+                vResult[1] = propKey;
                 return overlapState;
             }
         } else {
@@ -187,7 +189,7 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
                     } else {
                         overlapState = OverlapState.INCLUDE_TO_A;
                     }
-                    vResult.put(OverlapState.INCLUDE_TO_A, propKey);
+                    vResult[0] = propKey;
                     return overlapState;
                 }
                 if (f2) {
@@ -196,11 +198,11 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
                     } else {
                         overlapState = OverlapState.INCLUDE_TO_B;
                     }
-                    vResult.put(OverlapState.INCLUDE_TO_B, propKey);
+                    vResult[1] = propKey;
                     return overlapState;
                 }
                 overlapState = OverlapState.OVERLAP;
-                vResult.put(OverlapState.OVERLAP, propKey);
+                vResult[2] = propKey;
             }
         } else {
             if (prop.equals(p)) {
