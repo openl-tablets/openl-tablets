@@ -7,15 +7,20 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
-import org.openl.meta.*;
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.BigIntegerValue;
+import org.openl.meta.ByteValue;
+import org.openl.meta.DoubleValue;
+import org.openl.meta.FloatValue;
+import org.openl.meta.IntValue;
+import org.openl.meta.LongValue;
+import org.openl.meta.ShortValue;
+import org.openl.meta.StringValue;
 import org.openl.rules.helpers.IntRange;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -138,13 +143,10 @@ public class ObjectToDataConvertorFactory {
         }
     }
 
-    private static Map<ClassCastPair, IObjectToDataConvertor> convertors = new HashMap<>();
-    private static ReadWriteLock convertorsLock = new ReentrantReadWriteLock();
+    private static Map<ClassCastPair, IObjectToDataConvertor> convertors = new ConcurrentHashMap<>();
 
     static {
-        Lock writeLock = convertorsLock.writeLock();
         try {
-            writeLock.lock();
             convertors.put(new ClassCastPair(Integer.class, IntRange.class), new IObjectToDataConvertor() {
 
                 public Object convert(Object data) {
@@ -215,13 +217,10 @@ public class ObjectToDataConvertorFactory {
 
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            writeLock.unlock();
         }
     }
 
     public static final IObjectToDataConvertor NO_Convertor = new IObjectToDataConvertor() {
-
         public Object convert(Object data) {
             throw new UnsupportedOperationException();
         }
@@ -232,20 +231,13 @@ public class ObjectToDataConvertorFactory {
      * @return NO_Convertor if value is not convertable to expected type.
      */
     public static IObjectToDataConvertor getConvertor(Class<?> toClass, Class<?> fromClass) {
-
         if (toClass == fromClass)
             return CopyConvertor.the;
         ClassCastPair pair = new ClassCastPair(fromClass, toClass);
-        IObjectToDataConvertor convertor;
 
-        Lock readLock = convertorsLock.readLock();
-        try {
-            readLock.lock();
-            if (convertors.containsKey(pair)) {
-                return convertors.get(pair);
-            }
-        } finally {
-            readLock.unlock();
+        IObjectToDataConvertor convertor = convertors.get(pair);
+        if (convertor != null) {
+            return convertor;
         }
 
         Method method = getValueOfMethod(toClass, fromClass);
@@ -262,13 +254,7 @@ public class ObjectToDataConvertorFactory {
                 convertor = NO_Convertor;
             }
         }
-        Lock writeLock = convertorsLock.writeLock();
-        try {
-            writeLock.lock();
-            convertors.put(pair, convertor);
-        } finally {
-            writeLock.unlock();
-        }
+        convertors.put(pair, convertor);
         return convertor;
     }
 
@@ -284,13 +270,7 @@ public class ObjectToDataConvertorFactory {
             Class<?> fromClass,
             IObjectToDataConvertor convertor) {
         ClassCastPair pair = new ClassCastPair(fromClass, toClass);
-        Lock writeLock = convertorsLock.writeLock();
-        try {
-            writeLock.lock();
-            return convertors.put(pair, convertor);
-        } finally {
-            writeLock.unlock();
-        }
+        return convertors.put(pair, convertor);
     }
 
 }

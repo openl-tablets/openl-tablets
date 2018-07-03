@@ -1,10 +1,7 @@
 package org.openl.rules.convertor;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
@@ -56,42 +53,34 @@ public class ObjectToDataOpenCastConvertor {
         }
     }
 
-    private static Map<ClassCastPair, IOpenCast> convertors = new HashMap<ClassCastPair, IOpenCast>();
-    private static ReadWriteLock convertorsLock = new ReentrantReadWriteLock();
+    private static Map<ClassCastPair, IOpenCast> convertors = new ConcurrentHashMap<>();
 
     static {
-        Lock writeLock = convertorsLock.writeLock();
-        try {
-            writeLock.lock();
-            EnumToStringOpenCast enumToStringOpenCast = new EnumToStringOpenCast();
-            convertors.put(new ClassCastPair(UsStatesEnum.class, String.class), enumToStringOpenCast);
-            convertors.put(new ClassCastPair(CountriesEnum.class, String.class), enumToStringOpenCast);
-            convertors.put(new ClassCastPair(UsRegionsEnum.class, String.class), enumToStringOpenCast);
-            convertors.put(new ClassCastPair(CurrenciesEnum.class, String.class), enumToStringOpenCast);
-            convertors.put(new ClassCastPair(LanguagesEnum.class, String.class), enumToStringOpenCast);
-            convertors.put(new ClassCastPair(RegionsEnum.class, String.class), enumToStringOpenCast);
-            convertors.put(new ClassCastPair(CaProvincesEnum.class, String.class), enumToStringOpenCast);
-            convertors.put(new ClassCastPair(CaRegionsEnum.class, String.class), enumToStringOpenCast);
+        EnumToStringOpenCast enumToStringOpenCast = new EnumToStringOpenCast();
+        convertors.put(new ClassCastPair(UsStatesEnum.class, String.class), enumToStringOpenCast);
+        convertors.put(new ClassCastPair(CountriesEnum.class, String.class), enumToStringOpenCast);
+        convertors.put(new ClassCastPair(UsRegionsEnum.class, String.class), enumToStringOpenCast);
+        convertors.put(new ClassCastPair(CurrenciesEnum.class, String.class), enumToStringOpenCast);
+        convertors.put(new ClassCastPair(LanguagesEnum.class, String.class), enumToStringOpenCast);
+        convertors.put(new ClassCastPair(RegionsEnum.class, String.class), enumToStringOpenCast);
+        convertors.put(new ClassCastPair(CaProvincesEnum.class, String.class), enumToStringOpenCast);
+        convertors.put(new ClassCastPair(CaRegionsEnum.class, String.class), enumToStringOpenCast);
 
-            convertors.put(new ClassCastPair(String.class, UsStatesEnum.class),
-                new StringToEnumOpenCast(UsStatesEnum.class));
-            convertors.put(new ClassCastPair(String.class, CountriesEnum.class),
-                new StringToEnumOpenCast(CountriesEnum.class));
-            convertors.put(new ClassCastPair(String.class, UsRegionsEnum.class),
-                new StringToEnumOpenCast(UsRegionsEnum.class));
-            convertors.put(new ClassCastPair(String.class, CurrenciesEnum.class),
-                new StringToEnumOpenCast(CurrenciesEnum.class));
-            convertors.put(new ClassCastPair(String.class, LanguagesEnum.class),
-                new StringToEnumOpenCast(LanguagesEnum.class));
-            convertors.put(new ClassCastPair(String.class, RegionsEnum.class),
-                new StringToEnumOpenCast(RegionsEnum.class));
-            convertors.put(new ClassCastPair(String.class, CaProvincesEnum.class),
-                new StringToEnumOpenCast(CaProvincesEnum.class));
-            convertors.put(new ClassCastPair(String.class, CaRegionsEnum.class),
-                new StringToEnumOpenCast(CaRegionsEnum.class));
-        } finally {
-            writeLock.unlock();
-        }
+        convertors.put(new ClassCastPair(String.class, UsStatesEnum.class),
+            new StringToEnumOpenCast(UsStatesEnum.class));
+        convertors.put(new ClassCastPair(String.class, CountriesEnum.class),
+            new StringToEnumOpenCast(CountriesEnum.class));
+        convertors.put(new ClassCastPair(String.class, UsRegionsEnum.class),
+            new StringToEnumOpenCast(UsRegionsEnum.class));
+        convertors.put(new ClassCastPair(String.class, CurrenciesEnum.class),
+            new StringToEnumOpenCast(CurrenciesEnum.class));
+        convertors.put(new ClassCastPair(String.class, LanguagesEnum.class),
+            new StringToEnumOpenCast(LanguagesEnum.class));
+        convertors.put(new ClassCastPair(String.class, RegionsEnum.class), new StringToEnumOpenCast(RegionsEnum.class));
+        convertors.put(new ClassCastPair(String.class, CaProvincesEnum.class),
+            new StringToEnumOpenCast(CaProvincesEnum.class));
+        convertors.put(new ClassCastPair(String.class, CaRegionsEnum.class),
+            new StringToEnumOpenCast(CaRegionsEnum.class));
 
     }
 
@@ -137,31 +126,41 @@ public class ObjectToDataOpenCastConvertor {
         }
     }
 
+    private static final IOpenCast NO_CAST_FOUND = new IOpenCast() {
+        @Override
+        public boolean isImplicit() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int getDistance(IOpenClass from, IOpenClass to) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Object convert(Object from) {
+            throw new UnsupportedOperationException();
+        }
+    };
+
     public static IOpenCast getConvertor(Class<?> toClass, Class<?> fromClass) {
         if (toClass == fromClass)
             return new JavaNoCast();
         ClassCastPair pair = new ClassCastPair(fromClass, toClass);
-        Lock readLock = convertorsLock.readLock();
-        try {
-            readLock.lock();
-            if (convertors.containsKey(pair)) {
-                return convertors.get(pair);
+        IOpenCast cast = convertors.get(pair);
+        if (cast != null) {
+            if (cast == NO_CAST_FOUND) {
+                return null;
             }
-        } finally {
-            readLock.unlock();
+            return cast;
         }
 
         IOpenBinder binder = OpenL.getInstance(OpenL.OPENL_JAVA_NAME).getBinder();
         IOpenCast openCast = binder.getCastFactory().getCast(JavaOpenClass.getOpenClass(fromClass),
             JavaOpenClass.getOpenClass(toClass));
-        Lock writeLock = convertorsLock.writeLock();
-        try {
-            writeLock.lock();
-            convertors.put(pair, openCast);
-        } finally {
-            writeLock.unlock();
+        if (openCast == null) {
+            convertors.put(pair, NO_CAST_FOUND);
         }
-
         return openCast;
     }
 }
