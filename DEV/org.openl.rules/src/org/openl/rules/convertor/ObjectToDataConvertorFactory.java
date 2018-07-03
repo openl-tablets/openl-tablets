@@ -7,11 +7,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
@@ -72,10 +69,11 @@ public class ObjectToDataConvertorFactory {
         public MatchedConstructorConvertor(Constructor<?> ctr) {
             this.ctr = ctr;
         }
-
+        
+        @Override
         public Object convert(Object data, IBindingContext bindingContext) {
             try {
-                return ctr.newInstance(new Object[] { data });
+                return ctr.newInstance(data);
             } catch (Exception e) {
                 throw RuntimeExceptionWrapper.wrap(e);
             }
@@ -99,6 +97,7 @@ public class ObjectToDataConvertorFactory {
             this.staticMethod = staticMethod;
         }
 
+        @Override
         public Object convert(Object data, IBindingContext bindingContext) {
             try {
                 // first argument is null as field staticMethod represents only
@@ -112,6 +111,7 @@ public class ObjectToDataConvertorFactory {
     }
 
     public static class CopyConvertor implements IObjectToDataConvertor {
+        @Override
         public Object convert(Object data, IBindingContext bindingContext) {
             return data;
         }
@@ -127,35 +127,33 @@ public class ObjectToDataConvertorFactory {
      *
      */
     public static class GetValueConvertor implements IObjectToDataConvertor {
+        @Override
         public Object convert(Object data, IBindingContext bindingContext) {
             if (data != null) {
-                Method getValueMethod = null;
+                Method getValueMethod;
                 try {
-                    getValueMethod = data.getClass().getMethod("getValue", new Class<?>[0]);
+                    getValueMethod = data.getClass().getMethod("getValue");
                 } catch (Exception e) {
                     throw RuntimeExceptionWrapper.wrap(e);
                 }
-                Object value = null;
+                Object value;
                 try {
-                    value = getValueMethod.invoke(data, new Object[0]);
+                    value = getValueMethod.invoke(data);
                 } catch (Exception e) {
                     throw RuntimeExceptionWrapper.wrap(e);
                 }
                 return value;
             }
-            return data;
+            return null;
         }
     }
 
-    private static Map<ClassCastPair, IObjectToDataConvertor> convertors = new HashMap<ClassCastPair, IObjectToDataConvertor>();
-    private static ReadWriteLock convertorsLock = new ReentrantReadWriteLock();
+    private static Map<ClassCastPair, IObjectToDataConvertor> convertors = new ConcurrentHashMap<>();
 
     static {
-        Lock writeLock = convertorsLock.writeLock();
         try {
-            writeLock.lock();
             convertors.put(new ClassCastPair(Integer.class, IntRange.class), new IObjectToDataConvertor() {
-
+                @Override
                 public Object convert(Object data, IBindingContext bindingContext) {
                     return new IntRange((Integer) data);
                 }
@@ -163,7 +161,7 @@ public class ObjectToDataConvertorFactory {
             });
 
             convertors.put(new ClassCastPair(int.class, IntRange.class), new IObjectToDataConvertor() {
-
+                @Override
                 public Object convert(Object data, IBindingContext bindingContext) {
                     return new IntRange((Integer) data);
                 }
@@ -171,7 +169,7 @@ public class ObjectToDataConvertorFactory {
             });
 
             convertors.put(new ClassCastPair(Double.class, DoubleValue.class), new IObjectToDataConvertor() {
-
+                @Override
                 public Object convert(Object data, IBindingContext bindingContext) {
                     return new DoubleValue((Double) data);
                 }
@@ -183,14 +181,14 @@ public class ObjectToDataConvertorFactory {
             convertors.put(new ClassCastPair(Integer.class, int.class), CopyConvertor.the);
 
             convertors.put(new ClassCastPair(double.class, DoubleValue.class), new IObjectToDataConvertor() {
-
+                @Override
                 public Object convert(Object data, IBindingContext bindingContext) {
                     return new DoubleValue((Double) data);
                 }
             });
 
             convertors.put(new ClassCastPair(Date.class, Calendar.class), new IObjectToDataConvertor() {
-
+                @Override
                 public Object convert(Object data, IBindingContext bindingContext) {
                     Calendar cal = Calendar.getInstance(LocaleDependConvertor.getLocale());
                     cal.setTime((Date) data);
@@ -200,7 +198,7 @@ public class ObjectToDataConvertorFactory {
             });
 
             convertors.put(new ClassCastPair(Date.class, Calendar.class), new IObjectToDataConvertor() {
-
+                @Override
                 public Object convert(Object data, IBindingContext bindingContext) {
                     Calendar cal = Calendar.getInstance(LocaleDependConvertor.getLocale());
                     cal.setTime((Date) data);
@@ -209,7 +207,7 @@ public class ObjectToDataConvertorFactory {
 
             });
 
-            /**
+            /*
              * convertors from Openl types with meta info to common java types
              */
             convertors.put(new ClassCastPair(ByteValue.class, Byte.class), new GetValueConvertor());
@@ -224,13 +222,11 @@ public class ObjectToDataConvertorFactory {
 
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            writeLock.unlock();
         }
     }
 
     public static final IObjectToDataConvertor NO_Convertor = new IObjectToDataConvertor() {
-
+        @Override
         public Object convert(Object data, IBindingContext bindingContext) {
             throw new UnsupportedOperationException();
         }
@@ -241,29 +237,22 @@ public class ObjectToDataConvertorFactory {
      * @return NO_Convertor if value is not convertable to expected type.
      */
     public static IObjectToDataConvertor getConvertor(Class<?> toClass, Class<?> fromClass) {
-
         if (toClass == fromClass)
             return CopyConvertor.the;
         ClassCastPair pair = new ClassCastPair(fromClass, toClass);
-        IObjectToDataConvertor convertor = NO_Convertor;
 
-        Lock readLock = convertorsLock.readLock();
-        try {
-            readLock.lock();
-            if (convertors.containsKey(pair)) {
-                return convertors.get(pair);
-            }
-        } finally {
-            readLock.unlock();
+        IObjectToDataConvertor convertor = convertors.get(pair);
+        if (convertor != null) {
+            return convertor;
         }
 
-        Method method = MethodUtils.getAccessibleMethod(toClass, "valueOf", fromClass);
+        Method method = getValueOfMethod(toClass, fromClass);
         if (method != null) {
             convertor = new StaticMethodConvertor(method);
         } else {
             // try to find appropriate constructor.
             //
-            Constructor<?> ctr = ConstructorUtils.getMatchingAccessibleConstructor(toClass, new Class[] { fromClass });
+            Constructor<?> ctr = ConstructorUtils.getMatchingAccessibleConstructor(toClass, fromClass);
 
             if (ctr != null) {
                 convertor = new MatchedConstructorConvertor(ctr);
@@ -271,27 +260,23 @@ public class ObjectToDataConvertorFactory {
                 convertor = NO_Convertor;
             }
         }
-        Lock writeLock = convertorsLock.writeLock();
-        try {
-            writeLock.lock();
-            convertors.put(pair, convertor);
-        } finally {
-            writeLock.unlock();
-        }
+        convertors.put(pair, convertor);
         return convertor;
+    }
+
+    private static Method getValueOfMethod(Class<?> toClass, Class<?> fromClass) {
+        if (fromClass == null) {
+            return null;
+        }
+        Method method = MethodUtils.getAccessibleMethod(toClass, "valueOf", fromClass);
+        return method == null ? MethodUtils.getAccessibleMethod(toClass, "valueOf", Object.class) : method;
     }
 
     public static IObjectToDataConvertor registerConvertor(Class<?> toClass,
             Class<?> fromClass,
             IObjectToDataConvertor convertor) {
         ClassCastPair pair = new ClassCastPair(fromClass, toClass);
-        Lock writeLock = convertorsLock.writeLock();
-        try {
-            writeLock.lock();
-            return convertors.put(pair, convertor);
-        } finally {
-            writeLock.unlock();
-        }
+        return convertors.put(pair, convertor);
     }
 
 }
