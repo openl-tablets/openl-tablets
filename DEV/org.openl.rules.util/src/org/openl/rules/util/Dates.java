@@ -15,8 +15,7 @@ import org.openl.rules.util.dates.DateInterval.Unit;
  */
 public final class Dates {
 
-    private Dates() {
-        /* NON */}
+    private Dates() { /* NON */ }
 
     /**
      * Calculate difference between two dates
