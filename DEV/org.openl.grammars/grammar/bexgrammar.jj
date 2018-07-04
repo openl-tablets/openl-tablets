@@ -209,7 +209,6 @@ TOKEN :
 | < FOR : "for" >
 | < GOTO : "goto" >
 | < IF : "if" >
-| < PLUSSTR : "plus" >
 //| < IMPLEMENTS : "implements" >
 //| < IMPORT : "import" >
 | < INSTANCEOF : "instanceof" >
@@ -885,10 +884,6 @@ void AdditiveExpression() :
   (
     (
       x = < PLUS >
-      {
-        func = "op.binary.add";
-      }
-    | x = < PLUSSTR >
       {
         func = "op.binary.add";
       }
