@@ -46,7 +46,7 @@ public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper
             ITableProperties tableProperties = resultTsn.getTableProperties();
             assertNotNull(tableProperties);
 
-            Map<String, Object> categoryProperties = tableProperties.getPropertiesAppliedForCategory();
+            Map<String, Object> categoryProperties = tableProperties.getCategoryProperties();
             assertTrue(categoryProperties.size() == 5);
             // check that we have all properties from category level
             assertEquals(InheritanceLevel.CATEGORY.getDisplayName(), (String) categoryProperties.get("scope"));

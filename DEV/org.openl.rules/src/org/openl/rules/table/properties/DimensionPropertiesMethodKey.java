@@ -9,6 +9,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Map.Entry;
 
 /**
  * Immutable Key to check identity of {@link ExecutableRulesMethod} methods.
@@ -22,6 +23,7 @@ import java.util.Objects;
 public final class DimensionPropertiesMethodKey {
     
     private final IOpenMethod method;
+    private int hashCode = 0;
     
     public DimensionPropertiesMethodKey(IOpenMethod method) {
         this.method = method;
@@ -41,18 +43,17 @@ public final class DimensionPropertiesMethodKey {
         if (!new MethodKey(method).equals(new MethodKey(key.getMethod()))) {
             return false;
         }
-        String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
-        for (String dimensionalPropertyName : dimensionalPropertyNames) {
-            Map<String, Object> thisMethodProperties = PropertiesHelper.getMethodProperties(method);
-            Map<String, Object> otherMethodProperties = PropertiesHelper.getMethodProperties(key.getMethod());
-            if (thisMethodProperties == null || otherMethodProperties == null) {
-                // There is no meaning in properties with "null" values.
-                // If such properties exists, we should skip them like there is no empty properties.
-                continue;
-            }
+        
+        Map<String, Object> thisMethodProperties = PropertiesHelper.getTableProperties(method).getAllDimensionalProperties();
+        Map<String, Object> otherMethodProperties = PropertiesHelper.getTableProperties(key.getMethod()).getAllDimensionalProperties();
 
-            Object propertyValue1 = thisMethodProperties.get(dimensionalPropertyName);
-            Object propertyValue2 = otherMethodProperties.get(dimensionalPropertyName);
+        if (thisMethodProperties.size() != otherMethodProperties.size()) {
+            return false;
+        }
+        
+        for (Entry<String, Object> entry : thisMethodProperties.entrySet()) {
+            Object propertyValue1 = entry.getValue();
+            Object propertyValue2 = otherMethodProperties.get(entry.getKey());
 
             if (isEmpty(propertyValue1) && isEmpty(propertyValue2)) {
                 // There is no meaning in properties with "null" values.
@@ -68,17 +69,19 @@ public final class DimensionPropertiesMethodKey {
 
     @Override
     public int hashCode() {
-
-        String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
-        Map<String, Object> methodProperties = PropertiesHelper.getMethodProperties(method);
-        int hash = new MethodKey(method).hashCode();
-        if (methodProperties != null) {
-            for (String dimensionalPropertyName : dimensionalPropertyNames) {
-                Object property = methodProperties.get(dimensionalPropertyName);
-                hash = 31 * hash + (property instanceof Object[] ? Arrays.deepHashCode((Object[]) property) : Objects.hashCode(property));
+        if (hashCode  == 0) {
+            String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
+            Map<String, Object> methodProperties = PropertiesHelper.getMethodProperties(method);
+            int hash = new MethodKey(method).hashCode();
+            if (methodProperties != null) {
+                for (String dimensionalPropertyName : dimensionalPropertyNames) {
+                    Object property = methodProperties.get(dimensionalPropertyName);
+                    hash = 31 * hash + (property instanceof Object[] ? Arrays.deepHashCode((Object[]) property) : Objects.hashCode(property));
+                }
             }
+            hashCode = hash;
         }
-        return hash;
+        return hashCode;
     }
 
     @Override
@@ -106,7 +109,7 @@ public final class DimensionPropertiesMethodKey {
      * Check if propertyValue is null or it contains only null values
      * 
      * @param propertyValue checking value
-     * @return true if propertyValue is null or it contains only null values. If it contains any not null value - false; 
+     * @return true if propertyValue is null or it contains only null values. If it contains any not null value - falseT;
      */
     private boolean isEmpty(Object propertyValue) {
         if (propertyValue == null) {

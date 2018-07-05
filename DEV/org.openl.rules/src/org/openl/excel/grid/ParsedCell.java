@@ -14,9 +14,12 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsUtil;
 
 public class ParsedCell implements ICell {
+    private final static Object NOT_DEFINED = new Object();
     private final int row;
     private final int column;
     private final ParsedGrid grid;
+    private Object value = NOT_DEFINED;
+    private IGridRegion region;
 
     private transient TableStyles tableStyles;
 
@@ -74,7 +77,10 @@ public class ParsedCell implements ICell {
 
     @Override
     public Object getObjectValue() {
-        return grid.getCellValue(row, column);
+        if (value == NOT_DEFINED) {
+            value = grid.getCellValue(row, column);
+        }
+        return value;
     }
 
     @Override
@@ -88,10 +94,13 @@ public class ParsedCell implements ICell {
         initializeStyles();
         return tableStyles == null ? null : tableStyles.getFont(row, column);
     }
-    
+
     @Override
     public IGridRegion getRegion() {
-        return grid.getRegion(row, column);
+        if (region == null) {
+            region = grid.getRegion(row, column);
+        }
+        return region;
     }
 
     @Override

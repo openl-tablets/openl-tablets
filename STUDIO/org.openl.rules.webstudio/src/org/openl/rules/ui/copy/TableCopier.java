@@ -93,7 +93,7 @@ public class TableCopier extends TableCreationWizard {
                 Object propertyValue = tableProperties.getPropertyValue(possiblePropertyName) != null ?
                         tableProperties.getPropertyValue(possiblePropertyName) : null;
 
-                if (tableProperties.getPropertiesDefinedInTable().containsKey(possiblePropertyName)) {
+                if (tableProperties.getTableProperties().containsKey(possiblePropertyName)) {
                     Class<?> propertyType = null;
 
                     if (propDefinition.getType() != null) {

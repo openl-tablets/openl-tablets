@@ -80,13 +80,13 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
         TableProperties tableProperties = initTableProperties();
 
         Map<String, Object> categoryProperties = initCategoryProperties();
-        tableProperties.setPropertiesAppliedForCategory(categoryProperties);
+        tableProperties.setCategoryProperties(categoryProperties);
 
         Map<String, Object> moduleProperties = initModuleProperties();
-        tableProperties.setPropertiesAppliedForModule(moduleProperties);
+        tableProperties.setModuleProperties(moduleProperties);
 
         Map<String, Object> defaultProperties = initDefaultProperties();
-        tableProperties.setPropertiesAppliedByDefault(defaultProperties);
+        tableProperties.setDefaultProperties(defaultProperties);
 
         return tableProperties;
     }

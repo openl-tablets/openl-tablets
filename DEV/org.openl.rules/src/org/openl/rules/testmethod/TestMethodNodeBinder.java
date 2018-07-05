@@ -46,27 +46,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
     private static final int TESTED_METHOD_INDEX = 1;
     private static final int TABLE_NAME_INDEX = 2;
     private static final AtomicInteger counter = new AtomicInteger();
-    /**
-     * Workaround for ability to run tests when executionMode is true.
-     * In future we should remove this field and replace executionMode with a type with 3 possible states: execute only
-     * business rules, execute rules and tests, keep all tables and meta info for edit in WebStudio.
-     */
-    private static ThreadLocal<Boolean> keepTests = new ThreadLocal<>();
-
-    private static boolean isKeepTestsInExecutionMode() {
-        Boolean keep = keepTests.get();
-        return keep != null && keep;
-    }
-
-    public static void keepTestsInExecutionMode() {
-        keepTests.set(Boolean.TRUE);
-    }
-
-    public static void removeTestsInExecutionMode() {
-        keepTests.remove();
-    }
-
-
+    
     @Override
     protected ATableBoundNode makeNode(TableSyntaxNode tableSyntaxNode,
             XlsModuleOpenClass module,
@@ -85,7 +65,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             OpenL openl,
             IBindingContext bindingContext,
             XlsModuleOpenClass module) throws Exception {
-        if (bindingContext.isExecutionMode() && !isKeepTestsInExecutionMode()) {
+        if (bindingContext.isExecutionMode()) {
             return null;// skipped in execution mode
         }
 

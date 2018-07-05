@@ -72,7 +72,7 @@ public class PropertiesLoader {
             propertiesInstance.setPropertiesSection(propertiesSection);
 
             String tableType = tableSyntaxNode.getType();
-            Set<String> propertyNamesToCheck = propertiesInstance.getPropertiesDefinedInTable().keySet();
+            Set<String> propertyNamesToCheck = propertiesInstance.getTableProperties().keySet();
 
             PropertiesChecker.checkProperties(bindingContext, propertyNamesToCheck, tableSyntaxNode, InheritanceLevel.TABLE);
 
@@ -95,7 +95,7 @@ public class PropertiesLoader {
 
         if (categoryPropertiesTsn != null) {
             ITableProperties categoryProperties = categoryPropertiesTsn.getTableProperties();
-            tableProperties.setPropertiesAppliedForCategory(categoryProperties.getAllProperties());
+            tableProperties.setCategoryProperties(categoryProperties.getAllProperties());
             tableProperties.setCategoryPropertiesTable(categoryProperties.getPropertiesSection());
         }
     }
@@ -124,7 +124,7 @@ public class PropertiesLoader {
 
         if (tableProperties != null && modulePropertiesTsn != null) {
             ITableProperties moduleProperties = modulePropertiesTsn.getTableProperties();
-            tableProperties.setPropertiesAppliedForModule(moduleProperties.getAllProperties());
+            tableProperties.setModuleProperties(moduleProperties.getAllProperties());
             tableProperties.setModulePropertiesTable(moduleProperties.getPropertiesSection());
         }
     }
@@ -141,7 +141,7 @@ public class PropertiesLoader {
 
         ITableProperties properties = tableSyntaxNode.getTableProperties();
         Map<String, Object> defaultProperties = TablePropertyDefinitionUtils.getPropertiesMapToBeSetByDefault();
-        properties.setPropertiesAppliedByDefault(defaultProperties);
+        properties.setDefaultProperties(defaultProperties);
     }
 
     private void createTableProperties(TableSyntaxNode tableSyntaxNode) {
@@ -203,7 +203,7 @@ public class PropertiesLoader {
                 }
             }
 
-            properties.setExternalPropertiesAppliedForModule(externalProperties.getAllProperties());
+            properties.setExternalProperties(externalProperties.getAllProperties());
         }
     }
 }

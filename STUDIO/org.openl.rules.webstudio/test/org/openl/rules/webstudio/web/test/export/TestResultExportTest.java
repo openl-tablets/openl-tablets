@@ -1,9 +1,17 @@
 package org.openl.rules.webstudio.web.test.export;
 
-import static org.junit.Assert.*;
-import static org.openl.rules.webstudio.web.test.export.Styles.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.openl.rules.webstudio.web.test.export.Styles.GREEN_FIELDS;
+import static org.openl.rules.webstudio.web.test.export.Styles.GREEN_MAIN;
+import static org.openl.rules.webstudio.web.test.export.Styles.HEADER;
+import static org.openl.rules.webstudio.web.test.export.Styles.RED_FIELDS;
+import static org.openl.rules.webstudio.web.test.export.Styles.RED_MAIN;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -11,7 +19,11 @@ import java.util.Comparator;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFComment;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -20,7 +32,6 @@ import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.testmethod.ProjectHelper;
-import org.openl.rules.testmethod.TestMethodNodeBinder;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.webstudio.web.test.TestSuiteWithPreview;
@@ -57,13 +68,7 @@ public class TestResultExportTest {
                 .setExecutionMode(false)
                 .build();
 
-        CompiledOpenClass openLRules;
-        try {
-            TestMethodNodeBinder.keepTestsInExecutionMode();
-            openLRules = factory.getCompiledOpenClass();
-        } finally {
-            TestMethodNodeBinder.removeTestsInExecutionMode();
-        }
+        CompiledOpenClass openLRules = factory.getCompiledOpenClass();
         IOpenClass openClass = openLRules.getOpenClassWithErrors();
         TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
 
@@ -90,14 +95,7 @@ public class TestResultExportTest {
                 .setProject(path)
                 .setExecutionMode(false)
                 .build();
-
-        CompiledOpenClass openLRules;
-        try {
-            TestMethodNodeBinder.keepTestsInExecutionMode();
-            openLRules = factory.getCompiledOpenClass();
-        } finally {
-            TestMethodNodeBinder.removeTestsInExecutionMode();
-        }
+        CompiledOpenClass openLRules = factory.getCompiledOpenClass();
         IOpenClass openClass = openLRules.getOpenClassWithErrors();
         TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
         for (TestSuiteMethod test : tests) {

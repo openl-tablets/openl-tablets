@@ -35,7 +35,6 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.testmethod.ProjectHelper;
-import org.openl.rules.testmethod.TestMethodNodeBinder;
 import org.openl.rules.testmethod.TestStatus;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteExecutor;
@@ -181,17 +180,11 @@ public final class TestMojo extends BaseOpenLMojo {
             }
             SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
                 .setClassLoader(classLoader)
-                .setExecutionMode(true)
+                .setExecutionMode(false)
                 .setExternalParameters(externalParameters)
                 .build();
 
-            CompiledOpenClass openLRules;
-            try {
-                TestMethodNodeBinder.keepTestsInExecutionMode();
-                openLRules = factory.getCompiledOpenClass();
-            } finally {
-                TestMethodNodeBinder.removeTestsInExecutionMode();
-            }
+            CompiledOpenClass openLRules = factory.getCompiledOpenClass();
             return executeTests(openLRules);
         } finally {
             releaseResources(classLoader);
@@ -244,19 +237,13 @@ public final class TestMojo extends BaseOpenLMojo {
                 }
                 SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
                     .setClassLoader(classLoader)
-                    .setExecutionMode(true)
+                    .setExecutionMode(false)
                     .setModule(module.getName())
                     .setExternalParameters(externalParameters)
                     .build();
 
                 info("Searching tests in the module '", module.getName(), "'...");
-                CompiledOpenClass openLRules;
-                try {
-                    TestMethodNodeBinder.keepTestsInExecutionMode();
-                    openLRules = factory.getCompiledOpenClass();
-                } finally {
-                    TestMethodNodeBinder.removeTestsInExecutionMode();
-                }
+                CompiledOpenClass openLRules = factory.getCompiledOpenClass();
                 Summary summary = executeTests(openLRules);
 
                 runTests += summary.getRunTests();
