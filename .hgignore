@@ -11,5 +11,7 @@ syntax: glob
 .classpath
 .springBeans
 target
+build/classes
+build/test-classes
 overlays
 *.log
