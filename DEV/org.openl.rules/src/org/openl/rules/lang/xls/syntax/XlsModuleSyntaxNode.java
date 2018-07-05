@@ -59,15 +59,27 @@ public class XlsModuleSyntaxNode extends NaryNode {
 
     public TableSyntaxNode[] getXlsTableSyntaxNodes() {
         if (tableSyntaxNodes == null) {
-            List<TableSyntaxNode> tsnodes = new ArrayList<TableSyntaxNode>();
+            buildXlsTableSyntaxNodes();
+        } else {
+            int expectedSize = 0;
             for (WorkbookSyntaxNode wbsn : getWorkbookSyntaxNodes()) {
-                for (TableSyntaxNode tableSyntaxNode : wbsn.getTableSyntaxNodes()) {
-                    tsnodes.add(tableSyntaxNode);
-                }
+                expectedSize = expectedSize + wbsn.getTableSyntaxNodes().length;
             }
-            tableSyntaxNodes = tsnodes.toArray(new TableSyntaxNode[tsnodes.size()]);
+            if (expectedSize != tableSyntaxNodes.length) {
+                buildXlsTableSyntaxNodes();
+            }
         }
         return tableSyntaxNodes;
+    }
+
+    private void buildXlsTableSyntaxNodes() {
+        List<TableSyntaxNode> tsnodes = new ArrayList<TableSyntaxNode>();
+        for (WorkbookSyntaxNode wbsn : getWorkbookSyntaxNodes()) {
+            for (TableSyntaxNode tableSyntaxNode : wbsn.getTableSyntaxNodes()) {
+                tsnodes.add(tableSyntaxNode);
+            }
+        }
+        tableSyntaxNodes = tsnodes.toArray(new TableSyntaxNode[tsnodes.size()]);
     }
 
     public TableSyntaxNode[] getXlsTableSyntaxNodesWithoutErrors() {
