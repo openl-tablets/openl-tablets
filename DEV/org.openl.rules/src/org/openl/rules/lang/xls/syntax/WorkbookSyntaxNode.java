@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.NaryNode;
 
 public class WorkbookSyntaxNode extends NaryNode {
@@ -22,22 +23,36 @@ public class WorkbookSyntaxNode extends NaryNode {
 
     public TableSyntaxNode[] getTableSyntaxNodes() {
         if (tableSyntaxNodes == null) {
-            List<TableSyntaxNode> tnodes = new ArrayList<TableSyntaxNode>();
-            WorksheetSyntaxNode[] sheetNodes = getWorksheetSyntaxNodes();
-
-            for (WorksheetSyntaxNode sheetNode : sheetNodes) {
+            buildTableSyntaxNodes();
+        } else {
+            int expectedSize = 0;
+            for (WorksheetSyntaxNode sheetNode : getWorksheetSyntaxNodes()) {
                 TableSyntaxNode[] tableSyntaxNodes = sheetNode.getTableSyntaxNodes();
-                for (TableSyntaxNode tsn : tableSyntaxNodes) {
-                    tnodes.add(tsn);
-                }
+                expectedSize = expectedSize + sheetNode.getTableSyntaxNodes().length;
             }
-
-            for (TableSyntaxNode tnode : mergedTableParts) {
-                tnodes.add(tnode);
+            expectedSize = expectedSize + mergedTableParts.length;
+            if (expectedSize != tableSyntaxNodes.length) {
+                buildTableSyntaxNodes();
             }
-            tableSyntaxNodes = tnodes.toArray(new TableSyntaxNode[0]);
         }
         return tableSyntaxNodes;
+    }
+
+    private void buildTableSyntaxNodes() {
+        List<TableSyntaxNode> tnodes = new ArrayList<TableSyntaxNode>();
+        WorksheetSyntaxNode[] sheetNodes = getWorksheetSyntaxNodes();
+
+        for (WorksheetSyntaxNode sheetNode : sheetNodes) {
+            TableSyntaxNode[] tableSyntaxNodes = sheetNode.getTableSyntaxNodes();
+            for (TableSyntaxNode tsn : tableSyntaxNodes) {
+                tnodes.add(tsn);
+            }
+        }
+
+        for (TableSyntaxNode tnode : mergedTableParts) {
+            tnodes.add(tnode);
+        }
+        tableSyntaxNodes = tnodes.toArray(new TableSyntaxNode[0]);
     }
 
     public XlsWorkbookSourceCodeModule getWorkbookSourceCodeModule() {
@@ -47,4 +62,5 @@ public class WorkbookSyntaxNode extends NaryNode {
     public WorksheetSyntaxNode[] getWorksheetSyntaxNodes() {
         return (WorksheetSyntaxNode[]) getNodes();
     }
+
 }
