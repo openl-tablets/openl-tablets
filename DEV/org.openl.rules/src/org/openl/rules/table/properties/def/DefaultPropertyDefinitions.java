@@ -481,9 +481,9 @@ public class DefaultPropertyDefinitions
 		definitions[33].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 		definitions[34] = new TablePropertyDefinition();
 		definitions[34].setDefaultValue("false");
-		definitions[34].setDescription("Controls Parallel execution feature. By default = false.");
+		definitions[34].setDescription("Controls parallel execution feature. By default = false.");
 		definitions[34].setDimensional(false);
-		definitions[34].setDisplayName("Cuncurrent Execution");
+		definitions[34].setDisplayName("Concurrent Execution");
 		definitions[34].setGroup("Dev");
 		definitions[34].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[34].setName("parallel");
