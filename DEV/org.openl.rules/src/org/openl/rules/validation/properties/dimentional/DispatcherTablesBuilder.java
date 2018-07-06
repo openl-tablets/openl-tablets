@@ -7,7 +7,6 @@ import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
@@ -59,17 +58,6 @@ public class DispatcherTablesBuilder {
         TableSyntaxNode tsn = new TableSyntaxNodeDispatcherBuilder(moduleContext, moduleOpenClass, dispatcher).build();
         if (tsn != null) {
             XlsModuleSyntaxNode xlsModuleNode = moduleOpenClass.getXlsMetaInfo().getXlsModuleNode();
-            if (xlsModuleNode.getModule() instanceof VirtualSourceCodeModule) {
-                for (IOpenMethod method : dispatcher.getCandidates()) {
-                    if (method.getDeclaringClass() instanceof XlsModuleOpenClass) {
-                        XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) method.getDeclaringClass();
-                        xlsModuleNode = xlsModuleOpenClass.getXlsMetaInfo().getXlsModuleNode();
-                        if (!(xlsModuleNode.getModule() instanceof VirtualSourceCodeModule)) {
-                            break;
-                        }
-                    }
-                }
-            }
             xlsModuleNode.getWorkbookSyntaxNodes()[0].getWorksheetSyntaxNodes()[0].addNode(tsn);
         }
     }
