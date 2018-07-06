@@ -8,6 +8,7 @@ import org.openl.dependency.CompiledDependency;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.types.IOpenClass;
 import org.openl.validation.IOpenLValidator;
 import org.openl.validation.ValidationResult;
@@ -23,7 +24,9 @@ public abstract class TablesValidator implements IOpenLValidator {
             XlsMetaInfo xlsMetaInfo = ((XlsModuleOpenClass) openClass).getXlsMetaInfo();
             TableSyntaxNode[] xlsTableSyntaxNodes = xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes();
             for (TableSyntaxNode tableSyntaxNode : xlsTableSyntaxNodes) {
-                tableSyntaxNodes.add(tableSyntaxNode);
+                if (!DispatcherTablesBuilder.isDispatcherTable(tableSyntaxNode)) {
+                    tableSyntaxNodes.add(tableSyntaxNode);
+                }
             }
         }
     }

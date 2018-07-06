@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.NaryNode;
 
 public class WorkbookSyntaxNode extends NaryNode {

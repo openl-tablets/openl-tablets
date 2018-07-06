@@ -3,8 +3,6 @@ package org.openl.rules.webstudio.web;
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.RUN;
 
-import java.util.Collection;
-
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
@@ -15,15 +13,11 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.richfaces.ProjectTreeBuilder;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMember;
-import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
 import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.TreeNode;
@@ -65,17 +59,11 @@ public class TreeBean {
     public TreeNode getTree() {
         WebStudio studio = WebStudioUtils.getWebStudio();
 
-        if (!hideUtilityTables) {
-            generateDispatcherTables(studio.getModel().getCompiledOpenClass().getOpenClassWithErrors());
-        }
-
         ITreeElement<?> tree = studio.getModel().getProjectTree();
         if (tree != null) {
             Module module = studio.getCurrentModule();
-            CollectionUtils.Predicate<ITreeElement> utilityTablePredicate = null;
-            if (hideUtilityTables) {
-                utilityTablePredicate = getUtilityTablePredicate(studio, module);
-            }
+
+            CollectionUtils.Predicate<ITreeElement> utilityTablePredicate = getUtilityTablePredicate(studio, module);
 
             return new ProjectTreeBuilder(utilityTablePredicate).build(tree);
         }
@@ -83,20 +71,10 @@ public class TreeBean {
         return new TreeNodeImpl();
     }
 
-    private void generateDispatcherTables(IOpenClass openClass) {
-        Collection<IOpenMethod> methods = openClass.getMethods();
-        for (IOpenMethod method : methods) {
-            if (method instanceof OpenMethodDispatcher) {
-                OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) method;
-                openMethodDispatcher.getDispatcherTable();
-            }
-        }
-    }
-
     private CollectionUtils.Predicate<ITreeElement> getUtilityTablePredicate(WebStudio studio, Module module) {
         CollectionUtils.Predicate<ITreeElement> utilityTablePredicate;
         if (module.getExtension() == null) {
-            utilityTablePredicate = new UtilityTablePredicate();
+            utilityTablePredicate = new UtilityTablePredicate(hideUtilityTables);
         } else {
             ClassLoader classLoader = null;
             try {
@@ -110,22 +88,28 @@ public class TreeBean {
         }
         return utilityTablePredicate;
     }
-
+    
     private static class UtilityTablePredicate implements CollectionUtils.Predicate<ITreeElement> {
+        private boolean hideUtilityTables;
+        
+        public UtilityTablePredicate(boolean hideUtilityTables) {
+            this.hideUtilityTables = hideUtilityTables; 
+        }
+        
         @Override
         public boolean evaluate(ITreeElement tableNode) {
             if (tableNode.isLeaf() && tableNode.getObject() instanceof ISyntaxNode) {
                 String tableType = ((ISyntaxNode) tableNode.getObject()).getType();
-                if (XlsNodeTypes.XLS_OTHER.toString().equals(tableType)) {
-                    return true;
+                if (hideUtilityTables) {
+                    if (XlsNodeTypes.XLS_OTHER.toString().equals(tableType)) {
+                        return true;
+                    }
                 }
+                
+                //Always hide dispatcher tables
                 if (XlsNodeTypes.XLS_DT.toString().equals(tableType)) {
-                    IOpenMember member = ((TableSyntaxNode) tableNode.getObject()).getMember();
-                    if (member != null) {
-                        String tableName = member.getName();
-                        if (tableName.startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME)) {
-                            return true;
-                        }
+                    if (DispatcherTablesBuilder.isDispatcherTable((TableSyntaxNode) tableNode.getObject())) {
+                        return true;
                     }
                 }
             }
