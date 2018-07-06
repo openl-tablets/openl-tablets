@@ -7,8 +7,6 @@ import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
@@ -61,35 +59,14 @@ public class DispatcherTablesBuilder {
                 moduleOpenClass, dispatcher);
         TableSyntaxNode tsn = tsnDispatcherBuilder.build();
         if (tsn != null) {
-            if (!isVirtualWorkbook()) {
-                addNewTsnToTopNode(tsn);
-            } else {
-                addNewTsnToCandidateModule(dispatcher, tsn);
-            }
+            addNewTsnToTopNode(tsn);
         }
-    }
-
-    private boolean isVirtualWorkbook(){
-        return moduleOpenClass.getXlsMetaInfo().getXlsModuleNode().getModule() instanceof VirtualSourceCodeModule;
     }
 
     private void addNewTsnToTopNode(TableSyntaxNode tsn) {
         XlsMetaInfo xlsMetaInfo = moduleOpenClass.getXlsMetaInfo();
         xlsMetaInfo.getXlsModuleNode().getWorkbookSyntaxNodes()[0]
             .getWorksheetSyntaxNodes()[0].addNode(tsn);
-    }
-
-    private void addNewTsnToCandidateModule(MatchingOpenMethodDispatcher dispatcher, TableSyntaxNode tsn) {
-        for (IOpenMethod method : dispatcher.getCandidates()) {
-            if (method.getDeclaringClass() instanceof XlsModuleOpenClass) {
-                XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) method.getDeclaringClass();
-                XlsModuleSyntaxNode xlsModuleNode = xlsModuleOpenClass.getXlsMetaInfo().getXlsModuleNode();
-                if (!(xlsModuleNode.getModule() instanceof VirtualSourceCodeModule)) {
-                    xlsModuleNode.getWorkbookSyntaxNodes()[0].getWorksheetSyntaxNodes()[0].addNode(tsn);
-                    break;
-                }
-            }
-        }
     }
 
     private List<MatchingOpenMethodDispatcher> getAllMethodDispatchers(){
