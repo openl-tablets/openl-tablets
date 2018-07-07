@@ -77,11 +77,7 @@ public class JavaMapAggregateInfo implements IAggregateInfo {
     }
 
     @Override
-    public Object makeIndexedAggregate(IOpenClass componentType, int[] dimValues) {
-        if (dimValues.length > 1) {
-            throw new UnsupportedOperationException("Only one dimensional Java Maps are supported.");
-        }
-
-        return new HashMap(dimValues[0]);
+    public Object makeIndexedAggregate(IOpenClass componentType, int size) {
+        return new HashMap(size);
     }
 }

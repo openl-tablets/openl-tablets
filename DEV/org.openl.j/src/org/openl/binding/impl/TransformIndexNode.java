@@ -54,7 +54,7 @@ class TransformIndexNode extends ABoundNode {
             }
 
         }
-        Object result = aggregateInfo.makeIndexedAggregate(transformer.getType(), new int[] { firedElements.size() });
+        Object result = aggregateInfo.makeIndexedAggregate(transformer.getType(), firedElements.size());
         for (int i = 0; i < firedElements.size(); i++) {
             Array.set(result, i, firedElements.get(i));
         }

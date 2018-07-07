@@ -38,6 +38,6 @@ public interface IAggregateInfo {
 
     boolean isAggregate(IOpenClass type);
 
-    Object makeIndexedAggregate(IOpenClass componentType, int[] dimValues);
+    Object makeIndexedAggregate(IOpenClass componentType, int size);
 
 }

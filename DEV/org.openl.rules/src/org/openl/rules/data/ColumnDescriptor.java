@@ -301,7 +301,7 @@ public class ColumnDescriptor {
             values.add(res);
         }
 
-        Object arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { values.size() });
+        Object arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, values.size());
 
         for (int i = 0; i < values.size(); i++) {
             Array.set(arrayValues, i, values.get(i));

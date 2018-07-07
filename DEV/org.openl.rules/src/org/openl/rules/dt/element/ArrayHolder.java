@@ -19,7 +19,7 @@ public class ArrayHolder {
 
     public Object invoke(Object target, Object[] dtParams, IRuntimeEnv env) {
         
-    	Object res = componentType.getAggregateInfo().makeIndexedAggregate(componentType, new int[] { methods.length });
+    	Object res = componentType.getAggregateInfo().makeIndexedAggregate(componentType, methods.length);
     	
         for (int i = 0; i < methods.length; i++) {
             

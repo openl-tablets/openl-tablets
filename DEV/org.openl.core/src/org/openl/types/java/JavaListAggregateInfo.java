@@ -88,11 +88,7 @@ public class JavaListAggregateInfo extends AAggregateInfo {
     }
 
     @Override
-    public Object makeIndexedAggregate(IOpenClass componentClass, int[] dimValues) {
-        if (dimValues.length > 1) {
-            throw new UnsupportedOperationException("Only one dimensional Java Lists are supported.");
-        }
-        int size = dimValues[0];
+    public Object makeIndexedAggregate(IOpenClass componentClass, int size) {
         ArrayList<Object> list = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             list.add(null);

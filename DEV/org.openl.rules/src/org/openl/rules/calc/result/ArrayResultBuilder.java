@@ -20,7 +20,7 @@ public class ArrayResultBuilder implements IResultBuilder {
     public Object makeResult(SpreadsheetResultCalculator resultCalculator) {
         
         int size = cells.size();
-        Object array = type.getAggregateInfo().makeIndexedAggregate(type, new int[] { size });
+        Object array = type.getAggregateInfo().makeIndexedAggregate(type, size);
 
         for (int i = 0; i < size; ++i) {
         

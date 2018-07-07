@@ -62,14 +62,14 @@ class SplitByIndexNode extends ABoundNode {
         IOpenClass componentType = tempVar.getType();
         IOpenClass arrayType = componentType.getAggregateInfo().getIndexedAggregateType(componentType, 1);
 
-        Object result = componentType.getAggregateInfo().makeIndexedAggregate(arrayType, new int[] { size });
+        Object result = componentType.getAggregateInfo().makeIndexedAggregate(arrayType, size);
 
         for (int i = 0; i < size; i++) {
 
             ArrayList<Object> list = list2d.get(i);
             int listSize = list.size();
 
-            Object ary = componentType.getAggregateInfo().makeIndexedAggregate(componentType, new int[] { listSize });
+            Object ary = componentType.getAggregateInfo().makeIndexedAggregate(componentType, listSize);
 
             for (int j = 0; j < listSize; j++) {
                 Array.set(ary, j, list.get(j));

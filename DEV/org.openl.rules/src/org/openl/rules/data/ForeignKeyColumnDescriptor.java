@@ -259,7 +259,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             }
 
             IOpenClass componentType = fieldType.getAggregateInfo().getComponentType(fieldType);
-            Object ary = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, new int[] { values.size() });
+            Object ary = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, values.size());
 
             for (int i = 0; i < values.size(); i++) {
                 Array.set(ary, i, values.get(i));
@@ -384,7 +384,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         componentType = JavaOpenClass.OBJECT;
                     }
 
-                    Object array = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, new int[] { size });
+                    Object array = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, size);
 
                     // Populate result array with values.
                     //

@@ -126,13 +126,13 @@ public class RuleRowHelper {
             }
 
             int valuesArraySize = values.size();
-            arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { valuesArraySize });
+            arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, valuesArraySize);
 
             for (int i = 0; i < valuesArraySize; i++) {
                 Array.set(arrayValues, i, values.get(i));
             }
         } else {
-            arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { 0 });
+            arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, 0);
         }
 
         return arrayValues;
@@ -656,7 +656,7 @@ public class RuleRowHelper {
         List<CompositeMethod> methodsList = null;
         Object ary;
         int paramsLength = paramsArray.length;
-        ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { paramsLength });
+        ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, paramsLength);
         for (int i = 0; i < paramsLength; i++) {
             if (paramsArray[i] instanceof CompositeMethod) {
                 methodsList = new ArrayList<>(addMethod(methodsList, (CompositeMethod) paramsArray[i]));
@@ -704,7 +704,7 @@ public class RuleRowHelper {
             }
         }
 
-        Object ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, new int[] { values.size() });
+        Object ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, values.size());
 
         for (int i = 0; i < values.size(); i++) {
             Array.set(ary, i, values.get(i));
