@@ -119,7 +119,7 @@ public class InputArgsBean {
 
         IAggregateInfo info = fieldType.getAggregateInfo();
 
-        Object ary = info.makeIndexedAggregate(info.getComponentType(fieldType), new int[]{0});
+        Object ary = info.makeIndexedAggregate(info.getComponentType(fieldType), 0);
 
         currentnode.setValueForced(ary);
     }

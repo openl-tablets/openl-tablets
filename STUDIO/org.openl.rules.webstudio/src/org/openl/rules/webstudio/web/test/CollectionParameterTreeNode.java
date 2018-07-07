@@ -61,7 +61,7 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
         IAggregateInfo info = getType().getAggregateInfo();
         IOpenClass componentType = info.getComponentType(getType());
         int elementsCount = getChildrenMap().size();
-        Object ary = info.makeIndexedAggregate(componentType, new int[] { elementsCount });
+        Object ary = info.makeIndexedAggregate(componentType, elementsCount);
 
         IOpenIndex index = info.getIndex(getType());
 
@@ -143,7 +143,7 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     private void saveChildNodesToValue() {
         IOpenClass arrayType = getType();
         IAggregateInfo info = arrayType.getAggregateInfo();
-        Object newCollection = info.makeIndexedAggregate(arrayType.getComponentClass(), new int[] { getChildren().size()});
+        Object newCollection = info.makeIndexedAggregate(arrayType.getComponentClass(), getChildren().size());
         IOpenIndex index = info.getIndex(arrayType);
 
         int i = 0;

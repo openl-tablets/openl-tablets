@@ -46,10 +46,10 @@ public class JavaCollectionAggregateInfo implements IAggregateInfo {
     }
 
     @Override
-    public Object makeIndexedAggregate(IOpenClass componentType, int[] dimValues) {
+    public Object makeIndexedAggregate(IOpenClass componentType, int size) {
         // HashSet is one of Collection implementations, so it's legal here.
         // If more specific collection type is needed (for example Deque) implement more specific IAggregateInfo for it.
-        return new HashSet<>();
+        return new HashSet<>(size);
     }
 
     private static class CollectionIndex implements IOpenIndex {
