@@ -112,8 +112,13 @@ public final class OpenLTest {
     }
 
     @Test
-    public void testAllFailuresExcelFiles() throws NoSuchMethodException {
+    public void testAllFailuresExcelFiles() {
         testAllExcelFilesInFolder(FAILURES_DIR, false);
+    }
+
+    @Test
+    public void testAllExcelFiles() {
+        testAllExcelFilesInFolder(DIR, true);
     }
 
     private void testAllExcelFilesInFolder(String folderName, boolean pass) {
@@ -126,7 +131,10 @@ public final class OpenLTest {
             return;
         }
 
-        for (File file : sourceDir.listFiles()) {
+        File[] files = sourceDir.listFiles();
+//        files = new File[] {new File(sourceDir, "Arithmetic.xlsx")}; // Just for debugging.
+
+        for (File file : files) {
             int errors = 0;
             String sourceFile = file.getName();
             CompiledOpenClass compiledOpenClass = null;
@@ -275,11 +283,6 @@ public final class OpenLTest {
         }
 
         assertFalse("Some tests have been failed!", hasErrors);
-    }
-
-    @Test
-    public void testAllExcelFiles() {
-        testAllExcelFilesInFolder(DIR, true);
     }
 
     private void error(int count, String sourceFile, String msg, Object... args) {
