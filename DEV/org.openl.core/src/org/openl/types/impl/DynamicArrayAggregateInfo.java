@@ -23,7 +23,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
     public static final DynamicArrayAggregateInfo aggregateInfo = new DynamicArrayAggregateInfo();
 
     public IOpenClass getComponentType(IOpenClass aggregateType) {
-        if (aggregateType instanceof ArrayOpenClass) {
+        if (aggregateType instanceof ComponentTypeArrayOpenClass) {
             return aggregateType.getComponentClass();
         }
 
@@ -87,7 +87,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
     }
 
     public boolean isAggregate(IOpenClass type) {
-        return type instanceof ArrayOpenClass;
+        return type instanceof ComponentTypeArrayOpenClass;
     }
 
 }
