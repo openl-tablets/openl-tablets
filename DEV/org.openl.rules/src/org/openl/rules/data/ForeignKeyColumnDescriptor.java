@@ -380,8 +380,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         throwIndexNotFound(foreignTable, valuesTable, s, ex, cxt);
                     }
                 }
-                
-                if (!(fieldType.isArray() && fieldType.getComponentClass().getInstanceClass().equals(resType.getInstanceClass()))) {
+
+                if (!isList && !(fieldType.isArray() && fieldType.getComponentClass().getInstanceClass().equals(resType.getInstanceClass()))) {
                     if (StringUtils.isEmpty(s)) {
                         // Set meta info for empty cells
                         if(!cxt.isExecutionMode())
@@ -440,22 +440,14 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     // Populate result array with values.
                     //
                     for (int i = 0; i < size; i++) {
-                        Array.set(array, i, values.get(i));
-                    }
-
-                    if (isList) {
-                        int len = Array.getLength(array);
-
-                        List<Object> list = new ArrayList<Object>(len);
-
-                        for (int i = 0; i < len; i++) {
-                            list.add(Array.get(array, i));
+                        Object value = values.get(i);
+                        if (isList) {
+                            ((List<Object>) array).set(i, value);
+                        } else {
+                            Array.set(array, i, value);
                         }
-
-                        getField().set(target, list, getRuntimeEnv());
-                    } else {
-                        getField().set(target, array, getRuntimeEnv());
                     }
+                    getField().set(target, array, getRuntimeEnv());
                 }
             }
         } else {
