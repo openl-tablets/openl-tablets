@@ -43,7 +43,7 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
-import org.openl.types.impl.ArrayOpenClass;
+import org.openl.types.impl.ComponentTypeArrayOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -147,14 +147,14 @@ public class DomainTree {
     }
     
     private boolean isArrayType(IOpenClass fieldType) {
-        return fieldType instanceof ArrayOpenClass;
+        return fieldType instanceof ComponentTypeArrayOpenClass;
     }
 
     /**
      * Private constructor, it prevents direct instantiaion of the class.
      */
     private DomainTree() {
-        treeElements = new HashMap<String, IOpenClass>(predefinedTypes);
+        treeElements = new HashMap<>(predefinedTypes);
     }
 
     private boolean addType(IOpenClass type) {
@@ -194,7 +194,7 @@ public class DomainTree {
     private IOpenClass getComponentType(IOpenClass type) {
         IOpenClass result = null;
         if (isArrayType(type)) {
-            IOpenClass componentType = ((ArrayOpenClass)type).getComponentClass();
+            IOpenClass componentType = (type).getComponentClass();
             if (componentType != null) {
                 result = componentType;
             } else {
