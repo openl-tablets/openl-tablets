@@ -92,6 +92,7 @@
         <maven.api.version>3.2.5</maven.api.version>
         <maven.plugin.version>3.5</maven.plugin.version>
         <jetty.http.port>9999</jetty.http.port>
+        <jetty.server.version>9.2.25.v20180606</jetty.server.version>
         <!-- Empty for building without JaCoCo agent -->
         <jacococ.argLine/>
     </properties>
@@ -103,6 +104,7 @@
         <module>DEMO</module>
         <module>Util/openl-maven-plugin</module>
         <module>Util/openl-simple-project-archetype</module>
+        <module>ITEST</module>
     </modules>
     <distributionManagement>
         <repository>
@@ -310,7 +312,7 @@
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-maven-plugin</artifactId>
                     <!-- Java 7 -->
-                    <version>9.2.25.v20180606</version>
+                    <version>${jetty.server.version}</version>
                     <configuration>
                         <httpConnector>
                             <!-- To be compatible with Jetty 9.4 -->
