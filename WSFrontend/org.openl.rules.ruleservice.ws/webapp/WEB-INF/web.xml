@@ -20,7 +20,7 @@
 	<!-- Servlets -->
 	<servlet>
 		<servlet-name>WSServlet</servlet-name>
-		<servlet-class>org.openl.rules.ruleservice.servlet.WSServlet</servlet-class>
+		<servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
 		<init-param>
 			<param-name>redirects-list</param-name>
 			<param-value>/</param-value>

@@ -33,8 +33,8 @@ public abstract class AAggregateInfo implements IAggregateInfo {
         return JavaOpenClass.getOpenClass(ary.getClass());
     }
 
-    public Object makeIndexedAggregate(IOpenClass componentClass, int[] dimValues) {
-        return Array.newInstance(componentClass.getInstanceClass(), dimValues);
+    public Object makeIndexedAggregate(IOpenClass componentClass, int size) {
+        return Array.newInstance(componentClass.getInstanceClass(), size);
     }
 
 }

@@ -37,7 +37,7 @@ class SelectAllIndexNode extends ABoundNode {
                 firedElements.add(element);
             }
         }
-        Object result = aggregateInfo.makeIndexedAggregate(tempVar.getType(), new int[] { firedElements.size() });
+        Object result = aggregateInfo.makeIndexedAggregate(tempVar.getType(), firedElements.size());
         IOpenIndex index = aggregateInfo.getIndex(targetNode.getType());
         for (int i = 0; i < firedElements.size(); i++) {
             index.setValue(result, i, firedElements.get(i));

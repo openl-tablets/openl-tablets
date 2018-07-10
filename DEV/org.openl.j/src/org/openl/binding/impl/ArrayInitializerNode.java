@@ -29,7 +29,7 @@ public class ArrayInitializerNode extends ABoundNode {
     protected Object evaluateRuntime(IRuntimeEnv env) {
         IAggregateInfo info = type.getAggregateInfo();
 
-        Object ary = info.makeIndexedAggregate(info.getComponentType(type), new int[] { children.length });
+        Object ary = info.makeIndexedAggregate(info.getComponentType(type), children.length);
 
         IOpenIndex index = info.getIndex(type, JavaOpenClass.INT);
 

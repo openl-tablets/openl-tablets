@@ -1,14 +1,14 @@
 package org.openl.rules.table.properties;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodKey;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Immutable Key to check identity of {@link ExecutableRulesMethod} methods.
@@ -22,6 +22,7 @@ import java.util.Map;
 public final class DimensionPropertiesMethodKey {
     
     private final IOpenMethod method;
+    private int hashCode = 0;
     
     public DimensionPropertiesMethodKey(IOpenMethod method) {
         this.method = method;
@@ -38,10 +39,9 @@ public final class DimensionPropertiesMethodKey {
         }
         DimensionPropertiesMethodKey key = (DimensionPropertiesMethodKey) obj;
 
-        // TODO: remove usage of the EqualsBuilder
-        //
-        EqualsBuilder equalsBuilder = new EqualsBuilder();
-        equalsBuilder.append(new MethodKey(method), new MethodKey(key.getMethod()));
+        if (!new MethodKey(method).equals(new MethodKey(key.getMethod()))) {
+            return false;
+        }
         String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
         for (String dimensionalPropertyName : dimensionalPropertyNames) {
             Map<String, Object> thisMethodProperties = PropertiesHelper.getMethodProperties(method);
@@ -60,25 +60,28 @@ public final class DimensionPropertiesMethodKey {
                 // If such properties exists, we should skip them like there is no empty properties.
                 continue;
             }
-
-            equalsBuilder.append(propertyValue1, propertyValue2);
+            if (!Objects.deepEquals(propertyValue1, propertyValue2)) {
+                return false;
+            }
         }
-        return equalsBuilder.isEquals();
+        return true;
     }
 
     @Override
     public int hashCode() {
-        String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
-        Map<String, Object> methodProperties = PropertiesHelper.getMethodProperties(method);
-        HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
-        hashCodeBuilder.append(new MethodKey(method));
-        if (methodProperties != null) {
-            for (String dimensionalPropertyName : dimensionalPropertyNames) {
-                Object property = methodProperties.get(dimensionalPropertyName);
-                hashCodeBuilder.append(property);
+        if (hashCode  == 0) {
+            String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
+            Map<String, Object> methodProperties = PropertiesHelper.getMethodProperties(method);
+            int hash = new MethodKey(method).hashCode();
+            if (methodProperties != null) {
+                for (String dimensionalPropertyName : dimensionalPropertyNames) {
+                    Object property = methodProperties.get(dimensionalPropertyName);
+                    hash = 31 * hash + (property instanceof Object[] ? Arrays.deepHashCode((Object[]) property) : Objects.hashCode(property));
+                }
             }
+            hashCode = hash;
         }
-        return hashCodeBuilder.build();
+        return hashCode;
     }
 
     @Override
@@ -106,7 +109,7 @@ public final class DimensionPropertiesMethodKey {
      * Check if propertyValue is null or it contains only null values
      * 
      * @param propertyValue checking value
-     * @return true if propertyValue is null or it contains only null values. If it contains any not null value - false; 
+     * @return true if propertyValue is null or it contains only null values. If it contains any not null value - falseT;
      */
     private boolean isEmpty(Object propertyValue) {
         if (propertyValue == null) {

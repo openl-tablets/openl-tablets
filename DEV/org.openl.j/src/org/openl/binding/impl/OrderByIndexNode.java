@@ -60,8 +60,7 @@ class OrderByIndexNode extends ABoundNode {
             ++size;
         }
 
-        Object result = aggregateInfo.makeIndexedAggregate(aggregateInfo.getComponentType(getType()),
-            new int[] { size });
+        Object result = aggregateInfo.makeIndexedAggregate(aggregateInfo.getComponentType(getType()), size);
 
         IOpenIndex index = aggregateInfo.getIndex(targetNode.getType());
         int idx = 0;

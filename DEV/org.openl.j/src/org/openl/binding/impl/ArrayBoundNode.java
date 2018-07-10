@@ -6,6 +6,8 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
+import java.lang.reflect.Array;
+
 /**
  * @author snshor
  *
@@ -38,7 +40,7 @@ public class ArrayBoundNode extends ABoundNode {
             dims[i] = (Integer) res[i];
         }
 
-        return componentType.getAggregateInfo().makeIndexedAggregate(componentType, dims);
+        return Array.newInstance(componentType.getInstanceClass(), dims);
     }
 
     /*

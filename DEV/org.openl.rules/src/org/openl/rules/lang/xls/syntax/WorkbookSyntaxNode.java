@@ -11,33 +11,55 @@ public class WorkbookSyntaxNode extends NaryNode {
 
     private TableSyntaxNode[] mergedTableParts;
 
-	public WorkbookSyntaxNode(WorksheetSyntaxNode[] nodes, TableSyntaxNode[] mergedTableParts, XlsWorkbookSourceCodeModule module) {
+    public WorkbookSyntaxNode(WorksheetSyntaxNode[] nodes,
+            TableSyntaxNode[] mergedTableParts,
+            XlsWorkbookSourceCodeModule module) {
         super(XlsNodeTypes.XLS_WORKBOOK.toString(), null, nodes, module);
         this.mergedTableParts = mergedTableParts;
     }
-    
+
+    private TableSyntaxNode[] tableSyntaxNodes = null;
+
     public TableSyntaxNode[] getTableSyntaxNodes() {
-        List<TableSyntaxNode> tnodes = new ArrayList<TableSyntaxNode>();               
+        if (tableSyntaxNodes == null) {
+            buildTableSyntaxNodes();
+        } else {
+            int expectedSize = 0;
+            for (WorksheetSyntaxNode sheetNode : getWorksheetSyntaxNodes()) {
+                TableSyntaxNode[] tableSyntaxNodes = sheetNode.getTableSyntaxNodes();
+                expectedSize = expectedSize + sheetNode.getTableSyntaxNodes().length;
+            }
+            expectedSize = expectedSize + mergedTableParts.length;
+            if (expectedSize != tableSyntaxNodes.length) {
+                buildTableSyntaxNodes();
+            }
+        }
+        return tableSyntaxNodes;
+    }
+
+    private void buildTableSyntaxNodes() {
+        List<TableSyntaxNode> tnodes = new ArrayList<TableSyntaxNode>();
         WorksheetSyntaxNode[] sheetNodes = getWorksheetSyntaxNodes();
-        
-        for (WorksheetSyntaxNode sheetNode :  sheetNodes) {
+
+        for (WorksheetSyntaxNode sheetNode : sheetNodes) {
             TableSyntaxNode[] tableSyntaxNodes = sheetNode.getTableSyntaxNodes();
             for (TableSyntaxNode tsn : tableSyntaxNodes) {
                 tnodes.add(tsn);
             }
-        }        
-        
+        }
+
         for (TableSyntaxNode tnode : mergedTableParts) {
-			tnodes.add(tnode);
-		}
-        return tnodes.toArray(new TableSyntaxNode[0]);
+            tnodes.add(tnode);
+        }
+        tableSyntaxNodes = tnodes.toArray(new TableSyntaxNode[0]);
     }
-    
+
     public XlsWorkbookSourceCodeModule getWorkbookSourceCodeModule() {
         return (XlsWorkbookSourceCodeModule) getModule();
     }
-    
+
     public WorksheetSyntaxNode[] getWorksheetSyntaxNodes() {
-        return (WorksheetSyntaxNode[])getNodes();
+        return (WorksheetSyntaxNode[]) getNodes();
     }
+
 }
