@@ -176,11 +176,6 @@
             <artifactId>cxf-rt-databinding-aegis</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-rs-service-description</artifactId>
         </dependency>
