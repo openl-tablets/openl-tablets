@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.itest-pom</artifactId>
+        <version>5.21.5-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>org.openl.itest-EPBDS-6437</artifactId>
+    <packaging>jar</packaging>
+    <name>OpenL ITEST - EPBDS-6437 Integration Tests</name>
+    <url>//openl-tablets.org</url>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-ws-war</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <dependency>
+                                    <groupId>org.openl.rules</groupId>
+                                    <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>war</type>
+                                </dependency>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/ws</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-ruls-zip</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <dependency>
+                                    <groupId>org.openl.rules</groupId>
+                                    <artifactId>org.openl.itest.rules-EPBDS-6437</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>zip</type>
+                                    <destFileName>openl-itest-rules.zip</destFileName>
+                                </dependency>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <!-- Itegration Tests-->
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.workspace</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.itest.core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.itest.rules-EPBDS-6437</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

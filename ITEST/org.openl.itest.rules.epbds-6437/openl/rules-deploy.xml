@@ -1,0 +1,13 @@
+<rules-deploy>
+    <isProvideRuntimeContext>true</isProvideRuntimeContext>
+    <isProvideVariations>true</isProvideVariations>
+    <serviceName>EPBDS-6437</serviceName>
+    <publishers>
+        <publisher>WEBSERVICE</publisher>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <!-- STATIC INTERFACE -->
+    <serviceClass>org.openl.rules.itest.rules.Service</serviceClass>
+    <!-- //STATIC INTERFACE -->
+    <url>EPBDS-6437</url>
+</rules-deploy>
