@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -9,9 +10,10 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>org.openl.itest-pom</artifactId>
+    <groupId>org.openl.itest</groupId>
+    <artifactId>itest</artifactId>
     <packaging>pom</packaging>
-    <name>OpenL ITEST - POM Integration Tests</name>
+    <name>ITEST - Parent POM</name>
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
@@ -19,9 +21,9 @@
     </properties>
 
     <modules>
-        <module>org.openl.itest.core</module>
-        <module>org.openl.itest.rules.epbds-6437</module>
-        <module>org.openl.itest.epbds-6437</module>
+        <module>server-core</module>
+        <module>itest.smock</module>
+        <module>itest.EPBDS-6437</module>
     </modules>
 
     <dependencyManagement>
@@ -38,27 +40,65 @@
             </dependency>
 
             <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.workspace</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.itest.core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.itest.rules-EPBDS-6437</artifactId>
+                <groupId>org.openl.itest</groupId>
+                <artifactId>server-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <systemPropertyVariables>
+                            <webservice-webapp>
+                                ..\..\WSFrontend\org.openl.rules.ruleservice.ws\target\org.openl.rules.ruleservice.ws-${project.version}
+                            </webservice-webapp>
+                        </systemPropertyVariables>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    <profiles>
+        <profile>
+            <id>copy-app-prop</id>
+            <activation>
+                <file>
+                    <exists>openl-repository/application.properties</exists>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${openl.home}</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>openl-repository</directory>
+                                            <filtering>false</filtering>
+                                            <includes>
+                                                <include>application.properties</include>
+                                            </includes>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
