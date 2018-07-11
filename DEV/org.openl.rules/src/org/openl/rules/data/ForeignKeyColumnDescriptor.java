@@ -2,7 +2,14 @@ package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -357,7 +364,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 IOpenClass fieldType = getField().getType();
 
                 boolean valueAnArray = isValuesAnArray(fieldType);
-                boolean isList = List.class.isAssignableFrom(fieldType.getInstanceClass());
                 IOpenClass resType = foreignTable.getDataModel().getType();
                 String s = getCellStringValue(valuesTable);
                 if (!StringUtils.isEmpty(s)) {
@@ -380,8 +386,18 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         throwIndexNotFound(foreignTable, valuesTable, s, ex, cxt);
                     }
                 }
+                
+                boolean isCollection = Collection.class.isAssignableFrom(fieldType.getInstanceClass());
 
-                if (!isList && !(fieldType.isArray() && fieldType.getComponentClass().getInstanceClass().equals(resType.getInstanceClass()))) {
+                boolean f = true;
+                if (fieldType.isArray()) {
+                    f = !fieldType.getComponentClass().getInstanceClass().equals(resType.getInstanceClass());
+                } else if (isCollection) {
+                    f = fieldType.getInstanceClass().isAssignableFrom(resType.getInstanceClass());
+                }
+                
+
+                if (f) {
                     if (StringUtils.isEmpty(s)) {
                         // Set meta info for empty cells
                         if(!cxt.isExecutionMode())
@@ -435,19 +451,24 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         componentType = JavaOpenClass.OBJECT;
                     }
 
-                    Object array = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, size);
+                    Object v = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, size);
 
                     // Populate result array with values.
                     //
+                    boolean isList = List.class.isAssignableFrom(fieldType.getInstanceClass());
+                    boolean isSet = Set.class.isAssignableFrom(fieldType.getInstanceClass());
+
                     for (int i = 0; i < size; i++) {
                         Object value = values.get(i);
                         if (isList) {
-                            ((List<Object>) array).set(i, value);
+                            ((List<Object>) v).set(i, value);
+                        } else if (isSet) {
+                            ((Set<Object>) v).add(value);
                         } else {
-                            Array.set(array, i, value);
+                            Array.set(v, i, value);
                         }
                     }
-                    getField().set(target, array, getRuntimeEnv());
+                    getField().set(target, v, getRuntimeEnv());
                 }
             }
         } else {
