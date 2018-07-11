@@ -13,6 +13,11 @@
     <packaging>pom</packaging>
     <name>OpenL ITEST - POM Integration Tests</name>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+    </properties>
+
     <modules>
         <module>org.openl.itest.core</module>
         <module>org.openl.itest.rules.epbds-6437</module>
