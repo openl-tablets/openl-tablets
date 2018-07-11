@@ -316,7 +316,7 @@ public class CastFactory implements ICastFactory {
             if (dimf == dimt || Object.class.equals(fromClass)) {
                 IOpenCast arrayElementCast = getCast(f, t);
                 if (arrayElementCast == null && Object.class.equals(fromClass)) {
-                    arrayElementCast = JAVA_NO_CAST;
+                    arrayElementCast = new JavaDownCast(t, this);
                 }
                 if (arrayElementCast != null) {
                     return new ArrayCast(t, arrayElementCast, dimt);
