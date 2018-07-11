@@ -73,7 +73,7 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
             int line = location.getStart().getLine(new TextInfo(module.getCode()));
 
             IOpenSourceCodeModule[] modules = ((CompositeSourceCodeModule) module).getModules();
-            if (modules.length <= line) {
+            if (modules.length <= line || line < 0) {
                 // Occurs when Method table expression has several lines but reside inside single cell.
                 final Logger log = LoggerFactory.getLogger(SourceCodeURLTool.class);
                 log.debug("Modules count in composite module are less than error line number. Return first found module uri.");
