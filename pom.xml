@@ -95,6 +95,7 @@
         <jetty.server.version>9.2.25.v20180606</jetty.server.version>
         <!-- Empty for building without JaCoCo agent -->
         <jacococ.argLine/>
+        <openl.home>${project.build.directory}/openl-test</openl.home>
     </properties>
 
     <modules>
@@ -203,7 +204,7 @@
                     <version>2.17</version>
                     <configuration>
                         <systemPropertyVariables>
-                            <openl.home>${project.build.directory}/openl-test</openl.home>
+                            <openl.home>${openl.home}</openl.home>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>
