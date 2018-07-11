@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.itest-pom</artifactId>
+        <version>5.22.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>org.openl.itest.rules-EPBDS-6437</artifactId>
+    <packaging>jar</packaging>
+    <name>OpenL ITEST - EPBDS-6437 Rules</name>
+    <url>//openl-tablets.org</url>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                            <goal>compile</goal>
+                            <goal>test</goal>
+                            <goal>package</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <!-- The following dependencies exist in OpenL rating server -->
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.variation</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>openl-tablets</artifactId>
+        <version>5.22.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>org.openl.itest-pom</artifactId>
+    <packaging>pom</packaging>
+    <name>OpenL ITEST - POM Integration Tests</name>
+
+    <modules>
+        <module>org.openl.itest.core</module>
+        <module>org.openl.itest.rules.epbds-6437</module>
+        <module>org.openl.itest.epbds-6437</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty.server.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-webapp</artifactId>
+                <version>${jetty.server.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.workspace</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.itest.core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.itest.rules-EPBDS-6437</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

@@ -1,0 +1,17 @@
+<project>
+  <name>EPBDS-6437</name>
+  <modules>
+    <module>
+      <name>datatypes</name>
+      <rules-root path="datatype.xlsx"/>
+    </module>
+    <module>
+      <name>rules</name>
+      <rules-root path="MAIN*.xlsx"/>
+    </module>
+  </modules>
+  <classpath>
+    <entry path="lib/*.jar"/>
+  </classpath>
+  <properties-file-name-pattern>MAIN-%startRequestDate:yyyyMMdd%</properties-file-name-pattern>
+</project>
