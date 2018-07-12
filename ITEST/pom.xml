@@ -22,7 +22,7 @@
 
     <modules>
         <module>server-core</module>
-        <module>itest.smock</module>
+        <module>itest.smoke</module>
         <module>itest.EPBDS-6437</module>
     </modules>
 
