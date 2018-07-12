@@ -10,7 +10,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>itest.smock</artifactId>
+    <artifactId>itest.smoke</artifactId>
     <packaging>jar</packaging>
     <name>ITEST - Smock test</name>
     <url>//openl-tablets.org</url>

@@ -105,7 +105,6 @@
         <module>DEMO</module>
         <module>Util/openl-maven-plugin</module>
         <module>Util/openl-simple-project-archetype</module>
-        <module>ITEST</module>
     </modules>
     <distributionManagement>
         <repository>
@@ -370,6 +369,17 @@
         </plugins>
     </build>
     <profiles>
+        <profile>
+            <id>it</id>
+            <activation>
+                <property>
+                    <name>!skipTests</name>
+                </property>
+            </activation>
+            <modules>
+                <module>ITEST</module>
+            </modules>
+        </profile>
         <profile>
             <id>gpg-sign</id>
             <build>
