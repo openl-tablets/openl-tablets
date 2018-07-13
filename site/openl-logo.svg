@@ -1,11 +1,9 @@
-<svg width="370" height="140" xmlns="http://www.w3.org/2000/svg">
-    <g stroke="cornflowerblue" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <path d="m20 30 a10,10 0 0 1 10,-10 h30 a10,10 0 0 1 10,10 v80 a10,10 0 0 1 -10,10 h-30 a10,10 0 0 1 -10,-10 z"/> <!-- O -->
-        <path d="m90 70 v-40 a10,10 0 0 1 10,-10 h 30 a10,10 0 0 1 10,10 v5 a10,10 0 0 1 -10,10 h-20"/> <!-- p -->
-        <path d="m210 70 h-40 a10,10 0 0 1 -10,-10 v-30 a10,10 0 0 1 10,-10 h30 a10,10 0 0 1 10,10 v5 a10,10 0 0 1 -10,10 h-20"/> <!-- e -->
-        <path d="m230 70 v-40 a10,10 0 0 1 10,-10 h 30 a10,10 0 0 1 10,10 v40"/> <!-- p -->
-        <path d="m350 120 h-40 a10,10 0 0 1 -10,-10 v-90" stroke="orange"/> <!-- L -->
+<svg width="350" height="140" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="cornflowerblue" stroke-width="10" fill="none">
+        <path d="m20 80 a10,10 0 0 1 10,-10 h30 a10,10 0 0 1 10,10 v30 a10,10 0 0 1 -10,10 h-30 a10,10 0 0 1 -10,-10 z"/> <!-- O -->
+        <path d="m85 125 v-55 h40 a10,10 0 0 1 10,10 v5 a10,10 0 0 1 -10,10 h-30"/> <!-- p -->
+        <path d="m200 120 h-40 a10,10 0 0 1 -10,-10 v-30 a10,10 0 0 1 10,-10 h30 a10,10 0 0 1 10,10 v5 a10,10 0 0 1 -10,10 h-30"/> <!-- e -->
+        <path d="m215 125 v-45 a10,10 0 0 1 10,-10 h5 a10,10 0 0 1 10,10 v30 a10,10 0 0 0 10,10 h5 a10,10 0 0 0 10,-10 v-45"/> <!-- n -->
+        <path d="m330 120 h-40 a10,10 0 0 1 -10,-10 v-90" stroke="orange"/> <!-- L -->
     </g>
-
-    <text xml:space="preserve" text-anchor="middle" textLength="190" font-family="Helvetica, Arial, sans-serif" font-size="44" y="120" x="50%" stroke-width="1" stroke="cornflowerblue" fill="lightsteelblue">TABLETS</text>
 </svg>
