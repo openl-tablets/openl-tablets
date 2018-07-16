@@ -3,10 +3,10 @@ package org.openl.rules.calc.result;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
+import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ICell;
@@ -33,12 +33,8 @@ public class DefaultResultBuilder implements IResultBuilder {
         
         String[] columnTitles = getColumnTitles(result);
 
-//        Map<String, Point> fieldsCoordinates = getFieldsCoordinates(result.getSpreadsheet().getSpreadsheetType().getFields());
-        Map<String, Point> fieldsCoordinates = result.getSpreadsheet().getFieldsCoordinates();
-
         Constructor<?> constructor = null;
         try {
-//            constructor = result.getSpreadsheet().getType().getInstanceClass().getConstructor(Object[][].class, String[].class, String[].class, Map.class);
         	constructor = result.getSpreadsheet().getResultConstructor();
         } catch (Exception e1) {
             //TODO: add logger
@@ -46,7 +42,7 @@ public class DefaultResultBuilder implements IResultBuilder {
         
         SpreadsheetResult spreadsheetBean = null;
         try {
-            spreadsheetBean = (SpreadsheetResult)constructor.newInstance(resultArray, rowNames, columnNames, rowTitles, columnTitles, fieldsCoordinates);
+            spreadsheetBean = (SpreadsheetResult)constructor.newInstance(resultArray, rowNames, columnNames, rowTitles, columnTitles);
         } catch (Exception e) {
             //TODO: add logger
         } 
@@ -138,16 +134,23 @@ public class DefaultResultBuilder implements IResultBuilder {
         Map<String, Point> absoluteCoordinates = new HashMap<String, Point>();
 
         IGridTable sourceTable = spreadsheetResult.getLogicalTable().getSource();
-
-        Map<String, Point> relativeCoordinates = spreadsheetResult.getFieldsCoordinates();
-        for (Entry<String, Point> fieldEntry : relativeCoordinates.entrySet()) {
-            Point relative = fieldEntry.getValue();
-
-            int column = getColumn(sourceTable, relative.getColumn());
-            int row = getRow(sourceTable, relative.getRow());
-            ICell cell = sourceTable.getCell(column, row);
-            Point absolute = new Point(cell.getAbsoluteColumn(), cell.getAbsoluteRow());
-            absoluteCoordinates.put(fieldEntry.getKey(), absolute);
+        
+        String[] rowNames = spreadsheetResult.getRowNames();
+        String[] columnNames = spreadsheetResult.getColumnNames();
+        
+        for (int i = 0; i < rowNames.length; i++) {
+            for (int j = 0; j < columnNames.length; j++) {
+                int column = getColumn(sourceTable, j);
+                int row = getRow(sourceTable, i);
+                ICell cell = sourceTable.getCell(column, row);
+                Point absolute = new Point(cell.getAbsoluteColumn(), cell.getAbsoluteRow());
+                StringBuilder sb = new StringBuilder();
+                sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
+                    .append(columnNames[j])
+                    .append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
+                    .append(rowNames[i]);
+                absoluteCoordinates.put(sb.toString(), absolute);
+            }
         }
 
         return absoluteCoordinates;

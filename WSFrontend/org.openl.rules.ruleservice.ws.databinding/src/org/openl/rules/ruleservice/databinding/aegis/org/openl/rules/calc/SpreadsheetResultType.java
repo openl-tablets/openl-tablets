@@ -11,7 +11,6 @@ package org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.calc;
  */
 
 import java.util.Arrays;
-import java.util.Map;
 
 import javax.xml.namespace.QName;
 
@@ -25,7 +24,6 @@ import org.apache.cxf.aegis.type.java5.Java5TypeCreator;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.ruleservice.databinding.aegis.WrapperBeanTypeInfo;
-import org.openl.rules.table.Point;
 
 /**
  * Custom mapping for {@link SpreadSheetResult} due to it is not usual bean all
@@ -49,7 +47,6 @@ public class SpreadsheetResultType extends BeanType {
         setSchemaType(QNAME);
     }
 
-    @SuppressWarnings({ "unchecked" })
     @Override
     public Object readObject(MessageReader reader, Context context) throws DatabindingException {
         BeanTypeInfo inf = getTypeInfo();
@@ -61,7 +58,6 @@ public class SpreadsheetResultType extends BeanType {
             String[] columnTitles = null;
             String[] rowTitles = null;
 
-            Map<String, Point> fieldsCoordinates = null;
             // Read child elements
             while (reader.hasMoreElementReaders()) {
                 MessageReader childReader = reader.getNextElementReader();
@@ -78,12 +74,6 @@ public class SpreadsheetResultType extends BeanType {
                     columnNames = (String[]) type.readObject(childReader, context);
                 } else if (type != null && qName.getLocalPart().equals("rowNames")) {
                     rowNames = (String[]) type.readObject(childReader, context);
-                } else if (type != null && qName.getLocalPart().equals("columnTitles")) {
-                    columnTitles = (String[]) type.readObject(childReader, context);
-                } else if (type != null && qName.getLocalPart().equals("rowTitles")) {
-                    rowTitles = (String[]) type.readObject(childReader, context);
-                } else if (type != null && qName.getLocalPart().equals("fieldsCoordinates")) {
-                    fieldsCoordinates = (Map<String, Point>) type.readObject(childReader, context);
                 } else if (type != null && qName.getLocalPart().equals("results")) {
                     results = (Object[][]) type.readObject(childReader, context);
                 } else {
@@ -91,7 +81,7 @@ public class SpreadsheetResultType extends BeanType {
                 }
             }
 
-            return new SpreadsheetResult(results, rowNames, columnNames, rowTitles, columnTitles, fieldsCoordinates);
+            return new SpreadsheetResult(results, rowNames, columnNames, rowTitles, columnTitles);
         } catch (IllegalArgumentException e) {
             throw new DatabindingException("Illegal argument. " + e.getMessage(), e);
         }

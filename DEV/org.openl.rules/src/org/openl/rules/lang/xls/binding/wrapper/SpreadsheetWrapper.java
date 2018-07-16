@@ -14,7 +14,6 @@ import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.Point;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -228,11 +227,6 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
         delegate.setInvoker(invoker);
     }
 
-    @Override
-    public Map<String, Point> getFieldsCoordinates() {
-        return delegate.getFieldsCoordinates();
-    }
-    
     @Override
     public String getModuleName() {
         return delegate.getModuleName();

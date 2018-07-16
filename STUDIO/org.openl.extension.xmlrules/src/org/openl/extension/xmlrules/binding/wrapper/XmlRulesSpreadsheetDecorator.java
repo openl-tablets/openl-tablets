@@ -17,9 +17,12 @@ import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.Point;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.types.*;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
+import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
 // This decorator must not implement IOpenWrapper
@@ -204,9 +207,5 @@ public class XmlRulesSpreadsheetDecorator extends Spreadsheet {
 
     public void setInvoker(SpreadsheetInvoker invoker) {
         delegate.setInvoker(invoker);
-    }
-
-    public Map<String, Point> getFieldsCoordinates() {
-        return delegate.getFieldsCoordinates();
     }
 }
