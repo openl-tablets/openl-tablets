@@ -4,8 +4,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
+import com.thoughtworks.xstream.security.NoTypePermission;
 import org.openl.rules.project.IProjectDescriptorSerializer;
+import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
@@ -55,6 +58,14 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
      */
     public XmlProjectDescriptorSerializer(boolean postProcess) {
         xstream = new XStream(new DomDriver());
+        xstream.addPermission(NoTypePermission.NONE);
+        xstream.allowTypeHierarchy(Module.class);
+        xstream.allowTypeHierarchy(ProjectDescriptor.class);
+        xstream.allowTypeHierarchy(ProjectDependencyDescriptor.class);
+        xstream.allowTypeHierarchy(PathEntry.class);
+        xstream.allowTypeHierarchy(Property.class);
+        xstream.allowTypeHierarchy(String.class);
+
         xstream.ignoreUnknownElements();
         xstream.omitField(ProjectDescriptor.class, "id"); // This field was deprecated
         xstream.omitField(ProjectDescriptor.class, "log");
