@@ -2,6 +2,7 @@ package org.openl.rules.project.xml;
 
 import java.io.InputStream;
 
+import com.thoughtworks.xstream.security.NoTypePermission;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.model.RulesDeploy;
 
@@ -17,6 +18,10 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
 
     public XmlRulesDeploySerializer() {
         xstream = new XStream(new DomDriver());
+        xstream.addPermission(NoTypePermission.NONE);
+        xstream.allowTypeHierarchy(RulesDeploy.PublisherType.class);
+        xstream.allowTypeHierarchy(RulesDeploy.class);
+        xstream.allowTypeHierarchy(RulesDeploy.WildcardPattern.class);
         xstream.ignoreUnknownElements();
         xstream.omitField(RulesDeploy.class, "log");
 

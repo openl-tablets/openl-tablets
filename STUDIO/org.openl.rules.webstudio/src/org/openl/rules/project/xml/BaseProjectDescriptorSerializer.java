@@ -3,6 +3,7 @@ package org.openl.rules.project.xml;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import com.thoughtworks.xstream.security.NoTypePermission;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ObjectVersionConverter;
@@ -20,7 +21,15 @@ public class BaseProjectDescriptorSerializer<T> implements IProjectDescriptorSer
     public BaseProjectDescriptorSerializer(boolean postProcess, ObjectVersionConverter<ProjectDescriptor, T> projectDescriptorVersionConverter) {
         this.postProcess = postProcess;
         this.projectDescriptorVersionConverter = projectDescriptorVersionConverter;
-        xstream = new XStream(new DomDriver());
+        xstream = new XStream(new DomDriver()) {
+            @Override
+            public void aliasType(String name, Class type) {
+                super.aliasType(name, type);
+                allowTypeHierarchy(type);
+            }
+        };
+        xstream.addPermission(NoTypePermission.NONE);
+        xstream.allowTypeHierarchy(String.class);
     }
 
     public String serialize(ProjectDescriptor source) {

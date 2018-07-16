@@ -2,6 +2,7 @@ package org.openl.rules.common;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
+import com.thoughtworks.xstream.security.NoTypePermission;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.util.IOUtils;
 
@@ -14,6 +15,7 @@ import java.util.List;
 public class ProjectDescriptorHelper {
     private static final XStream XSTREAM = new XStream(new DomDriver());
     static {
+        XSTREAM.addPermission(NoTypePermission.NONE);
         XSTREAM.alias("descriptors", List.class);
         XSTREAM.alias("descriptor", ProjectDescriptor.class, ProjectDescriptorImpl.class);
         XSTREAM.aliasType("version", CommonVersion.class);
