@@ -11,7 +11,7 @@ public class StubSpreadSheetResult extends SpreadsheetResult {
     private static final long serialVersionUID = 1L;
 
     private Map<String, Object> values = new HashMap<String, Object>();
-    private Map<String, Point> fieldCoordinates = new HashMap<String, Point>();
+    private Map<String, Point> fieldsCoordinates = new HashMap<String, Point>();
 
     private int lastRow = 0;
 
@@ -116,13 +116,22 @@ public class StubSpreadSheetResult extends SpreadsheetResult {
 
     @Override
     protected void setValue(int row, int column, Object value) {
-        for (java.util.Map.Entry<String, Point> entry : fieldCoordinates.entrySet()) {
+        for (java.util.Map.Entry<String, Point> entry : fieldsCoordinates.entrySet()) {
             Point p = entry.getValue();
             if (p.getRow() == row && p.getColumn() == column) {
                 String name = entry.getKey();
                 values.put(name, value);
                 return;
             }
+        }
+    }
+    
+    @Override
+    public void setFieldValue(String name, Object value) {
+        Point fieldCoordinates = fieldsCoordinates.get(name);
+
+        if (fieldCoordinates != null) {
+            setValue(fieldCoordinates.getRow(), fieldCoordinates.getColumn(), value);
         }
     }
 
@@ -133,16 +142,6 @@ public class StubSpreadSheetResult extends SpreadsheetResult {
 
     @Override
     public String getRowName(int row) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Map<String, Point> getFieldsCoordinates() {
-        return fieldCoordinates;
-    }
-
-    @Override
-    protected void addFieldCoordinates(String field, Point coord) {
         throw new UnsupportedOperationException();
     }
 
@@ -163,8 +162,8 @@ public class StubSpreadSheetResult extends SpreadsheetResult {
 
     @Override
     public boolean hasField(String name) {
-        if (!fieldCoordinates.containsKey(name)) {
-            fieldCoordinates.put(name, new Point(0, lastRow));
+        if (!fieldsCoordinates.containsKey(name)) {
+            fieldsCoordinates.put(name, new Point(0, lastRow));
             lastRow++;
         }
         return true;
@@ -186,7 +185,7 @@ public class StubSpreadSheetResult extends SpreadsheetResult {
             }
 
             public Object get(int col, int row) {
-                for (java.util.Map.Entry<String, Point> entry : fieldCoordinates.entrySet()) {
+                for (java.util.Map.Entry<String, Point> entry : fieldsCoordinates.entrySet()) {
                     Point p = entry.getValue();
                     if (p.getRow() == row) {
                         if (col == 0) {
