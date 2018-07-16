@@ -75,7 +75,7 @@
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
         <staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl-pub</staging.hg.repo.url>
-        <org.springframework.version>4.3.12.RELEASE</org.springframework.version>
+        <org.springframework.version>4.3.18.RELEASE</org.springframework.version>
         <org.springsecurity.version>4.2.3.RELEASE</org.springsecurity.version>
         <org.hibernate.version>4.3.11.Final</org.hibernate.version>
         <org.mojarra.version>2.1.19</org.mojarra.version>
@@ -1271,7 +1271,7 @@
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.4.7</version>
+                <version>1.4.10</version>
             </dependency>
             <!-- graph-theory data structures and algorithms. -->
             <dependency>
