@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.openl.itest.core.RestClientFactory.request;
 
-import javax.xml.ws.soap.SOAPFaultException;
+import javax.xml.ws.WebServiceException;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -84,7 +84,7 @@ public class SmockITest {
         assertEquals(Integer.valueOf(21), soap.mul(7, 3));
     }
 
-    @Test(expected = SOAPFaultException.class)
+    @Test(expected = WebServiceException.class)
     public void test404Soap() {
         soap.absent();
         fail();
