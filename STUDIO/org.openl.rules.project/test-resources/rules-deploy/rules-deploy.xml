@@ -17,4 +17,10 @@
     <module name="some1*"/>
     <module name="some2*"/>
   </lazy-modules-for-compilation>
+  <configuration>
+    <entry>
+      <string>rootClassNamesBinding</string>
+      <string>com.chartis.premier.rating.result.ChartisCompoundStep,com.chartis.premier.rating.result.ChartisSimpleStep</string>
+    </entry>
+  </configuration>
 </rules-deploy>

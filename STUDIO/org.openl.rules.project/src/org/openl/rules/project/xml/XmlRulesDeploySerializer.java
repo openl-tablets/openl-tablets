@@ -19,9 +19,11 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
     public XmlRulesDeploySerializer() {
         xstream = new XStream(new DomDriver());
         xstream.addPermission(NoTypePermission.NONE);
+        xstream.allowTypeHierarchy(String.class);
         xstream.allowTypeHierarchy(RulesDeploy.PublisherType.class);
         xstream.allowTypeHierarchy(RulesDeploy.class);
         xstream.allowTypeHierarchy(RulesDeploy.WildcardPattern.class);
+
         xstream.ignoreUnknownElements();
         xstream.omitField(RulesDeploy.class, "log");
 

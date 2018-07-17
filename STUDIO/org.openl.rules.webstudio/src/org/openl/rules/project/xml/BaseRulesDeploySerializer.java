@@ -22,6 +22,7 @@ public class BaseRulesDeploySerializer<T> implements IRulesDeploySerializer {
             }
         };
         xstream.addPermission(NoTypePermission.NONE);
+        xstream.allowTypeHierarchy(String.class);
         this.rulesDeployVersionConverter = rulesDeployVersionConverter;
     }
 
