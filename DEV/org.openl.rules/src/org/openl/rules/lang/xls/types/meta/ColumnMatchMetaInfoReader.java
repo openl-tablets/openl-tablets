@@ -141,7 +141,11 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
     }
 
     private Object[] getCheckValues(ColumnMatch columnMatch, int rowIndex) {
-        List<MatchNode> children = columnMatch.getCheckTree().getChildren();
+        MatchNode checkTree = columnMatch.getCheckTree();
+        if (checkTree == null) {
+            return null;
+        }
+        List<MatchNode> children = checkTree.getChildren();
         return getObjects(children, rowIndex);
     }
 

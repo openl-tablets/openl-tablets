@@ -1,9 +1,6 @@
 package org.openl.rules.tbasic;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.annotations.Executable;
@@ -99,8 +96,12 @@ public class Algorithm extends AlgorithmFunction {
     }
 
     public Collection<AlgorithmSubroutineMethod> getSubroutines() {
+        IOpenClass thisClass = getThisClass();
+        if (thisClass == null) {
+            return Collections.emptyList();
+        }
         List<AlgorithmSubroutineMethod> subroutines = new ArrayList<>();
-        for (IOpenMethod method : getThisClass().getMethods()) {
+        for (IOpenMethod method : thisClass.getMethods()) {
             if (method instanceof AlgorithmSubroutineMethod) {
                 subroutines.add((AlgorithmSubroutineMethod) method);
             }
