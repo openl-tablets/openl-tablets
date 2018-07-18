@@ -14,6 +14,8 @@ public class Miscs {
             return ((Collection) obj).isEmpty();
         } else if (obj instanceof Map) {
             return ((Map) obj).isEmpty();
+        } else if (obj instanceof CharSequence) {
+            return ((CharSequence) obj).length() == 0;
         } else if (obj instanceof Iterable){
             return !((Iterable) obj).iterator().hasNext();
         }
