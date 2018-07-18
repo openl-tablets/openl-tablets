@@ -21,11 +21,12 @@ public class MiscsTest {
         assertTrue(isEmpty(null));
         assertTrue(isEmpty(new Object[0]));
         assertTrue(isEmpty(""));
+        assertTrue(isEmpty(" \t\n"));
         assertFalse(isEmpty(new Object[] { 0 }));
         assertFalse(isEmpty(0));
         assertFalse(isEmpty(0.0));
         assertFalse(isEmpty(Double.NaN));
-        assertFalse(isEmpty(" "));
+        assertFalse(isEmpty("-"));
 
         assertTrue(isEmpty(new byte[0]));
         assertFalse(isEmpty(new byte[] { 0 }));
@@ -61,11 +62,12 @@ public class MiscsTest {
         assertFalse(isNotEmpty(null));
         assertFalse(isNotEmpty(new Object[0]));
         assertFalse(isNotEmpty(""));
+        assertFalse(isNotEmpty(" \t\n"));
         assertTrue(isNotEmpty(new Object[] { 0 }));
         assertTrue(isNotEmpty(0));
         assertTrue(isNotEmpty(0.0));
         assertTrue(isNotEmpty(Double.NaN));
-        assertTrue(isNotEmpty(" "));
+        assertTrue(isNotEmpty("-"));
 
         assertFalse(isNotEmpty(new byte[0]));
         assertTrue(isNotEmpty(new byte[] { 0 }));
