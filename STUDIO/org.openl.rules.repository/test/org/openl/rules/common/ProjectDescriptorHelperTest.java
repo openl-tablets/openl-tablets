@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
@@ -26,7 +27,7 @@ public class ProjectDescriptorHelperTest {
             "    <projectName>project0</projectName>\n" +
             "    <projectVersion>0</projectVersion>\n" +
             "  </descriptor>\n" +
-            "</descriptors>\n";
+            "</descriptors>";
 
     @Test
     public void serialize() throws IOException {
@@ -34,6 +35,18 @@ public class ProjectDescriptorHelperTest {
         InputStream stream = ProjectDescriptorHelper.serialize(descriptors);
         String xml = IOUtils.toStringAndClose(stream);
         Assert.assertEquals(XML, xml);
+
+    }
+
+    @Test
+    public void serializeEmpty() throws IOException {
+        InputStream stream = ProjectDescriptorHelper.serialize(null);
+        String xml = IOUtils.toStringAndClose(stream);
+        Assert.assertEquals("<descriptors/>", xml);
+
+        stream = ProjectDescriptorHelper.serialize(Collections.<ProjectDescriptor>emptyList());
+        xml = IOUtils.toStringAndClose(stream);
+        Assert.assertEquals("<descriptors/>", xml);
 
     }
 
@@ -56,5 +69,19 @@ public class ProjectDescriptorHelperTest {
         Assert.assertEquals(expected.get(1).getProjectVersion(), result.get(1).getProjectVersion());
         Assert.assertEquals(expected.get(2).getProjectName(), result.get(2).getProjectName());
         Assert.assertEquals(expected.get(2).getProjectVersion(), result.get(2).getProjectVersion());
+    }
+
+    @Test
+    public void deserializeEmpty() {
+        InputStream stream = IOUtils.toInputStream("");
+        List<ProjectDescriptor> result = ProjectDescriptorHelper.deserialize(stream);
+        Assert.assertNull(result);
+    }
+
+    @Test
+    public void deserializeBlank() {
+        InputStream stream = IOUtils.toInputStream("<descriptors/>");
+        List<ProjectDescriptor> result = ProjectDescriptorHelper.deserialize(stream);
+        Assert.assertEquals(0, result.size());
     }
 }

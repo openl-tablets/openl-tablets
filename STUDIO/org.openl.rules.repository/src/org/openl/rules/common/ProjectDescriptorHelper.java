@@ -1,5 +1,6 @@
 package org.openl.rules.common;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
+import org.openl.util.CollectionUtils;
 import org.openl.util.IOUtils;
 
 /**
@@ -18,6 +20,9 @@ import org.openl.util.IOUtils;
 public class ProjectDescriptorHelper {
 
     public static InputStream serialize(List<ProjectDescriptor> descriptors) {
+        if (CollectionUtils.isEmpty(descriptors)) {
+            return IOUtils.toInputStream("<descriptors/>");
+        }
         StringBuilder builder = new StringBuilder("<descriptors>\n");
 
         for (ProjectDescriptor descriptor : descriptors) {
@@ -27,7 +32,7 @@ public class ProjectDescriptorHelper {
                 "</projectVersion>\n");
             builder.append("  </descriptor>\n");
         }
-        builder.append("</descriptors>\n");
+        builder.append("</descriptors>");
         return IOUtils.toInputStream(builder.toString());
     }
 
@@ -36,6 +41,9 @@ public class ProjectDescriptorHelper {
         List<ProjectDescriptor> result = null;
         XMLInputFactory factory = XMLInputFactory.newInstance();
         try {
+            if (source.available() == 0) {
+                return result;
+            }
             XMLStreamReader streamReader = factory.createXMLStreamReader(source);
 
             while (streamReader.hasNext()) {
@@ -59,6 +67,8 @@ public class ProjectDescriptorHelper {
                 }
             }
         } catch (XMLStreamException e) {
+            throw new IllegalStateException(e);
+        } catch (IOException e) {
             throw new IllegalStateException(e);
         }
         throw new IllegalStateException("Unexpected end of the document");
