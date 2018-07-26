@@ -2,7 +2,6 @@ package org.openl.rules.datatype.binding;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -111,7 +110,7 @@ public class DatatypeHelper {
                 if (type != null) {
                     count += 1;
                 }
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 // Ignore exception.                
             }
         }
