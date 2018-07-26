@@ -5,6 +5,7 @@ ENV TOMCAT_VERSION=8.5.28
 RUN apk add --update \
       bash \
       unzip \
+      ttf-dejavu \
     && rm -rf /var/cache/apk/*
 
 COPY ./target/*.zip /tmp/
