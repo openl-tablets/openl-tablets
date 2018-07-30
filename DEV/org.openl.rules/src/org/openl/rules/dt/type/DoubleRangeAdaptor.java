@@ -14,6 +14,10 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
     }
 
     public Double getMax(DoubleRange range) {
+        if (range == null) {
+            return null;
+        }
+
         double max = range.getUpperBound();
         if (max != Double.POSITIVE_INFINITY && range.getUpperBoundType() == BoundType.INCLUDING) {
         	// the max should be moved to the right,
@@ -25,6 +29,10 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
     }    
     
     public Double getMin(DoubleRange range) {
+        if (range == null) {
+            return null;
+        }
+
         double min = range.getLowerBound();
         if (range.getLowerBoundType() == BoundType.EXCLUDING) {
             min += Math.ulp(min);
