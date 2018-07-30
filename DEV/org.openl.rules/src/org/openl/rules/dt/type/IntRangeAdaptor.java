@@ -16,7 +16,10 @@ public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
      * {@inheritDoc}
      */
     public Integer getMax(IntRange range) {
-
+        if (range == null) {
+            return null;
+        }
+        
         int max = range.getMax();
 
         if (max != Integer.MAX_VALUE) {
@@ -30,6 +33,10 @@ public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
      * {@inheritDoc}
      */
     public Integer getMin(IntRange range) {
+        if (range == null) {
+            return null;
+        }
+
         return Integer.valueOf(range.getMin());
     }
 
