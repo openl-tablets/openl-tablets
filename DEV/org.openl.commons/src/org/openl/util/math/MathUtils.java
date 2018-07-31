@@ -6,7 +6,6 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Arrays;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.openl.util.ArrayTool;
 
@@ -273,6 +272,7 @@ public class MathUtils {
         return NumberUtils.min(values);
     }
 
+    // AVERAGE
     // AVERAGE
     public static <T extends Number> Double avg(T[] values) {
         if (values == null) {
@@ -587,13 +587,14 @@ public class MathUtils {
             return null;
         }
         T sum = adder.zero();
+        boolean hasValues = false;
         for (T value : values) {
             if (value != null) {
                 sum = adder.add(sum, value);
+                hasValues = true;
             }
         }
-        return sum;
-
+        return hasValues ? sum : null;
     }
 
     public static Byte sum(Byte[] values) {
@@ -795,65 +796,8 @@ public class MathUtils {
                 hasValues = true;
             }
         }
-        return hasValues ? res : multiplicator.zero();
+        return hasValues ? res : null;
 
-    }
-
-    public static Long product(Byte[] values) {
-        return product(values, new Multiplicator<Byte, Long>() {
-            @Override
-            public Long multiply(Long a, Byte b) {
-                return a * (long) b;
-            }
-
-            @Override
-            public Long one() {
-                return 1l;
-            }
-
-            @Override
-            public Long zero() {
-                return 0l;
-            }
-        });
-    }
-
-    public static Long product(Short[] values) {
-        return product(values, new Multiplicator<Short, Long>() {
-            @Override
-            public Long multiply(Long a, Short b) {
-                return a * (long) b;
-            }
-
-            @Override
-            public Long one() {
-                return 1l;
-            }
-
-            @Override
-            public Long zero() {
-                return 0l;
-            }
-        });
-    }
-
-    public static Long product(Integer[] values) {
-        return product(values, new Multiplicator<Integer, Long>() {
-            @Override
-            public Long multiply(Long a, Integer b) {
-                return a * (long) b;
-            }
-
-            @Override
-            public Long one() {
-                return 1l;
-            }
-
-            @Override
-            public Long zero() {
-                return 0l;
-            }
-        });
     }
 
     public static Long product(Long[] values) {
@@ -871,25 +815,6 @@ public class MathUtils {
             @Override
             public Long zero() {
                 return 0l;
-            }
-        });
-    }
-
-    public static Float product(Float[] values) {
-        return product(values, new Multiplicator<Float, Float>() {
-            @Override
-            public Float multiply(Float a, Float b) {
-                return a * b;
-            }
-
-            @Override
-            public Float one() {
-                return 1f;
-            }
-
-            @Override
-            public Float zero() {
-                return 0f;
             }
         });
     }
@@ -1048,13 +973,13 @@ public class MathUtils {
 
     public static java.math.BigInteger median(java.math.BigInteger[] values) {
         // TODO implement
-        throw new NotImplementedException(
+        throw new UnsupportedOperationException(
             String.format("Method median for %s is not implemented yet", values.getClass().getName()));
     }
 
     public static java.math.BigDecimal median(java.math.BigDecimal[] values) {
         // TODO implement
-        throw new NotImplementedException(
+        throw new UnsupportedOperationException(
             String.format("Method median for %s is not implemented yet", values.getClass().getName()));
     }
 
