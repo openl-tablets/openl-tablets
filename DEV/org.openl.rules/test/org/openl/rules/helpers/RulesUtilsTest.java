@@ -1,6 +1,11 @@
 package org.openl.rules.helpers;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -16,7 +21,16 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.meta.*;
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.BigIntegerValue;
+import org.openl.meta.ByteValue;
+import org.openl.meta.DoubleValue;
+import org.openl.meta.FloatValue;
+import org.openl.meta.IntValue;
+import org.openl.meta.LongValue;
+import org.openl.meta.ObjectValue;
+import org.openl.meta.ShortValue;
+import org.openl.meta.StringValue;
 import org.openl.rules.TestHelper;
 import org.openl.util.ArrayTool;
 
@@ -29,8 +43,6 @@ import org.openl.util.ArrayTool;
  *         TODO: test all methods
  */
 public class RulesUtilsTest {
-
-    private static Double NaN_VAL = Double.NaN;
 
     private static final String SRC = "test/rules/helpers/RulesUtilsTest.xlsx";
 
@@ -976,7 +988,7 @@ public class RulesUtilsTest {
 
         Double testMedianDoubleType(double[] values);
 
-        BigInteger testMedianBigInteger(BigInteger[] values);
+        BigDecimal testMedianBigInteger(BigInteger[] values);
 
         BigDecimal testMedianBigDecimal(BigDecimal[] values);
 
@@ -5657,7 +5669,7 @@ public class RulesUtilsTest {
         assertEquals(new Double(3.5), instance.testMedianByteType(new byte[] { 2, 1, 5, 7 }));
         assertNull(instance.testMedianByteType(null));
         // TODO: Is it correct? The result is different when used boxed array
-        assertEquals(NaN_VAL, instance.testMedianByteType(new byte[] {}));
+        assertEquals(null, instance.testMedianByteType(new byte[] {}));
     }
 
     @Test
@@ -5673,7 +5685,7 @@ public class RulesUtilsTest {
         assertEquals(new Double(5), instance.testMedianShortType(new short[] { 11, 9, 3, 5, 5 }));
         assertEquals(new Double(3.5), instance.testMedianShortType(new short[] { 2, 1, 5, 7 }));
         assertNull(instance.testMedianShortType(null));
-        assertEquals(NaN_VAL, instance.testMedianShortType(new short[] {}));
+        assertEquals(null, instance.testMedianShortType(new short[] {}));
     }
 
     @Test
@@ -5689,7 +5701,7 @@ public class RulesUtilsTest {
         assertEquals(new Double(5), instance.testMedianIntegerType(new int[] { 11, 9, 3, 5, 5 }));
         assertEquals(new Double(3.5), instance.testMedianIntegerType(new int[] { 2, 1, 5, 7 }));
         assertNull(instance.testMedianIntegerType(null));
-        assertEquals(NaN_VAL, instance.testMedianIntegerType(new int[] {}));
+        assertEquals(null, instance.testMedianIntegerType(new int[] {}));
     }
 
     @Test
@@ -5705,7 +5717,7 @@ public class RulesUtilsTest {
         assertEquals(new Double(5), instance.testMedianLongType(new long[] { 11L, 9L, 3L, 5L, 5L }));
         assertEquals(new Double(3.5), instance.testMedianLongType(new long[] { 2L, 1L, 5L, 7L }));
         assertNull(instance.testMedianLongType(null));
-        assertEquals(NaN_VAL, instance.testMedianLongType(new long[] {}));
+        assertEquals(null, instance.testMedianLongType(new long[] {}));
     }
 
     @Test
@@ -5721,7 +5733,7 @@ public class RulesUtilsTest {
         assertEquals(new Float(5), instance.testMedianFloatType(new float[] { 11.F, 9.F, 3.F, 5.F, 5.F }));
         assertEquals(new Float(3.5), instance.testMedianFloatType(new float[] { 2.F, 1.F, 5.F, 7.F }));
         assertNull(instance.testMedianFloatType(null));
-        assertEquals(new Float(Float.NaN), instance.testMedianFloatType(new float[] {}));
+        assertEquals(null, instance.testMedianFloatType(new float[] {}));
     }
 
     @Test
@@ -5737,10 +5749,10 @@ public class RulesUtilsTest {
         assertEquals(new Double(5), instance.testMedianDoubleType(new double[] { 11., 9., 3., 5., 5. }));
         assertEquals(new Double(3.5), instance.testMedianDoubleType(new double[] { 2., 1., 5., 7. }));
         assertNull(instance.testMedianDoubleType(null));
-        assertEquals(NaN_VAL, instance.testMedianDoubleType(new double[] {}));
+        assertEquals(null, instance.testMedianDoubleType(new double[] {}));
     }
 
-    @Test(expected = OpenLRuntimeException.class)
+    @Test
     public void testMedianBigDecimal() {
         assertEquals(BigDecimal.valueOf(5),
             instance.testMedianBigDecimal(new BigDecimal[] { BigDecimal.valueOf(
@@ -5754,7 +5766,7 @@ public class RulesUtilsTest {
         assertNull(instance.testMedianBigDecimal(new BigDecimal[] {}));
     }
 
-    @Test(expected = OpenLRuntimeException.class)
+    @Test
     public void testMedianBigInteger() {
         assertEquals(BigDecimal.valueOf(5),
             instance.testMedianBigInteger(new BigInteger[] { BigInteger.valueOf(

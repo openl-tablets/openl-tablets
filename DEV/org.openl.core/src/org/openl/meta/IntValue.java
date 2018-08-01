@@ -398,7 +398,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.IntValue small(org.openl.meta.IntValue[] values, int position) {
-        if (CollectionUtils.isEmpty(values)) {
+        if (values == null) {
             return null;
         }
         Integer[] unwrappedArray = unwrap(values);
@@ -418,7 +418,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.IntValue big(org.openl.meta.IntValue[] values, int position) {
-        if (CollectionUtils.isEmpty(values)) {
+        if (values == null) {
             return null;
         }
         Integer[] unwrappedArray = unwrap(values);

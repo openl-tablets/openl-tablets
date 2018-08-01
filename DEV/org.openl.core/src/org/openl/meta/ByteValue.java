@@ -400,7 +400,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.ByteValue small(org.openl.meta.ByteValue[] values, int position) {
-        if (CollectionUtils.isEmpty(values)) {
+        if (values == null) {
             return null;
         }
         Byte[] unwrappedArray = unwrap(values);
@@ -420,7 +420,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.ByteValue big(org.openl.meta.ByteValue[] values, int position) {
-        if (CollectionUtils.isEmpty(values)) {
+        if (values == null) {
             return null;
         }
         Byte[] unwrappedArray = unwrap(values);

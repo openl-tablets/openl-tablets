@@ -400,7 +400,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.ShortValue small(org.openl.meta.ShortValue[] values, int position) {
-        if (CollectionUtils.isEmpty(values)) {
+        if (values == null) {
             return null;
         }
         Short[] unwrappedArray = unwrap(values);
@@ -420,7 +420,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.ShortValue big(org.openl.meta.ShortValue[] values, int position) {
-        if (CollectionUtils.isEmpty(values)) {
+        if (values == null) {
             return null;
         }
         Short[] unwrappedArray = unwrap(values);

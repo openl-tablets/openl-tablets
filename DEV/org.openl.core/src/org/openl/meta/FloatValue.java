@@ -460,7 +460,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.FloatValue small(org.openl.meta.FloatValue[] values, int position) {
-        if (CollectionUtils.isEmpty(values)) {
+        if (values == null) {
             return null;
         }
         Float[] unwrappedArray = unwrap(values);
@@ -480,7 +480,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.FloatValue big(org.openl.meta.FloatValue[] values, int position) {
-        if (CollectionUtils.isEmpty(values)) {
+        if (values == null) {
             return null;
         }
         Float[] unwrappedArray = unwrap(values);
