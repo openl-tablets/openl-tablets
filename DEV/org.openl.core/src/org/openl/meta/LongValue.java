@@ -416,7 +416,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.LongValue small(org.openl.meta.LongValue[] values, int position) {
-        if (CollectionUtils.isEmpty(values)) {
+        if (values == null) {
             return null;
         }
         Long[] unwrappedArray = unwrap(values);
@@ -436,7 +436,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.LongValue big(org.openl.meta.LongValue[] values, int position) {
-        if (CollectionUtils.isEmpty(values)) {
+        if (values == null) {
             return null;
         }
         Long[] unwrappedArray = unwrap(values);

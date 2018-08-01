@@ -471,7 +471,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.DoubleValue small(org.openl.meta.DoubleValue[] values, int position) {
-        if (CollectionUtils.isEmpty(values)) {
+        if (values == null) {
             return null;
         }
         Double[] unwrappedArray = unwrap(values);
@@ -487,7 +487,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.DoubleValue big(org.openl.meta.DoubleValue[] values, int position) {
-        if (CollectionUtils.isEmpty(values)) {
+        if (values == null) {
             return null;
         }
         Double[] unwrappedArray = unwrap(values);

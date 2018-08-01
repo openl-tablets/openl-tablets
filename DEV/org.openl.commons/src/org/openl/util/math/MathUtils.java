@@ -800,6 +800,63 @@ public class MathUtils {
 
     }
 
+    public static Long product(Byte[] values) {
+        return product(values, new Multiplicator<Byte, Long>() {
+            @Override
+            public Long multiply(Long a, Byte b) {
+                return a * b.longValue();
+            }
+
+            @Override
+            public Long one() {
+                return 1l;
+            }
+
+            @Override
+            public Long zero() {
+                return 0l;
+            }
+        });
+    }
+
+    public static Long product(Short[] values) {
+        return product(values, new Multiplicator<Short, Long>() {
+            @Override
+            public Long multiply(Long a, Short b) {
+                return a * b.longValue();
+            }
+
+            @Override
+            public Long one() {
+                return 1l;
+            }
+
+            @Override
+            public Long zero() {
+                return 0l;
+            }
+        });
+    }
+
+    public static Long product(Integer[] values) {
+        return product(values, new Multiplicator<Integer, Long>() {
+            @Override
+            public Long multiply(Long a, Integer b) {
+                return a * b.longValue();
+            }
+
+            @Override
+            public Long one() {
+                return 1l;
+            }
+
+            @Override
+            public Long zero() {
+                return 0l;
+            }
+        });
+    }
+
     public static Long product(Long[] values) {
         return product(values, new Multiplicator<Long, Long>() {
             @Override
@@ -815,6 +872,25 @@ public class MathUtils {
             @Override
             public Long zero() {
                 return 0l;
+            }
+        });
+    }
+
+    public static Float product(Float[] values) {
+        return product(values, new Multiplicator<Float, Float>() {
+            @Override
+            public Float multiply(Float a, Float b) {
+                return a * b;
+            }
+
+            @Override
+            public Float one() {
+                return 1f;
+            }
+
+            @Override
+            public Float zero() {
+                return 0f;
             }
         });
     }
@@ -956,31 +1032,60 @@ public class MathUtils {
     }
 
     public static Float median(Float[] values) {
+        Double median = median((Number[]) values);
+        return median == null ? null : median.floatValue();
+    }
+
+    public static java.math.BigDecimal median(java.math.BigInteger[] values) {
         if (values == null) {
             return null;
         }
         values = ArrayTool.removeNulls(values);
-        if (values.length == 0) {
+        int length = values.length;
+        if (length == 0) {
             return null;
+        } else if (length == 1) {
+            return new BigDecimal(values[0]);
+        } else if (length == 2) {
+            BigDecimal v = new BigDecimal(values[0].add(values[1]));
+            return v.divide(BigDecimal.valueOf(2));
         }
-        double[] doubleArray = numberArrayToDoubleArray(values);
-        Double median = median(doubleArray);
-        if (median == null) {
-            return null;
+        BigInteger[] copy = Arrays.copyOf(values, length);
+        Arrays.sort(copy);
+        length--;
+        int index = length >> 1;
+        if (length % 2 == 0) {
+            return new BigDecimal(copy[index]);
+        } else {
+            BigDecimal v = new BigDecimal(copy[index].add(copy[index + 1]));
+            return v.divide(BigDecimal.valueOf(2));
         }
-        return median.floatValue();
-    }
-
-    public static java.math.BigInteger median(java.math.BigInteger[] values) {
-        // TODO implement
-        throw new UnsupportedOperationException(
-            String.format("Method median for %s is not implemented yet", values.getClass().getName()));
     }
 
     public static java.math.BigDecimal median(java.math.BigDecimal[] values) {
-        // TODO implement
-        throw new UnsupportedOperationException(
-            String.format("Method median for %s is not implemented yet", values.getClass().getName()));
+        if (values == null) {
+            return null;
+        }
+        values = ArrayTool.removeNulls(values);
+        int length = values.length;
+        if (length == 0) {
+            return null;
+        } else if (length == 1) {
+            return values[0];
+        } else if (length == 2) {
+            BigDecimal v = values[0].add(values[1]);
+            return (new BigDecimal("0.5")).multiply(v);
+        }
+        BigDecimal[] copy = Arrays.copyOf(values, length);
+        Arrays.sort(copy);
+        length--;
+        int index = length >> 1;
+        if (length % 2 == 0) {
+            return copy[index];
+        } else {
+            BigDecimal v = copy[index].add(copy[index + 1]);
+            return (new BigDecimal("0.5")).multiply(v);
+        }
     }
 
     public static Double median(double[] values) {
@@ -989,7 +1094,7 @@ public class MathUtils {
         }
         int length = values.length;
         if (length == 0) {
-            return Double.NaN;
+            return null;
         } else if (length == 1) {
             return values[0];
         } else if (length == 2) {
@@ -1024,10 +1129,7 @@ public class MathUtils {
 
     public static Float median(float[] values) {
         Double median = median(floatArrayToDoubleArray(values));
-        if (median == null) {
-            return null;
-        }
-        return median.floatValue();
+        return median == null ? null : median.floatValue();
     }
 
     // MOD is implemented as in Excel.
