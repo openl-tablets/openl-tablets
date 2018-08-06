@@ -10,9 +10,11 @@ import org.openl.meta.TableMetaInfo;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.rules.calc.result.DefaultResultBuilder;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.table.Point;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
@@ -59,7 +61,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
      * Custom return type of the spreadsheet method. Is a public type of the
      * spreadsheet
      */
-    private IOpenClass spreadsheetCustomType;
+    private CustomSpreadsheetResultOpenClass spreadsheetCustomType;
 
     /**
      * Whether <code>spreadsheetCustomType</code> should be generated or not.
@@ -85,7 +87,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
     public synchronized Constructor<?> getResultConstructor() throws SecurityException, NoSuchMethodException {
         if (constructor == null)
             constructor = this.getType().getInstanceClass()
-                    .getConstructor(Object[][].class, String[].class, String[].class, String[].class, String[].class);
+                    .getConstructor(Object[][].class, String[].class, String[].class, String[].class, String[].class, Map.class);
         return constructor;
     }
 
@@ -102,7 +104,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
         return customSpreadsheetType;
     }
 
-    private synchronized IOpenClass getCustomSpreadsheetResultType() {
+    private synchronized CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultType() {
         if (spreadsheetCustomType == null) {
             initCustomSpreadsheetResultType();
         }
@@ -254,5 +256,18 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
     public void setInvoker(SpreadsheetInvoker invoker) {
         this.invoker = invoker;
+    }
+    
+    Map<String, Point> fieldsCoordinates = null;
+
+    public synchronized Map<String, Point> getFieldsCoordinates() {
+        if (fieldsCoordinates == null) {
+            if (isCustomSpreadsheetType()) {
+                fieldsCoordinates = getCustomSpreadsheetResultType().getFieldsCoordinates();
+            } else {
+                fieldsCoordinates = DefaultResultBuilder.getFieldsCoordinates(this.getSpreadsheetType().getFields());
+            }
+        }
+        return fieldsCoordinates;
     }
 }
