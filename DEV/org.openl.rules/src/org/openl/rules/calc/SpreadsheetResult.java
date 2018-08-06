@@ -55,6 +55,16 @@ public class SpreadsheetResult implements Serializable {
             String[] columnNames,
             String[] rowTitles,
             String[] columnTitles) {
+        this(results, rowNames, columnNames, rowTitles, columnTitles, null);
+        initFieldsCoordinates();
+    }
+
+    public SpreadsheetResult(Object[][] results,
+            String[] rowNames,
+            String[] columnNames,
+            String[] rowTitles,
+            String[] columnTitles,
+            Map<String, Point> fieldsCoordinates) {
         this.columnNames = columnNames.clone();
         this.rowNames = rowNames.clone();
         this.columnTitles = columnTitles.clone();
@@ -62,21 +72,26 @@ public class SpreadsheetResult implements Serializable {
         this.height = rowNames.length;
         this.width = columnNames.length;
         this.results = results;
-        initFieldsCoordinates();
+        this.fieldsCoordinates = fieldsCoordinates;
     }
 
-    private void initFieldsCoordinates() {
-        this.fieldsCoordinates = new HashMap<String, Point>();
-        for (int i = 0; i < this.rowNames.length; i++) {
-            for (int j = 0; j < this.columnNames.length; j++) {
+    public static final Map<String, Point> buildFieldsCoordinates(String[] columnNames, String[] rowNames) {
+        Map<String, Point> fieldsCoordinates = new HashMap<String, Point>();
+        for (int i = 0; i < rowNames.length; i++) {
+            for (int j = 0; j < columnNames.length; j++) {
                 StringBuilder sb = new StringBuilder();
                 sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                    .append(this.columnNames[j])
+                    .append(columnNames[j])
                     .append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                    .append(this.rowNames[i]);
+                    .append(rowNames[i]);
                 fieldsCoordinates.put(sb.toString(), new Point(j, i));
             }
         }
+        return fieldsCoordinates;
+    }
+
+    private void initFieldsCoordinates() {
+        this.fieldsCoordinates = buildFieldsCoordinates(columnNames, rowNames);
     }
 
     /**
@@ -159,8 +174,9 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public void setFieldValue(String name, Object value) {
-        if (fieldsCoordinates == null) { //Required if default constructor is used with setter methods.
-            initFieldsCoordinates(); 
+        if (fieldsCoordinates == null) { // Required if default constructor is
+                                         // used with setter methods.
+            initFieldsCoordinates();
         }
         Point fieldCoordinates = fieldsCoordinates.get(name);
 
@@ -204,8 +220,9 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public Object getFieldValue(String name) {
-        if (fieldsCoordinates == null) { //Required if default constructor is used with setter methods.
-            initFieldsCoordinates(); 
+        if (fieldsCoordinates == null) { // Required if default constructor is
+                                         // used with setter methods.
+            initFieldsCoordinates();
         }
         Point fieldCoordinates = fieldsCoordinates.get(name);
 
@@ -216,8 +233,9 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public boolean hasField(String name) {
-        if (fieldsCoordinates == null) { //Required if default constructor is used with setter methods.
-            initFieldsCoordinates(); 
+        if (fieldsCoordinates == null) { // Required if default constructor is
+                                         // used with setter methods.
+            initFieldsCoordinates();
         }
         return fieldsCoordinates.get(name) != null;
     }
