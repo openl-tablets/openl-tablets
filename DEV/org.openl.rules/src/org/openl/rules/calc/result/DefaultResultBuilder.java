@@ -42,7 +42,7 @@ public class DefaultResultBuilder implements IResultBuilder {
         
         SpreadsheetResult spreadsheetBean = null;
         try {
-            spreadsheetBean = (SpreadsheetResult)constructor.newInstance(resultArray, rowNames, columnNames, rowTitles, columnTitles);
+            spreadsheetBean = (SpreadsheetResult) constructor.newInstance(resultArray, rowNames, columnNames, rowTitles, columnTitles, result.getSpreadsheet().getFieldsCoordinates());
         } catch (Exception e) {
             //TODO: add logger
         } 

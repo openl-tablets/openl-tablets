@@ -3,6 +3,7 @@ package org.openl.rules.calc;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -151,7 +152,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
                     addField(field);
                 }
             }
-            this.fieldsCoordinates = SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames);
+            this.fieldsCoordinates = Collections
+                .unmodifiableMap(SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames));
         }
     }
 
@@ -210,6 +212,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
             }
             throw new OpenlNotCheckedException("Incompatible type usage in spreadsheet fields: " + sb.toString());
         }
+    }
+
+    public Map<String, Point> getFieldsCoordinates() {
+        return fieldsCoordinates;
     }
 
     private CustomSpreadsheetResultOpenClass copyCustomSpreadsheetResult() {
