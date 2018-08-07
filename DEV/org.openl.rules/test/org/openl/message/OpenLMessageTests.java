@@ -16,9 +16,8 @@ public class OpenLMessageTests extends BaseOpenlBuilderHelper {
     public void testMessages() {
         for (OpenLMessage message : getCompiledOpenClass().getMessages()) {
             if (message instanceof OpenLErrorMessage) {
-                Assert.assertEquals(
-                    "file:/C:/Projects/OPENL/DEV/org.openl.rules/test/rules/OpenLMessagesTest.xlsx?sheet=VehiclePremium&cell=C3&start=0&end=0",
-                    message.getSourceLocation());
+                Assert.assertTrue(message.getSourceLocation()
+                    .endsWith("OpenLMessagesTest.xlsx?sheet=VehiclePremium&cell=C3&start=0&end=0"));
             }
         }
 
