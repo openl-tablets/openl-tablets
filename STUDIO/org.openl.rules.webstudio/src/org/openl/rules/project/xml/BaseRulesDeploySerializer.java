@@ -4,9 +4,9 @@ import java.io.InputStream;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
+import com.thoughtworks.xstream.security.NoTypePermission;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.model.ObjectVersionConverter;
-import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 
 public class BaseRulesDeploySerializer<T> implements IRulesDeploySerializer {
@@ -14,7 +14,15 @@ public class BaseRulesDeploySerializer<T> implements IRulesDeploySerializer {
     private final ObjectVersionConverter<RulesDeploy, T> rulesDeployVersionConverter;
 
     public BaseRulesDeploySerializer(ObjectVersionConverter<RulesDeploy, T> rulesDeployVersionConverter) {
-        xstream = new XStream(new DomDriver());
+        xstream = new XStream(new DomDriver()) {
+            @Override
+            public void aliasType(String name, Class type) {
+                super.aliasType(name, type);
+                allowTypeHierarchy(type);
+            }
+        };
+        xstream.addPermission(NoTypePermission.NONE);
+        xstream.allowTypeHierarchy(String.class);
         this.rulesDeployVersionConverter = rulesDeployVersionConverter;
     }
 

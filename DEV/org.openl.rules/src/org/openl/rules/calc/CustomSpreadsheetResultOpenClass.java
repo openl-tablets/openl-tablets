@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,18 +26,14 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
     private String[] columnNames;
     private String[] rowTitles;
     private String[] columnTitles;
-    private Map<String, Point> fieldCoordinates = new HashMap<String, Point>();
+    private Map<String, Point> fieldsCoordinates;
 
     public CustomSpreadsheetResultOpenClass(String name,
             String[] rowNames,
             String[] columnNames,
             String[] rowTitles,
-            String[] columnTitles,
-            Map<String, Point> fieldCoordinates) {
+            String[] columnTitles) {
         super(name, SpreadsheetResult.class);
-        if (fieldCoordinates == null) {
-            throw new IllegalArgumentException();
-        }
         if (rowNames == null) {
             throw new IllegalArgumentException();
         }
@@ -51,11 +46,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
         if (columnTitles == null) {
             throw new IllegalArgumentException();
         }
-        this.fieldCoordinates = new HashMap<String, Point>(fieldCoordinates);
         this.rowNames = rowNames.clone();
         this.columnNames = columnNames.clone();
         this.columnTitles = columnTitles.clone();
         this.rowTitles = rowTitles.clone();
+        this.fieldsCoordinates = SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames);
     }
 
     private Iterable<IOpenClass> superClasses = null;
@@ -87,7 +82,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
             String[] columnNames,
             String[] rowTitles,
             String[] columnTitles,
-            Map<String, Point> fieldCoordinates,
             Collection<IOpenField> fields) {
         List<String> nRowNames = new ArrayList<String>(Arrays.asList(this.rowNames));
         Set<String> existedRowNamesSet = new HashSet<String>(Arrays.asList(this.rowNames));
@@ -124,7 +118,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
                         .append(nColumnNames.get(j))
                         .append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
                         .append(nRowNames.get(i));
-                    this.fieldCoordinates.put(sb.toString(), new Point(j, i));
                     newFieldNames.add(sb.toString());
                 }
             }
@@ -136,7 +129,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
                         .append(nColumnNames.get(j))
                         .append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
                         .append(nRowNames.get(i));
-                    this.fieldCoordinates.put(sb.toString(), new Point(j, i));
                     newFieldNames.add(sb.toString());
                 }
             }
@@ -148,7 +140,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
                         .append(nColumnNames.get(j))
                         .append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
                         .append(nRowNames.get(i));
-                    this.fieldCoordinates.put(sb.toString(), new Point(j, i));
                     newFieldNames.add(sb.toString());
                 }
             }
@@ -161,6 +152,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
                     addField(field);
                 }
             }
+            this.fieldsCoordinates = Collections
+                .unmodifiableMap(SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames));
         }
     }
 
@@ -180,10 +173,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
         return columnTitles;
     }
 
-    public Map<String, Point> getFieldCoordinates() {
-        return Collections.unmodifiableMap(fieldCoordinates);
-    }
-
     @Override
     public IOpenClass copy() {
         return copyCustomSpreadsheetResult();
@@ -196,7 +185,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
             getColumnNames(),
             getRowTitles(),
             getColumnTitles(),
-            getFieldCoordinates(),
             getFields().values());
         validate(customSpreadsheetResultOpenClass, getFields().values());
     }
@@ -226,13 +214,16 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
         }
     }
 
+    public Map<String, Point> getFieldsCoordinates() {
+        return fieldsCoordinates;
+    }
+
     private CustomSpreadsheetResultOpenClass copyCustomSpreadsheetResult() {
         CustomSpreadsheetResultOpenClass type = new CustomSpreadsheetResultOpenClass(getName(),
             getRowNames(),
             getColumnNames(),
             getRowTitles(),
-            getColumnTitles(),
-            getFieldCoordinates());
+            getColumnTitles());
         for (IOpenField field : getFields().values()) {
             type.addField(field);
         }
@@ -243,7 +234,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
     @Override
     public Object newInstance(IRuntimeEnv env) {
         Object[][] result = new Object[rowNames.length][columnNames.length];
-        return new SpreadsheetResult(result, rowNames, columnNames, rowTitles, columnTitles, fieldCoordinates);
+        return new SpreadsheetResult(result, rowNames.clone(), columnNames.clone(), rowTitles.clone(), columnTitles.clone(), fieldsCoordinates);
     }
 
 }

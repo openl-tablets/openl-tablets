@@ -61,7 +61,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
      * Custom return type of the spreadsheet method. Is a public type of the
      * spreadsheet
      */
-    private IOpenClass spreadsheetCustomType;
+    private CustomSpreadsheetResultOpenClass spreadsheetCustomType;
 
     /**
      * Whether <code>spreadsheetCustomType</code> should be generated or not.
@@ -104,7 +104,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
         return customSpreadsheetType;
     }
 
-    private synchronized IOpenClass getCustomSpreadsheetResultType() {
+    private synchronized CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultType() {
         if (spreadsheetCustomType == null) {
             initCustomSpreadsheetResultType();
         }
@@ -115,8 +115,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
         Map<String, IOpenField> spreadsheetOpenClassFields = getSpreadsheetType().getFields();
         spreadsheetOpenClassFields.remove("this");
         String typeName = SPREADSHEETRESULT_TYPE_PREFIX + getName();
-        Map<String, Point> fieldCoordinates = getFieldsCoordinates();
-        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(typeName, getRowNames(), getColumnNames(), getRowTitles(), getColumnTitles(), fieldCoordinates);
+        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(typeName, getRowNames(), getColumnNames(), getRowTitles(), getColumnTitles());
         customSpreadsheetResultOpenClass.setMetaInfo(new TableMetaInfo("Spreadsheet", getName(), getSourceUrl()));
         for (IOpenField field : spreadsheetOpenClassFields.values()) {
             CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(spreadsheetCustomType, field.getName(), field.getType());
@@ -258,13 +257,17 @@ public class Spreadsheet extends ExecutableRulesMethod {
     public void setInvoker(SpreadsheetInvoker invoker) {
         this.invoker = invoker;
     }
-
+    
     Map<String, Point> fieldsCoordinates = null;
 
     public synchronized Map<String, Point> getFieldsCoordinates() {
-        if (fieldsCoordinates == null)
-            fieldsCoordinates = DefaultResultBuilder.getFieldsCoordinates(this.getSpreadsheetType().getFields());
+        if (fieldsCoordinates == null) {
+            if (isCustomSpreadsheetType()) {
+                fieldsCoordinates = getCustomSpreadsheetResultType().getFieldsCoordinates();
+            } else {
+                fieldsCoordinates = DefaultResultBuilder.getFieldsCoordinates(this.getSpreadsheetType().getFields());
+            }
+        }
         return fieldsCoordinates;
     }
-
 }

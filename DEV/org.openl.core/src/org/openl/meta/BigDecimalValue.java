@@ -424,7 +424,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.BigDecimalValue small(org.openl.meta.BigDecimalValue[] values, int position) {
-        if (CollectionUtils.isEmpty(values)) {
+        if (values == null) {
             return null;
         }
         java.math.BigDecimal[] unwrappedArray = unwrap(values);
@@ -440,7 +440,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.BigDecimalValue big(org.openl.meta.BigDecimalValue[] values, int position) {
-        if (CollectionUtils.isEmpty(values)) {
+        if (values == null) {
             return null;
         }
         java.math.BigDecimal[] unwrappedArray = unwrap(values);

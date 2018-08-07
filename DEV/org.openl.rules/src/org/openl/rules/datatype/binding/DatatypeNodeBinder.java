@@ -26,6 +26,7 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ArrayTool;
 
 /**
@@ -50,7 +51,8 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
         String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
 
-        if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName) != null) {
+        IOpenClass openClass = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
+        if (openClass != null && !(openClass instanceof JavaOpenClass)) { //Additional condition that it is not loaded class from classloader
             String message = "Duplicate type definition: " + typeName;
             throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
         }

@@ -242,6 +242,9 @@ public class DependentParametersOptimizedAlgorithm {
 
         @Override
         public C getMax(Object param) {
+            if (param == null) {
+                return null;
+            }
             if (evaluatorFactory.hasMax()) {
                 if (openCast != null) {
                     param = openCast.convert(param);
@@ -257,6 +260,9 @@ public class DependentParametersOptimizedAlgorithm {
 
         @Override
         public C getMin(Object param) {
+            if (param == null) {
+                return null;
+            }
             if (evaluatorFactory.hasMin()) {
                 if (openCast != null) {
                     param = openCast.convert(param);

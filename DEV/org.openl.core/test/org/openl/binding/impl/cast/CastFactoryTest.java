@@ -1,6 +1,7 @@
 package org.openl.binding.impl.cast;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -85,6 +86,7 @@ public class CastFactoryTest {
 
         cast = factory.getCast(JavaOpenClass.getOpenClass(Object.class),
             JavaOpenClass.getOpenClass(Integer[][][][].class));
+        assertFalse(cast.isImplicit());
         Integer[][][][] z = (Integer[][][][]) cast.convert(x);
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 4; j++) {
@@ -97,6 +99,7 @@ public class CastFactoryTest {
         }
 
         cast = factory.getCast(JavaOpenClass.getOpenClass(Object.class), JavaOpenClass.getOpenClass(int[][][][].class));
+        assertFalse(cast.isImplicit());
         y = (int[][][][]) cast.convert(x);
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 4; j++) {
@@ -110,6 +113,7 @@ public class CastFactoryTest {
         try {
             cast = factory.getCast(JavaOpenClass.getOpenClass(Object.class),
                 JavaOpenClass.getOpenClass(int[][][][][].class));
+            assertFalse(cast.isImplicit());
             y = (int[][][][]) cast.convert(x);
             Assert.fail("ClassCastException was expected!");
         } catch (ClassCastException e) {

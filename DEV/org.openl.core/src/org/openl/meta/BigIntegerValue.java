@@ -94,15 +94,20 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
      * @param values array of org.openl.meta.BigIntegerValue values
      * @return the median value from the array
      */
-    public static org.openl.meta.BigIntegerValue median(org.openl.meta.BigIntegerValue[] values) {
+    public static org.openl.meta.BigDecimalValue median(org.openl.meta.BigIntegerValue[] values) {
         if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         java.math.BigInteger[] unwrappedArray = unwrap(values);
-        java.math.BigInteger median = MathUtils.median(unwrappedArray);
-        return median != null ? new org.openl.meta.BigIntegerValue(new org.openl.meta.BigIntegerValue(median),
+        java.math.BigDecimal median = MathUtils.median(unwrappedArray);
+        BigDecimalValue[] values1 = new BigDecimalValue[values.length];
+        int i = 0;
+        for (BigIntegerValue v : values) {
+            values1[i++] = new BigDecimalValue(new BigDecimal(v.getValue()));
+        }
+        return median != null ? new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(median),
             NumberOperations.MEDIAN,
-            values) : null;
+            values1) : null;
     }
 
     /**
@@ -427,7 +432,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.BigIntegerValue small(org.openl.meta.BigIntegerValue[] values, int position) {
-        if (CollectionUtils.isEmpty(values)) {
+        if (values == null) {
             return null;
         }
         java.math.BigInteger[] unwrappedArray = unwrap(values);
@@ -447,7 +452,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.BigIntegerValue big(org.openl.meta.BigIntegerValue[] values, int position) {
-        if (CollectionUtils.isEmpty(values)) {
+        if (values == null) {
             return null;
         }
         java.math.BigInteger[] unwrappedArray = unwrap(values);

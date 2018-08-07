@@ -1182,7 +1182,7 @@ public class RulesUtils {
      * @param values
      * @return
      */
-    public static java.math.BigInteger median(java.math.BigInteger[] values) {
+    public static java.math.BigDecimal median(java.math.BigInteger[] values) {
         return MathUtils.median(values);
     }
 

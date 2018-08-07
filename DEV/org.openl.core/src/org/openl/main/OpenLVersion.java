@@ -3,6 +3,7 @@ package org.openl.main;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -81,21 +82,35 @@ public class OpenLVersion {
     private static void logSystemInfo() {
         Logger logger = LoggerFactory.getLogger("OpenL.sys");
         try {
-            logger.info("  Java : {} v{} ({})",
+            logger.info("    Java : {} v{} ({})",
                 System.getProperty("java.vendor"),
                 System.getProperty("java.version"),
                 System.getProperty("java.class.version"));
-            logger.info("    OS : {} v{} ({})",
+            logger.info("      OS : {} v{} ({})",
                 System.getProperty("os.name"),
                 System.getProperty("os.version"),
                 System.getProperty("os.arch"));
-            logger.info("  Time : {} ({} - {})",
-                new SimpleDateFormat("yyyy-MM-dd   HH:mm:ss.SSS XXX (z)").format(new Date()),
-                TimeZone.getDefault().getID(),
-                TimeZone.getDefault().getDisplayName());
-            logger.info("Locale : {}", Locale.getDefault());
         } catch (Exception ignored) {
             logger.info("##### Cannot access to System properties");
+        }
+        try {
+            logger.info("    Time : {} ({} - {})",
+                    new SimpleDateFormat("yyyy-MM-dd   HH:mm:ss.SSS XXX (z)").format(new Date()),
+                    TimeZone.getDefault().getID(),
+                    TimeZone.getDefault().getDisplayName());
+            logger.info("  Locale : {}", Locale.getDefault());
+        } catch (Exception ignored) {
+            logger.info("##### Cannot access to the TimeZone or Locale");
+        }
+        try {
+            logger.info("Work dir : {}", Paths.get("").toAbsolutePath());
+        } catch (Exception ignored) {
+            logger.info("##### Cannot access to the FileSystem");
+        }
+        try {
+            logger.info("App path : {}", OpenLVersion.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        } catch (Exception ignored) {
+            logger.info("##### Cannot access to the Application location");
         }
     }
 

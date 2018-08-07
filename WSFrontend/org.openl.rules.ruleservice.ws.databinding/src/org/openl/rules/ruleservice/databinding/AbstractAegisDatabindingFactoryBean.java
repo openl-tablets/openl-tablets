@@ -93,10 +93,7 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         loadAegisTypeClassAndRegister(
             org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.calc.SpreadsheetResultType.class,
             typeMapping);
-        loadAegisTypeClassAndRegister(
-            org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.table.PointType.class,
-            typeMapping);
-
+       
         if (supportVariations) {
             registerVariationTypes(typeMapping);
         }

@@ -3,6 +3,7 @@ package org.openl.binding.impl;
 import java.lang.reflect.Array;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
@@ -105,13 +106,19 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
         return getMethodCaller();
     }
 
+    @SuppressWarnings("unchecked")
     protected void invokeMethodAndSetResultToArray(IMethodCaller methodCaller, Object target,
             IRuntimeEnv env,
             Object[] callParameters,
             Object results,
             int index,
             int resultLength) {
-        Object value = methodCaller.invoke(target, callParameters, env);
+        Object value;
+        if (ArrayUtils.indexOf(callParameters, null) >= 0) {
+            value = methodCaller.invoke(target, callParameters.clone(), env);
+        } else {
+            value = methodCaller.invoke(target, callParameters, env);
+        }
         if (results != null) {
             Array.set(results, index, value);
         }
