@@ -1,4 +1,4 @@
-package org.openl.rules.lang.xls.bindibg;
+package org.openl.rules.lang.xls.binding;
 
 import org.junit.Before;
 import org.junit.Test;
