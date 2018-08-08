@@ -101,6 +101,8 @@ public final class TestMojo extends BaseOpenLMojo {
     @Parameter(defaultValue = "${project.testClasspathElements}", readonly = true, required = true)
     private List<String> classpath;
 
+    private final TestRunner testRunner = new TestRunner(BaseTestUnit.Builder.getInstance());
+
     @Override
     public void execute(String sourcePath, boolean hasDependencies) throws Exception {
         Summary summary = runAllTests(sourcePath, hasDependencies);
@@ -295,9 +297,9 @@ public final class TestMojo extends BaseOpenLMojo {
                     info("Running ", test.getName(), moduleInfo);
                     TestUnitsResults result;
                     if (testSuiteExecutor == null) {
-                        result = new TestSuite(test).invokeSequentially(openClass, 1L);
+                        result = new TestSuite(test, testRunner).invokeSequentially(openClass, 1L);
                     } else {
-                        result = new TestSuite(test).invokeParallel(testSuiteExecutor, openClass, 1L);
+                        result = new TestSuite(test, testRunner).invokeParallel(testSuiteExecutor, openClass, 1L);
                     }
                     new JUnitReportWriter(reportsDirectory).write(result);
 
@@ -351,15 +353,14 @@ public final class TestMojo extends BaseOpenLMojo {
         String moduleName = test.getModuleName();
         String modulePrefix = moduleName == null ? "" : moduleName + ".";
 
-        for (TestUnit testUnit : result.getTestUnits()) {
-            TestStatus status = testUnit.compareResult();
+        for (ITestUnit testUnit : result.getTestUnits()) {
+            TestStatus status = testUnit.getResultStatus();
             if (status != TR_OK) {
                 String failureType = status == TR_NEQ ? FAILURE : ERROR;
                 String description = testUnit.getDescription();
 
                 info("  Test case: #",
-                    num,
-                    TestUnit.DEFAULT_DESCRIPTION.equals(description) ? "" : " (" + description + ")",
+                        TestUnit.DEFAULT_DESCRIPTION.equals(description) ? "" : " (" + description + ")",
                     ". Time elapsed: ",
                     formatTime(testUnit.getExecutionTime()),
                     " sec. ",

@@ -39,6 +39,8 @@ public class TestResultExport extends ResultExport {
         for (String name : result.getTestResultColumnDisplayNames()) {
             createCell(row, colNum++, name, styles.header);
         }
+        for (ITestUnit testUnit : result.getTestUnits()) {
+            TestStatus testStatus = testUnit.getResultStatus();
     }
 
     @Override

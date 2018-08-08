@@ -20,7 +20,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import org.openl.rules.testmethod.TestStatus;
 import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.TestUnit;
+import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.types.impl.ThisField;
@@ -96,7 +96,7 @@ class JUnitReportWriter {
         int failures = result.getNumberOfAssertionFailures();
         int errors = result.getNumberOfErrors();
         long executionTime = result.getExecutionTime();
-        List<TestUnit> testUnits = result.getTestUnits();
+        List<ITestUnit> testUnits = result.getTestUnits();
 
         dir.mkdirs();
         File file = new File(dir, filename);
@@ -114,7 +114,7 @@ class JUnitReportWriter {
             int failures,
             int errors,
             long executionTime,
-            List<TestUnit> testUnits) throws XMLStreamException {
+            List<ITestUnit> testUnits) throws XMLStreamException {
 
         xml.writeStartDocument("UTF-8", "1.0");
         start("testsuite");
@@ -127,7 +127,7 @@ class JUnitReportWriter {
         attr("time", getTime(executionTime));
         attr("timestamp", getCurrentDateTime());
 
-        for (TestUnit test : testUnits) {
+        for (ITestUnit test : testUnits) {
             writeTestcase(testName, test);
         }
 
@@ -139,9 +139,9 @@ class JUnitReportWriter {
         xml.close();
     }
 
-    private void writeTestcase(String testName, TestUnit test) throws XMLStreamException {
+    private void writeTestcase(String testName, ITestUnit test) throws XMLStreamException {
 
-        if (test.compareResult() == TR_OK) {
+        if (test.getResultStatus() == TR_OK) {
             empty("testcase");
         } else {
             start("testcase");
@@ -153,14 +153,14 @@ class JUnitReportWriter {
 
         writeErrorOrFailureElement(test);
 
-        if (test.compareResult() != TR_OK) {
+        if (test.getResultStatus() != TR_OK) {
             end();
         }
     }
 
-    private void writeErrorOrFailureElement(TestUnit test) throws XMLStreamException {
+    private void writeErrorOrFailureElement(ITestUnit test) throws XMLStreamException {
 
-        TestStatus testStatus = test.compareResult();
+        TestStatus testStatus = test.getResultStatus();
         switch (testStatus) {
             case TR_OK:
                 break;
@@ -183,7 +183,7 @@ class JUnitReportWriter {
         }
     }
 
-    private String failureMessage(TestUnit testUnit) {
+    private String failureMessage(ITestUnit testUnit) {
         StringBuilder summaryBuilder = new StringBuilder();
         List<ComparedResult> comparisonResults = testUnit.getComparisonResults();
         for (ComparedResult comparisonResult : comparisonResults) {

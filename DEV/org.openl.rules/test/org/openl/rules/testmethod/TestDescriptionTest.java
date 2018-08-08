@@ -25,6 +25,7 @@ public class TestDescriptionTest {
     private Object target;
 
     private SomeArgument[] arguments;
+    private TestRunner testRunner = new TestRunner(TestUnit.Builder.getInstance());
 
     @Before
     public void setUp() {
@@ -36,10 +37,10 @@ public class TestDescriptionTest {
 
         TestDescription description = new TestDescription(createTestMethodMock(), arguments);
 
-        description.runTest(target, env, 1);
+        testRunner.runTest(description, target, env, 1);
         assertEquals("test", arguments[0].value);
 
-        description.runTest(target, env, 5);
+        testRunner.runTest(description, target, env, 5);
         assertEquals("test", arguments[0].value);
     }
 
