@@ -150,8 +150,8 @@ class TestResultExport implements AutoCloseable {
     private int writeResults(Sheet sheet, TestUnitsResults result, int rowNum) {
         Row row;
         int colNum;
-        for (TestUnit testUnit : result.getTestUnits()) {
-            TestStatus testStatus = testUnit.compareResult();
+        for (ITestUnit testUnit : result.getTestUnits()) {
+            TestStatus testStatus = testUnit.getResultStatus();
             boolean ok = testStatus == TestStatus.TR_OK;
 
             row = sheet.createRow(rowNum++);
