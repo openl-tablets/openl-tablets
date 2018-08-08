@@ -14,10 +14,8 @@ public class TestResultExport extends ResultExport {
         int failures = result.getNumberOfFailures();
 
         Row row = sheet.createRow(rowNum++);
-        createCell(row,
-                FIRST_COLUMN,
-                getTestName(testSuite),
-                failures > 0 ? styles.testNameFailure : styles.testNameSuccess);
+        String testName = TableSyntaxNodeUtils.getTestName(testSuite.getTestSuiteMethod());
+        createCell(row, FIRST_COLUMN, testName, failures > 0 ? styles.testNameFailure : styles.testNameSuccess);
 
         row = sheet.createRow(rowNum++);
         String testInfo = ProjectHelper.getTestInfo(testSuite);
@@ -58,7 +56,4 @@ public class TestResultExport extends ResultExport {
         }
     }
 
-    private String getTestName(TestSuite testSuite) {
-        return TableSyntaxNodeUtils.getTestName(testSuite.getTestSuiteMethod());
-    }
 }
