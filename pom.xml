@@ -274,7 +274,8 @@
                             <maven.compiler.target>1.7</maven.compiler.target>
                         </properties>
                         <showErrors>true</showErrors>
-                        <timeoutInSeconds>60</timeoutInSeconds>
+                        <!-- Estimated test's time should not take more than 40-60 sec on 4х CPU (2GHz)  -->
+                        <timeoutInSeconds>120</timeoutInSeconds>
                     </configuration>
                 </plugin>
                 <plugin>
