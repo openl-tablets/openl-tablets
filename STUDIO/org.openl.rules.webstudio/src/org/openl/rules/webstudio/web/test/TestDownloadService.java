@@ -1,7 +1,5 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -19,8 +17,6 @@ import javax.ws.rs.core.StreamingOutput;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.FileUtils;
-import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,36 +32,26 @@ public class TestDownloadService {
     @Produces("application/zip")
     public Response download(@QueryParam(Constants.REQUEST_PARAM_ID) String id,
             @QueryParam(Constants.REQUEST_PARAM_TEST_RANGES) String testRanges,
-            @QueryParam(Constants.REQUEST_PARAM_PERPAGE) Integer testsPerPage,
+            @QueryParam(Constants.REQUEST_PARAM_PERPAGE) Integer pp,
             @QueryParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
             @Context HttpServletRequest request) {
 
         HttpSession session = request.getSession();
-        if (testsPerPage == null) {
-            testsPerPage = WebStudioUtils.getWebStudio(session).getTestsPerPage();
-        }
 
-        TestUnitsResults[] results = Utils.runTests(id, testRanges, session);
+        final int testsPerPage = pp != null ? pp : WebStudioUtils.getWebStudio(session).getTestsPerPage();
+        final TestUnitsResults[] results = Utils.runTests(id, testRanges, session);
 
         String cookieName = Constants.RESPONSE_MONITOR_COOKIE + "_" + cookieId;
         try {
-            final TestResultExport export = new TestResultExport();
-            final File file = export.createExcelFile(results, testsPerPage);
-
             StreamingOutput streamingOutput = new StreamingOutput() {
                 @Override
                 public void write(OutputStream output) throws IOException {
-                    try {
-                        IOUtils.copyAndClose(new FileInputStream(file), output);
-                    } finally {
-                        // Delete temporary files when stream writing is completed
-                        export.close();
-                    }
+                    new TestResultExport().export(results, testsPerPage, output);
                 }
             };
-            return Response.ok(streamingOutput, "application/" + FileUtils.getExtension(file.getName()))
+            return Response.ok(streamingOutput, "application/xlsx")
                     .cookie(newCookie(cookieName, "success", request.getContextPath()))
-                    .header("Content-Disposition", "attachment;filename=\"" + file.getName() + "\"")
+                    .header("Content-Disposition", "attachment;filename=test-results.xlsx")
                     .build();
         } catch (Exception e) {
             String message = "Failed to export results.";

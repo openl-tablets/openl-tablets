@@ -2,8 +2,6 @@ package org.openl.rules.webstudio.web.test;
 
 import static org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined.*;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
@@ -22,24 +20,14 @@ import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.ui.TableSyntaxNodeUtils;
 import org.openl.types.IOpenField;
-import org.openl.util.FileUtils;
 
-class TestResultExport implements AutoCloseable {
+class TestResultExport {
     static final int FIRST_COLUMN = 1;
     static final int FIRST_ROW = 2;
     static final int SPACE_BETWEEN_RESULTS = 3;
 
 
-    private File tempFile;
     private Styles styles;
-
-    File createExcelFile(TestUnitsResults[] results, int testsPerPage) throws IOException {
-        close(); // Clear previous file if invoked twice
-
-        tempFile = File.createTempFile("test-results", ".xlsx");
-        export(results, testsPerPage, new FileOutputStream(tempFile));
-        return tempFile;
-    }
 
     void export(TestUnitsResults[] results, int testsPerPage, OutputStream outputStream) throws IOException {
         SXSSFWorkbook workbook = new SXSSFWorkbook();
@@ -70,14 +58,9 @@ class TestResultExport implements AutoCloseable {
             workbook.write(outputStream);
             workbook.close();
         } finally {
+            styles = null;
             workbook.dispose();
         }
-    }
-
-    @Override
-    public void close() {
-        styles = null;
-        FileUtils.deleteQuietly(tempFile);
     }
 
     private void autoSizeColumns(SXSSFSheet sheet) {
