@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.test.export;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,16 @@ public abstract class ResultExport extends BaseExport implements AutoCloseable {
     }
 
     public File createExcelFile() throws IOException {
+        tempFile = File.createTempFile("test-results", ".xlsx");
+        export(new FileOutputStream(tempFile));
+        return tempFile;
+    }
+
+    public void export(OutputStream outputStream) throws IOException {
+        export(results, testsPerPage, outputStream);
+    }
+
+    public void export(TestUnitsResults[] results, int testsPerPage, OutputStream outputStream) throws IOException {
         close(); // Clear previous file if invoked twice
 
         SXSSFWorkbook workbook = new SXSSFWorkbook();
@@ -67,13 +78,11 @@ public abstract class ResultExport extends BaseExport implements AutoCloseable {
                 autoSizeColumns(sheet);
             }
 
-            tempFile = File.createTempFile("test-results", ".xlsx");
-            workbook.write(new FileOutputStream(tempFile));
+            workbook.write(outputStream);
             workbook.close();
         } finally {
             workbook.dispose();
         }
-        return tempFile;
     }
 
     @Override
