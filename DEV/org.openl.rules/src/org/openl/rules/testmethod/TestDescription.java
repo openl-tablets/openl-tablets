@@ -124,7 +124,7 @@ public class TestDescription {
     public boolean isExpectedResultDefined() {
         return testObject.containsField(TestMethodHelper.EXPECTED_RESULT_NAME)
                 // When all test cases contain empty (null) expected value
-                || testObject.getType().getField(TestMethodHelper.EXPECTED_RESULT_NAME) != null;
+                || testObject.getType() != null && testObject.getType().getField(TestMethodHelper.EXPECTED_RESULT_NAME) != null;
     }
 
     public Object getExpectedResult() {

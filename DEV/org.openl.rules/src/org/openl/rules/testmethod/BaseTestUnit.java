@@ -64,7 +64,7 @@ public class BaseTestUnit implements ITestUnit {
      * Gets the description field value.
      *
      * @return if the description field value presents, return it`s value. In other case return
-     *         {@link TestUnit#DEFAULT_DESCRIPTION}
+     *         {@link ITestUnit#DEFAULT_DESCRIPTION}
      */
     @Override
     public String getDescription() {

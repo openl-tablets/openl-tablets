@@ -377,14 +377,14 @@
                             <c:if test="#{inputArgsBean.methodHasParameters}">
                                 <c:if test="#{tableBean.canRun}">
                                     <a class="toolbarButton" title="Launch the table" href="javascript:void(0)"
-                                        onclick="showButtonMenu(event, 'inputArgsMenu', 'a');$j('#inputArgsForm\\:runButton').show();$j('#inputArgsForm\\:traceButton,#inputArgsForm\\:traceIntoFileButton').hide();">
+                                        onclick="showButtonMenu(event, 'inputArgsMenu', 'a');$j('.manual-run').show();$j('.manual-trace').hide();">
                                         <img src="webresource/images/run.gif" />
                                         <span>Run</span>
                                     </a>
                                 </c:if>
                                 <c:if test="#{tableBean.canTrace}">
                                     <a class="toolbarButton" title="Launch the table and trace steps" href="javascript:void(0)"
-                                        onclick=" showButtonMenu(event, 'inputArgsMenu', 'a');$j('#inputArgsForm\\:traceButton,#inputArgsForm\\:traceIntoFileButton').show();$j('#inputArgsForm\\:runButton').hide();">
+                                        onclick=" showButtonMenu(event, 'inputArgsMenu', 'a');$j('.manual-trace').show();$j('.manual-run').hide();">
                                         <img src="webresource/images/trace.gif" />
                                         <span>Trace</span>
                                     </a>
@@ -392,15 +392,19 @@
                                 <div id="inputArgsMenu" style="display: none">
                                     <ui:include src="/pages/modules/test/inputTestCase.xhtml" />
                                     <div style="padding: 8px 5px 6px">
-                                        <a4j:commandButton id="runButton" style="display: none"
+                                        <a4j:commandButton id="runButton" style="display: none" styleClass="manual-run"
                                             action="#{runTestHelper.catchParams}" value="Run" title="Launch the table"
                                             oncomplete="ws.nav.go('#{runLink}')"/>
+                                        <a4j:commandButton id="runToFileButton" style="display: none" styleClass="manual-run"
+                                            value="Run into File" title="Run into File"
+                                            action="#{runTestHelper.catchParamsToDownload}"
+                                            oncomplete="downloadManualTest();"/>
                                         <a4j:commandButton id="traceButton" style="display: none"
-                                            styleClass="changes-listener"
+                                            styleClass="changes-listener manual-trace"
                                             action="#{runTestHelper.initTrace}"
                                             oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();"
                                             value="Trace" title="Launch the table and trace steps"/>
-                                        <h:commandButton id="traceIntoFileButton" style="display: none"
+                                        <h:commandButton id="traceIntoFileButton" style="display: none" styleClass="manual-trace"
                                             action="#{traceIntoFileBean.traceIntoFile}" value="Trace into File"
                                             title="Trace into File" />
                                     </div>
@@ -775,8 +779,12 @@
         }
 
         function downloadTestCases() {
-            var link="#{contextPath}/web/test/download";
+            var link="#{contextPath}/web/test/testcase";
             ws.nav.download(link + getTestQuery());
+        }
+
+        function downloadManualTest() {
+            ws.nav.download("#{contextPath}/web/test/rule?id=#{tableBean.id}");
         }
 
         function getCurrentTable() {
