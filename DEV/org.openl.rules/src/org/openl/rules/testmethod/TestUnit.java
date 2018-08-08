@@ -7,7 +7,6 @@ import java.util.List;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.testmethod.result.ComparedResult;
-import org.openl.types.IOpenField;
 
 /**
  * Representation of the single test unit in the test.
