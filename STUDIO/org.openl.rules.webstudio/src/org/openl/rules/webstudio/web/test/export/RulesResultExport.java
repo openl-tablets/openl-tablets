@@ -2,7 +2,7 @@ package org.openl.rules.webstudio.web.test.export;
 
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.openl.rules.testmethod.TestUnit;
+import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 
 public class RulesResultExport extends ResultExport {
@@ -21,7 +21,7 @@ public class RulesResultExport extends ResultExport {
     }
 
     @Override
-    protected void writeResult(Row row, int colNum, TestUnit testUnit) {
+    protected void writeResult(Row row, int colNum, ITestUnit testUnit) {
         createCell(row, colNum, testUnit.getActualParam(), styles.resultSuccess);
     }
 }

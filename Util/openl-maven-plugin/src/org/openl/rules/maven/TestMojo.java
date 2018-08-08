@@ -34,13 +34,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.testmethod.ProjectHelper;
-import org.openl.rules.testmethod.TestStatus;
-import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.TestSuiteExecutor;
-import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.testmethod.TestUnit;
-import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.ThisField;
@@ -360,7 +354,7 @@ public final class TestMojo extends BaseOpenLMojo {
                 String description = testUnit.getDescription();
 
                 info("  Test case: #",
-                        TestUnit.DEFAULT_DESCRIPTION.equals(description) ? "" : " (" + description + ")",
+                        ITestUnit.DEFAULT_DESCRIPTION.equals(description) ? "" : " (" + description + ")",
                     ". Time elapsed: ",
                     formatTime(testUnit.getExecutionTime()),
                     " sec. ",

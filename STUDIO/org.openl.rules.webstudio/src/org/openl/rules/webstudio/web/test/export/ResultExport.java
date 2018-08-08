@@ -10,9 +10,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestStatus;
-import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.util.FileUtils;
 
@@ -129,8 +129,8 @@ public abstract class ResultExport extends BaseExport implements AutoCloseable {
         Row row;
         int colNum;
         boolean hasExpected = result.hasExpected();
-        for (TestUnit testUnit : result.getTestUnits()) {
-            TestStatus testStatus = hasExpected ? testUnit.compareResult() : TestStatus.TR_OK;
+        for (ITestUnit testUnit : result.getTestUnits()) {
+            TestStatus testStatus = hasExpected ? testUnit.getResultStatus() : TestStatus.TR_OK;
             boolean ok = testStatus == TestStatus.TR_OK;
 
             row = sheet.createRow(rowNum++);
@@ -181,6 +181,6 @@ public abstract class ResultExport extends BaseExport implements AutoCloseable {
         return rowNum;
     }
 
-    protected abstract void writeResult(Row row, int colNum, TestUnit testUnit);
+    protected abstract void writeResult(Row row, int colNum, ITestUnit testUnit);
 
 }

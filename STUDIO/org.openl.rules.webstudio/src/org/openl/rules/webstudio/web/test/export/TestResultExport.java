@@ -39,12 +39,10 @@ public class TestResultExport extends ResultExport {
         for (String name : result.getTestResultColumnDisplayNames()) {
             createCell(row, colNum++, name, styles.header);
         }
-        for (ITestUnit testUnit : result.getTestUnits()) {
-            TestStatus testStatus = testUnit.getResultStatus();
     }
 
     @Override
-    protected void writeResult(Row row, int colNum, TestUnit testUnit) {
+    protected void writeResult(Row row, int colNum, ITestUnit testUnit) {
         for (ComparedResult parameter : testUnit.getResultParams()) {
             boolean okField = parameter.getStatus() == TestStatus.TR_OK;
 

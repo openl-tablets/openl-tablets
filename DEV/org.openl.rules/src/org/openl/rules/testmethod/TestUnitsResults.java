@@ -121,7 +121,7 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public boolean hasExpected() {
-        for (TestUnit testUnit : testUnits) {
+        for (ITestUnit testUnit : testUnits) {
             TestDescription test = testUnit.getTest();
             if (test.isExpectedResultDefined() || test.isExpectedErrorDefined()) {
                 return true;
