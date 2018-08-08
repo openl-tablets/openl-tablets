@@ -5,6 +5,7 @@ import static org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +36,12 @@ class TestResultExport implements AutoCloseable {
     File createExcelFile(TestUnitsResults[] results, int testsPerPage) throws IOException {
         close(); // Clear previous file if invoked twice
 
+        tempFile = File.createTempFile("test-results", ".xlsx");
+        export(results, testsPerPage, new FileOutputStream(tempFile));
+        return tempFile;
+    }
+
+    void export(TestUnitsResults[] results, int testsPerPage, OutputStream outputStream) throws IOException {
         SXSSFWorkbook workbook = new SXSSFWorkbook();
         try {
             styles = new Styles(workbook);
@@ -60,13 +67,11 @@ class TestResultExport implements AutoCloseable {
             }
             autoSizeColumns(sheet);
 
-            tempFile = File.createTempFile("test-results", ".xlsx");
-            workbook.write(new FileOutputStream(tempFile));
+            workbook.write(outputStream);
             workbook.close();
         } finally {
             workbook.dispose();
         }
-        return tempFile;
     }
 
     @Override
