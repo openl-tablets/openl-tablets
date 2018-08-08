@@ -3,12 +3,15 @@ package org.openl.rules.calc;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.binding.CustomDynamicOpenClass;
+import org.openl.rules.table.Point;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -23,6 +26,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
     private String[] columnNames;
     private String[] rowTitles;
     private String[] columnTitles;
+    private Map<String, Point> fieldsCoordinates;
 
     public CustomSpreadsheetResultOpenClass(String name,
             String[] rowNames,
@@ -46,6 +50,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
         this.columnNames = columnNames.clone();
         this.columnTitles = columnTitles.clone();
         this.rowTitles = rowTitles.clone();
+        this.fieldsCoordinates = SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames);
     }
 
     private Iterable<IOpenClass> superClasses = null;
@@ -147,6 +152,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
                     addField(field);
                 }
             }
+            this.fieldsCoordinates = Collections
+                .unmodifiableMap(SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames));
         }
     }
 
@@ -207,6 +214,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
         }
     }
 
+    public Map<String, Point> getFieldsCoordinates() {
+        return fieldsCoordinates;
+    }
+
     private CustomSpreadsheetResultOpenClass copyCustomSpreadsheetResult() {
         CustomSpreadsheetResultOpenClass type = new CustomSpreadsheetResultOpenClass(getName(),
             getRowNames(),
@@ -223,7 +234,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
     @Override
     public Object newInstance(IRuntimeEnv env) {
         Object[][] result = new Object[rowNames.length][columnNames.length];
-        return new SpreadsheetResult(result, rowNames, columnNames, rowTitles, columnTitles);
+        return new SpreadsheetResult(result, rowNames.clone(), columnNames.clone(), rowTitles.clone(), columnTitles.clone(), fieldsCoordinates);
     }
 
 }
