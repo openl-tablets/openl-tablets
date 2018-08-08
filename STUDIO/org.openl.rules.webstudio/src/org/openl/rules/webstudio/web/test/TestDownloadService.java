@@ -49,8 +49,8 @@ public class TestDownloadService {
 
         String cookieName = Constants.RESPONSE_MONITOR_COOKIE + "_" + cookieId;
         try {
-            final TestResultExport export = new TestResultExport(results, testsPerPage);
-            final File file = export.createExcelFile();
+            final TestResultExport export = new TestResultExport();
+            final File file = export.createExcelFile(results, testsPerPage);
 
             StreamingOutput streamingOutput = new StreamingOutput() {
                 @Override

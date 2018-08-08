@@ -28,18 +28,11 @@ class TestResultExport implements AutoCloseable {
     static final int FIRST_ROW = 2;
     static final int SPACE_BETWEEN_RESULTS = 3;
 
-    private final TestUnitsResults[] results;
-    private final int testsPerPage;
 
     private File tempFile;
     private Styles styles;
 
-    TestResultExport(TestUnitsResults[] results, int testsPerPage) {
-        this.results = results;
-        this.testsPerPage = testsPerPage;
-    }
-
-    File createExcelFile() throws IOException {
+    File createExcelFile(TestUnitsResults[] results, int testsPerPage) throws IOException {
         close(); // Clear previous file if invoked twice
 
         SXSSFWorkbook workbook = new SXSSFWorkbook();

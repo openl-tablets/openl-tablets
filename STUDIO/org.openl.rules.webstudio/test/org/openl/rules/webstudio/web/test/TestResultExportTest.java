@@ -112,8 +112,8 @@ public class TestResultExportTest {
     @Test
     public void allResultsInFirstPage() throws Exception {
         File xlsx;
-        try (TestResultExport export = new TestResultExport(testResults, -1)) {
-            xlsx = export.createExcelFile();
+        try (TestResultExport export = new TestResultExport()) {
+            xlsx = export.createExcelFile(testResults, -1);
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
@@ -138,8 +138,8 @@ public class TestResultExportTest {
     @Test
     public void oneResultPerPage() throws Exception {
         File xlsx;
-        try (TestResultExport export = new TestResultExport(testResults, 1)) {
-            xlsx = export.createExcelFile();
+        try (TestResultExport export = new TestResultExport()) {
+            xlsx = export.createExcelFile(testResults, 1);
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
@@ -168,8 +168,8 @@ public class TestResultExportTest {
     @Test
     public void testTrivialParameters() throws Exception {
         File xlsx;
-        try (TestResultExport export = new TestResultExport(trivialResults, -1)) {
-            xlsx = export.createExcelFile();
+        try (TestResultExport export = new TestResultExport()) {
+            xlsx = export.createExcelFile(trivialResults, -1);
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
@@ -210,8 +210,8 @@ public class TestResultExportTest {
         File xlsx;
         TestUnitsResults singleTestCase = runTest(TRIVIAL_PROJECT, "HelloTest", 0);
 
-        try (TestResultExport export = new TestResultExport(new TestUnitsResults[] {singleTestCase}, -1)) {
-            xlsx = export.createExcelFile();
+        try (TestResultExport export = new TestResultExport()) {
+            xlsx = export.createExcelFile(new TestUnitsResults[] {singleTestCase}, -1);
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
@@ -229,8 +229,8 @@ public class TestResultExportTest {
         assertFalse(xlsx.exists());
 
         singleTestCase = runTest(TRIVIAL_PROJECT, "HelloTest", 1);
-        try (TestResultExport export = new TestResultExport(new TestUnitsResults[] {singleTestCase}, -1)) {
-            xlsx = export.createExcelFile();
+        try (TestResultExport export = new TestResultExport()) {
+            xlsx = export.createExcelFile(new TestUnitsResults[] {singleTestCase}, -1);
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
@@ -251,8 +251,8 @@ public class TestResultExportTest {
     @Test
     public void testParametersWithPrimaryKey() throws Exception {
         File xlsx;
-        try (TestResultExport export = new TestResultExport(resultsWithPK, -1)) {
-            xlsx = export.createExcelFile();
+        try (TestResultExport export = new TestResultExport()) {
+            xlsx = export.createExcelFile(resultsWithPK, -1);
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
@@ -323,8 +323,8 @@ public class TestResultExportTest {
     @Test
     public void twoResultsPerPage() throws Exception {
         File xlsx;
-        try (TestResultExport export = new TestResultExport(testResults, 2)) {
-            xlsx = export.createExcelFile();
+        try (TestResultExport export = new TestResultExport()) {
+            xlsx = export.createExcelFile(testResults, 2);
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
@@ -354,8 +354,8 @@ public class TestResultExportTest {
         File xlsx;
         TestUnitsResults[] results = runTests("test-resources/test/export/EPBDS-7147-partial-object-initialization");
 
-        try (TestResultExport export = new TestResultExport(results, -1)) {
-            xlsx = export.createExcelFile();
+        try (TestResultExport export = new TestResultExport()) {
+            xlsx = export.createExcelFile(results, -1);
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
