@@ -8,10 +8,6 @@ import org.openl.rules.ui.TableSyntaxNodeUtils;
 
 public class TestResultExport extends ResultExport {
 
-    public TestResultExport(TestUnitsResults[] results, int testsPerPage) {
-        super(results, testsPerPage);
-    }
-
     @Override
     protected int writeInfo(Sheet sheet, TestUnitsResults result, int rowNum) {
         TestSuite testSuite = result.getTestSuite();

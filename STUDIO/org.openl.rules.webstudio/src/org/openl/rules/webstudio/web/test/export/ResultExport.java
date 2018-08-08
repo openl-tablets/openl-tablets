@@ -15,19 +15,9 @@ import org.openl.rules.testmethod.TestStatus;
 import org.openl.rules.testmethod.TestUnitsResults;
 
 public abstract class ResultExport extends BaseExport {
-    protected final TestUnitsResults[] results;
-    private final int testsPerPage;
-    private List<List<TestUnitsResults>> listsWithResults = new ArrayList<>();
 
-    protected ResultExport(TestUnitsResults[] results, int testsPerPage) {
-        this.results = results;
-        this.testsPerPage = testsPerPage;
-    }
-    public void export(OutputStream outputStream) throws IOException {
-        export(results, testsPerPage, outputStream);
-    }
-
-    public void export(TestUnitsResults[] results, int testsPerPage, OutputStream outputStream) throws IOException {
+    public void export(OutputStream outputStream, int testsPerPage, TestUnitsResults... results) throws IOException {
+        List<List<TestUnitsResults>> listsWithResults = new ArrayList<>();
         SXSSFWorkbook workbook = new SXSSFWorkbook();
         try {
             styles = new Styles(workbook);

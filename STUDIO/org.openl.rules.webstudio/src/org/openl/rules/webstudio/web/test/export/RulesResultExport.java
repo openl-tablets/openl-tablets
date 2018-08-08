@@ -6,10 +6,6 @@ import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 
 public class RulesResultExport extends ResultExport {
-    public RulesResultExport(TestUnitsResults results) {
-        super(new TestUnitsResults[] { results }, -1);
-    }
-
     @Override
     protected int writeInfo(Sheet sheet, TestUnitsResults result, int rowNum) {
         return rowNum;

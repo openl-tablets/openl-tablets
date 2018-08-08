@@ -556,7 +556,7 @@ public class TestResultExportTest {
 
         File createExcelFile(TestUnitsResults[] results, int testsPerPage) throws IOException {
             tempFile = File.createTempFile("test-results", ".xlsx");
-            new TestResultExport(results, testsPerPage).export(new FileOutputStream(tempFile));
+            new TestResultExport().export(new FileOutputStream(tempFile), testsPerPage, results);
             return tempFile;
         }
 

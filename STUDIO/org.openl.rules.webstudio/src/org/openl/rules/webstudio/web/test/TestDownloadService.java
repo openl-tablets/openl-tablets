@@ -49,7 +49,7 @@ public class TestDownloadService {
         StreamingOutput streamingOutput = new StreamingOutput() {
             @Override
             public void write(OutputStream output) throws IOException {
-                new TestResultExport(results, testsPerPage).export(output);
+                new TestResultExport().export(output, testsPerPage, results);
             }
         };
 
@@ -91,7 +91,7 @@ public class TestDownloadService {
             StreamingOutput streamingOutput = new StreamingOutput() {
                 @Override
                 public void write(OutputStream output) throws IOException {
-                    new RulesResultExport(results).export(output);
+                    new RulesResultExport().export(output, -1, results);
                 }
             };
             return prepareResponse(request, cookieName, streamingOutput);
