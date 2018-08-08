@@ -1,7 +1,5 @@
 package org.openl.rules.webstudio.web.test.export;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -15,32 +13,21 @@ import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestStatus;
 import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.util.FileUtils;
 
-public abstract class ResultExport extends BaseExport implements AutoCloseable {
+public abstract class ResultExport extends BaseExport {
     protected final TestUnitsResults[] results;
     private final int testsPerPage;
-    private File tempFile;
     private List<List<TestUnitsResults>> listsWithResults = new ArrayList<>();
 
     protected ResultExport(TestUnitsResults[] results, int testsPerPage) {
         this.results = results;
         this.testsPerPage = testsPerPage;
     }
-
-    public File createExcelFile() throws IOException {
-        tempFile = File.createTempFile("test-results", ".xlsx");
-        export(new FileOutputStream(tempFile));
-        return tempFile;
-    }
-
     public void export(OutputStream outputStream) throws IOException {
         export(results, testsPerPage, outputStream);
     }
 
     public void export(TestUnitsResults[] results, int testsPerPage, OutputStream outputStream) throws IOException {
-        close(); // Clear previous file if invoked twice
-
         SXSSFWorkbook workbook = new SXSSFWorkbook();
         try {
             styles = new Styles(workbook);
@@ -81,15 +68,10 @@ public abstract class ResultExport extends BaseExport implements AutoCloseable {
             workbook.write(outputStream);
             workbook.close();
         } finally {
+            styles = null;
             workbook.dispose();
+            listsWithResults.clear();
         }
-    }
-
-    @Override
-    public void close() {
-        styles = null;
-        FileUtils.deleteQuietly(tempFile);
-        listsWithResults.clear();
     }
 
     private int write(Sheet sheet, TestUnitsResults result, int startRow) {

@@ -1,7 +1,5 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -19,13 +17,10 @@ import javax.ws.rs.core.StreamingOutput;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.webstudio.web.test.export.ResultExport;
 import org.openl.rules.webstudio.web.test.export.RulesResultExport;
 import org.openl.rules.webstudio.web.test.export.TestResultExport;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.FileUtils;
-import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,42 +36,33 @@ public class TestDownloadService {
     @Produces("application/zip")
     public Response download(@QueryParam(Constants.REQUEST_PARAM_ID) String id,
             @QueryParam(Constants.REQUEST_PARAM_TEST_RANGES) String testRanges,
-            @QueryParam(Constants.REQUEST_PARAM_PERPAGE) Integer testsPerPage,
+            @QueryParam(Constants.REQUEST_PARAM_PERPAGE) Integer pp,
             @QueryParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
             @Context HttpServletRequest request) {
 
         HttpSession session = request.getSession();
-        if (testsPerPage == null) {
-            testsPerPage = WebStudioUtils.getWebStudio(session).getTestsPerPage();
-        }
 
-        TestUnitsResults[] results = Utils.runTests(id, testRanges, session);
+        final int testsPerPage = pp != null ? pp : WebStudioUtils.getWebStudio(session).getTestsPerPage();
+        final TestUnitsResults[] results = Utils.runTests(id, testRanges, session);
 
         String cookieName = Constants.RESPONSE_MONITOR_COOKIE + "_" + cookieId;
-        return prepareResponse(request, cookieName, new TestResultExport(results, testsPerPage));
+        StreamingOutput streamingOutput = new StreamingOutput() {
+            @Override
+            public void write(OutputStream output) throws IOException {
+                new TestResultExport(results, testsPerPage).export(output);
+            }
+        };
+
+        return prepareResponse(request, cookieName, streamingOutput);
     }
 
     private Response prepareResponse(@Context HttpServletRequest request,
             String cookieName,
-            final ResultExport export) {
+            StreamingOutput streamingOutput) {
         try {
-            final File file = export.createExcelFile();
-
-            StreamingOutput streamingOutput = new StreamingOutput() {
-                @Override
-                public void write(OutputStream output) throws IOException {
-                    try {
-                        IOUtils.copyAndClose(new FileInputStream(file), output);
-                    } finally {
-                        // Delete temporary files when stream writing is
-                        // completed
-                        export.close();
-                    }
-                }
-            };
-            return Response.ok(streamingOutput, "application/" + FileUtils.getExtension(file.getName()))
+            return Response.ok(streamingOutput, "application/xlsx")
                 .cookie(newCookie(cookieName, "success", request.getContextPath()))
-                .header("Content-Disposition", "attachment;filename=\"" + file.getName() + "\"")
+                .header("Content-Disposition", "attachment;filename=test-results.xlsx")
                 .build();
         } catch (Exception e) {
             String message = "Failed to export results.";
@@ -101,8 +87,14 @@ public class TestDownloadService {
         ProjectModel model = WebStudioUtils.getWebStudio(session).getModel();
         TestSuite testSuite = Utils.pollTestFromSession(session);
         if (testSuite != null) {
-            RulesResultExport export = new RulesResultExport(model.runTest(testSuite));
-            return prepareResponse(request, cookieName, export);
+            final TestUnitsResults results = model.runTest(testSuite);
+            StreamingOutput streamingOutput = new StreamingOutput() {
+                @Override
+                public void write(OutputStream output) throws IOException {
+                    new RulesResultExport(results).export(output);
+                }
+            };
+            return prepareResponse(request, cookieName, streamingOutput);
         }
 
         String failure = "Test data isn't available anymore";
