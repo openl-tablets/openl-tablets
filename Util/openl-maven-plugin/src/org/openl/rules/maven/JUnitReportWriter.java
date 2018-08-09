@@ -89,8 +89,8 @@ class JUnitReportWriter {
         String testName = testSuite.getTestSuiteMethod().getName();
         String moduleName = testSuite.getTestSuiteMethod().getModuleName();
 
-        String suitName = moduleName + "-" + testName;
-        String filename = "TEST-OpenL-" + suitName + ".xml";
+        String suitName = "OpenL." + moduleName + "." + testName;
+        String filename = "TEST-" + suitName + ".xml";
 
         int tests = result.getNumberOfTestUnits();
         int failures = result.getNumberOfAssertionFailures();
@@ -104,12 +104,11 @@ class JUnitReportWriter {
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
         xml = factory.createXMLStreamWriter(writer);
 
-        writeTestsuite(suitName, testName, tests, failures, errors, executionTime, testUnits);
+        writeTestsuite(suitName, tests, failures, errors, executionTime, testUnits);
 
     }
 
-    private void writeTestsuite(String suitName,
-            String testName,
+    private void writeTestsuite(String name,
             int tests,
             int failures,
             int errors,
@@ -119,7 +118,7 @@ class JUnitReportWriter {
         xml.writeStartDocument("UTF-8", "1.0");
         start("testsuite");
 
-        attr("name", suitName);
+        attr("name", name);
         attr("tests", String.valueOf(tests));
         attr("skipped", "0");
         attr("failures", String.valueOf(failures));
@@ -128,7 +127,7 @@ class JUnitReportWriter {
         attr("timestamp", getCurrentDateTime());
 
         for (ITestUnit test : testUnits) {
-            writeTestcase(testName, test);
+            writeTestcase(name, test);
         }
 
         end();
