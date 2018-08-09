@@ -280,8 +280,12 @@
                             <maven.compiler.target>1.7</maven.compiler.target>
                         </properties>
                         <showErrors>true</showErrors>
-                        <!-- Estimated test's time should not take more than 40-60 sec on 4х CPU (2GHz)  -->
-                        <timeoutInSeconds>120</timeoutInSeconds>
+                        <!-- Estimated test's time should not take more than 10 sec on 4х CPU (2GHz) -->
+                        <!-- with limited amount of memory. It allows to detect memory leaks. -->
+                        <!-- Special cases should be defined in invoker.properties file. -->
+                        <!-- !!! Don't increase these parameters without special need !!! -->
+                        <timeoutInSeconds>20</timeoutInSeconds>
+                        <mavenOpts>-Xms64m -Xmx128m</mavenOpts>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -371,7 +375,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
-                    <argLine>${jacococ.argLine} -XX:MaxPermSize=128m -Xms512m -Xmx2048m</argLine>
+                    <!-- It needs to detect memory leaks. -->
+                    <!-- !!! Don't increase these parameters without special need !!! -->
+                    <argLine>${jacococ.argLine} -Xms8m -Xmx160m</argLine>
                 </configuration>
             </plugin>
         </plugins>
