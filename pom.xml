@@ -284,7 +284,7 @@
                         <!-- with limited amount of memory. It allows to detect memory leaks. -->
                         <!-- Special cases should be defined in invoker.properties file. -->
                         <!-- !!! Don't increase these parameters without special need !!! -->
-                        <timeoutInSeconds>20</timeoutInSeconds>
+                        <timeoutInSeconds>30</timeoutInSeconds>
                         <mavenOpts>-Xms64m -Xmx128m</mavenOpts>
                     </configuration>
                 </plugin>
