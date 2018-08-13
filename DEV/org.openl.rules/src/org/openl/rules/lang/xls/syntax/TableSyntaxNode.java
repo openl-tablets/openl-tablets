@@ -10,6 +10,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.meta.StringValue;
 import org.openl.rules.annotations.Executable;
@@ -71,7 +72,7 @@ public class TableSyntaxNode extends NaryNode {
             errors = new ArrayList<>();
         }
         for (SyntaxNodeException exception : errors) {
-            if (exception.getMessage().equals(error.getMessage())) {
+            if (Objects.equals(exception.getMessage(), error.getMessage())) {
                 if (error.getSourceLocation().equals(exception.getSourceLocation())) {
                     log.warn("Skip duplicated message: " + error.getMessage(), error);
                     return;
