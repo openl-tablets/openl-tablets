@@ -63,7 +63,10 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
+import org.openl.rules.testmethod.BaseTestUnit;
 import org.openl.rules.testmethod.ProjectHelper;
+import org.openl.rules.testmethod.TestDescription;
+import org.openl.rules.testmethod.TestRunner;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.testmethod.TestSuiteMethod;
@@ -131,6 +134,7 @@ public class ProjectModel {
 
     private RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
     private final TestSuiteExecutor testSuiteExecutor;
+    private final TestRunner testRunner = new TestRunner(BaseTestUnit.Builder.getInstance());
 
     /**
      * For tests only
@@ -216,7 +220,8 @@ public class ProjectModel {
             @Override
             public void runNtimes(long times) throws Exception {
                 try {
-                    testSuite.getTest(testIndex).runTest(target, env, times);
+                    TestDescription test = testSuite.getTest(testIndex);
+                    testRunner.runTest(test, target, env, times);
                 } catch (Throwable t) {
                     Log.error("Error during Method run: ", t);
                     throw RuntimeExceptionWrapper.wrap(t);

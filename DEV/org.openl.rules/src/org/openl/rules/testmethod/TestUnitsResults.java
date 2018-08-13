@@ -19,7 +19,7 @@ import org.openl.util.ClassUtils;
 public class TestUnitsResults implements INamedThing {
 
     private TestSuite testSuite;
-    private ArrayList<TestUnit> testUnits = new ArrayList<TestUnit>();
+    private ArrayList<ITestUnit> testUnits = new ArrayList<>();
 
     public TestUnitsResults(TestSuite testSuite) {
         this.testSuite = testSuite;
@@ -37,15 +37,15 @@ public class TestUnitsResults implements INamedThing {
         return testSuite.getDisplayName(mode);
     }
 
-    public ArrayList<TestUnit> getTestUnits() {
+    public ArrayList<ITestUnit> getTestUnits() {
         return testUnits;
     }
 
-    public List<TestUnit> getFilteredTestUnits(boolean failuresOnly, int size) {
+    public List<ITestUnit> getFilteredTestUnits(boolean failuresOnly, int size) {
         if (testUnits != null && failuresOnly) {
-            List<TestUnit> failedUnits = new ArrayList<TestUnit>();
-            for (TestUnit testUnit : testUnits) {
-                if (testUnit.compareResult() != TestStatus.TR_OK // Failed unit
+            List<ITestUnit> failedUnits = new ArrayList<>();
+            for (ITestUnit testUnit : testUnits) {
+                if (testUnit.getResultStatus() != TestStatus.TR_OK // Failed unit
                         && (failedUnits.size() < size || size == -1)) {
                     failedUnits.add(testUnit);
                 }
@@ -59,7 +59,7 @@ public class TestUnitsResults implements INamedThing {
     public long getExecutionTime() {
         long executionTime = 0;
         if (testUnits != null) {
-            for (TestUnit testUnit : testUnits) {
+            for (ITestUnit testUnit : testUnits) {
                 executionTime += testUnit.getExecutionTime();
             }
         }
@@ -67,14 +67,14 @@ public class TestUnitsResults implements INamedThing {
         return executionTime;
     }
 
-    void addTestUnit(TestUnit testUnit) {
+    void addTestUnit(ITestUnit testUnit) {
         testUnits.add(testUnit);
     }
 
     public int getNumberOfFailures() {
         int cnt = 0;
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
-            if (testUnits.get(i).compareResult() != TestStatus.TR_OK) {
+            if (testUnits.get(i).getResultStatus() != TestStatus.TR_OK) {
                 ++cnt;
             }
         }
@@ -84,7 +84,7 @@ public class TestUnitsResults implements INamedThing {
     public int getNumberOfErrors() {
         int cnt = 0;
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
-            if (testUnits.get(i).compareResult() == TestStatus.TR_EXCEPTION) {
+            if (testUnits.get(i).getResultStatus() == TestStatus.TR_EXCEPTION) {
                 ++cnt;
             }
         }
@@ -94,7 +94,7 @@ public class TestUnitsResults implements INamedThing {
     public int getNumberOfAssertionFailures() {
         int cnt = 0;
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
-            if (testUnits.get(i).compareResult() == TestStatus.TR_NEQ) {
+            if (testUnits.get(i).getResultStatus() == TestStatus.TR_NEQ) {
                 ++cnt;
             }
         }
@@ -106,7 +106,7 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public boolean hasDescription() {
-        for (TestUnit testUnit : testUnits) {
+        for (ITestUnit testUnit : testUnits) {
             if (testUnit.getTest().getDescription() != null) {
                 return true;
             }
@@ -115,7 +115,7 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public boolean hasContext() {
-        for (TestUnit testUnit : testUnits) {
+        for (ITestUnit testUnit : testUnits) {
             if (testUnit.getTest().isRuntimeContextDefined()) {
                 return true;
             }
@@ -147,7 +147,7 @@ public class TestUnitsResults implements INamedThing {
     }
 
     private String[] getColumnDisplayNames(String type) {
-        List<String> displayNames = new ArrayList<String>();
+        List<String> displayNames = new ArrayList<>();
         TestSuiteMethod test = testSuite.getTestSuiteMethod();
         for (int i = 0; i < test.getColumnsCount(); i++) {
             String columnName = test.getColumnName(i);

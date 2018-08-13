@@ -2,9 +2,8 @@ package org.openl.rules.webstudio.web.test;
 
 import static org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined.*;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,27 +20,16 @@ import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.ui.TableSyntaxNodeUtils;
 import org.openl.types.IOpenField;
-import org.openl.util.FileUtils;
 
-class TestResultExport implements AutoCloseable {
+class TestResultExport {
     static final int FIRST_COLUMN = 1;
     static final int FIRST_ROW = 2;
     static final int SPACE_BETWEEN_RESULTS = 3;
 
-    private final TestUnitsResults[] results;
-    private final int testsPerPage;
 
-    private File tempFile;
     private Styles styles;
 
-    TestResultExport(TestUnitsResults[] results, int testsPerPage) {
-        this.results = results;
-        this.testsPerPage = testsPerPage;
-    }
-
-    File createExcelFile() throws IOException {
-        close(); // Clear previous file if invoked twice
-
+    void export(TestUnitsResults[] results, int testsPerPage, OutputStream outputStream) throws IOException {
         SXSSFWorkbook workbook = new SXSSFWorkbook();
         try {
             styles = new Styles(workbook);
@@ -67,19 +55,12 @@ class TestResultExport implements AutoCloseable {
             }
             autoSizeColumns(sheet);
 
-            tempFile = File.createTempFile("test-results", ".xlsx");
-            workbook.write(new FileOutputStream(tempFile));
+            workbook.write(outputStream);
             workbook.close();
         } finally {
+            styles = null;
             workbook.dispose();
         }
-        return tempFile;
-    }
-
-    @Override
-    public void close() {
-        styles = null;
-        FileUtils.deleteQuietly(tempFile);
     }
 
     private void autoSizeColumns(SXSSFSheet sheet) {
@@ -97,10 +78,8 @@ class TestResultExport implements AutoCloseable {
         int failures = result.getNumberOfFailures();
 
         Row row = sheet.createRow(rowNum++);
-        createCell(row,
-                FIRST_COLUMN,
-                getTestName(testSuite),
-                failures > 0 ? styles.testNameFailure : styles.testNameSuccess);
+        String testName = TableSyntaxNodeUtils.getTestName(testSuite.getTestSuiteMethod());
+        createCell(row, FIRST_COLUMN, testName, failures > 0 ? styles.testNameFailure : styles.testNameSuccess);
 
         row = sheet.createRow(rowNum++);
         String testInfo = ProjectHelper.getTestInfo(testSuite);
@@ -150,8 +129,8 @@ class TestResultExport implements AutoCloseable {
     private int writeResults(Sheet sheet, TestUnitsResults result, int rowNum) {
         Row row;
         int colNum;
-        for (TestUnit testUnit : result.getTestUnits()) {
-            TestStatus testStatus = testUnit.compareResult();
+        for (ITestUnit testUnit : result.getTestUnits()) {
+            TestStatus testStatus = testUnit.getResultStatus();
             boolean ok = testStatus == TestStatus.TR_OK;
 
             row = sheet.createRow(rowNum++);
@@ -256,10 +235,6 @@ class TestResultExport implements AutoCloseable {
         }
 
         return value;
-    }
-
-    private String getTestName(TestSuite testSuite) {
-        return TableSyntaxNodeUtils.getTestName(testSuite.getTestSuiteMethod());
     }
 
     private static void setCellComment(Cell cell, String message) {
