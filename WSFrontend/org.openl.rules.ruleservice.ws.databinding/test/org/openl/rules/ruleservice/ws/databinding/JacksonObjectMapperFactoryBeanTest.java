@@ -246,10 +246,7 @@ public class JacksonObjectMapperFactoryBeanTest {
     
     @Test
     public void testIRulesRuntimeContext() throws JsonProcessingException, IOException {
-        
         Assert.assertNull("Not use this annotation for simple JSON!", IRulesRuntimeContextType.class.getAnnotation(JsonTypeInfo.class));
-        Assert.assertNull("Not use this annotation for simple JSON!", org.openl.rules.serialization.jackson.org.openl.rules.context.IRulesRuntimeContextType.class.getAnnotation(JsonTypeInfo.class));
-        
         DefaultRulesRuntimeContext context = new DefaultRulesRuntimeContext();
         Date date = new Date();
         context.setCurrentDate(date);

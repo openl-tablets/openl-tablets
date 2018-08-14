@@ -87,30 +87,6 @@ public class JacksonObjectMapperFactoryBean {
             }
         }
 
-        /*SimpleModule valueTypesModule = new SimpleModule("OpenL Value Types", Version.unknownVersion());
-        // Value Types binding configuration
-        valueTypesModule.addSerializer(ByteValue.class, new ByteValueSerializer());
-        valueTypesModule.addSerializer(ShortValue.class, new ShortValueSerializer());
-        valueTypesModule.addSerializer(IntValue.class, new IntValueSerializer());
-        valueTypesModule.addSerializer(LongValue.class, new LongValueSerializer());
-        valueTypesModule.addSerializer(FloatValue.class, new FloatValueSerializer());
-        valueTypesModule.addSerializer(DoubleValue.class, new DoubleValueSerializer());
-        valueTypesModule.addSerializer(BigIntegerValue.class, new BigIntegerValueSerializer());
-        valueTypesModule.addSerializer(BigDecimalValue.class, new BigDecimalValueSerializer());
-        valueTypesModule.addSerializer(StringValue.class, new StringValueSerializer());
-
-        valueTypesModule.addDeserializer(ByteValue.class, new ByteValueDeserializer());
-        valueTypesModule.addDeserializer(ShortValue.class, new ShortValueDeserializer());
-        valueTypesModule.addDeserializer(IntValue.class, new IntValueDeserializer());
-        valueTypesModule.addDeserializer(LongValue.class, new LongValueDeserializer());
-        valueTypesModule.addDeserializer(FloatValue.class, new FloatValueDeserializer());
-        valueTypesModule.addDeserializer(DoubleValue.class, new DoubleValueDeserializer());
-        valueTypesModule.addDeserializer(BigIntegerValue.class, new BigIntegerValueDeserializer());
-        valueTypesModule.addDeserializer(BigDecimalValue.class, new BigDecimalValueDeserializer());
-        valueTypesModule.addDeserializer(StringValue.class, new StringValueDeserializer());
-
-        mapper.registerModule(valueTypesModule);*/
-
         if (isSupportVariations()) {
             addMixInAnnotations(mapper, "org.openl.rules.variation.Variation", VariationType.class);
             addMixInAnnotations(mapper,

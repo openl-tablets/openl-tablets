@@ -24,8 +24,8 @@ public class SpreadsheetResult implements Serializable {
     private static final long serialVersionUID = 8704762477153429384L;
 
     private Object[][] results;
-    private int height;
-    private int width;
+    private transient int height;
+    private transient int width;
     private String[] columnNames;
     private String[] rowNames;
     private transient String[] columnTitles;
@@ -56,6 +56,13 @@ public class SpreadsheetResult implements Serializable {
             String[] rowTitles,
             String[] columnTitles) {
         this(results, rowNames, columnNames, rowTitles, columnTitles, null);
+        initFieldsCoordinates();
+    }
+    
+    public SpreadsheetResult(Object[][] results,
+            String[] rowNames,
+            String[] columnNames) {
+        this(results, rowNames, columnNames, rowNames, columnNames, null);
         initFieldsCoordinates();
     }
 
@@ -103,6 +110,7 @@ public class SpreadsheetResult implements Serializable {
         return getHeight();
     }
 
+    @XmlTransient
     public int getHeight() {
         return height;
     }
@@ -128,6 +136,7 @@ public class SpreadsheetResult implements Serializable {
         return getWidth();
     }
 
+    @XmlTransient
     public int getWidth() {
         return width;
     }
@@ -156,6 +165,7 @@ public class SpreadsheetResult implements Serializable {
         return results[row][column];
     }
 
+    @XmlTransient
     public String[] getRowTitles() {
         return rowTitles;
     }
@@ -164,9 +174,9 @@ public class SpreadsheetResult implements Serializable {
         this.rowTitles = rowTitles;
     }
 
+    @XmlTransient
     public String[] getColumnTitles() {
         return columnTitles;
-
     }
 
     public void setColumnTitles(String[] columnTitles) {
@@ -197,6 +207,7 @@ public class SpreadsheetResult implements Serializable {
         return rowNames[row];
     }
 
+    @XmlTransient
     public String getColumnTitle(int column) {
         return columnTitles[column];
     }
