@@ -18,7 +18,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod implements IOpenMethodWrapper{
+public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod implements IOpenMethodWrapper {
     AlgorithmSubroutineMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     
@@ -161,6 +161,13 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
     @Override
     public void setModuleName(String dependencyName) {
         delegate.setModuleName(dependencyName);
+    }
+
+    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache();
+
+    @Override
+    public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
+        return topClassOpenMethodWrapperCache.get(openClass);
     }
 
 }
