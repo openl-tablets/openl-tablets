@@ -5,9 +5,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.openl.rules.runtime.RulesEngineFactory;
+import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
@@ -31,7 +31,7 @@ public class OpenLJUnitTest {
             final int numberOfFailures = res.getNumberOfFailures();
             assertEquals(2, numberOfFailures);
 
-            for (TestUnit testUnit : res.getTestUnits()) {
+            for (ITestUnit testUnit : res.getTestUnits()) {
                 if (!testUnit.getErrors().isEmpty()) {
                     assertEquals(1, testUnit.getErrors().size());
                     assertTrue(testUnit.getErrors().get(0).getSummary().contains(

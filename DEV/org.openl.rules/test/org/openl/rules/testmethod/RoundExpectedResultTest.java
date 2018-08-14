@@ -76,12 +76,12 @@ public class RoundExpectedResultTest {
                 } else {
                     Collection<Integer> successfulRows = partialSuccessTests.get(name);
                     assertNotNull("Expectation of test '" + name + "' not described.", successfulRows);
-                    ArrayList<TestUnit> testUnits = res.getTestUnits();
+                    ArrayList<ITestUnit> testUnits = res.getTestUnits();
                     for (int i = 0; i < testUnits.size(); i++) {
                         if (successfulRows.contains(i)) {
-                            assertEquals(TestStatus.TR_OK, testUnits.get(i).compareResult());
+                            assertEquals(TestStatus.TR_OK, testUnits.get(i).getResultStatus());
                         } else {
-                            assertEquals(TestStatus.TR_NEQ, testUnits.get(i).compareResult());
+                            assertEquals(TestStatus.TR_NEQ, testUnits.get(i).getResultStatus());
                         }
                     }
                 }

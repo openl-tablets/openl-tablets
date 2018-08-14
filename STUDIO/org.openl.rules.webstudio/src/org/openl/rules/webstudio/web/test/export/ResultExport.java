@@ -1,8 +1,7 @@
 package org.openl.rules.webstudio.web.test.export;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,26 +9,15 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestStatus;
-import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.util.FileUtils;
 
-public abstract class ResultExport extends BaseExport implements AutoCloseable {
-    protected final TestUnitsResults[] results;
-    private final int testsPerPage;
-    private File tempFile;
-    private List<List<TestUnitsResults>> listsWithResults = new ArrayList<>();
+public abstract class ResultExport extends BaseExport {
 
-    protected ResultExport(TestUnitsResults[] results, int testsPerPage) {
-        this.results = results;
-        this.testsPerPage = testsPerPage;
-    }
-
-    public File createExcelFile() throws IOException {
-        close(); // Clear previous file if invoked twice
-
+    public void export(OutputStream outputStream, int testsPerPage, TestUnitsResults... results) throws IOException {
+        List<List<TestUnitsResults>> listsWithResults = new ArrayList<>();
         SXSSFWorkbook workbook = new SXSSFWorkbook();
         try {
             styles = new Styles(workbook);
@@ -67,20 +55,13 @@ public abstract class ResultExport extends BaseExport implements AutoCloseable {
                 autoSizeColumns(sheet);
             }
 
-            tempFile = File.createTempFile("test-results", ".xlsx");
-            workbook.write(new FileOutputStream(tempFile));
+            workbook.write(outputStream);
             workbook.close();
         } finally {
+            styles = null;
             workbook.dispose();
+            listsWithResults.clear();
         }
-        return tempFile;
-    }
-
-    @Override
-    public void close() {
-        styles = null;
-        FileUtils.deleteQuietly(tempFile);
-        listsWithResults.clear();
     }
 
     private int write(Sheet sheet, TestUnitsResults result, int startRow) {
@@ -129,8 +110,8 @@ public abstract class ResultExport extends BaseExport implements AutoCloseable {
         Row row;
         int colNum;
         boolean hasExpected = result.hasExpected();
-        for (TestUnit testUnit : result.getTestUnits()) {
-            TestStatus testStatus = hasExpected ? testUnit.compareResult() : TestStatus.TR_OK;
+        for (ITestUnit testUnit : result.getTestUnits()) {
+            TestStatus testStatus = hasExpected ? testUnit.getResultStatus() : TestStatus.TR_OK;
             boolean ok = testStatus == TestStatus.TR_OK;
 
             row = sheet.createRow(rowNum++);
@@ -181,6 +162,6 @@ public abstract class ResultExport extends BaseExport implements AutoCloseable {
         return rowNum;
     }
 
-    protected abstract void writeResult(Row row, int colNum, TestUnit testUnit);
+    protected abstract void writeResult(Row row, int colNum, ITestUnit testUnit);
 
 }

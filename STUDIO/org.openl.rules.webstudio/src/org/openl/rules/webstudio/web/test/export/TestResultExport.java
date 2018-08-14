@@ -8,20 +8,14 @@ import org.openl.rules.ui.TableSyntaxNodeUtils;
 
 public class TestResultExport extends ResultExport {
 
-    public TestResultExport(TestUnitsResults[] results, int testsPerPage) {
-        super(results, testsPerPage);
-    }
-
     @Override
     protected int writeInfo(Sheet sheet, TestUnitsResults result, int rowNum) {
         TestSuite testSuite = result.getTestSuite();
         int failures = result.getNumberOfFailures();
 
         Row row = sheet.createRow(rowNum++);
-        createCell(row,
-                FIRST_COLUMN,
-                getTestName(testSuite),
-                failures > 0 ? styles.testNameFailure : styles.testNameSuccess);
+        String testName = TableSyntaxNodeUtils.getTestName(testSuite.getTestSuiteMethod());
+        createCell(row, FIRST_COLUMN, testName, failures > 0 ? styles.testNameFailure : styles.testNameSuccess);
 
         row = sheet.createRow(rowNum++);
         String testInfo = ProjectHelper.getTestInfo(testSuite);
@@ -42,7 +36,7 @@ public class TestResultExport extends ResultExport {
     }
 
     @Override
-    protected void writeResult(Row row, int colNum, TestUnit testUnit) {
+    protected void writeResult(Row row, int colNum, ITestUnit testUnit) {
         for (ComparedResult parameter : testUnit.getResultParams()) {
             boolean okField = parameter.getStatus() == TestStatus.TR_OK;
 
@@ -62,7 +56,4 @@ public class TestResultExport extends ResultExport {
         }
     }
 
-    private String getTestName(TestSuite testSuite) {
-        return TableSyntaxNodeUtils.getTestName(testSuite.getTestSuiteMethod());
-    }
 }
