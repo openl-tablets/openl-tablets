@@ -19,7 +19,7 @@ public final class WrapperLogic {
         SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
         IOpenClass topClass = simpleRulesRuntimeEnv.getTopClass();
         if (topClass != null && topClass != wrapper.getXlsModuleOpenClass()) {
-            IOpenMethod method = TopClassMethodCache.getInstance().getTopClassMethod(topClass, wrapper);
+            IOpenMethod method = wrapper.getTopOpenClassMethod(topClass);
             if (method != null) {
                 method = extractMethod(simpleRulesRuntimeEnv, method);
                 if (method != wrapper) {
@@ -99,7 +99,7 @@ public final class WrapperLogic {
             }
         } else {
             if (topClass != wrapper.getXlsModuleOpenClass()) {
-                IOpenMethod method = TopClassMethodCache.getInstance().getTopClassMethod(topClass, wrapper);
+                IOpenMethod method = wrapper.getTopOpenClassMethod(topClass);
                 if (method != null) {
                     method = extractMethod(simpleRulesRuntimeEnv, method);
                     if (method != wrapper) {

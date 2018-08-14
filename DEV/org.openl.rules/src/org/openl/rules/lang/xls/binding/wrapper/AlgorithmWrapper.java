@@ -156,4 +156,11 @@ public class AlgorithmWrapper extends Algorithm implements IOpenMethodWrapper{
         delegate.setModuleName(dependencyName);
     }
 
+    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache();
+
+    @Override
+    public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
+        return topClassOpenMethodWrapperCache.get(openClass);
+    }
+
 }

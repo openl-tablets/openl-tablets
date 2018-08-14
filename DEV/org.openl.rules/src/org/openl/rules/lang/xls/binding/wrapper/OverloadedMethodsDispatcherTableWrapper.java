@@ -26,7 +26,7 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return WrapperLogic.invoke(this, target, params, env);
     }
-    
+
     @Override
     public XlsModuleOpenClass getXlsModuleOpenClass() {
         return xlsModuleOpenClass;
@@ -117,4 +117,12 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
         IOpenMethod openMethod = WrapperLogic.getTopClassMethod(this, env);
         return ((OpenMethodDispatcher) openMethod).findMatchingMethod(env);
     }
+
+    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache();
+
+    @Override
+    public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
+        return topClassOpenMethodWrapperCache.get(openClass);
+    }
+
 }

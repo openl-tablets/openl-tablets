@@ -11,26 +11,26 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethodWrapper{
+public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethodWrapper {
     DeferredMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
-    
+
     public DeferredMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass, DeferredMethod delegate) {
         super(null, null, null, null, null);
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
-    
+
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return WrapperLogic.invoke(this, target, params, env);
     }
-    
+
     @Override
     public XlsModuleOpenClass getXlsModuleOpenClass() {
         return xlsModuleOpenClass;
     }
-    
+
     @Override
     public IOpenClass getDeclaringClass() {
         return delegate.getDeclaringClass();
@@ -40,7 +40,7 @@ public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethod
     public IOpenMethod getDelegate() {
         return delegate;
     }
-    
+
     @Override
     public String getDisplayName(int mode) {
         return delegate.getDisplayName(mode);
@@ -95,15 +95,22 @@ public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethod
     public String toString() {
         return delegate.toString();
     }
-    
+
     @Override
     public String getModuleName() {
         return delegate.getModuleName();
     }
-    
+
     @Override
     public void setModuleName(String dependencyName) {
         delegate.setModuleName(dependencyName);
+    }
+
+    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache();
+
+    @Override
+    public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
+        return topClassOpenMethodWrapperCache.get(openClass);
     }
 
 }

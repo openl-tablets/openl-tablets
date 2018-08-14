@@ -22,26 +22,26 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrapper{
+public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrapper {
     Spreadsheet delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
-    
+
     public SpreadsheetWrapper(XlsModuleOpenClass xlsModuleOpenClass, Spreadsheet delegate) {
         super();
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
-    
+
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return WrapperLogic.invoke(this, target, params, env);
     }
-    
+
     @Override
     public XlsModuleOpenClass getXlsModuleOpenClass() {
         return xlsModuleOpenClass;
     }
-    
+
     @Override
     public IOpenMethod getDelegate() {
         return delegate;
@@ -231,10 +231,17 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
     public String getModuleName() {
         return delegate.getModuleName();
     }
-    
+
     @Override
     public void setModuleName(String dependencyName) {
         delegate.setModuleName(dependencyName);
+    }
+
+    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache();
+
+    @Override
+    public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
+        return topClassOpenMethodWrapperCache.get(openClass);
     }
 
 }

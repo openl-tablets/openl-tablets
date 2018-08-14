@@ -14,16 +14,16 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class CompositeMethodWrapper extends CompositeMethod implements IOpenMethodWrapper{
+public class CompositeMethodWrapper extends CompositeMethod implements IOpenMethodWrapper {
     CompositeMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
-    
+
     public CompositeMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass, CompositeMethod delegate) {
         super(null, null);
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
-    
+
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return WrapperLogic.invoke(this, target, params, env);
@@ -33,7 +33,7 @@ public class CompositeMethodWrapper extends CompositeMethod implements IOpenMeth
     public XlsModuleOpenClass getXlsModuleOpenClass() {
         return xlsModuleOpenClass;
     }
-    
+
     @Override
     public String toString() {
         return delegate.toString();
@@ -63,7 +63,7 @@ public class CompositeMethodWrapper extends CompositeMethod implements IOpenMeth
     public IBoundMethodNode getMethodBodyBoundNode() {
         return delegate.getMethodBodyBoundNode();
     }
-    
+
     @Override
     public IOpenMethod getDelegate() {
         return delegate;
@@ -143,10 +143,17 @@ public class CompositeMethodWrapper extends CompositeMethod implements IOpenMeth
     public String getModuleName() {
         return delegate.getModuleName();
     }
-    
+
     @Override
     public void setModuleName(String dependencyName) {
         delegate.setModuleName(dependencyName);
+    }
+
+    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache();
+
+    @Override
+    public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
+        return topClassOpenMethodWrapperCache.get(openClass);
     }
 
 }

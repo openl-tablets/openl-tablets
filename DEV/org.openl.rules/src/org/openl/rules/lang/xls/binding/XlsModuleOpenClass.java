@@ -591,4 +591,5 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             addError(new DuplicatedMethodException(message, method));
         }
     }
+    
 }

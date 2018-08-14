@@ -15,12 +15,13 @@ import org.openl.vm.IRuntimeEnv;
 public class MatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispatcher implements IOpenMethodWrapper {
     MatchingOpenMethodDispatcher delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
-    
-    public MatchingOpenMethodDispatcherWrapper(XlsModuleOpenClass xlsModuleOpenClass, MatchingOpenMethodDispatcher delegate) {
+
+    public MatchingOpenMethodDispatcherWrapper(XlsModuleOpenClass xlsModuleOpenClass,
+            MatchingOpenMethodDispatcher delegate) {
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
-    
+
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return WrapperLogic.invoke(this, target, params, env);
@@ -30,7 +31,7 @@ public class MatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispa
     public XlsModuleOpenClass getXlsModuleOpenClass() {
         return xlsModuleOpenClass;
     }
-    
+
     @Override
     public IOpenMethod getDecisionTableOpenMethod() {
         return delegate.getDecisionTableOpenMethod();
@@ -45,7 +46,7 @@ public class MatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispa
     public IMethodSignature getSignature() {
         return delegate.getSignature();
     }
-    
+
     @Override
     public IOpenMethod getDelegate() {
         return delegate;
@@ -110,11 +111,18 @@ public class MatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispa
     public List<IOpenMethod> getCandidates() {
         return delegate.getCandidates();
     }
-    
+
     @Override
     public IOpenMethod findMatchingMethod(IRuntimeEnv env) {
         IOpenMethod openMethod = WrapperLogic.getTopClassMethod(this, env);
         return ((OpenMethodDispatcher) openMethod).findMatchingMethod(env);
     }
-    
+
+    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache();
+
+    @Override
+    public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
+        return topClassOpenMethodWrapperCache.get(openClass);
+    }
+
 }

@@ -26,15 +26,15 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodWrapper{
+public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodWrapper {
     DecisionTable delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
-    
+
     public DecisionTable2Wrapper(XlsModuleOpenClass xlsModuleOpenClass, DecisionTable delegate) {
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
-    
+
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return WrapperLogic.invoke(this, target, params, env);
@@ -44,7 +44,7 @@ public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodW
     public XlsModuleOpenClass getXlsModuleOpenClass() {
         return xlsModuleOpenClass;
     }
-    
+
     @Override
     public IOpenClass getDeclaringClass() {
         return delegate.getDeclaringClass();
@@ -79,7 +79,7 @@ public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodW
     public boolean isStatic() {
         return delegate.isStatic();
     }
-    
+
     @Override
     public IOpenMethod getDelegate() {
         return delegate;
@@ -245,15 +245,22 @@ public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodW
     public int getNumberOfConditions() {
         return delegate.getNumberOfConditions();
     }
-    
+
     @Override
     public String getModuleName() {
         return delegate.getModuleName();
     }
-    
+
     @Override
     public void setModuleName(String dependencyName) {
         delegate.setModuleName(dependencyName);
+    }
+
+    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache();
+
+    @Override
+    public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
+        return topClassOpenMethodWrapperCache.get(openClass);
     }
 
 }
