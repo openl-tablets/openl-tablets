@@ -95,6 +95,11 @@
         <jetty.server.version>9.2.25.v20180606</jetty.server.version>
         <!-- Empty for building without JaCoCo agent -->
         <jacococ.argLine/>
+        <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
+        <!-- It needs to detect memory leaks. -->
+        <!-- !!! Don't increase these parameters without special need !!! -->
+        <surefire.argLine>${jacococ.argLine} -Xms8m -Xmx64m</surefire.argLine>
+        <invoker.mavenOpts>-Xms64m -Xmx128m</invoker.mavenOpts>
         <openl.home>${project.build.directory}/openl-test</openl.home>
     </properties>
 
@@ -279,7 +284,7 @@
                         <!-- Special cases should be defined in invoker.properties file. -->
                         <!-- !!! Don't increase these parameters without special need !!! -->
                         <timeoutInSeconds>20</timeoutInSeconds>
-                        <mavenOpts>-Xms64m -Xmx128m</mavenOpts>
+                        <mavenOpts>${invoker.mavenOpts}</mavenOpts>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -368,10 +373,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
-                    <!-- It needs to detect memory leaks. -->
-                    <!-- !!! Don't increase these parameters without special need !!! -->
-                    <argLine>${jacococ.argLine} -Xms8m -Xmx64m</argLine>
+                    <argLine>${surefire.argLine}</argLine>
                 </configuration>
             </plugin>
         </plugins>
