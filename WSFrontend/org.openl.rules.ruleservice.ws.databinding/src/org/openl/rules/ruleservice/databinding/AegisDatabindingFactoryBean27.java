@@ -15,7 +15,7 @@ import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.aegis.type.basic.CharacterAsStringType;
 import org.apache.cxf.common.util.XMLSchemaQNames;
 
-public class AegisDatabindingFactoryBean27 extends AbstractAegisDatabindingFactoryBean{ 
+public class AegisDatabindingFactoryBean27 extends AbstractAegisDatabindingFactoryBean { 
     
     protected void registerOpenLTypes(TypeMapping typeMapping) {
         loadAegisTypeClassAndRegister("org.openl.meta.StringValue",

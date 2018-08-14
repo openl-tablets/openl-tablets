@@ -42,7 +42,7 @@ public class SpreadsheetResultType extends BeanType {
     public SpreadsheetResultType() {
         super(new WrapperBeanTypeInfo(TYPE_CLASS,
             QNAME.getNamespaceURI(),
-            Arrays.asList(new String[] { "height", "width", "logicalTable" })));
+            Arrays.asList(new String[] { "rowTitles", "columTitles", "height", "width", "logicalTable" })));
         setTypeClass(TYPE_CLASS);
         setSchemaType(QNAME);
     }
@@ -55,8 +55,6 @@ public class SpreadsheetResultType extends BeanType {
             Object[][] results = null;
             String[] columnNames = null;
             String[] rowNames = null;
-            String[] columnTitles = null;
-            String[] rowTitles = null;
 
             // Read child elements
             while (reader.hasMoreElementReaders()) {
@@ -81,7 +79,7 @@ public class SpreadsheetResultType extends BeanType {
                 }
             }
 
-            return new SpreadsheetResult(results, rowNames, columnNames, rowTitles, columnTitles);
+            return new SpreadsheetResult(results, rowNames, columnNames);
         } catch (IllegalArgumentException e) {
             throw new DatabindingException("Illegal argument. " + e.getMessage(), e);
         }

@@ -34,7 +34,6 @@ import org.openl.rules.variation.Variation;
 import org.openl.rules.variation.VariationsResult;
 import org.openl.util.RangeWithBounds.BoundType;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -245,9 +244,6 @@ public class JacksonObjectMapperFactoryBeanTest {
     
     @Test
     public void testIRulesRuntimeContext() throws JsonProcessingException, IOException {
-        
-        Assert.assertNull("Not use this annotation for simple JSON!", org.openl.rules.serialization.jackson.org.openl.rules.context.IRulesRuntimeContextType.class.getAnnotation(JsonTypeInfo.class));
-        
         DefaultRulesRuntimeContext context = new DefaultRulesRuntimeContext();
         Date date = new Date();
         context.setCurrentDate(date);

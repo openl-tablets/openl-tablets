@@ -136,7 +136,6 @@ public class SystemSettingsBean {
     public boolean isDispatchingValidationEnabled(){
         return OpenLSystemProperties.isDispatchingValidationEnabled(configManager.getProperties());
     }
-
     
     public boolean isRunTestsInParallel() {
         return OpenLSystemProperties.isRunTestsInParallel(configManager.getProperties());
