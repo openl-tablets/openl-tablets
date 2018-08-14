@@ -158,8 +158,8 @@ public class TestBean {
     }
 
     public boolean hasComplexResults(TestUnitsResults testResult) {
-        List<TestUnit> cases = testResult.getTestUnits();
-        for (TestUnit testCase : cases) {
+        List<ITestUnit> cases = testResult.getTestUnits();
+        for (ITestUnit testCase : cases) {
             if (isComplexResult(testCase)) {
                 return true;
             }
@@ -201,7 +201,7 @@ public class TestBean {
      * @return Actual calculated result as Object
      */
     private Object getActualResultInternal(Object objTestUnit) {
-        TestUnit testUnit = (TestUnit) objTestUnit;
+        ITestUnit testUnit = (ITestUnit) objTestUnit;
         return testUnit.getActualResult();
     }
 
@@ -221,7 +221,7 @@ public class TestBean {
         return spreadsheetResult == null ? "" : ObjectViewer.displaySpreadsheetResult(spreadsheetResult);
     }
 
-    public String getFormattedSpreadsheetResultFromTestUnit(TestUnit objTestUnit) {
+    public String getFormattedSpreadsheetResultFromTestUnit(ITestUnit objTestUnit) {
         Object actualResultInternal = objTestUnit.getActualResult();
 
         try {
@@ -236,7 +236,7 @@ public class TestBean {
         return StringUtils.EMPTY;
     }
 
-    private Map<Point, ComparedResult> getFieldsCoordinates(TestUnit testUnit, SpreadsheetResult spreadsheetResult) {
+    private Map<Point, ComparedResult> getFieldsCoordinates(ITestUnit testUnit, SpreadsheetResult spreadsheetResult) {
         Map<Point, ComparedResult> fieldsCoordinates = new HashMap<>();
         List<ComparedResult> fieldsToTest = testUnit.getComparisonResults();
 

@@ -34,13 +34,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.testmethod.ProjectHelper;
-import org.openl.rules.testmethod.TestStatus;
-import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.TestSuiteExecutor;
-import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.testmethod.TestUnit;
-import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.ThisField;
@@ -100,6 +94,8 @@ public final class TestMojo extends BaseOpenLMojo {
 
     @Parameter(defaultValue = "${project.testClasspathElements}", readonly = true, required = true)
     private List<String> classpath;
+
+    private final TestRunner testRunner = new TestRunner(BaseTestUnit.Builder.getInstance());
 
     @Override
     public void execute(String sourcePath, boolean hasDependencies) throws Exception {
@@ -295,9 +291,9 @@ public final class TestMojo extends BaseOpenLMojo {
                     info("Running ", test.getName(), moduleInfo);
                     TestUnitsResults result;
                     if (testSuiteExecutor == null) {
-                        result = new TestSuite(test).invokeSequentially(openClass, 1L);
+                        result = new TestSuite(test, testRunner).invokeSequentially(openClass, 1L);
                     } else {
-                        result = new TestSuite(test).invokeParallel(testSuiteExecutor, openClass, 1L);
+                        result = new TestSuite(test, testRunner).invokeParallel(testSuiteExecutor, openClass, 1L);
                     }
                     new JUnitReportWriter(reportsDirectory).write(result);
 
@@ -351,15 +347,14 @@ public final class TestMojo extends BaseOpenLMojo {
         String moduleName = test.getModuleName();
         String modulePrefix = moduleName == null ? "" : moduleName + ".";
 
-        for (TestUnit testUnit : result.getTestUnits()) {
-            TestStatus status = testUnit.compareResult();
+        for (ITestUnit testUnit : result.getTestUnits()) {
+            TestStatus status = testUnit.getResultStatus();
             if (status != TR_OK) {
                 String failureType = status == TR_NEQ ? FAILURE : ERROR;
                 String description = testUnit.getDescription();
 
                 info("  Test case: #",
-                    num,
-                    TestUnit.DEFAULT_DESCRIPTION.equals(description) ? "" : " (" + description + ")",
+                        ITestUnit.DEFAULT_DESCRIPTION.equals(description) ? "" : " (" + description + ")",
                     ". Time elapsed: ",
                     formatTime(testUnit.getExecutionTime()),
                     " sec. ",

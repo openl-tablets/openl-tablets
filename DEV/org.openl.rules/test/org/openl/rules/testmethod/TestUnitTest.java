@@ -21,10 +21,10 @@ public class TestUnitTest {
         when(test.getExpectedResult()).thenReturn(new DoubleValue(0.93));
         when(test.getFields()).thenReturn(Collections.<IOpenField>singletonList(new ThisField(JavaOpenClass.DOUBLE)));
 
-        TestUnit unit = new TestUnit(test, 0.93, null, 100);
+        ITestUnit unit = new TestUnit(test, 0.93, null, 100);
 
         assertEquals(0.93, unit.getActualResult());
-        assertEquals(TestStatus.TR_OK, unit.compareResult());
+        assertEquals(TestStatus.TR_OK, unit.getResultStatus());
     }
 
 }

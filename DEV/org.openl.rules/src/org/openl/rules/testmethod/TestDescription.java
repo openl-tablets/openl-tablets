@@ -1,5 +1,6 @@
 package org.openl.rules.testmethod;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -7,14 +8,12 @@ import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.RowIdField;
 import org.openl.rules.table.OpenLArgumentsCloner;
-import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DynamicObject;
 import org.openl.util.Log;
-import org.openl.vm.IRuntimeEnv;
 
 public class TestDescription {
 
@@ -23,7 +22,7 @@ public class TestDescription {
     private DynamicObject testObject;
     private int index;
     private ColumnDescriptor[] columnDescriptors;
-    private List<IOpenField> fields;
+    private List<IOpenField> fields = new ArrayList<>();
 
     public TestDescription(IOpenMethod testedMethod, DynamicObject testObject, List<IOpenField> fields, ColumnDescriptor[] columnDescriptors) {
         this.testedMethod = testedMethod;
@@ -110,38 +109,6 @@ public class TestDescription {
         return executionParams;
     }
 
-    @SuppressWarnings("unchecked")
-    public TestUnit runTest(Object target, IRuntimeEnv env, long ntimes) {
-        if (ntimes <= 0) {
-            return runTest(target, env, 1);
-        } else {
-            Object res = null;
-            Throwable exception = null;
-            IRuntimeContext oldContext = env.getContext();
-            long time;
-            long start = System.nanoTime(); // Initialization here is needed if exception is thrown
-            long end;
-            try {
-                IRuntimeContext context = getRuntimeContext();
-                env.setContext(context);
-                Object[] args = getArguments();
-                // Measure only actual test run time
-                start = System.nanoTime();
-                for (int j = 0; j < ntimes; j++) {
-                    res = testedMethod.invoke(target, args, env);
-                }
-                end = System.nanoTime();
-            } catch (Throwable t) {
-                end = System.nanoTime();
-                exception = t;
-            } finally {
-                env.setContext(oldContext);
-            }
-            time = end - start;
-            return new TestUnit(this, res, exception, time);
-        }
-    }
-
     private Object getArgumentValue(String paramName) {
         return testObject.getFieldValue(paramName);
     }
@@ -221,4 +188,5 @@ public class TestDescription {
     public List<IOpenField> getFields() {
         return fields;
     }
+
 }
