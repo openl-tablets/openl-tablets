@@ -5,13 +5,19 @@ import static org.openl.rules.webstudio.web.test.TestResultExport.Styles.*;
 
 import java.awt.*;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Comparator;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFComment;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -112,8 +118,8 @@ public class TestResultExportTest {
     @Test
     public void allResultsInFirstPage() throws Exception {
         File xlsx;
-        try (TestResultExport export = new TestResultExport(testResults, -1)) {
-            xlsx = export.createExcelFile();
+        try (TempFileExporter export = new TempFileExporter()) {
+            xlsx = export.createExcelFile(testResults, -1);
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
@@ -138,8 +144,8 @@ public class TestResultExportTest {
     @Test
     public void oneResultPerPage() throws Exception {
         File xlsx;
-        try (TestResultExport export = new TestResultExport(testResults, 1)) {
-            xlsx = export.createExcelFile();
+        try (TempFileExporter export = new TempFileExporter()) {
+            xlsx = export.createExcelFile(testResults, 1);
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
@@ -168,8 +174,8 @@ public class TestResultExportTest {
     @Test
     public void testTrivialParameters() throws Exception {
         File xlsx;
-        try (TestResultExport export = new TestResultExport(trivialResults, -1)) {
-            xlsx = export.createExcelFile();
+        try (TempFileExporter export = new TempFileExporter()) {
+            xlsx = export.createExcelFile(trivialResults, -1);
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
@@ -210,8 +216,8 @@ public class TestResultExportTest {
         File xlsx;
         TestUnitsResults singleTestCase = runTest(TRIVIAL_PROJECT, "HelloTest", 0);
 
-        try (TestResultExport export = new TestResultExport(new TestUnitsResults[] {singleTestCase}, -1)) {
-            xlsx = export.createExcelFile();
+        try (TempFileExporter export = new TempFileExporter()) {
+            xlsx = export.createExcelFile(new TestUnitsResults[]{singleTestCase}, -1);
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
@@ -229,8 +235,8 @@ public class TestResultExportTest {
         assertFalse(xlsx.exists());
 
         singleTestCase = runTest(TRIVIAL_PROJECT, "HelloTest", 1);
-        try (TestResultExport export = new TestResultExport(new TestUnitsResults[] {singleTestCase}, -1)) {
-            xlsx = export.createExcelFile();
+        try (TempFileExporter export = new TempFileExporter()) {
+            xlsx = export.createExcelFile(new TestUnitsResults[]{singleTestCase}, -1);
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
@@ -251,8 +257,8 @@ public class TestResultExportTest {
     @Test
     public void testParametersWithPrimaryKey() throws Exception {
         File xlsx;
-        try (TestResultExport export = new TestResultExport(resultsWithPK, -1)) {
-            xlsx = export.createExcelFile();
+        try (TempFileExporter export = new TempFileExporter()) {
+            xlsx = export.createExcelFile(resultsWithPK, -1);
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
@@ -323,8 +329,8 @@ public class TestResultExportTest {
     @Test
     public void twoResultsPerPage() throws Exception {
         File xlsx;
-        try (TestResultExport export = new TestResultExport(testResults, 2)) {
-            xlsx = export.createExcelFile();
+        try (TempFileExporter export = new TempFileExporter()) {
+            xlsx = export.createExcelFile(testResults, 2);
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
@@ -354,8 +360,8 @@ public class TestResultExportTest {
         File xlsx;
         TestUnitsResults[] results = runTests("test-resources/test/export/EPBDS-7147-partial-object-initialization");
 
-        try (TestResultExport export = new TestResultExport(results, -1)) {
-            xlsx = export.createExcelFile();
+        try (TempFileExporter export = new TempFileExporter()) {
+            xlsx = export.createExcelFile(results, -1);
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
@@ -538,4 +544,19 @@ public class TestResultExportTest {
         }
     }
 
+    static class TempFileExporter implements AutoCloseable {
+
+        File tempFile;
+
+        File createExcelFile(TestUnitsResults[] results, int testsPerPage) throws IOException {
+            tempFile = File.createTempFile("test-results", ".xlsx");
+            new TestResultExport().export(results, testsPerPage, new FileOutputStream(tempFile));
+            return tempFile;
+        }
+
+        @Override
+        public void close() throws Exception {
+            tempFile.delete();
+        }
+    }
 }

@@ -16,10 +16,10 @@ public class TestingFieldsTest extends BaseOpenlBuilderHelper {
     public void checkTestTableResults() {
         TestUnitsResults testResults = (TestUnitsResults) invokeMethod("returnObjectTest");
         for (int i = 0; i < testResults.getTestUnits().size() - 2; i++) {
-            assertEquals(testResults.getTestUnits().get(i).compareResult(), TestStatus.TR_NEQ);
+            assertEquals(testResults.getTestUnits().get(i).getResultStatus(), TestStatus.TR_NEQ);
         }
         for (int i = testResults.getTestUnits().size() - 2; i < testResults.getTestUnits().size(); i++) {
-            assertEquals(testResults.getTestUnits().get(i).compareResult(), TestStatus.TR_OK);
+            assertEquals(testResults.getTestUnits().get(i).getResultStatus(), TestStatus.TR_OK);
         }
     }
 }

@@ -10,7 +10,7 @@ import javax.faces.bean.ViewScoped;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.TestUnit;
+import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.ProjectModel;
@@ -57,7 +57,7 @@ public class RunBean {
         return WebStudioUtils.getProjectModel().getTableById(id).getDisplayName();
     }
 
-    public List<TestUnit> getResults() {
+    public List<ITestUnit> getResults() {
         return results.getTestUnits();
     }
 
@@ -65,7 +65,7 @@ public class RunBean {
         return StringUtils.isNotBlank(id) && testSuite == null;
     }
 
-    public String getFormattedSpreadsheetResult(TestUnit unit) {
+    public String getFormattedSpreadsheetResult(ITestUnit unit) {
         Object result = unit.getActualResult();
         if (result instanceof SpreadsheetResult) {
             return ObjectViewer.displaySpreadsheetResult((SpreadsheetResult) result);

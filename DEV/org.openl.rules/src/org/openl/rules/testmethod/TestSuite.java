@@ -13,10 +13,17 @@ public class TestSuite implements INamedThing {
     public static String VIRTUAL_TEST_SUITE = "Virtual test suite";
     private TestSuiteMethod testSuiteMethod;
     private TestDescription[] tests;
+    private TestRunner testRunner = new TestRunner(TestUnit.Builder.getInstance());
 
     public TestSuite(TestSuiteMethod testSuiteMethod) {
         this.testSuiteMethod = testSuiteMethod;
         tests = testSuiteMethod.getTests();
+    }
+
+    public TestSuite(TestSuiteMethod testSuiteMethod, TestRunner testRunner) {
+        this.testSuiteMethod = testSuiteMethod;
+        tests = testSuiteMethod.getTests();
+        this.testRunner = testRunner;
     }
 
     public TestSuite(TestSuiteMethod testSuiteMethod, int... testIndices) {
@@ -49,7 +56,7 @@ public class TestSuite implements INamedThing {
 
         final TestUnitsResults testUnitResults = new TestUnitsResults(this);
         final CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
-        final TestUnit[] testUnitResultsArray = new TestUnit[getNumberOfTests()];
+        final ITestUnit[] testUnitResultsArray = new ITestUnit[getNumberOfTests()];
         for (int i = 0; i < THREAD_COUNT; i++) {
             final int numThread = i;
             Runnable runnable = new Runnable() {
@@ -82,18 +89,18 @@ public class TestSuite implements INamedThing {
 
         TestUnitsResults testUnitResults = new TestUnitsResults(this);
         for (int i = 0; i < getNumberOfTests(); i++) {
-            final TestUnit testUnit = executeTest(openClass, i, ntimes);
+            final ITestUnit testUnit = executeTest(openClass, i, ntimes);
             testUnitResults.addTestUnit(testUnit);
         }
 
         return testUnitResults;
     }
 
-    private TestUnit executeTest(IOpenClass openClass, int test, long ntimes) {
+    private ITestUnit executeTest(IOpenClass openClass, int test, long ntimes) {
         TestDescription currentTest = getTest(test);
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         final Object target = openClass.newInstance(env);
-        return currentTest.runTest(target, env, ntimes);
+        return testRunner.runTest(currentTest, target, env, ntimes);
     }
 
     public TestUnitsResults invoke(Object target, IRuntimeEnv env) {
@@ -101,7 +108,8 @@ public class TestSuite implements INamedThing {
 
         for (int i = 0; i < getNumberOfTests(); i++) {
             TestDescription currentTest = getTest(i);
-            testUnitResults.addTestUnit(currentTest.runTest(target, env, 1L));
+            ITestUnit testUnit = testRunner.runTest(currentTest, target, env, 1L);
+            testUnitResults.addTestUnit(testUnit);
         }
 
         return testUnitResults;

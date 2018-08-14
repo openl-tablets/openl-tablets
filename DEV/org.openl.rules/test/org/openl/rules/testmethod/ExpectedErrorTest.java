@@ -29,13 +29,13 @@ public class ExpectedErrorTest {
 
         IOpenMethod helloTest = openClass.getMethod("HelloTest", new IOpenClass[0]);
         TestUnitsResults res = (TestUnitsResults) helloTest.invoke(target, new Object[0], env);
-        ArrayList<TestUnit> testUnits = res.getTestUnits();
+        ArrayList<ITestUnit> testUnits = res.getTestUnits();
 
-        assertEquals("Expected Good Evening", TestStatus.TR_OK, testUnits.get(0).compareResult());
-        assertEquals("Expected user error 'Incorrect argument'", TestStatus.TR_OK, testUnits.get(1).compareResult());
-        assertEquals("Expected user error comparison failure", TestStatus.TR_NEQ, testUnits.get(2).compareResult());
-        assertEquals("Unexpected exception must be thrown. It can't be compared with user error", TestStatus.TR_NEQ, testUnits.get(3).compareResult());
-        assertEquals("Unexpected exception must be thrown. It can't be compared with user error", TestStatus.TR_NEQ, testUnits.get(4).compareResult());
+        assertEquals("Expected Good Evening", TestStatus.TR_OK, testUnits.get(0).getResultStatus());
+        assertEquals("Expected user error 'Incorrect argument'", TestStatus.TR_OK, testUnits.get(1).getResultStatus());
+        assertEquals("Expected user error comparison failure", TestStatus.TR_NEQ, testUnits.get(2).getResultStatus());
+        assertEquals("Unexpected exception must be thrown. It can't be compared with user error", TestStatus.TR_NEQ, testUnits.get(3).getResultStatus());
+        assertEquals("Unexpected exception must be thrown. It can't be compared with user error", TestStatus.TR_NEQ, testUnits.get(4).getResultStatus());
     }
 
 }
