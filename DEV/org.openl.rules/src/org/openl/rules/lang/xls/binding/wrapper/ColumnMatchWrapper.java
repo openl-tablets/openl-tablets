@@ -224,7 +224,7 @@ public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrappe
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
-        return topClassOpenMethodWrapperCache.get(openClass);
+        return topClassOpenMethodWrapperCache.getTopOpenClassMethod(openClass);
     }
 
 }

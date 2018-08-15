@@ -153,7 +153,7 @@ public class CompositeMethodWrapper extends CompositeMethod implements IOpenMeth
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
-        return topClassOpenMethodWrapperCache.get(openClass);
+        return topClassOpenMethodWrapperCache.getTopOpenClassMethod(openClass);
     }
 
 }

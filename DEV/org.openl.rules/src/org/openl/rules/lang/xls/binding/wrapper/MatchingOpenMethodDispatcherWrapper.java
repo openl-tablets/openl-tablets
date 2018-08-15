@@ -122,7 +122,7 @@ public class MatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispa
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
-        return topClassOpenMethodWrapperCache.get(openClass);
+        return topClassOpenMethodWrapperCache.getTopOpenClassMethod(openClass);
     }
 
 }
