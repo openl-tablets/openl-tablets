@@ -17,6 +17,9 @@
                 <artifactId>openl-maven-plugin</artifactId>
                 <version>${org.openl.version}</version>
                 <extensions>true</extensions>
+                <configuration>
+                    <threadCount>4</threadCount>
+                </configuration>
             </plugin>
         </plugins>
     </build>
