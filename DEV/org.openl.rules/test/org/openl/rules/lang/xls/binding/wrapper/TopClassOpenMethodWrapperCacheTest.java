@@ -87,6 +87,8 @@ public class TopClassOpenMethodWrapperCacheTest {
         assertNull(openClass2);
         assertNull(m1);
         assertNull(m2);
+        assertNotNull(openClass3);
+        assertNotNull(m3);
 
 
         // Check when a class can be GC-ed, but method is still used
