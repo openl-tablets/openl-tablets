@@ -158,7 +158,7 @@
 
                         <tbody>
                         <ui:repeat value="#{test.getFilteredTestUnits(failuresOnly,failuresPerTest)}" var="testCase">
-                        <ui:param name="compareResult" value="#{testCase.compareResult()}" />
+                        <ui:param name="compareResult" value="#{testCase.resultStatus}" />
                         <h:panelGroup>
                             <tr>
                                 <td>#{testCase.test.id}</td>
