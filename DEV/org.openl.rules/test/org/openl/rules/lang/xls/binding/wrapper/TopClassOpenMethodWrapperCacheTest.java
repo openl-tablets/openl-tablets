@@ -1,117 +1,132 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
-import org.junit.Assert;
-import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IMethodSignature;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.ADynamicClass;
+import org.openl.types.impl.AMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 public class TopClassOpenMethodWrapperCacheTest {
 
-    public static final class Test {
-        public void m1() {
-        }
-
-        public void m2() {
-        }
-    }
-
-    public static final class Test2 {
-        public void m1() {
-        }
-
-        public void m2() {
-        }
-    }
-
-    @org.junit.Test
-    public void test() throws Exception {
-        IOpenClass openClass = JavaOpenClass.getOpenClass(Test.class);
-        IOpenClass openClass2 = JavaOpenClass.getOpenClass(Test2.class);
-
-        TopClassOpenMethodWrapperCache cache = new TopClassOpenMethodWrapperCache(null);
-        cache.put(openClass, openClass.getMethod("m1", new IOpenClass[] {}));
-
-        // IOpenMethod m2 = openClass2.getMethod("m2", new IOpenClass[] {});
-        IOpenMethod m2w = new IOpenMethodW(openClass2);
-        cache.put(openClass2, m2w);
-
-        JavaOpenClass.resetClassloader(Thread.currentThread().getContextClassLoader());
-
-        Assert.assertEquals(2, cache.cache.size());
-        gc();
-        Assert.assertEquals(2, cache.cache.size());
-
-        openClass2 = null;
-        gc();
-        Assert.assertEquals(2, cache.cache.size());
-
-        m2w = null;
-        gc();
-        Assert.assertEquals(1, cache.cache.size());
-
-        Assert.assertNull(m2w);
-    }
-
-    private void gc() throws InterruptedException {
+    private static void gc() throws Exception {
         System.gc();
         System.gc();
         System.gc();
         Thread.sleep(10);
     }
 
-    private static class IOpenMethodW implements IOpenMethod {
+    @org.junit.Test
+    public void test() throws Exception {
+        IOpenClass openClass1 = new SomeOpenClass("Class1");
+        IOpenMethod m1 = new SomeOpenMethod(null);
 
-        public IOpenMethodW(IOpenClass openClass) {
-            this.openClass = openClass;
+        IOpenClass openClass2 = new SomeOpenClass("Class2");
+        IOpenMethod m2 = new SomeOpenMethod(openClass2);
+
+        IOpenClass openClass3 = new SomeOpenClass("Class3");
+        IOpenMethod m3 = new SomeOpenMethod(null);
+
+        TopClassOpenMethodWrapperCache cache = new TopClassOpenMethodWrapperCache(null);
+        cache.put(openClass1, m1);
+        cache.put(openClass2, m2);
+        cache.put(openClass3, m3);
+
+        JavaOpenClass.resetClassloader(Thread.currentThread().getContextClassLoader());
+
+        // Initial test
+        assertEquals(3, cache.cache.size());
+        assertNotNull(openClass1);
+        assertNotNull(openClass2);
+        assertNotNull(openClass3);
+        assertNotNull(m1);
+        assertNotNull(m2);
+        assertNotNull(m3);
+
+        gc();
+        assertEquals(3, cache.cache.size());
+        assertNotNull(openClass1);
+        assertNotNull(openClass2);
+        assertNotNull(m1);
+        assertNotNull(m2);
+
+        // Check cache when a method has dependency on a class
+        openClass2 = null;
+        gc();
+        assertEquals(3, cache.cache.size());
+        assertNotNull(openClass1);
+        assertNull(openClass2);
+        assertNotNull(m1);
+        assertNotNull(m2);
+
+        m2 = null;
+        gc();
+        assertEquals(2, cache.cache.size());
+        assertNotNull(openClass1);
+        assertNull(openClass2);
+        assertNotNull(m1);
+        assertNull(m2);
+
+        // Check when a method can be GC-ed, but class is still used
+        m1 = null;
+        gc();
+        assertEquals(2, cache.cache.size());
+        assertNotNull(openClass1);
+        assertNull(openClass2);
+        assertNull(m1);
+        assertNull(m2);
+
+        openClass1 = null;
+        gc();
+        assertEquals(1, cache.cache.size());
+        assertNull(openClass1);
+        assertNull(openClass2);
+        assertNull(m1);
+        assertNull(m2);
+
+
+        // Check when a class can be GC-ed, but method is still used
+        openClass3 = null;
+        gc();
+        assertEquals(0, cache.cache.size());
+        assertNull(openClass3);
+        assertNotNull(m3);
+
+
+        m3 = null;
+        gc();
+        assertEquals(0, cache.cache.size());
+        assertNull(openClass3);
+        assertNull(m3);
+    }
+
+    private static class SomeOpenClass extends ADynamicClass {
+
+        SomeOpenClass(String className) {
+            super(className, null);
         }
+
+        @Override
+        public Object newInstance(IRuntimeEnv env) {
+            return null;
+        }
+    }
+
+    private static class SomeOpenMethod extends AMethod {
 
         private IOpenClass openClass;
 
+        SomeOpenMethod(IOpenClass openClass) {
+            super(null);
+            this.openClass = openClass;
+        }
+
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public IOpenMethod getMethod() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public String getName() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public String getDisplayName(int mode) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean isStatic() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public IOpenClass getType() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public IMemberMetaInfo getInfo() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public IOpenClass getDeclaringClass() {
-            return openClass;
-        }
-
-        @Override
-        public IMethodSignature getSignature() {
             throw new UnsupportedOperationException();
         }
 
