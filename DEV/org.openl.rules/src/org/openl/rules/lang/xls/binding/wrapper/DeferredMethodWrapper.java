@@ -110,7 +110,7 @@ public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethod
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
-        return topClassOpenMethodWrapperCache.get(openClass);
+        return topClassOpenMethodWrapperCache.getTopOpenClassMethod(openClass);
     }
 
 }

@@ -260,7 +260,7 @@ public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodW
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
-        return topClassOpenMethodWrapperCache.get(openClass);
+        return topClassOpenMethodWrapperCache.getTopOpenClassMethod(openClass);
     }
 
 }
