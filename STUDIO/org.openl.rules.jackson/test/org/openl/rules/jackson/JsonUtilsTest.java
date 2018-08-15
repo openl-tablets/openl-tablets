@@ -13,12 +13,10 @@ import org.openl.meta.ShortValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.serialization.JsonUtils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 public class JsonUtilsTest {
 
     @Test
-    public void spreadsheetResultTest() throws JsonProcessingException, IOException {
+    public void spreadsheetResultTest() throws Exception {
 
         String[] columnNames = new String[] { "Column1", "Column2" };
         String[] rowNames = new String[] { "Row1", "Row2" };
@@ -47,7 +45,7 @@ public class JsonUtilsTest {
     }
 
     @Test
-    public void openLValueTypesTest() throws JsonProcessingException, IOException {
+    public void openLValueTypesTest() throws Exception {
         Assert.assertEquals("25", JsonUtils.toJSON(new ByteValue((byte) 25)));
         Assert.assertEquals("25", JsonUtils.toJSON(new ShortValue((short) 25)));
         Assert.assertEquals("25", JsonUtils.toJSON(new IntValue((int) 25)));
