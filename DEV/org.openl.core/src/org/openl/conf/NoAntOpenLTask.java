@@ -12,19 +12,17 @@ import org.openl.util.RuntimeExceptionWrapper;
 
 public class NoAntOpenLTask {
 
-    public static IOpenLConfiguration lastConfiguration;
+    private static IOpenLConfiguration lastConfiguration;
 
-    boolean inheritExtendedConfigurationLoader = false;
-    String uri = "java://source_code";
+    private boolean inheritExtendedConfigurationLoader = false;
 
     OpenLConfiguration conf = new OpenLConfiguration();
 
-    String category;
-    String classpath;
+    private String category;
 
-    String extendsCategory;
+    private String extendsCategory;
 
-    static public IOpenLConfiguration retrieveConfiguration() {
+    static IOpenLConfiguration retrieveConfiguration() {
         if (lastConfiguration == null) {
             throw new NullPointerException();
         }
@@ -72,22 +70,14 @@ public class NoAntOpenLTask {
      *
      * @see org.apache.tools.ant.Task#execute()
      */
-    public void execute(IUserContext ucxt, String baseDir) {
+    public void execute(IUserContext ucxt) {
 
-        // try
-        // {
         try {
             if (category == null) {
-                throw new OpenConfigurationException("The category must be set", getUri(), null);
+                throw new OpenConfigurationException("The category must be set", null, null);
             }
-
-            // ClassLoaderFactory.getOpenlCoreLoader();
-
             IOpenLConfiguration existing;
             if ((existing = OpenLConfiguration.getInstance(category, ucxt)) != null) {
-                // has been loaded and registered already
-                // getProject().addReference(getCategory() + ".configuration",
-                // existing);
                 saveConfiguration(existing);
                 return;
             }
@@ -96,23 +86,16 @@ public class NoAntOpenLTask {
             if (extendsCategory != null) {
                 if ((extendsConfiguration = OpenLConfiguration.getInstance(extendsCategory, ucxt)) == null) {
                     throw new OpenConfigurationException("The extended category " + extendsCategory
-                            + " must have been loaded first", getUri(), null);
+                            + " must have been loaded first", null, null);
                 }
             }
 
-            IConfigurableResourceContext cxt = getConfigurationContext(extendsConfiguration, ucxt, baseDir);
+            IConfigurableResourceContext cxt = getConfigurationContext(extendsConfiguration, ucxt);
 
             conf.setParent(extendsConfiguration);
             conf.setConfigurationContext(cxt);
             conf.validate(cxt);
             OpenLConfiguration.register(category, ucxt, conf);
-            // }
-            // catch(Throwable t)
-            // {
-            // throw new BuildException(t, getLocation());
-            // }
-            // getProject().addReference(getCategory() + ".configuration",
-            // conf);
             saveConfiguration(conf);
         } catch (Exception e) {
             e.printStackTrace(System.err);
@@ -120,79 +103,30 @@ public class NoAntOpenLTask {
         }
     }
 
-    /**
-     * @return
-     */
-    public String getCategory() {
-        return category;
-    }
-
-    IConfigurableResourceContext getConfigurationContext(IOpenLConfiguration extendsConfiguration, IUserContext ucxt,
-            String baseDir) throws Exception {
+    private IConfigurableResourceContext getConfigurationContext(IOpenLConfiguration extendsConfiguration, IUserContext ucxt) {
         ClassLoader parentLoader = extendsConfiguration == null ? ClassLoaderFactory.getOpenlCoreLoader(null)
                 : extendsConfiguration.getConfigurationContext().getClassLoader();
 
-        ClassLoader myClassLoader = parentLoader;
-        if (classpath != null && classpath.trim().length() != 0) {
-            UserContext ucxt2 = new UserContext(null, baseDir);
-
-            myClassLoader = ClassLoaderFactory.createUserClassloader(category, classpath, parentLoader, ucxt2);
-        } else {
-            if (!inheritExtendedConfigurationLoader) {
-                myClassLoader = ucxt.getUserClassLoader();
-            }
+        if (!inheritExtendedConfigurationLoader) {
+            parentLoader = ucxt.getUserClassLoader();
         }
 
-        return new ConfigurableResourceContext(myClassLoader, conf);
+        return new ConfigurableResourceContext(parentLoader, conf);
     }
 
-    /**
-     * @return
-     */
-    public String getExtendsCategory() {
-        return extendsCategory;
-    }
-
-    public String getUri() {
-        return uri;
-    }
-
-    public boolean isInheritExtendedConfigurationLoader() {
-        return inheritExtendedConfigurationLoader;
-    }
-
-    void saveConfiguration(IOpenLConfiguration conf) {
+    private void saveConfiguration(IOpenLConfiguration conf) {
         lastConfiguration = conf;
     }
-
-    /**
-     * @param string
-     */
 
     public void setCategory(String string) {
         category = string;
     }
 
-    /**
-     * @param string
-     */
-    public void setClasspath(String string) {
-        classpath = string;
-    }
-
-    /**
-     * @param string
-     */
     public void setExtendsCategory(String string) {
         extendsCategory = string;
     }
 
-    public void setInheritExtendedConfigurationLoader(boolean inheritExtendedConfigurationLoader) {
+    void setInheritExtendedConfigurationLoader(boolean inheritExtendedConfigurationLoader) {
         this.inheritExtendedConfigurationLoader = inheritExtendedConfigurationLoader;
     }
-
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-
 }

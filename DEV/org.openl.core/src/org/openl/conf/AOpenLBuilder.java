@@ -18,13 +18,9 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
 
     static class UserContextStack extends ThreadLocal<Stack<IUserContext>> {
 
-        /**
-         *
-         */
-
         @Override
         protected Stack<IUserContext> initialValue() {
-            return new Stack<IUserContext>();
+            return new Stack<>();
         }
 
         public IUserContext pop() {
@@ -45,9 +41,9 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
 
     }
 
-    static public UserContextStack userCxt = new UserContextStack();
+    private static UserContextStack userCxt = new UserContextStack();
 
-    boolean inheritExtendedConfigurationLoader = false;
+    private boolean inheritExtendedConfigurationLoader = false;
 
     public OpenL build(String openl) throws OpenConfigurationException {
         OpenL op = new OpenL();
@@ -73,9 +69,9 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
 
             naot.setInheritExtendedConfigurationLoader(inheritExtendedConfigurationLoader);
             if (inheritExtendedConfigurationLoader) {
-                naot.execute(getUserEnvironmentContext(), getUserEnvironmentContext().getUserHome());
+                naot.execute(getUserEnvironmentContext());
             } else {
-                naot.execute(mycxt, getUserEnvironmentContext().getUserHome());
+                naot.execute(mycxt);
             }
 
             IOpenLConfiguration conf = NoAntOpenLTask.retrieveConfiguration();
@@ -100,9 +96,6 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
 
     public abstract NoAntOpenLTask getNoAntOpenLTask();
 
-    /**
-     * @param openl
-     */
     protected Properties getProperties(String openl) {
         URL url = getResourceContext().findClassPathResource(openl.replace('.', '/') + '/' + openl + ".ant.properties");
         if (url == null) {
@@ -128,7 +121,7 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
 
     }
 
-    ClassLoader myClassLoader() {
+    private ClassLoader myClassLoader() {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         String myName = getClass().getName();
         try {
@@ -143,9 +136,4 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
     public void setInheritExtendedConfigurationLoader(boolean inheritExtendedConfigurationLoader) {
         this.inheritExtendedConfigurationLoader = inheritExtendedConfigurationLoader;
     }
-
-    public boolean isInheritExtendedConfigurationLoader() {
-        return inheritExtendedConfigurationLoader;
-    }
-
 }
