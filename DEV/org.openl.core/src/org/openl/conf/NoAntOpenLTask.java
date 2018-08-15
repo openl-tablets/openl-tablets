@@ -17,8 +17,6 @@ public class NoAntOpenLTask {
     boolean inheritExtendedConfigurationLoader = false;
     String uri = "java://source_code";
 
-    boolean shared = false;
-
     OpenLConfiguration conf = new OpenLConfiguration();
 
     String category;
@@ -107,7 +105,7 @@ public class NoAntOpenLTask {
             conf.setParent(extendsConfiguration);
             conf.setConfigurationContext(cxt);
             conf.validate(cxt);
-            OpenLConfiguration.register(category, ucxt, conf, shared);
+            OpenLConfiguration.register(category, ucxt, conf);
             // }
             // catch(Throwable t)
             // {
@@ -163,13 +161,6 @@ public class NoAntOpenLTask {
         return inheritExtendedConfigurationLoader;
     }
 
-    /**
-     * @return
-     */
-    public boolean isShared() {
-        return shared;
-    }
-
     void saveConfiguration(IOpenLConfiguration conf) {
         lastConfiguration = conf;
     }
@@ -198,13 +189,6 @@ public class NoAntOpenLTask {
 
     public void setInheritExtendedConfigurationLoader(boolean inheritExtendedConfigurationLoader) {
         this.inheritExtendedConfigurationLoader = inheritExtendedConfigurationLoader;
-    }
-
-    /**
-     * @param b
-     */
-    public void setShared(boolean b) {
-        shared = b;
     }
 
     public void setUri(String uri) {

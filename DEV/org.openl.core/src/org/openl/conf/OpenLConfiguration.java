@@ -1,9 +1,3 @@
-/*
- * Created on Jun 10, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.conf;
 
 import java.util.ArrayList;
@@ -62,36 +56,19 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     private Map<String, IOpenFactoryConfiguration> openFactories = null;
 
     public static IOpenLConfiguration getInstance(String name, IUserContext ucxt) throws OpenConfigurationException {
-        IOpenLConfiguration opc = configurations.get(name);
-
-        if (opc != null) {
-            return opc;
-        }
-
         Object key = GenericKey.getInstance(name, ucxt);
-
         return configurations.get(key);
-
     }
 
     public static synchronized void register(String name,
-            IUserContext ucxt,
-            IOpenLConfiguration oplc,
-            boolean shared) throws OpenConfigurationException {
-        Object key;
-
-        if (shared) {
-            key = name;
-        } else {
-            key = GenericKey.getInstance(name, ucxt);
-        }
-
+                                             IUserContext ucxt,
+                                             IOpenLConfiguration oplc) throws OpenConfigurationException {
+        Object key = GenericKey.getInstance(name, ucxt);
         IOpenLConfiguration old = configurations.get(key);
         if (old != null) {
             throw new OpenConfigurationException("The configuration " + name + " already exists", null, null);
         }
         configurations.put(key, oplc);
-
     }
 
     // FIXME: multithreading issue: users can reset foreign OpenL calculation
