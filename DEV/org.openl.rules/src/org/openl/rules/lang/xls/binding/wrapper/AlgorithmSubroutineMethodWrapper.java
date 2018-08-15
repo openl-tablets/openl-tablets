@@ -163,7 +163,7 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
         delegate.setModuleName(dependencyName);
     }
 
-    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache();
+    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
