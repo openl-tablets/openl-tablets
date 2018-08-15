@@ -31,7 +31,7 @@ public class TopClassOpenMethodWrapperCacheTest {
         IOpenClass openClass = JavaOpenClass.getOpenClass(Test.class);
         IOpenClass openClass2 = JavaOpenClass.getOpenClass(Test2.class);
 
-        TopClassOpenMethodWrapperCache cache = new TopClassOpenMethodWrapperCache();
+        TopClassOpenMethodWrapperCache cache = new TopClassOpenMethodWrapperCache(null);
         cache.put(openClass, openClass.getMethod("m1", new IOpenClass[] {}));
 
         // IOpenMethod m2 = openClass2.getMethod("m2", new IOpenClass[] {});

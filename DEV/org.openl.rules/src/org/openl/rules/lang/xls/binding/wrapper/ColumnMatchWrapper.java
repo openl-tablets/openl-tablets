@@ -220,7 +220,7 @@ public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrappe
         delegate.setModuleName(dependencyName);
     }
     
-    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache();
+    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {

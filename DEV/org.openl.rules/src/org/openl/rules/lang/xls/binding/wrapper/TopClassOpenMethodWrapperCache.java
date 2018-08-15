@@ -11,20 +11,17 @@ class TopClassOpenMethodWrapperCache {
 
     private IOpenMethodWrapper methodWrapper;
 
-    TopClassOpenMethodWrapperCache() {
-    }
-
     public TopClassOpenMethodWrapperCache(IOpenMethodWrapper methodWrapper) {
         this.methodWrapper = methodWrapper;
     }
 
     Map<IOpenClass, WeakReference<IOpenMethod>> cache = new WeakHashMap<>();
 
-    public void put(IOpenClass openClass, IOpenMethod openMethod) {
+    void put(IOpenClass openClass, IOpenMethod openMethod) {
         cache.put(openClass, new WeakReference<IOpenMethod>(openMethod));
     }
 
-    public IOpenMethod get(IOpenClass openClass) {
+    IOpenMethod get(IOpenClass openClass) {
         WeakReference<IOpenMethod> w = cache.get(openClass);
         if (w != null) {
             return w.get();
