@@ -26,7 +26,6 @@ import org.openl.engine.ExtendableModuleOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.constants.ConstantOpenField;
-import org.openl.rules.data.DataOpenField;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -35,7 +34,6 @@ import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.prebind.ILazyMember;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -71,7 +69,6 @@ import org.slf4j.LoggerFactory;
 public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableModuleOpenClass {
     private Logger log = LoggerFactory.getLogger(XlsModuleOpenClass.class);
 
-    protected Set<String> duplicatedErrosUris = new HashSet<String>();
     private IDataBase dataBase = null;
 
     /**
@@ -215,49 +212,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private void addDataTables(CompiledOpenClass dependency) {
         IOpenClass openClass = dependency.getOpenClassWithErrors();
-
-        Map<String, IOpenField> fieldsMap = openClass.getFields();
-
-        Set<String> existingDataTablesUris = new HashSet<String>();
-        Map<String, IOpenField> fields = getFields();
-        for (IOpenField openField : fields.values()) {
-            if (openField instanceof DataOpenField) {
-                existingDataTablesUris.add(((DataOpenField) openField).getUri());
-            }
-        }
-        for (String key : fieldsMap.keySet()) {
-            IOpenField field = fieldsMap.get(key);
-            if (field instanceof DataOpenField) {
-                DataOpenField dataOpenField = (DataOpenField) field;
-                try {
-                    String uri = dataOpenField.getUri();
-                    // Test tables are added both as methods and variables.
-                    if (!existingDataTablesUris.contains(uri) && !duplicatedErrosUris.contains(uri)) {
-                        boolean containsInDependency = false;
-                        if (VirtualSourceCodeModule.SOURCE_URI.equals(metaInfo.getSourceUrl())) {
-                            for (CompiledDependency d : getDependencies()) {
-                                IOpenClass dependentModuleClass = d.getCompiledOpenClass().getOpenClassWithErrors();
-                                if (dependentModuleClass instanceof XlsModuleOpenClass) {
-                                    if (((XlsModuleOpenClass) dependentModuleClass).duplicatedErrosUris.contains(uri)) {
-                                        containsInDependency = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        if (!containsInDependency) {
-                            addField(field);
-                            existingDataTablesUris.add(uri);
-                        }
-                    }
-                } catch (OpenlNotCheckedException e) {
-                    ITable table = dataOpenField.getTable();
-                    SyntaxNodeException error = SyntaxNodeExceptionUtils
-                        .createError(e.getMessage(), e, table == null ? null : table.getTableSyntaxNode());
-                    addError(error);
-                }
-            }
-        }
 
         if (openClass instanceof XlsModuleOpenClass) {
             XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
@@ -566,12 +520,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     private void addDuplicatedMethodError(String message, IOpenMethod method, IOpenMethod existedMethod) {
-        if (method instanceof IUriMember) {
-            String uri = ((IUriMember) method).getUri();
-            if (duplicatedErrosUris.contains(uri)) {
-                return;
-            }
-        }
         ISyntaxNode newMethodSyntaxNode = method.getInfo().getSyntaxNode();
         if (newMethodSyntaxNode instanceof TableSyntaxNode) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, newMethodSyntaxNode);
