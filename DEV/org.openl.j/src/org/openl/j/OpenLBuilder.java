@@ -26,7 +26,6 @@ public class OpenLBuilder extends AOpenLBuilder {
         NoAntOpenLTask op = new NoAntOpenLTask();
 
         op.setCategory(OpenL.OPENL_J_NAME);
-        op.setShared(false);
 
         ClassFactory cfg = op.createGrammar();
         cfg.setClassName(BExGrammarWithParsingHelp.class.getName());
