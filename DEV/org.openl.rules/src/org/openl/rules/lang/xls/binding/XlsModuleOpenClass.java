@@ -58,6 +58,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
+import org.openl.rules.testmethod.TestMethodNodeBinder;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.ValidationMessages;
@@ -505,7 +506,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     @Override
     public void clearOddDataForExecutionMode() {
         super.clearOddDataForExecutionMode();
-        dataBase = null;
+        if (!TestMethodNodeBinder.isKeepTestsInExecutionMode()) {
+            dataBase = null;
+        }
         rulesModuleBindingContext = null;
     }
 

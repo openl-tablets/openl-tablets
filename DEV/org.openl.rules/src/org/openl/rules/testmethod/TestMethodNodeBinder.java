@@ -52,7 +52,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
      */
     private static ThreadLocal<Boolean> keepTests = new ThreadLocal<>();
 
-    private static boolean isKeepTestsInExecutionMode() {
+    public static boolean isKeepTestsInExecutionMode() {
         Boolean keep = keepTests.get();
         return keep != null && keep;
     }
