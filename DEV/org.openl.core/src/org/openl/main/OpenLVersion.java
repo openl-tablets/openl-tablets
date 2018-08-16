@@ -1,6 +1,7 @@
 package org.openl.main;
 
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
@@ -11,9 +12,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 
-import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.util.IOUtils;
 
 /**
  * For internal usage only.
@@ -95,9 +97,9 @@ public class OpenLVersion {
         }
         try {
             logger.info("    Time : {} ({} - {})",
-                    new SimpleDateFormat("yyyy-MM-dd   HH:mm:ss.SSS XXX (z)").format(new Date()),
-                    TimeZone.getDefault().getID(),
-                    TimeZone.getDefault().getDisplayName());
+                new SimpleDateFormat("yyyy-MM-dd   HH:mm:ss.SSS XXX (z)").format(new Date()),
+                TimeZone.getDefault().getID(),
+                TimeZone.getDefault().getDisplayName());
             logger.info("  Locale : {}", Locale.getDefault());
         } catch (Exception ignored) {
             logger.info("##### Cannot access to the TimeZone or Locale");
@@ -108,7 +110,8 @@ public class OpenLVersion {
             logger.info("##### Cannot access to the FileSystem");
         }
         try {
-            logger.info("App path : {}", OpenLVersion.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+            logger.info("App path : {}",
+                OpenLVersion.class.getProtectionDomain().getCodeSource().getLocation().getPath());
         } catch (Exception ignored) {
             logger.info("##### Cannot access to the Application location");
         }
@@ -147,7 +150,7 @@ public class OpenLVersion {
             }
             logger.info("Libs in the classpath:");
             while (classLoader != null) {
-                logger.info(classLoader.getClass().getName());
+                logger.info(getClassLoaderName(classLoader));
                 if (classLoader instanceof URLClassLoader) {
                     URL[] urls = ((URLClassLoader) classLoader).getURLs();
                     for (URL url : urls) {
@@ -159,5 +162,29 @@ public class OpenLVersion {
         } catch (Exception ignored) {
             logger.info("##### Cannot list classpath");
         }
+    }
+
+    private static String getClassLoaderName(ClassLoader classLoader) {
+        Class<?> clazz = classLoader.getClass();
+        String name = clazz.getName();
+        try {
+            Class cls = clazz.getMethod("toString").getDeclaringClass();
+            if (!cls.equals(Object.class)) {
+                name = classLoader.toString() + "  Class: " + name;
+            }
+        } catch (NoSuchMethodException e) {
+            // Ignore
+        }
+
+        try {
+            Method getName = clazz.getMethod("getName");
+            Object getNameStr = getName.invoke(classLoader);
+            if (getNameStr != null) {
+                name += "  Name: " + getNameStr.toString();
+            }
+        } catch (Exception ex) {
+            // Ignore
+        }
+        return name;
     }
 }
