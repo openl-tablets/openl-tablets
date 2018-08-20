@@ -2,9 +2,11 @@ package org.openl.rules.helpers;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -16,6 +18,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Before;
@@ -5799,4 +5802,37 @@ public class RulesUtilsTest {
         assertEquals(1441.33f, RulesUtils.parseFormattedDouble("1,441.33", "#,##0.00"), 0.01);
     }
 
+
+    @Test
+    public void testCopy() {
+        assertEquals(RulesUtils.copy("1.1"), "1.1");
+        assertEquals(RulesUtils.copy(1.1), Double.valueOf(1.1));
+
+        Some s = new Some();
+        s.str = "str1";
+        s.num = 10;
+        s.num2 = 12;
+        s.obj = s;
+        Some copy = RulesUtils.copy(s);
+        assertNotSame(copy, s);
+        assertSame(s.obj, s);
+        assertSame(copy.obj, copy);
+        assertEquals(copy.str, s.str);
+        assertEquals(copy.num, s.num);
+        assertEquals(copy.num2, s.num2);
+
+        copy.num = 4;
+
+        assertEquals(copy.num, 4);
+        assertEquals(copy.obj.num, 4);
+        assertEquals(s.num, 10);
+        assertEquals(s.obj.num, 10);
+    }
+
+    private static class Some {
+        String str;
+        int num;
+        Integer num2;
+        Some obj;
+    }
 }
