@@ -22,6 +22,7 @@ import org.openl.binding.impl.cast.DefaultAutoCastFactory.ReturnType;
 import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.ArrayTool;
@@ -5638,5 +5639,12 @@ public class RulesUtils {
             return false;
         }
         return clazz.isAssignableFrom(o.getClass());
+    }
+
+    public static <T> T copy(T origin) {
+        // Create new instance every time because of the issue with updating a module in WebStudio.
+        // It is needed to investigate class loading/unloading mechanism.
+        // FIXME: Needless memory consumption - no needs to create 'cloner' instance every time.
+        return new OpenLArgumentsCloner().deepClone(origin);
     }
 }
