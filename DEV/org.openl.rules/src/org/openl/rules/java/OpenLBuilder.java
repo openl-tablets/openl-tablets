@@ -21,6 +21,7 @@ public class OpenLBuilder extends AOpenLBuilder {
             org.openl.rules.util.Round.class.getName(),
             org.openl.rules.util.Booleans.class.getName(),
             org.openl.rules.util.Strings.class.getName(),
+            org.openl.rules.util.Dates.class.getName(),
             org.openl.rules.util.Arrays.class.getName(),
             org.openl.rules.util.Miscs.class.getName(),
             org.openl.rules.helpers.RulesUtils.class.getName(),
