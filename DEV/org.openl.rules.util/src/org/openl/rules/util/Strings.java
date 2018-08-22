@@ -560,14 +560,6 @@ public class Strings {
         return obj.toString();
     }
 
-    public static String toString(Date date) {
-        return toString(date, null);
-    }
-
-    public static String toString(Date date, String pattern) {
-        return date == null ? null : new SimpleDateFormat(pattern == null ? "MM/dd/yyyy" : pattern, Locale.US).format(date);
-    }
-
     public static Integer toInteger(String str) {
         return isEmpty(str) ? null : Integer.valueOf(str);
     }
@@ -586,18 +578,6 @@ public class Strings {
             throw new ParseException("Unparseable number: \"" + str + "\"", parsePosition.getIndex());
         }
         return parsed;
-    }
-
-    public static Date toDate(String str) throws ParseException {
-        return isEmpty(str) ? null : getDateFormat().parse(str);
-    }
-
-    private static DateFormat getDateFormat() {
-        DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, Locale.US);
-        df.setLenient(false); // Strict matching
-        df.getCalendar().set(0, 0, 0, 0, 0, 0); // at
-        df.getCalendar().set(Calendar.MILLISECOND, 0);
-        return df;
     }
 
     public static String concatenate(Object... objects) {

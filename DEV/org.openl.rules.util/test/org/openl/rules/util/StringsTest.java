@@ -9,8 +9,6 @@ import static org.openl.rules.util.Strings.*;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.util.Date;
 
 public class StringsTest {
 
@@ -371,10 +369,6 @@ public class StringsTest {
         assertEquals("100.001", Strings.toString(new BigDecimal("100.00100")));
         assertEquals("true", Strings.toString(true));
         assertEquals("false", Strings.toString(false));
-        assertEquals("07/12/1980", Strings.toString(new Date(80, 6, 12, 23, 59)));
-        assertEquals("07/12/1980", Strings.toString(new Date(80, 6, 12)));
-        assertEquals("12.07.1980", Strings.toString(new Date(80, 6, 12, 23, 59), "dd.MM.yyyy"));
-        assertEquals("12-Jul-1980", Strings.toString(new Date(80, 6, 12), "dd-MMM-yyyy"));
     }
 
     @Test
@@ -453,21 +447,6 @@ public class StringsTest {
     @Test(expected = Exception.class)
     public void testToNumberIncorrect() throws Exception {
         toNumber("13..");
-    }
-
-    @Test
-    public void testToDate() throws Exception {
-        assertNull(toDate(null));
-        assertNull(toDate(""));
-        assertNull(toDate(" "));
-        assertNull(toDate("  \t  "));
-        assertEquals(new Date(80, 6, 12), toDate("7/12/80"));
-        assertEquals(new Date(80, 6, 12), toDate("07/12/1980"));
-    }
-
-    @Test(expected = Exception.class)
-    public void testToDateLetter() throws Exception {
-        toDate("13/13/2013");
     }
 
     @Test
