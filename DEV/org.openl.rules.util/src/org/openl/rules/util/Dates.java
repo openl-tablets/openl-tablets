@@ -20,11 +20,11 @@ import java.util.Locale;
 public class Dates {
 
     /**
-     * Converts a string to a date using a pattern.
+     * Creates Date object using human numbers for the year and the month. Also validates correctness of the date.
      *
      * @see SimpleDateFormat
      */
-    public static Date date(int year, int month, int day) {
+    public static Date Date(int year, int month, int day) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, month - 1, day, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);

@@ -12,26 +12,26 @@ public class DatesTest {
     @Test
     public void testDate() {
         assertNull(Dates.toString(null));
-        assertEquals(new Date(-1899, 0, 1), Dates.date(1,1,1));
-        assertEquals(new Date(118, 6, 12), Dates.date(2018,7,12));
-        assertEquals(new Date(80, 6, 12), Dates.date(1980,7,12));
-        assertEquals(new Date(-1820, 6, 12), Dates.date(80,7,12));
-        assertEquals(new Date(116, 1, 29), Dates.date(2016,2,29));
+        assertEquals(new Date(-1899, 0, 1), Dates.Date(1,1,1));
+        assertEquals(new Date(118, 6, 12), Dates.Date(2018,7,12));
+        assertEquals(new Date(80, 6, 12), Dates.Date(1980,7,12));
+        assertEquals(new Date(-1820, 6, 12), Dates.Date(80,7,12));
+        assertEquals(new Date(116, 1, 29), Dates.Date(2016,2,29));
     }
 
     @Test(expected = Exception.class)
     public void testDateWrongMonth() {
-        Dates.date(2018,13,1);
+        Dates.Date(2018,13,1);
     }
 
     @Test(expected = Exception.class)
     public void testDateWrongDay() {
-        Dates.date(2018,2,29);
+        Dates.Date(2018,2,29);
     }
 
     @Test(expected = Exception.class)
     public void testDateWrongYear() {
-        Dates.date(0,1,1);
+        Dates.Date(0,1,1);
     }
 
     @Test
