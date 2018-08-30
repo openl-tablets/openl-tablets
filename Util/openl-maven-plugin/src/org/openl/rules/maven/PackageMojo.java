@@ -84,6 +84,30 @@ public final class PackageMojo extends BaseOpenLMojo {
     @Parameter(defaultValue = "3", required = true)
     private int dependenciesThreshold;
 
+    /**
+     * Artifact group names to exclude from zip. Use this parameter only if that dependency is needed for build and can't be excluded from pom.
+     *
+     * @since 5.21.6
+     */
+    @Parameter
+    private List<String> excludeGroupIds;
+
+    /**
+     * Artifact names to exclude from zip. Use this parameter only if that dependency is needed for build and can't be excluded from pom.
+     *
+     * @since 5.21.6
+     */
+    @Parameter
+    private List<String> excludeArtifactIds;
+
+    /**
+     * Artifact scopes to exclude from zip. Use this parameter only if that dependency is needed for build and can't be excluded from pom.
+     *
+     * @since 5.21.6
+     */
+    @Parameter
+    private List<String> excludeScopes;
+
     @Override
     void execute(String sourcePath, boolean hasDependencies) throws Exception {
 
@@ -187,9 +211,36 @@ public final class PackageMojo extends BaseOpenLMojo {
         }
         List<String> trail = artifact.getDependencyTrail();
         for (String tr : trail) {
-            if (tr.startsWith("org.openl.rules:") || tr.startsWith("org.openl:") || tr.startsWith("org.slf4j:")) {
-                skip = true;
+            if (!skip) {
+                String[] parts = tr.split(":");
+                String groupName = parts[0];
+                String artifactName = parts[1];
+
+                if ("org.openl.rules".equals(groupName) || "org.openl".equals(groupName) || "org.slf4j".equals(groupName)) {
+                    skip = true;
+                }
+                if (excludeGroupIds != null && excludeGroupIds.contains(groupName)) {
+                    skip = true;
+                }
+                if (excludeArtifactIds != null && excludeArtifactIds.contains(artifactName)) {
+                    skip = true;
+                }
+                if (excludeScopes != null) {
+                    for (Artifact dependentArtifact : project.getArtifacts()) {
+                        if (dependentArtifact.getId().equals(tr)) {
+                            // Found artifact. Check its scope ignoring the case.
+                            for (String excludeScope : excludeScopes) {
+                                if (dependentArtifact.getScope().equalsIgnoreCase(excludeScope)) {
+                                    skip = true;
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
             }
+
             if (skip) {
                 String key = tr.substring(0, tr.indexOf(':', tr.indexOf(':') + 1));
                 skipped.add(key);
