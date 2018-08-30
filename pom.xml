@@ -272,7 +272,7 @@
                         <postBuildHookScript>verify</postBuildHookScript>
                         <goals>
                             <goal>clean</goal>
-                            <goal>install</goal>
+                            <goal>verify</goal>
                         </goals>
                         <properties>
                             <maven.compiler.source>1.7</maven.compiler.source>
