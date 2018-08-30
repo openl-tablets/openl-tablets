@@ -1,23 +1,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.openl.internal</groupId>
-    <artifactId>openl-simple-dependency</artifactId>
+    <parent>
+        <groupId>org.openl.internal</groupId>
+        <artifactId>openl-simple-multimodule</artifactId>
+        <version>0.0.0</version>
+    </parent>
+
+    <artifactId>openl-simple</artifactId>
     <version>0.0.0</version>
     <packaging>openl</packaging>
-    <name>OpenL Plugin: Simple Dependency Project</name>
+    <name>OpenL Plugin: Simple Project</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.openl.version>@project.version@</org.openl.version>
     </properties>
-    <dependencies>
-        <dependency>
-            <groupId>org.openl.internal</groupId>
-            <artifactId>openl-simple</artifactId>
-            <version>0.0.0</version>
-            <type>zip</type>
-        </dependency>
-    </dependencies>
     <build>
         <plugins>
             <plugin>
