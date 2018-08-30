@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.openl.internal</groupId>
+    <artifactId>openl-multimodule</artifactId>
+    <version>0.0.0</version>
+    <packaging>pom</packaging>
+    <name>OpenL Plugin: multimodule project</name>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <org.openl.version>@project.version@</org.openl.version>
+        <!--<org.openl.version>5.21.5</org.openl.version>-->
+    </properties>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.3</version>
+                    <configuration>
+                        <source>${java.source.version}</source>
+                        <target>${java.target.version}</target>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.openl.rules</groupId>
+                    <artifactId>openl-maven-plugin</artifactId>
+                    <version>${org.openl.version}</version>
+                    <extensions>true</extensions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules</artifactId>
+                <version>${org.openl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.project</artifactId>
+                <version>${org.openl.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openl.internal.multimodule</groupId>
+                <artifactId>openl-dependency-a</artifactId>
+                <version>0.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.internal.multimodule</groupId>
+                <artifactId>openl-dependency-b</artifactId>
+                <version>0.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.internal.multimodule</groupId>
+                <artifactId>openl-dependency-c</artifactId>
+                <version>0.0.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <modules>
+        <module>openl-dependency-a</module>
+        <module>openl-dependency-b</module>
+        <module>openl-dependency-c</module>
+        <module>openl-rules-with-dependencies</module>
+    </modules>
+</project>

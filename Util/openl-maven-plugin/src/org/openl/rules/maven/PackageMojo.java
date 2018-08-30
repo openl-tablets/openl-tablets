@@ -160,8 +160,8 @@ public final class PackageMojo extends BaseOpenLMojo {
     private Set<Artifact> getDependencies() {
         Set<Artifact> artifacts = project.getArtifacts();
 
-        HashSet<String> skipped = new HashSet<String>();
-        Set<Artifact> dependencies = new HashSet<Artifact>();
+        HashSet<String> skipped = new HashSet<>();
+        Set<Artifact> dependencies = new HashSet<>();
 
         for (Artifact artifact : artifacts) {
             collectToSkip(skipped, artifact);
@@ -180,10 +180,10 @@ public final class PackageMojo extends BaseOpenLMojo {
     private void collectToSkip(HashSet<String> skipped, Artifact artifact) {
         boolean skip = false;
         String scope = artifact.getScope();
-        // There is no need to add to OpenL project other zipped projects or provided / runtime dependencies.
-        if (Artifact.SCOPE_PROVIDED.equals(scope) || Artifact.SCOPE_RUNTIME.equals(scope) || OPENL_ARTIFACT_TYPE.equals(artifact.getType())) {
+        // There is no need to add to OpenL project other zipped projects or provided dependencies.
+        if (Artifact.SCOPE_PROVIDED.equals(scope) || OPENL_ARTIFACT_TYPE.equals(artifact.getType())) {
             skipped.add(ArtifactUtils.versionlessKey(artifact));
-            skip = true;
+            return;
         }
         List<String> trail = artifact.getDependencyTrail();
         for (String tr : trail) {

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openl.internal</groupId>
+        <artifactId>openl-multimodule</artifactId>
+        <version>0.0.0</version>
+    </parent>
+
+    <groupId>org.openl.internal.multimodule</groupId>
+    <artifactId>openl-rules-with-dependencies</artifactId>
+    <packaging>openl</packaging>
+
+    <name>OpenL rules with dependencies</name>
+
+    <dependencies>
+        <!-- Contains "runtime" transitive dependency. openl-dependency-a must appear in zip. -->
+        <dependency>
+            <groupId>org.openl.internal.multimodule</groupId>
+            <artifactId>openl-dependency-a</artifactId>
+        </dependency>
+
+        <!-- Contains "provided" transitive dependency. openl-dependency-b must appear in zip. -->
+        <dependency>
+            <groupId>org.openl.internal.multimodule</groupId>
+            <artifactId>openl-dependency-b</artifactId>
+        </dependency>
+
+        <!-- Contains "compile" transitive dependency. openl-dependency-c must appear in zip. -->
+        <dependency>
+            <groupId>org.openl.internal.multimodule</groupId>
+            <artifactId>openl-dependency-c</artifactId>
+        </dependency>
+
+        <!-- Can be needed for generated from Datatypes java classes compilation. We must ensure that it will not appear in zip. -->
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.project</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <dependenciesThreshold>5</dependenciesThreshold>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
