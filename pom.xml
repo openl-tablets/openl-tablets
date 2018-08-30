@@ -272,7 +272,7 @@
                     <configuration>
                         <projectsDirectory>it</projectsDirectory>
                         <pomIncludes>
-                            <pomInclude>**/pom.xml</pomInclude>
+                            <pomInclude>*/pom.xml</pomInclude>
                         </pomIncludes>
                         <preBuildHookScript>setup</preBuildHookScript>
                         <postBuildHookScript>verify</postBuildHookScript>
