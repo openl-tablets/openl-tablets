@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 
 /**
@@ -217,7 +218,7 @@ public abstract class FacesUtils {
     }
 
     public static void addCookie(String name, String value, int age) {
-        Cookie cookie = new Cookie(name, value);
+        Cookie cookie = new Cookie(name, StringTool.encodeURL(value));
         String contextPath = ((HttpServletRequest) getRequest()).getContextPath();
         if (!StringUtils.isEmpty(contextPath)) {
             cookie.setPath(contextPath);

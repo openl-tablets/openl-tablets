@@ -17,6 +17,7 @@ import javax.ws.rs.core.StreamingOutput;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,7 @@ public class TestDownloadService {
         }
         
         return new NewCookie(cookieName,
-                value,
+                StringTool.encodeURL(value),
                 contextPath,
                 null,
                 1,
