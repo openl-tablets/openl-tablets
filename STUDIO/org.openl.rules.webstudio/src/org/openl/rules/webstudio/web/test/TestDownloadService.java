@@ -21,6 +21,7 @@ import org.openl.rules.webstudio.web.test.export.RulesResultExport;
 import org.openl.rules.webstudio.web.test.export.TestResultExport;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,7 +109,7 @@ public class TestDownloadService {
         if (StringUtils.isEmpty(contextPath)) {
             contextPath = "/"; // //EPBDS-7613
         }
-        return new NewCookie(cookieName, value, contextPath, null, 1, null, -1, null, false, false);
+        return new NewCookie(cookieName, StringTool.encodeURL(value), contextPath, null, 1, null, -1, null, false, false);
     }
 
 }
