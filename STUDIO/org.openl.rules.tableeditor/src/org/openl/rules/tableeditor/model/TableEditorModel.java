@@ -254,6 +254,10 @@ public class TableEditorModel {
             }
             return;
         }
+
+        // Initialize meta info writer before any modifications
+        MetaInfoWriter metaInfoWriter = getMetaInfoWriter();
+
         if (!propExists) {
             int tableWidth = fullTable.getWidth();
             if (tableWidth < NUMBER_PROPERTIES_COLUMNS) {
@@ -261,7 +265,7 @@ public class TableEditorModel {
             }
             if (!UndoableInsertRowsAction.canInsertRows(gridTable, 1)
                     || !UndoableInsertColumnsAction.canInsertColumns(gridTable, nColsToInsert)) {
-                createdActions.add(UndoableEditTableAction.moveTable(fullTable, getMetaInfoWriter()));
+                createdActions.add(UndoableEditTableAction.moveTable(fullTable, metaInfoWriter));
             }
             GridRegionAction allTable = new GridRegionAction(fullTableRegion, UndoableEditTableAction.ROWS,
                     UndoableEditTableAction.INSERT, ActionType.EXPAND, 1);
@@ -276,7 +280,7 @@ public class TableEditorModel {
         }
 
         IUndoableGridTableAction action = GridTool.insertProp(fullTableRegion, gridTable.getGrid(), name, value,
-                getMetaInfoWriter());
+                metaInfoWriter);
         if (action != null) {
             action.doAction(gridTable);
             createdActions.add(action);
