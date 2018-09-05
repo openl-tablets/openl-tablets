@@ -191,7 +191,7 @@ public class InputArgsBean {
 
             Collection<SelectItem> result = new ArrayList<>();
             for (IOpenClass type : allClasses) {
-                result.add(new SelectItem(type.getJavaName(), type.getDisplayName(INamedThing.SHORT)));
+                result.add(new SelectItem(type.getName(), type.getDisplayName(INamedThing.SHORT)));
             }
 
             return result.toArray(new SelectItem[0]);
@@ -245,7 +245,7 @@ public class InputArgsBean {
             String typeName = parts[1];
             ComplexParameterTreeNode node = complexParameters.get(row);
             for (IOpenClass type : getAllClasses(node)) {
-                if (typeName.equals(type.getJavaName())) {
+                if (typeName.equals(type.getName())) {
                     node.setTypeToCreate(type);
                     break;
                 }
