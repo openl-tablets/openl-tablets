@@ -17,14 +17,17 @@ try {
         assert fileNames.contains('lib/openl-rules-with-dependencies-0.0.0.jar')
 
         // Transitive dependencies
-        assert fileNames.contains('lib/sqljdbc4-4.0.jar')
+        // from dependency-a
+        assert fileNames.contains('lib/logback-classic-1.2.3.jar')
+        assert fileNames.contains('lib/logback-core-1.2.3.jar')
+        // from dependency-c
         assert fileNames.contains('lib/commons-lang-2.6.jar')
 
         // openl jars should not be included
         assert !fileNames.any { it.startsWith('lib/org.openl.rules.project') }
 
         // There must be no extra jar
-        assert zf.entries().findAll { !it.directory }.size() == 8
+        assert zf.entries().findAll { !it.directory }.size() == 9
     }
 
     return true

@@ -47,7 +47,7 @@
                 <artifactId>openl-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-                    <dependenciesThreshold>5</dependenciesThreshold>
+                    <dependenciesThreshold>6</dependenciesThreshold>
                 </configuration>
             </plugin>
         </plugins>
