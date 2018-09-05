@@ -57,7 +57,7 @@ public class UndoableSetValueAction extends AUndoableCellAction {
         }
         CellMetaInfo prevMetaInfo = getPrevMetaInfo();
         IOpenClass newType = JavaOpenClass.getOpenClass(value.getClass());
-        if (prevMetaInfo != null && prevMetaInfo.getDataType().equals(newType)) {
+        if (prevMetaInfo != null && prevMetaInfo.getDataType() != null && prevMetaInfo.getDataType().equals(newType)) {
             return removeNodeUsage(prevMetaInfo);
         }
 

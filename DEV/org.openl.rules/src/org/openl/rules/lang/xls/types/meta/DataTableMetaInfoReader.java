@@ -169,6 +169,9 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
                 } else {
                     columnType = descriptor.isConstructor() ? table.getDataModel().getType() : descriptor.getType();
                 }
+                if (columnType == null) {
+                    return null;
+                }
                 if (!descriptor.isValuesAnArray()) {
                     return new CellMetaInfo(columnType, false);
                 } else {

@@ -132,7 +132,7 @@ public class ColumnDescriptor {
     }
 
     public IOpenClass getType() {
-        return field.getType();
+        return field == null ? null : field.getType();
     }
 
     public synchronized Map<String, Integer> getUniqueIndex(ITable table, int idx) throws SyntaxNodeException {
