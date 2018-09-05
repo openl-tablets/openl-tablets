@@ -220,7 +220,7 @@ public class HTMLRenderer {
             .append(toolbarItemSeparator)
 
             .append(renderEditorToolbarItem(editorId + "_insert_row_before", editorJsVar, "img/insert_row.gif",
-                    "doTableOperation(TableEditor.Operations.INSERT_ROW_BEFORE)", "Insert row before"))
+                    "doTableOperation(TableEditor.Operations.INSERT_ROW_BEFORE)", "Insert row after")) // TODO: rename method names and fields to "after"
             .append(renderEditorToolbarItem(editorId + "_remove_row", editorJsVar, "img/delete_row.gif",
                     "doTableOperation(TableEditor.Operations.REMOVE_ROW)", "Remove row"))
 
