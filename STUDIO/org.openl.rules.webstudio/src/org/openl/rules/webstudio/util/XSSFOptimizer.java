@@ -1,8 +1,6 @@
 package org.openl.rules.webstudio.util;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.poi.xssf.model.StylesTable;
@@ -26,25 +24,33 @@ public final class XSSFOptimizer {
                 cellStyles = CTCellStyles.Factory.newInstance();
             }
 
-            List<CTXf> newStyleXfs = new ArrayList<CTXf>();
-            List<CTCellStyle> newCellStyles = new ArrayList<CTCellStyle>();
+            List<CTXf> newStyleXfs = new ArrayList<>();
+            List<CTCellStyle> newCellStyles = new ArrayList<>();
 
-            TreeSet<Integer> usedStyleXfs = new TreeSet<Integer>();
+            // TODO: Consider removing <xf> styles in <cellXfs> that isn't referenced from any cell's "s" attribute (<c s="33">)
+
+            TreeSet<Integer> usedStyleXfs = new TreeSet<>();
             for (CTXf xf : xfs) {
                 usedStyleXfs.add((int) xf.getXfId());
             }
 
             // Change XfId references to the new ones
-            CTCellStyle[] cellStyleArray = cellStyles.getCellStyleArray();
+            List<CTCellStyle> cellStyleArray = new ArrayList<>(Arrays.asList(cellStyles.getCellStyleArray()));
             long newXfId = 0;
             for (Integer usedStyleXf : usedStyleXfs) {
                 CTXf styleXf = styleXfs.get(usedStyleXf);
                 styleXf.setXfId(newXfId);
                 newStyleXfs.add(styleXf);
 
-                CTCellStyle cellStyle = cellStyleArray[usedStyleXf];
-                cellStyle.setXfId(newXfId);
-                newCellStyles.add(cellStyle);
+                // Change xfId in <cellStyle xfId=""> if exists such named style
+                for (Iterator<CTCellStyle> iterator = cellStyleArray.iterator(); iterator.hasNext(); ) {
+                    CTCellStyle style = iterator.next();
+                    if (style.getXfId() == usedStyleXf) {
+                        style.setXfId(newXfId);
+                        newCellStyles.add(style);
+                        iterator.remove();
+                    }
+                }
 
                 for (CTXf xf : xfs) {
                     if (xf.getXfId() == usedStyleXf) {
@@ -60,7 +66,7 @@ public final class XSSFOptimizer {
             styleXfs.addAll(newStyleXfs);
 
             cellStyles.setCount(newCellStyles.size());
-            cellStyles.setCellStyleArray(newCellStyles.toArray(new CTCellStyle[newCellStyles.size()]));
+            cellStyles.setCellStyleArray(newCellStyles.toArray(new CTCellStyle[0]));
         } catch (IllegalAccessException e) {
             // Something is changed in POI implementation. Don't modify workbook, just quit.
             Logger log = LoggerFactory.getLogger(XSSFOptimizer.class);
