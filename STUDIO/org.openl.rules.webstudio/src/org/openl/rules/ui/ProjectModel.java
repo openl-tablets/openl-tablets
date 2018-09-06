@@ -1,9 +1,7 @@
 package org.openl.rules.ui;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.CREATE_TABLES;
-import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
-import static org.openl.rules.security.Privileges.EDIT_TABLES;
+import static org.openl.rules.security.Privileges.*;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -47,11 +45,7 @@ import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.project.instantiation.ReloadType;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
-import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
-import org.openl.rules.project.instantiation.SimpleProjectDependencyLoader;
+import org.openl.rules.project.instantiation.*;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -63,14 +57,7 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.testmethod.BaseTestUnit;
-import org.openl.rules.testmethod.ProjectHelper;
-import org.openl.rules.testmethod.TestDescription;
-import org.openl.rules.testmethod.TestRunner;
-import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.TestSuiteExecutor;
-import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.testmethod.*;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.benchmark.Benchmark;
 import org.openl.rules.ui.benchmark.BenchmarkInfo;
@@ -1072,6 +1059,13 @@ public class ProjectModel {
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(webStudioWorkspaceDependencyManager);
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
+            if (!isSingleModuleMode()) {
+                // EPBDS-7629: In multimodule mode xlsModuleSyntaxNode doesn't contain Virtual Module with dispatcher table syntax nodes.
+                // Such dispatcher syntax nodes are needed to show dispatcher tables in Trace.
+                // That's why we should add virtual module to allXlsModuleSyntaxNodes.
+                XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
+                allXlsModuleSyntaxNodes.add(xmi.getXlsModuleNode());
+            }
 
             factory.allowUnload();
             WorkbookLoaders.resetCurrentFactory();
