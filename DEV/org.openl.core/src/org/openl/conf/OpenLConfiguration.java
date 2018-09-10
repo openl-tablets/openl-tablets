@@ -18,7 +18,6 @@ import org.openl.binding.impl.NotExistNodeBinder;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.method.MethodSearch;
-import org.openl.cache.GenericKey;
 import org.openl.conf.TypeCastFactory.JavaCastComponent;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.grammar.IGrammar;
@@ -34,8 +33,6 @@ import org.openl.types.impl.MethodKey;
  *
  */
 public class OpenLConfiguration implements IOpenLConfiguration {
-
-    private static HashMap<Object, IOpenLConfiguration> configurations = new HashMap<Object, IOpenLConfiguration>();
 
     private String uri;
 
@@ -54,35 +51,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     private TypeFactoryConfiguration typeFactory;
 
     private Map<String, IOpenFactoryConfiguration> openFactories = null;
-
-    public static IOpenLConfiguration getInstance(String name, IUserContext ucxt) throws OpenConfigurationException {
-        Object key = GenericKey.getInstance(name, ucxt);
-        return configurations.get(key);
-    }
-
-    public static synchronized void register(String name,
-                                             IUserContext ucxt,
-                                             IOpenLConfiguration oplc) throws OpenConfigurationException {
-        Object key = GenericKey.getInstance(name, ucxt);
-        IOpenLConfiguration old = configurations.get(key);
-        if (old != null) {
-            throw new OpenConfigurationException("The configuration " + name + " already exists", null, null);
-        }
-        configurations.put(key, oplc);
-    }
-
-    // FIXME: multithreading issue: users can reset foreign OpenL calculation
-    public static void reset() {
-        configurations = new HashMap<Object, IOpenLConfiguration>();
-    }
-
-    public static synchronized void unregister(String name, IUserContext ucxt) throws OpenConfigurationException {
-        Object key = GenericKey.getInstance(name, ucxt);
-
-        configurations.remove(key);
-        configurations.remove(name);
-
-    }
 
     public synchronized void addOpenFactory(IOpenFactoryConfiguration opfc) throws OpenConfigurationException {
         if (openFactories == null) {

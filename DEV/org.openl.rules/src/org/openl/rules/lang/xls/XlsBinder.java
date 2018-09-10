@@ -96,8 +96,6 @@ public class XlsBinder implements IOpenBinder {
     private final Logger log = LoggerFactory.getLogger(XlsBinder.class);
     private static Map<String, AXlsTableBinder> binderFactory;
 
-    public static final String DEFAULT_OPENL_NAME = "org.openl.rules.java";
-
     private static final String[][] BINDERS = { { XlsNodeTypes.XLS_DATA.toString(), DataNodeBinder.class.getName() },
             { XlsNodeTypes.XLS_DATATYPE.toString(), DatatypeNodeBinder.class.getName() },
             { XlsNodeTypes.XLS_DT.toString(), org.openl.rules.dt.DecisionTableNodeBinder.class.getName() },
@@ -458,7 +456,6 @@ public class XlsBinder implements IOpenBinder {
         addImports(builder, imports);
 
         builder.setContexts(null, userContext);
-        builder.setInheritExtendedConfigurationLoader(true);
 
         return OpenL.getInstance(category, userContext, builder);
     }
@@ -486,7 +483,7 @@ public class XlsBinder implements IOpenBinder {
     }
 
     protected String getDefaultOpenLName() {
-        return DEFAULT_OPENL_NAME;
+        return OpenL.OPENL_JAVA_NAME;
     }
 
     private String getOpenLName(OpenlSyntaxNode osn) {

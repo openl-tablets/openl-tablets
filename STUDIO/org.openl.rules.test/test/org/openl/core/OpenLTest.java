@@ -118,7 +118,9 @@ public final class OpenLTest {
 
     @Test
     public void testAllExcelFiles() {
-        testAllExcelFilesInFolder(DIR, true);
+        while (true) {
+            testAllExcelFilesInFolder(DIR, true);
+        }
     }
 
     private void testAllExcelFilesInFolder(String folderName, boolean pass) {

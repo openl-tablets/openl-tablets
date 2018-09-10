@@ -188,8 +188,6 @@ abstract class BaseOpenLMojo extends AbstractMojo {
             ClassLoaderUtils.close(classLoader);
         }
 
-        OpenL.reset();
-        OpenLConfiguration.reset();
         ClassLoaderFactory.reset();
     }
 }

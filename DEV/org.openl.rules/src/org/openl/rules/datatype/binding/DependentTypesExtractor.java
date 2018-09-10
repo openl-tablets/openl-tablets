@@ -1,5 +1,12 @@
 package org.openl.rules.datatype.binding;
 
+import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.canProcessRow;
+import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.getCellSource;
+import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.getIdentifierNode;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.exception.OpenLCompilationException;
@@ -11,10 +18,6 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.util.StringUtils;
-
-import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.*;
-
-import java.util.*;
 
 /**
  * In the Datatype TableSyntaxNode find the dependent types.
@@ -35,7 +38,7 @@ class DependentTypesExtractor {
     public Set<String> extract(TableSyntaxNode node, IBindingContext cxt) {
         ILogicalTable dataPart = DatatypeHelper.getNormalizedDataPartTable(
                 node.getTable(),
-                OpenL.getInstance(XlsBinder.DEFAULT_OPENL_NAME),
+                OpenL.getInstance(OpenL.OPENL_JAVA_NAME),
                 cxt);
 
         int tableHeight = 0;

@@ -13,10 +13,18 @@ final public class BExGrammarParser implements RangeParser {
         this.sourceType = sourceType;
     }
 
+    private OpenL openl;
+
+    public OpenL getOpenL() {
+        if (openl == null) {
+            openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
+        }
+        return openl;
+    }
+
     @Override
     public RangeWithBounds parse(String range) {
         // TODO: Correct tokenizing in grammar.
-        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
-        return (RangeWithBounds) OpenLManager.run(openl, new StringSourceCodeModule(range, ""), sourceType);
+        return (RangeWithBounds) OpenLManager.run(getOpenL(), new StringSourceCodeModule(range, ""), sourceType);
     }
 }

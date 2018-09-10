@@ -9,6 +9,10 @@ package org.openl.conf;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.openl.OpenL;
 
 /**
  * The class is designed as immutable, but not immutable because contains
@@ -58,6 +62,34 @@ public final class UserContext extends AUserContext {
         StringBuilder sb = new StringBuilder();
         sb.append("home=").append(userHome).append("cl=").append(printClassloader(userClassLoader));
         return sb.toString();
+    }
+
+    private Map<String, IOpenLConfiguration> configurations = new HashMap<String, IOpenLConfiguration>();
+
+    private Map<String, OpenL> openls = new HashMap<String, OpenL>();
+
+    public OpenL getOpenL(String name) {
+        return openls.get(name);
+    }
+
+    public void registerOpenL(String name, OpenL opl) throws OpenConfigurationException {
+        OpenL openl = openls.get(name);
+        if (openl != null) {
+            throw new OpenConfigurationException("The openl " + name + " already exists", null, null);
+        }
+        openls.put(name, opl);
+    }
+
+    public IOpenLConfiguration getOpenLConfiguration(String name) throws OpenConfigurationException {
+        return configurations.get(name);
+    }
+
+    public void registerOpenLConfiguration(String name, IOpenLConfiguration oplc) throws OpenConfigurationException {
+        IOpenLConfiguration configuration = configurations.get(name);
+        if (configuration != null) {
+            throw new OpenConfigurationException("The configuration " + name + " already exists", null, null);
+        }
+        configurations.put(name, oplc);
     }
 
 }

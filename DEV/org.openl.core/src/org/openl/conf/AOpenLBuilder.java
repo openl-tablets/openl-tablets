@@ -41,38 +41,13 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
 
     }
 
-    private static UserContextStack userCxt = new UserContextStack();
-
-    private boolean inheritExtendedConfigurationLoader = false;
-
     public OpenL build(String openl) throws OpenConfigurationException {
         OpenL op = new OpenL();
         op.setName(openl);
-        boolean changedClassLoader = false;
-        ClassLoader oldClassLoader = null;
-
         try {
-            userCxt.push(getUserEnvironmentContext());
-
-            ClassLoader myClassLoader = myClassLoader();
-
-            oldClassLoader = Thread.currentThread().getContextClassLoader();
-
-            if (oldClassLoader != myClassLoader) {
-                Thread.currentThread().setContextClassLoader(myClassLoader);
-                changedClassLoader = true;
-            }
-
-            UserContext mycxt = new UserContext(myClassLoader, getUserEnvironmentContext().getUserHome());
-
             NoAntOpenLTask naot = getNoAntOpenLTask();
 
-            naot.setInheritExtendedConfigurationLoader(inheritExtendedConfigurationLoader);
-            if (inheritExtendedConfigurationLoader) {
-                naot.execute(getUserEnvironmentContext());
-            } else {
-                naot.execute(mycxt);
-            }
+            naot.execute(getUserEnvironmentContext());
 
             IOpenLConfiguration conf = NoAntOpenLTask.retrieveConfiguration();
 
@@ -81,15 +56,9 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
             op.setBinder(new Binder(conf, conf, conf, conf, conf, op));
             op.setVm(new SimpleVM());
 
-
             op.setCompileContext(new DefaultCompileContext());
         } catch (Exception ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
-        } finally {
-            if (changedClassLoader) {
-                Thread.currentThread().setContextClassLoader(oldClassLoader);
-            }
-            userCxt.pop();
         }
         return op;
     }
@@ -131,9 +100,5 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
             return getClass().getClassLoader();
         }
 
-    }
-
-    public void setInheritExtendedConfigurationLoader(boolean inheritExtendedConfigurationLoader) {
-        this.inheritExtendedConfigurationLoader = inheritExtendedConfigurationLoader;
     }
 }
