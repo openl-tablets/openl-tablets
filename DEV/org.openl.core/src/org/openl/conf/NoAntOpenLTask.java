@@ -77,14 +77,14 @@ public class NoAntOpenLTask {
                 throw new OpenConfigurationException("The category must be set", null, null);
             }
             IOpenLConfiguration existing;
-            if ((existing = OpenLConfiguration.getInstance(category, ucxt)) != null) {
+            if ((existing = ucxt.getOpenLConfiguration(category)) != null) {
                 saveConfiguration(existing);
                 return;
             }
 
             IOpenLConfiguration extendsConfiguration = null;
             if (extendsCategory != null) {
-                if ((extendsConfiguration = OpenLConfiguration.getInstance(extendsCategory, ucxt)) == null) {
+                if ((extendsConfiguration = ucxt.getOpenLConfiguration(extendsCategory)) == null) {
                     throw new OpenConfigurationException("The extended category " + extendsCategory
                             + " must have been loaded first", null, null);
                 }
@@ -95,7 +95,9 @@ public class NoAntOpenLTask {
             conf.setParent(extendsConfiguration);
             conf.setConfigurationContext(cxt);
             conf.validate(cxt);
-            OpenLConfiguration.register(category, ucxt, conf);
+            
+            ucxt.registerOpenLConfiguration(category, conf);
+            
             saveConfiguration(conf);
         } catch (Exception e) {
             e.printStackTrace(System.err);

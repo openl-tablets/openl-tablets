@@ -171,8 +171,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     private void resetOpenL() {
         // TODO Refactor the classes below to not have static HashMap fields: it's bad
         // for multithreading and memory-leak prone.
-        OpenL.reset();
-        OpenLConfiguration.reset();
         ClassLoaderFactory.reset();
     }
 

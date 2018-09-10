@@ -22,3 +22,4 @@ public class ObjectToDataOpenCastConvertor {
         return getCastFactory().getCast(JavaOpenClass.getOpenClass(fromClass), JavaOpenClass.getOpenClass(toClass));
     }
 }
+
