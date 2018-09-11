@@ -25,21 +25,21 @@ public class DefaultIndexBuilderImpl implements IndexBuilder {
     public String withId(LoggingInfo loggingInfo) {
         String id = null;
 
-        Object existingId = loggingInfo.getContext().get(ID);
+        Object existingId = loggingInfo.getLoggingContext().get(ID);
         if (existingId != null) {
             id = (String) existingId;
         } else {
             id = UUID.randomUUID().toString();
-            loggingInfo.getContext().put(ID, id);
+            loggingInfo.getLoggingContext().put(ID, id);
         }
         return id;
     }
 
     @Override
     public String withIndexName(LoggingInfo loggingInfo) {
-        try{
+        try {
             return URLEncoder.encode(loggingInfo.getServiceName(), "UTF-8").toLowerCase();
-        }catch(UnsupportedEncodingException e){
+        } catch (UnsupportedEncodingException e) {
             return null;
         }
     }
