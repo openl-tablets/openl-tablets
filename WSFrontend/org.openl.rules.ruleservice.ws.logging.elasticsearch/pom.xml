@@ -56,7 +56,6 @@
 			<groupId>org.openl.rules</groupId>
 			<artifactId>org.openl.rules.ruleservice</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.openl.rules</groupId>
 			<artifactId>org.openl.rules.ruleservice.ws.logging</artifactId>
@@ -70,7 +69,7 @@
 			<artifactId>cxf-rt-transports-http-jetty</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<!--ELasric Search -->
+		<!--Elastic Search -->
 		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-elasticsearch</artifactId>

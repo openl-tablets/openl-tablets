@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.logging;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.cxf.interceptor.LoggingMessage;
@@ -11,6 +12,8 @@ import org.openl.rules.project.model.RulesDeploy.PublisherType;
 public class LoggingInfo {
     
     private RuleServiceLogging ruleServiceLogging;
+    
+    private Map<String, Object> loggingContext = new HashMap<String, Object>();
     
     public LoggingInfo(RuleServiceLogging ruleServiceLoggingInfo) {
         this.ruleServiceLogging = ruleServiceLoggingInfo;
@@ -58,6 +61,10 @@ public class LoggingInfo {
 
     public Map<String, Object> getContext() {
         return Collections.unmodifiableMap(ruleServiceLogging.getContext());
+    }
+    
+    public Map<String, Object> getLoggingContext() {
+        return loggingContext;
     }
 
     public boolean isIgnorable() {
