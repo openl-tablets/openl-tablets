@@ -27,6 +27,8 @@ public class OpenLEngine {
         IOpenCast[] bestOpenCasts = null;
         int bestDistance = -1;
 
+        ObjectToDataOpenCastConvertor convertor = new ObjectToDataOpenCastConvertor();
+
         for (Method method : methods) {
             if (method.getName().equals(methodName)) {
                 if (args.length == method.getParameterTypes().length) {
@@ -34,7 +36,7 @@ public class OpenLEngine {
                     IOpenCast[] openCasts = new IOpenCast[args.length];
                     for (int i = 0; i < args.length; i++) {
                         if (args[i] != null) {
-                            IOpenCast openCast = ObjectToDataOpenCastConvertor
+                            IOpenCast openCast = convertor
                                 .getConvertor(method.getParameterTypes()[i], args[i].getClass());
                             if (openCast == null) {
                                 f = false;

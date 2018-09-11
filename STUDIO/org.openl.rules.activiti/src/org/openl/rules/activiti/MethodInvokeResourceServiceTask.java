@@ -19,6 +19,7 @@ public class MethodInvokeResourceServiceTask extends AbstractOpenLResourceServic
     protected Expression resultVariable;
     
     private Object compiledInstance;
+    private ObjectToDataOpenCastConvertor convertor = new ObjectToDataOpenCastConvertor();
 
     @Override
     protected IRulesRuntimeContext buildRuntimeContext(DelegateExecution execution) {
@@ -61,7 +62,7 @@ public class MethodInvokeResourceServiceTask extends AbstractOpenLResourceServic
             Object variable = execution.getVariable(parameterName);
             if (variable != null) {
                 IOpenClass parameterClass = openMethod.getSignature().getParameterType(i);
-                IOpenCast openCast = ObjectToDataOpenCastConvertor.getConvertor(parameterClass.getInstanceClass(),
+                IOpenCast openCast = convertor.getConvertor(parameterClass.getInstanceClass(),
                     variable.getClass());
                 openCasts[i] = openCast;
                 if (openCast == null) {

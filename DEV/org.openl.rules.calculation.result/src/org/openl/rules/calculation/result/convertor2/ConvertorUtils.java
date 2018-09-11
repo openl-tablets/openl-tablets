@@ -50,6 +50,8 @@ public class ConvertorUtils {
             stepMap.put(calculationStep.getStepName(), calculationStep);
         }
 
+        ObjectToDataOpenCastConvertor convertor = new ObjectToDataOpenCastConvertor();
+
         for (CalculationStep calculationStep : compoundStep.getSteps()) {
             CalculationStep calculationStepWithСonvertationMetadata = stepMap.get(calculationStep.getStepName());
             if (calculationStepWithСonvertationMetadata == null) {
@@ -93,7 +95,7 @@ public class ConvertorUtils {
                 Object originalValue = convertationMetadata.getSpreadsheetResult()
                     .getValue(spreadsheetResultPoint.getRowIndex(), spreadsheetResultPoint.getColumnIndex());
                 if (originalValue != null) {
-                    value = convert(value, originalValue.getClass());
+                    value = convert(convertor, value, originalValue.getClass());
                 }
                 result[spreadsheetResultPoint.getRowIndex()][spreadsheetResultPoint.getColumnIndex()] = value;
             }
@@ -102,11 +104,11 @@ public class ConvertorUtils {
         return spreadsheetResult;
     }
 
-    private static Object convert(Object x, Class<?> expectedType) {
+    private static Object convert(ObjectToDataOpenCastConvertor convertor, Object x, Class<?> expectedType) {
         if (x.getClass().isArray() && expectedType.isArray()) {
             int length = Array.getLength(x);
             Object newValue = Array.newInstance(expectedType.getComponentType(), length);
-            IOpenCast openCast = ObjectToDataOpenCastConvertor.getConvertor(expectedType.getComponentType(),
+            IOpenCast openCast = convertor.getConvertor(expectedType.getComponentType(),
                 x.getClass().getComponentType());
             for (int i = 0; i < length; i++) {
                 Object componentValue = Array.get(x, i);
@@ -131,7 +133,7 @@ public class ConvertorUtils {
         } else {
             if (!ClassUtils.isAssignable(x.getClass(), expectedType)) {
                 try {
-                    IOpenCast openCast = ObjectToDataOpenCastConvertor.getConvertor(expectedType, x.getClass());
+                    IOpenCast openCast = convertor.getConvertor(expectedType, x.getClass());
                     return openCast.convert(x);
                 } catch (Exception e) {
                     Logger log = LoggerFactory.getLogger(ConvertorUtils.class);
