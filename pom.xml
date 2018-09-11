@@ -69,8 +69,8 @@
     </scm>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.target.version>1.7</java.target.version>
-        <java.source.version>1.7</java.source.version>
+        <java.target.version>1.8</java.target.version>
+        <java.source.version>1.8</java.source.version>
         <!-- If true, deploying of artifacts will be skipped  -->
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
@@ -960,36 +960,6 @@
                 <groupId>org.apache.jackrabbit</groupId>
                 <artifactId>jackrabbit-core</artifactId>
                 <version>${org.apache.jackrabbit.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.pdfbox</groupId>
-                        <artifactId>pdfbox</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.poi</groupId>
-                        <artifactId>poi</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.poi</groupId>
-                        <artifactId>poi-scratchpad</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.poi</groupId>
-                        <artifactId>poi-ooxml</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.textmining</groupId>
-                        <artifactId>tm-extractors</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>nekohtml</groupId>
-                        <artifactId>nekohtml</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <!-- JCR-RMI makes it possible to remotely access JCR content repositories. -->
             <dependency>
