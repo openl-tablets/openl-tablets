@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
+import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.cast.JavaNoCast;
@@ -126,22 +127,15 @@ public class ObjectToDataOpenCastConvertor {
         }
     }
 
-    private static final IOpenCast NO_CAST_FOUND = new IOpenCast() {
-        @Override
-        public boolean isImplicit() {
-            throw new UnsupportedOperationException();
-        }
+    private static ICastFactory castFactory = null;
 
-        @Override
-        public int getDistance(IOpenClass from, IOpenClass to) {
-            throw new UnsupportedOperationException();
+    private static ICastFactory getCastFactory() {
+        if (castFactory == null) {
+            IOpenBinder binder = OpenL.getInstance(OpenL.OPENL_JAVA_NAME).getBinder();
+            castFactory = binder.getCastFactory();
         }
-
-        @Override
-        public Object convert(Object from) {
-            throw new UnsupportedOperationException();
-        }
-    };
+        return castFactory;
+    }
 
     public static IOpenCast getConvertor(Class<?> toClass, Class<?> fromClass) {
         if (toClass == fromClass)
@@ -149,18 +143,9 @@ public class ObjectToDataOpenCastConvertor {
         ClassCastPair pair = new ClassCastPair(fromClass, toClass);
         IOpenCast cast = convertors.get(pair);
         if (cast != null) {
-            if (cast == NO_CAST_FOUND) {
-                return null;
-            }
             return cast;
         }
 
-        IOpenBinder binder = OpenL.getInstance(OpenL.OPENL_JAVA_NAME).getBinder();
-        IOpenCast openCast = binder.getCastFactory().getCast(JavaOpenClass.getOpenClass(fromClass),
-            JavaOpenClass.getOpenClass(toClass));
-        if (openCast == null) {
-            convertors.put(pair, NO_CAST_FOUND);
-        }
-        return openCast;
+        return getCastFactory().getCast(JavaOpenClass.getOpenClass(fromClass), JavaOpenClass.getOpenClass(toClass));
     }
 }
