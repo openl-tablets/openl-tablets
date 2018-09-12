@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.util.text.ILocation;
 
 public class OpenLCompilationException extends Exception implements OpenLException {
@@ -75,10 +76,40 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
 
-        OpenLExceptionUtils.printError(this, printWriter);
-        SourceCodeURLTool.printSourceLocation(this, printWriter);
+        printError(this, printWriter);
+        SourceCodeURLTool.printSourceLocation(getLocation(), getSourceModule(), printWriter);
         printWriter.close();
 
         return stringWriter.toString();
+    }
+
+    private static void printError(OpenLException error, PrintWriter writer) {
+
+        Throwable cause = error.getCause();
+
+        String message;
+
+        if (cause instanceof CompositeSyntaxNodeException) {
+
+            CompositeSyntaxNodeException syntaxErrorException = (CompositeSyntaxNodeException) cause;
+
+            for (int i = 0; i < syntaxErrorException.getErrors().length; i++) {
+                printError(syntaxErrorException.getErrors()[i], writer);
+            }
+
+            return;
+
+        } else {
+            message = error.getMessage();
+        }
+
+        writer.println("Error: " + message);
+
+        SourceCodeURLTool.printCodeAndError(error.getLocation(), error.getSourceModule(), writer);
+        SourceCodeURLTool.printSourceLocation(error.getLocation(), error.getSourceModule(), writer);
+
+        if (error.getCause() != null) {
+            error.getCause().printStackTrace(writer);
+        }
     }
 }
