@@ -9,8 +9,6 @@
     <name>OpenL Plugin: multimodule project</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
         <org.openl.version>@project.version@</org.openl.version>
     </properties>
     <build>
@@ -21,8 +19,8 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.3</version>
                     <configuration>
-                        <source>${java.source.version}</source>
-                        <target>${java.target.version}</target>
+                        <source>@java.source.version@</source>
+                        <target>@java.target.version@</target>
                     </configuration>
                 </plugin>
                 <plugin>
