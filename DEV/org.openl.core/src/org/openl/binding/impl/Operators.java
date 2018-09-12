@@ -788,36 +788,84 @@ public class Operators {
         return -x;
     }
 
+    public static Byte negative(Byte x) {
+        return x == null ? null : (byte) -x;
+    }
+
+    public static Short negative(Short x) {
+        return x == null ? null : (short) -x;
+    }
+
+    public static Float negative(Float x) {
+        return x == null ? null : -x;
+    }
+
+    public static Double negative(Double x) {
+        return x == null ? null : -x;
+    }
+
+    public static Integer negative(Integer x) {
+        return x == null ? null : -x;
+    }
+
+    public static Long negative(Long x) {
+        return x == null ? null : -x;
+    }
+
     public static BigInteger negative(BigInteger x) {
-        return x.negate();
+        return x != null ? x.negate() : null;
     }
 
     public static BigDecimal negative(BigDecimal x) {
-        return x.negate();
+        return x != null ? x.negate() : null;
     }
 
     public static float positive(float x) {
-        return +x;
+        return x;
     }
 
     public static double positive(double x) {
-        return +x;
+        return x;
     }
 
     public static byte positive(byte x) {
-        return (byte) +x;
+        return x;
     }
 
     public static short positive(short x) {
-        return (short) +x;
+        return x;
     }
 
     public static int positive(int x) {
-        return +x;
+        return x;
     }
 
     public static long positive(long x) {
-        return +x;
+        return x;
+    }
+
+    public static Float positive(Float x) {
+        return x;
+    }
+
+    public static Double positive(Double x) {
+        return x;
+    }
+
+    public static Byte positive(Byte x) {
+        return x;
+    }
+
+    public static Short positive(Short x) {
+        return x;
+    }
+
+    public static Integer positive(Integer x) {
+        return x;
+    }
+
+    public static Long positive(Long x) {
+        return x;
     }
 
     public static BigInteger positive(BigInteger x) {
