@@ -68,7 +68,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
         if (node != null) {
             pw.println(super.getMessage());
             SourceCodeURLTool.printCodeAndError(getLocation(), getSourceModule(), pw);
-            SourceCodeURLTool.printSourceLocation(this, pw);
+            SourceCodeURLTool.printSourceLocation(getLocation(), getSourceModule(), pw);
         } else {
             pw.print(super.getMessage());    
         }
@@ -121,7 +121,35 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
 
     @Override
     public void printStackTrace(PrintWriter writer) {
-        OpenLExceptionUtils.printRuntimeError(this, writer);
+        Throwable rootCause = this;
+
+        if (getCause() != null) {
+            rootCause = getCause();
+        }
+
+        writer.println(rootCause.getClass().getName() + ": " + rootCause.getMessage());
+
+        if (getNode() != null) {
+            ISyntaxNode syntaxNode = getNode().getSyntaxNode();
+            if (syntaxNode != null) {
+                SourceCodeURLTool.printCodeAndError(syntaxNode.getSourceLocation(), syntaxNode.getModule(), writer);
+                SourceCodeURLTool.printSourceLocation(syntaxNode.getSourceLocation(), syntaxNode.getModule(), writer);
+            }
+        }
+
+        Stack<IBoundNode> nodes = getOpenlCallStack();
+
+        for (int i = 0; i < nodes.size(); i++) {
+            IBoundNode node1 = nodes.elementAt(i);
+            ISyntaxNode syntaxNode = node1.getSyntaxNode();
+            if (syntaxNode != null) {
+                SourceCodeURLTool.printSourceLocation(syntaxNode.getSourceLocation(), syntaxNode.getModule(), writer);
+            }
+        }
+
+        if (rootCause != this) {
+            rootCause.printStackTrace(writer);
+        }
     }
 
 }

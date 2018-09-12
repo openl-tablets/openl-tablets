@@ -5,7 +5,6 @@ import java.io.StringWriter;
 
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
-import org.openl.exception.OpenLExceptionUtils;
 import org.openl.main.SourceCodeURLConstants;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.util.StringUtils;
@@ -24,7 +23,7 @@ public class OpenLErrorMessage extends OpenLMessage {
     }
 
     public OpenLErrorMessage(OpenLException error) {
-        super(OpenLExceptionUtils.getOpenLExceptionMessage(error), Severity.ERROR);
+        super(getOpenLExceptionMessage(error), Severity.ERROR);
         if (error == null) {
             throw new NullPointerException();
         }
@@ -104,4 +103,22 @@ public class OpenLErrorMessage extends OpenLMessage {
         return true;
     }
 
+    private static String getOpenLExceptionMessage(OpenLException ex) {
+
+        if (!(ex instanceof Throwable)) {
+            return null;
+        }
+
+        Throwable t = (Throwable) ex;
+
+        OpenLException cause = ex;
+        while (t != null) {
+            if (t instanceof OpenLException) {
+                cause = (OpenLException) t;
+            }
+            t = t.getCause();
+        }
+
+        return cause.getMessage();
+    }
 }
