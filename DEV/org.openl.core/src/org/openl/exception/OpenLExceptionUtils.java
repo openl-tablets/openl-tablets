@@ -72,7 +72,10 @@ public class OpenLExceptionUtils {
 
         for (int i = 0; i < nodes.size(); i++) {
             IBoundNode node = nodes.elementAt(i);
-            SourceCodeURLTool.printSourceLocation(node.getSyntaxNode().getSourceLocation(), node.getSyntaxNode().getModule(), writer);
+            ISyntaxNode syntaxNode = node.getSyntaxNode();
+            if (syntaxNode != null) {
+                SourceCodeURLTool.printSourceLocation(syntaxNode.getSourceLocation(), syntaxNode.getModule(), writer);
+            }
         }
 
         if (rootCause != error) {

@@ -23,6 +23,7 @@
         <module>server-core</module>
         <module>itest.smoke</module>
         <module>itest.EPBDS-6437</module>
+        <module>itest.HttpStatuses</module>
     </modules>
 
     <dependencyManagement>

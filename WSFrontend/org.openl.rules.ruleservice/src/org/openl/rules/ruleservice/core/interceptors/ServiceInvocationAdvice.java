@@ -14,6 +14,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
 import org.openl.exception.OpenLRuntimeException;
@@ -357,26 +358,25 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
 
     protected Pair<ExceptionType, String> getExceptionDetailAndType(Exception ex) {
         Throwable t = ex;
-        boolean isUserException = false;
-        boolean isRulesException = false;
-        boolean isCompilationException = false;
 
-        String userDetailMessage = null;
-        String rulesRuntimeDetailMessage = null;
-        String compilationDetailMessage = null;
+        ExceptionType type = ExceptionType.SYSTEM;
+        String message = ex.getMessage();
 
         boolean f = true;
         while (f) {
             t = extractInvocationTargetException(t);
             if (t instanceof OpenLUserRuntimeException) {
-                isUserException = true;
-                userDetailMessage = t.getMessage();
+                type = ExceptionType.USER_ERROR;
+                message = t.getMessage();
+            } else if (t instanceof OutsideOfValidDomainException) {
+                type = ExceptionType.VALIDATION;
+                message = ((OutsideOfValidDomainException) t).getOriginalMessage();
             } else if (t instanceof OpenLRuntimeException) {
-                isRulesException = true;
-                rulesRuntimeDetailMessage = ((OpenLRuntimeException) t).getOriginalMessage();
+                type = ExceptionType.RULES_RUNTIME;
+                message = ((OpenLRuntimeException) t).getOriginalMessage();
             } else if (t instanceof OpenLCompilationException || t instanceof RuleServiceOpenLCompilationException) {
-                isCompilationException = true;
-                compilationDetailMessage = t.getMessage();
+                type = ExceptionType.COMPILATION;
+                message = t.getMessage();
             }
             if (t.getCause() == null) {
                 f = false;
@@ -384,16 +384,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 t = t.getCause();
             }
         }
-
-        if (isCompilationException) {
-            return new ImmutablePair<ExceptionType, String>(ExceptionType.COMPILATION, compilationDetailMessage);
-        } else if (isUserException) {
-            return new ImmutablePair<ExceptionType, String>(ExceptionType.USER_ERROR, userDetailMessage);
-        } else if (isRulesException) { 
-            return new ImmutablePair<ExceptionType, String>(ExceptionType.RULES_RUNTIME, rulesRuntimeDetailMessage);
-        }
-        
-        return new ImmutablePair<ExceptionType, String>(ExceptionType.SYSTEM, ex.getMessage());
+        return new ImmutablePair<>(type, message);
     }
 
     protected String getExceptionMessage(Method method, Throwable ex, Object... args) {
