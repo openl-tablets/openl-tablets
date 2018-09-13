@@ -1,15 +1,11 @@
 package org.openl.rules.ruleservice.publish.jaxws;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.UndeclaredThrowableException;
-
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.cxf.binding.soap.SoapFault;
-import org.openl.rules.ruleservice.core.ExceptionType;
-import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
+import org.openl.rules.ruleservice.publish.common.ExceptionResponseDto;
 import org.w3c.dom.Element;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 
 public class JAXWSInvocationHandler implements InvocationHandler {
 
@@ -28,36 +24,20 @@ public class JAXWSInvocationHandler implements InvocationHandler {
             return method.invoke(target, args);
         } catch (Exception e) {
 
-            Throwable t = e;
-            while (t instanceof InvocationTargetException || t instanceof UndeclaredThrowableException) {
-                if (t instanceof InvocationTargetException) {
-                    t = ((InvocationTargetException) t).getTargetException();
-                }
-                if (t instanceof UndeclaredThrowableException) {
-                    t = ((UndeclaredThrowableException) t).getUndeclaredThrowable();
-                }
-            }
-
-            String message = t.getMessage();
-            ExceptionType type = ExceptionType.SYSTEM;
-            if (t instanceof RuleServiceWrapperException) {
-                RuleServiceWrapperException ruleServiceWrapperException = (RuleServiceWrapperException) t;
-                type = ruleServiceWrapperException.getType();
-                message = ruleServiceWrapperException.getSimpleMessage();
-            }
+            ExceptionResponseDto dto = ExceptionResponseDto.createFrom(e);
 
             // Create a standart fault
-            SoapFault fault = new SoapFault(message, SoapFault.FAULT_CODE_SERVER);
+            SoapFault fault = new SoapFault(dto.getMessage(), SoapFault.FAULT_CODE_SERVER);
 
             // <detail> <type>TYPE</type> <stackTrace>stacktrace of cause</stackTrace> </detail>
             Element detailEl = fault.getOrCreateDetail();
             Element typeEl = detailEl.getOwnerDocument().createElement("type");
-            typeEl.setTextContent(type.toString());
+            typeEl.setTextContent(dto.getType());
             detailEl.appendChild(typeEl);
 
-            if (!ExceptionType.USER_ERROR.equals(type)) {
+            if (dto.getDetail() != null) {
                 Element stackTraceEl = detailEl.getOwnerDocument().createElement("stackTrace");
-                stackTraceEl.setTextContent(ExceptionUtils.getStackTrace(e.getCause()));
+                stackTraceEl.setTextContent(dto.getDetail());
                 detailEl.appendChild(stackTraceEl);
             }
 
