@@ -71,7 +71,9 @@ public class ComponentBindingContext extends BindingContextDelegator {
             if (openClass == type){
                 return;
             }
-            throw new OpenLCompilationException("Type " + nameWithNamespace + " has been defined already");
+            if (openClass.getPackageName().equals(type.getPackageName())) {
+                throw new OpenLCompilationException("Type " + nameWithNamespace + " has been defined already");
+            }
         }
 
         internalTypes.put(nameWithNamespace, type);

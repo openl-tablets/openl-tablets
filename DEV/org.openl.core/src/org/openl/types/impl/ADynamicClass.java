@@ -155,6 +155,11 @@ public abstract class ADynamicClass extends AOpenClass {
         return instanceClass.getName();
     }
 
+    @Override
+    public String getPackageName() {
+        return instanceClass.getPackage().getName();
+    }
+
     public boolean isAssignableFrom(Class<?> c) {
         return instanceClass.isAssignableFrom(c);
     }

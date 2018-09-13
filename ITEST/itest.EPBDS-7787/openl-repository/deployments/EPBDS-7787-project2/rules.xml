@@ -1,0 +1,12 @@
+<project>
+  <name>EPBDS-7787-project2</name>
+  <modules>
+    <module>
+      <name>policy_2</name>
+      <rules-root path="policy_2.xlsx"/>
+    </module>
+  </modules>
+  <classpath>
+    <entry path="lib/*.jar"/>
+  </classpath>
+</project>
