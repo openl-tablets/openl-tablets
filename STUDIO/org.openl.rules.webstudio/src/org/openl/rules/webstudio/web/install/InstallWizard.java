@@ -47,6 +47,7 @@ import org.openl.rules.webstudio.web.admin.RepositoryValidationException;
 import org.openl.rules.webstudio.web.admin.RepositoryValidators;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.util.StringUtils;
+import org.openl.util.db.JDBCDriverRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -430,6 +431,7 @@ public class InstallWizard {
         Connection conn;
 
         try {
+            JDBCDriverRegister.registerDrivers();
             if (StringUtils.isBlank(login)) {
                 conn = DriverManager.getConnection(url);
             } else {
