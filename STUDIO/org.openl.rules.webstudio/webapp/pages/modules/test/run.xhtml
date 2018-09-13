@@ -49,7 +49,7 @@
                             <td>
                                 <ui:include src="/pages/modules/test/parameter.xhtml">
                                     <ui:param name="parameter" value="#{parameter}" />
-                                    <ui:param name="lazy" value="true" />
+                                    <ui:param name="lazy" value="false" />
                                 </ui:include>
                             </td>
                             </ui:repeat>
@@ -60,6 +60,7 @@
                                     <h:panelGroup rendered="#{!helper.isExplanationValue(result.actualResult) and !helper.isSpreadsheetResult(result.actualResult)}">
                                         <ui:include src="/pages/modules/test/parameter.xhtml">
                                             <ui:param name="parameter" value="#{result.actualParam}" />
+                                            <ui:param name="lazy" value="false" />
                                         </ui:include>
                                     </h:panelGroup>
                                     <h:outputLink

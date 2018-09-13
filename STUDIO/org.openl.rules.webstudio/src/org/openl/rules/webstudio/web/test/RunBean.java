@@ -5,7 +5,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
+import javax.faces.bean.RequestScoped;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -20,11 +20,9 @@ import org.openl.util.StringUtils;
 
 /**
  * Request scope managed bean providing logic for 'Run Tables' page of WebStudio.
- * TODO: Either make the bean to be request scoped (also store and remove ranResults from session manually) or
- * TODO: resolve memory leak caused by holding same ViewScoped beans in JSF session until user session expires.
  */
 @ManagedBean
-@ViewScoped
+@RequestScoped
 public class RunBean {
 
     @ManagedProperty("#{runTestHelper}")
