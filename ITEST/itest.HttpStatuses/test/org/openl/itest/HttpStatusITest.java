@@ -112,9 +112,20 @@ public class HttpStatusITest {
 
     @Test
     public void test_rest_NPE() {
-        ResponseEntity<String> response = rest.getForEntity("http-statuses-test/throwNPE", String.class);
+        ResponseEntity<ErrorResponse> response = rest.getForEntity("http-statuses-test/throwNPE", ErrorResponse.class);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals(ExceptionType.RULES_RUNTIME.name(), response.getBody().getType());
+        assertNotNull(response.getBody().getDetails());
+    }
+
+    @Test
+    public void test_rest_NFE() {
+        ResponseEntity<ErrorResponse> response = rest.getForEntity("http-statuses-test/throwNFE", ErrorResponse.class);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals(ExceptionType.RULES_RUNTIME.name(), response.getBody().getType());
+        assertNotNull(response.getBody().getDetails());
     }
 
     @Test
@@ -167,6 +178,26 @@ public class HttpStatusITest {
             assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getStatusCode());
             assertEquals("Failed to load lazy method.", e.getMessage());
             assertEquals(ExceptionType.COMPILATION.name(), e.getDetail().getElementsByTagName("type").item(0).getTextContent());
+        }
+    }
+
+    @Test
+    public void test_soap_NPE() {
+        try {
+            httpStatusSoap.throwNPE();
+        } catch (SoapFault e) {
+            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getStatusCode());
+            assertEquals(ExceptionType.RULES_RUNTIME.name(), e.getDetail().getElementsByTagName("type").item(0).getTextContent());
+        }
+    }
+
+    @Test
+    public void test_soap_NFE() {
+        try {
+            httpStatusSoap.throwNFE();
+        } catch (SoapFault e) {
+            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getStatusCode());
+            assertEquals(ExceptionType.RULES_RUNTIME.name(), e.getDetail().getElementsByTagName("type").item(0).getTextContent());
         }
     }
 }
