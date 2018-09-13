@@ -237,8 +237,8 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     @Override
     public void addType(IOpenClass type) throws OpenLCompilationException {
-        IOpenClass openClass = internalTypes.putIfAbsent(type.getName(), type);
-        if (openClass != null && !openClass.equals(type)) {
+        IOpenClass openClass = internalTypes.put(type.getName(), type);
+        if (openClass != null && !openClass.equals(type) && openClass.getPackageName().equals(type.getPackageName())) {
             throw new OpenLCompilationException("The type " + type.getName() + " has been already defined.");
         }
     }

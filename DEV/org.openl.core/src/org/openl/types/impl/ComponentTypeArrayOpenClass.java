@@ -99,6 +99,11 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     }
 
     @Override
+    public String getPackageName() {
+        return componentClass.getPackageName();
+    }
+
+    @Override
     public boolean isArray() {
         return true;
     }

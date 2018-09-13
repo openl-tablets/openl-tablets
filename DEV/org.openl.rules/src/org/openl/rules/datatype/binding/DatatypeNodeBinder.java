@@ -52,7 +52,8 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
         String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
 
         IOpenClass openClass = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
-        if (openClass != null && !(openClass instanceof JavaOpenClass)) { //Additional condition that it is not loaded class from classloader
+        String packageName = tsn.getTableProperties().getPropertyValueAsString("datatypePackage");
+        if (openClass != null && !(openClass instanceof JavaOpenClass) && openClass.getPackageName().equals(packageName)) {
             String message = "Duplicate type definition: " + typeName;
             throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
         }
@@ -129,7 +130,6 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
                 throw SyntaxNodeExceptionUtils.createError(message, null, null, tableSource);
             }
 
-            String packageName = tsn.getTableProperties().getPropertyValueAsString("datatypePackage");
             DatatypeOpenClass tableType = new DatatypeOpenClass(typeName, packageName);
 
             // set meta info with uri to the DatatypeOpenClass for indicating the source of the datatype table

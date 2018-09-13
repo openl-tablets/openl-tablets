@@ -89,6 +89,11 @@ public class NullOpenClass implements IOpenClass {
         return getName();
     }
 
+    @Override
+    public String getPackageName() {
+        return getName();
+    }
+
     public String getNameSpace() {
         return ISyntaxConstants.THIS_NAMESPACE;
     }
