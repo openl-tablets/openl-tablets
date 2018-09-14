@@ -9,8 +9,8 @@ public class ContextParameterTreeNode extends ComplexParameterTreeNode {
     public ContextParameterTreeNode(String fieldName,
             Object value,
             IOpenClass fieldType,
-            ParameterDeclarationTreeNode parent) {
-        super(fieldName, value, fieldType, parent, null);
+            ParameterDeclarationTreeNode parent, String requestId) {
+        super(fieldName, value, fieldType, parent, null, requestId);
     }
 
     @Override

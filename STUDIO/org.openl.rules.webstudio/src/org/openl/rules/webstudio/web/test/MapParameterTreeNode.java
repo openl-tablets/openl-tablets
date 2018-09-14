@@ -15,8 +15,11 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
     public MapParameterTreeNode(String fieldName,
             Object value,
             IOpenClass fieldType,
-            ParameterDeclarationTreeNode parent, IOpenField previewField, boolean hasExplainLinks) {
-        super(fieldName, value, fieldType, parent, previewField, hasExplainLinks);
+            ParameterDeclarationTreeNode parent,
+            IOpenField previewField,
+            boolean hasExplainLinks,
+            String requestId) {
+        super(fieldName, value, fieldType, parent, previewField, hasExplainLinks, requestId);
     }
 
     @Override
@@ -102,7 +105,8 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
     @Override
     protected ParameterDeclarationTreeNode createNode(Object key, Object value) {
         Entry element = new Entry(getMap(), key, value);
-        return ParameterTreeBuilder.createNode(JavaOpenClass.getOpenClass(element.getClass()), element, previewField, null, this, hasExplainLinks);
+        return ParameterTreeBuilder.createNode(JavaOpenClass.getOpenClass(element.getClass()), element, previewField, null, this, hasExplainLinks,
+                requestId);
     }
 
     @Override

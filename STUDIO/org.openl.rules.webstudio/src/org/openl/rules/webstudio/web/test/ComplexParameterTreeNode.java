@@ -4,7 +4,6 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import org.openl.base.INameSpacedThing;
-import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
@@ -18,14 +17,17 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     public static final String COMPLEX_TYPE = "complex";
     private String valuePreview;
     private IOpenClass typeToCreate;
+    private String requestId;
 
-    public ComplexParameterTreeNode(String fieldName, Object value, IOpenClass fieldType, ParameterDeclarationTreeNode parent, String valuePreview) {
+    public ComplexParameterTreeNode(String fieldName,
+            Object value,
+            IOpenClass fieldType,
+            ParameterDeclarationTreeNode parent,
+            String valuePreview,
+            String requestId) {
         super(fieldName, value, fieldType, parent);
         this.valuePreview = valuePreview;
-    }
-
-    public ComplexParameterTreeNode(ParameterWithValueDeclaration paramDescription, ParameterDeclarationTreeNode parent) {
-        super(paramDescription, parent);
+        this.requestId = requestId;
     }
 
     @Override
@@ -76,7 +78,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                     }
 
                     fields.put(fieldName,
-                            ParameterTreeBuilder.createNode(fieldType, fieldValue, fieldName, this));
+                            ParameterTreeBuilder.createNode(fieldType, fieldValue, fieldName, this, requestId));
                 }
             }
             return fields;
