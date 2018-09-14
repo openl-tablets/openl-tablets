@@ -9,11 +9,13 @@ import org.openl.types.IOpenClass;
 public class SpreadsheetResultTreeNode extends ParameterDeclarationTreeNode {
     public static final String SPREADSHEET_RESULT_TYPE = "spreadsheet";
     private final boolean hasExplainLinks;
+    private final String requestId;
 
     public SpreadsheetResultTreeNode(String fieldName, Object value, IOpenClass fieldType,
-                                     ParameterDeclarationTreeNode parent, boolean hasExplainLinks) {
+            ParameterDeclarationTreeNode parent, boolean hasExplainLinks, String requestId) {
         super(fieldName, value, fieldType, parent);
         this.hasExplainLinks = hasExplainLinks;
+        this.requestId = requestId;
     }
 
     @Override
@@ -21,7 +23,7 @@ public class SpreadsheetResultTreeNode extends ParameterDeclarationTreeNode {
         // TODO Refactor code and don't use deprecated class ObjectViewer.
         // TODO Instead render a table using jsf components.
         SpreadsheetResult value = (SpreadsheetResult) getValue();
-        return hasExplainLinks ? ObjectViewer.displaySpreadsheetResult(value) : ObjectViewer.displaySpreadsheetResultNoFilters(value);
+        return hasExplainLinks ? ObjectViewer.displaySpreadsheetResult(value, requestId) : ObjectViewer.displaySpreadsheetResultNoFilters(value);
     }
 
     @Override
@@ -36,6 +38,6 @@ public class SpreadsheetResultTreeNode extends ParameterDeclarationTreeNode {
 
     @Override
     protected LinkedHashMap<Object, ParameterDeclarationTreeNode> initChildrenMap() {
-        return new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
+        return new LinkedHashMap<>();
     }
 }

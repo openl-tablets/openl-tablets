@@ -1,6 +1,3 @@
-/**
- * Created Jan 5, 2007
- */
 package org.openl.rules.ui;
 
 import java.util.ArrayList;
@@ -28,27 +25,32 @@ public final class ObjectViewer {
     }
 
     /** Display SpreadsheetResult with added filter for given fields as expected result and passed/failed icon**/
-    public static String displaySpreadsheetResult(final SpreadsheetResult res, Map<Point, ComparedResult> spreadsheetCellsForTest) {
-        return display(res, spreadsheetCellsForTest, true);
+    public static String displaySpreadsheetResult(final SpreadsheetResult res,
+            Map<Point, ComparedResult> spreadsheetCellsForTest,
+            String requestId) {
+        return display(res, spreadsheetCellsForTest, true, requestId);
     }
 
     /** Display SpreadsheetResult with filter for links to explanation for values*/
-    public static String displaySpreadsheetResult(final SpreadsheetResult res) {
-        return display(res, null, true);
+    public static String displaySpreadsheetResult(final SpreadsheetResult res, String requestId) {
+        return display(res, null, true, requestId);
     }
 
     /** Display SpreadsheetResult without any filters in the table**/
     public static String displaySpreadsheetResultNoFilters(final SpreadsheetResult res) {
-        return display(res, null, false);
+        return display(res, null, false, null);
     }
 
-    private static String display(final SpreadsheetResult res, Map<Point, ComparedResult> spreadsheetCellsForTest, boolean filter) {
-        List<IGridFilter> filters = new ArrayList<IGridFilter>();
+    private static String display(final SpreadsheetResult res,
+            Map<Point, ComparedResult> spreadsheetCellsForTest,
+            boolean filter,
+            String requestId) {
+        List<IGridFilter> filters = new ArrayList<>();
         filters.add(new TableValueFilter(res));
         filters.add(CollectionCellFilter.INSTANCE);
 
         if (filter) {
-            filters.add(LinkMaker.INSTANCE);
+            filters.add(new LinkMaker(requestId));
 
             // Check if the cells for test are initialized,
             // Means Spreadsheet should be displayed with expected values for tests
@@ -61,7 +63,7 @@ public final class ObjectViewer {
 
         ILogicalTable table = res.getLogicalTable();
         IGridTable gridtable = table.getSource();
-        TableModel tableModel = TableModel.initializeTableModel(gridtable, filters.toArray(new IGridFilter[filters.size()]));
+        TableModel tableModel = TableModel.initializeTableModel(gridtable, filters.toArray(new IGridFilter[0]));
         return new HTMLRenderer.TableRenderer(tableModel).render(false);
     }
 

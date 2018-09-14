@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web;
 
+import java.util.UUID;
+
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
@@ -7,6 +9,7 @@ import javax.faces.bean.RequestScoped;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.CommonException;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
@@ -26,11 +29,14 @@ public class MainBean {
     @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
 
+    private String requestId;
+
     private final Logger log = LoggerFactory.getLogger(MainBean.class);
-    public MainBean() throws Exception {
+    public MainBean() {
         if (WebContext.getContextPath() == null) {
             WebContext.setContextPath(FacesUtils.getContextPath());
         }
+        requestId = UUID.randomUUID().toString();
     }
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
@@ -41,11 +47,11 @@ public class MainBean {
      * Stub method that used for bean initialization.
      */
     public String getInit() {
-    	WebStudioUtils.getWebStudio(true);
+        WebStudioUtils.getWebStudio(true);
         return StringUtils.EMPTY;
     }
 
-    public void init() throws Exception {
+    public void init() {
         WebStudio studio = WebStudioUtils.getWebStudio(true);
 
         String projectName = FacesUtils.getRequestParameter("project");
@@ -88,5 +94,20 @@ public class MainBean {
         }
         repositoryTreeState.invalidateTree();
         WebStudioUtils.getWebStudio().resetProjects();
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void onPageUnload() {
+        if (StringUtils.isNotEmpty(requestId)) {
+            log.debug("Page unload for request id: {}", requestId);
+            Explanator.remove(requestId);
+        }
     }
 }
