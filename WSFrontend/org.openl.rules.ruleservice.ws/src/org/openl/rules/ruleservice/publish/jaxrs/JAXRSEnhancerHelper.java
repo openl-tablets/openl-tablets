@@ -6,8 +6,10 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -51,11 +53,14 @@ public class JAXRSEnhancerHelper {
 
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$JAXRSAnnotated";
 
+        private static final String REQUEST_PARAMETER_SUFFIX = "Request";
+
         private Class<?> originalClass;
         private OpenLService service;
         private ClassLoader classLoader;
         private Map<Method, String> paths = null;
         private Map<Method, String> methodRequests = null;
+        private Set<String> requestEntitiesCache = null;
 
         JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
                                                      Class<?> originalClass,
@@ -129,19 +134,33 @@ public class JAXRSEnhancerHelper {
                 methodRequests = new HashMap<>();
                 List<Method> methods = MethodUtil.sort(Arrays.asList(originalClass.getMethods()));
 
+                initRequestEntitiesCache(methods);
                 for (Method m : methods) {
-                    String name = StringUtils.capitalize(m.getName()) + "Request";
+                    String name = StringUtils.capitalize(m.getName()) + REQUEST_PARAMETER_SUFFIX;
                     String s = name;
                     int i = 1;
-                    while (methodRequests.values().contains(s)) {
+                    while (requestEntitiesCache.contains(s)) {
                         s = name + i;
                         i++;
                     }
+                    requestEntitiesCache.add(s);
                     methodRequests.put(m, s);
                 }
             }
 
             return methodRequests.get(method);
+        }
+
+        private void initRequestEntitiesCache(List<Method> methods) {
+            requestEntitiesCache = new HashSet<>();
+            for (Method method : methods) {
+                for (Class paramType : method.getParameterTypes()) {
+                    String requestEntityName = paramType.getSimpleName();
+                    if (requestEntityName.contains(REQUEST_PARAMETER_SUFFIX)) {
+                        requestEntitiesCache.add(requestEntityName);
+                    }
+                }
+            }
         }
 
         String getPath(Method method) {
