@@ -950,7 +950,7 @@
         <rich:tree id="initRfTree" />
 
         <h:form>
-            <a4j:jsFunction name="onPageUnload" action="#{mainBean.onPageUnload}" oncomplete="ws.ui.hideLoader()">
+            <a4j:jsFunction name="onPageUnload" action="#{mainBean.onPageUnload}" onbegin="ws.ui.showLoader()" oncomplete="ws.ui.hideLoader()">
                 <a4j:param name="requestId" assignTo="#{mainBean.requestId}" />
             </a4j:jsFunction>
         </h:form>
