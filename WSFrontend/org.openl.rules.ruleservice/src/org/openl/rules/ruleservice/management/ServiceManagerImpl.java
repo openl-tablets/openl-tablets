@@ -1,8 +1,10 @@
 package org.openl.rules.ruleservice.management;
 
-import org.openl.OpenL;
-import org.openl.conf.ClassLoaderFactory;
-import org.openl.conf.OpenLConfiguration;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openl.rules.ruleservice.conf.ServiceConfigurer;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleService;
@@ -13,11 +15,6 @@ import org.openl.rules.ruleservice.loader.DataSourceListener;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Handles data source modifications and controls all services.
@@ -81,8 +78,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     }
 
     private synchronized void processServices() {
-        resetOpenL();
-
         Map<String, ServiceDescription> newServices = gatherServicesToBeDeployed();
         undeployUnnecessary(newServices);
         deployServices(newServices);
@@ -167,11 +162,4 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
             }
         }
     }
-
-    private void resetOpenL() {
-        // TODO Refactor the classes below to not have static HashMap fields: it's bad
-        // for multithreading and memory-leak prone.
-        ClassLoaderFactory.reset();
-    }
-
 }
