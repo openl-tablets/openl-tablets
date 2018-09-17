@@ -60,7 +60,6 @@ public class JAXRSEnhancerHelper {
         private ClassLoader classLoader;
         private Map<Method, String> paths = null;
         private Map<Method, String> methodRequests = null;
-        private Set<String> requestEntitiesCache = null;
 
         JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
                                                      Class<?> originalClass,
@@ -134,7 +133,7 @@ public class JAXRSEnhancerHelper {
                 methodRequests = new HashMap<>();
                 List<Method> methods = MethodUtil.sort(Arrays.asList(originalClass.getMethods()));
 
-                initRequestEntitiesCache(methods);
+                Set<String> requestEntitiesCache = initRequestEntitiesCache(methods);
                 for (Method m : methods) {
                     String name = StringUtils.capitalize(m.getName()) + REQUEST_PARAMETER_SUFFIX;
                     String s = name;
@@ -151,16 +150,17 @@ public class JAXRSEnhancerHelper {
             return methodRequests.get(method);
         }
 
-        private void initRequestEntitiesCache(List<Method> methods) {
-            requestEntitiesCache = new HashSet<>();
+        private Set<String> initRequestEntitiesCache(List<Method> methods) {
+            Set<String> cache = new HashSet<>();
             for (Method method : methods) {
                 for (Class paramType : method.getParameterTypes()) {
                     String requestEntityName = paramType.getSimpleName();
                     if (requestEntityName.contains(REQUEST_PARAMETER_SUFFIX)) {
-                        requestEntitiesCache.add(requestEntityName);
+                        cache.add(requestEntityName);
                     }
                 }
             }
+            return cache;
         }
 
         String getPath(Method method) {
