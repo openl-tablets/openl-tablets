@@ -3,7 +3,8 @@ package org.openl.rules.webstudio.web.test;
 import java.util.*;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.RequestScoped;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -16,6 +17,7 @@ import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.TableSyntaxNodeUtils;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.web.MainBean;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
@@ -24,11 +26,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Request scope managed bean providing logic for 'Run Tests' page of WebStudio.
- * TODO: Either make the bean to be request scoped (also store and remove ranResults from session manually) or
- * TODO: resolve memory leak caused by holding same ViewScoped beans in JSF session until user session expires.
  */
 @ManagedBean
-@ViewScoped
+@RequestScoped
 public class TestBean {
 
     private final Logger log = LoggerFactory.getLogger(TestBean.class);
@@ -47,6 +47,9 @@ public class TestBean {
             }
         }
     };
+
+    @ManagedProperty(value = "#{mainBean}")
+    private MainBean mainBean;
 
     private WebStudio studio;
     private TestUnitsResults[] ranResults;
@@ -218,7 +221,7 @@ public class TestBean {
     }
 
     public String getFormattedSpreadsheetResult(SpreadsheetResult spreadsheetResult) {
-        return spreadsheetResult == null ? "" : ObjectViewer.displaySpreadsheetResult(spreadsheetResult);
+        return spreadsheetResult == null ? "" : ObjectViewer.displaySpreadsheetResult(spreadsheetResult, mainBean.getRequestId());
     }
 
     public String getFormattedSpreadsheetResultFromTestUnit(ITestUnit objTestUnit) {
@@ -228,7 +231,7 @@ public class TestBean {
             if (actualResultInternal instanceof SpreadsheetResult) {
                 SpreadsheetResult spreadsheetResult = (SpreadsheetResult) actualResultInternal;
                 Map<Point, ComparedResult> fieldsCoordinates = getFieldsCoordinates(objTestUnit, spreadsheetResult);
-                return ObjectViewer.displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates);
+                return ObjectViewer.displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates, mainBean.getRequestId());
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -298,4 +301,7 @@ public class TestBean {
         return showComplexResult;
     }
 
+    public void setMainBean(MainBean mainBean) {
+        this.mainBean = mainBean;
+    }
 }

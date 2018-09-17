@@ -127,9 +127,9 @@ public class ObjectToDataOpenCastConvertor {
         }
     }
 
-    private static ICastFactory castFactory = null; 
+    private ICastFactory castFactory = null;
     
-    private static ICastFactory getCastFactory() {
+    private ICastFactory getCastFactory() {
         if (castFactory == null) {
             IOpenBinder binder = OpenL.getInstance(OpenL.OPENL_JAVA_NAME).getBinder();
             castFactory = binder.getCastFactory();
@@ -137,7 +137,7 @@ public class ObjectToDataOpenCastConvertor {
         return castFactory;
     }
 
-    public static IOpenCast getConvertor(Class<?> toClass, Class<?> fromClass) {
+    public IOpenCast getConvertor(Class<?> toClass, Class<?> fromClass) {
         if (toClass == fromClass)
             return new JavaNoCast();
         ClassCastPair pair = new ClassCastPair(fromClass, toClass);

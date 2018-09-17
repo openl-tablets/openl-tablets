@@ -105,6 +105,11 @@ public class DomainOpenClass implements IOpenClass {
         return baseClass.getJavaName();
     }
 
+    @Override
+    public String getPackageName() {
+        return baseClass.getPackageName();
+    }
+
     public String getNameSpace() {
         return null;
     }

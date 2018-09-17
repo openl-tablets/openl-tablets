@@ -71,6 +71,8 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      */
     String getJavaName();
 
+    String getPackageName();
+
     IOpenMethod getMethod(String name, IOpenClass[] classes);
 
     // ********* instance related methods ***********//

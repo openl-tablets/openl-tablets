@@ -426,6 +426,8 @@
                     }
                 },
 
+                requestId: "",
+
                 changes: new ChangesListener()
             };
 
@@ -484,6 +486,10 @@
                     }
 
                     loadContent();
+
+                    $j(window).on('unload', function () {
+                        onPageUnload(ws.requestId);
+                    });
 
                     $("body").css({"visibility": "visible"});
                 });
@@ -576,6 +582,7 @@
                             lastSavedHash = ch;
                             loadContent(getCurrentPage(), fullreload);
                             fullreload = false;
+                            onPageUnload(ws.requestId);
                         };
                         var retry = function() {
                             $location.setHash(ch);
@@ -941,6 +948,12 @@
         <rich:dataTable id="initRfTable" />
         <rich:fileUpload id="initRfUpload" />
         <rich:tree id="initRfTree" />
+
+        <h:form>
+            <a4j:jsFunction name="onPageUnload" action="#{mainBean.onPageUnload}" onbegin="ws.ui.showLoader()" oncomplete="ws.ui.hideLoader()">
+                <a4j:param name="requestId" assignTo="#{mainBean.requestId}" />
+            </a4j:jsFunction>
+        </h:form>
     </div>
 
     <ui:include src="/pages/modules/tooLongDownload.xhtml"/>

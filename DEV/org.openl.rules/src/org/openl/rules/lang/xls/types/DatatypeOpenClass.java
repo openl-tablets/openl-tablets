@@ -47,6 +47,8 @@ public class DatatypeOpenClass extends ADynamicClass {
 
     private final String javaName;
 
+    private final String packageName;
+
     /**
      * User has a possibility to set the package (by table properties mechanism) where he wants to generate datatype
      * beans classes.
@@ -64,6 +66,7 @@ public class DatatypeOpenClass extends ADynamicClass {
         } else {
             javaName = packageName + '.' + name;
         }
+        this.packageName = packageName;
     }
     
     @Override
@@ -91,6 +94,11 @@ public class DatatypeOpenClass extends ADynamicClass {
     @Override
     public String getJavaName() {
         return javaName;
+    }
+
+    @Override
+    public String getPackageName() {
+        return packageName;
     }
 
     /**

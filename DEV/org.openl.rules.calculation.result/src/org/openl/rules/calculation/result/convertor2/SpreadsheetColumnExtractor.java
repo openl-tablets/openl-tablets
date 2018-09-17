@@ -25,6 +25,8 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
 
     private final Logger log = LoggerFactory.getLogger(SpreadsheetColumnExtractor.class);
 
+    private ObjectToDataOpenCastConvertor convertor = new ObjectToDataOpenCastConvertor();
+
     public SpreadsheetColumnExtractor(ColumnToExtract column) {
         this.column = column;
     }
@@ -124,7 +126,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
 
     private Integer convertDistance(Object x, Class<?> expectedType) {
         if (x.getClass().isArray() && expectedType.isArray()) {
-            IOpenCast openCast = ObjectToDataOpenCastConvertor.getConvertor(expectedType.getComponentType(),
+            IOpenCast openCast = convertor.getConvertor(expectedType.getComponentType(),
                 x.getClass().getComponentType());
             if (openCast != null) {
                 return openCast.getDistance(JavaOpenClass.getOpenClass(expectedType.getComponentType()),
@@ -134,7 +136,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
             }
         } else {
             if (!ClassUtils.isAssignable(x.getClass(), expectedType)) {
-                IOpenCast openCast = ObjectToDataOpenCastConvertor.getConvertor(expectedType, x.getClass());
+                IOpenCast openCast = convertor.getConvertor(expectedType, x.getClass());
                 if (openCast != null) {
                     return openCast.getDistance(JavaOpenClass.getOpenClass(expectedType),
                         JavaOpenClass.getOpenClass(x.getClass()));
@@ -152,7 +154,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
         if (x.getClass().isArray() && expectedType.isArray()){
             int length = Array.getLength(x);
             Object newValue = Array.newInstance(expectedType.getComponentType(), length);
-            IOpenCast openCast = ObjectToDataOpenCastConvertor.getConvertor(expectedType.getComponentType(),
+            IOpenCast openCast = convertor.getConvertor(expectedType.getComponentType(),
                 x.getClass().getComponentType());
             for (int i = 0; i < length; i++) {
                 Object componentValue = Array.get(x, i);
@@ -173,7 +175,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
         }else{
             if (!ClassUtils.isAssignable(x.getClass(), expectedType)) {
                 try {
-                    IOpenCast openCast = ObjectToDataOpenCastConvertor.getConvertor(expectedType, x.getClass());
+                    IOpenCast openCast = convertor.getConvertor(expectedType, x.getClass());
                     return openCast.convert(x);
                 } catch (Exception e) {
                     if (log.isDebugEnabled()) {

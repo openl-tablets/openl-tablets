@@ -57,16 +57,17 @@ public class HelperTest {
     public void testGetExplanatorId() {
         FacesContext context = ContextMocker.mockFacesContext();
         try {
-            Map<String, Object> session = new HashMap<String, Object>();
+            Map<String, Object> session = new HashMap<>();
             ExternalContext ext = mock(ExternalContext.class);
             when(ext.getSessionMap()).thenReturn(session);
             when(context.getExternalContext()).thenReturn(ext);
+            String requestId = "id3453209";
 
             Helper helper = new Helper();
-            int id1 = helper.getExplanatorId(DoubleValue.ONE);
-            int id2 = helper.getExplanatorId(DoubleValue.ZERO);
-            int id1r = helper.getExplanatorId(DoubleValue.ONE);
-            int id2r = helper.getExplanatorId(DoubleValue.ZERO);
+            int id1 = helper.getExplanatorId(requestId, DoubleValue.ONE);
+            int id2 = helper.getExplanatorId(requestId, DoubleValue.ZERO);
+            int id1r = helper.getExplanatorId(requestId, DoubleValue.ONE);
+            int id2r = helper.getExplanatorId(requestId, DoubleValue.ZERO);
             assertEquals(id1r, id1);
             assertEquals(id2r, id2);
             assertNotEquals(id1r, id2);

@@ -105,7 +105,8 @@ public class InputArgsBean {
 
         ParameterDeclarationTreeNode parent = currentNode.getParent();
         Object value = ParameterTreeBuilder.canConstruct(fieldType) ? fieldType.newInstance(new SimpleVM().getRuntimeEnv()) : null;
-        ParameterDeclarationTreeNode newNode = ParameterTreeBuilder.createNode(fieldType, value, currentNode.getName(), parent);
+        ParameterDeclarationTreeNode newNode = ParameterTreeBuilder.createNode(fieldType, value, currentNode.getName(), parent,
+                null);
         currentNode.setValueForced(newNode.getValueForced());
 
         if (parent != null) {
@@ -173,7 +174,7 @@ public class InputArgsBean {
             argTreeNodes[i] = ParameterTreeBuilder.createNode(args[i].getType(),
                     args[i].getValue(),
                     args[i].getName(),
-                    null);
+                    null, null);
         }
         return argTreeNodes;
     }

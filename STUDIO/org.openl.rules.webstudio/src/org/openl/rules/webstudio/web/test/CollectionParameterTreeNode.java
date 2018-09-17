@@ -16,11 +16,19 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     public static final String COLLECTION_TYPE = "collection";
     protected final IOpenField previewField;
     protected final boolean hasExplainLinks;
+    protected String requestId;
 
-    public CollectionParameterTreeNode(String fieldName, Object value, IOpenClass fieldType, ParameterDeclarationTreeNode parent, IOpenField previewField, boolean hasExplainLinks) {
+    public CollectionParameterTreeNode(String fieldName,
+            Object value,
+            IOpenClass fieldType,
+            ParameterDeclarationTreeNode parent,
+            IOpenField previewField,
+            boolean hasExplainLinks,
+            String requestId) {
         super(fieldName, value, fieldType, parent);
         this.previewField = previewField;
         this.hasExplainLinks = hasExplainLinks;
+        this.requestId = requestId;
     }
 
     @Override
@@ -49,7 +57,8 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
                     // Show content of complex objects
                     type = JavaOpenClass.getOpenClass(element.getClass());
                 }
-                elements.put(index, ParameterTreeBuilder.createNode(type, element, previewField, null, this, hasExplainLinks));
+                elements.put(index, ParameterTreeBuilder.createNode(type, element, previewField, null, this, hasExplainLinks,
+                        requestId));
                 index++;
             }
             return elements;
@@ -137,7 +146,8 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     }
 
     protected ParameterDeclarationTreeNode createNode(Object key, Object value) {
-        return ParameterTreeBuilder.createNode(getType().getComponentClass(), value, previewField, null, this, hasExplainLinks);
+        return ParameterTreeBuilder.createNode(getType().getComponentClass(), value, previewField, null, this, hasExplainLinks,
+                requestId);
     }
 
     private void saveChildNodesToValue() {

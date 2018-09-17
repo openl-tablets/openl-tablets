@@ -53,16 +53,18 @@
         </style>
 
         <c:set var="rootID" value="#{param.rootID}" />
+        <c:set var="requestId" value="#{param.requestId}" />
 
         <div class="tree-menu">
-            <a href="#{contextPath}/faces/pages/modules/explain/tree.xhtml?rootID=#{rootID}"
+            <a href="#{contextPath}/faces/pages/modules/explain/tree.xhtml?rootID=#{rootID}&amp;requestId=#{requestId}"
                 title="Tree View"><img src="webresource/images/treeview.gif" /></a>
         </div>
 
         <h:form>
 
             <input type="hidden" name="rootID" value="#{rootID}" />
-    
+            <input type="hidden" name="requestId" value="#{requestId}" />
+
             <p />
     
             <h:panelGroup id="explainData">

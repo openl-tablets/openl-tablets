@@ -42,8 +42,8 @@ public final class Helper {
         return value instanceof SpreadsheetResult;
     }
 
-    public int getExplanatorId(Object actualResult) {
+    public int getExplanatorId(String requestId, Object actualResult) {
         // We expect there ExplanationNumberValue.
-        return Explanator.getUniqueId((ExplanationNumberValue<?>) actualResult);
+        return Explanator.getUniqueId(requestId, (ExplanationNumberValue<?>) actualResult);
     }
 }

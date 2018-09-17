@@ -1,0 +1,13 @@
+<rules-deploy>
+    <isProvideRuntimeContext>true</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>http-statuses-lazycompilation-test</serviceName>
+    <publishers>
+        <publisher>WEBSERVICE</publisher>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <url>http-statuses-lazycompilation-test</url>
+    <!-- STATIC INTERFACE -->
+    <serviceClass>org.openl.itest.rules.TestLazyCompilationService</serviceClass>
+    <!-- //STATIC INTERFACE -->
+</rules-deploy>

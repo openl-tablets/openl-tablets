@@ -5,7 +5,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
+import javax.faces.bean.RequestScoped;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -14,21 +14,23 @@ import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.webstudio.web.MainBean;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 
 /**
  * Request scope managed bean providing logic for 'Run Tables' page of WebStudio.
- * TODO: Either make the bean to be request scoped (also store and remove ranResults from session manually) or
- * TODO: resolve memory leak caused by holding same ViewScoped beans in JSF session until user session expires.
  */
 @ManagedBean
-@ViewScoped
+@RequestScoped
 public class RunBean {
 
     @ManagedProperty("#{runTestHelper}")
     private RunTestHelper runTestHelper;
+
+    @ManagedProperty(value = "#{mainBean}")
+    private MainBean mainBean;
 
     private TestSuite testSuite;
 
@@ -53,6 +55,10 @@ public class RunBean {
         this.runTestHelper = runTestHelper;
     }
 
+    public void setMainBean(MainBean mainBean) {
+        this.mainBean = mainBean;
+    }
+
     public String getTableName() {
         return WebStudioUtils.getProjectModel().getTableById(id).getDisplayName();
     }
@@ -68,7 +74,7 @@ public class RunBean {
     public String getFormattedSpreadsheetResult(ITestUnit unit) {
         Object result = unit.getActualResult();
         if (result instanceof SpreadsheetResult) {
-            return ObjectViewer.displaySpreadsheetResult((SpreadsheetResult) result);
+            return ObjectViewer.displaySpreadsheetResult((SpreadsheetResult) result, mainBean.getRequestId());
         }
         return StringUtils.EMPTY;
     }

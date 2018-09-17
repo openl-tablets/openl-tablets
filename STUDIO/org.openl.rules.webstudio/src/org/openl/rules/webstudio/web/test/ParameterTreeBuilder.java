@@ -1,5 +1,13 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.RequestScoped;
+
 import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
@@ -14,6 +22,7 @@ import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.webstudio.web.MainBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -22,26 +31,22 @@ import org.openl.vm.SimpleVM;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
-
 /**
  * @author DLiauchuk
  */
 @ManagedBean
 @RequestScoped
 public class ParameterTreeBuilder {
+    @ManagedProperty(value = "#{mainBean}")
+    private MainBean mainBean;
 
     public static ParameterDeclarationTreeNode createNode(IOpenClass fieldType, Object value,
-                                                          String fieldName, ParameterDeclarationTreeNode parent) {
-        return createNode(fieldType, value, null, fieldName, parent, true);
+            String fieldName, ParameterDeclarationTreeNode parent, String requestId) {
+        return createNode(fieldType, value, null, fieldName, parent, true, requestId);
     }
 
     public static ParameterDeclarationTreeNode createNode(IOpenClass fieldType, Object value, IOpenField previewField,
-                                                          String fieldName, ParameterDeclarationTreeNode parent, boolean hasExplainLinks) {
+            String fieldName, ParameterDeclarationTreeNode parent, boolean hasExplainLinks, String requestId) {
         ParameterDeclarationTreeNode customNode = getOpenLCustomNode(fieldType, value, fieldName, parent);
         if (customNode != null) {
             return customNode;
@@ -49,25 +54,25 @@ public class ParameterTreeBuilder {
 
         if (Utils.isCollection(fieldType)) {
             if (ClassUtils.isAssignable(fieldType.getInstanceClass(), Map.class)) {
-                return new MapParameterTreeNode(fieldName, value, fieldType, parent, previewField, hasExplainLinks);
+                return new MapParameterTreeNode(fieldName, value, fieldType, parent, previewField, hasExplainLinks, requestId);
             }
-            return new CollectionParameterTreeNode(fieldName, value, fieldType, parent, previewField, hasExplainLinks);
+            return new CollectionParameterTreeNode(fieldName, value, fieldType, parent, previewField, hasExplainLinks, requestId);
         } else if (isSpreadsheetResult(value)) {
-            return createSpreadsheetResultTreeNode(fieldType, value, fieldName, parent, hasExplainLinks);
+            return createSpreadsheetResultTreeNode(fieldType, value, fieldName, parent, hasExplainLinks, requestId);
         } else if (!fieldType.isSimple()) {
-            return createComplexBeanNode(fieldType, value, previewField, fieldName, parent);
+            return createComplexBeanNode(fieldType, value, previewField, fieldName, parent, requestId);
         } else {
             return createSimpleNode(fieldType, value, fieldName, parent);
         }
     }
 
     private static ParameterDeclarationTreeNode createComplexBeanNode(IOpenClass fieldType,
-                                                                      Object value,
-                                                                      IOpenField previewField,
-                                                                      String fieldName,
-                                                                      ParameterDeclarationTreeNode parent) {
+            Object value,
+            IOpenField previewField,
+            String fieldName,
+            ParameterDeclarationTreeNode parent, String requestId) {
         if (fieldType.getInstanceClass() != null && IRulesRuntimeContext.class.isAssignableFrom(fieldType.getInstanceClass())) {
-            return new ContextParameterTreeNode(fieldName, value, fieldType, parent);
+            return new ContextParameterTreeNode(fieldName, value, fieldType, parent, requestId);
         }
         if (canConstruct(fieldType)) {
             Object preview = null;
@@ -80,7 +85,7 @@ public class ParameterTreeBuilder {
                 }
             }
             String valuePreview = preview == null ? null : createSimpleNode(fieldType, preview, null, null).getDisplayedValue();
-            return new ComplexParameterTreeNode(fieldName, value, fieldType, parent, valuePreview);
+            return new ComplexParameterTreeNode(fieldName, value, fieldType, parent, valuePreview, requestId);
         } else {
             UnmodifiableParameterTreeNode node = new UnmodifiableParameterTreeNode(fieldName, value, fieldType, parent);
             node.setWarnMessage(String.format("Can not construct bean of type '%s'. Make sure that it has public constructor without parameters.",
@@ -90,10 +95,10 @@ public class ParameterTreeBuilder {
     }
 
     private static ParameterDeclarationTreeNode createSpreadsheetResultTreeNode(IOpenClass fieldType,
-                                                                               Object value,
-                                                                               String fieldName,
-                                                                               ParameterDeclarationTreeNode parent, boolean hasExplainLinks) {
-        return new SpreadsheetResultTreeNode(fieldName, value, fieldType, parent, hasExplainLinks);
+            Object value,
+            String fieldName,
+            ParameterDeclarationTreeNode parent, boolean hasExplainLinks, String requestId) {
+        return new SpreadsheetResultTreeNode(fieldName, value, fieldType, parent, hasExplainLinks, requestId);
     }
 
     /**
@@ -159,7 +164,7 @@ public class ParameterTreeBuilder {
                 if (param instanceof ParameterWithValueAndPreviewDeclaration) {
                     previewField = ((ParameterWithValueAndPreviewDeclaration) param).getPreviewField();
                 }
-                return createComplexBeanNode(fieldType, value, previewField, null, null).getDisplayedValue();
+                return createComplexBeanNode(fieldType, value, previewField, null, null, mainBean.getRequestId()).getDisplayedValue();
             }
         }
 
@@ -174,7 +179,13 @@ public class ParameterTreeBuilder {
             if (param instanceof ParameterWithValueAndPreviewDeclaration) {
                 previewField = ((ParameterWithValueAndPreviewDeclaration) param).getPreviewField();
             }
-            ParameterDeclarationTreeNode treeNode = createNode(param.getType(), param.getValue(), previewField, null, null, hasExplainLinks);
+            ParameterDeclarationTreeNode treeNode = createNode(param.getType(),
+                    param.getValue(),
+                    previewField,
+                    null,
+                    null,
+                    hasExplainLinks,
+                    mainBean.getRequestId());
             root.addChild(param.getName(), treeNode);
         }
         return root;
@@ -255,4 +266,7 @@ public class ParameterTreeBuilder {
         return value == null ? "null" : value.toString();
     }
 
+    public void setMainBean(MainBean mainBean) {
+        this.mainBean = mainBean;
+    }
 }
