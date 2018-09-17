@@ -13,47 +13,57 @@ import java.util.Map;
 
 public class Explanator {
 
-    private static int uniqueId = 0;
+    private int uniqueId = 0;
 
-    private IdentityHashMap<ExplanationNumberValue<?>, Integer> value2id = new IdentityHashMap<ExplanationNumberValue<?>, Integer>();
+    private IdentityHashMap<ExplanationNumberValue<?>, Integer> value2id = new IdentityHashMap<>();
 
-    private Map<Integer, ExplanationNumberValue<?>> id2value = new HashMap<Integer, ExplanationNumberValue<?>>();
+    private Map<Integer, ExplanationNumberValue<?>> id2value = new HashMap<>();
 
-    private static Explanator getCurrent() {
-        Explanator explanator = (Explanator) FacesUtils.getSessionParam(Constants.SESSION_PARAM_EXPLANATOR);
-        if (explanator == null) {
-            explanator = new Explanator();
-            FacesUtils.getSessionMap().put(Constants.SESSION_PARAM_EXPLANATOR, explanator);
-        }
-        return explanator;
+    private static Explanator getCurrent(String requestId) {
+        return (Explanator) FacesUtils.getSessionParam(Constants.SESSION_PARAM_EXPLANATOR + requestId);
     }
 
-    public static int getUniqueId(ExplanationNumberValue<?> value) {
-        Explanator explanator = getCurrent();
+    public static int getUniqueId(String requestId, ExplanationNumberValue<?> value) {
+        Explanator explanator = getCurrent(requestId);
+        if (explanator == null) {
+            explanator = new Explanator();
+            FacesUtils.getSessionMap().put(Constants.SESSION_PARAM_EXPLANATOR + requestId, explanator);
+        }
+
         Integer id = explanator.value2id.get(value);
         if (id != null) {
             return id;
         }
 
-        id = ++uniqueId;
+        id = ++explanator.uniqueId;
         explanator.value2id.put(value, id);
         explanator.id2value.put(id, value);
         return id;
     }
 
-    public static TreeNode getExplainTree(String rootID) {
-        Explanator explanator = getCurrent();
+    public static TreeNode getExplainTree(String requestId, String rootID) {
+        Explanator explanator = getCurrent(requestId);
+        if (explanator == null) {
+            return null;
+        }
+
         int id = Integer.parseInt(rootID);
         ExplanationNumberValue<?> root = explanator.id2value.get(id);
-        TreeNode rfTree = new ExplainTreeBuilder().buildWithRoot(root);
-        return rfTree;
+        return new ExplainTreeBuilder().buildWithRoot(root);
     }
 
-    public static List<String[]> getExplainList(String rootID) {
-        Explanator explanator = getCurrent();
+    public static List<String[]> getExplainList(String requestId, String rootID) {
+        Explanator explanator = getCurrent(requestId);
+        if (explanator == null) {
+            return null;
+        }
+
         int id = Integer.parseInt(rootID);
         ExplanationNumberValue<?> root = explanator.id2value.get(id);
-        List<String[]> result = new Explanation().build(root);
-        return result;
+        return new Explanation().build(root);
+    }
+
+    public static void remove(String requestId) {
+        FacesUtils.getSessionMap().remove(Constants.SESSION_PARAM_EXPLANATOR + requestId);
     }
 }

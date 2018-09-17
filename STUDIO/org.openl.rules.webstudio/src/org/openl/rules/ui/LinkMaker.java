@@ -8,13 +8,17 @@ import org.openl.rules.table.ui.filters.AGridFilter;
  * @author Yury Molchan
  */
 class LinkMaker extends AGridFilter {
-    static LinkMaker INSTANCE = new LinkMaker();
+    private final String requestId;
+
+    LinkMaker(String requestId) {
+        this.requestId = requestId;
+    }
 
     public FormattedCell filterFormat(FormattedCell cell) {
         Object value = cell.getObjectValue();
         if (value instanceof ExplanationNumberValue<?>) {
-            int rootID = Explanator.getUniqueId((ExplanationNumberValue<?>) value);
-            String url = "javascript: explain(\'?rootID=" + rootID + "')";
+            int rootID = Explanator.getUniqueId(requestId, (ExplanationNumberValue<?>) value);
+            String url = "javascript: explain(\'?rootID=" + rootID + "&requestId=" + requestId + "')";
             cell.setFormattedValue("<a href=\"" + url + "\">" + cell.getFormattedValue() + "</a>");
         }
         return cell;
