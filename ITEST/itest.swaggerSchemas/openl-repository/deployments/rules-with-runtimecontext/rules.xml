@@ -1,0 +1,16 @@
+<project>
+  <name>rules-with-runtime-context</name>
+  <modules>
+    <module>
+      <name>rules-with-runtime-context-datatypes</name>
+      <rules-root path="datatype.xlsx"/>
+    </module>
+    <module>
+      <name>rules-with-runtime-context-rules</name>
+      <rules-root path="MAIN.xlsx"/>
+    </module>
+  </modules>
+  <classpath>
+    <entry path="lib/*.jar"/>
+  </classpath>
+</project>
