@@ -106,7 +106,7 @@ public class NoAntOpenLTask {
     }
 
     private IConfigurableResourceContext getConfigurationContext(IOpenLConfiguration extendsConfiguration, IUserContext ucxt) {
-        ClassLoader parentLoader = extendsConfiguration == null ? ClassLoaderFactory.getOpenlCoreLoader(null)
+        ClassLoader parentLoader = extendsConfiguration == null ? ClassLoaderFactory.getOpenlCoreClassLoader(null)
                 : extendsConfiguration.getConfigurationContext().getClassLoader();
 
         if (!inheritExtendedConfigurationLoader) {

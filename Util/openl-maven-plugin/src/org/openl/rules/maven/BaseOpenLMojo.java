@@ -187,7 +187,5 @@ abstract class BaseOpenLMojo extends AbstractMojo {
             String2DataConvertorFactory.unregisterClassLoader(classLoader);
             ClassLoaderUtils.close(classLoader);
         }
-
-        ClassLoaderFactory.reset();
     }
 }

@@ -111,10 +111,9 @@ public class OpenLConfigurator extends Configurator {
     IOpenLBuilder makeBuilderInstance(String builderClassName, String builderClassPath, IUserContext ucxt)
             throws Exception {
 
-        ClassLoader cl = ClassLoaderFactory.getOpenlCoreLoader(ucxt.getUserClassLoader());
+        ClassLoader cl = ClassLoaderFactory.getOpenlCoreClassLoader(ucxt.getUserClassLoader());
         if (builderClassPath != null) {
-            cl = ClassLoaderFactory.createUserClassloader("builder.classloader:", builderClassPath, ClassLoaderFactory
-                    .getOpenlCoreLoader(ucxt.getUserClassLoader()), ucxt);
+            cl = ClassLoaderFactory.createClassLoader(builderClassPath, cl, ucxt);
         }
 
         return (IOpenLBuilder) ClassFactory.newInstanceForName(builderClassName, cl);

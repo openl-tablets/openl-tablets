@@ -882,7 +882,6 @@ public class ProjectModel {
     public void reset(ReloadType reloadType, Module moduleToOpen) throws Exception {
         switch (reloadType) {
             case FORCED:
-                ClassLoaderFactory.reset();
                 moduleToOpen = studio.getCurrentModule();
                 // falls through
             case RELOAD:
