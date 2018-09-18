@@ -80,6 +80,8 @@
             var mainLayout;
             var centerLayout;
 
+            var requestId = null;
+
             var ChangesListener = function () {
                 // Private members
                 var self = this;
@@ -353,6 +355,16 @@
                     },
                     isProjectChanged: function () {
                         return projectPageChanged;
+                    },
+                    setRequestId: function (newRequestId) {
+                        api.nav.unloadPage();
+                        requestId = newRequestId;
+                    },
+                    unloadPage() {
+                        if (requestId !== null && requestId !== '') {
+                            onPageUnload(requestId);
+                            requestId = null;
+                        }
                     }
                 },
 
@@ -426,8 +438,6 @@
                     }
                 },
 
-                requestId: "",
-
                 changes: new ChangesListener()
             };
 
@@ -488,7 +498,7 @@
                     loadContent();
 
                     $j(window).on('unload', function () {
-                        onPageUnload(ws.requestId);
+                        api.nav.unloadPage();
                     });
 
                     $("body").css({"visibility": "visible"});
@@ -582,7 +592,7 @@
                             lastSavedHash = ch;
                             loadContent(getCurrentPage(), fullreload);
                             fullreload = false;
-                            onPageUnload(ws.requestId);
+                            api.nav.unloadPage();
                         };
                         var retry = function() {
                             $location.setHash(ch);

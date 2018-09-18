@@ -19,7 +19,7 @@ class LinkMaker extends AGridFilter {
         Object value = cell.getObjectValue();
         if (value instanceof ExplanationNumberValue<?>) {
             int rootID = Explanator.getUniqueId(requestId, (ExplanationNumberValue<?>) value);
-            String url = "javascript: explain(\'?rootID=" + rootID + "&requestId=" + requestId + "')";
+            String url = "javascript: explain(\'?rootID=" + rootID + "')";
             cell.setFormattedValue("<a href=\"" + url + "\">" + XlsDataFormatterFactory.getFormattedValue(cell,
                     cell.getMetaInfo()) + "</a>");
         }

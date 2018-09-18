@@ -9,11 +9,12 @@
     <script>
         function explain(url) {
            window.open('#{contextPath}/faces/pages/layout/frameView.xhtml' + url
+               + '&amp;requestId=#{mainBean.requestId}'
                + '&amp;title=Explanation&amp;treePage=faces/pages/modules/explain/explain.xhtml&amp;mainPage=faces/pages/modules/explain/showExplainTable.xhtml',"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=1240, height=700")
         }
 
         $j(function () {
-            ws.requestId = '#{mainBean.requestId}';
+            ws.nav.setRequestId('#{mainBean.requestId}')
         });
     </script>
 
@@ -68,7 +69,7 @@
                                         </ui:include>
                                     </h:panelGroup>
                                     <h:outputLink
-                                        value="javascript: explain('?rootID=#{helper.getExplanatorId(mainBean.requestId, result.actualResult)}&amp;requestId=#{mainBean.requestId}')"
+                                        value="javascript: explain('?rootID=#{helper.getExplanatorId(mainBean.requestId, result.actualResult)}')"
                                         rendered="#{helper.isExplanationValue(result.actualResult)}">
                                         <h:outputText value="#{helper.format(result.actualResult)}" />
                                     </h:outputLink>

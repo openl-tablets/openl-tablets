@@ -16,11 +16,12 @@
     <script>
         function explain(url) {
            window.open('#{contextPath}/faces/pages/layout/frameView.xhtml' + url
+               + '&amp;requestId=#{mainBean.requestId}'
                + '&amp;title=Explanation&amp;treePage=faces/pages/modules/explain/explain.xhtml&amp;mainPage=faces/pages/modules/explain/showExplainTable.xhtml',"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=1240, height=700")
         }
 
         $j(function () {
-            ws.requestId = '#{mainBean.requestId}';
+            ws.nav.setRequestId('#{mainBean.requestId}')
         });
     </script>
 
@@ -205,7 +206,7 @@
                                                             </h:panelGroup>
                                                             <h:panelGroup rendered="#{helper.isExplanationValue(resultParam.actualValue.value)}">
                                                                 <h:outputLink
-                                                                    value="javascript:explain('?rootID=#{helper.getExplanatorId(mainBean.requestId, resultParam.actualValue.value)}&amp;requestId=#{mainBean.requestId}')">
+                                                                    value="javascript:explain('?rootID=#{helper.getExplanatorId(mainBean.requestId, resultParam.actualValue.value)}')">
                                                                     <h:outputText value="#{helper.format(resultParam.actualValue.value)}" />
                                                                 </h:outputLink>
                                                             </h:panelGroup>
