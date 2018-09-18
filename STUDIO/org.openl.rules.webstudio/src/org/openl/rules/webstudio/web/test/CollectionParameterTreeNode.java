@@ -7,28 +7,17 @@ import java.util.List;
 
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
 import org.richfaces.model.TreeNode;
 
 public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
-    public static final String COLLECTION_TYPE = "collection";
-    protected final IOpenField previewField;
-    protected final boolean hasExplainLinks;
-    protected String requestId;
+    private static final String COLLECTION_TYPE = "collection";
+    protected final ParameterRenderConfig config;
 
-    public CollectionParameterTreeNode(String fieldName,
-            Object value,
-            IOpenClass fieldType,
-            ParameterDeclarationTreeNode parent,
-            IOpenField previewField,
-            boolean hasExplainLinks,
-            String requestId) {
-        super(fieldName, value, fieldType, parent);
-        this.previewField = previewField;
-        this.hasExplainLinks = hasExplainLinks;
-        this.requestId = requestId;
+    public CollectionParameterTreeNode(ParameterRenderConfig config) {
+        super(config.getFieldNameInParent(), config.getValue(), config.getType(), config.getParent());
+        this.config = config;
     }
 
     @Override
@@ -57,8 +46,15 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
                     // Show content of complex objects
                     type = JavaOpenClass.getOpenClass(element.getClass());
                 }
-                elements.put(index, ParameterTreeBuilder.createNode(type, element, previewField, null, this, hasExplainLinks,
-                        requestId));
+
+                ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(type, element)
+                        .previewField(config.getPreviewField())
+                        .parent(this)
+                        .hasExplainLinks(config.isHasExplainLinks())
+                        .requestId(config.getRequestId())
+                        .build();
+
+                elements.put(index, ParameterTreeBuilder.createNode(childConfig));
                 index++;
             }
             return elements;
@@ -146,8 +142,14 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     }
 
     protected ParameterDeclarationTreeNode createNode(Object key, Object value) {
-        return ParameterTreeBuilder.createNode(getType().getComponentClass(), value, previewField, null, this, hasExplainLinks,
-                requestId);
+        ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(getType().getComponentClass(), value)
+                .previewField(config.getPreviewField())
+                .parent(this)
+                .hasExplainLinks(config.isHasExplainLinks())
+                .requestId(config.getRequestId())
+                .build();
+
+        return ParameterTreeBuilder.createNode(childConfig);
     }
 
     private void saveChildNodesToValue() {

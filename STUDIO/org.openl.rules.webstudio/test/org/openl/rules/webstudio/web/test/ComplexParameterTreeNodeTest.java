@@ -60,7 +60,7 @@ public class ComplexParameterTreeNodeTest {
 
     private ComplexParameterTreeNode createNode(Object object) {
         JavaOpenClass openClass = JavaOpenClass.getOpenClass(object.getClass());
-        return new ComplexParameterTreeNode(null, object, openClass, null, null, null);
+        return new ComplexParameterTreeNode(new ParameterRenderConfig.Builder(openClass, object).build());
     }
     
     private List<ParameterDeclarationTreeNode> getAllChildren(ParameterDeclarationTreeNode node) {
