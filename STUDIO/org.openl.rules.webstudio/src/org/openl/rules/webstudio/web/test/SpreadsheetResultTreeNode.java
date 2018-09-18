@@ -4,18 +4,14 @@ import java.util.LinkedHashMap;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.ui.ObjectViewer;
-import org.openl.types.IOpenClass;
 
 public class SpreadsheetResultTreeNode extends ParameterDeclarationTreeNode {
-    public static final String SPREADSHEET_RESULT_TYPE = "spreadsheet";
-    private final boolean hasExplainLinks;
-    private final String requestId;
+    private static final String SPREADSHEET_RESULT_TYPE = "spreadsheet";
+    private final ParameterRenderConfig config;
 
-    public SpreadsheetResultTreeNode(String fieldName, Object value, IOpenClass fieldType,
-            ParameterDeclarationTreeNode parent, boolean hasExplainLinks, String requestId) {
-        super(fieldName, value, fieldType, parent);
-        this.hasExplainLinks = hasExplainLinks;
-        this.requestId = requestId;
+    public SpreadsheetResultTreeNode(ParameterRenderConfig config) {
+        super(config.getFieldNameInParent(), config.getValue(), config.getType(), config.getParent());
+        this.config = config;
     }
 
     @Override
@@ -23,7 +19,7 @@ public class SpreadsheetResultTreeNode extends ParameterDeclarationTreeNode {
         // TODO Refactor code and don't use deprecated class ObjectViewer.
         // TODO Instead render a table using jsf components.
         SpreadsheetResult value = (SpreadsheetResult) getValue();
-        return hasExplainLinks ? ObjectViewer.displaySpreadsheetResult(value, requestId) : ObjectViewer.displaySpreadsheetResultNoFilters(value);
+        return config.isHasExplainLinks() ? ObjectViewer.displaySpreadsheetResult(value, config.getRequestId()) : ObjectViewer.displaySpreadsheetResultNoFilters(value);
     }
 
     @Override

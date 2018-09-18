@@ -2,8 +2,6 @@ package org.openl.rules.webstudio.web.test;
 
 import java.util.*;
 
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.richfaces.model.TreeNode;
 import org.slf4j.Logger;
@@ -12,14 +10,8 @@ import org.slf4j.LoggerFactory;
 public class MapParameterTreeNode extends CollectionParameterTreeNode {
     private final Logger log = LoggerFactory.getLogger(MapParameterTreeNode.class);
 
-    public MapParameterTreeNode(String fieldName,
-            Object value,
-            IOpenClass fieldType,
-            ParameterDeclarationTreeNode parent,
-            IOpenField previewField,
-            boolean hasExplainLinks,
-            String requestId) {
-        super(fieldName, value, fieldType, parent, previewField, hasExplainLinks, requestId);
+    public MapParameterTreeNode(ParameterRenderConfig config) {
+        super(config);
     }
 
     @Override
@@ -39,7 +31,6 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
         if (isValueNull()) {
             return new LinkedHashMap<>();
         } else {
-            IOpenClass collectionElementType = getType().getComponentClass();
             LinkedHashMap<Object, ParameterDeclarationTreeNode> elements = new LinkedHashMap<>();
             Map<Object, Object> map = getMap();
             int i = 0;
@@ -105,8 +96,15 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
     @Override
     protected ParameterDeclarationTreeNode createNode(Object key, Object value) {
         Entry element = new Entry(getMap(), key, value);
-        return ParameterTreeBuilder.createNode(JavaOpenClass.getOpenClass(element.getClass()), element, previewField, null, this, hasExplainLinks,
-                requestId);
+
+        ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(JavaOpenClass.getOpenClass(element.getClass()), element)
+                .previewField(config.getPreviewField())
+                .parent(this)
+                .hasExplainLinks(config.isHasExplainLinks())
+                .requestId(config.getRequestId())
+                .build();
+
+        return ParameterTreeBuilder.createNode(childConfig);
     }
 
     @Override

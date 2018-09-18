@@ -3,14 +3,9 @@ package org.openl.rules.webstudio.web.test;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
-import org.openl.types.IOpenClass;
-
 public class ContextParameterTreeNode extends ComplexParameterTreeNode {
-    public ContextParameterTreeNode(String fieldName,
-            Object value,
-            IOpenClass fieldType,
-            ParameterDeclarationTreeNode parent, String requestId) {
-        super(fieldName, value, fieldType, parent, null, requestId);
+    public ContextParameterTreeNode(ParameterRenderConfig config) {
+        super(config);
     }
 
     @Override

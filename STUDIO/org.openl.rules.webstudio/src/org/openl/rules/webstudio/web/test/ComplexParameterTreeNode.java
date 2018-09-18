@@ -14,20 +14,32 @@ import org.slf4j.LoggerFactory;
 
 public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     private final Logger log = LoggerFactory.getLogger(ComplexParameterTreeNode.class);
-    public static final String COMPLEX_TYPE = "complex";
-    private String valuePreview;
+    private static final String COMPLEX_TYPE = "complex";
+    private final String valuePreview;
     private IOpenClass typeToCreate;
-    private String requestId;
+    private final ParameterRenderConfig config;
 
-    public ComplexParameterTreeNode(String fieldName,
-            Object value,
-            IOpenClass fieldType,
-            ParameterDeclarationTreeNode parent,
-            String valuePreview,
-            String requestId) {
-        super(fieldName, value, fieldType, parent);
-        this.valuePreview = valuePreview;
-        this.requestId = requestId;
+    public ComplexParameterTreeNode(ParameterRenderConfig config) {
+        super(config.getFieldNameInParent(), config.getValue(), config.getType(), config.getParent());
+        this.config = config;
+
+        Object preview = null;
+        if (config.getValue() != null) {
+            IOpenField previewField = config.getPreviewField();
+            if (previewField == null) {
+                previewField = config.getType().getIndexField();
+            }
+            if (previewField != null) {
+                preview = previewField.get(config.getValue(), null);
+            }
+        }
+
+        if (preview == null) {
+            this.valuePreview = null;
+        } else {
+            ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(config.getType(), preview).build();
+            this.valuePreview = ParameterTreeBuilder.createSimpleNode(childConfig).getDisplayedValue();
+        }
     }
 
     @Override
@@ -77,8 +89,14 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                         fieldValue = reference;
                     }
 
-                    fields.put(fieldName,
-                            ParameterTreeBuilder.createNode(fieldType, fieldValue, fieldName, this, requestId));
+                    ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(fieldType, fieldValue)
+                            .fieldNameInParent(fieldName)
+                            .parent(this)
+                            .hasExplainLinks(config.isHasExplainLinks())
+                            .requestId(config.getRequestId())
+                            .build();
+
+                    fields.put(fieldName, ParameterTreeBuilder.createNode(childConfig));
                 }
             }
             return fields;

@@ -40,65 +40,38 @@ public class ParameterTreeBuilder {
     @ManagedProperty(value = "#{mainBean}")
     private MainBean mainBean;
 
-    public static ParameterDeclarationTreeNode createNode(IOpenClass fieldType, Object value,
-            String fieldName, ParameterDeclarationTreeNode parent, String requestId) {
-        return createNode(fieldType, value, null, fieldName, parent, true, requestId);
-    }
-
-    public static ParameterDeclarationTreeNode createNode(IOpenClass fieldType, Object value, IOpenField previewField,
-            String fieldName, ParameterDeclarationTreeNode parent, boolean hasExplainLinks, String requestId) {
-        ParameterDeclarationTreeNode customNode = getOpenLCustomNode(fieldType, value, fieldName, parent);
+    public static ParameterDeclarationTreeNode createNode(ParameterRenderConfig config) {
+        ParameterDeclarationTreeNode customNode = getOpenLCustomNode(config.getType(), config.getValue(), config.getFieldNameInParent(), config.getParent());
         if (customNode != null) {
             return customNode;
         }
 
-        if (Utils.isCollection(fieldType)) {
-            if (ClassUtils.isAssignable(fieldType.getInstanceClass(), Map.class)) {
-                return new MapParameterTreeNode(fieldName, value, fieldType, parent, previewField, hasExplainLinks, requestId);
+        if (Utils.isCollection(config.getType())) {
+            if (ClassUtils.isAssignable(config.getType().getInstanceClass(), Map.class)) {
+                return new MapParameterTreeNode(config);
             }
-            return new CollectionParameterTreeNode(fieldName, value, fieldType, parent, previewField, hasExplainLinks, requestId);
-        } else if (isSpreadsheetResult(value)) {
-            return createSpreadsheetResultTreeNode(fieldType, value, fieldName, parent, hasExplainLinks, requestId);
-        } else if (!fieldType.isSimple()) {
-            return createComplexBeanNode(fieldType, value, previewField, fieldName, parent, requestId);
+            return new CollectionParameterTreeNode(config);
+        } else if (isSpreadsheetResult(config.getValue())) {
+            return new SpreadsheetResultTreeNode(config);
+        } else if (!config.getType().isSimple()) {
+            return createComplexBeanNode(config);
         } else {
-            return createSimpleNode(fieldType, value, fieldName, parent);
+            return createSimpleNode(config);
         }
     }
 
-    private static ParameterDeclarationTreeNode createComplexBeanNode(IOpenClass fieldType,
-            Object value,
-            IOpenField previewField,
-            String fieldName,
-            ParameterDeclarationTreeNode parent, String requestId) {
-        if (fieldType.getInstanceClass() != null && IRulesRuntimeContext.class.isAssignableFrom(fieldType.getInstanceClass())) {
-            return new ContextParameterTreeNode(fieldName, value, fieldType, parent, requestId);
+    private static ParameterDeclarationTreeNode createComplexBeanNode(ParameterRenderConfig config) {
+        if (config.getType().getInstanceClass() != null && IRulesRuntimeContext.class.isAssignableFrom(config.getType().getInstanceClass())) {
+            return new ContextParameterTreeNode(config);
         }
-        if (canConstruct(fieldType)) {
-            Object preview = null;
-            if (value != null) {
-                if (previewField == null) {
-                    previewField = fieldType.getIndexField();
-                }
-                if (previewField != null) {
-                    preview = previewField.get(value, null);
-                }
-            }
-            String valuePreview = preview == null ? null : createSimpleNode(fieldType, preview, null, null).getDisplayedValue();
-            return new ComplexParameterTreeNode(fieldName, value, fieldType, parent, valuePreview, requestId);
+        if (canConstruct(config.getType())) {
+            return new ComplexParameterTreeNode(config);
         } else {
-            UnmodifiableParameterTreeNode node = new UnmodifiableParameterTreeNode(fieldName, value, fieldType, parent);
+            UnmodifiableParameterTreeNode node = new UnmodifiableParameterTreeNode(config.getFieldNameInParent(), config.getValue(), config.getType(), config.getParent());
             node.setWarnMessage(String.format("Can not construct bean of type '%s'. Make sure that it has public constructor without parameters.",
-                    fieldType.getDisplayName(INamedThing.SHORT)));
+                    config.getType().getDisplayName(INamedThing.SHORT)));
             return node;
         }
-    }
-
-    private static ParameterDeclarationTreeNode createSpreadsheetResultTreeNode(IOpenClass fieldType,
-            Object value,
-            String fieldName,
-            ParameterDeclarationTreeNode parent, boolean hasExplainLinks, String requestId) {
-        return new SpreadsheetResultTreeNode(fieldName, value, fieldType, parent, hasExplainLinks, requestId);
     }
 
     /**
@@ -121,10 +94,12 @@ public class ParameterTreeBuilder {
         }
     }
 
-    private static ParameterDeclarationTreeNode createSimpleNode(IOpenClass fieldType,
-                                                                Object value,
-                                                                String fieldName,
-                                                                ParameterDeclarationTreeNode parent) {
+    static ParameterDeclarationTreeNode createSimpleNode(ParameterRenderConfig config) {
+        ParameterDeclarationTreeNode parent = config.getParent();
+        String fieldName = config.getFieldNameInParent();
+        Object value = config.getValue();
+        IOpenClass fieldType = config.getType();
+
         if (parent == null || Utils.isCollection(parent.getType()) || parent.getType().getField(fieldName).isWritable()) {
             return new SimpleParameterTreeNode(fieldName, value, fieldType, parent);
         } else {
@@ -164,7 +139,13 @@ public class ParameterTreeBuilder {
                 if (param instanceof ParameterWithValueAndPreviewDeclaration) {
                     previewField = ((ParameterWithValueAndPreviewDeclaration) param).getPreviewField();
                 }
-                return createComplexBeanNode(fieldType, value, previewField, null, null, mainBean.getRequestId()).getDisplayedValue();
+
+                ParameterRenderConfig config = new ParameterRenderConfig.Builder(fieldType, value)
+                        .previewField(previewField)
+                        .requestId(mainBean.getRequestId())
+                        .build();
+
+                return createComplexBeanNode(config).getDisplayedValue();
             }
         }
 
@@ -179,13 +160,13 @@ public class ParameterTreeBuilder {
             if (param instanceof ParameterWithValueAndPreviewDeclaration) {
                 previewField = ((ParameterWithValueAndPreviewDeclaration) param).getPreviewField();
             }
-            ParameterDeclarationTreeNode treeNode = createNode(param.getType(),
-                    param.getValue(),
-                    previewField,
-                    null,
-                    null,
-                    hasExplainLinks,
-                    mainBean.getRequestId());
+
+            ParameterRenderConfig config = new ParameterRenderConfig.Builder(param.getType(), param.getValue())
+                    .previewField(previewField)
+                    .hasExplainLinks(hasExplainLinks)
+                    .requestId(mainBean.getRequestId())
+                    .build();
+            ParameterDeclarationTreeNode treeNode = createNode(config);
             root.addChild(param.getName(), treeNode);
         }
         return root;

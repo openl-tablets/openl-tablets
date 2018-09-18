@@ -4,7 +4,6 @@ import org.openl.domain.IDomain;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaEnumDomain;
@@ -22,10 +21,6 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
                                    IOpenClass fieldType,
                                    ParameterDeclarationTreeNode parent) {
         super(fieldName, value, fieldType, parent);
-    }
-
-    public SimpleParameterTreeNode(ParameterWithValueDeclaration paramDescription, ParameterDeclarationTreeNode parent) {
-        super(paramDescription, parent);
     }
 
     @Override
@@ -76,7 +71,7 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
 
         IDomain<?> domain = type.getDomain();
         if (domain != null) {
-            List<String> result = new ArrayList<String>();
+            List<String> result = new ArrayList<>();
             result.add("");
             for (Object o : domain) {
                 result.add(o.toString());
@@ -103,7 +98,7 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
 
     @Override
     protected LinkedHashMap<Object, ParameterDeclarationTreeNode> initChildrenMap() {
-        return new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
+        return new LinkedHashMap<>();
     }
 
     @Override
