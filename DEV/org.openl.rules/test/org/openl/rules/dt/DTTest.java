@@ -80,7 +80,7 @@ public class DTTest extends BaseOpenlBuilderHelper {
         result = (String[]) method.invoke(instance, new Object[] { new Integer(23) }, env);
         assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
     }
-    
+
     @Test
     public void greeting70() throws Exception {
         IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("Greeting70",
@@ -921,6 +921,30 @@ public class DTTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
+    public void driverPremium8() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("DriverPremium8",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(String.class),
+                    JavaOpenClass.getOpenClass(String.class),
+                    JavaOpenClass.getOpenClass(String.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        Object result = method.invoke(instance, new Object[] { "", "Married", "Young Driver" }, env);
+        assertEquals(new DoubleValue(700), result);
+        result = method.invoke(instance, new Object[] { "", "Single", "Young Driver" }, env);
+        assertEquals(new DoubleValue(720), result);
+        result = method.invoke(instance, new Object[] { "", "Married", "Senior Driver" }, env);
+        assertEquals(new DoubleValue(300), result);
+        result = method.invoke(instance, new Object[] {  "", "Single", "Senior Driver" }, env);
+        assertEquals(new DoubleValue(350), result);
+        result = method.invoke(instance, new Object[] {  "", "Single", "Standard Driver" }, env);
+        assertEquals(new DoubleValue(500), result);
+        result = method.invoke(instance, new Object[] { "", "Married", "Standard Driver" }, env);
+        assertEquals(new DoubleValue(500), result);
+        result = method.invoke(instance, new Object[] { "", "", "" }, env);
+        assertNull(result);
+    }
+
+    @Test
     public void carPrice() throws Exception {
         IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("CarPrice",
             new IOpenClass[] { JavaOpenClass.getOpenClass(String.class),
@@ -948,6 +972,23 @@ public class DTTest extends BaseOpenlBuilderHelper {
         Object result = method.invoke(instance, new Object[] { "", "USA", "BMW", "Z4 sDRIVE35i" }, env);
         assertEquals(new DoubleValue(55150), result);
         result = method.invoke(instance, new Object[] { "", "Belarus", "Porche", "911 Carrera 4" }, env);
+        assertEquals(new DoubleValue(130030), result);
+        result = method.invoke(instance, new Object[] { "", "", "", "" }, env);
+        assertNull(result);
+    }
+
+    @Test
+    public void carPrice3() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("CarPrice3",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(String.class),
+                    JavaOpenClass.getOpenClass(String.class),
+                    JavaOpenClass.getOpenClass(String.class),
+                    JavaOpenClass.getOpenClass(String.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        Object result = method.invoke(instance, new Object[] { "", "BMW", "Z4 sDRIVE35i", "USA" }, env);
+        assertEquals(new DoubleValue(55150), result);
+        result = method.invoke(instance, new Object[] { "", "Porche", "911 Carrera 4", "Belarus" }, env);
         assertEquals(new DoubleValue(130030), result);
         result = method.invoke(instance, new Object[] { "", "", "", "" }, env);
         assertNull(result);

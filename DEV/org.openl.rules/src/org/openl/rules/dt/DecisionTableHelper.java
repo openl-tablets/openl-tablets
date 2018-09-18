@@ -912,36 +912,41 @@ public class DecisionTableHelper {
             boolean isCollectTable) throws OpenLCompilationException {
         int numberOfParameters = decisionTable.getSignature().getNumberOfParameters();
         int column = 0;
-        List<List<Condition>> vConditions = new ArrayList<List<Condition>>();
+        List<List<Condition>> vConditions = new ArrayList<>();
 
-        BidiMap<String, Integer> parameterTokensMap = new DualHashBidiMap<String, Integer>();
-        Token[] parameterTokens = new Token[numberOfParameters - numberOfHcondition];
-        for (int i = 0; i < numberOfParameters - numberOfHcondition; i++) {
+        BidiMap<String, Integer> parameterTokensMap = new DualHashBidiMap<>();
+        Token[] parameterTokens = new Token[numberOfParameters];
+        for (int i = 0; i < numberOfParameters; i++) {
             String tokenString = OpenLFuzzySearch.toTokenString(decisionTable.getSignature().getParameterName(i));
-            parameterTokensMap.put(tokenString,
-                Integer.valueOf(i));
+            parameterTokensMap.put(tokenString, i);
             parameterTokens[i] = new Token(tokenString, 0);
         }
         int j = 0;
         int firstColumnHeight = originalTable.getCell(0, 0).getHeight();
-        while (j < numberOfParameters - numberOfHcondition) {
+        while (j < numberOfParameters) {
             if (originalTable.getCell(column, 0).getHeight() != firstColumnHeight) {
                 break;
             }
             String description = originalTable.getCell(column, 0).getStringValue();
-            
+
             column += originalTable.getColumnWidth(column);
-            
-            if (column >= originalTable.getWidth()){
+
+            if (column >= originalTable.getWidth()) {
                 break;
             }
-            
-            if (isCollectTable && Map.class.isAssignableFrom(decisionTable.getType().getInstanceClass())) { //Collect with Map uses 2 last columns
-                if (column + originalTable.getColumnWidth(column) >= originalTable.getWidth()){
+
+            if (isCollectTable && Map.class.isAssignableFrom(decisionTable.getType().getInstanceClass())) { // Collect
+                                                                                                            // with
+                                                                                                            // Map
+                                                                                                            // uses
+                                                                                                            // 2
+                                                                                                            // last
+                                                                                                            // columns
+                if (column + originalTable.getColumnWidth(column) >= originalTable.getWidth()) {
                     break;
                 }
             }
-            
+
             String tokenizedDescriptionString = OpenLFuzzySearch.toTokenString(description);
             Token[] bestMatchedTokens = OpenLFuzzySearch.openlFuzzyExtract(tokenizedDescriptionString, parameterTokens);
             if (bestMatchedTokens.length == 0) {
@@ -949,14 +954,15 @@ public class DecisionTableHelper {
             }
 
             if (bestMatchedTokens.length > 1) {
-                List<Condition> conditions = new ArrayList<Condition>();
+                List<Condition> conditions = new ArrayList<>();
                 for (Token token : bestMatchedTokens) {
                     conditions.add(new Condition(parameterTokensMap.get(token.getValue()), description));
                 }
 
                 vConditions.add(conditions);
             } else {
-                Condition currentConditionDescrition = new Condition(parameterTokensMap.get(bestMatchedTokens[0].getValue()),
+                Condition currentConditionDescrition = new Condition(
+                    parameterTokensMap.get(bestMatchedTokens[0].getValue()),
                     description);
                 boolean alreadyExists = false;
                 for (List<Condition> vConditionDescriptionList : vConditions) {
@@ -985,13 +991,9 @@ public class DecisionTableHelper {
             j++;
         }
 
-        /*
-         * if (vConditions.isEmpty()){ throw new
-         * OpenLCompilationException("Wrong table structure: At least one vertical column in table was expected."
-         * ); }
-         */
-
         Condition[] conditions = new Condition[vConditions.size() + numberOfHcondition];
+        boolean[] parameterIsUsed = new boolean[numberOfParameters];
+        Arrays.fill(parameterIsUsed, false);
         int v = 0;
         for (List<Condition> vConditionDescriptionList : vConditions) {
             if (vConditionDescriptionList.size() > 1) {
@@ -1000,12 +1002,30 @@ public class DecisionTableHelper {
                         vConditionDescriptionList.get(0).getDescription()));
             } else {
                 conditions[v] = vConditionDescriptionList.get(0);
+                parameterIsUsed[conditions[v].getParameterIndex()] = true;
             }
             v++;
         }
 
-        for (int i = numberOfParameters - numberOfHcondition; i < numberOfParameters; i++) {
-            conditions[vConditions.size() + i - (numberOfParameters - numberOfHcondition)] = new Condition(i);
+        int k = 0;
+        int i = numberOfParameters - 1;
+        while (k < numberOfHcondition && i >= 0) {
+            if (!parameterIsUsed[i]) {
+                k++;
+            }
+            i--;
+        }
+
+        if (k < numberOfHcondition) {
+            throw new OpenLCompilationException("No input parameter found for horizontal condition!");
+        }
+
+        j = 0;
+        for (int w = i + 1; w < numberOfParameters; w++) {
+            if (!parameterIsUsed[w] && j < numberOfHcondition) {
+                conditions[vConditions.size() + j] = new Condition(w);
+                j++;
+            }
         }
 
         return conditions;
