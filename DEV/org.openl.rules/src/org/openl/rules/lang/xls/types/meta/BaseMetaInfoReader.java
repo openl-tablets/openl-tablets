@@ -113,7 +113,8 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
         int r = row - firstCell.getAbsoluteRow();
         int c = col - firstCell.getAbsoluteColumn();
 
-        return c >= 0 && r >= 0 && r < propertiesSection.getHeight() && c < propertiesSection.getWidth();
+        // When c == -1 and r == 0 it's the "properties" keyword.
+        return c >= -1 && r >= 0 && r < propertiesSection.getHeight() && c < propertiesSection.getWidth();
     }
 
     private CellMetaInfo getPropertiesMetaInfo(int row, int col) {
