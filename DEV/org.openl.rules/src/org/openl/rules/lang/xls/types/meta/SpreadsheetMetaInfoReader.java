@@ -40,7 +40,11 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
             return headerMetaInfo.get(CellKey.CellKeyFactory.getCellKey(col, row));
         }
 
-        SpreadsheetCell spreadsheetCell = cells[r][c];
+        SpreadsheetCell spreadsheetCell = findCell(cells, row, col);
+        if (spreadsheetCell == null) {
+            return null;
+        }
+
         ICell sourceCell = spreadsheetCell.getSourceCell();
         IOpenClass type = spreadsheetCell.getType();
 
@@ -77,5 +81,48 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
      */
     public void addHeaderMetaInfo(int row, int col, CellMetaInfo metaInfo) {
         headerMetaInfo.put(CellKey.CellKeyFactory.getCellKey(col, row), metaInfo);
+    }
+
+    private SpreadsheetCell findCell(SpreadsheetCell[][] cells, int row, int col) {
+        ICell firstCell = cells[0][0].getSourceCell();
+        int r = row - firstCell.getAbsoluteRow();
+        int c = col - firstCell.getAbsoluteColumn();
+
+        if (r >= cells.length) {
+            r = cells.length - 1;
+        }
+
+        if (c >= cells[0].length) {
+            c = cells[0].length - 1;
+        }
+
+        // Optimistic approach: check that we already found needed cell
+        SpreadsheetCell spreadsheetCell = cells[r][c];
+        ICell sourceCell = spreadsheetCell.getSourceCell();
+        if (sourceCell.getAbsoluteRow() == row && sourceCell.getAbsoluteColumn() == col) {
+            return spreadsheetCell;
+        }
+
+        // Exist some merged cells.
+        // Search in previous columns.
+        while (col < sourceCell.getAbsoluteColumn() && c > 0) {
+            c--;
+            spreadsheetCell = cells[r][c];
+            sourceCell = spreadsheetCell.getSourceCell();
+        }
+
+        // Search in previous rows.
+        while (row < sourceCell.getAbsoluteRow() && r > 0) {
+            r--;
+            spreadsheetCell = cells[r][c];
+            sourceCell = spreadsheetCell.getSourceCell();
+        }
+
+        // Check that found needed cell
+        if (sourceCell.getAbsoluteRow() == row && sourceCell.getAbsoluteColumn() == col) {
+            return spreadsheetCell;
+        }
+
+        return null;
     }
 }
