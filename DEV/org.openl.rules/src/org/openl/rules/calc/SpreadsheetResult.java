@@ -207,7 +207,6 @@ public class SpreadsheetResult implements Serializable {
         return rowNames[row];
     }
 
-    @XmlTransient
     public String getColumnTitle(int column) {
         return columnTitles[column];
     }
