@@ -27,6 +27,7 @@
         <module>itest.HttpStatuses</module>
         <module>itest.EPBDS-7787</module>
         <module>itest.swaggerSchemas</module>
+        <module>itest.EPBDS-7819</module>
     </modules>
 
     <dependencyManagement>
