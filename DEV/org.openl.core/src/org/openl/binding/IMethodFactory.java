@@ -17,10 +17,10 @@ public interface IMethodFactory {
 
     IOpenMethod getMethod(String name, IOpenClass[] params) throws AmbiguousMethodException;
     
-    IOpenMethod getConstructor(String name, IOpenClass[] params) throws AmbiguousMethodException;
+    IOpenMethod getConstructor(IOpenClass[] params) throws AmbiguousMethodException;
 
     Iterable<IOpenMethod> methods(String name);
     
-    Iterable<IOpenMethod> constructors(String name);
+    Iterable<IOpenMethod> constructors();
     
 }

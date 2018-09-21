@@ -74,12 +74,12 @@ public class StaticClassLibrary implements IOpenLibrary {
     }
     
     @Override
-    public IOpenMethod getConstructor(String name, IOpenClass[] params) throws AmbiguousMethodException {
+    public IOpenMethod getConstructor(IOpenClass[] params) throws AmbiguousMethodException {
         return null;
     }
 
     @Override
-    public Iterable<IOpenMethod> constructors(String name) {
+    public Iterable<IOpenMethod> constructors() {
         return Collections.<IOpenMethod>emptyList();
     }
 }

@@ -22,7 +22,7 @@ public class ConstructorMethodsTest {
 
     @Test
     public void test() {
-        Iterable<IOpenMethod> constructors = engineFactory.getCompiledOpenClass().getOpenClass().constructors("Main");
+        Iterable<IOpenMethod> constructors = engineFactory.getCompiledOpenClass().getOpenClass().constructors();
         Iterator<IOpenMethod> itr = constructors.iterator();
         Assert.assertTrue(itr.hasNext());
         Assert.assertTrue(itr.next().isConstructor());

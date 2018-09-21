@@ -17,7 +17,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.ADynamicClass.OpenConstructor;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenConstructor;
 import org.openl.util.ClassUtils;
@@ -111,7 +110,7 @@ public class InterfaceGenerator {
                     RuleInfo ruleInfo = getRuleInfoForField(field);
                     boolean isMember = isMember(ruleInfo, includes, excludes);
                     if (isMember) {
-                        MethodKey key = new MethodKey(ruleInfo.getName(), new IOpenClass[0], false);
+                        MethodKey key = new MethodKey(ruleInfo.getName(), new IOpenClass[0]);
                         //Skip getter for field if method is defined with the same signature.
                         if (!methodsInClass.contains(key)) {
                             rules.add(ruleInfo);
@@ -243,7 +242,7 @@ public class InterfaceGenerator {
      *         due interface generation phase), <code>false</code> - otherwise
      */
     private static boolean isIgnoredMember(IOpenMember member) {
-        return member instanceof OpenConstructor || member instanceof JavaOpenConstructor
+        return member instanceof JavaOpenConstructor
                 || member instanceof ThisField || member instanceof GetOpenClass || member instanceof TestSuiteMethod;
     }
 

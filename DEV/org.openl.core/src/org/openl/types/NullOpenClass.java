@@ -69,7 +69,7 @@ public class NullOpenClass implements IOpenClass {
     }
 
     @Override
-    public IOpenMethod getConstructor(String name, IOpenClass[] params) {
+    public IOpenMethod getConstructor(IOpenClass[] params) {
         return null;
     }
 
@@ -208,7 +208,7 @@ public class NullOpenClass implements IOpenClass {
     }
     
     @Override
-    public Iterable<IOpenMethod> constructors(String name) {
+    public Iterable<IOpenMethod> constructors() {
         return Collections.emptyList();
     }
     
