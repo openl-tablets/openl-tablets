@@ -33,23 +33,27 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
         String libraryClassName;
         String className;
 
-        CastFactory factory = null;
+        private volatile CastFactory factory = null;
 
-        public synchronized CastFactory getCastFactory(IConfigurableResourceContext cxt) {
+        CastFactory getCastFactory(IConfigurableResourceContext cxt) {
             if (factory == null) {
-                Class<?> libClass = ClassFactory
-                    .validateClassExistsAndPublic(libraryClassName, cxt.getClassLoader(), getUri());
-                Class<?> implClass = ClassFactory
-                    .validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
+                synchronized (this) {
+                    if (factory == null) {
+                        ClassLoader classLoader = cxt.getClassLoader();
+                        String uri = getUri();
 
-                factory = (CastFactory) ClassFactory.newInstance(implClass, getUri()); // Strange
-                                                                                       // reflection
-                                                                                       // logic
-                                                                                       // with
-                                                                                       // implementation
-                                                                                       // cast!
-                factory.setMethodFactory(new StaticClassLibrary(JavaOpenClass.getOpenClass(libClass)));
-                factory.setGlobalCastFactory(configuration);
+                        Class<?> libClass = ClassFactory.validateClassExistsAndPublic(libraryClassName, classLoader, uri);
+                        Class<?> implClass = ClassFactory.validateClassExistsAndPublic(className, classLoader, uri);
+
+                        // Strange reflection logic with implementation cast!
+                        CastFactory castFactory = (CastFactory) ClassFactory.newInstance(implClass, uri);
+
+                        castFactory.setMethodFactory(new StaticClassLibrary(JavaOpenClass.getOpenClass(libClass)));
+                        castFactory.setGlobalCastFactory(configuration);
+
+                        factory = castFactory;
+                    }
+                }
             }
             return factory;
         }
