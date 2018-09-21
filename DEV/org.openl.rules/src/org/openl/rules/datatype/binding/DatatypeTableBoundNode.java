@@ -24,7 +24,6 @@ import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
-import org.openl.rules.lang.xls.types.DatatypeOpenClass.OpenFieldsConstructor;
 import org.openl.rules.lang.xls.types.meta.BaseMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.DatatypeTableMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
@@ -531,13 +530,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             dataType.setSuperClass(parentClass);
         }
         addFields(cxt);
-        // adding constructor with all fields after all fields have been added
-        if (dataType.getFields().size() > 0) {
-            // Datatype with errors can't have constructor if it's class isn't generated
-            if (dataType.getInstanceClass() != null) {
-                dataType.addConstructor(new OpenFieldsConstructor(dataType));
-            }
-        }
         // Add new type to internal types of module.
         //
         moduleOpenClass.addType(dataType);

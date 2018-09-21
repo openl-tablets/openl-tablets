@@ -166,9 +166,9 @@ public abstract class AOpenClass implements IOpenClass {
         return indexField;
     }
 
-    public IOpenMethod getConstructor(String name, IOpenClass[] params) {
+    public IOpenMethod getConstructor(IOpenClass[] params) {
         Map<MethodKey, IOpenMethod> m = constructorMap();
-        MethodKey methodKey = new MethodKey(name, params, true);
+        MethodKey methodKey = new MethodKey(params);
         return m.get(methodKey);
     }
 
@@ -384,10 +384,6 @@ public abstract class AOpenClass implements IOpenClass {
         return allMethodsCache;
     }
 
-    public final Collection<IOpenMethod> getConstructors() {
-        return Collections.unmodifiableCollection(constructorMap().values());
-    }
-
     private Collection<IOpenMethod> buildAllMethods() {
         Map<MethodKey, IOpenMethod> methods = new HashMap<MethodKey, IOpenMethod>();
         Iterable<IOpenClass> superClasses = superClasses();
@@ -474,7 +470,7 @@ public abstract class AOpenClass implements IOpenClass {
 
     private volatile boolean allMethodNamesMapInvalidated = true;
 
-    private Map<String, List<IOpenMethod>> allConstructorNamesMap = null;
+    private Collection<IOpenMethod> allConstructors = null;
 
     private volatile boolean allConstructorNamesMapInvalidated = true;
 
@@ -493,17 +489,16 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     @Override
-    public final Iterable<IOpenMethod> constructors(String name) {
+    public final Iterable<IOpenMethod> constructors() {
         if (allConstructorNamesMapInvalidated) {
             synchronized (this) {
                 if (allConstructorNamesMapInvalidated) {
-                    allConstructorNamesMap = buildMethodNameMap(getConstructors());
+                    allConstructors = Collections.unmodifiableCollection(constructorMap().values());
                     allConstructorNamesMapInvalidated = false;
                 }
             }
         }
-        List<IOpenMethod> found = allConstructorNamesMap.get(name);
-        return found == null ? Collections.<IOpenMethod> emptyList() : Collections.unmodifiableList(found);
+        return allConstructors == null ? Collections.<IOpenMethod> emptyList() : allConstructors;
     }
 
     public static Map<String, List<IOpenMethod>> buildMethodNameMap(Iterable<IOpenMethod> methods) {

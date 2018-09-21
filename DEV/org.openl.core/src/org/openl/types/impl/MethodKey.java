@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.openl.types.impl;
 
 import org.openl.types.IOpenClass;
@@ -22,10 +19,10 @@ public final class MethodKey {
     int hashCode = 0;
 
     public MethodKey(IOpenMethod om) {
-        this.name = om.getName();
         IOpenClass[] pars = om.getSignature().getParameterTypes();
         this.internalParameters = getNormalizedParams(pars);
         this.isConstructor = om.isConstructor();
+        this.name = isConstructor ? "<init>" : om.getName();
     }
 
     public MethodKey(String name, IOpenClass[] pars) {
@@ -34,10 +31,10 @@ public final class MethodKey {
         this.isConstructor = false;
     }
 
-    public MethodKey(String name, IOpenClass[] pars, boolean isContructor) {
-        this.name = name;
+    public MethodKey(IOpenClass[] pars) {
+        this.name = "<init>";
         this.internalParameters = getNormalizedParams(pars);
-        this.isConstructor = isContructor;
+        this.isConstructor = true;
     }
 
     public MethodKey(String name, IOpenClass[] parTypes, boolean isConstructor, boolean doNotNormalizeParams) {

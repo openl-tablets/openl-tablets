@@ -1,9 +1,3 @@
-/*
- * Created on Jun 17, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl.method;
 
 import java.lang.reflect.Type;
@@ -469,20 +463,6 @@ public class MethodSearch {
         return findVarArgMethod(name, params, casts, factory.methods(name));
     }
 
-    private static IMethodCaller findCastingConstructor(String name,
-            IOpenClass[] params,
-            ICastFactory casts,
-            IMethodFactory factory) throws AmbiguousMethodException {
-        return findCastingMethod(name, params, casts, factory.constructors(name));
-    }
-
-    private static IMethodCaller findVarArgConstructor(String name,
-            IOpenClass[] params,
-            ICastFactory casts,
-            IMethodFactory factory) throws AmbiguousMethodException {
-        return findCastingMethod(name, params, casts, factory.constructors(name));
-    }
-
     /**
      * Choosing the most specific method according to:
      * 
@@ -621,11 +601,17 @@ public class MethodSearch {
         return findMethod(name, params, casts, factory, false);
     }
 
-    public static IMethodCaller findConstructor(String name,
-            IOpenClass[] params,
-            ICastFactory casts,
-            IMethodFactory factory) throws AmbiguousMethodException {
-        return findConstructor(name, params, casts, factory, false);
+    public static IMethodCaller findConstructor(IOpenClass[] params,
+                                                ICastFactory casts,
+                                                IMethodFactory factory) throws AmbiguousMethodException {
+        IMethodCaller caller = factory.getConstructor(params);
+        if (caller != null) {
+            return caller;
+        }
+        if (params.length == 0 || casts == null) {
+            return null;
+        }
+        return findCastingMethod("<init>", params, casts, factory.constructors());
     }
 
     public static IMethodCaller findMethod(String name,
@@ -659,27 +645,5 @@ public class MethodSearch {
             return caller;
         }
         return findVarArgMethod(name, params, casts, methods);
-    }
-
-    public static IMethodCaller findConstructor(String name,
-            IOpenClass[] params,
-            ICastFactory casts,
-            IMethodFactory factory,
-            boolean strictMatch) throws AmbiguousMethodException {
-        IMethodCaller caller = factory.getConstructor(name, params);
-        if (caller != null) {
-            return caller;
-        }
-        if (params.length == 0 || casts == null) {
-            return null;
-        }
-        if (!strictMatch) {
-            caller = findCastingConstructor(name, params, casts, factory);
-            if (caller != null) {
-                return caller;
-            }
-            return findVarArgConstructor(name, params, casts, factory);
-        }
-        return null;
     }
 }

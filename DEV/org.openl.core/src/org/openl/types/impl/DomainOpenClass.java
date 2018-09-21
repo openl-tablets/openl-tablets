@@ -84,8 +84,8 @@ public class DomainOpenClass implements IOpenClass {
     }
 
     @Override
-    public IOpenMethod getConstructor(String name, IOpenClass[] params) throws AmbiguousMethodException {
-        return baseClass.getConstructor(name, params);
+    public IOpenMethod getConstructor(IOpenClass[] params) throws AmbiguousMethodException {
+        return baseClass.getConstructor(params);
     }
 
     public IMetaInfo getMetaInfo() {
@@ -223,8 +223,8 @@ public class DomainOpenClass implements IOpenClass {
         return name.hashCode();
     }
 
-    public Iterable<IOpenMethod> constructors(String name) {
-        return baseClass.constructors(name);
+    public Iterable<IOpenMethod> constructors() {
+        return baseClass.constructors();
     }
     
     public IOpenClass getArrayType(int dim) {
