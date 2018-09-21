@@ -376,20 +376,24 @@ public class JavaOpenClass extends AOpenClass {
         return getAggregateInfo().getComponentType(this);
     }
 
-    List<IOpenClass> superClasses;
+    private volatile List<IOpenClass> superClasses;
 
-    public synchronized Iterable<IOpenClass> superClasses() {
+    public Iterable<IOpenClass> superClasses() {
         if (superClasses == null) {
-            Class<?>[] interfaces = instanceClass.getInterfaces();
-            Class<?> superClass = instanceClass.getSuperclass();
-            List<IOpenClass> superClasses = new ArrayList<IOpenClass>(interfaces.length + 1);
-            if (superClass != null) {
-                superClasses.add(getOpenClass(superClass));
+            synchronized (this) {
+                if (superClasses == null) {
+                    Class<?>[] interfaces = instanceClass.getInterfaces();
+                    Class<?> superClass = instanceClass.getSuperclass();
+                    List<IOpenClass> superClasses = new ArrayList<IOpenClass>(interfaces.length + 1);
+                    if (superClass != null) {
+                        superClasses.add(getOpenClass(superClass));
+                    }
+                    for (Class<?> interf : interfaces) {
+                        superClasses.add(getOpenClass(interf));
+                    }
+                    this.superClasses = superClasses;
+                }
             }
-            for (Class<?> interf : interfaces) {
-                superClasses.add(getOpenClass(interf));
-            }
-            this.superClasses = superClasses;
         }
 
         return superClasses;
