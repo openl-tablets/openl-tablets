@@ -1,6 +1,7 @@
 package org.openl.binding.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.TreeMap;
 
@@ -38,7 +39,7 @@ class OrderByIndexNode extends ABoundNode {
 
         Iterator<Object> elementsIterator = aggregateInfo.getIterator(container);
 
-        TreeMap<Comparable<?>, Object> map = new TreeMap<>();
+        TreeMap<Comparable<?>, Object> map = initTreeMap();
 
         int size = 0;
         while (elementsIterator.hasNext()) {
@@ -66,18 +67,21 @@ class OrderByIndexNode extends ABoundNode {
         int idx = 0;
         for (Object element : map.values()) {
             if (element.getClass() != OrderList.class) {
-                index.setValue(result, nextIdx(idx++, size), element);
+                index.setValue(result, idx++, element);
             } else {
                 for (Object item : (OrderList) element) {
-                    index.setValue(result, nextIdx(idx++, size), item);
+                    index.setValue(result, idx++, item);
                 }
             }
         }
         return result;
     }
 
-    private int nextIdx(int idx, int size) {
-        return isDecreasing ? size - 1 - idx : idx;
+    private TreeMap<Comparable<?>, Object> initTreeMap() {
+        if (isDecreasing) {
+            return new TreeMap<>(Collections.reverseOrder());
+        }
+        return new TreeMap<>();
     }
 
     public IOpenClass getType() {
