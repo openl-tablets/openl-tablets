@@ -49,7 +49,7 @@ public class CassandraStoreLoggingInfoService implements StoreLoggingInfoService
             try {
                 entity = entityClass.newInstance();
             } catch (Exception e) {
-                log.error("Failed to instantiate entity class!", e);
+                log.error(String.format("Failed to instantiate entity class '%s'!", entityClass.getSimpleName()), e);
                 return;
             }
         }
