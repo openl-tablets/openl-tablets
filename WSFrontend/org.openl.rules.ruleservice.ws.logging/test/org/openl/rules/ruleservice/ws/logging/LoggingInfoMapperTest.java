@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.ws.logging;
 
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.Random;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.cxf.interceptor.LoggingMessage;
@@ -16,19 +15,6 @@ import org.openl.rules.ruleservice.logging.LoggingInfoConvertor;
 import org.openl.rules.ruleservice.logging.LoggingInfoMapper;
 import org.openl.rules.ruleservice.logging.RuleServiceLogging;
 import org.openl.rules.ruleservice.logging.TypeConvertor;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue1;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue2;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue3;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue1;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue2;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue3;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue4;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue5;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue1;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue2;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue3;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue4;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue5;
 import org.openl.rules.ruleservice.logging.annotation.SetterIncomingTime;
 import org.openl.rules.ruleservice.logging.annotation.SetterInputName;
 import org.openl.rules.ruleservice.logging.annotation.SetterOutcomingTime;
@@ -37,6 +23,7 @@ import org.openl.rules.ruleservice.logging.annotation.SetterRequest;
 import org.openl.rules.ruleservice.logging.annotation.SetterResponse;
 import org.openl.rules.ruleservice.logging.annotation.SetterServiceName;
 import org.openl.rules.ruleservice.logging.annotation.SetterUrl;
+import org.openl.rules.ruleservice.logging.annotation.SetterValue;
 import org.openl.rules.ruleservice.logging.annotation.UseLoggingInfoConvertor;
 
 public class LoggingInfoMapperTest {
@@ -73,9 +60,9 @@ public class LoggingInfoMapperTest {
         final String customString2 = RandomStringUtils.random(10, true, true);
 
         LoggingCustomData loggingCustomData = new LoggingCustomData();
-        loggingCustomData.setStringValue1(customString1);
-        loggingCustomData.setStringValue2(customString2);
-
+        loggingCustomData.setValue("customString1", customString1);
+        loggingCustomData.setValue("customString2", customString2);
+        
         ruleServiceLoggingInfo.setLoggingCustomData(loggingCustomData);
 
         final PublisherType publisher1 = PublisherType.RESTFUL;
@@ -87,6 +74,7 @@ public class LoggingInfoMapperTest {
 
         // validation
         Assert.assertEquals(customString2, testEntity1.getValue2());
+        Assert.assertEquals(customString2, testEntity1.getStringValue2());
         Assert.assertEquals(null, testEntity1.getValue1());
 
         final PublisherType publisher2 = PublisherType.WEBSERVICE;
@@ -108,8 +96,8 @@ public class LoggingInfoMapperTest {
         final String customString1 = RandomStringUtils.random(10, true, true);
 
         LoggingCustomData loggingCustomData = new LoggingCustomData();
-        loggingCustomData.setStringValue1(" " + customString1 + " ");
-
+        loggingCustomData.setValue("customString1", " " + customString1 + " ");
+        
         ruleServiceLoggingInfo.setLoggingCustomData(loggingCustomData);
 
         final PublisherType publisher1 = PublisherType.RESTFUL;
@@ -127,41 +115,15 @@ public class LoggingInfoMapperTest {
     public void testSimpleMapping() {
         RuleServiceLogging ruleServiceLoggingInfo = new RuleServiceLogging();
 
-        Random rnd = new Random(System.currentTimeMillis());
-
         final String customString1 = RandomStringUtils.random(10, true, true);
         final String customString2 = RandomStringUtils.random(10, true, true);
         final String customString3 = RandomStringUtils.random(10, true, true);
-        final String customString4 = RandomStringUtils.random(10, true, true);
-        final String customString5 = RandomStringUtils.random(10, true, true);
-
-        final Long customNumber1 = rnd.nextLong();
-        final Long customNumber2 = rnd.nextLong();
-        final Long customNumber3 = rnd.nextLong();
-        final Long customNumber4 = rnd.nextLong();
-        final Long customNumber5 = rnd.nextLong();
-
-        final Date customDate1 = getRandomTimeBetweenTwoDates();
-        final Date customDate2 = getRandomTimeBetweenTwoDates();
-        final Date customDate3 = getRandomTimeBetweenTwoDates();
-
+        
         LoggingCustomData loggingCustomData = new LoggingCustomData();
-        loggingCustomData.setDateValue1(customDate1);
-        loggingCustomData.setDateValue2(customDate2);
-        loggingCustomData.setDateValue3(customDate3);
-
-        loggingCustomData.setNumberValue1(customNumber1);
-        loggingCustomData.setNumberValue2(customNumber2);
-        loggingCustomData.setNumberValue3(customNumber3);
-        loggingCustomData.setNumberValue4(customNumber4);
-        loggingCustomData.setNumberValue5(customNumber5);
-
-        loggingCustomData.setStringValue1(customString1);
-        loggingCustomData.setStringValue2(customString2);
-        loggingCustomData.setStringValue3(customString3);
-        loggingCustomData.setStringValue4(customString4);
-        loggingCustomData.setStringValue5(customString5);
-
+        loggingCustomData.setValue("customString1", customString1);
+        loggingCustomData.setValue("customString2", customString2);
+        loggingCustomData.setValue("customString3", customString3);
+        
         ruleServiceLoggingInfo.setLoggingCustomData(loggingCustomData);
 
         final String request = RandomStringUtils.random(10);
@@ -212,18 +174,6 @@ public class LoggingInfoMapperTest {
         Assert.assertEquals(customString2, testEntity.getValue2());
         Assert.assertEquals(customString2, testEntity.getStringValue2());
         Assert.assertEquals(customString3, testEntity.getStringValue3());
-        Assert.assertEquals(customString4, testEntity.getStringValue4());
-        Assert.assertEquals(customString5, testEntity.getStringValue5());
-
-        Assert.assertEquals(customNumber1, testEntity.getNumberValue1());
-        Assert.assertEquals(customNumber2, testEntity.getNumberValue2());
-        Assert.assertEquals(customNumber3, testEntity.getNumberValue3());
-        Assert.assertEquals(customNumber4, testEntity.getNumberValue4());
-        Assert.assertEquals(customNumber5, testEntity.getNumberValue5());
-
-        Assert.assertEquals(customDate1, testEntity.getDateValue1());
-        Assert.assertEquals(customDate2, testEntity.getDateValue2());
-        Assert.assertEquals(customDate3, testEntity.getDateValue3());
     }
 
     public static class SomeValueConvertor implements LoggingInfoConvertor<String> {
@@ -256,16 +206,6 @@ public class LoggingInfoMapperTest {
         private String stringValue1;
         private String stringValue2;
         private String stringValue3;
-        private String stringValue4;
-        private String stringValue5;
-        private Long numberValue1;
-        private Long numberValue2;
-        private Long numberValue3;
-        private Long numberValue4;
-        private Long numberValue5;
-        private Date dateValue1;
-        private Date dateValue2;
-        private Date dateValue3;
 
         private String value1;
         private String value2;
@@ -359,7 +299,7 @@ public class LoggingInfoMapperTest {
             return stringValue1;
         }
 
-        @SetterCustomStringValue1
+        @SetterValue("customString1")
         public void setStringValue1(String stringValue1) {
             this.stringValue1 = stringValue1;
         }
@@ -368,7 +308,7 @@ public class LoggingInfoMapperTest {
             return stringValue2;
         }
 
-        @SetterCustomStringValue2
+        @SetterValue("customString2")
         public void setStringValue2(String stringValue2) {
             this.stringValue2 = stringValue2;
         }
@@ -377,99 +317,9 @@ public class LoggingInfoMapperTest {
             return stringValue3;
         }
 
-        @SetterCustomStringValue3
+        @SetterValue("customString3")
         public void setStringValue3(String stringValue3) {
             this.stringValue3 = stringValue3;
-        }
-
-        public String getStringValue4() {
-            return stringValue4;
-        }
-
-        @SetterCustomStringValue4
-        public void setStringValue4(String stringValue4) {
-            this.stringValue4 = stringValue4;
-        }
-
-        public String getStringValue5() {
-            return stringValue5;
-        }
-
-        @SetterCustomStringValue5
-        public void setStringValue5(String stringValue5) {
-            this.stringValue5 = stringValue5;
-        }
-
-        public Long getNumberValue1() {
-            return numberValue1;
-        }
-
-        @SetterCustomNumberValue1
-        public void setNumberValue1(Long numberValue1) {
-            this.numberValue1 = numberValue1;
-        }
-
-        public Long getNumberValue2() {
-            return numberValue2;
-        }
-
-        @SetterCustomNumberValue2
-        public void setNumberValue2(Long numberValue2) {
-            this.numberValue2 = numberValue2;
-        }
-
-        public Long getNumberValue3() {
-            return numberValue3;
-        }
-
-        @SetterCustomNumberValue3
-        public void setNumberValue3(Long numberValue3) {
-            this.numberValue3 = numberValue3;
-        }
-
-        public Long getNumberValue4() {
-            return numberValue4;
-        }
-
-        @SetterCustomNumberValue4
-        public void setNumberValue4(Long numberValue4) {
-            this.numberValue4 = numberValue4;
-        }
-
-        public Long getNumberValue5() {
-            return numberValue5;
-        }
-
-        @SetterCustomNumberValue5
-        public void setNumberValue5(Long numberValue5) {
-            this.numberValue5 = numberValue5;
-        }
-
-        public Date getDateValue1() {
-            return dateValue1;
-        }
-
-        @SetterCustomDateValue1
-        public void setDateValue1(Date dateValue1) {
-            this.dateValue1 = dateValue1;
-        }
-
-        public Date getDateValue2() {
-            return dateValue2;
-        }
-
-        @SetterCustomDateValue2
-        public void setDateValue2(Date dateValue2) {
-            this.dateValue2 = dateValue2;
-        }
-
-        public Date getDateValue3() {
-            return dateValue3;
-        }
-
-        @SetterCustomDateValue3
-        public void setDateValue3(Date dateValue3) {
-            this.dateValue3 = dateValue3;
         }
 
         @Override
@@ -481,7 +331,7 @@ public class LoggingInfoMapperTest {
             return value1;
         }
 
-        @SetterCustomStringValue1(publisherTypes = PublisherType.WEBSERVICE)
+        @SetterValue(value="customString1",publisherTypes = PublisherType.WEBSERVICE)
         public void setValue1(String value1) {
             this.value1 = value1;
         }
@@ -490,7 +340,7 @@ public class LoggingInfoMapperTest {
             return value2;
         }
 
-        @SetterCustomStringValue2(publisherTypes = PublisherType.RESTFUL)
+        @SetterValue(value="customString2",publisherTypes = PublisherType.RESTFUL)
         public void setValue2(String value2) {
             this.value2 = value2;
         }
@@ -499,7 +349,7 @@ public class LoggingInfoMapperTest {
             return value3;
         }
 
-        @SetterCustomStringValue1(convertor = TrimConvertor.class)
+        @SetterValue(value="customString1", convertor = TrimConvertor.class)
         public void setValue3(String value3) {
             this.value3 = value3;
         }

@@ -14,19 +14,6 @@ import org.openl.rules.ruleservice.logging.annotation.DefaultDateConvertor;
 import org.openl.rules.ruleservice.logging.annotation.DefaultNumberConvertor;
 import org.openl.rules.ruleservice.logging.annotation.DefaultStringConvertor;
 import org.openl.rules.ruleservice.logging.annotation.DefaultTypeConvertor;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue1;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue2;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue3;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue1;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue2;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue3;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue4;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue5;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue1;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue2;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue3;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue4;
-import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue5;
 import org.openl.rules.ruleservice.logging.annotation.SetterIncomingTime;
 import org.openl.rules.ruleservice.logging.annotation.SetterInputName;
 import org.openl.rules.ruleservice.logging.annotation.SetterOutcomingTime;
@@ -49,19 +36,6 @@ public class LoggingInfoMapper {
 
     static {
         Set<Class<?>> customAnnotations = new HashSet<Class<?>>();
-        customAnnotations.add(SetterCustomStringValue1.class);
-        customAnnotations.add(SetterCustomStringValue2.class);
-        customAnnotations.add(SetterCustomStringValue3.class);
-        customAnnotations.add(SetterCustomStringValue4.class);
-        customAnnotations.add(SetterCustomStringValue5.class);
-        customAnnotations.add(SetterCustomNumberValue1.class);
-        customAnnotations.add(SetterCustomNumberValue2.class);
-        customAnnotations.add(SetterCustomNumberValue3.class);
-        customAnnotations.add(SetterCustomNumberValue4.class);
-        customAnnotations.add(SetterCustomNumberValue5.class);
-        customAnnotations.add(SetterCustomDateValue1.class);
-        customAnnotations.add(SetterCustomDateValue2.class);
-        customAnnotations.add(SetterCustomDateValue3.class);
         customAnnotations.add(SetterValue.class);
         CUSTOM_ANNOTATIONS = Collections.unmodifiableSet(customAnnotations);
 
@@ -179,47 +153,6 @@ public class LoggingInfoMapper {
                 SetterValue setterValue = (SetterValue) annotation;
                 String key = setterValue.value();
                 insertValue(loggingInfo, target, annotation, method, loggingCustomData.getValue(key));
-            }
-
-            if (SetterCustomStringValue1.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo, target, annotation, method, loggingCustomData.getStringValue1());
-            }
-            if (SetterCustomStringValue2.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo, target, annotation, method, loggingCustomData.getStringValue2());
-            }
-            if (SetterCustomStringValue3.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo, target, annotation, method, loggingCustomData.getStringValue3());
-            }
-            if (SetterCustomStringValue4.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo, target, annotation, method, loggingCustomData.getStringValue4());
-            }
-            if (SetterCustomStringValue5.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo, target, annotation, method, loggingCustomData.getStringValue5());
-            }
-            if (SetterCustomNumberValue1.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo, target, annotation, method, loggingCustomData.getNumberValue1());
-            }
-            if (SetterCustomNumberValue2.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo, target, annotation, method, loggingCustomData.getNumberValue2());
-            }
-            if (SetterCustomNumberValue3.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo, target, annotation, method, loggingCustomData.getNumberValue3());
-            }
-            if (SetterCustomNumberValue4.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo, target, annotation, method, loggingCustomData.getNumberValue4());
-            }
-            if (SetterCustomNumberValue5.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo, target, annotation, method, loggingCustomData.getNumberValue5());
-            }
-
-            if (SetterCustomDateValue1.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo, target, annotation, method, loggingCustomData.getDateValue1());
-            }
-            if (SetterCustomDateValue2.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo, target, annotation, method, loggingCustomData.getDateValue2());
-            }
-            if (SetterCustomDateValue3.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo, target, annotation, method, loggingCustomData.getDateValue3());
             }
         }
     }
