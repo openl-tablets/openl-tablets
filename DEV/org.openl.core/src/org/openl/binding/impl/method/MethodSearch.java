@@ -148,7 +148,6 @@ public class MethodSearch {
                             if (castHolder[i] == null || !castHolder[i].isImplicit()) {
                                 return NO_MATCH;
                             }
-                            castHolderDistance[i] = 0;
                         }
                     }
                 } else {

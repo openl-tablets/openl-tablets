@@ -2,6 +2,14 @@ package org.openl.binding.impl;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.junit.Test;
 import org.openl.meta.BigDecimalValue;
@@ -499,11 +507,11 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
         assertMethod("Object[]", target, "vararg1", String.class, Integer.class);
         assertMethod("Object[]", target, "vararg1", String.class, int.class);
 
-        assertMethod("Generic...Integer[]", target, "vararg2", Integer.class);
+        assertMethod("Number...Integer[]", target, "vararg2", Integer.class);
         assertMethod("Number...Number[]", target, "vararg2", Double.class, Integer.class);
         assertMethod("Generic...Object[]", target, "vararg2", String.class, Integer.class);
         assertMethod("Generic...Object[]", target, "vararg2", String.class, int.class);
-        assertMethod("Generic...Integer[]", target, "vararg2", Integer.class, int.class);
+        assertMethod("Number...Integer[]", target, "vararg2", Integer.class, int.class);
 
         assertMethod("Integer", target, "vararg3", Integer.class);
         assertMethod("Integer", target, "vararg3", int.class);
@@ -513,5 +521,18 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
         assertMethod("Object", target, "vararg3", Double.class);
         assertNotFound(target, "vararg3", String.class, Integer.class);
         assertMethod("Integer[]", target, "vararg3", Integer.class, int.class);
+    }
+
+    @Test
+    public void testGenerics() {
+        assertMethod("Collection", target, "gen", Set.class);
+        assertMethod("GenericInteger", target, "gen", int.class);
+        assertMethod("Collection", target, "gen", Collection.class);
+        assertMethod("GenList", target, "gen", List.class);
+        assertMethod("AbstractList", target, "gen", ArrayList.class);
+        assertMethod("GenericHashMap", target, "gen", HashMap.class);
+        assertMethod("Collection", target, "gen", ConcurrentLinkedQueue.class);
+        assertMethod("DequeArrayDeque", target, "gen", ArrayDeque.class);
+        assertAmbigiouse(target, "gen", LinkedList.class);
     }
 }
