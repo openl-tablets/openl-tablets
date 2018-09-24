@@ -222,6 +222,9 @@ public class CastFactory implements ICastFactory {
         /* END: This is very cheap operations, so no needs to cache it */
         Object key = GenericKey.getInstance(from, to);
         IOpenCast cast = castCache.get(key);
+        if (cast == CastNotFound.instance) {
+            return null;
+        }
         if (cast != null) {
             return cast;
         }
@@ -234,7 +237,8 @@ public class CastFactory implements ICastFactory {
             // Return saved instance
             typeCast = saved;
         }
-        return typeCast;
+
+        return typeCast == CastNotFound.instance ? null : typeCast;
     }
 
     private IOpenCast findCast(IOpenClass from, IOpenClass to) {
@@ -251,6 +255,9 @@ public class CastFactory implements ICastFactory {
         IOpenCast methodBasedCast = findMethodBasedCast(from, to, methodFactory);
         typeCast = useCastWithBetterDistance(from, to, typeCast, methodBasedCast);
 
+        if (typeCast == null) {
+            typeCast = CastNotFound.instance;
+        }
         return typeCast;
     }
 
