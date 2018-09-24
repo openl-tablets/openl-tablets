@@ -9,10 +9,6 @@ public class ThrowableVoidCast implements IOpenCast {
     }
 
     public int getDistance(IOpenClass from, IOpenClass to) {
-        if (from.getInstanceClass() == null) {
-            return 0;
-        }
-
         return CastFactory.THROWABLE_VOID_CAST_DISTANCE;
     }
 

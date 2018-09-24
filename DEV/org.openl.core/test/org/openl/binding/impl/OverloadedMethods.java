@@ -11,6 +11,10 @@ import org.openl.meta.ShortValue;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.AbstractList;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.List;
 
 public class OverloadedMethods {
     public static String _byte(byte arg) {
@@ -283,6 +287,26 @@ public class OverloadedMethods {
 
     public static <T> String m2(long arg1, long arg2) {
         return "long";
+    }
+
+    public static <T> String gen(T arg1) {
+        return "Generic" + (arg1 != null ? arg1.getClass().getSimpleName() : "");
+    }
+
+    public static <T extends List> String gen(T arg1) {
+        return "GenList" + (arg1 != null ? arg1.getClass().getSimpleName() : "");
+    }
+
+    public static <T extends Deque> String gen(T arg1) {
+        return "Deque" + (arg1 != null ? arg1.getClass().getSimpleName() : "");
+    }
+
+    public static String gen(Collection arg1) {
+        return "Collection";
+    }
+
+    public static String gen(AbstractList arg1) {
+        return "AbstractList";
     }
 
     public static String vararg(Object... args) {
