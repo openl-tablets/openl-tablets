@@ -41,6 +41,8 @@ public class CastFactory implements ICastFactory {
 
     public static final int PRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 10;
 
+    public static final int STRING_ENUM_TO_CAST_DISTANCE = 12;
+
     public static final int JAVA_BOXING_CAST_DISTANCE = 14;
 
     public static final int PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 16;
@@ -250,10 +252,10 @@ public class CastFactory implements ICastFactory {
         typeCast = findAliasCast(from, to);
         IOpenCast javaCast = findJavaCast(from, to);
         // Select minimum between alias cast and java cast
-        typeCast = useCastWithBetterDistance(from, to, typeCast, javaCast);
+        typeCast = selectBetterCast(from, to, typeCast, javaCast);
 
         IOpenCast methodBasedCast = findMethodBasedCast(from, to, methodFactory);
-        typeCast = useCastWithBetterDistance(from, to, typeCast, methodBasedCast);
+        typeCast = selectBetterCast(from, to, typeCast, methodBasedCast);
 
         if (typeCast == null) {
             typeCast = CastNotFound.instance;
@@ -261,18 +263,18 @@ public class CastFactory implements ICastFactory {
         return typeCast;
     }
 
-    private IOpenCast useCastWithBetterDistance(IOpenClass from,
-            IOpenClass to,
-            IOpenCast typeCast,
-            IOpenCast javaCast) {
-        if (typeCast == null) {
-            typeCast = javaCast;
-        } else {
-            if (javaCast != null && typeCast.getDistance(from, to) > javaCast.getDistance(from, to)) {
-                typeCast = javaCast;
-            }
+    private IOpenCast selectBetterCast(IOpenClass from, IOpenClass to, IOpenCast castA, IOpenCast castB) {
+        if (castA == null) {
+            return castB;
         }
-        return typeCast;
+        if (castB == null) {
+            return castA;
+        }
+
+        int distanceA = castA.getDistance(from, to);
+        int distanceB = castB.getDistance(from, to);
+
+        return distanceA > distanceB ? castB : castA;
     }
 
     private IOpenCast getUpCast(Class<?> from, Class<?> to) {
@@ -386,6 +388,12 @@ public class CastFactory implements ICastFactory {
             return new JavaDownCast(to, getGlobalCastFactory());
         }
 
+        if (fromClass.isEnum() && toClass == String.class) {
+            return EnumToStringCast.instance;
+        }
+        if (fromClass == String.class && toClass.isEnum()) {
+            return new StringToEnumCast(toClass);
+        }
         return null;
     }
 
