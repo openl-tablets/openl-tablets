@@ -14,7 +14,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 
 import org.openl.binding.impl.cast.IOpenCast;
-import org.openl.binding.impl.cast.JavaNoCast;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
@@ -144,8 +143,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
                     return null;
                 }
             } else {
-                return new JavaNoCast().getDistance(JavaOpenClass.getOpenClass(expectedType),
-                    JavaOpenClass.getOpenClass(x.getClass()));
+                return 0;
             }
         }
     }
