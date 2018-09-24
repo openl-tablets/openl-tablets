@@ -232,6 +232,9 @@ public class CastFactory implements ICastFactory {
         }
 
         IOpenCast typeCast = findCast(from, to);
+        if (typeCast == null) {
+            typeCast = CastNotFound.instance;
+        }
 
         IOpenCast saved = castCache.putIfAbsent(key, typeCast);
         if (saved != null) {
@@ -257,9 +260,6 @@ public class CastFactory implements ICastFactory {
         IOpenCast methodBasedCast = findMethodBasedCast(from, to, methodFactory);
         typeCast = selectBetterCast(from, to, typeCast, methodBasedCast);
 
-        if (typeCast == null) {
-            typeCast = CastNotFound.instance;
-        }
         return typeCast;
     }
 
