@@ -2,6 +2,7 @@ package org.openl.itest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -26,6 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 public class RunITest {
@@ -66,7 +68,10 @@ public class RunITest {
         InputSource inputSource = new InputSource(new StringReader(result.substring(1, result.length() - 1)));
 
         final Node root = (Node) xpath.evaluate("/", inputSource, XPathConstants.NODE);
-        final String pathToSpreadsheetResultSchema = "/application/grammars/*[local-name()='schema'][1]";
+        String pathToSpreadsheetResultSchema = "/application/grammars/*[local-name()='schema']";
+        int i = findSpreadsheetResultSchemaPosition(root, xpath, pathToSpreadsheetResultSchema);
+        pathToSpreadsheetResultSchema += "[" + (i + 1) + "]";
+
         final Node spreadsheetResultSchemaNode = (Node) xpath.evaluate(pathToSpreadsheetResultSchema + "/*[local-name()='element']", root, XPathConstants.NODE);
         assertEquals("spreadsheetResult", spreadsheetResultSchemaNode.getAttributes().getNamedItem("name").getTextContent());
 
@@ -107,6 +112,25 @@ public class RunITest {
         assertNotNull(result);
         assertEquals(100, result.getFieldValue("$calc$INT"));
         assertEquals("foo", result.getFieldValue("$calc$String"));
+    }
+
+    private int findSpreadsheetResultSchemaPosition(Node root, XPath xpath, String path) throws XPathExpressionException {
+        NodeList nodeList = (NodeList) xpath.evaluate(path, root, XPathConstants.NODESET);
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node schema = nodeList.item(i);
+            NodeList childNodes = schema.getChildNodes();
+            for (int j = 0; j < childNodes.getLength(); j++) {
+                Node childElem = childNodes.item(j);
+                if (childElem.hasAttributes()) {
+                    Node attrNode = childElem.getAttributes().getNamedItem("name");
+                    if (attrNode != null && "spreadsheetResult".equals(attrNode.getNodeValue())) {
+                        return i;
+                    }
+                }
+            }
+        }
+        fail("Cannot find schema for SpreadsheetResult");
+        return -1;
     }
 
 }
