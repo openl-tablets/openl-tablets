@@ -1,20 +1,10 @@
-/*
- * Created on Jun 5, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl.cast;
 
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
@@ -101,8 +91,7 @@ public class CastFactory implements ICastFactory {
     /**
      * Internal cache of cast operations.
      */
-    private Map<Object, IOpenCast> castCache = new HashMap<>();
-    private ReadWriteLock castCacheLock = new ReentrantReadWriteLock();
+    private ConcurrentHashMap<Object, IOpenCast> castCache = new ConcurrentHashMap<>();
 
     /**
      * Default constructor.
@@ -232,28 +221,18 @@ public class CastFactory implements ICastFactory {
         }
         /* END: This is very cheap operations, so no needs to cache it */
         Object key = GenericKey.getInstance(from, to);
-        Lock readLock = castCacheLock.readLock();
-        try {
-            readLock.lock();
-            IOpenCast cast = castCache.get(key);
-            if (cast != null) {
-                return cast;
-            } else {
-                if (castCache.containsKey(key)) {
-                    return null;
-                }
-            }
-        } finally {
-            readLock.unlock();
+        IOpenCast cast = castCache.get(key);
+        if (cast != null) {
+            return cast;
         }
 
         IOpenCast typeCast = findCast(from, to);
-        Lock writeLock = castCacheLock.writeLock();
-        try {
-            writeLock.lock();
-            castCache.put(key, typeCast);
-        } finally {
-            writeLock.unlock();
+
+        IOpenCast saved = castCache.putIfAbsent(key, typeCast);
+        if (saved != null) {
+            // Concurrent modification happens
+            // Return saved instance
+            typeCast = saved;
         }
         return typeCast;
     }
