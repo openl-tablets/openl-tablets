@@ -138,8 +138,9 @@ public class ObjectToDataOpenCastConvertor {
     }
 
     public IOpenCast getConvertor(Class<?> toClass, Class<?> fromClass) {
-        if (toClass == fromClass)
-            return new JavaNoCast();
+        if (toClass == fromClass) {
+            return JavaNoCast.instance;
+        }
         ClassCastPair pair = new ClassCastPair(fromClass, toClass);
         IOpenCast cast = convertors.get(pair);
         if (cast != null) {

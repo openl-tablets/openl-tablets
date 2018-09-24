@@ -2,7 +2,11 @@ package org.openl.binding.impl.cast;
 
 import org.openl.types.IOpenClass;
 
-public class JavaNoCast implements IOpenCast {
+public final class JavaNoCast implements IOpenCast {
+
+    private JavaNoCast() {
+        // Use JavaNoCast.instance.
+    }
 
     public Object convert(Object from) {
         return from;
@@ -29,4 +33,5 @@ public class JavaNoCast implements IOpenCast {
         return true;
     }
 
+    public static IOpenCast instance = new JavaNoCast();
 }
