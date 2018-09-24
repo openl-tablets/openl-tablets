@@ -82,7 +82,6 @@ public class CastFactory implements ICastFactory {
      * operations.
      */
 
-    private static final JavaNoCast JAVA_NO_CAST = new JavaNoCast();
     private static final JavaUpCast JAVA_UP_CAST = new JavaUpCast(JAVA_UP_CAST_DISTANCE);
     private static final JavaUpCast JAVA_UP_ARRAY_TO_ARRAY_CAST = new JavaUpCast(JAVA_UP_ARRAY_TO_ARRAY_CAST_DISTANCE);
     private static final JavaBoxingCast JAVA_BOXING_CAST = new JavaBoxingCast();
@@ -213,7 +212,7 @@ public class CastFactory implements ICastFactory {
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {
         /* BEGIN: This is very cheap operations, so no needs to chache it */
         if (from == to || from.equals(to)) {
-            return JAVA_NO_CAST;
+            return JavaNoCast.instance;
         }
 
         if (to == NullOpenClass.the) {
