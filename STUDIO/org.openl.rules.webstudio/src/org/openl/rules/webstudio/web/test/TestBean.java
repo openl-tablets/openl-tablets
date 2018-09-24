@@ -12,6 +12,7 @@ import org.openl.rules.calc.result.DefaultResultBuilder;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.Point;
+import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.ui.ObjectViewer;
@@ -291,6 +292,27 @@ public class TestBean {
 
     public boolean isTestsFailuresOnly() {
         return testsFailuresOnly;
+    }
+
+    public List<ITestUnit> getTestsToRender(List<ITestUnit> tests, int columnCount) {
+        if (tests == null) {
+            return null;
+        }
+
+        int rows = HTMLRenderer.getMaxNumRowsToDisplay(tests.size(), columnCount);
+        if (rows == HTMLRenderer.ALL_ROWS) {
+            return tests;
+        }
+
+        return tests.subList(0, Math.min(rows, tests.size()));
+    }
+
+    public int getMaxNumRowsToDisplay(List<ITestUnit> tests, int columnCount) {
+        if (tests == null) {
+            return HTMLRenderer.ALL_ROWS;
+        }
+
+        return HTMLRenderer.getMaxNumRowsToDisplay(tests.size(), columnCount);
     }
 
     public int getTestsFailuresPerTest() {

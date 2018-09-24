@@ -315,6 +315,15 @@ public class HTMLRenderer {
         int cols = IGridRegion.Tool.width(region);
         int rows = IGridRegion.Tool.height(region);
 
+        return getMaxNumRowsToDisplay(rows, cols);
+    }
+
+    /**
+     * Returns max number of rows to display.
+     *
+     * @return number of rows to display or {@link #ALL_ROWS} for all rows
+     */
+    public static int getMaxNumRowsToDisplay(int rows, int cols) {
         int numCells = rows * cols;
 
         if (numCells > MAX_NUM_CELLS) {

@@ -137,7 +137,12 @@
                         </h:panelGroup>
                     </h1>
                     <h:panelGroup rendered="#{testFailed or !failuresOnly}">
-                    <table class="table">
+
+                        <ui:param name="columnCount" value="#{(test.hasDescription() ? 1 : 0) + (test.hasContext() ? fn:length(test.contextColumnDisplayNames) : 0) + fn:length(test.testDataColumnDisplayNames) + fn:length(test.testResultColumnDisplayNames)}"/>
+                        <ui:param name="filteredTests" value="#{test.getFilteredTestUnits(failuresOnly,failuresPerTest)}"/>
+                        <ui:param name="testsToRender" value="#{testBean.getTestsToRender(filteredTests, columnCount)}"/>
+
+                        <table class="table">
                         <thead>
                         <tr>
                             <th>ID</th>
@@ -162,7 +167,7 @@
                         </thead>
 
                         <tbody>
-                        <ui:repeat value="#{test.getFilteredTestUnits(failuresOnly,failuresPerTest)}" var="testCase">
+                        <ui:repeat value="#{testsToRender}" var="testCase">
                         <ui:param name="compareResult" value="#{testCase.resultStatus}" />
                         <h:panelGroup>
                             <tr>
@@ -267,6 +272,15 @@
                         </ui:repeat>
                         </tbody>
                     </table>
+
+                    <ui:param name="maxRowsToDisplay" value="#{testBean.getMaxNumRowsToDisplay(filteredTests, columnCount)}"/>
+                    <h:panelGroup rendered="#{maxRowsToDisplay > -1}">
+                        <div class='te_bigtable_mes'>
+                            <span class='te_bigtable_mes_header'>Results for the test are displayed partially (the first #{maxRowsToDisplay}) rows).</span>
+                            <span>Use 'Run into File' to see all the test results</span>
+                        </div>
+                    </h:panelGroup>
+
                     </h:panelGroup>
                 </div>
                 </ui:repeat>
