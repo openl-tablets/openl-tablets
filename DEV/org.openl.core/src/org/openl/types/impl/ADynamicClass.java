@@ -94,10 +94,6 @@ public abstract class ADynamicClass extends AOpenClass {
         if (constructorMap == STUB){
             constructorMap = new HashMap<MethodKey, IOpenMethod>(1);
         }
-        OpenConstructor openConstructor = new OpenConstructor(this);
-        MethodKey key = new MethodKey(openConstructor);
-        constructorMap.put(key, openConstructor);
-
         Constructor<?>[] cc = instanceClass.getDeclaredConstructors();
         for (int i = 0; i < cc.length; i++) {
             if (isPublic(cc[i])) {
@@ -179,60 +175,4 @@ public abstract class ADynamicClass extends AOpenClass {
     protected IOpenClass[] getArrayTypes() {
         return arrayTypes;
     }
-
-    public static class OpenConstructor implements IOpenMethod {
-
-        IOpenClass openClass;
-
-        OpenConstructor(IOpenClass openClass) {
-            this.openClass = openClass;
-        }
-
-        public IOpenClass getDeclaringClass() {
-            return openClass;
-        }
-
-        public String getDisplayName(int mode) {
-            return openClass.getDisplayName(mode);
-        }
-
-        public IMemberMetaInfo getInfo() {
-            return null;
-        }
-
-        public IOpenMethod getMethod() {
-            return this;
-        }
-
-        public String getName() {
-            return openClass.getName();
-        }
-
-        public IMethodSignature getSignature() {
-            return IMethodSignature.VOID;
-        }
-
-        public IOpenClass getType() {
-            return openClass;
-        }
-
-        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            return openClass.newInstance(env);
-        }
-
-        public boolean isStatic() {
-            return true;
-        }
-        
-        @Override
-        public String toString() {
-            return openClass.getName();
-        }
-        
-        @Override
-        public boolean isConstructor() {
-            return true;
-        }
-    };
-
 }

@@ -79,6 +79,11 @@ public class LoggingInfoMapper {
         MAPPING_ANNOTATIONS = Collections.unmodifiableSet(mappingAnnotations);
     }
 
+    private String methodToString(Method method) {
+        String s = method.toGenericString();
+        return s.substring(s.indexOf(method.getReturnType().getSimpleName()));
+    }
+
     public void map(LoggingInfo loggingInfo, Object target) {
         LoggingCustomData loggingCustomData = loggingInfo.getLoggingCustomData();
         Class<?> targetClass = target.getClass();
@@ -91,8 +96,8 @@ public class LoggingInfoMapper {
                     if (loggingCustomData != null && CUSTOM_ANNOTATIONS.contains(annotation.annotationType())) {
                         if (method.getParameterTypes().length != 1) {
                             if (log.isWarnEnabled()) {
-                                log.warn("Please, check that annotated method '" + method
-                                    .toGenericString() + "' is setter method!");
+                                log.warn("Please, check that annotated method '" + methodToString(
+                                    method) + "' is setter method!");
                             }
                         }
                         customAnnotationMethodMap.put(annotation, method);
@@ -100,8 +105,8 @@ public class LoggingInfoMapper {
                     if (MAPPING_ANNOTATIONS.contains(annotation.annotationType())) {
                         if (method.getParameterTypes().length != 1) {
                             if (log.isWarnEnabled()) {
-                                log.warn("Please, check that annotated method '" + method
-                                    .toGenericString() + "' is setter method!");
+                                log.warn("Please, check that annotated method '" + methodToString(
+                                    method) + "' is setter method!");
                             }
                         }
                         annotationMethodMap.put(annotation, method);
@@ -130,34 +135,37 @@ public class LoggingInfoMapper {
             if (SetterPublisher.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingInfo.getPublisherType().toString());
             }
-            if (loggingInfo.getRequestMessage() != null){
-                if (SetterUrl. class.equals(annotation.annotationType()) && loggingInfo.getRequestMessage().getAddress() != null) {
+            if (loggingInfo.getRequestMessage() != null) {
+                if (SetterUrl.class
+                    .equals(annotation.annotationType()) && loggingInfo.getRequestMessage().getAddress() != null) {
                     insertValue(loggingInfo,
                         target,
                         annotation,
                         method,
                         loggingInfo.getRequestMessage().getAddress().toString());
                 }
-                if (SetterRequest.class.equals(annotation.annotationType()) && loggingInfo.getResponseMessage().getPayload() != null) {
+                if (SetterRequest.class
+                    .equals(annotation.annotationType()) && loggingInfo.getResponseMessage().getPayload() != null) {
                     insertValue(loggingInfo,
                         target,
                         annotation,
                         method,
                         loggingInfo.getRequestMessage().getPayload().toString());
                 }
-            }else{
-                log.error("Request message is not presented!");
+            } else {
+                log.error("Not found request message in logging info!");
             }
-            if (loggingInfo.getResponseMessage() != null){
-                if (SetterResponse.class.equals(annotation.annotationType()) && loggingInfo.getResponseMessage().getPayload() != null) {
+            if (loggingInfo.getResponseMessage() != null) {
+                if (SetterResponse.class
+                    .equals(annotation.annotationType()) && loggingInfo.getResponseMessage().getPayload() != null) {
                     insertValue(loggingInfo,
                         target,
                         annotation,
                         method,
                         loggingInfo.getResponseMessage().getPayload().toString());
                 }
-            }else{
-                log.error("Response message is not presented!");
+            } else {
+                log.error("Not found response message in logging info!");
             }
             if (UseLoggingInfoConvertor.class.equals(annotation.annotationType())) {
                 useLoggingInfoInsertValue(loggingInfo, target, annotation, method);
@@ -167,12 +175,12 @@ public class LoggingInfoMapper {
         for (Entry<Annotation, Method> entry : customAnnotationMethodMap.entrySet()) {
             Annotation annotation = entry.getKey();
             Method method = entry.getValue();
-            if (SetterValue.class.equals(annotation.annotationType())){
+            if (SetterValue.class.equals(annotation.annotationType())) {
                 SetterValue setterValue = (SetterValue) annotation;
                 String key = setterValue.value();
                 insertValue(loggingInfo, target, annotation, method, loggingCustomData.getValue(key));
             }
-            
+
             if (SetterCustomStringValue1.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingCustomData.getStringValue1());
             }
@@ -188,7 +196,6 @@ public class LoggingInfoMapper {
             if (SetterCustomStringValue5.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingCustomData.getStringValue5());
             }
-
             if (SetterCustomNumberValue1.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingCustomData.getNumberValue1());
             }
@@ -234,51 +241,63 @@ public class LoggingInfoMapper {
                 }
             }
         } catch (Exception e) {
-            f = false;
-            if (log.isErrorEnabled()) {
-                log.error("Invalid annotation!", e);
-            }
+            throw new IllegalStateException(
+                "Invalid annotation is used! Property 'publisherTypes' is not found in '" + annotation.getClass()
+                    .getSimpleName() + "'!");
         }
-        if (f) {
-            Class<? extends TypeConvertor<?, ?>> typeConvertorClass = null;
+
+        if (!f) {
+            return;
+        }
+
+        Class<? extends TypeConvertor<?, ?>> typeConvertorClass = null;
+        try {
+            Method convertorMethod = annotation.annotationType().getMethod("convertor", new Class<?>[] {});
+            typeConvertorClass = (Class<? extends TypeConvertor<?, ?>>) convertorMethod.invoke(annotation);
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                "Invalid annotation is used! Property 'convertor' is not found in '" + annotation.getClass()
+                    .getSimpleName() + "'!");
+        }
+
+        if (!(DefaultTypeConvertor.class.equals(typeConvertorClass) || DefaultStringConvertor.class
+            .equals(typeConvertorClass) || DefaultNumberConvertor.class
+                .equals(typeConvertorClass) || DefaultDateConvertor.class.equals(typeConvertorClass))) {
+            TypeConvertor<Object, Object> convertor = null;
             try {
-                Method convertorMethod = annotation.annotationType().getMethod("convertor", new Class<?>[] {});
-                typeConvertorClass = (Class<? extends TypeConvertor<?, ?>>) convertorMethod.invoke(annotation);
+                convertor = (TypeConvertor<Object, Object>) typeConvertorClass.newInstance();
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
-                    log.error("Invalid annotation!", e);
+                    log.error(String.format(
+                        "Failed to instantiate a type convertor '%s'! Null value has been used as result value!",
+                        typeConvertorClass.getSimpleName()), e);
                 }
-                return;
+                value = null;
             }
-            if (!(DefaultTypeConvertor.class.equals(typeConvertorClass) || DefaultStringConvertor.class.equals(typeConvertorClass) || DefaultNumberConvertor.class.equals(typeConvertorClass) || DefaultDateConvertor.class.equals(typeConvertorClass))) {
-                TypeConvertor<Object, Object> convertor = null;
+            if (convertor != null) {
                 try {
-                    convertor = (TypeConvertor<Object, Object>) typeConvertorClass.newInstance();
+                    value = convertor.convert(value);
                 } catch (Exception e) {
                     if (log.isErrorEnabled()) {
-                        log.error("Failed to instantiate a type convertor! Null value has been used as result value!", e);
+                        log.error(String.format(
+                            "Failed on type convertation for method '%s'! Null value has been used as a result value!",
+                            methodToString(method)), e);
                     }
                     value = null;
                 }
-                if (convertor != null) {
-                    try {
-                        value = convertor.convert(value);
-                    } catch (Exception e) {
-                        if (log.isErrorEnabled()) {
-                            log.error("Filed on type convertation! Null value has been used as a result value!", e);
-                        }
-                        value = null;
-                    }
-                }
-            }
-            try {
-                method.invoke(target, value);
-            } catch (Exception e) {
-                if (log.isErrorEnabled()) {
-                    log.error("Failed on method invoke! Please, check that method is annotated correctly!", e);
-                }
             }
         }
+        try {
+            method.invoke(target, value);
+        } catch (Exception e) {
+            if (log.isErrorEnabled()) {
+                log.error(
+                    String.format("Failed on method '%s' invoke! Please, check that method is annotated correctly!",
+                        methodToString(method)),
+                    e);
+            }
+        }
+
     }
 
     @SuppressWarnings("unchecked")
@@ -302,7 +321,8 @@ public class LoggingInfoMapper {
                     convertor = (LoggingInfoConvertor<Object>) convertorClass.newInstance();
                 } catch (Exception e) {
                     if (log.isErrorEnabled()) {
-                        log.error("LoggingInfo convertor instantiation was failed!", e);
+                        log.error(String.format("LoggingInfo convertor '%s' instantiation was failed!",
+                            convertorClass.getSimpleName()), e);
                     }
                     return;
                 }
@@ -312,8 +332,9 @@ public class LoggingInfoMapper {
                         convertedValue = convertor.convert(loggingInfo);
                     } catch (Exception e) {
                         if (log.isErrorEnabled()) {
-                            log.error("Failed on LoggingInfo convertation! Null value has been used as a convertation result!",
-                                e);
+                            log.error(String.format(
+                                "Failed on LoggingInfo convertation for method '%s'! Null value has been used as a convertation result!",
+                                methodToString(method)), e);
                         }
                         convertedValue = null;
                     }
@@ -321,8 +342,10 @@ public class LoggingInfoMapper {
                         method.invoke(target, convertedValue);
                     } catch (Exception e) {
                         if (log.isErrorEnabled()) {
-                            log.error("Failed on method invokation! Please, check that method '" + method
-                                .toGenericString() + "' is annotated correctly!", e);
+                            log.error(
+                                "Failed on method invokation! Please, check that method '" + methodToString(
+                                    method) + "' is annotated correctly!",
+                                e);
                         }
                     }
                 }

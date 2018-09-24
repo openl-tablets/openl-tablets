@@ -346,8 +346,6 @@ public class JavaOpenClass extends AOpenClass {
         for (int i = 0; i < cc.length; i++) {
             if (isPublic(cc[i])) {
                 IOpenMethod om = new JavaOpenConstructor(cc[i]);
-                // Log.debug("Adding method " + mm[i].getName() + " code = "
-                // + new MethodKey(om).hashCode());
                 constructors.put(new MethodKey(om), om);
             }
         }

@@ -67,7 +67,7 @@ public class JavaOpenConstructor implements IOpenMethod, IMethodSignature {
      * @see org.openl.base.INamedThing#getName()
      */
     public String getName() {
-        return getDeclaringClass().getName();
+        return "<init>";
     }
 
     public int getNumberOfParameters() {
