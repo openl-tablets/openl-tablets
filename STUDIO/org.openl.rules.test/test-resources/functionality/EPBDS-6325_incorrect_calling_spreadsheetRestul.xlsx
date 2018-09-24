@@ -1,0 +1,4 @@
+ERROR: Method '$TotalAssets2011(SpreadsheetResultAssetsCompare)' is not found
+ERROR: Field not found: '$TotalAssets2011' inside 'SpreadsheetResultAssetsCompare' type
+ERROR: Method '$TotalAssets2011(SpreadsheetResultAssetsCompare)' is not found
+ERROR: Type '$a' is not found
