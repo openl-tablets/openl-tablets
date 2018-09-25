@@ -38,7 +38,7 @@ public class HTMLRenderer {
         Map<String, Object> requestMap = FacesUtils.getRequestMap();
         Set<String> resources = (Set<String>) requestMap.get(Constants.TABLE_EDITOR_RESOURCES);
         if (resources == null) {
-            resources = new HashSet<String>();
+            resources = new HashSet<>();
             requestMap.put(Constants.TABLE_EDITOR_RESOURCES, resources);
         }
         return resources;
@@ -306,6 +306,15 @@ public class HTMLRenderer {
         int cols = IGridRegion.Tool.width(region);
         int rows = IGridRegion.Tool.height(region);
 
+        return getMaxNumRowsToDisplay(rows, cols);
+    }
+
+    /**
+     * Returns max number of rows to display.
+     *
+     * @return number of rows to display or {@link #ALL_ROWS} for all rows
+     */
+    public static int getMaxNumRowsToDisplay(int rows, int cols) {
         int numCells = rows * cols;
 
         if (numCells > MAX_NUM_CELLS) {
