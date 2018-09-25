@@ -1,6 +1,5 @@
 package org.openl.rules.project.instantiation.variation;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -28,6 +27,7 @@ import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.runtime.IEngineWrapper;
+import org.openl.runtime.IOpenLInvocationHandler;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author PUdalau, Marat Kamalov
  */
-class VariationInstantiationStrategyEnhancerInvocationHandler implements InvocationHandler {
+class VariationInstantiationStrategyEnhancerInvocationHandler implements IOpenLInvocationHandler {
 
     private static final String GET_RUNTIME_ENVIRONMENT_METHOD = "getRuntimeEnvironment";
 
@@ -82,6 +82,11 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
                 }
             }
         }
+    }
+    
+    @Override
+    public Object getTarget() {
+        return serviceClassInstance;
     }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {

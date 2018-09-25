@@ -1,21 +1,22 @@
 package org.openl.rules.project.instantiation;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.util.Map;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextConsumer;
 import org.openl.runtime.IEngineWrapper;
+import org.openl.runtime.IOpenLInvocationHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.util.Map;
 
 /**
  * The implementation of {@link InvocationHandler} which used by
  * {@link RuntimeContextInstantiationStrategyEnhancer} class to construct proxy of service class.
  */
-class RuntimeContextInstantiationStrategyEnhancerInvocationHandler implements InvocationHandler {
+class RuntimeContextInstantiationStrategyEnhancerInvocationHandler implements IOpenLInvocationHandler {
 
     private final Logger log = LoggerFactory.getLogger(RuntimeContextInstantiationStrategyEnhancerInvocationHandler.class);
 
@@ -25,6 +26,11 @@ class RuntimeContextInstantiationStrategyEnhancerInvocationHandler implements In
     public RuntimeContextInstantiationStrategyEnhancerInvocationHandler(Map<Method, Method> methodsMap, Object serviceClassInstance) {
         this.methodsMap = methodsMap;
         this.serviceClassInstance = serviceClassInstance;
+    }
+    
+    @Override
+    public Object getTarget() {
+        return serviceClassInstance;
     }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {

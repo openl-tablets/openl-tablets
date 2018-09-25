@@ -1,12 +1,13 @@
 package org.openl.rules.ruleservice.publish.jaxrs;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
-public class JAXRSInvocationHandler implements InvocationHandler {
+import org.openl.runtime.IOpenLInvocationHandler;
+
+public class JAXRSInvocationHandler implements IOpenLInvocationHandler {
 
 	private Object target;
 	private Map<Method, Method> methodMap;
@@ -21,6 +22,10 @@ public class JAXRSInvocationHandler implements InvocationHandler {
 		this.target = target;
 		this.methodMap = methodMap;
 	}
+	
+	public Object getTarget() {
+        return target;
+    }
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {

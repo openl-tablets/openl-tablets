@@ -1,13 +1,13 @@
 package org.openl.rules.ruleservice.publish.jaxws;
 
-import org.apache.cxf.binding.soap.SoapFault;
-import org.openl.rules.ruleservice.publish.common.ExceptionResponseDto;
-import org.w3c.dom.Element;
-
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-public class JAXWSInvocationHandler implements InvocationHandler {
+import org.apache.cxf.binding.soap.SoapFault;
+import org.openl.rules.ruleservice.publish.common.ExceptionResponseDto;
+import org.openl.runtime.IOpenLInvocationHandler;
+import org.w3c.dom.Element;
+
+public class JAXWSInvocationHandler implements IOpenLInvocationHandler {
 
     private Object target;
 
@@ -18,6 +18,11 @@ public class JAXWSInvocationHandler implements InvocationHandler {
         this.target = target;
     }
 
+    @Override
+    public Object getTarget() {
+        return target;
+    }
+    
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
