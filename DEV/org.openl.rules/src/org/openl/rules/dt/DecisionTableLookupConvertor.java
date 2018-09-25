@@ -31,9 +31,9 @@ import org.openl.rules.utils.ParserUtils;
  * Rule column, it (in theory) might have vertical Actions which will be
  * processed the same way as vertical conditions, it must have one or more
  * Horizontal Conditions, and exactly one (optional in the future release)
- * <b>RET</b> column<br>
+ * <b>RET</b> or <b>CRET</b> column<br>.
  * <br>
- * . <b>RET</b> section can be placed in any place of lookup headers row, after
+ * <b>RET</b> or <b>CRET</b> section can be placed in any place of lookup headers row, after
  * vertical conditions (for users convenience).
  * 
  * The Horizontal Conditions will be marked <b>HC1</b>, <b>HC2</b> etc. The
@@ -145,13 +145,13 @@ public class DecisionTableLookupConvertor {
      *            <td align="center" bgcolor="#8FCB52"><b>HC1</b></td>
      *            <td align="center" bgcolor="#8FCB52"><b>HC2</b></td>
      *            <td align="center" bgcolor="#8FCB52"><b>HC3</b></td>
-     *            <td align="center" bgcolor="#8FCB52"><b>RET1</b></td>
+     *            <td align="center" bgcolor="#8FCB52"><b>RET1</b> or <b>CRET1</b></td>
      *            </tr>
      *            </table>
      * 
      * @return the physical index from grid table, indicating beginning of RET
      *         section
-     * @throws OpenLCompilationException if there is no RET section in the
+     * @throws OpenLCompilationException if there is no RET or CRET section in the
      *             table.
      */
     private int findRetColumnStart(ILogicalTable headerRow) throws OpenLCompilationException {
@@ -163,12 +163,12 @@ public class DecisionTableLookupConvertor {
             if (headerStr != null) {
                 headerStr = headerStr.toUpperCase();
 
-                if (DecisionTableHelper.isValidRetHeader(headerStr)) {
+                if (DecisionTableHelper.isValidRetHeader(headerStr) || DecisionTableHelper.isValidCRetHeader(headerStr)) {
                     return columnIndex;
                 }
             }
         }
-        throw new OpenLCompilationException("Lookup table must have at least one RET column");
+        throw new OpenLCompilationException("Lookup table must have at least one RET or CRET column");
     }
 
     private void processHorizConditionsHeaders(IGridRegion displayRowRegion,
@@ -327,13 +327,14 @@ public class DecisionTableLookupConvertor {
 
                 if (DecisionTableHelper.isValidHConditionHeader(headerStr)) {
                     loadHorizontalCondition(htable);
-                } else if (DecisionTableHelper.isValidRetHeader(headerStr)) {
+                } else if (DecisionTableHelper.isValidRetHeader(headerStr) || DecisionTableHelper.isValidCRetHeader(headerStr)) {
                     loadReturnColumn(htable);
                 } else {
                     String message = String.format(
-                        "Lookup Table allows only %s or %s columns after vertical conditions: %s",
+                        "Lookup Table allows only %s or %s or %s columns after vertical conditions: %s",
                         DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey(),
                         DecisionTableColumnHeaders.RETURN.getHeaderKey(),
+                        DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey(),
                         headerStr);
                     throw new OpenLCompilationException(message);
                 }
