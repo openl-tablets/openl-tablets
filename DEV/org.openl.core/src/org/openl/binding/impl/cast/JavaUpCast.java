@@ -5,12 +5,11 @@ import org.openl.types.IOpenClass;
 public class JavaUpCast implements IOpenCast {
 
     private int upCastDistance;
-    
+
     public JavaUpCast(int castDistance) {
         this.upCastDistance = castDistance;
     }
-    
-    
+
     public Object convert(Object from) {
         return from;
     }
@@ -18,14 +17,9 @@ public class JavaUpCast implements IOpenCast {
     /*
      * (non-Javadoc)
      * 
-     * @see org.openl.types.IOpenCast#getDistance(org.openl.types.IOpenClass,
-     * org.openl.types.IOpenClass)
+     * @see org.openl.types.IOpenCast#getDistance(org.openl.types.IOpenClass, org.openl.types.IOpenClass)
      */
     public int getDistance(IOpenClass from, IOpenClass to) {
-        if (from.getInstanceClass() == null) {
-            return 0;
-        }
-
         return upCastDistance;
     }
 
