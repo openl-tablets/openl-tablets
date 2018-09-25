@@ -1,13 +1,19 @@
 package org.openl.rules.ruleservice.publish.rmi;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-class StaticRmiInvocationHandler implements InvocationHandler {
+import org.openl.runtime.IOpenLInvocationHandler;
+
+class StaticRmiInvocationHandler implements IOpenLInvocationHandler {
 
     private Object target;
     private Map<Method, Method> methodMap;
+    
+    @Override
+    public Object getTarget() {
+        return target;
+    }
 
     public StaticRmiInvocationHandler(Object target, Map<Method, Method> methodMap) {
         if (target == null) {
