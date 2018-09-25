@@ -1,20 +1,10 @@
-/*
- * Created on Jun 5, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl.cast;
 
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
@@ -51,6 +41,8 @@ public class CastFactory implements ICastFactory {
 
     public static final int PRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 10;
 
+    public static final int STRING_ENUM_TO_CAST_DISTANCE = 12;
+
     public static final int JAVA_BOXING_CAST_DISTANCE = 14;
 
     public static final int PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 16;
@@ -82,7 +74,6 @@ public class CastFactory implements ICastFactory {
      * operations.
      */
 
-    private static final JavaNoCast JAVA_NO_CAST = new JavaNoCast();
     private static final JavaUpCast JAVA_UP_CAST = new JavaUpCast(JAVA_UP_CAST_DISTANCE);
     private static final JavaUpCast JAVA_UP_ARRAY_TO_ARRAY_CAST = new JavaUpCast(JAVA_UP_ARRAY_TO_ARRAY_CAST_DISTANCE);
     private static final JavaBoxingCast JAVA_BOXING_CAST = new JavaBoxingCast();
@@ -102,8 +93,7 @@ public class CastFactory implements ICastFactory {
     /**
      * Internal cache of cast operations.
      */
-    private Map<Object, IOpenCast> castCache = new HashMap<>();
-    private ReadWriteLock castCacheLock = new ReentrantReadWriteLock();
+    private ConcurrentHashMap<Object, IOpenCast> castCache = new ConcurrentHashMap<>();
 
     /**
      * Default constructor.
@@ -213,7 +203,7 @@ public class CastFactory implements ICastFactory {
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {
         /* BEGIN: This is very cheap operations, so no needs to chache it */
         if (from == to || from.equals(to)) {
-            return JAVA_NO_CAST;
+            return JavaNoCast.instance;
         }
 
         if (to == NullOpenClass.the) {
@@ -233,30 +223,27 @@ public class CastFactory implements ICastFactory {
         }
         /* END: This is very cheap operations, so no needs to cache it */
         Object key = GenericKey.getInstance(from, to);
-        Lock readLock = castCacheLock.readLock();
-        try {
-            readLock.lock();
-            IOpenCast cast = castCache.get(key);
-            if (cast != null) {
-                return cast;
-            } else {
-                if (castCache.containsKey(key)) {
-                    return null;
-                }
-            }
-        } finally {
-            readLock.unlock();
+        IOpenCast cast = castCache.get(key);
+        if (cast == CastNotFound.instance) {
+            return null;
+        }
+        if (cast != null) {
+            return cast;
         }
 
         IOpenCast typeCast = findCast(from, to);
-        Lock writeLock = castCacheLock.writeLock();
-        try {
-            writeLock.lock();
-            castCache.put(key, typeCast);
-        } finally {
-            writeLock.unlock();
+        if (typeCast == null) {
+            typeCast = CastNotFound.instance;
         }
-        return typeCast;
+
+        IOpenCast saved = castCache.putIfAbsent(key, typeCast);
+        if (saved != null) {
+            // Concurrent modification happens
+            // Return saved instance
+            typeCast = saved;
+        }
+
+        return typeCast == CastNotFound.instance ? null : typeCast;
     }
 
     private IOpenCast findCast(IOpenClass from, IOpenClass to) {
@@ -268,26 +255,26 @@ public class CastFactory implements ICastFactory {
         typeCast = findAliasCast(from, to);
         IOpenCast javaCast = findJavaCast(from, to);
         // Select minimum between alias cast and java cast
-        typeCast = useCastWithBetterDistance(from, to, typeCast, javaCast);
+        typeCast = selectBetterCast(from, to, typeCast, javaCast);
 
         IOpenCast methodBasedCast = findMethodBasedCast(from, to, methodFactory);
-        typeCast = useCastWithBetterDistance(from, to, typeCast, methodBasedCast);
+        typeCast = selectBetterCast(from, to, typeCast, methodBasedCast);
 
         return typeCast;
     }
 
-    private IOpenCast useCastWithBetterDistance(IOpenClass from,
-            IOpenClass to,
-            IOpenCast typeCast,
-            IOpenCast javaCast) {
-        if (typeCast == null) {
-            typeCast = javaCast;
-        } else {
-            if (javaCast != null && typeCast.getDistance(from, to) > javaCast.getDistance(from, to)) {
-                typeCast = javaCast;
-            }
+    private IOpenCast selectBetterCast(IOpenClass from, IOpenClass to, IOpenCast castA, IOpenCast castB) {
+        if (castA == null) {
+            return castB;
         }
-        return typeCast;
+        if (castB == null) {
+            return castA;
+        }
+
+        int distanceA = castA.getDistance(from, to);
+        int distanceB = castB.getDistance(from, to);
+
+        return distanceA > distanceB ? castB : castA;
     }
 
     private IOpenCast getUpCast(Class<?> from, Class<?> to) {
@@ -401,6 +388,12 @@ public class CastFactory implements ICastFactory {
             return new JavaDownCast(to, getGlobalCastFactory());
         }
 
+        if (fromClass.isEnum() && toClass == String.class) {
+            return EnumToStringCast.instance;
+        }
+        if (fromClass == String.class && toClass.isEnum()) {
+            return new StringToEnumCast(toClass);
+        }
         return null;
     }
 
