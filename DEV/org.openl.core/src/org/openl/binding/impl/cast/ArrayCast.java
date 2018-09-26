@@ -90,8 +90,8 @@ public class ArrayCast implements IOpenCast {
             .getInstanceClass().getCanonicalName() + sb.toString());
     }
 
-    public int getDistance(IOpenClass from, IOpenClass to) {
-        return CastFactory.ARRAY_CAST_DISTANCE + openCast.getDistance(from, to);
+    public int getDistance() {
+        return CastFactory.ARRAY_CAST_DISTANCE + openCast.getDistance();
     }
 
     public boolean isImplicit() {

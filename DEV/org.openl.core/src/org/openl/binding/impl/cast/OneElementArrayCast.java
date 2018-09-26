@@ -30,8 +30,8 @@ public class OneElementArrayCast implements IOpenCast, IgnoredByMethodSearchOpen
         return array;
     }
 
-    public int getDistance(IOpenClass from, IOpenClass to) {
-        return CastFactory.ONE_ELEMENT_ARRAY_CAST_DISTANCE + openCast.getDistance(from, to);
+    public int getDistance() {
+        return CastFactory.ONE_ELEMENT_ARRAY_CAST_DISTANCE + openCast.getDistance();
     }
 
     public boolean isImplicit() {

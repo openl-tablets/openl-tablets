@@ -1,7 +1,5 @@
 package org.openl.binding.impl.cast;
 
-import org.openl.types.IOpenClass;
-
 public class JavaUpCast implements IOpenCast {
 
     private int upCastDistance;
@@ -19,7 +17,7 @@ public class JavaUpCast implements IOpenCast {
      * 
      * @see org.openl.types.IOpenCast#getDistance(org.openl.types.IOpenClass, org.openl.types.IOpenClass)
      */
-    public int getDistance(IOpenClass from, IOpenClass to) {
+    public int getDistance() {
         return upCastDistance;
     }
 

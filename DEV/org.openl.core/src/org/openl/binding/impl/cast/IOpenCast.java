@@ -6,8 +6,6 @@
 
 package org.openl.binding.impl.cast;
 
-import org.openl.types.IOpenClass;
-
 /**
  * IOpenCast is responsible for casting operations.
  * 
@@ -26,11 +24,9 @@ public interface IOpenCast {
     /**
      * Gets cast operation priority.
      * 
-     * @param from from type
-     * @param to to type
      * @return priority of cast
      */
-    int getDistance(IOpenClass from, IOpenClass to);
+    int getDistance();
 
     /**
      * Checks that cast can be performed automatically.

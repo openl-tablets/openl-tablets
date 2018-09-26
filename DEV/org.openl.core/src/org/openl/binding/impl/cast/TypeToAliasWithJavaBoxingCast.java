@@ -9,7 +9,7 @@ public class TypeToAliasWithJavaBoxingCast extends TypeToAliasCast {
     }
 
     @Override
-    public int getDistance(IOpenClass from, IOpenClass to) {
+    public int getDistance() {
         return CastFactory.TYPE_TO_ALIAS_WITH_JAVA_BOXING_CAST_DISTANCE;
     }
 
