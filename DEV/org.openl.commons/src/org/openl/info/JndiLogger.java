@@ -24,15 +24,13 @@ final class JndiLogger extends OpenLLogger {
     @Override
     protected void discover() throws Exception {
         log("JNDI Context:");
-        InitialContext ctx;
         try {
-            ctx = new InitialContext();
+            InitialContext ctx = new InitialContext();
+            String path = ctx.getNameInNamespace();
+            toMap(ctx, path);
         } catch (NoInitialContextException ex) {
-            log("  No initial JNDI context found.");
-            return;
+            log("  ##### No initial JNDI context found.");
         }
-        String path = ctx.getNameInNamespace();
-        toMap(ctx, path);
     }
 
     private void toMap(Context ctx, String path) throws NamingException {
