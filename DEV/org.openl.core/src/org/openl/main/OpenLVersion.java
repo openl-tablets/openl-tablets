@@ -50,7 +50,7 @@ public class OpenLVersion {
         logOpenLInfo();
     }
 
-    public static String getURL() {
+    public static String getUrl() {
         return url;
     }
 
@@ -73,7 +73,7 @@ public class OpenLVersion {
         Logger logger = LoggerFactory.getLogger("OpenL");
 
         logger.info("***** OpenL Tablets v{}  ({}, #{})", getVersion(), getBuildDate(), getBuildNumber());
-        logger.info("***** Site : http:{}", getURL());
+        logger.info("***** Site : http:{}", getUrl());
 
         logSystemInfo();
         logClasspath();

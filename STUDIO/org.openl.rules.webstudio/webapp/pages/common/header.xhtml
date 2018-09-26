@@ -87,7 +87,7 @@
                     <li><a class="changes-listener" tabindex="-1" href="javascript:void(0)" onclick="editUserProfile();">#{msg['ws.header.user.details']}</a></li>
                     <li><a class="changes-listener" tabindex="-1" href="javascript:void(0)" onclick="editUserProfile('settings');">#{msg['ws.header.user.settings']}</a></li>
                     <li class="divider"></li>
-                    <li><a tabindex="-1" href="javascript:void(0)" onclick="window.open('#{versionProperties['openl.url']}/files/openl-tablets/#{versionProperties['openl.version']}/OpenL Tablets - WebStudio User Guide.pdf','help','width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');">#{msg['ws.header.help']}</a></li>
+                    <li><a tabindex="-1" href="javascript:void(0)" onclick="window.open('#{versionProperties.getUrl()}/files/openl-tablets/#{versionProperties.getVersion()}/OpenL Tablets - WebStudio User Guide.pdf','help','width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');">#{msg['ws.header.help']}</a></li>
                     <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single'}">
                     <li><a tabindex="-1" href="#{contextPath}#{logoutUrlProvider.url}"
                             onclick="if (!confirm('#{msg['ws.header.signout.confirm']}')) return false; if (typeof(ws) != 'undefined') ws.changes.revertChanges();">#{msg['ws.header.signout']}</a></li>
