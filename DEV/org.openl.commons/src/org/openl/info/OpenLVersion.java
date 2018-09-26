@@ -1,4 +1,4 @@
-package org.openl.main;
+package org.openl.info;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
