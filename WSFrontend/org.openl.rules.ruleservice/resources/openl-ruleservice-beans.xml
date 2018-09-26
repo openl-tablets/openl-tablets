@@ -4,7 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!-- LOG environment info. OpenLVersion class has a static initializer to do it. -->
-    <bean class="org.openl.main.OpenLVersion" lazy-init="false"/>
+    <bean class="org.openl.info.OpenLVersion" lazy-init="false"/>
 
     <import resource="classpath:openl-ruleservice-property-placeholder.xml"/>
 

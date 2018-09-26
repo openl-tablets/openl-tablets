@@ -13,6 +13,17 @@
     <name>OpenL - DEV - Commons</name>
     <description>Common reusable components</description>
     <url>//openl-tablets.org</url>
+    <build>
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <includes>
+                    <include>org/openl/info/openl.version.properties</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
