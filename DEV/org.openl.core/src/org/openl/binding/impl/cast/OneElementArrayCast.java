@@ -4,13 +4,13 @@ import java.lang.reflect.Array;
 
 import org.openl.types.IOpenClass;
 
-public class OneElementArrayCast implements IOpenCast, IgnoredByMethodSearchOpenCast {
+final class OneElementArrayCast implements IOpenCast, IgnoredByMethodSearchOpenCast {
 
     private IOpenClass toComponentType;
     private IOpenCast openCast;
     private int distance;
 
-    public OneElementArrayCast(IOpenClass to, IOpenCast openCast) {
+    OneElementArrayCast(IOpenClass to, IOpenCast openCast) {
         if (to == null) {
             throw new IllegalArgumentException("to arg can't be null!");
         }
@@ -41,4 +41,3 @@ public class OneElementArrayCast implements IOpenCast, IgnoredByMethodSearchOpen
     }
 
 }
-

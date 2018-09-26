@@ -70,20 +70,6 @@ public class CastFactory implements ICastFactory {
     public static final String DISTANCE_METHOD_NAME = "distance";
 
     /**
-     * The several predefined cast operations what are used for type conversion
-     * operations.
-     */
-
-    private static final JavaUpCast JAVA_UP_CAST = new JavaUpCast(JAVA_UP_CAST_DISTANCE);
-    private static final JavaUpCast JAVA_UP_ARRAY_TO_ARRAY_CAST = new JavaUpCast(JAVA_UP_ARRAY_TO_ARRAY_CAST_DISTANCE);
-    private static final JavaBoxingCast JAVA_BOXING_CAST = new JavaBoxingCast();
-    private static final JavaUnboxingCast JAVA_UNBOXING_CAST = new JavaUnboxingCast();
-    private static final JavaBoxingCast JAVA_BOXING_UP_CAST = new JavaBoxingCast(JAVA_BOXING_UP_CAST_DISTANCE);
-    private static final ThrowableVoidCast THROWABLE_VOID_CAST = new ThrowableVoidCast(); // for
-                                                                                          // error("message")
-                                                                                          // method
-
-    /**
      * Method factory object. This factory allows to define cast operations thru
      * java methods.
      */
@@ -214,12 +200,12 @@ public class CastFactory implements ICastFactory {
             if (isPrimitive(to)) {
                 return null;
             } else {
-                return JAVA_UP_CAST;
+                return JavaUpCast.instance;
             }
         }
 
         if (ThrowableVoid.class.equals(from.getInstanceClass())) {
-            return THROWABLE_VOID_CAST;
+            return ThrowableVoidCast.instance;
         }
         /* END: This is very cheap operations, so no needs to cache it */
         Object key = GenericKey.getInstance(from, to);
@@ -279,9 +265,9 @@ public class CastFactory implements ICastFactory {
 
     private IOpenCast getUpCast(Class<?> from, Class<?> to) {
         if (from.isArray() && to.isArray()) {
-            return JAVA_UP_ARRAY_TO_ARRAY_CAST;
+            return JavaUpArrayCast.instance;
         }
-        return JAVA_UP_CAST;
+        return JavaUpCast.instance;
     }
 
     private IOpenCast findArrayCast(IOpenClass from, IOpenClass to) {
@@ -416,16 +402,16 @@ public class CastFactory implements ICastFactory {
         Class<?> toClass = to.getInstanceClass();
 
         if (fromClass == ClassUtils.wrapperToPrimitive(toClass)) {
-            return JAVA_BOXING_CAST;
+            return JavaBoxingCast.instance;
         }
 
         if (toClass.isAssignableFrom(ClassUtils.primitiveToWrapper(fromClass))) {
-            return JAVA_BOXING_UP_CAST;
+            return JavaBoxingUpCast.instance;
         }
 
         // Apache ClassUtils has error in 2.6
         if (fromClass == void.class && toClass == Void.class) {
-            return JAVA_BOXING_CAST;
+            return JavaBoxingCast.instance;
         }
 
         return null;
@@ -448,12 +434,12 @@ public class CastFactory implements ICastFactory {
         Class<?> toClass = to.getInstanceClass();
 
         if (toClass == ClassUtils.wrapperToPrimitive(fromClass)) {
-            return JAVA_UNBOXING_CAST;
+            return JavaUnboxingCast.instance;
         }
 
         // Apache ClassUtils has error in 2.6
         if (fromClass == Void.class && toClass == void.class)
-            return JAVA_UNBOXING_CAST;
+            return JavaUnboxingCast.instance;
 
         return null;
     }
@@ -471,7 +457,7 @@ public class CastFactory implements ICastFactory {
 
             if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass) && to.getInstanceClass()
                 .isAssignableFrom(from.getInstanceClass())) {
-                return new AliasToTypeCast();
+                return AliasToTypeCast.instance;
             }
 
             if (to instanceof DomainOpenClass && !(from instanceof DomainOpenClass) && from.getInstanceClass()
@@ -480,7 +466,7 @@ public class CastFactory implements ICastFactory {
             }
 
             if (from instanceof DomainOpenClass && to.getInstanceClass().isAssignableFrom(from.getClass())) {
-                return JAVA_UP_CAST; 
+                return JavaUpCast.instance;
             }
 
             if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass)) {

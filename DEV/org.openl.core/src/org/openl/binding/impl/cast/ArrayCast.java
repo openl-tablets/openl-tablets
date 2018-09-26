@@ -6,14 +6,14 @@ import java.util.List;
 
 import org.openl.types.IOpenClass;
 
-public class ArrayCast implements IOpenCast {
+final class ArrayCast implements IOpenCast {
 
     private IOpenClass toComponentType;
     private IOpenCast openCast;
     private int dim;
     private int distance;
 
-    public ArrayCast(IOpenClass to, IOpenCast openCast, int dim) {
+    ArrayCast(IOpenClass to, IOpenCast openCast, int dim) {
         if (to == null) {
             throw new IllegalArgumentException("to arg can't be null!");
         }
@@ -43,7 +43,7 @@ public class ArrayCast implements IOpenCast {
                 if (Object.class.equals(c) && f != null) {
                     c = f.getClass();
                 }
-            } 
+            }
         }
         if (dim == dims.size()) {
             int[] dimensions = new int[dims.size()];
@@ -88,8 +88,9 @@ public class ArrayCast implements IOpenCast {
         for (int i = 0; i < dim; i++) {
             sb.append("[]");
         }
-        throw new ClassCastException(from.getClass().getSimpleName() + " can't be cast to " + toComponentType
-            .getInstanceClass().getCanonicalName() + sb.toString());
+        throw new ClassCastException(
+            from.getClass().getSimpleName() + " can't be cast to " + toComponentType.getInstanceClass()
+                .getCanonicalName() + sb.toString());
     }
 
     public int getDistance() {

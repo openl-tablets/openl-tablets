@@ -188,7 +188,7 @@ public class CastFactoryTest {
 
         cast = factory.getCast(JavaOpenClass.getOpenClass(Apple[][].class), JavaOpenClass.getOpenClass(Object[].class));
         assertNotNull(cast);
-        assertEquals(JavaUpCast.class, cast.getClass());
+        assertEquals(JavaUpArrayCast.class, cast.getClass());
     }
 
     @Test
