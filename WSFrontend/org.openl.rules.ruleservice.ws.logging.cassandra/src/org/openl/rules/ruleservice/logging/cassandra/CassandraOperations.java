@@ -19,6 +19,8 @@ import com.datastax.driver.core.HostDistance;
 import com.datastax.driver.core.PoolingOptions;
 import com.datastax.driver.core.ProtocolVersion;
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.exceptions.QueryExecutionException;
+import com.datastax.driver.core.exceptions.QueryValidationException;
 import com.datastax.driver.mapping.Mapper;
 import com.datastax.driver.mapping.MappingManager;
 import com.datastax.driver.mapping.annotations.Table;
@@ -46,9 +48,8 @@ public class CassandraOperations implements InitializingBean {
         }
         cluster = clusterBuilder.build();
         PoolingOptions poolingOptions = cluster.getConfiguration().getPoolingOptions();
-        poolingOptions.setConnectionsPerHost(HostDistance.LOCAL, 5, 12).setConnectionsPerHost(HostDistance.REMOTE,
-            2,
-            4);
+        poolingOptions.setConnectionsPerHost(HostDistance.LOCAL, 5, 12)
+            .setConnectionsPerHost(HostDistance.REMOTE, 2, 4);
         poolingOptions.setMaxRequestsPerConnection(HostDistance.LOCAL, 2048)
             .setMaxRequestsPerConnection(HostDistance.REMOTE, 512);
         session = cluster.connect(keyspace);
@@ -78,7 +79,7 @@ public class CassandraOperations implements InitializingBean {
     }
 
     private ExecutorService sinleThreadExecuror = Executors.newSingleThreadExecutor();
-    
+
     public void saveAsync(Object entity) {
         try {
             createShemaIfNeeded(entity.getClass());
@@ -88,9 +89,9 @@ public class CassandraOperations implements InitializingBean {
             listenableFuture.addListener(new Runnable() {
                 @Override
                 public void run() {
-                    try{
+                    try {
                         listenableFuture.get();
-                    }catch (Exception e) {
+                    } catch (Exception e) {
                         if (log.isErrorEnabled()) {
                             log.error("Save operation was failure!", e);
                         }
@@ -111,7 +112,8 @@ public class CassandraOperations implements InitializingBean {
                 String tableName = table.caseSensitiveTable() ? table.name() : table.name().toLowerCase();
                 if (!alreadyCreatedTableNames.contains(tableName)) {
                     synchronized (this) {
-                        String ksName = table.caseSensitiveKeyspace() ? table.keyspace() : table.keyspace().toLowerCase();
+                        String ksName = table.caseSensitiveKeyspace() ? table.keyspace()
+                                                                      : table.keyspace().toLowerCase();
                         if (ksName == null || ksName.isEmpty()) {
                             ksName = keyspace;
                         }
@@ -119,11 +121,22 @@ public class CassandraOperations implements InitializingBean {
                             if (session.getCluster().getMetadata().getKeyspace(ksName).getTable(tableName) == null) {
                                 try {
                                     String cqlQuery = extractCqlQueryForClass(entityClass);
-                                    session.execute(cqlQuery);
+                                    String[] queries = cqlQuery.split(";");
+                                    for (String q : queries) {
+                                        session.execute(removeCommentsInStatement(q.trim()));
+                                    }
                                 } catch (IOException e) {
                                     if (log.isErrorEnabled()) {
                                         log.error("Table creation was failure!", e);
                                     }
+                                } catch (QueryExecutionException e) {
+                                    throw new SchemaCreationException(
+                                        "Schema creation fails for '" + entityClass.getSimpleName() + "'",
+                                        e);
+                                } catch (QueryValidationException e) {
+                                    throw new SchemaCreationException(
+                                        "Schema creation fails for '" + entityClass.getSimpleName() + "'",
+                                        e);
                                 }
                             }
                             alreadyCreatedTableNames.add(tableName);
@@ -134,9 +147,14 @@ public class CassandraOperations implements InitializingBean {
         }
     }
 
+    protected static String removeCommentsInStatement(String statement) {
+        return statement.replaceAll("(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)|(?:--.*)", "");
+    }
+
     private String extractCqlQueryForClass(Class<?> entityClass) throws IOException {
-        InputStream inputStream = entityClass.getResourceAsStream("/" + entityClass.getName().replaceAll("\\.", "/") + ".cql");
-        if (inputStream == null){
+        InputStream inputStream = entityClass
+            .getResourceAsStream("/" + entityClass.getName().replaceAll("\\.", "/") + ".cql");
+        if (inputStream == null) {
             throw new FileNotFoundException("/" + entityClass.getName().replaceAll("\\.", "/") + ".cql");
         }
         return IOUtils.toString(inputStream, "UTF-8");

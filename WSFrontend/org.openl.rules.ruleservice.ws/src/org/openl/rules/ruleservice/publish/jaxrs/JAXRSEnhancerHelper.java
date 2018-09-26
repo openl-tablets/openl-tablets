@@ -219,8 +219,8 @@ public class JAXRSEnhancerHelper {
             if (skip) {
                 mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
 
-                // Parameter annotations process, because InterfaceTransformet skip them
-                // Need refactoring.
+                // Parameter annotations process, because InterfaceTransformer skips them
+                // Needs refactoring.
                 if (originalMethod.getParameterAnnotations().length > 0) {
                     int index = 0;
                     for (Annotation[] annotatons : originalMethod.getParameterAnnotations()) {

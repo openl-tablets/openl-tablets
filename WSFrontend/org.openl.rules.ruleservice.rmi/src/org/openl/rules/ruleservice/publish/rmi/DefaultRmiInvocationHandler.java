@@ -1,14 +1,20 @@
 package org.openl.rules.ruleservice.publish.rmi;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
-class DefaultRmiInvocationHandler implements InvocationHandler {
+import org.openl.runtime.IOpenLInvocationHandler;
+
+class DefaultRmiInvocationHandler implements IOpenLInvocationHandler {
 
     private Object target;
     private Map<String, List<Method>> methodMap;
+    
+    @Override
+    public Object getTarget() {
+        return target;
+    }
 
     public DefaultRmiInvocationHandler(Object target,
             Map<String, List<Method>> methodMap) {

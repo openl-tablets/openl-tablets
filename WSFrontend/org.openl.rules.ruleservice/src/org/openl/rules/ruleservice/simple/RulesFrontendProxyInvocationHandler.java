@@ -3,7 +3,7 @@ package org.openl.rules.ruleservice.simple;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-public class RulesFrontendProxyInvocationHandler implements InvocationHandler{
+public class RulesFrontendProxyInvocationHandler implements InvocationHandler {
     
     private RulesFrontend rulesFrontend;
     private String serviceName;

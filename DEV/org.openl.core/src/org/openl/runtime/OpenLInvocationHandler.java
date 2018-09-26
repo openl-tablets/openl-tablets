@@ -1,6 +1,5 @@
 package org.openl.runtime;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Map;
@@ -11,7 +10,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
-public class OpenLInvocationHandler implements InvocationHandler, IEngineWrapper {
+public class OpenLInvocationHandler implements IOpenLInvocationHandler, IEngineWrapper {
 
     private Object openlInstance;
     private Map<Method, IOpenMember> methodMap;
@@ -42,6 +41,11 @@ public class OpenLInvocationHandler implements InvocationHandler, IEngineWrapper
     @Override
     public Object getInstance() {
         return openlInstance;
+    }
+    
+    @Override
+    public Object getTarget() {
+        return getInstance();
     }
 
     @Override
