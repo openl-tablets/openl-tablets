@@ -7,6 +7,7 @@ public class AliasToTypeCast implements IOpenCast {
 
     private IOpenClass fromClass;
     private IOpenCast typeCast;
+    private int distance = CastFactory.ALIAS_TO_TYPE_CAST_DISTANCE;
 
     public AliasToTypeCast(IOpenClass from) {
         this.fromClass = from;
@@ -15,6 +16,7 @@ public class AliasToTypeCast implements IOpenCast {
     public AliasToTypeCast(IOpenClass from, IOpenCast typeCast) {
         this.fromClass = from;
         this.typeCast = typeCast;
+        distance = typeCast.getDistance() - 1;//This cast has higher priority
     }
 
     public Object convert(Object from) {
@@ -50,11 +52,7 @@ public class AliasToTypeCast implements IOpenCast {
     }
 
     public int getDistance() {
-        if (typeCast == null) {
-            return CastFactory.ALIAS_TO_TYPE_CAST_DISTANCE;
-        } else {
-            return typeCast.getDistance() - 1; //This cast has higher priority
-        }
+        return distance;
     }
 
     public boolean isImplicit() {

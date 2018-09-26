@@ -8,6 +8,7 @@ public class OneElementArrayCast implements IOpenCast, IgnoredByMethodSearchOpen
 
     private IOpenClass toComponentType;
     private IOpenCast openCast;
+    private int distance;
 
     public OneElementArrayCast(IOpenClass to, IOpenCast openCast) {
         if (to == null) {
@@ -18,6 +19,7 @@ public class OneElementArrayCast implements IOpenCast, IgnoredByMethodSearchOpen
         }
         this.toComponentType = to;
         this.openCast = openCast;
+        this.distance = CastFactory.ONE_ELEMENT_ARRAY_CAST_DISTANCE + openCast.getDistance();
     }
 
     public Object convert(Object from) {
@@ -31,7 +33,7 @@ public class OneElementArrayCast implements IOpenCast, IgnoredByMethodSearchOpen
     }
 
     public int getDistance() {
-        return CastFactory.ONE_ELEMENT_ARRAY_CAST_DISTANCE + openCast.getDistance();
+        return distance;
     }
 
     public boolean isImplicit() {

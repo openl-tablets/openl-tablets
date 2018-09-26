@@ -11,6 +11,7 @@ public class ArrayCast implements IOpenCast {
     private IOpenClass toComponentType;
     private IOpenCast openCast;
     private int dim;
+    private int distance;
 
     public ArrayCast(IOpenClass to, IOpenCast openCast, int dim) {
         if (to == null) {
@@ -21,6 +22,7 @@ public class ArrayCast implements IOpenCast {
         }
         this.toComponentType = to;
         this.openCast = openCast;
+        this.distance = CastFactory.ARRAY_CAST_DISTANCE + openCast.getDistance();
         this.dim = dim;
     }
 
@@ -91,7 +93,7 @@ public class ArrayCast implements IOpenCast {
     }
 
     public int getDistance() {
-        return CastFactory.ARRAY_CAST_DISTANCE + openCast.getDistance();
+        return distance;
     }
 
     public boolean isImplicit() {
