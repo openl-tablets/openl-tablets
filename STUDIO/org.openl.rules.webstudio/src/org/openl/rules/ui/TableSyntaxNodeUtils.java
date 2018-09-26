@@ -6,7 +6,6 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethod;
 import org.openl.util.StringUtils;
@@ -16,10 +15,6 @@ public final class TableSyntaxNodeUtils {
     private static final String ROUND_BRACKETS_WITH_ANY_TEXT = "\\(.*\\)";
 
     private TableSyntaxNodeUtils() {
-    }
-
-    public static String[] getTableDisplayValue(TableSyntaxNode tableSyntaxNode) {
-        return getTableDisplayValue(tableSyntaxNode, 0);
     }
 
     public static String[] getTableDisplayValue(TableSyntaxNode tableSyntaxNode, int i) {
@@ -116,6 +111,6 @@ public final class TableSyntaxNodeUtils {
     public static String getTestName(IOpenMethod testMethod) {
         IMemberMetaInfo mi = testMethod.getInfo();
         TableSyntaxNode tnode = (TableSyntaxNode) mi.getSyntaxNode();
-        return getTableDisplayValue(tnode)[INamedThing.SHORT];
+        return getTableDisplayValue(tnode, 0)[INamedThing.SHORT];
     }
 }
