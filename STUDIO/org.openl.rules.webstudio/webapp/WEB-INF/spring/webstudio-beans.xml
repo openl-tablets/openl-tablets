@@ -16,7 +16,7 @@
 
     <bean id="currentUserInfo" class="org.openl.rules.webstudio.security.CurrentUserInfo" />
 
-    <util:properties id="versionProperties" location="classpath:org/openl/main/openl.version.properties" />
+    <bean id="versionProperties" class="org.openl.main.OpenLVersion" />
 
     <bean id="excludedFolders" class="java.util.LinkedHashSet">
     <constructor-arg>

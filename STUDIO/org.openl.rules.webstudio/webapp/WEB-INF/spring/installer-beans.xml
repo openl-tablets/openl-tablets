@@ -9,7 +9,7 @@
         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.2.xsd"
        default-autowire="no">
 
-    <util:properties id="versionProperties" location="classpath:org/openl/main/openl.version.properties" />
+    <bean id="versionProperties" class="org.openl.main.OpenLVersion" />
 
     <bean id="installerFilter" class="org.openl.rules.webstudio.filter.InstallerFilter">
         <constructor-arg name="wizardRoot" value="/faces/pages/modules/install/"/>

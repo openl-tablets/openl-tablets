@@ -6,15 +6,15 @@
     xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
     <div style="text-align: center; padding:11px">
-        <c:set var="buildDate" value="#{versionProperties['openl.build.date']}" />
+        <c:set var="buildDate" value="#{versionProperties.getBuildDate()}" />
         &#169; #{fn:substring(buildDate, 0, 4)}
-        <a style="text-decoration:none; color:#666" href="#{versionProperties['openl.url']}" target="_blank">OpenL Tablets</a>
+        <a style="text-decoration:none; color:#666" href="#{versionProperties.getUrl()}" target="_blank">OpenL Tablets</a>
         <span style="margin: 0 10px">|</span>
         <a style="text-decoration: none" href="mailto:openltablets@eisgroup.com?subject=OpenL Tablets Feedback">Report a problem</a>
 
         <i style="position:absolute;right:13px;">
-            <c:set var="version" value="#{versionProperties['openl.version']}" />
-            <c:set var="commitHash" value="#{versionProperties['openl.commit.hash']}" />
+            <c:set var="version" value="#{versionProperties.getVersion()}" />
+            <c:set var="commitHash" value="#{versionProperties.getBuildNumber()}" />
             <c:set var="commitHashId" value="#{fn:endsWith(commitHash, '+') ? fn:substringBefore(commitHash, '+') : commitHash}" />
 
             <span title="Built on #{buildDate}">v#{version}</span>

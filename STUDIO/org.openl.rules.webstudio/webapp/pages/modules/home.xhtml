@@ -22,7 +22,7 @@
                 <h3>#{msg['ws.home.doc']}</h3>
                 <div class="block-content">
                     <ul class="enum links">
-                        <c:set var="guidesPath" value="#{versionProperties['openl.url']}/files/openl-tablets/#{versionProperties['openl.version']}" />
+                        <c:set var="guidesPath" value="#{versionProperties.getUrl()}/files/openl-tablets/#{versionProperties.getVersion()}" />
                         <li><a href="#{guidesPath}/OpenL Tablets - Installation Guide.pdf" target="_blank">#{msg['ws.home.doc.install_guide']}</a></li>
                         <li><a href="#{guidesPath}/OpenL Tablets - Reference Guide.pdf" target="_blank">#{msg['ws.home.doc.ref_guide']}</a></li>
                         <li><a href="#{guidesPath}/OpenL Tablets - Developer Guide.pdf" target="_blank">#{msg['ws.home.doc.dev_guide']}</a></li>
@@ -36,8 +36,8 @@
                 <h3>#{msg['ws.home.net']}</h3>
                 <div class="block-content">
                     <ul class="enum links">
-                        <li><a href="#{versionProperties['openl.url']}/" target="_blank">#{msg['ws.home.net.site']}</a></li>
-                        <li><a href="#{versionProperties['openl.url']}/news" target="_blank">#{msg['ws.home.net.news']}</a></li>
+                        <li><a href="#{versionProperties.getUrl()}/" target="_blank">#{msg['ws.home.net.site']}</a></li>
+                        <li><a href="#{versionProperties.getUrl()}/news" target="_blank">#{msg['ws.home.net.news']}</a></li>
                         <li><a href="https://twitter.com/openltablets" target="_blank">#{msg['ws.home.net.twitter']}</a></li>
                         <li><a href="https://sourceforge.net/projects/openl-tablets/forums" target="_blank">#{msg['ws.home.net.forum']}</a></li>
                         <li><a href="https://sourceforge.net/projects/openl-tablets/" target="_blank">#{msg['ws.home.net.sf']}</a></li>
