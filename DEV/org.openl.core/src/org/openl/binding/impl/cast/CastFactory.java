@@ -271,8 +271,8 @@ public class CastFactory implements ICastFactory {
             return castA;
         }
 
-        int distanceA = castA.getDistance(from, to);
-        int distanceB = castB.getDistance(from, to);
+        int distanceA = castA.getDistance();
+        int distanceB = castB.getDistance();
 
         return distanceA > distanceB ? castB : castA;
     }

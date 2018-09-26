@@ -1,7 +1,5 @@
 package org.openl.binding.impl.cast;
 
-import org.openl.types.IOpenClass;
-
 final class StringToEnumCast implements IOpenCast {
     @SuppressWarnings("rawtypes")
     private Class enumType;
@@ -17,7 +15,7 @@ final class StringToEnumCast implements IOpenCast {
     }
 
     @Override
-    public int getDistance(IOpenClass from, IOpenClass to) {
+    public int getDistance() {
         return CastFactory.STRING_ENUM_TO_CAST_DISTANCE;
     }
 

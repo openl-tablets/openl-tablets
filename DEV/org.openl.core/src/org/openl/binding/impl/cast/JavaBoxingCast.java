@@ -1,7 +1,5 @@
 package org.openl.binding.impl.cast;
 
-import org.openl.types.IOpenClass;
-
 /**
  * Emulates type boxing.
  */
@@ -21,7 +19,7 @@ public class JavaBoxingCast implements IOpenCast {
         return from;
     }
 
-    public int getDistance(IOpenClass from, IOpenClass to) {
+    public int getDistance() {
         return distance;
     }
 

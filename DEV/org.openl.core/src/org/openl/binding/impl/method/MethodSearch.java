@@ -96,7 +96,7 @@ public class MethodSearch {
                         } else if ((cast2 == null || !cast2.isImplicit())) {
                             m.put(typeNames[i], t);
                         } else {
-                            if (cast2.getDistance(t, existedType) < cast1.getDistance(existedType, t)) {
+                            if (cast2.getDistance() < cast1.getDistance()) {
                                 m.put(typeNames[i], t);
                             }
                         }
@@ -141,7 +141,7 @@ public class MethodSearch {
                         } else {
                             castHolder[i] = gCast;
                         }
-                        castHolderDistance[i] = gCast.getDistance(callParam[i], type);
+                        castHolderDistance[i] = gCast.getDistance();
                     } else {
                         if (callParam[i] != methodParam[i]) {
                             castHolder[i] = casts.getCast(callParam[i], methodParam[i]);
@@ -176,7 +176,7 @@ public class MethodSearch {
         for (int i = 0; i < callParam.length; i++) {
             if (castHolder[i] != null) {
                 if (castHolderDistance[i] == null) {
-                    m[i] = castHolder[i].getDistance(callParam[i], methodParam[i]);
+                    m[i] = castHolder[i].getDistance();
                 } else {
                     m[i] = castHolderDistance[i];
                 }

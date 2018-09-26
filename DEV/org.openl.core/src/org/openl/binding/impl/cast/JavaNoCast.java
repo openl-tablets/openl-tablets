@@ -1,7 +1,5 @@
 package org.openl.binding.impl.cast;
 
-import org.openl.types.IOpenClass;
-
 public final class JavaNoCast implements IOpenCast {
 
     private JavaNoCast() {
@@ -20,7 +18,7 @@ public final class JavaNoCast implements IOpenCast {
      */
 
 
-    public int getDistance(IOpenClass from, IOpenClass to) {
+    public int getDistance() {
         return CastFactory.NO_CAST_DISTANCE;
     }
 

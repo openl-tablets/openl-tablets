@@ -15,7 +15,6 @@ import java.lang.reflect.Method;
 
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,8 +127,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
             IOpenCast openCast = convertor.getConvertor(expectedType.getComponentType(),
                 x.getClass().getComponentType());
             if (openCast != null) {
-                return openCast.getDistance(JavaOpenClass.getOpenClass(expectedType.getComponentType()),
-                    JavaOpenClass.getOpenClass(x.getClass().getComponentType()));
+                return openCast.getDistance();
             } else {
                 return null;
             }
@@ -137,8 +135,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
             if (!ClassUtils.isAssignable(x.getClass(), expectedType)) {
                 IOpenCast openCast = convertor.getConvertor(expectedType, x.getClass());
                 if (openCast != null) {
-                    return openCast.getDistance(JavaOpenClass.getOpenClass(expectedType),
-                        JavaOpenClass.getOpenClass(x.getClass()));
+                    return openCast.getDistance();
                 } else {
                     return null;
                 }

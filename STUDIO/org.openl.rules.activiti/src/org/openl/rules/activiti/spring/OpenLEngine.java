@@ -13,7 +13,6 @@ import org.openl.rules.activiti.util.IRulesRuntimeContextUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 import org.openl.rules.project.instantiation.ProjectEngineFactory;
-import org.openl.types.java.JavaOpenClass;
 
 public class OpenLEngine {
 
@@ -58,9 +57,7 @@ public class OpenLEngine {
                                     if (cast == null || args[i].getClass() == bestMethod.getParameterTypes()[i]) {
                                         continue;
                                     }
-                                    maxdiff = Math.max(maxdiff,
-                                        cast.getDistance(JavaOpenClass.getOpenClass(args[i].getClass()),
-                                            JavaOpenClass.getOpenClass(bestMethod.getParameterTypes()[i])));
+                                    maxdiff = Math.max(maxdiff, cast.getDistance());
                                     ndiff++;
                                     i++;
                                 }
@@ -74,9 +71,7 @@ public class OpenLEngine {
                                 if (cast == null || args[i].getClass() == method.getParameterTypes()[i]) {
                                     continue;
                                 }
-                                maxdiff = Math.max(maxdiff,
-                                    cast.getDistance(JavaOpenClass.getOpenClass(args[i].getClass()),
-                                        JavaOpenClass.getOpenClass(method.getParameterTypes()[i])));
+                                maxdiff = Math.max(maxdiff, cast.getDistance());
                                 ndiff++;
                                 i++;
                             }

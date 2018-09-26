@@ -71,11 +71,11 @@ public class TypeToAliasCast implements IOpenCast {
         return from;
     }
 
-    public int getDistance(IOpenClass from, IOpenClass to) {
+    public int getDistance() {
         if (typeCast == null) {
             return CastFactory.TYPE_TO_ALIAS_CAST_DISTANCE;
         } else {
-            return typeCast.getDistance(from, to) - 1; //This cast has higher priority
+            return typeCast.getDistance() - 1; //This cast has higher priority
         }
     }
 

@@ -1,7 +1,5 @@
 package org.openl.binding.impl.cast;
 
-import org.openl.types.IOpenClass;
-
 public class CastsLinkageCast implements IOpenCast {
 
 	private IOpenCast[] casts;
@@ -25,10 +23,10 @@ public class CastsLinkageCast implements IOpenCast {
 		return ret;
 	}
 
-	public int getDistance(IOpenClass from, IOpenClass to) {
+	public int getDistance() {
 		int distance = 0;
 		for (IOpenCast cast : casts) {
-		    int d = cast.getDistance(from, to);
+		    int d = cast.getDistance();
 		    if (distance < d) {
 		        distance = d;
 		    }
