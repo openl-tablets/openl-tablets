@@ -69,5 +69,6 @@ public final class OpenLVersion {
         new ClasspathLogger().log();
         new SysPropLogger().log();
         new EnvPropLogger().log();
+        new JndiLogger().log();
     }
 }
