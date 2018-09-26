@@ -38,7 +38,7 @@ final class JndiLogger extends OpenLLogger {
     private void toMap(Context ctx, String path) throws NamingException {
         NamingEnumeration<NameClassPair> list = ctx.list(path);
         if (!list.hasMoreElements()) {
-            log("  {} = [Empty] {}", "JNDI/PATH", ctx);
+            log("  {} = [Empty] {}", path, ctx.lookup(path));
             return;
         }
         while (list.hasMoreElements()) {
