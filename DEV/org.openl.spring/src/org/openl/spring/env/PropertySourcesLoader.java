@@ -154,7 +154,7 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     public static final String OPENL_APPLICATION_PROPS = "OpenL application properties";
     public static final String OPENL_ADDITIONAL_PROPS = "OpenL additional properties";
     public static final String ENVIRONMENT_PROPS = "environmentProps";
-    private final Logger log = LoggerFactory.getLogger(PropertySourcesLoader.class);
+    private final Logger log = LoggerFactory.getLogger("OpenL.config");
     private ApplicationContext appContext;
     private MutablePropertySources propertySources;
 
