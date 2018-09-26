@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
+import org.openl.info.OpenLVersion;
 import org.openl.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,6 +151,7 @@ import org.springframework.util.StringValueResolver;
  * @see PropertyResourceResolver
  */
 public class PropertySourcesLoader extends PlaceholderConfigurerSupport implements ApplicationContextInitializer<ConfigurableApplicationContext>, ApplicationContextAware {
+    private static final String VERSION = OpenLVersion.getVersion(); // Just for init OpenLVersion class.
     public static final String OPENL_DEFAULT_PROPS = "OpenL default properties";
     public static final String OPENL_APPLICATION_PROPS = "OpenL application properties";
     public static final String OPENL_ADDITIONAL_PROPS = "OpenL additional properties";
