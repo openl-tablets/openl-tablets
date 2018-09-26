@@ -18,6 +18,7 @@ public final class Constants {
     public static final String RESPONSE_MONITOR_COOKIE = "response-monitor";
 
     public static final String SESSION_PARAM_EXPLANATOR = "explanator";
+    public static final String SESSION_PARAM_PARAMETERS = "parameters";
 
     public static final String RULES_USER_SESSION = "rulesUserSession";
     public static final String COPIED_FROM_PREFIX = "Copied from:";
