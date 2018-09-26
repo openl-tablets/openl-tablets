@@ -180,7 +180,7 @@
                                     <td>
                                         <ui:include src="/pages/modules/test/parameter.xhtml">
                                             <ui:param name="parameter" value="#{context}" />
-                                            <ui:param name="lazy" value="false" />
+                                            <ui:param name="requestId" value="#{mainBean.requestId}" />
                                         </ui:include></td>
                                     </ui:repeat>
                                 </h:panelGroup>
@@ -188,7 +188,7 @@
                                 <td>
                                     <ui:include src="/pages/modules/test/parameter.xhtml">
                                         <ui:param name="parameter" value="#{parameter}" />
-                                        <ui:param name="lazy" value="false" />
+                                        <ui:param name="requestId" value="#{mainBean.requestId}" />
                                     </ui:include></td>
                                 </ui:repeat>
                                 <h:panelGroup rendered="#{compareResult != 'TR_EXCEPTION'}">
@@ -206,7 +206,7 @@
                                                             <h:panelGroup rendered="#{!helper.isExplanationValue(resultParam.actualValue.value)}">
                                                                 <ui:include src="/pages/modules/test/parameter.xhtml">
                                                                     <ui:param name="parameter" value="#{resultParam.actualValue}" />
-                                                                    <ui:param name="lazy" value="false" />
+                                                                    <ui:param name="requestId" value="#{mainBean.requestId}" />
                                                                 </ui:include>
                                                             </h:panelGroup>
                                                             <h:panelGroup rendered="#{helper.isExplanationValue(resultParam.actualValue.value)}">
@@ -230,7 +230,7 @@
                                                         <ui:repeat value="" var="dontRemove!!!">
                                                         <ui:include src="/pages/modules/test/parameter.xhtml">
                                                             <ui:param name="parameter" value="#{resultParam.expectedValue}" />
-                                                            <ui:param name="lazy" value="false" />
+                                                            <ui:param name="requestId" value="#{mainBean.requestId}" />
                                                         </ui:include>
                                                         </ui:repeat>
                                                     </h:panelGroup>
@@ -261,7 +261,7 @@
                                             <div class="case-result #{!test.runmethod ? (compareResult == 'TR_OK' ? 'case-success' : 'case-error') : ''}">
                                                 <ui:include src="/pages/modules/test/parameter.xhtml">
                                                     <ui:param name="parameter" value="#{testCase.actualParam}"/>
-                                                    <ui:param name="lazy" value="false" />
+                                                    <ui:param name="requestId" value="#{mainBean.requestId}" />
                                                 </ui:include>
                                             </div>
                                         </td>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:rich="http://richfaces.org/rich">
+
+    <!-- Each rich:tree for every parameter must have unique ID -->
+    <ui:param name="paramTreeId" value="loadedObjectParam#{param.paramRootId}"/>
+
+    <rich:tree id="#{paramTreeId}" value="#{parameterTreeBuilder.getTree(param.requestId, parameterTreeBuilder.getParam(param.requestId, param.paramRootId), param.hasExplainLinks)}" var="node"
+               rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter"
+               toggleType="client" selectionType="client"
+               styleClass="param-tree loaded-param-description" toggleNodeEvent="click">
+        <!-- rowKeyConverter is a temporary solution.
+         After migrating to the newer version of RichFaces it can be removed.
+         See: https://issues.jboss.org/browse/RF-11102 for details -->
+        <rich:treeNode>
+            <h:outputText rendered="#{node.nodeType == 'spreadsheet'}" value="#{node.treeText}" escape="false" />
+            <h:outputText rendered="#{node.nodeType != 'spreadsheet'}" value="#{node.treeText}" escape="true" />
+        </rich:treeNode>
+    </rich:tree>
+
+    <script>
+        //<![CDATA[
+        $j(function () {
+            $j(#{rich:element(paramTreeId)}).find('.rf-trn-hnd:first').click();
+        })
+        //]]>
+    </script>
+</ui:composition>

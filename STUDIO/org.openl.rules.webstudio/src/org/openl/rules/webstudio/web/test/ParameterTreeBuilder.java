@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 
 import org.openl.base.INamedThing;
@@ -21,12 +20,13 @@ import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
+import org.openl.rules.ui.ParameterRegistry;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.webstudio.web.MainBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.ClassUtils;
+import org.openl.util.StringUtils;
 import org.openl.vm.SimpleVM;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
@@ -37,9 +37,6 @@ import org.richfaces.model.TreeNodeImpl;
 @ManagedBean
 @RequestScoped
 public class ParameterTreeBuilder {
-    @ManagedProperty(value = "#{mainBean}")
-    private MainBean mainBean;
-
     public static ParameterDeclarationTreeNode createNode(ParameterRenderConfig config) {
         ParameterDeclarationTreeNode customNode = getOpenLCustomNode(config.getType(), config.getValue(), config.getFieldNameInParent(), config.getParent());
         if (customNode != null) {
@@ -142,7 +139,6 @@ public class ParameterTreeBuilder {
 
                 ParameterRenderConfig config = new ParameterRenderConfig.Builder(fieldType, value)
                         .previewField(previewField)
-                        .requestId(mainBean.getRequestId())
                         .build();
 
                 return createComplexBeanNode(config).getDisplayedValue();
@@ -152,7 +148,7 @@ public class ParameterTreeBuilder {
         return "null";
     }
 
-    public TreeNode getTree(ParameterWithValueDeclaration param, boolean hasExplainLinks) {
+    public TreeNode getTree(String requestId, ParameterWithValueDeclaration param, boolean hasExplainLinks) {
         TreeNodeImpl root = new TreeNodeImpl();
 
         if (param != null) {
@@ -164,12 +160,23 @@ public class ParameterTreeBuilder {
             ParameterRenderConfig config = new ParameterRenderConfig.Builder(param.getType(), param.getValue())
                     .previewField(previewField)
                     .hasExplainLinks(hasExplainLinks)
-                    .requestId(mainBean.getRequestId())
+                    .requestId(requestId)
                     .build();
             ParameterDeclarationTreeNode treeNode = createNode(config);
             root.addChild(param.getName(), treeNode);
         }
         return root;
+    }
+
+    public String getParameterId(String requestId, ParameterWithValueDeclaration param) {
+        return String.valueOf(ParameterRegistry.getUniqueId(requestId, param));
+    }
+
+    public ParameterWithValueDeclaration getParam(String requestId, String parameterRootId) {
+        if (StringUtils.isEmpty(parameterRootId)) {
+            return null;
+        }
+        return ParameterRegistry.getParameter(requestId, parameterRootId);
     }
 
     public boolean isDateParameter(Object value) {
@@ -245,9 +252,5 @@ public class ParameterTreeBuilder {
         }
 
         return value == null ? "null" : value.toString();
-    }
-
-    public void setMainBean(MainBean mainBean) {
-        this.mainBean = mainBean;
     }
 }
