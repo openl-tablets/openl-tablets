@@ -471,7 +471,7 @@ public class CastFactory implements ICastFactory {
 
             if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass) && to.getInstanceClass()
                 .isAssignableFrom(from.getInstanceClass())) {
-                return new AliasToTypeCast(from);
+                return new AliasToTypeCast();
             }
 
             if (to instanceof DomainOpenClass && !(from instanceof DomainOpenClass) && from.getInstanceClass()
@@ -486,7 +486,7 @@ public class CastFactory implements ICastFactory {
             if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass)) {
                 IOpenCast openCast = this.findCast(JavaOpenClass.getOpenClass(from.getInstanceClass()), to);
                 if (openCast != null) {
-                    return new AliasToTypeCast(from, openCast);
+                    return new AliasToTypeCast(openCast);
                 }
             }
 
