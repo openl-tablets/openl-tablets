@@ -4,12 +4,12 @@ import org.openl.binding.ICastFactory;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
-public class JavaDownCast implements IOpenCast {
+final class JavaDownCast implements IOpenCast {
     
     private IOpenClass to;
     private ICastFactory castFactory;
 
-    public JavaDownCast(IOpenClass to, ICastFactory castFactory) {
+    JavaDownCast(IOpenClass to, ICastFactory castFactory) {
         if (to == null) {
             throw new IllegalArgumentException("to arg can't be null!");
         }

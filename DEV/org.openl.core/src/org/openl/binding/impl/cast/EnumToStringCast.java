@@ -1,7 +1,7 @@
 package org.openl.binding.impl.cast;
 
 final class EnumToStringCast implements IOpenCast {
-    public static IOpenCast instance = new EnumToStringCast();
+    static IOpenCast instance = new EnumToStringCast();
 
     private EnumToStringCast() {
         // Use EnumToStringCast.instance
@@ -9,7 +9,7 @@ final class EnumToStringCast implements IOpenCast {
 
     @Override
     public Object convert(Object from) {
-        return ((Enum<?>)from).name();
+        return ((Enum<?>) from).name();
     }
 
     @Override

@@ -2,9 +2,9 @@ package org.openl.binding.impl.cast;
 
 import org.openl.types.IOpenClass;
 
-public class TypeToAliasWithJavaUnboxingCast extends TypeToAliasCast {
+final class TypeToAliasWithJavaUnboxingCast extends TypeToAliasCast {
 
-    public TypeToAliasWithJavaUnboxingCast(IOpenClass from, IOpenClass to) {
+    TypeToAliasWithJavaUnboxingCast(IOpenClass from, IOpenClass to) {
         super(from, to);
     }
 

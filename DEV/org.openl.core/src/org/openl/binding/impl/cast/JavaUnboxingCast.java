@@ -1,6 +1,12 @@
 package org.openl.binding.impl.cast;
 
-public class JavaUnboxingCast implements IOpenCast {
+final class JavaUnboxingCast implements IOpenCast {
+
+    static IOpenCast instance = new JavaUnboxingCast();
+
+    private JavaUnboxingCast() {
+        // Use JavaUnboxingCast.instance
+    }
 
     public Object convert(Object from) {
         return from;

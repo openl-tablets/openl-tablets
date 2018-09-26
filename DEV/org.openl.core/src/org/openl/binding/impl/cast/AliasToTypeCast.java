@@ -1,10 +1,11 @@
 package org.openl.binding.impl.cast;
 
-import org.openl.types.IOpenClass;
+final class AliasToTypeCast implements IOpenCast {
 
-public class AliasToTypeCast implements IOpenCast {
+    static IOpenCast instance = new AliasToTypeCast();
 
-    public AliasToTypeCast(IOpenClass from, IOpenClass to) {
+    private AliasToTypeCast() {
+        // Use AliasToTypeCast.instance.
     }
 
     public Object convert(Object from) {
@@ -18,5 +19,4 @@ public class AliasToTypeCast implements IOpenCast {
     public boolean isImplicit() {
         return true;
     }
-
 }

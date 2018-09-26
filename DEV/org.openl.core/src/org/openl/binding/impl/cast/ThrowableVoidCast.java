@@ -1,6 +1,15 @@
 package org.openl.binding.impl.cast;
 
-public class ThrowableVoidCast implements IOpenCast {
+public final class ThrowableVoidCast implements IOpenCast {
+
+    /**
+     * for error("message") method
+     */
+    static IOpenCast instance = new ThrowableVoidCast();
+
+    private ThrowableVoidCast() {
+        // Use ThrowableVoidCast.instance.
+    }
 
     public Object convert(Object from) {
         return null;
@@ -13,9 +22,9 @@ public class ThrowableVoidCast implements IOpenCast {
     public boolean isImplicit() {
         return true;
     }
-    
-    public static final class ThrowableVoid{
-        
+
+    public static final class ThrowableVoid {
+
     }
 
 }

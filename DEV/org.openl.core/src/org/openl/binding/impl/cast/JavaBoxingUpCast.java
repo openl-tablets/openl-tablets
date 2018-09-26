@@ -3,12 +3,12 @@ package org.openl.binding.impl.cast;
 /**
  * Emulates type boxing.
  */
-final class JavaBoxingCast implements IOpenCast {
+final class JavaBoxingUpCast implements IOpenCast {
 
-    static IOpenCast instance = new JavaBoxingCast();
+    static IOpenCast instance = new JavaBoxingUpCast();
 
-    private JavaBoxingCast() {
-        // Use JavaBoxingCast.instance
+    private JavaBoxingUpCast() {
+        // Use JavaBoxingUpCast.instance
     }
 
     public Object convert(Object from) {
@@ -16,7 +16,7 @@ final class JavaBoxingCast implements IOpenCast {
     }
 
     public int getDistance() {
-        return CastFactory.JAVA_BOXING_CAST_DISTANCE;
+        return CastFactory.JAVA_BOXING_UP_CAST_DISTANCE;
     }
 
     public boolean isImplicit() {
