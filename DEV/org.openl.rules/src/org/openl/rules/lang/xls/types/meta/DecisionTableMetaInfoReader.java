@@ -181,9 +181,10 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             IParameterDeclaration[] params = funcRow.getParams();
             int paramsCount = params == null ? 0 : params.length;
 
+            ILogicalTable valueCell = funcRow.getValueCell(c);
+
             for (int i = 0; i < paramsCount; i++) {
-                ILogicalTable valueCell = funcRow.getValueCell(c);
-                ICell cell = valueCell.getCell(0, 0);
+                ICell cell = valueCell.getCell(0, i); // See EPBDS-7774 for an example when "i" is needed
                 int row = cell.getAbsoluteRow();
                 int col = cell.getAbsoluteColumn();
 
