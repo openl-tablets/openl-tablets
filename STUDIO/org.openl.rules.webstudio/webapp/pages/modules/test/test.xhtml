@@ -276,8 +276,8 @@
                     <ui:param name="maxRowsToDisplay" value="#{testBean.getMaxNumRowsToDisplay(filteredTests, columnCount)}"/>
                     <h:panelGroup rendered="#{maxRowsToDisplay > -1}">
                         <div class='te_bigtable_mes'>
-                            <span class='te_bigtable_mes_header'>Results for the test are displayed partially (the first #{maxRowsToDisplay}) rows).</span>
-                            <span>Use 'Run into File' to see all the test results</span>
+                            <div class='te_bigtable_mes_header'>Test results are displayed partially (the first #{maxRowsToDisplay} rows).</div>
+                            <div>Use 'Run into File' to see all the test results.</div>
                         </div>
                     </h:panelGroup>
 
