@@ -9,8 +9,9 @@ import javax.faces.bean.RequestScoped;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.ITestUnit;
+import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.ProjectModel;
@@ -60,7 +61,11 @@ public class RunBean {
     }
 
     public String getTableName() {
-        return WebStudioUtils.getProjectModel().getTableById(id).getDisplayName();
+        IOpenLTable table = WebStudioUtils.getProjectModel().getTableById(id);
+        if (table == null) {
+            return null;
+        }
+        return table.getDisplayName();
     }
 
     public List<ITestUnit> getResults() {

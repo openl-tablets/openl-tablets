@@ -59,6 +59,9 @@ public final class RunTestHelper {
 
         ProjectModel model = WebStudioUtils.getProjectModel();
         IOpenLTable table = model.getTableById(id);
+        if (table == null) {
+            return null;
+        }
         String uri = table.getUri();
         IOpenMethod method = model.getMethod(uri);
         if (method instanceof OpenMethodDispatcher) {
