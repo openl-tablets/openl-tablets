@@ -67,31 +67,36 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
 
             DecisionTable decisionTable = getDecisionTable();
 
-            // Condition description
             IBaseCondition[] conditionRows = decisionTable.getConditionRows();
+            IBaseAction[] actionRows = decisionTable.getActionRows();
 
             saveSimpleRulesMetaInfo(decisionTable, region);
             saveCompoundReturnColumn(region);
 
-            for (IBaseCondition conditionRow : conditionRows) {
-                saveDescriptionMetaInfo((FunctionalRow) conditionRow, region);
+            if (conditionRows != null) {
+                // Condition description
+                for (IBaseCondition conditionRow : conditionRows) {
+                    saveDescriptionMetaInfo((FunctionalRow) conditionRow, region);
+                }
+
+                // Condition values
+                for (IBaseCondition condition : conditionRows) {
+                    FunctionalRow funcRow = (FunctionalRow) condition;
+                    saveValueMetaInfo(funcRow, region);
+                }
             }
 
-            // Action description
-            for (IBaseAction action : decisionTable.getActionRows()) {
-                saveDescriptionMetaInfo((FunctionalRow) action, region);
-            }
+            if (actionRows != null) {
+                // Action description
+                for (IBaseAction action : actionRows) {
+                    saveDescriptionMetaInfo((FunctionalRow) action, region);
+                }
 
-            // Condition values
-            for (IBaseCondition condition : decisionTable.getConditionRows()) {
-                FunctionalRow funcRow = (FunctionalRow) condition;
-                saveValueMetaInfo(funcRow, region);
-            }
-
-            // Action values
-            for (IBaseAction action : decisionTable.getActionRows()) {
-                FunctionalRow funcRow = (FunctionalRow) action;
-                saveValueMetaInfo(funcRow, region);
+                // Action values
+                for (IBaseAction action : actionRows) {
+                    FunctionalRow funcRow = (FunctionalRow) action;
+                    saveValueMetaInfo(funcRow, region);
+                }
             }
         } catch (Exception e) {
             // Something unexpected is occurred. Work without full meta info.
