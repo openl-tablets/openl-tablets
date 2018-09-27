@@ -11,7 +11,7 @@ final class EnvPropLogger extends OpenLLogger {
     @Override
     protected void discover() {
         log("System environment:");
-        for (Map.Entry<?, ?> prop : System.getenv().entrySet()) {
+        for (Map.Entry<String, String> prop : System.getenv().entrySet()) {
             log("  {} = {}", prop.getKey(), prop.getValue());
         }
     }
