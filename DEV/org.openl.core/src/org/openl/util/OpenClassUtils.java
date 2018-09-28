@@ -82,45 +82,25 @@ public final class OpenClassUtils {
             }
             return null;
         }
-        Set<IOpenClass> superClasses = new HashSet<IOpenClass>();
-        IOpenClass openClass = class1;
-        superClasses.add(openClass);
-        while (!openClass.equals(JavaOpenClass.OBJECT)) {
-            Iterable<IOpenClass> itr = openClass.superClasses();
-            boolean f = false;
-            for (IOpenClass superClass : itr) {
-                if (!superClass.getInstanceClass().isInterface()) {
-                    superClasses.add(superClass);
-                    openClass = superClass;
-                    f = true;
-                    break;
-                }
-            }
-            if (!f) {
-                break;
-            }
+        Set<Class<?>> superClasses = new HashSet<Class<?>>();
+        Class<?> clazz = class1.getInstanceClass();
+        superClasses.add(clazz);
+        while (!clazz.isInterface() && !Object.class.equals(clazz)) {
+            clazz = clazz.getSuperclass();
+            superClasses.add(clazz);
         }
-        openClass = class2;
-        if (superClasses.contains(class2)) {
-            return class2;
+        clazz = class2.getInstanceClass();
+        if (superClasses.contains(clazz)) {
+            return JavaOpenClass.getOpenClass(clazz);
         }
-        while (!openClass.equals(JavaOpenClass.OBJECT)) {
-            Iterable<IOpenClass> itr = openClass.superClasses();
-            boolean f = false;
-            for (IOpenClass superClass : itr) {
-                if (!superClass.getInstanceClass().isInterface()) {
-                    if (superClasses.contains(superClass)) {
-                        return superClass;
-                    }
-                    openClass = superClass;
-                    f = true;
-                    break;
-                }
+        while (!clazz.isInterface() && !Object.class.equals(clazz)) {
+            clazz = clazz.getSuperclass();
+            if (superClasses.contains(clazz)) {
+                return JavaOpenClass.getOpenClass(clazz);
             }
-            if (!f) {
-                break;
-            }
+            superClasses.add(clazz);
         }
+
         return null;
     }
 

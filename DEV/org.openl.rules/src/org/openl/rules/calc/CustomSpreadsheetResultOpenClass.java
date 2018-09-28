@@ -55,7 +55,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
 
     private Iterable<IOpenClass> superClasses = null;
 
-    private static IOpenClass spreadsheetResultOpenClass = JavaOpenClass.createNewOpenClass(SpreadsheetResult.class);
 
     @Override
     public IAggregateInfo getAggregateInfo() {
@@ -65,11 +64,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
     public synchronized Iterable<IOpenClass> superClasses() {
         if (superClasses == null) {
             Class<?>[] interfaces = SpreadsheetResult.class.getInterfaces();
-            Class<?> superClass = SpreadsheetResult.class;
             List<IOpenClass> superClasses = new ArrayList<IOpenClass>(interfaces.length + 1);
-            if (superClass != null) {
-                superClasses.add(spreadsheetResultOpenClass);
-            }
             for (Class<?> interf : interfaces) {
                 superClasses.add(JavaOpenClass.getOpenClass(interf));
             }
@@ -234,7 +229,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
     @Override
     public Object newInstance(IRuntimeEnv env) {
         Object[][] result = new Object[rowNames.length][columnNames.length];
-        return new SpreadsheetResult(result, rowNames.clone(), columnNames.clone(), rowTitles.clone(), columnTitles.clone(), fieldsCoordinates);
+        return new SpreadsheetResult(result,
+            rowNames.clone(),
+            columnNames.clone(),
+            rowTitles.clone(),
+            columnTitles.clone(),
+            fieldsCoordinates);
     }
 
 }
