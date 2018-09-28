@@ -827,7 +827,7 @@ public class DataTableBindHelper {
         if (field == null && loadedFieldType.equals(JavaOpenClass.OBJECT)) {
             field = DataTableBindHelper.findField(fieldName,
                 table,
-                new org.openl.rules.calc.SpreadsheetResultOpenClass(org.openl.rules.calc.SpreadsheetResult.class));
+                JavaOpenClass.getOpenClass(org.openl.rules.calc.SpreadsheetResult.class));
         }
         if (field == null) {
             String errorMessage;
@@ -883,7 +883,7 @@ public class DataTableBindHelper {
         if (field == null && loadedFieldType.equals(JavaOpenClass.OBJECT)) {
             field = DataTableBindHelper.findField(name,
                 table,
-                new org.openl.rules.calc.SpreadsheetResultOpenClass(org.openl.rules.calc.SpreadsheetResult.class));
+                JavaOpenClass.getOpenClass(org.openl.rules.calc.SpreadsheetResult.class));
         }
 
         if (field == null) {

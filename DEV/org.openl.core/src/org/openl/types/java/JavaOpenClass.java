@@ -68,7 +68,7 @@ public class JavaOpenClass extends AOpenClass {
 
     protected volatile Map<String, IOpenField> fields;
 
-    protected JavaOpenClass(Class<?> instanceClass) {
+    public JavaOpenClass(Class<?> instanceClass) {
         this(instanceClass, false);
     }
 
@@ -96,16 +96,6 @@ public class JavaOpenClass extends AOpenClass {
         }
 
         return res;
-    }
-
-    public static JavaOpenClass createNewOpenClass(Class<?> c) {
-        if (c.isInterface()) {
-            return new JavaOpenInterface(c);
-        } else if (c.isEnum()) {
-            return new JavaOpenEnum(c);
-        } else {
-            return new JavaOpenClass(c);
-        }
     }
 
     private static JavaOpenClass createOpenClass(Class<?> c, CustomJavaOpenClass annotation) {

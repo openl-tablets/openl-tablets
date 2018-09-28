@@ -16,15 +16,12 @@ import java.util.Map;
 
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.types.IAggregateInfo;
-import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaNoAggregateInfo;
 import org.openl.types.java.JavaOpenConstructor;
 import org.openl.types.java.JavaOpenMethod;
-import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor

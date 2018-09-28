@@ -94,8 +94,7 @@ final class JavaOpenClassCache {
         javaClassCache.put(IntValue.class, new JavaOpenClass(IntValue.class, true));
         javaClassCache.put(LongValue.class, new JavaOpenClass(LongValue.class, true));
         javaClassCache.put(ShortValue.class, new JavaOpenClass(ShortValue.class, true));
-        javaClassCache.put(org.openl.meta.StringValue.class,
-            new JavaOpenClass(org.openl.meta.StringValue.class, true));
+        javaClassCache.put(org.openl.meta.StringValue.class, new JavaOpenClass(org.openl.meta.StringValue.class, true));
         return javaClassCache;
     }
 
