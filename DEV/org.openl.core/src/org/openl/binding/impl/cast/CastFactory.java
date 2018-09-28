@@ -15,6 +15,7 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
+import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
@@ -345,6 +346,10 @@ public class CastFactory implements ICastFactory {
         //
         Class<?> fromClass = from.getInstanceClass();
         Class<?> toClass = to.getInstanceClass();
+        
+        if (fromClass == toClass && from != to && from instanceof ADynamicClass && to instanceof ADynamicClass) { //Dynamic classes with the same instance class
+            return null;
+        }
 
         if (ConstrainerObject.class.isAssignableFrom(fromClass)) {
             return null;
