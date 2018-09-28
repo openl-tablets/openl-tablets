@@ -73,7 +73,7 @@ public final class CastToWiderType {
                         return new CastToWiderType(type2, cast1To2, null);
                     } else {
                         if (cast1To2 != null && cast2To1 != null && cast1To2.isImplicit() && cast2To1.isImplicit()) {
-                            if (cast1To2.getDistance(type1, type2) < cast2To1.getDistance(type2, type1)) {
+                            if (cast1To2.getDistance() < cast2To1.getDistance()) {
                                 return new CastToWiderType(type2, cast1To2, null);
                             } else {
                                 return new CastToWiderType(type1, null, cast2To1);

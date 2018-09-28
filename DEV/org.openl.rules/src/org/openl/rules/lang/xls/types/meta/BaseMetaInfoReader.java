@@ -57,8 +57,9 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
                 return new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
             }
 
-            if (isHeader(row, col)) {
-                return getHeaderMetaInfo();
+            if (isHeaderRow(row)) {
+                // Header can be merged with several cells. First cell can contain meta info, others can't.
+                return isHeaderCell(row, col) ? getHeaderMetaInfo() : null;
             }
 
             if (isProperties(row, col)) {
@@ -97,7 +98,12 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
         return cell.getAbsoluteColumn() == col && cell.getAbsoluteRow() == row;
     }
 
-    private boolean isHeader(int row, int col) {
+    private boolean isHeaderRow(int row) {
+        TableSyntaxNode syntaxNode = getTableSyntaxNode();
+        return syntaxNode.getTable().getCell(0, 0).getAbsoluteRow() == row;
+    }
+
+    private boolean isHeaderCell(int row, int col) {
         TableSyntaxNode syntaxNode = getTableSyntaxNode();
         return isNeededCell(syntaxNode.getTable().getCell(0, 0), row, col);
     }

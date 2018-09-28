@@ -29,10 +29,8 @@ public class OpenLClassCastsTest {
         IOpenCast autoboxing = castFactory.getCast(integerClass, JavaOpenClass.INT);
         IOpenCast autoboxingWithAutocast = castFactory.getCast(integerClass, JavaOpenClass.DOUBLE);
         IOpenCast cast = castFactory.getCast(JavaOpenClass.DOUBLE, JavaOpenClass.INT);
-        assertTrue(autoboxing.getDistance(integerClass, JavaOpenClass.INT) < autoboxingWithAutocast.getDistance(
-                integerClass, JavaOpenClass.DOUBLE));
-        assertTrue(autoboxingWithAutocast.getDistance(integerClass, JavaOpenClass.DOUBLE) < cast.getDistance(
-                JavaOpenClass.DOUBLE, JavaOpenClass.INT));
+        assertTrue(autoboxing.getDistance() < autoboxingWithAutocast.getDistance());
+        assertTrue(autoboxingWithAutocast.getDistance() < cast.getDistance());
     }
 
     @Test
@@ -40,11 +38,11 @@ public class OpenLClassCastsTest {
         JavaOpenClass comparableClass = JavaOpenClass.getOpenClass(Comparable.class);
         IOpenCast cast = castFactory.getCast(JavaOpenClass.INT, comparableClass);
         assertNotNull(cast);
-        assertEquals(CastFactory.JAVA_BOXING_UP_CAST_DISTANCE, cast.getDistance(JavaOpenClass.INT, comparableClass));
+        assertEquals(CastFactory.JAVA_BOXING_UP_CAST_DISTANCE, cast.getDistance());
 
         cast = castFactory.getCast(JavaOpenClass.DOUBLE, JavaOpenClass.OBJECT);
         assertNotNull(cast);
-        assertEquals(CastFactory.JAVA_BOXING_UP_CAST_DISTANCE, cast.getDistance(JavaOpenClass.DOUBLE, JavaOpenClass.OBJECT));
+        assertEquals(CastFactory.JAVA_BOXING_UP_CAST_DISTANCE, cast.getDistance());
     }
     
     @Test
@@ -56,8 +54,7 @@ public class OpenLClassCastsTest {
         assertNotNull(autocast);
         
         IOpenCast autocastNoBoxing = castFactory.getCast(JavaOpenClass.INT, JavaOpenClass.DOUBLE);
-        assertTrue(autocastNoBoxing.getDistance(JavaOpenClass.INT, JavaOpenClass.DOUBLE) < autocast.getDistance(
-            JavaOpenClass.INT, doubleWrapperClass));
+        assertTrue(autocastNoBoxing.getDistance() < autocast.getDistance());
     }
 
 }

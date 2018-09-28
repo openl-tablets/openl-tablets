@@ -1,14 +1,18 @@
 package org.openl.binding.impl.cast;
 
-import org.openl.types.IOpenClass;
+final class JavaUnboxingCast implements IOpenCast {
 
-public class JavaUnboxingCast implements IOpenCast {
+    static IOpenCast instance = new JavaUnboxingCast();
+
+    private JavaUnboxingCast() {
+        // Use JavaUnboxingCast.instance
+    }
 
     public Object convert(Object from) {
         return from;
     }
 
-    public int getDistance(IOpenClass from, IOpenClass to) {
+    public int getDistance() {
         return CastFactory.JAVA_UNBOXING_CAST_DISTANCE;
     }
 

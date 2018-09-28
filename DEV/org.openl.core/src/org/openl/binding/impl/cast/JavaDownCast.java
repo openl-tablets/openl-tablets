@@ -4,12 +4,12 @@ import org.openl.binding.ICastFactory;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
-public class JavaDownCast implements IOpenCast {
+final class JavaDownCast implements IOpenCast {
     
     private IOpenClass to;
     private ICastFactory castFactory;
 
-    public JavaDownCast(IOpenClass to, ICastFactory castFactory) {
+    JavaDownCast(IOpenClass to, ICastFactory castFactory) {
         if (to == null) {
             throw new IllegalArgumentException("to arg can't be null!");
         }
@@ -46,7 +46,7 @@ public class JavaDownCast implements IOpenCast {
      * @see org.openl.types.IOpenCast#getDistance(org.openl.types.IOpenClass,
      * org.openl.types.IOpenClass)
      */
-    public int getDistance(IOpenClass from, IOpenClass to) {
+    public int getDistance() {
         return CastFactory.JAVA_DOWN_CAST_DISTANCE;
     }
 

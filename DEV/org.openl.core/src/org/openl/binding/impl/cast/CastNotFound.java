@@ -1,11 +1,11 @@
 package org.openl.binding.impl.cast;
 
-import org.openl.types.IOpenClass;
-
 /**
  * Presents absent casting. This class is used to replace null value in cache.
  */
-public final class CastNotFound implements IOpenCast {
+final class CastNotFound implements IOpenCast {
+
+    public static IOpenCast instance = new CastNotFound();
 
     private CastNotFound() {
         // Use CastNotFound.instance.
@@ -21,7 +21,7 @@ public final class CastNotFound implements IOpenCast {
     /**
      * Maximal possible distance.
      */
-    public int getDistance(IOpenClass from, IOpenClass to) {
+    public int getDistance() {
         return Integer.MAX_VALUE;
     }
 
@@ -31,6 +31,4 @@ public final class CastNotFound implements IOpenCast {
     public boolean isImplicit() {
         return false;
     }
-
-    public static IOpenCast instance = new CastNotFound();
 }

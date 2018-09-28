@@ -10,6 +10,7 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.CommonException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.Explanator;
+import org.openl.rules.ui.ParameterRegistry;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
@@ -108,6 +109,7 @@ public class MainBean {
         if (StringUtils.isNotEmpty(requestId)) {
             log.debug("Page unload for request id: {}", requestId);
             Explanator.remove(requestId);
+            ParameterRegistry.remove(requestId);
         }
     }
 }

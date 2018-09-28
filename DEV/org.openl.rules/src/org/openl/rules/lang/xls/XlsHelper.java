@@ -111,7 +111,8 @@ public abstract class XlsHelper {
         //Collect token concatenation
         List<String> collectParameters = new ArrayList<String>();
         boolean isCollect = false;
-        if (header.equals(IXlsTableNames.SIMPLE_DECISION_TABLE) || header.equals(IXlsTableNames.SMART_DECISION_TABLE)){
+        if (header.equals(IXlsTableNames.SIMPLE_DECISION_TABLE) || header.equals(IXlsTableNames.SMART_DECISION_TABLE)
+                || header.equals(IXlsTableNames.SIMPLE_DECISION_LOOKUP) || header.equals(IXlsTableNames.SMART_DECISION_LOOKUP)){
             if (headerTokens.length > 1 && headerTokens[1].getIdentifier().equals(IXlsTableNames.COLLECT)){
                 isCollect = true;
                 if (headerTokens.length > 2 && headerTokens[2].getIdentifier().equals(IXlsTableNames.COLLECT_AS)){

@@ -25,7 +25,26 @@
         <h:panelGroup id="objectParam"
             rendered="#{!parameterTreeBuilder.isHtmlTable(parameter) and !parameter.type.simple and !parameterTreeBuilder.isSpreadsheetResult(parameter.value)}">
 
-            <h:panelGroup rendered="#{empty param.loaded and (empty lazy or lazy == 'true')}">
+            <!-- New approach for lazy parameter loading (when requestId is passed) -->
+            <h:panelGroup rendered="#{(empty lazy or lazy == 'true') and not empty requestId}">
+                <div class="rf-tr param-tree lazy-param-description">
+                    <div class="rf-tr-nd">
+                        <div class="rf-trn">
+                            <ui:param name="objectParameterUrl" value="#{contextPath}/faces/pages/modules/test/objectParameter.xhtml?paramRootId=#{parameterTreeBuilder.getParameterId(requestId, parameter)}&amp;requestId=#{requestId}&amp;hasExplainLinks=#{empty hasExplainLinks or hasExplainLinks}"/>
+
+                            <a href="javascript:void(0)" onclick="$j(#{rich:element('objectParam')}).load('#{objectParameterUrl}'); ws.ui.hideLoader();"
+                               style="font-family:Arial,Verdana,sans-serif; color:inherit; text-decoration: none"><span class="rf-trn-hnd rf-trn-hnd-colps">
+                                </span><span class="rf-trn-cnt rf-trn-lbl">
+                                    #{parameterTreeBuilder.getRoot(parameter)}
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </h:panelGroup>
+
+            <!-- Old approach for lazy parameter loading (when requestId is absent) -->
+            <h:panelGroup rendered="#{empty param.loaded and (empty lazy or lazy == 'true') and empty requestId}">
                 <div class="rf-tr param-tree">
                     <div class="rf-tr-nd">
                         <div class="rf-trn">
@@ -42,7 +61,8 @@
                 </div>
             </h:panelGroup>
 
-            <rich:tree value="#{parameterTreeBuilder.getTree(parameter, empty hasExplainLinks or hasExplainLinks == 'true')}" var="node"
+            <!-- When parameter is not lazy or when old approach for lazy loading is used (when requestId is absent) -->
+            <rich:tree value="#{parameterTreeBuilder.getTree(requestId, parameter, empty hasExplainLinks or hasExplainLinks == 'true')}" var="node"
                 rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter"
                 rendered="#{!empty param.loaded or lazy == 'false'}" toggleType="client" selectionType="client"
                 styleClass="param-tree" toggleNodeEvent="click">
