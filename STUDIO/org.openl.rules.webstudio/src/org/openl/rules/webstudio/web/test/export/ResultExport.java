@@ -34,6 +34,8 @@ public abstract class ResultExport extends BaseExport {
                     if (inPage == 0 && pageNum > 1) {
                         // AutoSize previous sheet
                         autoSizeColumns(sheet);
+                        // Because previously we added regions without validation.
+                        sheet.validateMergedRegions();
 
                         sheet = workbook.createSheet("Result " + pageNum);
                         listsWithResults.add(new ArrayList<TestUnitsResults>());
@@ -53,6 +55,8 @@ public abstract class ResultExport extends BaseExport {
                 sheet.trackAllColumnsForAutoSizing();
                 parameterExport.write(sheet, resultsList);
                 autoSizeColumns(sheet);
+                // Because previously we added regions without validation.
+                sheet.validateMergedRegions();
             }
 
             workbook.write(outputStream);
