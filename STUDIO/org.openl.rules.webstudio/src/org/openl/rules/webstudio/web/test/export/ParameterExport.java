@@ -296,7 +296,8 @@ class ParameterExport extends BaseExport {
             if (height > 1) {
                 int lastRow = rowNum + height - 1;
                 CellRangeAddress region = new CellRangeAddress(rowNum, lastRow, colNum, colNum);
-                row.getSheet().addMergedRegion(region);
+                // addMergedRegion() is too slow. will invoke validation later.
+                row.getSheet().addMergedRegionUnsafe(region);
             }
 
         }
