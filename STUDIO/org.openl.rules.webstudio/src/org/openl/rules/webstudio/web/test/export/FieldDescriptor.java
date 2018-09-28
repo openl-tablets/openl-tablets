@@ -12,6 +12,16 @@ class FieldDescriptor {
     private final IOpenField field;
     private final List<FieldDescriptor> children;
 
+    /**
+     * Find all non empty fields from all test results.
+     * If some field of any test result is not null, it will be included in result.
+     * If some field is null in all test results, it will not be included in result.
+     * WARNING: This method is very expensive! Don't invoke it too often.
+     *
+     * @param type Type of a checking object
+     * @param values All possible values for a given type. Is got from test result.
+     * @return all non empty fields from all test results (values).
+     */
     static List<FieldDescriptor> nonEmptyFields(IOpenClass type, List<?> values) {
         if (type.isArray()) {
             type = type.getComponentClass();

@@ -41,13 +41,17 @@ class ParameterExport extends BaseExport {
 
             rowNum += 2; // Skip one row
 
+            // Finding non empty fields from the test results is very expensive. Find them only once and then reuse
+            // everywhere where needed.
+            List<List<FieldDescriptor>> nonEmptyFields = getAllNonEmptyFields(test.getTestSuite().getTests());
+
             // Create header
             final Cursor start = new Cursor(rowNum, colNum);
-            Cursor lowestRight = writeHeaderForFields(sheet, start, test);
+            Cursor lowestRight = writeHeaderForFields(sheet, start, test, nonEmptyFields);
             rowNum = lowestRight.getRowNum() + 1;
             colNum = FIRST_COLUMN;
 
-            rowNum = writeValuesForFields(sheet, new Cursor(rowNum, colNum), test);
+            rowNum = writeValuesForFields(sheet, new Cursor(rowNum, colNum), test, nonEmptyFields);
 
             rowNum += SPACE_BETWEEN_RESULTS;
         }
@@ -67,7 +71,10 @@ class ParameterExport extends BaseExport {
         }
     }
 
-    private Cursor writeHeaderForFields(SXSSFSheet sheet, Cursor start, TestUnitsResults test) {
+    private Cursor writeHeaderForFields(SXSSFSheet sheet,
+            Cursor start,
+            TestUnitsResults test,
+            List<List<FieldDescriptor>> nonEmptyFields) {
         TreeSet<WriteTask> tasks = new TreeSet<>();
 
         int rowNum = start.getRowNum();
@@ -81,7 +88,7 @@ class ParameterExport extends BaseExport {
             ParameterWithValueDeclaration param = params[i];
             boolean hasPK = isHasPK(param);
 
-            List<FieldDescriptor> fields = FieldDescriptor.nonEmptyFields(param.getType(), valuesForAllCases(testSuite.getTests(), i));
+            List<FieldDescriptor> fields = nonEmptyFields.get(i);
             if (fields == null || fields.isEmpty()) {
                 tasks.add(new WriteTask(new Cursor(rowNum, colNum++), param.getName(), styles.header));
                 continue;
@@ -95,7 +102,7 @@ class ParameterExport extends BaseExport {
             colNum = addHeaderTasks(tasks, new Cursor(rowNum, colNum), fields, prefix);
         }
 
-        return performWrite(sheet, start, tasks, getLastColumn(test));
+        return performWrite(sheet, start, tasks, getLastColumn(test, nonEmptyFields));
     }
 
     private boolean isHasPK(ParameterWithValueDeclaration param) {
@@ -124,17 +131,20 @@ class ParameterExport extends BaseExport {
         return colNum;
     }
 
-    private int writeValuesForFields(Sheet sheet, Cursor start, TestUnitsResults test) {
+    private int writeValuesForFields(Sheet sheet,
+            Cursor start,
+            TestUnitsResults test,
+            List<List<FieldDescriptor>> nonEmptyFields) {
         int rowNum = start.getRowNum();
         int colNum = FIRST_COLUMN;
-        int lastColNum = getLastColumn(test);
+        int lastColNum = getLastColumn(test, nonEmptyFields);
 
         TestDescription[] descriptions = test.getTestSuite().getTests();
         for (TestDescription description : descriptions) {
             TreeSet<WriteTask> tasks = new TreeSet<>();
 
             // ID
-            int maxHeight = getMaxHeight(descriptions, description);
+            int maxHeight = getMaxHeight(description, nonEmptyFields);
             tasks.add(new WriteTask(new Cursor(rowNum, colNum++), description.getId(), styles.parameterValue, maxHeight));
 
             ParameterWithValueDeclaration[] executionParams = description.getExecutionParams();
@@ -142,7 +152,7 @@ class ParameterExport extends BaseExport {
                 ParameterWithValueDeclaration parameter = executionParams[p];
                 Object value = parameter.getValue();
 
-                List<FieldDescriptor> fields = FieldDescriptor.nonEmptyFields(parameter.getType(), valuesForAllCases(descriptions, p));
+                List<FieldDescriptor> fields = nonEmptyFields.get(p);
                 if (fields == null) {
                     tasks.add(new WriteTask(new Cursor(rowNum, colNum++), value, styles.parameterValue, maxHeight));
                     continue;
@@ -253,12 +263,12 @@ class ParameterExport extends BaseExport {
 
     }
 
-    private int getMaxHeight(TestDescription[] descriptions, TestDescription description) {
+    private int getMaxHeight(TestDescription description, List<List<FieldDescriptor>> nonEmptyFields) {
         int maxHeight = 1;
         ParameterWithValueDeclaration[] executionParams = description.getExecutionParams();
         for (int i = 0; i < executionParams.length; i++) {
             ParameterWithValueDeclaration param = executionParams[i];
-            List<FieldDescriptor> fields = FieldDescriptor.nonEmptyFields(param.getType(), valuesForAllCases(descriptions, i));
+            List<FieldDescriptor> fields = nonEmptyFields.get(i);
 
             int rowHeight = getRowHeight(param.getValue(), fields);
             if (rowHeight > maxHeight) {
@@ -266,6 +276,19 @@ class ParameterExport extends BaseExport {
             }
         }
         return maxHeight;
+    }
+
+    private List<List<FieldDescriptor>> getAllNonEmptyFields(TestDescription[] descriptions) {
+        TestDescription description = descriptions[0];
+        ParameterWithValueDeclaration[] executionParams = description.getExecutionParams();
+
+        List<List<FieldDescriptor>> result = new ArrayList<>(executionParams.length);
+        for (int i = 0; i < executionParams.length; i++) {
+            ParameterWithValueDeclaration param = executionParams[i];
+            result.add(FieldDescriptor.nonEmptyFields(param.getType(), valuesForAllCases(descriptions, i)));
+        }
+
+        return result;
     }
 
     /**
@@ -316,7 +339,7 @@ class ParameterExport extends BaseExport {
         }
     }
 
-    private int getLastColumn(TestUnitsResults test) {
+    private int getLastColumn(TestUnitsResults test, List<List<FieldDescriptor>> nonEmptyFields) {
         int lastColumn = FIRST_COLUMN; // ID column
         TestSuite testSuite = test.getTestSuite();
         ParameterWithValueDeclaration[] params = testSuite.getTest(0).getExecutionParams();
@@ -325,7 +348,7 @@ class ParameterExport extends BaseExport {
             if (isHasPK(param)) {
                 lastColumn++; // _PK_ column
             }
-            List<FieldDescriptor> fields = FieldDescriptor.nonEmptyFields(param.getType(), valuesForAllCases(testSuite.getTests(), i));
+            List<FieldDescriptor> fields = nonEmptyFields.get(i);
             if (fields == null) {
                 // Simple type
                 lastColumn++;
