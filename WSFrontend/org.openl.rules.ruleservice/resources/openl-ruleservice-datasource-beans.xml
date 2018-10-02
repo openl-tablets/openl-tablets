@@ -21,7 +21,7 @@
         </constructor-arg>
     </bean>
 
-    <bean id="rulesDeployerService" class="org.openl.rules.ruleservice.deployer.RulesDeployerService" lazy-init="true">
+    <bean id="rulesDeployerService" class="org.openl.rules.ruleservice.deployer.RulesDeployerService">
         <constructor-arg name="repository" ref="repository"/>
     </bean>
 

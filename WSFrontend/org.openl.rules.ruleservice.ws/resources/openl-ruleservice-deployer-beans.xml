@@ -3,9 +3,13 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="rulesDeployerRestControllerInitializingBean" class="org.openl.rules.ruleservice.rest.RulesDeployerRestServiceInitializingBean">
+    <bean id="rulesDeployerRestController" class="org.openl.rules.ruleservice.deployer.RulesDeployerRestController" lazy-init="true">
         <constructor-arg name="rulesDeployerService" ref="rulesDeployerService"/>
-        <property name="enabled" value="${ruleservice.deployer.enable}"/>
+    </bean>
+
+    <bean id="rulesDeployerRestControllerInitializingBean" class="org.openl.rules.ruleservice.rest.RulesDeployerRestServiceInitializingBean">
+        <property name="enabled" value="#{${ruleservice.deployer.enable} and '${production-repository.factory}' ne 'org.openl.rules.repository.LocalRepositoryFactory'}"/>
+        <lookup-method name="getRulesDeployerRestController" bean="rulesDeployerRestController"/>
     </bean>
 
 </beans>
