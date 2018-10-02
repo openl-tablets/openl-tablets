@@ -23,7 +23,8 @@ public interface RuleService {
      * Redeploys a service.
      * 
      * @param serviceDescription service description
-     * @throws RuleServiceRedeployException
+     * @throws RuleServiceUndeployException
+     * @throws RuleServiceDeployException
      */
     void redeploy(ServiceDescription serviceDescription) throws RuleServiceDeployException, RuleServiceUndeployException;
 
