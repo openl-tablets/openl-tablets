@@ -8,7 +8,7 @@
     </bean>
 
     <bean id="rulesDeployerRestControllerInitializingBean" class="org.openl.rules.ruleservice.rest.RulesDeployerRestServiceInitializingBean">
-        <property name="enabled" value="#{${ruleservice.deployer.enable} and '${production-repository.factory}' ne 'org.openl.rules.repository.LocalRepositoryFactory'}"/>
+        <property name="enabled" value="${ruleservice.deployer.enable}"/>
         <lookup-method name="getRulesDeployerRestController" bean="rulesDeployerRestController"/>
     </bean>
 
