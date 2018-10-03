@@ -55,10 +55,14 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
     }
 
     public File get(long date) {
-        List<File> files = new ArrayList<File>(
+        List<File> files = new ArrayList<>(
                 storage.list(new AgeFileFilter(date)));
         if (!files.isEmpty()) {
-            return files.get(files.size() - 1);
+            for (File file : files) {
+                if (file.lastModified() == date) {
+                    return file;
+                }
+            }
         }
         return null;
     }
