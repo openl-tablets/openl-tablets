@@ -273,11 +273,11 @@ public class XlsLoader {
 
         preprocessedWorkBooks.add(uri);
 
+        TablePartProcessor tablePartProcessor = new TablePartProcessor();
         XlsWorkbookSourceCodeModule workbookSourceModule = new XlsWorkbookSourceCodeModule(source);
         messages.addAll(tablePartProcessor.getMessages());
         int nsheets = workbookSourceModule.getWorkbookLoader().getNumberOfSheets();
         WorksheetSyntaxNode[] sheetNodes = new WorksheetSyntaxNode[nsheets];
-        TablePartProcessor tablePartProcessor = new TablePartProcessor(messages);
 
         for (int i = 0; i < nsheets; i++) {
             XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(i, workbookSourceModule);
