@@ -26,6 +26,13 @@ public final class OpenLFuzzySearch {
         }
     };
 
+    public static ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[][]>>> openlClassRecursivelyCacheForGetterMethods = new ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[][]>>>() {
+        @Override
+        protected Map<IOpenClass, Map<Token, IOpenMethod[][]>> initialValue() {
+            return new HashMap<IOpenClass, Map<Token, IOpenMethod[][]>>();
+        }
+    };
+
     public static ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[]>>> openlClassCacheForSetterMethods = new ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[]>>>() {
         @Override
         protected Map<IOpenClass, Map<Token, IOpenMethod[]>> initialValue() {
@@ -35,6 +42,7 @@ public final class OpenLFuzzySearch {
 
     public static void clearCaches() {
         openlClassCacheForSetterMethods.remove();
+        openlClassRecursivelyCacheForGetterMethods.remove();
         openlClassRecursivelyCacheForSetterMethods.remove();
     }
 
@@ -49,7 +57,16 @@ public final class OpenLFuzzySearch {
                     if (!method.isStatic() && method.getSignature().getNumberOfParameters() == 1 && method.getName()
                         .startsWith("set")) {
                         String t = OpenLFuzzySearch.toTokenString(method.getName().substring(3));
-                        LinkedList<IOpenMethod> m = map.get(t);
+                        
+                        LinkedList<IOpenMethod> m = null;
+                        for (Entry<Token, LinkedList<IOpenMethod>> entry : map.entrySet()) {
+                            Token token = entry.getKey();
+                            if (token.getValue().equals(t)) {
+                                m = entry.getValue();
+                                break;
+                            }
+                        }
+                        
                         if (m == null) {
                             m = new LinkedList<IOpenMethod>();
                             m.add(method);
@@ -68,15 +85,50 @@ public final class OpenLFuzzySearch {
         return ret;
     }
 
-    @SuppressWarnings("unchecked")
     public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassSetterMethodsRecursively(IOpenClass openClass) {
-        Map<IOpenClass, Map<Token, IOpenMethod[][]>> cache = openlClassRecursivelyCacheForSetterMethods.get();
+        return tokensMapToOpenClassSetterMethodsRecursively(openClass, null);
+    }
+
+    public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassSetterMethodsRecursively(IOpenClass openClass,
+            String tokenPrefix) {
+        return tokensMapToOpenClassMethodsRecursively(openClass, tokenPrefix, true);
+    }
+
+    public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassGetterMethodsRecursively(IOpenClass openClass) {
+        return tokensMapToOpenClassGetterMethodsRecursively(openClass, null);
+    }
+
+    public static Map<Token, IOpenMethod[][]> tokensMapToOpenClassGetterMethodsRecursively(IOpenClass openClass,
+            String tokenPrefix) {
+        return tokensMapToOpenClassMethodsRecursively(openClass, tokenPrefix, false);
+    }
+    
+    @SuppressWarnings("unchecked")
+    private static Map<Token, IOpenMethod[][]> tokensMapToOpenClassMethodsRecursively(IOpenClass openClass,
+            String tokenPrefix, boolean setterMethods) {
+        Map<IOpenClass, Map<Token, IOpenMethod[][]>> cache = null;
+        if (setterMethods) {
+            cache = openlClassRecursivelyCacheForSetterMethods.get();
+        } else {
+            cache = openlClassRecursivelyCacheForGetterMethods.get();
+        }
         Map<Token, IOpenMethod[][]> ret = cache.get(openClass);
         if (ret == null) {
             Map<String, Integer> distanceMap = new HashMap<String, Integer>(); // For
                                                                                // optimization
-            Map<Token, LinkedList<LinkedList<IOpenMethod>>> map = buildTokensMapToOpenClassSetterMethodsRecursively(
-                openClass, distanceMap, 0);
+            Map<Token, LinkedList<LinkedList<IOpenMethod>>> map = null;
+            if (StringUtils.isBlank(tokenPrefix)) {
+                map = buildTokensMapToOpenClassMethodsRecursively(openClass, distanceMap, 0, setterMethods);
+            } else {
+                map = buildTokensMapToOpenClassMethodsRecursively(openClass, distanceMap, 1, setterMethods);
+                Map<Token, LinkedList<LinkedList<IOpenMethod>>> updatedMap = new HashMap<>();
+                for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : map.entrySet()) {
+                    Token updatedToken = new Token(toTokenString(tokenPrefix + " " + entry.getKey().getValue()),
+                        entry.getKey().getDistance());
+                    updatedMap.put(updatedToken, entry.getValue());
+                }
+                map = updatedMap;
+            }
 
             Map<Token, LinkedList<IOpenMethod>[]> tmp = new HashMap<Token, LinkedList<IOpenMethod>[]>();
             for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : map.entrySet()) {
@@ -98,24 +150,45 @@ public final class OpenLFuzzySearch {
         return ret;
     }
 
-    private static boolean isSetterMethod(IOpenMethod method) {
+    public static boolean isSetterMethod(IOpenMethod method) {
         return !method.isStatic() && method.getSignature().getNumberOfParameters() == 1 && method.getName()
             .startsWith("set");
     }
+    
+    public static boolean isGetterMethod(IOpenMethod method) {
+        return !method.isStatic() && method.getSignature().getNumberOfParameters() == 0 && method.getName()
+            .startsWith("get");
+    }
 
-    private static Map<Token, LinkedList<LinkedList<IOpenMethod>>> buildTokensMapToOpenClassSetterMethodsRecursively(
-            IOpenClass openClass, Map<String, Integer> distanceMap, int deepLevel) {
+    private static Map<Token, LinkedList<LinkedList<IOpenMethod>>> buildTokensMapToOpenClassMethodsRecursively(
+            IOpenClass openClass,
+            Map<String, Integer> distanceMap,
+            int deepLevel,
+            boolean setterMethods) {
         if (deepLevel >= DEEP_LEVEL) {
             return Collections.emptyMap();
         }
         Map<Token, LinkedList<LinkedList<IOpenMethod>>> ret = new HashMap<Token, LinkedList<LinkedList<IOpenMethod>>>();
         if (!openClass.isSimple()) {
             for (IOpenMethod method : openClass.getMethods()) {
-                if (isSetterMethod(method)) {
+                boolean g;
+                if (setterMethods) {
+                    g = isSetterMethod(method);
+                } else {
+                    g = isGetterMethod(method);
+                }
+                if (g) {
                     String t = OpenLFuzzySearch.toTokenString(method.getName().substring(3));
                     LinkedList<IOpenMethod> methods = new LinkedList<IOpenMethod>();
                     methods.add(method);
-                    LinkedList<LinkedList<IOpenMethod>> x = ret.get(t);
+                    LinkedList<LinkedList<IOpenMethod>> x = null;
+                    for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : ret.entrySet()) {
+                        Token token = entry.getKey();
+                        if (token.getValue().equals(t)) {
+                            x = entry.getValue();
+                            break;
+                        }
+                    }
                     if (x == null) {
                         x = new LinkedList<LinkedList<IOpenMethod>>();
                         ret.put(new Token(t, deepLevel), x);
@@ -133,15 +206,31 @@ public final class OpenLFuzzySearch {
                             }
                         }
                     }
+                    
+                    IOpenClass type = null;
+                    if (setterMethods) {
+                        type = method.getSignature().getParameterType(0);
+                    } else {
+                        type = method.getType();
+                    }
 
-                    if (!method.getSignature().getParameterType(0).isSimple() && !method.getSignature()
-                        .getParameterType(0)
-                        .isArray()) {
-                        Map<Token, LinkedList<LinkedList<IOpenMethod>>> map = buildTokensMapToOpenClassSetterMethodsRecursively(
-                            method.getSignature().getParameterType(0), distanceMap, deepLevel + 1);
+                    if (!type.isSimple() && !type.isArray()) {
+                        Map<Token, LinkedList<LinkedList<IOpenMethod>>> map = buildTokensMapToOpenClassMethodsRecursively(
+                            type,
+                            distanceMap,
+                            deepLevel + 1,
+                            setterMethods);
                         for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : map.entrySet()) {
                             String k = t + " " + entry.getKey().getValue();
-                            LinkedList<LinkedList<IOpenMethod>> x1 = ret.get(k);
+                            LinkedList<LinkedList<IOpenMethod>> x1 = null;
+                            for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry1 : ret.entrySet()) {
+                                Token token = entry1.getKey();
+                                if (token.getValue().equals(k)) {
+                                    x1 = entry1.getValue();
+                                    break;
+                                }
+                            }
+                            
                             for (LinkedList<IOpenMethod> y : entry.getValue()) {
                                 y.addFirst(method);
                                 if (x1 == null) {
@@ -239,6 +328,8 @@ public final class OpenLFuzzySearch {
     }
 
     public static Token[] openlFuzzyExtract(String source, Token[] tokens) {
+        source = toTokenString(source);
+        
         String[] sourceTokens = source.split(" ");
 
         String[][] tokensList = new String[tokens.length][];

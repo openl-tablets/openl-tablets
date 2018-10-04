@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
@@ -37,7 +38,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     /**
      * Map for condition cells in header to parameter index
      */
-    private final Map<CellKey, Integer> simpleRulesConditionMap = new HashMap<>();
+    private final Map<CellKey, Pair<String, IOpenClass>> simpleRulesConditionMap = new HashMap<>();
 
     /**
      * Map for compound return column descriptions in SimpleRules header
@@ -115,8 +116,9 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     }
 
     private void saveSimpleRulesMetaInfo(DecisionTable decisionTable, IGridRegion region) {
-        for (Map.Entry<CellKey, Integer> entry : simpleRulesConditionMap.entrySet()) {
-            Integer paramIndex = entry.getValue();
+        for (Map.Entry<CellKey, Pair<String, IOpenClass>> entry : simpleRulesConditionMap.entrySet()) {
+            String conditionStatement = entry.getValue().getLeft();
+            IOpenClass conditionType = entry.getValue().getRight();
             CellKey key = entry.getKey();
             int row = key.getRow();
             int col = key.getColumn();
@@ -131,9 +133,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                 continue;
             }
 
-            String text = String.format("Condition for %s: %s",
-                    decisionTable.getSignature().getParameterName(paramIndex),
-                    decisionTable.getSignature().getParameterType(paramIndex).getDisplayName(0));
+            String text = String.format("Condition for %s: %s", conditionStatement, conditionType.getDisplayName(0));
             SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
                     cellValue.length() - 1,
                     text,
@@ -170,8 +170,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
     }
 
-    public void addSimpleRulesCondition(int row, int col, int paramIndex) {
-        simpleRulesConditionMap.put(CellKey.CellKeyFactory.getCellKey(col, row), paramIndex);
+    public void addSimpleRulesCondition(int row, int col, String conditionStatement, IOpenClass conditionType) {
+        simpleRulesConditionMap.put(CellKey.CellKeyFactory.getCellKey(col, row), Pair.of(conditionStatement, conditionType));
     }
 
     public void addSimpleRulesReturn(int row, int col, String description) {
