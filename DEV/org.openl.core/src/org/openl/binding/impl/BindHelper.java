@@ -197,7 +197,7 @@ public class BindHelper {
 
         ErrorBoundNode boundNode = new ErrorBoundNode(syntaxNode);
 
-        return new BoundCode(parsedCode, boundNode, bindingContext.getErrors(), bindingContext.getMessages(), bindingContext.getLocalVarFrameSize());
+        return new BoundCode(parsedCode, boundNode, bindingContext.getErrors(), bindingContext.getMessages());
     }
 
     public static IBoundCode makeInvalidCode(IParsedCode parsedCode,
@@ -207,7 +207,7 @@ public class BindHelper {
 
         ErrorBoundNode boundNode = new ErrorBoundNode(syntaxNode);
 
-        return new BoundCode(parsedCode, boundNode, errors, messages, 0);
+        return new BoundCode(parsedCode, boundNode, errors, messages);
     }
 
     /**
