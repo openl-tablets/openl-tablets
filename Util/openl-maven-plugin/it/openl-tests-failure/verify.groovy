@@ -21,8 +21,10 @@ try {
     assert lines.any { it.contains('Spreadsheets.calcTest#2 field $Value$Sum expected: <1> but was <11>, field $Value$Increment.$Value$IncA expected: <2> but was <6>, field $Value$Increment.$Value$IncB expected: <3> but was <7>') }
     assert lines.any { it.contains('Spreadsheets.calcTest#3 field $Value$Increment.$Value$IncA expected: <6> but was <4>') }
 
-    // Check summary for tests in error
-    //assert lines.any { it.contains('Rules With Error.TryGreetingTest#2 java.lang.ArithmeticException') }
+    // Check GreetingTest 
+    assert lines.any { it.contains('Tests run: 5, Failures: 2, Errors: 0. Time elapsed: < 0.001 sec. <<< FAILURE!') }
+    assert lines.any { it.contains('  Test case: #3. Time elapsed: < 0.001 sec. <<< FAILURE!') }
+    assert lines.any { it.contains('  Test case: #5. Time elapsed: < 0.001 sec. <<< FAILURE!') }
 
     // Check total tests statistics
     assert lines.any { it.contains('Total tests run: 23, Failures: 9, Errors: 0') }
