@@ -24,5 +24,6 @@
         <module>org.openl.rules.ruleservice.ws.logging.elasticsearch.annotation</module>
         <module>org.openl.rules.ruleservice.ws.logging.elasticsearch</module>
         <module>org.openl.rules.ruleservice.ws</module>
+        <module>org.openl.rules.ruleservice.deployer</module>
     </modules>
 </project>

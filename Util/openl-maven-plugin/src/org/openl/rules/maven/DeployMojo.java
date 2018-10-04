@@ -6,13 +6,14 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
-import org.openl.rules.workspace.deploy.ProductionRepositoryDeployer;
+import org.openl.rules.ruleservice.deployer.RulesDeployerService;
+import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Properties;
 
 /**
  * Created by dl on 6/15/17.
@@ -57,7 +58,7 @@ public class DeployMojo extends BaseOpenLMojo {
             throw new IllegalStateException("The server configuration with name " + deployServer + " doesn't exist");
         }
 
-        Map<String, Object> properties = new HashMap<String, Object>();
+        Properties properties = new Properties();
         if ("jdbc".equals(deployType)) {
             properties.put("production-repository.factory", "org.openl.rules.repository.db.JdbcDBRepositoryFactory");
         }
@@ -65,7 +66,9 @@ public class DeployMojo extends BaseOpenLMojo {
         properties.put("production-repository.login", server.getUsername());
         properties.put("production-repository.password", server.getPassword());
 
-        new ProductionRepositoryDeployer().deployInternal(zipFile, properties, true);
+        try (RulesDeployerService deployerService = new RulesDeployerService(properties)) {
+            deployerService.deploy(FileUtils.getBaseName(zipFile.getName()), new FileInputStream(zipFile), false);
+        }
     }
 
     private File findZipFile() {

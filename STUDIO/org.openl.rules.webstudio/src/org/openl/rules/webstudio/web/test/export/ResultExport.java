@@ -24,7 +24,7 @@ public abstract class ResultExport extends BaseExport {
             ParameterExport parameterExport = new ParameterExport(styles);
 
             SXSSFSheet sheet = workbook.createSheet("Result " + 1);
-            listsWithResults.add(new ArrayList<TestUnitsResults>());
+            listsWithResults.add(new ArrayList<>());
             sheet.trackAllColumnsForAutoSizing();
             int rowNum = FIRST_ROW;
             for (int i = 0; i < results.length; i++) {
@@ -34,9 +34,11 @@ public abstract class ResultExport extends BaseExport {
                     if (inPage == 0 && pageNum > 1) {
                         // AutoSize previous sheet
                         autoSizeColumns(sheet);
+                        // Because previously we added regions without validation.
+                        sheet.validateMergedRegions();
 
                         sheet = workbook.createSheet("Result " + pageNum);
-                        listsWithResults.add(new ArrayList<TestUnitsResults>());
+                        listsWithResults.add(new ArrayList<>());
                         sheet.trackAllColumnsForAutoSizing();
                         rowNum = FIRST_ROW;
                     }
@@ -50,9 +52,14 @@ public abstract class ResultExport extends BaseExport {
             for (int i = 0; i < listsWithResults.size(); i++) {
                 List<TestUnitsResults> resultsList = listsWithResults.get(i);
                 sheet = workbook.createSheet("Parameters " + (i + 1));
-                sheet.trackAllColumnsForAutoSizing();
+
+                // Tracking all columns for auto sizing is expensive
+//                sheet.trackAllColumnsForAutoSizing();
                 parameterExport.write(sheet, resultsList);
-                autoSizeColumns(sheet);
+//                autoSizeColumns(sheet);
+
+                // Because previously we added regions without validation.
+                sheet.validateMergedRegions();
             }
 
             workbook.write(outputStream);

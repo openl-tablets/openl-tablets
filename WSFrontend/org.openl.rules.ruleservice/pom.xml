@@ -85,6 +85,10 @@
             <artifactId>commons-beanutils</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.deployer</artifactId>
+        </dependency>
+        <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
         </dependency>

@@ -1,19 +1,16 @@
 package org.openl.rules.ruleservice.loader;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.file.Files;
-import java.util.List;
 
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
-import org.openl.rules.workspace.deploy.ProductionRepositoryDeployer;
+import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 import org.openl.util.FileUtils;
-import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -25,8 +22,8 @@ public class DeployClasspathJarsBean implements InitializingBean {
     private final Logger log = LoggerFactory.getLogger(DeployClasspathJarsBean.class);
 
     private boolean enabled = false;
-    private Repository repository;
-    private boolean includeVersionInDeploymentName = false;
+
+    private RulesDeployerService rulesDeployerService;
 
     public boolean isEnabled() {
         return enabled;
@@ -39,12 +36,11 @@ public class DeployClasspathJarsBean implements InitializingBean {
     public DeployClasspathJarsBean() {
     }
 
-    public void setRepository(Repository repository) {
-        this.repository = repository;
+    public void setRulesDeployerService(RulesDeployerService rulesDeployerService) {
+        this.rulesDeployerService = rulesDeployerService;
     }
 
-    private void deployJarForJboss(URL resourceURL,
-            ProductionRepositoryDeployer productionRepositoryDeployer) throws Exception {
+    private void deployJarForJboss(URL resourceURL) throws Exception {
         // This reflection implementation for JBoss vfs
         URLConnection conn = resourceURL.openConnection();
         Object content = conn.getContent();
@@ -53,36 +49,16 @@ public class DeployClasspathJarsBean implements InitializingBean {
             String urlString = resourceURL.toString();
             urlString = urlString.substring(0, urlString.lastIndexOf(".jar") + 4);
             Object jarFile = new URL(urlString).openConnection().getContent();
-            java.lang.reflect.Method getChildrenMethod = clazz.getMethod("getChildren");
-            List<?> children = (List<?>) getChildrenMethod.invoke(jarFile);
-            if (!children.isEmpty()) {
-                Method getNameMethod = clazz.getMethod("getName");
-                String name = (String) getNameMethod.invoke(jarFile);
-                File tempDir = Files.createTempDirectory("openl").toFile();
-                try {
-                    File newProjectDir = new File(tempDir, FileUtils.getBaseName(name));
-                    Class<?> VFSUtilsClazz = Thread.currentThread()
-                        .getContextClassLoader()
-                        .loadClass("org.jboss.vfs.VFSUtils");
-                    java.lang.reflect.Method recursiveCopyMethod = VFSUtilsClazz.getMethod("recursiveCopy",
-                        clazz,
-                        File.class);
-                    newProjectDir.mkdirs();
-                    for (Object child : children) {
-                        recursiveCopyMethod.invoke(VFSUtilsClazz, child, newProjectDir);
-                    }
 
-                    File tmpJarFile = new File(tempDir, name);
-                    ZipUtils.archive(newProjectDir, tmpJarFile);
-                    productionRepositoryDeployer.deployInternal(tmpJarFile, repository, true, includeVersionInDeploymentName);
-                } finally {
-                    /* Clean up */
-                    FileUtils.deleteQuietly(tempDir);
-                }
-            } else {
-                throw new RuleServiceRuntimeException(
-                    "Protocol VFS supports only for JBoss VFS. URL content must be org.jboss.vfs.VirtualFile!");
-            }
+            Method getNameMethod = clazz.getMethod("getName");
+            String jarName = (String) getNameMethod.invoke(jarFile);
+
+            Method getPhysicalFileMethod = clazz.getMethod("getPhysicalFile");
+            File contentsFile = (File) getPhysicalFileMethod.invoke(jarFile);
+            File dir = contentsFile.getParentFile();
+            File physicalFile = new File(dir, jarName);
+
+            rulesDeployerService.deploy(FileUtils.getBaseName(jarName), new FileInputStream(physicalFile), false);
         } else {
             throw new RuleServiceRuntimeException(
                 "Protocol VFS supports only for JBoss VFS. URL content must be org.jboss.vfs.VirtualFile!");
@@ -98,7 +74,6 @@ public class DeployClasspathJarsBean implements InitializingBean {
         PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
         Resource[] resources = prpr.getResources(
             PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
-        ProductionRepositoryDeployer productionRepositoryDeployer = new ProductionRepositoryDeployer();
         for (Resource rulesXmlResource : resources) {
             File file;
             try {
@@ -108,7 +83,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
                     file = org.springframework.util.ResourceUtils.getFile(jarUrl);
                 } else if ("vfs".equals(rulesXmlResource.getURL().getProtocol())) {
                     // This reflection implementation for JBoss vfs
-                    deployJarForJboss(resourceURL, productionRepositoryDeployer);
+                    deployJarForJboss(resourceURL);
                     continue;
                 } else {
                     throw new RuleServiceRuntimeException(
@@ -122,15 +97,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
                 throw new IOException("File hasn't been found. File: " + file.getAbsolutePath());
             }
 
-            productionRepositoryDeployer.deployInternal(file, repository, true, includeVersionInDeploymentName);
+            rulesDeployerService.deploy(FileUtils.getBaseName(file.getName()), new FileInputStream(file), false);
         }
-    }
-
-    public void setIncludeVersionInDeploymentName(boolean includeVersionInDeploymentName) {
-        this.includeVersionInDeploymentName = includeVersionInDeploymentName;
-    }
-
-    public boolean getIncludeVersionInDeploymentName() {
-        return includeVersionInDeploymentName;
     }
 }

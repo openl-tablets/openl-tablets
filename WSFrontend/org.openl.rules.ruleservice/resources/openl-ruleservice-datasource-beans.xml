@@ -21,6 +21,10 @@
         </constructor-arg>
     </bean>
 
+    <bean id="rulesDeployerService" class="org.openl.rules.ruleservice.deployer.RulesDeployerService">
+        <constructor-arg name="repository" ref="repository"/>
+    </bean>
+
     <!-- Data source storage that provides information about deployments, projects and their properties and version -->
     <bean id="fileSystemDataSource" class="org.openl.rules.ruleservice.loader.FileSystemDataSource"
           depends-on="unpackClasspathAutoJarToDirectoryBean">
@@ -51,9 +55,8 @@
     </bean>
 
     <bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean">
-        <property name="repository" ref="repository"/>
+        <property name="rulesDeployerService" ref="rulesDeployerService"/>
         <property name="enabled"
                   value="#{${ruleservice.datasource.deploy.classpath.jars} and '${production-repository.factory}' ne 'org.openl.rules.repository.LocalRepositoryFactory'}"/>
-        <property name="includeVersionInDeploymentName" value="${version-in-deployment-name}"/>
     </bean>
 </beans>
