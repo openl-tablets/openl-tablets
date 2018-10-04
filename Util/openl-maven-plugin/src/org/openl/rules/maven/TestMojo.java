@@ -353,7 +353,7 @@ public final class TestMojo extends BaseOpenLMojo {
                 String failureType = status == TR_NEQ ? FAILURE : ERROR;
                 String description = testUnit.getDescription();
 
-                info("  Test case: #",
+                info("  Test case: #", num,
                         ITestUnit.DEFAULT_DESCRIPTION.equals(description) ? "" : " (" + description + ")",
                     ". Time elapsed: ",
                     formatTime(testUnit.getExecutionTime()),
