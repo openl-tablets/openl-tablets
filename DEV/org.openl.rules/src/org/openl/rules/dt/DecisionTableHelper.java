@@ -10,8 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -28,9 +26,11 @@ import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.fuzzy.OpenLFuzzySearch;
 import org.openl.rules.fuzzy.Token;
+import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DoubleRange;
-import org.openl.rules.helpers.INumberRange;
+import org.openl.rules.helpers.DoubleRangeParser;
 import org.openl.rules.helpers.IntRange;
+import org.openl.rules.helpers.IntRangeParser;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -61,8 +61,6 @@ import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 public class DecisionTableHelper {
-
-    private static final Pattern RANGE_PATTERN = Pattern.compile(".*(more|less|[;<>\\[(+]).*|.*\\d+.*(-|\\.\\.).*");
 
     /**
      * Check if table is vertical.<br>
@@ -1150,6 +1148,30 @@ public class DecisionTableHelper {
 
         return conditions;
     }
+    
+    private static final List<String> INT_TYPES = Arrays.asList("byte",
+        "short",
+        "int",
+        "java.lang.Byte",
+        "org.openl.meta.ByteValue",
+        "org.openl.meta.ShortValue",
+        "org.openl.meta.IntValue",
+        "org.openl.meta.BigIntegerValue",
+        "java.lang.Integer",
+        "org.openl.meta.IntegerValue");
+
+    private static final List<String> DOUBLE_TYPES = Arrays.asList("long",
+        "float",
+        "double",
+        "java.lang.Long",
+        "java.lang.Float",
+        "java.lang.Double",
+        "org.openl.meta.LongValue",
+        "org.openl.meta.FloatValue",
+        "org.openl.meta.DoubleValue",
+        "org.openl.meta.BigDecimalValue");
+
+    private static final List<String> CHAR_TYPES = Arrays.asList("char", "java.lang.Character");
 
     /**
      * Check type of condition values. If condition values are complex(Range,
@@ -1169,26 +1191,6 @@ public class DecisionTableHelper {
             boolean isThatVCondition,
             boolean lastCondition,
             int vColumnCounter) {
-        final List<String> intType = Arrays.asList("byte",
-            "short",
-            "int",
-            "java.lang.Byte",
-            "org.openl.meta.ByteValue",
-            "org.openl.meta.ShortValue",
-            "org.openl.meta.IntValue",
-            "org.openl.meta.BigIntegerValue",
-            "java.lang.Integer",
-            "org.openl.meta.IntegerValue");
-        final List<String> doubleType = Arrays.asList("long",
-            "float",
-            "double",
-            "java.lang.Long",
-            "java.lang.Float",
-            "java.lang.Double",
-            "org.openl.meta.LongValue",
-            "org.openl.meta.FloatValue",
-            "org.openl.meta.DoubleValue",
-            "org.openl.meta.BigDecimalValue");
         ILogicalTable decisionValues;
         int width;
 
@@ -1216,6 +1218,8 @@ public class DecisionTableHelper {
                 }
             }
         }
+        
+        String typeName = type instanceof DomainOpenClass ? type.getInstanceClass().getCanonicalName() : type.getName();
 
         for (int valueNum = 1; valueNum < width; valueNum++) {
             ILogicalTable cellValue;
@@ -1226,43 +1230,60 @@ public class DecisionTableHelper {
                 cellValue = decisionValues.getColumn(valueNum);
             }
 
-            if (cellValue.getSource().getCell(0, 0).getStringValue() == null) {
+            String value = cellValue.getSource().getCell(0, 0).getStringValue();
+
+            if (value == null) {
                 continue;
             }
             
-            ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, cellValue.getSource().getCell(0, 0).getStringValue());
+            ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, value);
             if (constantOpenField != null && (IntRange.class.equals(constantOpenField.getType().getInstanceClass()) || DoubleRange.class.equals(constantOpenField.getType().getInstanceClass()))) {
                 return new ImmutablePair<String, String>(constantOpenField.getType().getInstanceClass().getSimpleName(),
                         constantOpenField.getType().getInstanceClass().getSimpleName());
             }
 
-            if (maybeIsRange(cellValue.getSource().getCell(0, 0).getStringValue())) {
-                INumberRange range;
-
-                String typeName = type instanceof DomainOpenClass ? type.getInstanceClass().getCanonicalName()
-                                                                  : type.getName();
-
-                /** try to create range by values **/
-                if (intType.contains(typeName)) {
+            if (INT_TYPES.contains(typeName)) {
+                try {
+                    boolean f = true;
                     try {
-                        range = new IntRange(cellValue.getSource().getCell(0, 0).getStringValue());
-
-                        /** Return name of a class without a package prefix **/
-                        return new ImmutablePair<String, String>(range.getClass().getSimpleName(),
-                            range.getClass().getSimpleName());
-                    } catch (Exception e) {
-                        continue;
+                        Integer.parseInt(value);
+                    } catch (NumberFormatException e) {
+                        f = false;
                     }
-                } else if (doubleType.contains(typeName)) {
+
+                    if (IntRangeParser.getInstance().parse(value) != null && !f) {
+                        return Pair.of(IntRange.class.getSimpleName(), IntRange.class.getSimpleName());
+                    }
+                } catch (Exception e) {
+                    continue;
+                }
+            } else if (DOUBLE_TYPES.contains(typeName)) {
+                try {
+                    boolean f = true;
                     try {
-                        range = new DoubleRange(cellValue.getSource().getCell(0, 0).getStringValue());
-
-                        /** Return name of a class without a package prefix **/
-                        return new ImmutablePair<String, String>(range.getClass().getSimpleName(),
-                            range.getClass().getSimpleName());
-                    } catch (Exception e) {
-                        continue;
+                        Double.parseDouble(value);
+                    } catch (NumberFormatException e) {
+                        f = false;
                     }
+                    if (DoubleRangeParser.getInstance().parse(value) != null && !f) {
+                        return Pair.of(DoubleRange.class.getSimpleName(), DoubleRange.class.getSimpleName());
+                    }
+                } catch (Exception e) {
+                    continue;
+                }
+            } else if (CHAR_TYPES.contains(typeName)) {
+                try {
+                    boolean f = true;
+                    try {
+                        CharRange.parseRange(value);
+                    } catch (Exception e) {
+                        f = false;
+                    }
+                    if (f && value.length() != 1) {
+                        return Pair.of(CharRange.class.getSimpleName(), CharRange.class.getSimpleName());
+                    }
+                } catch (Exception e) {
+                    continue;
                 }
             }
         }
@@ -1271,11 +1292,6 @@ public class DecisionTableHelper {
         } else {
             return new ImmutablePair<String, String>(type.getName(), type.getDisplayName(0));
         }
-    }
-
-    private static boolean maybeIsRange(String cellValue) {
-        Matcher m = RANGE_PATTERN.matcher(cellValue);
-        return m.matches();
     }
 
     private static int getNumberOfConditions(DecisionTable decisionTable) {

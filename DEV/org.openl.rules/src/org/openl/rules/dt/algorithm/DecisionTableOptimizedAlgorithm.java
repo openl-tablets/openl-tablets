@@ -28,6 +28,7 @@ import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.type.BooleanAdaptorFactory;
 import org.openl.rules.dt.type.BooleanTypeAdaptor;
+import org.openl.rules.dt.type.CharRangeAdaptor;
 import org.openl.rules.dt.type.DoubleRangeAdaptor;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.IntRangeAdaptor;
@@ -311,6 +312,12 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 return DoubleRangeAdaptor.getInstance();
             }
         }
+        
+        if (isMethodTypeChar(methodType)) {
+            if (isParameterCharRange(paramType)) {
+                return CharRangeAdaptor.getInstance();
+            }
+        }
         return null;
     }
 
@@ -322,8 +329,16 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         return org.openl.rules.helpers.IntRange.class.equals(paramType.getInstanceClass());
     }
 
+    private static boolean isParameterCharRange(IOpenClass paramType) {
+        return org.openl.rules.helpers.CharRange.class.equals(paramType.getInstanceClass());
+    }
+
     private static boolean isMethodTypeNumber(IOpenClass methodType) {
         return ClassUtils.isAssignable(methodType.getInstanceClass(), Number.class);
+    }
+
+    private static boolean isMethodTypeChar(IOpenClass methodType) {
+        return ClassUtils.isAssignable(methodType.getInstanceClass(), Character.class);
     }
 
     // TODO to do - fix _NO_PARAM_ issue
