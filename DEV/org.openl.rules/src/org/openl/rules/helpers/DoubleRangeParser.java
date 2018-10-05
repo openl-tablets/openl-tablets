@@ -53,7 +53,7 @@ public class DoubleRangeParser {
 
     private static final class NumberParser extends BaseRangeParser {
         // Just a simple number like "$-55,123.4K" (minus 55123.4 thousands)
-        private static final Pattern PATTERN = Pattern.compile("\\$?(-?[,\\d]+\\.?\\d*)([KMB]?)");
+        private static final Pattern PATTERN = Pattern.compile("\\$?(-?[\\d]+(\\,|\\.)?\\d*)([KMB]?)");
 
         @Override
         public RangeWithBounds parse(String range) {
