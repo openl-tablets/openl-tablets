@@ -15,9 +15,13 @@ public class CharRange extends IntRange {
 
     //ADD support for all formats
     static private Pattern p0 = Pattern.compile("\\s*(\\S)\\s*");
-    static private Pattern p1 = Pattern.compile("\\s*(\\S)\\s*\\-\\s*(\\S)\\s*");
+    static private Pattern p1 = Pattern.compile("\\s*(\\S)\\s*(?:\\-|\\.\\.)\\s*(\\S)\\s*");
+    
     static private Pattern p2 = Pattern.compile("\\s*(\\S)\\s*\\+\\s*"); 
-    static private Pattern p3 = Pattern.compile("\\s*<\\s*(\\S)\\s*");
+    
+    static private Pattern p3 = Pattern.compile("\\s*(<|>|>=|<=)\\s*(\\S)\\s*");
+    
+    static private Pattern p4 = Pattern.compile("\\s*\\[\\s*(\\S)\\s*(?:\\;|\\.\\.)\\s*(\\S)\\s*\\]\\s*");
 
     public CharRange(String range) {
         super(0, 0);
@@ -37,6 +41,13 @@ public class CharRange extends IntRange {
             return new ParseStruct(s1.charAt(0), s2.charAt(0));
         }
 
+        Matcher m4 = p4.matcher(range);
+        if (m4.matches()) {
+            String s1 = m4.group(1);
+            String s2 = m4.group(2);
+            return new ParseStruct(s1.charAt(0), s2.charAt(0));
+        }
+
         Matcher m2 = p2.matcher(range);
         if (m2.matches()) {
             String s = m2.group(1);
@@ -45,8 +56,20 @@ public class CharRange extends IntRange {
 
         Matcher m3 = p3.matcher(range);
         if (m3.matches()) {
-            String s = m3.group(1);
-            return new ParseStruct(Character.MIN_VALUE, (char) (s.charAt(0) - 1));
+            String q = m3.group(1);
+            String s = m3.group(2);
+            if (q.length() == 1 && q.charAt(0) == '<') {
+                return new ParseStruct(Character.MIN_VALUE, (char) (s.charAt(0) - 1));
+            }
+            if (q.length() > 1 && q.charAt(0) == '<') {
+                return new ParseStruct(Character.MIN_VALUE, (char) (s.charAt(0)));
+            }
+            if (q.length() == 1 && q.charAt(0) == '>') {
+                return new ParseStruct((char) (s.charAt(0) + 1), Character.MAX_VALUE);
+            }
+            if (q.length() > 1 && q.charAt(0) == '>') {
+                return new ParseStruct((char) (s.charAt(0)), Character.MAX_VALUE);
+            }
         }
         
         Matcher m0 = p0.matcher(range);
