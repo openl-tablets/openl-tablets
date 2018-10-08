@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetCellField;
+import org.openl.rules.calc.element.SpreadsheetCellType;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -111,7 +112,11 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         }
         SpreadsheetCell spreadsheetCell = spreadsheet.getCells()[row][column];
         if (result != NEED_TO_CALCULATE_VALUE) {
-            Tracer.put(spreadsheetCell, "cell", result);
+            if (spreadsheetCell.getSpreadsheetCellType() == SpreadsheetCellType.METHOD) {
+                Tracer.resolveTraceNode(spreadsheetCell, this, params, env, this);
+            } else {
+                Tracer.put(spreadsheetCell, "cell", result);
+            }
             return result;
         }
         result = Tracer.invoke(spreadsheetCell, this, params, env, this);

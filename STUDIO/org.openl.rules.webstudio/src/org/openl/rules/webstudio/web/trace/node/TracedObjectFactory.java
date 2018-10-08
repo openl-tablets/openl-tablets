@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.trace.node;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.element.SpreadsheetCell;
@@ -82,5 +83,27 @@ public class TracedObjectFactory {
             trObj = null;
         }
         return trObj;
+    }
+
+    public static ITracerObject deepCopy(ITracerObject source) {
+        if (source instanceof SpreadsheetTracerLeaf) {
+            SpreadsheetTracerLeaf parentNode = (SpreadsheetTracerLeaf) source;
+            SpreadsheetTracerLeaf newParentNode = new SpreadsheetTracerLeaf(parentNode.getSpreadsheetCell());
+            newParentNode.setResult(parentNode.getResult());
+            copyChildren(newParentNode, parentNode.getChildren());
+            return newParentNode;
+        }
+        return null;
+    }
+
+    private static void copyChildren(SpreadsheetTracerLeaf parentNode, Iterable<ITracerObject> children) {
+        for (ITracerObject iTracerObject : children) {
+            SpreadsheetTracerLeaf childrenNode = (SpreadsheetTracerLeaf) iTracerObject;
+
+            SpreadsheetTracerLeaf newChildrenNode = new SpreadsheetTracerLeaf(childrenNode.getSpreadsheetCell());
+            newChildrenNode.setResult(childrenNode.getResult());
+            parentNode.addChild(newChildrenNode);
+            copyChildren(newChildrenNode, childrenNode.getChildren());
+        }
     }
 }
