@@ -1,5 +1,6 @@
 package org.openl.rules.helpers;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CharRange extends IntRange {
@@ -12,10 +13,15 @@ public class CharRange extends IntRange {
         super((int) c);
     }
 
-    static private Pattern p0 = Pattern.compile("\\S");
-    static private Pattern p1 = Pattern.compile("\\S\\-\\S");
-    static private Pattern p2 = Pattern.compile("\\S\\+");
-    static private Pattern p3 = Pattern.compile("<\\S");
+    //ADD support for all formats
+    static private Pattern p0 = Pattern.compile("\\s*(\\S)\\s*");
+    static private Pattern p1 = Pattern.compile("\\s*(\\S)\\s*(?:\\-|\\.\\.)\\s*(\\S)\\s*");
+    
+    static private Pattern p2 = Pattern.compile("\\s*(\\S)\\s*\\+\\s*"); 
+    
+    static private Pattern p3 = Pattern.compile("\\s*(<|>|>=|<=)\\s*(\\S)\\s*");
+    
+    static private Pattern p4 = Pattern.compile("\\s*\\[\\s*(\\S)\\s*(?:\\;|\\.\\.)\\s*(\\S)\\s*\\]\\s*");
 
     public CharRange(String range) {
         super(0, 0);
@@ -27,20 +33,49 @@ public class CharRange extends IntRange {
         max = parsed.max;
     }
 
-    private static ParseStruct parseRange(String range) {
-        if (p1.matcher(range).matches()) {
-            return new ParseStruct(range.charAt(0), range.charAt(2));
+    public static ParseStruct parseRange(String range) {
+        Matcher m1 = p1.matcher(range);
+        if (m1.matches()) {
+            String s1 = m1.group(1);
+            String s2 = m1.group(2);
+            return new ParseStruct(s1.charAt(0), s2.charAt(0));
         }
 
-        if (p2.matcher(range).matches()) {
-            return new ParseStruct(range.charAt(0), Character.MAX_VALUE);
+        Matcher m4 = p4.matcher(range);
+        if (m4.matches()) {
+            String s1 = m4.group(1);
+            String s2 = m4.group(2);
+            return new ParseStruct(s1.charAt(0), s2.charAt(0));
         }
 
-        if (p3.matcher(range).matches()) {
-            return new ParseStruct( Character.MIN_VALUE, (char)(range.charAt(1)-1));
+        Matcher m2 = p2.matcher(range);
+        if (m2.matches()) {
+            String s = m2.group(1);
+            return new ParseStruct(s.charAt(0), Character.MAX_VALUE);
         }
-        if (p0.matcher(range).matches()) {
-            return new ParseStruct( range.charAt(0), range.charAt(0));
+
+        Matcher m3 = p3.matcher(range);
+        if (m3.matches()) {
+            String q = m3.group(1);
+            String s = m3.group(2);
+            if (q.length() == 1 && q.charAt(0) == '<') {
+                return new ParseStruct(Character.MIN_VALUE, (char) (s.charAt(0) - 1));
+            }
+            if (q.length() > 1 && q.charAt(0) == '<') {
+                return new ParseStruct(Character.MIN_VALUE, (char) (s.charAt(0)));
+            }
+            if (q.length() == 1 && q.charAt(0) == '>') {
+                return new ParseStruct((char) (s.charAt(0) + 1), Character.MAX_VALUE);
+            }
+            if (q.length() > 1 && q.charAt(0) == '>') {
+                return new ParseStruct((char) (s.charAt(0)), Character.MAX_VALUE);
+            }
+        }
+        
+        Matcher m0 = p0.matcher(range);
+        if (m0.matches()) {
+            String s = m0.group(1);
+            return new ParseStruct(s.charAt(0), s.charAt(0));
         }
         throw new RuntimeException("Invalid Char Range: " + range);
     }
