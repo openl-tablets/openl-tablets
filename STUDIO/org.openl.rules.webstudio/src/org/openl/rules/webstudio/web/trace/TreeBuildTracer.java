@@ -16,6 +16,9 @@ import org.openl.vm.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Yury Molchan
  */
@@ -23,6 +26,7 @@ public final class TreeBuildTracer extends Tracer {
 
     private final Logger log = LoggerFactory.getLogger(TreeBuildTracer.class);
     private static ThreadLocal<ITracerObject> tree = new ThreadLocal<ITracerObject>();
+    private static ThreadLocal<Map<TracerKeyNode, ITracerObject>> map = new ThreadLocal<>();
 
     static {
         Tracer.instance = new TreeBuildTracer();
@@ -85,6 +89,7 @@ public final class TreeBuildTracer extends Tracer {
         try {
             R res = executor.invoke(target, params, env);
             trObj.setResult(res);
+            cacheNode(new TracerKeyNode<>(executor, target, params, env, source), trObj);
             return res;
         } catch (RuntimeException ex) {
             trObj.setError(ex);
@@ -134,5 +139,36 @@ public final class TreeBuildTracer extends Tracer {
 
     public static void destroy() {
         tree.set(null);
+        map.set(null);
+    }
+
+    private void cacheNode(TracerKeyNode key, SimpleTracerObject value) {
+        Map<TracerKeyNode, ITracerObject> localCache = map.get();
+        if (localCache == null) {
+            localCache = new HashMap<>();
+            map.set(localCache);
+        }
+        ITracerObject prevValue = localCache.put(key, value);
+        if (prevValue != null) {
+            log.warn("Something is wrong. Current trace object is null. Can't pop trace object.");
+        }
+    }
+
+    @Override
+    protected <T, E extends IRuntimeEnv> void doResolveTraceNode(Invokable<? super T, E> executor, T target, Object[] params, E env, Object source) {
+        if (!isOn()) {
+            return;
+        }
+
+        Map<TracerKeyNode, ITracerObject> localCache = map.get();
+        if (localCache == null) {
+            return;
+        }
+        ITracerObject node = localCache.get(new TracerKeyNode<>(executor, target, params, env, source));
+        ITracerObject newNode = TracedObjectFactory.deepCopy(node);
+
+        if (newNode != null) {
+            doPut(newNode);
+        }
     }
 }

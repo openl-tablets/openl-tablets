@@ -27,6 +27,14 @@ public class Tracer {
         return target;
     }
 
+    protected <T, E extends IRuntimeEnv> void doResolveTraceNode(Invokable<? super T, E> executor,
+                                                                 T target,
+                                                                 Object[] params,
+                                                                 E env,
+                                                                 Object source) {
+
+    }
+
     public static void put(Object source, String id, Object... args) {
         instance.doPut(source, id, args);
     }
@@ -49,5 +57,13 @@ public class Tracer {
 
     public static <T> T wrap(Object source, T target, Object... args) {
         return instance.doWrap(source, target, args);
+    }
+
+    public static <T, E extends IRuntimeEnv> void resolveTraceNode(Invokable<? super T, E> executor,
+                                                                   T target,
+                                                                   Object[] params,
+                                                                   E env,
+                                                                   Object source) {
+        instance.doResolveTraceNode(executor, target, params, env, source);
     }
 }
