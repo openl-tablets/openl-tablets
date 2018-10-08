@@ -289,23 +289,21 @@ public final class OpenLFuzzySearch {
             if (s.isEmpty()) {
                 continue;
             }
-            boolean f = false;
+            StringBuilder sb = new StringBuilder();
             for (int i = 0; i < s.length(); i++) {
-                if (!Character.isLetterOrDigit(s.charAt(i))) {
-                    f = true;
-                    break;
+                if (Character.isLetterOrDigit(s.charAt(i))) {
+                    sb.append(s.charAt(i));
                 }
             }
-            if (f) {
-                continue;
+            if (sb.toString().length() > 0) {
+                t.add(sb.toString());    
             }
-            t.add(token);
         }
         return t.toArray(new String[] {});
     }
 
     public static String toTokenString(String source) {
-        if (source == null) {
+        if (source == null) { 
             return StringUtils.EMPTY;
         }
         String[] tokens = source.split("(?<=.)(?=\\p{Lu}|\\d|\\s|[_])");
@@ -322,7 +320,7 @@ public final class OpenLFuzzySearch {
             } else {
                 sb.append(" ");
             }
-            sb.append(s.trim().toLowerCase());
+            sb.append(s);
         }
         return sb.toString();
     }
