@@ -53,8 +53,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
         this.fieldsCoordinates = SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames);
     }
 
-    private Iterable<IOpenClass> superClasses = null;
+    public CustomSpreadsheetResultOpenClass(String name) {
+        super(name, SpreadsheetResult.class);
+    }
 
+    private Iterable<IOpenClass> superClasses = null;
 
     @Override
     public IAggregateInfo getAggregateInfo() {

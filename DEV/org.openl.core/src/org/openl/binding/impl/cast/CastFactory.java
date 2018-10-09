@@ -187,7 +187,7 @@ public class CastFactory implements ICastFactory {
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {
         /* BEGIN: This is very cheap operations, so no needs to chache it */
         if (from == to || from.equals(to)) {
-            return JavaNoCast.instance;
+            return JavaNoCast.INSTANCE;
         }
 
         if (to == NullOpenClass.the) {

@@ -1,1 +1,0 @@
-ERROR: Operator not defined for: add(double, java.lang.Object)
