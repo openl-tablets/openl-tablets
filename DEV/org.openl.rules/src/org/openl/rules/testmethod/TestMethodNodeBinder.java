@@ -153,7 +153,8 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                     tableName,
                     testMethodOpenClass,
                     bindingContext,
-                    openl);
+                    openl,
+                    false);
                 testMethodBoundNode.setTable(dataTable);
                 if (testMethodBoundNode.getTableSyntaxNode()
                     .hasErrors() && (bestCaseErrors == null || bestCaseErrors.length > testMethodBoundNode
