@@ -7,7 +7,8 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 
 /**
- * This binder is used for both: if-then-else statement and ternary q-mark statement.
+ * This binder is used for both: if-then-else statement and ternary q-mark
+ * statement.
  * 
  * @author Yury Molchan
  */
@@ -29,18 +30,7 @@ public class IfNodeBinder extends ANodeBinder {
             IBoundNode elseNode = bindChildNode(node.getChild(2), bindingContext);
             IOpenClass elseType = elseNode.getType();
 
-            CastToWiderType castToWiderType = CastToWiderType.create(bindingContext, type, elseType);
-
-            type = castToWiderType.getWiderType();
-            IOpenCast cast1 = castToWiderType.getCast1();
-            if (cast1 != null) {
-                thenNode = new CastNode(null, thenNode, cast1, type);
-            }
-            IOpenCast cast2 = castToWiderType.getCast2();
-            if (cast2 != null) {
-                elseNode = new CastNode(null, elseNode, cast2, type);
-            }
-            return new IfNode(node, conditionNode, thenNode, elseNode, type);
+            return buildIfElseNode(node, bindingContext, conditionNode, thenNode, type, elseNode, elseType);
         } else {
             return new IfNode(node, conditionNode, thenNode, type);
 
@@ -48,4 +38,24 @@ public class IfNodeBinder extends ANodeBinder {
 
     }
 
+    protected IBoundNode buildIfElseNode(ISyntaxNode node,
+            IBindingContext bindingContext,
+            IBoundNode conditionNode,
+            IBoundNode thenNode,
+            IOpenClass type,
+            IBoundNode elseNode,
+            IOpenClass elseType) {
+        CastToWiderType castToWiderType = CastToWiderType.create(bindingContext, type, elseType);
+
+        type = castToWiderType.getWiderType();
+        IOpenCast cast1 = castToWiderType.getCast1();
+        if (cast1 != null) {
+            thenNode = new CastNode(null, thenNode, cast1, type);
+        }
+        IOpenCast cast2 = castToWiderType.getCast2();
+        if (cast2 != null) {
+            elseNode = new CastNode(null, elseNode, cast2, type);
+        }
+        return new IfNode(node, conditionNode, thenNode, elseNode, type);
+    }
 }

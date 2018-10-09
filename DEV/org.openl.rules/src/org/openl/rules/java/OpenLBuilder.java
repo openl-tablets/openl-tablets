@@ -68,7 +68,8 @@ public class OpenLBuilder extends AOpenLBuilder {
         op.setExtendsCategory(OpenL.OPENL_J_NAME);
         op.setCategory(OpenL.OPENL_JAVA_NAME);
 
-        String[] binders = { "function", org.openl.binding.impl.ce.MethodNodeBinder.class.getName(), };
+        String[] binders = { "function", org.openl.binding.impl.ce.MethodNodeBinder.class.getName(), 
+                             "op.ternary.qmark", org.openl.binding.impl.IfNodeBinderWithCSRSupport.class.getName()};
 
         NodeBinderFactoryConfiguration nbc = op.createBindings();
 
