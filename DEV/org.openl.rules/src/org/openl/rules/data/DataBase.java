@@ -52,6 +52,15 @@ public class DataBase implements IDataBase {
             return table;
         }
     }
+
+    public ITable registerNewTable(String tableName, TableSyntaxNode tsn) {
+        synchronized (lock) {
+            ITable table = makeNewTable(tableName, tsn);
+            tables.put(tableName, table);
+
+            return table;
+        }
+    }
     
     public Set<ITable> getTables(){
         synchronized (lock) {

@@ -21,6 +21,8 @@ public interface IDataBase {
 
     ITable registerTable(String tableName, TableSyntaxNode tsn) throws DuplicatedTableException;
 
+    ITable registerNewTable(String tableName, TableSyntaxNode tsn);
+
     ITable getTable(String name);
     
     void registerTable(ITable newTable) throws DuplicatedTableException;
