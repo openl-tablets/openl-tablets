@@ -96,7 +96,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TYPE_INDEX]);
         }
 
-        ITable dataTable = makeTable(module, tableSyntaxNode, tableName, tableType, bindingContext, openl);
+        ITable dataTable = makeTable(module, tableSyntaxNode, tableName, tableType, bindingContext, openl, true);
         dataNode.setTable(dataTable);
 
         return dataNode;
@@ -241,9 +241,15 @@ public class DataNodeBinder extends AXlsTableBinder {
             String tableName,
             IOpenClass tableType,
             IBindingContext bindingContext,
-            OpenL openl) throws Exception {
+            OpenL openl,
+            boolean useRegistered) throws Exception {
 
-        ITable resultTable = xlsOpenClass.getDataBase().registerTable(tableName, tableSyntaxNode);
+        ITable resultTable;
+        if (useRegistered) {
+            resultTable = xlsOpenClass.getDataBase().registerTable(tableName, tableSyntaxNode);
+        } else {
+            resultTable = xlsOpenClass.getDataBase().registerNewTable(tableName, tableSyntaxNode);
+        }
         ILogicalTable tableBody = DataTableBindHelper.getTableBody(tableSyntaxNode);
 
         processTable(xlsOpenClass, resultTable, tableBody, tableName, tableType, bindingContext, openl, true);
