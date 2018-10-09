@@ -1,0 +1,21 @@
+<project>
+    <!-- Project name. -->
+    <name>rules</name>
+
+    <!-- OpenL project includes one or more modules.  -->
+    <modules>
+        <module>
+            <name>model</name>
+            <rules-root path="rules/model.xlsx"/>
+        </module>
+        <module>
+            <name>rater</name>
+            <rules-root path="rules/rater.xlsx"/>
+        </module>
+    </modules>
+
+    <!-- Project's classpath. -->
+    <classpath>
+        <entry path="lib/*.jar"/>
+    </classpath>
+</project>
