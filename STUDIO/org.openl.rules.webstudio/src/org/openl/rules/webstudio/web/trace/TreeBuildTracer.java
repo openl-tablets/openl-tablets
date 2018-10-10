@@ -150,7 +150,7 @@ public final class TreeBuildTracer extends Tracer {
         }
         ITracerObject prevValue = localCache.put(key, value);
         if (prevValue != null) {
-            log.warn("Something is wrong. Current trace object is null. Can't pop trace object.");
+            log.warn("Something is wrong. Previous tracer node is not null");
         }
     }
 
