@@ -123,17 +123,17 @@ public class DatesTest {
 
     @Test
     public void test_dateDif_shouldReturnZero_whenDateParametersAreNull() {
-        assertEquals(ZERO_DOUBLE, Dates.dateDif(null, null, "D"));
-        assertEquals(ZERO_DOUBLE, Dates.dateDif(null, null, "W"));
-        assertEquals(ZERO_DOUBLE, Dates.dateDif(null, null, "M"));
-        assertEquals(ZERO_DOUBLE, Dates.dateDif(null, null, "Y"));
-        assertEquals(ZERO_DOUBLE, Dates.dateDif(null, null, "MD"));
-        assertEquals(ZERO_DOUBLE, Dates.dateDif(null, null, "YD"));
-        assertEquals(ZERO_DOUBLE, Dates.dateDif(null, null, "YM"));
-        assertEquals(ZERO_DOUBLE, Dates.dateDif(null, null, "MF"));
-        assertEquals(ZERO_DOUBLE, Dates.dateDif(null, null, "WF"));
-        assertEquals(ZERO_DOUBLE, Dates.dateDif(null, null, "YF"));
-        assertEquals(ZERO_DOUBLE, Dates.dateDif(null, null, "YMF"));
+        assertNull(Dates.dateDif(null, null, "D"));
+        assertNull(Dates.dateDif(null, null, "W"));
+        assertNull(Dates.dateDif(null, null, "M"));
+        assertNull(Dates.dateDif(null, null, "Y"));
+        assertNull(Dates.dateDif(null, null, "MD"));
+        assertNull(Dates.dateDif(null, null, "YD"));
+        assertNull(Dates.dateDif(null, null, "YM"));
+        assertNull(Dates.dateDif(null, null, "MF"));
+        assertNull(Dates.dateDif(null, null, "WF"));
+        assertNull(Dates.dateDif(null, null, "YF"));
+        assertNull(Dates.dateDif(null, null, "YMF"));
     }
 
     @Test

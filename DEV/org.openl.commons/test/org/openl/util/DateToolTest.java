@@ -34,7 +34,7 @@ public class DateToolTest {
 
         @Test
         public void testYearDiff() {
-            assertEquals(new Integer(0), DateTool.yearDiff(null, null));
+            assertNull(DateTool.yearDiff(null, null));
             assertNull(DateTool.yearDiff(new Date(), null));
             assertNull(DateTool.yearDiff(null, new Date()));
 

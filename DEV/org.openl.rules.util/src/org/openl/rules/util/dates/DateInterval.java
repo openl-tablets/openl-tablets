@@ -87,9 +87,8 @@ public abstract class DateInterval {
      * @return
      */
     public static DateInterval between(Date start, Date end) {
-        DateInterval stub = chooseStub(start, end);
-        if (stub != null) {
-            return stub;
+        if (start == null || end == null) {
+            return DateIntervalImpl.NULLABLE;
         }
         return new DateIntervalImpl(start, end);
     }
@@ -102,23 +101,10 @@ public abstract class DateInterval {
      * @return
      */
     public static DateInterval between(Calendar start, Calendar end) {
-        DateInterval stub = chooseStub(start, end);
-        if (stub != null) {
-            return stub;
+        if (start == null || end == null) {
+            return DateIntervalImpl.NULLABLE;
         }
         return new DateIntervalImpl(start, end);
-    }
-
-    private static DateInterval chooseStub(Object start, Object end) {
-        if (start == null) {
-            if (end == null) {
-                return DateIntervalImpl.ZERO;
-            }
-            return DateIntervalImpl.NULLABLE;
-        } else if (end == null) {
-            return DateIntervalImpl.NULLABLE;
-        }
-        return null;
     }
 
     public enum Unit {
