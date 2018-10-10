@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -1172,6 +1174,8 @@ public class DecisionTableHelper {
         "org.openl.meta.BigDecimalValue");
 
     private static final List<String> CHAR_TYPES = Arrays.asList("char", "java.lang.Character");
+    
+    private static final Pattern MAYBE_INT_ARRAY_PATTERN = Pattern.compile("\\s*(\\d+,)*\\d+\\s*");
 
     /**
      * Check type of condition values. If condition values are complex(Range,
@@ -1244,13 +1248,10 @@ public class DecisionTableHelper {
 
             if (INT_TYPES.contains(typeName)) {
                 try {
-                    boolean f = true;
-                    try {
-                        Integer.parseInt(value);
-                    } catch (NumberFormatException e) {
-                        f = false;
+                    boolean f = false;
+                    if (MAYBE_INT_ARRAY_PATTERN.matcher(value).matches()) { 
+                        f = true;
                     }
-
                     if (IntRangeParser.getInstance().parse(value) != null && !f) {
                         return Pair.of(IntRange.class.getSimpleName(), IntRange.class.getSimpleName());
                     }
