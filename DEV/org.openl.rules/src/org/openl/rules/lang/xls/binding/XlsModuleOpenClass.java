@@ -348,16 +348,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return Collections.unmodifiableMap(constantFields);
     }
 
-    private Map<String, ConstantOpenField> constantFields = new HashMap<>();
-
-    public ConstantOpenField getConstantField(String fname) {
-        return constantFields.get(fname);
-    }
-
-    public Map<String, ConstantOpenField> getConstantFields() {
-        return Collections.unmodifiableMap(constantFields);
-    }
-
     /**
      * Adds method to <code>XlsModuleOpenClass</code>.
      *
