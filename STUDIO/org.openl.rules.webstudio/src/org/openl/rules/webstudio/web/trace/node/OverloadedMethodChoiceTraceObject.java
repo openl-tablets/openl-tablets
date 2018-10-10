@@ -16,7 +16,7 @@ import org.openl.types.IOpenMethod;
 public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
     private final List<IOpenMethod> methodCandidates;
 
-    private OverloadedMethodChoiceTraceObject(ExecutableRulesMethod dispatcherTable,
+    OverloadedMethodChoiceTraceObject(ExecutableRulesMethod dispatcherTable,
             Object[] params,
             IRuntimeContext context,
             List<IOpenMethod> methodCandidates) {

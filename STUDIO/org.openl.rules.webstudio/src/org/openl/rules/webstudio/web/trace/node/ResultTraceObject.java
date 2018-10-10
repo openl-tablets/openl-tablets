@@ -8,7 +8,7 @@ import org.openl.rules.table.IGridRegion;
 public class ResultTraceObject extends ATableTracerNode {
     private IGridRegion gridRegion;
 
-    private ResultTraceObject(ColumnMatch columnMatch, IGridRegion gridRegion) {
+    ResultTraceObject(ColumnMatch columnMatch, IGridRegion gridRegion) {
         super("cmResult", null, columnMatch, null);
         this.gridRegion = gridRegion;
     }

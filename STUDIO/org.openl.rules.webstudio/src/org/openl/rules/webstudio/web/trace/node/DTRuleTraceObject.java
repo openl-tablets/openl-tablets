@@ -11,7 +11,7 @@ public class DTRuleTraceObject extends ATableTracerNode {
     private final int[] rules;
     private boolean indexed;
 
-    private DTRuleTraceObject(IBaseCondition condition, int[] rules, boolean successful, boolean indexed) {
+    DTRuleTraceObject(IBaseCondition condition, int[] rules, boolean successful, boolean indexed) {
         super("dtRule", null, null, null);
         this.condition = condition;
         this.successful = successful;

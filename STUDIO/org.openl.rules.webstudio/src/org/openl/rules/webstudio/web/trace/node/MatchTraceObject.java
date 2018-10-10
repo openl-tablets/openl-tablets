@@ -12,7 +12,7 @@ public class MatchTraceObject extends ATableTracerNode {
     private String checkValue;
     private String operation;
 
-    private MatchTraceObject(ColumnMatch columnMatch, String checkValue, String operation, IGridRegion gridRegion) {
+    MatchTraceObject(ColumnMatch columnMatch, String checkValue, String operation, IGridRegion gridRegion) {
         super("cmMatch", null, columnMatch, null);
         this.gridRegion = gridRegion;
         this.checkValue = checkValue;

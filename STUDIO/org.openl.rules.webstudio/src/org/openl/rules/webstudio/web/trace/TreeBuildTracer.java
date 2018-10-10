@@ -26,7 +26,7 @@ public final class TreeBuildTracer extends Tracer {
 
     private final Logger log = LoggerFactory.getLogger(TreeBuildTracer.class);
     private static ThreadLocal<ITracerObject> tree = new ThreadLocal<ITracerObject>();
-    private static ThreadLocal<Map<TracerKeyNode, ITracerObject>> map = new ThreadLocal<>();
+    private static ThreadLocal<Map<TracerKeyNode, SimpleTracerObject>> map = new ThreadLocal<>();
 
     static {
         Tracer.instance = new TreeBuildTracer();
@@ -143,7 +143,7 @@ public final class TreeBuildTracer extends Tracer {
     }
 
     private void cacheNode(TracerKeyNode key, SimpleTracerObject value) {
-        Map<TracerKeyNode, ITracerObject> localCache = map.get();
+        Map<TracerKeyNode, SimpleTracerObject> localCache = map.get();
         if (localCache == null) {
             localCache = new HashMap<>();
             map.set(localCache);
@@ -160,14 +160,14 @@ public final class TreeBuildTracer extends Tracer {
             return;
         }
 
-        Map<TracerKeyNode, ITracerObject> localCache = map.get();
+        Map<TracerKeyNode, SimpleTracerObject> localCache = map.get();
         if (localCache == null) {
             return;
         }
-        ITracerObject node = localCache.get(new TracerKeyNode<>(executor, target, params, env, source));
-        ITracerObject newNode = TracedObjectFactory.deepCopy(node);
 
-        if (newNode != null) {
+        SimpleTracerObject node = localCache.get(new TracerKeyNode<>(executor, target, params, env, source));
+        if (node != null) {
+            SimpleTracerObject newNode = TracedObjectFactory.deepCopy(node);
             doPut(newNode);
         }
     }
