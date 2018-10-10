@@ -70,9 +70,6 @@ public class DateDifference {
     }
 
     private static Integer getDateDiff(int calUnit, Date endDate, Date startDate) {
-        if (startDate == null && endDate == null) {
-            return 0;
-        }
         if (endDate == null || startDate == null) {
             return null;
         }
