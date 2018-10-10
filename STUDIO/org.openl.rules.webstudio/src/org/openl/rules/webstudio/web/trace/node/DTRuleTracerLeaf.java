@@ -32,4 +32,8 @@ public class DTRuleTracerLeaf extends ATableTracerNode {
         }
         return logicalTables;
     }
+
+    int[] getRuleIndexes() {
+        return ruleIndexes;
+    }
 }
