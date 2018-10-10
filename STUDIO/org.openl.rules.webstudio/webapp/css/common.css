@@ -1405,3 +1405,20 @@ form .formfields {
     text-decoration: none;
     cursor: default;
 }
+
+.stacktrace-showed {
+    height: 7px; 
+    background: url(webresource/images/a_up.png) no-repeat center;
+    opacity: 0.2;	
+}
+
+.stacktrace-hidden {
+    height: 7px; 
+    background: url(webresource/images/a_down.png) no-repeat center;
+    opacity: 0.2;    
+}
+
+.stacktrace-hidden:hover,
+.stacktrace-showed:hover{
+    opacity: 0.4;
+}
