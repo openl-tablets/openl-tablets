@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.trace.node;
 
 import java.util.HashMap;
-import java.util.Iterator;
 
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.element.SpreadsheetCell;
@@ -9,6 +8,7 @@ import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.algorithm.WeightAlgorithmExecutor;
 import org.openl.rules.dt.ActionInvoker;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
@@ -85,25 +85,76 @@ public class TracedObjectFactory {
         return trObj;
     }
 
-    public static ITracerObject deepCopy(ITracerObject source) {
-        if (source instanceof SpreadsheetTracerLeaf) {
-            SpreadsheetTracerLeaf parentNode = (SpreadsheetTracerLeaf) source;
-            SpreadsheetTracerLeaf newParentNode = new SpreadsheetTracerLeaf(parentNode.getSpreadsheetCell());
-            newParentNode.setResult(parentNode.getResult());
-            copyChildren(newParentNode, parentNode.getChildren());
-            return newParentNode;
-        }
-        return null;
+    public static SimpleTracerObject deepCopy(SimpleTracerObject source) {
+        SimpleTracerObject resultNode = makeCopy(source);
+        copyChildren(resultNode, source.getChildren());
+        return resultNode;
     }
 
-    private static void copyChildren(SpreadsheetTracerLeaf parentNode, Iterable<ITracerObject> children) {
-        for (ITracerObject iTracerObject : children) {
-            SpreadsheetTracerLeaf childrenNode = (SpreadsheetTracerLeaf) iTracerObject;
+    private static void copyChildren(ITracerObject parentNode, Iterable<ITracerObject> children) {
+        for (ITracerObject childrenNode : children) {
+            SimpleTracerObject newChildrenNode = makeCopy((SimpleTracerObject) childrenNode);
 
-            SpreadsheetTracerLeaf newChildrenNode = new SpreadsheetTracerLeaf(childrenNode.getSpreadsheetCell());
-            newChildrenNode.setResult(childrenNode.getResult());
             parentNode.addChild(newChildrenNode);
             copyChildren(newChildrenNode, childrenNode.getChildren());
         }
+    }
+
+    private static SimpleTracerObject makeCopy(SimpleTracerObject source) {
+        SimpleTracerObject result = null;
+        Class<?> sourceClass = source.getClass();
+        if (sourceClass == SpreadsheetTracerLeaf.class) {
+            SpreadsheetTracerLeaf sourceNode = (SpreadsheetTracerLeaf) source;
+            result = new SpreadsheetTracerLeaf(sourceNode.getSpreadsheetCell());
+        } else if (sourceClass == OverloadedMethodChoiceTraceObject.class) {
+            OverloadedMethodChoiceTraceObject sourceNode = (OverloadedMethodChoiceTraceObject) source;
+            result = new OverloadedMethodChoiceTraceObject(sourceNode.getTraceObject(),
+                    sourceNode.getParameters(), sourceNode.getContext(), sourceNode.getMethodCandidates());
+        } else if (sourceClass == WScoreTraceObject.class) {
+            WScoreTraceObject sourceNode = (WScoreTraceObject) source;
+            result = new WScoreTraceObject((ColumnMatch) sourceNode.getTraceObject(),
+                    sourceNode.getParameters(), sourceNode.getContext());
+        } else if (sourceClass == DecisionTableTraceObject.class) {
+            DecisionTableTraceObject sourceNode = (DecisionTableTraceObject) source;
+            result = new DecisionTableTraceObject((IDecisionTable) sourceNode.getTraceObject(),
+                    sourceNode.getParameters(), sourceNode.getContext());
+        } else if (sourceClass == MethodTableTraceObject.class) {
+            MethodTableTraceObject sourceNode = (MethodTableTraceObject) source;
+            result = new MethodTableTraceObject((TableMethod) sourceNode.getTraceObject(),
+                    sourceNode.getParameters(), sourceNode.getContext());
+        } else if (sourceClass == DTRuleTracerLeaf.class) {
+            DTRuleTracerLeaf sourceNode = (DTRuleTracerLeaf) source;
+            result = new DTRuleTracerLeaf(sourceNode.getRuleIndexes());
+        } else if (sourceClass == TBasicOperationTraceObject.class) {
+            TBasicOperationTraceObject sourceNode = (TBasicOperationTraceObject) source;
+            result = new TBasicOperationTraceObject(sourceNode.getNameForDebug(), sourceNode.getGridRegion(),
+                    sourceNode.getOperationName(), sourceNode.getOperationRow(), sourceNode.getUri(),
+                    sourceNode.getFieldValues());
+        } else if (sourceClass == DTRuleTraceObject.class) {
+            DTRuleTraceObject sourceNode = (DTRuleTraceObject) source;
+            result = new DTRuleTraceObject(sourceNode.getCondition(), sourceNode.getRules(), sourceNode.isSuccessful(),
+                    sourceNode.isIndexed());
+        } else if (sourceClass == MatchTraceObject.class){
+            MatchTraceObject sourceNode = (MatchTraceObject) source;
+            result = new MatchTraceObject((ColumnMatch) sourceNode.getTraceObject(), sourceNode.getCheckValue(),
+                    sourceNode.getOperation(), sourceNode.getGridRegion());
+        } else if (sourceClass == ResultTraceObject.class) {
+            ResultTraceObject sourceNode = (ResultTraceObject) source;
+            result = new ResultTraceObject((ColumnMatch) sourceNode.getTraceObject(), sourceNode.getGridRegion());
+        } else if (sourceClass == ATableTracerNode.class) {
+            ATableTracerNode sourceNode = (ATableTracerNode) source;
+            result = new ATableTracerNode(sourceNode.getType(), sourceNode.getPrefix(), sourceNode.getTraceObject(),
+                    sourceNode.getParameters(), sourceNode.getContext());
+        }
+
+        if (result == null) {
+            //should never happen
+            throw new IllegalStateException("Could not clone tracer object instance of " + source.getClass().getSimpleName());
+        }
+
+        result.setResult(source.getResult());
+        result.setError(source.getError());
+
+        return result;
     }
 }

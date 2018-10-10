@@ -14,7 +14,6 @@ import java.util.Date;
 final class DateIntervalImpl extends DateInterval {
 
     static final DateInterval NULLABLE = new NullableInterval();
-    static final DateInterval ZERO = new ZeroInterval();
 
     private CalendarWrapper startDate;
     private CalendarWrapper endDate;
