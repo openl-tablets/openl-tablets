@@ -1,0 +1,1 @@
+ERROR: The table already exists: Rules String Hello (Integer hour)
