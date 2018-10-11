@@ -52,6 +52,11 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     private Map<String, IOpenFactoryConfiguration> openFactories = null;
 
+    @Deprecated
+    public static IOpenLConfiguration getInstance(String name, IUserContext ucxt) throws OpenConfigurationException {
+        return ucxt.getOpenLConfiguration(name);
+    }
+
     public synchronized void addOpenFactory(IOpenFactoryConfiguration opfc) throws OpenConfigurationException {
         if (openFactories == null) {
             openFactories = new HashMap<String, IOpenFactoryConfiguration>();
