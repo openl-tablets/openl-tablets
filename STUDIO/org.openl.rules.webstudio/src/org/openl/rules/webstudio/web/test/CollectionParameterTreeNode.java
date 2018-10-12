@@ -74,8 +74,12 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
             ParameterDeclarationTreeNode node = getChildrenMap().get(i);
             node.getValueForced();
             Object key = getKeyFromElementNum(i);
+            Object value = getNodeValue(node);
+            if (value == null) {
+                value = getNullableValue();
+            }
             if (key != null) {
-                index.setValue(ary, key, getNodeValue(node));
+                index.setValue(ary, key, value);
             }
         }
         return ary;
@@ -84,13 +88,21 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     @Override
     public void addChild(Object elementNum, TreeNode element) {
         int nextChildNum = getChildren().size();
-        Object value = element == null ? null : ((ParameterDeclarationTreeNode) element).getValue();
+        Object value = element == null ? getNullableValue() : ((ParameterDeclarationTreeNode) element).getValue();
         ParameterDeclarationTreeNode node = createNode(null, value);
         if (nextChildNum > 0) {
             initComplexNode(getChild(nextChildNum - 1), node);
         }
         super.addChild(nextChildNum, node);
         saveChildNodesToValue();
+    }
+
+    /**
+     * @return {@code null} value or default value for primitives
+     */
+    private Object getNullableValue() {
+        IOpenClass elementType = getType().getComponentClass();
+        return elementType.nullObject();
     }
 
     protected void initComplexNode(ParameterDeclarationTreeNode from, ParameterDeclarationTreeNode to) {
@@ -161,8 +173,12 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
         int i = 0;
         for (ParameterDeclarationTreeNode node : getChildren()) {
             Object key = getKeyFromElementNum(i);
+            Object value = getNodeValue(node);
+            if (value == null) {
+                value = getNullableValue();
+            }
             if (key != null) {
-                index.setValue(newCollection, key, getNodeValue(node));
+                index.setValue(newCollection, key, value);
             }
             i++;
         }
