@@ -906,15 +906,17 @@ public class DecisionTableHelper {
         int parameterIndex;
         String description;
         IOpenMethod[] methodsChain;
+        int column;
 
         public Condition(int parameterIndex) {
             this.parameterIndex = parameterIndex;
         }
 
-        public Condition(int parameterIndex, String description, IOpenMethod[] methodsChain) {
+        public Condition(int parameterIndex, String description, IOpenMethod[] methodsChain, int column) {
             this.parameterIndex = parameterIndex;
             this.description = description;
             this.methodsChain = methodsChain;
+            this.column = column;
         }
 
         public String getDescription() {
@@ -927,6 +929,10 @@ public class DecisionTableHelper {
 
         public IOpenMethod[] getMethodsChain() {
             return methodsChain;
+        }
+        
+        public int getColumn() {
+            return column;
         }
 
         @Override
@@ -1056,31 +1062,42 @@ public class DecisionTableHelper {
             for (int i = 0; i < bestMatchedTokens.length; i++) {
                 conditions.add(new Condition(parameterTokensMap.get(bestMatchedTokens[i].getValue()),
                     description,
-                    parameterTokenMethodsChainMap.get(bestMatchedTokens[i].getValue())));
+                    parameterTokenMethodsChainMap.get(bestMatchedTokens[i].getValue()), column));
             }
 
             vConditions.add(conditions);
         }
+        
         List<Condition> fitConditions = new ArrayList<>();
         while (!vConditions.isEmpty()) { // Greedy algorithm. Bipartite graph
                                          // maximum matching algorithm is
                                          // required.
-            List<Condition> foundSingleConditions = new ArrayList<>();
+            Condition singleCondition = null;
             for (List<Condition> conditions : vConditions) {
                 if (conditions.size() == 1) {
-                    foundSingleConditions.add(conditions.get(0));
+                    Condition condition = conditions.get(0);
+                    boolean f = false;
+                    for (Condition c : fitConditions) {
+                        if (condition.getParameterIndex() == c.getParameterIndex()) {
+                            if (Arrays.deepEquals(condition.getMethodsChain(), c.getMethodsChain())) {
+                                f = true;
+                            }
+                        }
+                    }
+                    if (!f) {
+                        singleCondition = condition;
+                        break;
+                    }
                 }
             }
-            if (foundSingleConditions.isEmpty()) {
+            if (singleCondition == null) {
                 break;
             }
-            fitConditions.addAll(foundSingleConditions);
+            fitConditions.add(singleCondition);
             Iterator<List<Condition>> itr = vConditions.iterator();
             while (itr.hasNext()) {
                 List<Condition> conditions = itr.next();
-                for (Condition c : foundSingleConditions) {
-                    conditions.remove(c);
-                }
+                conditions.remove(singleCondition);
                 if (conditions.isEmpty()) {
                     itr.remove();
                 }
@@ -1089,24 +1106,22 @@ public class DecisionTableHelper {
 
         List<SyntaxNodeException> errors = new ArrayList<>();
         for (List<Condition> conditions : vConditions) {
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(String
-                .format("More than one match is found for the description '%s'.", conditions.get(0).getDescription()),
-                tableSyntaxNode);
-            errors.add(error);
+            if (conditions.size() > 1) {
+                SyntaxNodeException error = SyntaxNodeExceptionUtils
+                    .createError(String.format("More than one match is found for the description '%s'.",
+                        conditions.get(0).getDescription()), tableSyntaxNode);
+                errors.add(error);
+            }
         }
 
         if (!errors.isEmpty()) {
             throw new CompositeSyntaxNodeException(null, errors.toArray(new SyntaxNodeException[] {}));
         }
 
-        Condition[] conditions = new Condition[fitConditions.size() + numberOfHcondition];
-        boolean[] parameterIsUsed = new boolean[numberOfParameters];
+        boolean[] parameterIsUsed = new boolean[numberOfParameters];        
         Arrays.fill(parameterIsUsed, false);
-        int v = 0;
         for (Condition condition : fitConditions) {
-            conditions[v] = condition;
-            parameterIsUsed[conditions[v].getParameterIndex()] = true;
-            v++;
+            parameterIsUsed[condition.getParameterIndex()] = true;
         }
 
         int k = 0;
@@ -1117,12 +1132,31 @@ public class DecisionTableHelper {
             }
             i--;
         }
+        
+        while (k < numberOfHcondition) { //i<>0
+            Condition maxColumnCondition = null;
+            for (Condition condition : fitConditions) {
+                if ((maxColumnCondition == null || condition.getColumn() > maxColumnCondition.getColumn()) && parameterIsUsed[condition.parameterIndex]) {
+                    maxColumnCondition = condition;
+                }
+            }
+            parameterIsUsed[maxColumnCondition.getParameterIndex()] = false;
+            fitConditions.remove(maxColumnCondition);
+            k++;
+        }
 
         if (k < numberOfHcondition) {
             throw new OpenLCompilationException("No input parameter found for horizontal condition!");
         }
-
+        
+        Condition[] conditions = new Condition[fitConditions.size() + numberOfHcondition];
         int j = 0;
+        for (Condition condition : fitConditions) {
+            conditions[j] = condition;
+            j++;
+        }
+        
+        j = 0;
         for (int w = i + 1; w < numberOfParameters; w++) {
             if (!parameterIsUsed[w] && j < numberOfHcondition) {
                 conditions[fitConditions.size() + j] = new Condition(w);
