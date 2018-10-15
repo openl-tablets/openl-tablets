@@ -91,7 +91,7 @@
         <maven.api.version>3.2.5</maven.api.version>
         <maven.plugin.version>3.5</maven.plugin.version>
         <jetty.http.port>9999</jetty.http.port>
-        <jetty.server.version>9.2.25.v20180606</jetty.server.version>
+        <jetty.server.version>9.2.26.v20180806</jetty.server.version>
         <!-- Empty for building without JaCoCo agent -->
         <jacococ.argLine />
         <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
