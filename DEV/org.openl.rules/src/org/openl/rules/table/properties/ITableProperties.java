@@ -196,7 +196,6 @@ public interface ITableProperties {
 	void setNature(java.lang.String nature);
 // <<< END INSERT >>>
 	
-	
     void setCategoryProperties(Map<String, Object> categoryProperties);
     
     void setModuleProperties(Map<String, Object> moduleProperties);  
