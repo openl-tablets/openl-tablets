@@ -63,7 +63,6 @@ public class GenRulesCode {
         generateDefaultPropertiesContextMatcherCode();
         generateDefaultPropertiesIntersectionFinderCode();
         generateMatchingOpenMethodDispatcherCode();
-        generateMatchingOpenMethodDispatcherHelperCode();
 
         System.out.println("Generating Activiti Integration Code...");
         generateIRulesRuntimeContextUtils();
@@ -157,19 +156,6 @@ public class GenRulesCode {
 
         String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(RulesCompileContext.class);
         processSourceCode(sourceFilePath, "RulesCompileContext-validators.vm", variables);
-    }
-
-    private void generateMatchingOpenMethodDispatcherHelperCode() throws IOException {
-        Map<String, Object> variables = new HashMap<String, Object>();
-
-        List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = tablePropertyDefinitionWrappers
-                .getDimensionalPropertiesWithMatchExpression();
-        variables.put("tool", new VelocityTool());
-        variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
-        variables.put("contextPropertyDefinitionWrappers", contextPropertyDefinitionWrappers);
-
-        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(MatchingOpenMethodDispatcherHelper.class);
-        processSourceCode(sourceFilePath, "MatchingOpenMethodDispatcherHelper.vm", variables);
     }
 
     private void generateMatchingOpenMethodDispatcherCode() throws IOException {
