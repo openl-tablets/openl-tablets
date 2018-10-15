@@ -87,7 +87,7 @@
         <org.slf4j.version>1.7.25</org.slf4j.version>
         <org.apache.poi.version>3.17</org.apache.poi.version>
         <org.apache.jackrabbit.version>2.8.0</org.apache.jackrabbit.version>
-        <com.fasterxml.jackson.version>2.9.5</com.fasterxml.jackson.version>
+        <com.fasterxml.jackson.version>2.9.7</com.fasterxml.jackson.version>
         <maven.api.version>3.2.5</maven.api.version>
         <maven.plugin.version>3.5</maven.plugin.version>
         <jetty.http.port>9999</jetty.http.port>
