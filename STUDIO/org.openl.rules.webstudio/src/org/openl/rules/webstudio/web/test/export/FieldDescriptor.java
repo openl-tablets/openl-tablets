@@ -23,6 +23,10 @@ class FieldDescriptor {
      * @return all non empty fields from all test results (values).
      */
     static List<FieldDescriptor> nonEmptyFields(IOpenClass type, List<?> values) {
+        return nonEmptyFieldsForFlatten(type, ExportUtils.flatten(values));
+    }
+
+    private static List<FieldDescriptor> nonEmptyFieldsForFlatten(IOpenClass type, List<?> values) {
         if (type.isArray()) {
             type = type.getComponentClass();
         }
@@ -41,13 +45,12 @@ class FieldDescriptor {
             }
             IOpenField field = entry.getValue();
             IOpenClass fieldType = field.getType();
+            List<Object> childFieldValues = ExportUtils.flatten(ExportUtils.fieldValues(values, field));
 
-            values = ExportUtils.flatten(values);
             for (Object value : values) {
                 Object fieldValue = value == null ? null : field.get(value, null);
                 if (fieldValue != null && (!field.getType().isArray() || Array.getLength(fieldValue) > 0)) {
-
-                    List<FieldDescriptor> children = nonEmptyFields(fieldType, ExportUtils.fieldValues(values, field));
+                    List<FieldDescriptor> children = nonEmptyFieldsForFlatten(fieldType, childFieldValues);
 
                     result.add(new FieldDescriptor(field, children));
                     break;
