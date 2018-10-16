@@ -9,14 +9,6 @@ import org.openl.types.IOpenField;
 
 public class TestResultComparatorFactory {
 
-    private static final StringComparator STRING = new StringComparator();
-    private static final NumberComparator NUMBER = new NumberComparator();
-    private static final ComparableComparator COMPARABLE = new ComparableComparator();
-    private static final CollectionComparator COLLECTION = new CollectionComparator();
-    private static final MapComparator MAP = new MapComparator();
-    private static final ObjectComparator OBJECT = new ObjectComparator();
-    private static final GenericComparator GENERIC = new GenericComparator();
-
     private TestResultComparatorFactory() {
     }
 
@@ -24,27 +16,27 @@ public class TestResultComparatorFactory {
         if (clazz.isArray()) {
             return new ArrayComparator(clazz.getComponentType(), delta);
         } else if (String.class.equals(clazz)) {
-            return STRING;
+            return StringComparator.getInstance();
         } else if (NumberUtils.isFloatPointType(clazz)) {
             if (delta == null) {
-                return NUMBER;
+                return NumberComparator.getInstance();
             } else {
                 return new NumberComparator(delta);
             }
         } else if (Comparable.class.isAssignableFrom(clazz)) {
             // Expected result and actual result can be different types (StubSpreadsheet)
-            return COMPARABLE;
+            return ComparableComparator.getInstance();
         } else if (Collection.class.isAssignableFrom(clazz)) {
-            return COLLECTION;
+            return CollectionComparator.getInstance();
         } else if (Map.class.isAssignableFrom(clazz)) {
-            return MAP;
+            return MapComparator.getInstance();
         } else if (Object.class.equals(clazz)) {
             if (delta == null) {
-                return OBJECT;
+                return ObjectComparator.getInstance();
             } else {
                 return new ObjectComparator(delta);
             }
         }
-        return GENERIC;
+        return GenericComparator.getInstance();
     }
 }

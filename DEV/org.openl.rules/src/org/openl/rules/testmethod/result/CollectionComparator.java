@@ -8,7 +8,15 @@ import java.util.Iterator;
  */
 class CollectionComparator extends GenericComparator<Collection<?>> {
 
+    private static final CollectionComparator INSTANCE = new CollectionComparator();
+
     private TestResultComparator comparator = TestResultComparatorFactory.getComparator(Object.class, null);
+
+    /**
+     * Use {@link #getInstance()} instead.
+     */
+    private CollectionComparator() {
+    }
 
     @Override
     boolean isEmpty(Collection<?> object) {
@@ -33,4 +41,7 @@ class CollectionComparator extends GenericComparator<Collection<?>> {
         return !expectedItr.hasNext() && !actualItr.hasNext();
     }
 
+    public static TestResultComparator getInstance() {
+        return INSTANCE;
+    }
 }

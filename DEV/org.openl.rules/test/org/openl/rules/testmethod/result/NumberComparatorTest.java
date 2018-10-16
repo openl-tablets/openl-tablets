@@ -7,7 +7,7 @@ import org.junit.Test;
 public class NumberComparatorTest {
     @Test
     public void test() {
-        NumberComparator comp = new NumberComparator();
+        NumberComparator comp = (NumberComparator) NumberComparator.getInstance();
 
         assertTrue(comp.isEqual(null, null));
 

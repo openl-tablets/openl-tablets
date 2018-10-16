@@ -7,7 +7,7 @@ import org.junit.Test;
 public class ComparableComparatorTest {
     @Test
     public void test() {
-        ComparableComparator comp = new ComparableComparator();
+        ComparableComparator comp = (ComparableComparator) ComparableComparator.getInstance();
 
         assertTrue(comp.isEqual(null, null));
 
