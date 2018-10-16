@@ -382,16 +382,10 @@ public class StringsTest {
         assertEquals(Integer.valueOf(0), toInteger("0000"));
         assertEquals(Integer.valueOf(-1), toInteger("-1"));
         assertEquals(Integer.valueOf(10000000), toInteger("10000000"));
-    }
-
-    @Test(expected = Exception.class)
-    public void testToIntegerDot() {
-        toInteger("1.0");
-    }
-
-    @Test(expected = Exception.class)
-    public void testToIntegerWhitespace() {
-        toInteger("1 ");
+        assertEquals(Integer.valueOf(1), toInteger(" \n1 \t "));
+        assertNull(toInteger("1.0"));
+        assertNull(toInteger("a"));
+        assertNull(toInteger("99999999999999999999"));
     }
 
     @Test
@@ -409,20 +403,16 @@ public class StringsTest {
         assertEquals(Double.valueOf(0.01), toDouble("0.01"));
         assertEquals(Double.valueOf(-0.01), toDouble("-.01"));
         assertEquals(Double.valueOf(-10000000.1), toDouble("-10000000.1"));
-    }
-
-    @Test(expected = Exception.class)
-    public void testToDoubleLetter() {
-        toDouble("a");
-    }
-
-    @Test
-    public void testToDoubleWhitespace() {
-        assertEquals(Double.valueOf(1.1), toDouble("  1.1 \t  "));
+        assertEquals(Double.valueOf(1.1), toDouble(" \n 1.1 \t  "));
+        assertEquals(Double.valueOf(-100), toDouble("-1e2"));
+        assertEquals(Double.valueOf(0.01), toDouble("1e-2"));
+        assertEquals(Double.valueOf(Double.POSITIVE_INFINITY), toDouble("1e1000"));
+        assertNull(toDouble("a"));
+        assertNull(toDouble("13.."));
     }
 
     @Test
-    public void testToNumber() throws Exception {
+    public void testToNumber() {
         assertNull(toNumber(null));
         assertNull(toNumber(""));
         assertNull(toNumber(" "));
@@ -437,16 +427,8 @@ public class StringsTest {
         assertEquals(Double.valueOf(-10000000.1), toNumber("-10000000.1"));
         assertEquals(Double.valueOf(1), toNumber("1.000000000000000000000000000000000000000000000000000000001"));
         assertEquals(Double.POSITIVE_INFINITY, toNumber("∞"));
-    }
-
-    @Test(expected = Exception.class)
-    public void testToNumberLetter() throws Exception {
-        toNumber("X");
-    }
-
-    @Test(expected = Exception.class)
-    public void testToNumberIncorrect() throws Exception {
-        toNumber("13..");
+        assertNull(toNumber("X"));
+        assertNull(toNumber("13.."));
     }
 
     @Test

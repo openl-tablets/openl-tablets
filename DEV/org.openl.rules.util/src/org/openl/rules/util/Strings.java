@@ -1,13 +1,8 @@
 package org.openl.rules.util;
 
 import java.math.BigDecimal;
-import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -561,21 +556,29 @@ public class Strings {
     }
 
     public static Integer toInteger(String str) {
-        return isEmpty(str) ? null : Integer.valueOf(str);
+        try {
+            return isEmpty(str) ? null : Integer.valueOf(trim(str));
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     public static Double toDouble(String str) {
-        return isEmpty(str) ? null : Double.valueOf(str);
+        try {
+            return isEmpty(str) ? null : Double.valueOf(str);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
-    public static Number toNumber(String str) throws ParseException {
+    public static Number toNumber(String str) {
         if (isEmpty(str)) {
             return null;
         }
         ParsePosition parsePosition = new ParsePosition(0);
         Number parsed = NumberFormat.getInstance(Locale.US).parse(str, parsePosition);
         if (parsePosition.getIndex() != str.length()) {
-            throw new ParseException("Unparseable number: \"" + str + "\"", parsePosition.getIndex());
+            return null;
         }
         return parsed;
     }

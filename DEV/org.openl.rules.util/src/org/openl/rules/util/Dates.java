@@ -53,7 +53,7 @@ public final class Dates {
     /**
      * Converts a string to a date using a default pattern. The default pattern is system and setting dependent.
      */
-    public static Date toDate(String str) throws ParseException {
+    public static Date toDate(String str) {
         return toDate(str, "MM/dd/yy");
     }
 
@@ -62,8 +62,17 @@ public final class Dates {
      * 
      * @see SimpleDateFormat
      */
-    public static Date toDate(String str, String pattern) throws ParseException {
-        return (str == null || str.trim().isEmpty()) ? null : getDateFormat(pattern).parse(str);
+    public static Date toDate(String str, String pattern) {
+        return (str == null || str.trim().isEmpty()) ? null : parse(str, pattern);
+    }
+
+    private static Date parse(String str, String pattern) {
+        try {
+            return getDateFormat(pattern).parse(str);
+        } catch (ParseException e) {
+            // Return null for non-parsable strings
+            return null;
+        }
     }
 
     private static DateFormat getDateFormat(String pattern) {
