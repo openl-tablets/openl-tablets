@@ -44,7 +44,7 @@ public class DatesTest {
     }
 
     @Test
-    public void testToDate() throws Exception {
+    public void testToDate() {
         assertNull(Dates.toDate(null));
         assertNull(Dates.toDate(""));
         assertNull(Dates.toDate(" "));
@@ -73,15 +73,8 @@ public class DatesTest {
         assertEquals(new Date(80, 6, 12), Dates.toDate("Date is: 12 Jul 1980 year", "'Date is: 'dd MMM yyyy 'year'"));
         assertEquals(new Date(80, 0, 1), Dates.toDate("Date: 1980 year", "'Date: 'yyyy 'year'"));
         assertEquals(new Date(70, 0, 19), Dates.toDate("Date: 19 days from the 1th January 1970", "'Date: 'd 'days'"));
-    }
 
-    @Test(expected = Exception.class)
-    public void testToDateLetter() throws Exception {
-        Dates.toDate("13/13/2013");
-    }
-
-    @Test(expected = Exception.class)
-    public void testToDateWrongPattern() throws Exception {
-        Dates.toDate("12/12/2013", "a");
+        assertNull(Dates.toDate("13/13/2013"));
+        assertNull(Dates.toDate("12/12/2013", "a"));
     }
 }
