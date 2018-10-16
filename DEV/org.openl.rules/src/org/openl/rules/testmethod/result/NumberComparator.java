@@ -3,9 +3,15 @@ package org.openl.rules.testmethod.result;
 import org.openl.rules.helpers.NumberUtils;
 
 class NumberComparator implements TestResultComparator {
+
+    private static final NumberComparator INSTANCE = new NumberComparator();
+
     private Double delta;
 
-    NumberComparator() {
+    /**
+     * Use {@link #getInstance()} instead.
+     */
+    private NumberComparator() {
     }
 
     NumberComparator(Double delta) {
@@ -35,5 +41,9 @@ class NumberComparator implements TestResultComparator {
             }
         }
         return false;
+    }
+
+    public static TestResultComparator getInstance() {
+        return INSTANCE;
     }
 }
