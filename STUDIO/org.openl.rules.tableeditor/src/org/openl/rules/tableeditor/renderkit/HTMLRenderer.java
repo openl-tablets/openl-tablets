@@ -327,7 +327,7 @@ public class HTMLRenderer {
         if (numCells > MAX_NUM_CELLS) {
             int extraCells = numCells - MAX_NUM_CELLS;
             int extraRows = extraCells / cols;
-            return rows - extraRows;
+            return extraRows == 0 ? ALL_ROWS : rows - extraRows;
         }
 
         return ALL_ROWS;
