@@ -5,24 +5,54 @@ import java.lang.reflect.Method;
 
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
+import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 
 /**
  * Open field for datatypes. Work with generated simple beans.
  *
- * @author DLiauchuk
+ * @author Yury Molchan
  */
 public class DatatypeOpenField extends AOpenField {
 
     private IOpenClass declaringClass;
-    private String getterMethodName;
-    private String setterMethodName;
+    private volatile byte flag;
+    private Method getter;
+    private Method setter;
 
     public DatatypeOpenField(IOpenClass declaringClass, String name, IOpenClass type) {
         super(name, type);
-        this.getterMethodName = ClassUtils.getter(getName());
-        this.setterMethodName = ClassUtils.setter(getName());
         this.declaringClass = declaringClass;
+    }
+
+    private void initMethods() {
+        if (flag == 0) {
+            synchronized (this) {
+                if (flag == 0) {
+                    flag = 1;
+                    Class<?> instanceClass = declaringClass.getInstanceClass();
+                    String name = ClassUtils.capitalize(getName()); // According to JavaBeans v1.01
+                    try {
+                        getter = instanceClass.getMethod("get" + name);
+                    } catch (NoSuchMethodException e) {
+                        name = StringUtils.capitalize(getName()); // Always capitalize (old behavior (prior 5.21.7)
+                        try {
+                            getter = instanceClass.getMethod("get" + name);
+                        } catch (NoSuchMethodException e1) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    try {
+                        // Use the same name as for the getter
+                        Class<?> type = getType().getInstanceClass();
+                        setter = instanceClass.getMethod("set" + name, type);
+                    } catch (NoSuchMethodException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+
     }
 
     public Object get(Object target, IRuntimeEnv env) {
@@ -30,12 +60,11 @@ public class DatatypeOpenField extends AOpenField {
             return null;
         }
 
+        initMethods();
         try {
-            Class<?> targetClass = target.getClass();
-            Method method = targetClass.getMethod(getterMethodName);
-            Object res = method.invoke(target);
+            Object res = getter.invoke(target);
             return res != null ? res : getType().nullObject();
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
@@ -52,24 +81,12 @@ public class DatatypeOpenField extends AOpenField {
     }
 
     public void set(Object target, Object value, IRuntimeEnv env) {
-        Class<?> targetClass = target.getClass();
-        Method method;
+        initMethods();
         try {
-            method = targetClass.getMethod(setterMethodName, getType().getInstanceClass());
-            method.invoke(target, value);
-        } catch (NoSuchMethodException e) {
-            String errorMessage = String.format("There is no setter method in class %s for the field %s with type %s",
-                targetClass.getSimpleName(),
-                getName(),
-                getType().getInstanceClass().getSimpleName());
-            throw new RuntimeException(errorMessage, e);
+            setter.invoke(target, value);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void setDeclaringClass(IOpenClass declaringClass) {
-        this.declaringClass = declaringClass;
     }
 
 }
