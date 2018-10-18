@@ -524,7 +524,6 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
     }
 
     private void initializeDatabase(Connection connection) throws SQLException {
-        log.info("SQL: {}", settings.selectLastChange);
         Object revision = checkRepository(connection);
         if (!(revision instanceof Throwable)) {
             log.info("SQL result: {}. The repository is already initialized.", revision);
@@ -536,7 +535,6 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         try {
             for (String query : settings.initStatements) {
                 if (StringUtils.isNotBlank(query)) {
-                    log.info("SQL: {}", query);
                     statement.execute(query);
                 }
             }
