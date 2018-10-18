@@ -10,6 +10,7 @@ import org.openl.binding.ILocalVar;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaArrayAggregateInfo;
 import org.openl.vm.IRuntimeEnv;
 
 class SplitByIndexNode extends ABoundNode {
@@ -60,16 +61,16 @@ class SplitByIndexNode extends ABoundNode {
         int size = list2d.size();
 
         IOpenClass componentType = tempVar.getType();
-        IOpenClass arrayType = componentType.getAggregateInfo().getIndexedAggregateType(componentType, 1);
+        IOpenClass arrayType = JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(componentType, 1);
 
-        Object result = componentType.getAggregateInfo().makeIndexedAggregate(arrayType, size);
+        Object result = Array.newInstance(arrayType.getInstanceClass(), size);
 
         for (int i = 0; i < size; i++) {
 
             ArrayList<Object> list = list2d.get(i);
             int listSize = list.size();
 
-            Object ary = componentType.getAggregateInfo().makeIndexedAggregate(componentType, listSize);
+            Object ary = Array.newInstance(componentType.getInstanceClass(), listSize);
 
             for (int j = 0; j < listSize; j++) {
                 Array.set(ary, j, list.get(j));
@@ -91,8 +92,6 @@ class SplitByIndexNode extends ABoundNode {
         }
 
         IOpenClass componentType = tempVar.getType();
-        IAggregateInfo info = componentType.getAggregateInfo();
-        return info.getIndexedAggregateType(componentType, 2);
-
+        return JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(componentType, 2);
     }
 }

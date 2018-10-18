@@ -1,11 +1,17 @@
 package org.openl.binding;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertArrayEquals;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
-import org.junit.Assert;
 import junit.framework.TestCase;
-
+import org.junit.Assert;
 import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLRuntimeException;
@@ -17,13 +23,18 @@ import org.openl.util.RangeWithBounds;
 import org.openl.util.RangeWithBounds.BoundType;
 
 public class RunTest extends TestCase {
-    private static interface AssertionExpression<T> {
+    private interface AssertionExpression<T> {
         void makeAssertion(T expected, T result);
     }
 
     private static AssertionExpression<Object> equalsAssertion = new AssertionExpression<Object>() {
         public void makeAssertion(Object expected, Object result) {
-            Assert.assertEquals(expected, result);
+            if (expected instanceof Object[]) {
+                assertThat(result, instanceOf(Object[].class));
+                assertArrayEquals((Object[]) expected, (Object[]) result);
+            } else {
+                Assert.assertEquals(expected, result);
+            }
         }
     };
 
@@ -46,13 +57,16 @@ public class RunTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    static <T extends Object> void _runNoError(String expression, T expected, String openlName, SourceType parseType,
+    private static <T> void _runNoError(String expression, T expected, String openlName, SourceType parseType,
             AssertionExpression<T> assertion) {
         OpenL openl = OpenL.getInstance(openlName);
         T res = (T)OpenLManager.run(openl, new StringSourceCodeModule(expression, null), parseType);
         assertion.makeAssertion(expected, res);
     }
 
+    private static <T> void assertRunWithoutError(String expression, T expected) {
+        _runNoError(expression, expected, OpenL.OPENL_J_NAME, SourceType.METHOD_BODY, equalsAssertion);
+    }
 
     public static void _runWithError(String expr, Class<? extends Throwable> expected, String openl, SourceType parseType) {
     	_runWithError(expr, expected, null, openl, parseType);
@@ -188,7 +202,7 @@ public class RunTest extends TestCase {
         _runNoError("String a=\"a\"; String b = \"b\"; a + b != a + 'b'", new Boolean(false), OpenL.OPENL_J_NAME);
         _runNoError("String a=\"a\"; String b = \"b\"; a + b != a + 'c'", new Boolean(true), OpenL.OPENL_J_NAME);
         _runNoError("String a=\"a\"; String b = \"b\"; (Object)(a + b) == (Object)(a + 'b')", new Boolean(true),
-            OpenL.OPENL_J_NAME);        
+            OpenL.OPENL_J_NAME);
         _runNoError("String a=\"a\"; String b = \"b\"; (Object)(a + b) ==== (Object)(a + 'b')", new Boolean(false),
             OpenL.OPENL_J_NAME);
         
@@ -313,14 +327,77 @@ public class RunTest extends TestCase {
         _runNoError("String[] ary = {\"z\", \"dd\", \"aac\", \"aaba\"}; ary[ order by toString() ][0]", "aaba", OpenL.OPENL_J_NAME);
         _runNoError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[ !@ startsWith(\"d\") ]", "ddd", OpenL.OPENL_J_NAME);
     }
-    
-    
-    public void testAggregate1()
-    {
-    
+
+    public void testSelectAllForList() {
+        // Select all should return array
+        assertRunWithoutError(
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) select all having length() == 3]",
+                new String[] { "ddd", "aaa" }
+        );
+        // Demonstrate that no need to cast to String if "select all" returns array instead of List
+        assertRunWithoutError(
+                "List list = new ArrayList(); list.add(\"bb\");list.add(\"aaaa\"); list[(String a) select all having a.startsWith(\"a\")][0].length()",
+                4
+        );
     }
-    
-    
+
+    public void testOrderByForList() {
+        // Order by should return array
+        assertRunWithoutError(
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) order by s]",
+                new String[] { "aaa", "bb", "ddd" }
+        );
+        assertRunWithoutError(
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) order decreasing by s]",
+                new String[] { "ddd", "bb", "aaa" }
+        );
+    }
+
+    public void testTransformForList() {
+        // Transform to should return array
+        assertRunWithoutError(
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) transform to s + s.length()]",
+                new String[] { "bb2", "ddd3", "aaa3" }
+        );
+        // Transform String array to array of List
+        assertRunWithoutError(
+                "String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[(String s) transform to Arrays.asList(s)]",
+                new List[] { Collections.singletonList("bb"), Collections.singletonList("ddd"), Collections.singletonList("aaa") }
+        );
+        // Transform List to List of Lists
+        assertRunWithoutError(
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) transform to Arrays.asList(s)]",
+                new List[] { Collections.singletonList("bb"), Collections.singletonList("ddd"), Collections.singletonList("aaa") }
+        );
+    }
+
+    public void testSplitByForList() {
+        // Split By should return array of arrays
+        assertRunWithoutError(
+                "List list = new ArrayList(); list.add(\"5000\");list.add( \"2002\");list.add(\"3300\");list.add(\"2113\"); list[(String s) split by substring(0,1)]",
+                new String[][] { { "5000" }, { "2002", "2113" }, { "3300" } }
+        );
+
+        // Split By when list contains Lists
+        assertRunWithoutError(
+                "List list = new ArrayList(); list.add(Arrays.asList(1));list.add(Arrays.asList(2, 3));list.add(Arrays.asList(4)); list[(List l) split by size()]",
+                new List[][] { { Collections.singletonList(1), Collections.singletonList(4) }, { Arrays.asList(2, 3) } }
+        );
+        // Check array element type. It must be List, not Object (Object doesn't contain method size()).
+        assertRunWithoutError(
+                "List list = new ArrayList(); list.add(Arrays.asList(1));list.add(Arrays.asList(2, 3));list.add(Arrays.asList(4)); list[(List l) split by size()][0][1].size()",
+                1
+        );
+    }
+
+    public void ignore_testArrayOfList() {
+        // When array has the type List[] then inside of aggregate function array element type must be List, not Object.
+        assertRunWithoutError(
+                "List[] ary = {Arrays.asList(1), Arrays.asList(2, 3), Arrays.asList(4)}; ary[split by size()]",
+                new List[][] { { Collections.singletonList(1), Collections.singletonList(4) }, { Arrays.asList(2, 3) } }
+        );
+    }
+
     public void testStatic()
     {
         _runNoError("int.class", int.class, OpenL.OPENL_J_NAME);
