@@ -550,12 +550,16 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         public Object getRevision() {
             Connection connection = null;
             try {
+                connection = getConnection();
                 Object revision = checkRepository(connection);
                 if (revision instanceof Throwable) {
                     log.warn("Cannot to check revision of the repository", revision);
                     return null;
                 }
                 return revision;
+            } catch (Exception e) {
+                log.warn("Cannot to check revision of the repository", e);
+                return null;
             } finally {
                 safeClose(connection);
             }
