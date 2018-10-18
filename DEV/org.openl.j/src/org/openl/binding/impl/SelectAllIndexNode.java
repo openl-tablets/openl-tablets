@@ -1,5 +1,6 @@
 package org.openl.binding.impl;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -9,7 +10,7 @@ import org.openl.binding.ILocalVar;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenIndex;
+import org.openl.types.java.JavaArrayAggregateInfo;
 import org.openl.util.BooleanUtils;
 import org.openl.vm.IRuntimeEnv;
 
@@ -29,7 +30,7 @@ class SelectAllIndexNode extends ABoundNode {
     protected Object evaluateRuntime(IRuntimeEnv env) {
         IAggregateInfo aggregateInfo = targetNode.getType().getAggregateInfo();
         Iterator<Object> elementsIterator = aggregateInfo.getIterator(targetNode.evaluate(env));
-        List<Object> firedElements = new ArrayList<Object>();
+        List<Object> firedElements = new ArrayList<>();
         while (elementsIterator.hasNext()) {
             Object element = elementsIterator.next();
             tempVar.set(null, element, env);
@@ -37,10 +38,9 @@ class SelectAllIndexNode extends ABoundNode {
                 firedElements.add(element);
             }
         }
-        Object result = aggregateInfo.makeIndexedAggregate(tempVar.getType(), firedElements.size());
-        IOpenIndex index = aggregateInfo.getIndex(targetNode.getType());
+        Object result = Array.newInstance(tempVar.getType().getInstanceClass(), firedElements.size());
         for (int i = 0; i < firedElements.size(); i++) {
-            index.setValue(result, i, firedElements.get(i));
+            Array.set(result, i, firedElements.get(i));
         }
         return result;
     }
@@ -51,11 +51,7 @@ class SelectAllIndexNode extends ABoundNode {
             return type;
         }
 
-        if (type.getAggregateInfo() != null && type.getAggregateInfo().isAggregate(type)) {
-            return type;
-        }
-
         IOpenClass varType = tempVar.getType();
-        return varType.getAggregateInfo().getIndexedAggregateType(varType, 1);
+        return JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(varType, 1);
     }
 }
