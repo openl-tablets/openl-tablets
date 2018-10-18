@@ -44,6 +44,7 @@ import org.openl.types.impl.DatatypeOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.util.ClassUtils;
+import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
 import org.slf4j.Logger;
@@ -250,25 +251,32 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
             }
 
-            String getterMethodName = ClassUtils.getter(fieldName);
+            String name = ClassUtils.capitalize(fieldName); // According to JavaBeans v1.01
+            Method getterMethod;
             try {
-                Method getterMethod = beanClass.getMethod(getterMethodName);
-                if (!getterMethod.getReturnType().getName().equals(fieldDescription.getTypeName())) {
-                    String errorMessage = String.format(
-                        "Datatype '%s' validation is failed on method '%s' with unexpected return type. Please, regenerate your datatype classes.",
-                        beanName,
-                        getterMethodName);
-                    throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
-                }
+                getterMethod = beanClass.getMethod("get"+name);
             } catch (NoSuchMethodException e) {
                 String errorMessage = String.format(
-                    "Datatype '%s' validation is failed on missed method '%s'. Please, regenerate your datatype classes.",
+                    "Datatype '%s' validation is failed on missed method 'get%s'. Please, regenerate your datatype classes.",
                     beanName,
-                    getterMethodName);
+                    name);
+                name = StringUtils.capitalize(fieldName); // Try old solution (before 5.21.7)
+                try {
+                    getterMethod = beanClass.getMethod("get"+name);
+                } catch (NoSuchMethodException e1) {
+                    throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
+                }
+
+            }
+            if (!getterMethod.getReturnType().getName().equals(fieldDescription.getTypeName())) {
+                String errorMessage = String.format(
+                        "Datatype '%s' validation is failed on method 'get%s' with unexpected return type. Please, regenerate your datatype classes.",
+                        beanName,
+                        name);
                 throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
             }
 
-            String setterMethodName = ClassUtils.setter(fieldName);
+            String setterMethodName = "set" + name;
             Method[] methods = beanClass.getMethods();
             boolean found = false;
             for (Method method : methods) {
