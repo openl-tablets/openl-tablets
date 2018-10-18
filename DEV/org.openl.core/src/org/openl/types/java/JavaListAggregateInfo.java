@@ -96,11 +96,6 @@ public class JavaListAggregateInfo extends AAggregateInfo {
         return list;
     }
 
-    @Override
-    public IOpenClass getIndexedAggregateType(IOpenClass componentType, int dim) {
-        return JavaOpenClass.getOpenClass(List.class);
-    }
-
     private IOpenIndex makeListIndex(IOpenClass aggregateType) {
         return new ListIndex();
     }

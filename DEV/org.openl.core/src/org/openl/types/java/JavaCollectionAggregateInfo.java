@@ -11,6 +11,7 @@ import java.util.*;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
+import org.openl.types.impl.AAggregateInfo;
 
 public class JavaCollectionAggregateInfo implements IAggregateInfo {
     static final IAggregateInfo COLLECTION_AGGREGATE = new JavaCollectionAggregateInfo();
@@ -32,8 +33,8 @@ public class JavaCollectionAggregateInfo implements IAggregateInfo {
 
 
     @Override
-    public IOpenClass getIndexedAggregateType(IOpenClass componentType, int dims) {
-        return JavaOpenClass.getOpenClass(Collection.class);
+    public IOpenClass getIndexedAggregateType(IOpenClass componentType, int dim) {
+        return AAggregateInfo.getArrayType(componentType, dim);
     }
 
     @SuppressWarnings("unchecked")
