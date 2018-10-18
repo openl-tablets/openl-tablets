@@ -25,7 +25,7 @@ class NumberComparator implements TestResultComparator {
         Double actual = NumberUtils.convertToDouble(actualResult);
         Double expected = NumberUtils.convertToDouble(expectedResult);
 
-        if (actual != null || expected != null) {
+        if (actual != null && expected != null) {
             if (Double.compare(actual, expected) == 0) {
                 // NaN == NaN
                 // +Inf == +Inf
