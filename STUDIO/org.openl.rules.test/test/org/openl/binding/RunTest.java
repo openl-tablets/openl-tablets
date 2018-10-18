@@ -390,7 +390,7 @@ public class RunTest extends TestCase {
         );
     }
 
-    public void ignore_testArrayOfList() {
+    public void testArrayOfList() {
         // When array has the type List[] then inside of aggregate function array element type must be List, not Object.
         assertRunWithoutError(
                 "List[] ary = {Arrays.asList(1), Arrays.asList(2, 3), Arrays.asList(4)}; ary[split by size()]",

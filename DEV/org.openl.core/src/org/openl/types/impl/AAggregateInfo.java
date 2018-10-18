@@ -26,6 +26,10 @@ public abstract class AAggregateInfo implements IAggregateInfo {
     }
 
     public IOpenClass getIndexedAggregateType(IOpenClass componentType, int dim) {
+        return getArrayType(componentType, dim);
+    }
+
+    public static IOpenClass getArrayType(IOpenClass componentType, int dim) {
         int[] dims = new int[dim];
 
         Object ary = Array.newInstance(componentType.getInstanceClass(), dims);
