@@ -493,7 +493,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                 log.info("Database version : {}", metaData.getDatabaseProductVersion());
                 log.info("Database code    : {}-v{}.{}", databaseCode, majorVersion, minorVersion);
                 settings = new Settings(databaseCode, majorVersion, minorVersion);
-                initializeDatabase(connection, databaseCode);
+                initializeDatabase(connection);
                 monitor = new ChangesMonitor(new DBRepositoryRevisionGetter(), settings.timerPeriod);
             } catch (Exception e) {
                 actualException = e;
@@ -516,17 +516,21 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                 }
             }
         } catch (SQLException e) {
-            throw new IllegalStateException("Failed to initialize repository", e);
+            throw new IllegalStateException("Failed to initialize a repository", e);
         }
         if (actualException != null) {
-            throw new IllegalStateException("Failed to initialize repository", actualException);
+            throw new IllegalStateException("Failed to initialize a repository", actualException);
         }
     }
 
-    private void initializeDatabase(Connection connection, String databaseCode) throws SQLException {
-        if (tableExists(connection, databaseCode)) {
+    private void initializeDatabase(Connection connection) throws SQLException {
+        Object revision = checkRepository(connection);
+        if (!(revision instanceof Throwable)) {
+            log.info("SQL result: {}. The repository is already initialized.", revision);
             return;
         }
+        log.info("SQL error: {}", ((Throwable)revision).getMessage());
+        log.info("Initializing  the repository in the DB...");
         Statement statement = connection.createStatement();
         try {
             for (String query : settings.initStatements) {
@@ -534,25 +538,9 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                     statement.execute(query);
                 }
             }
+            log.info("The repository has been initialized.");
         } finally {
             safeClose(statement);
-        }
-    }
-
-    private boolean tableExists(Connection connection, String databaseCode) throws SQLException {
-        ResultSet rs = null;
-        String tableName = settings.tableName;
-        try {
-            DatabaseMetaData metaData = connection.getMetaData();
-            String repoTable = metaData.storesUpperCaseIdentifiers() ? tableName.toUpperCase() : tableName;
-            if ("oracle".equals(databaseCode)) {
-                rs = metaData.getTables(null, metaData.getUserName(), repoTable, new String[] { "TABLE" });
-            } else {
-                rs = metaData.getTables(null, null, repoTable, new String[] { "TABLE" });
-            }
-            return rs.next();
-        } finally {
-            safeClose(rs);
         }
     }
 
@@ -560,26 +548,44 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
 
         @Override
         public Object getRevision() {
-            String changeSet = null;
             Connection connection = null;
-            PreparedStatement statement = null;
-            ResultSet rs = null;
             try {
                 connection = getConnection();
-                statement = connection.prepareStatement(settings.selectLastChange);
-                rs = statement.executeQuery();
-
-                if (rs.next()) {
-                    changeSet = rs.getString(1);
+                Object revision = checkRepository(connection);
+                if (revision instanceof Throwable) {
+                    log.warn("Cannot to check revision of the repository", revision);
+                    return null;
                 }
+                return revision;
             } catch (Exception e) {
-                log.warn(e.getMessage(), e);
+                log.warn("Cannot to check revision of the repository", e);
+                return null;
             } finally {
-                safeClose(rs);
-                safeClose(statement);
                 safeClose(connection);
             }
-            return changeSet;
         }
+    }
+
+    /**
+     * Return a hash of the repository or an exception.
+     */
+    private Object checkRepository(final Connection connection) {
+        String changeSet = null;
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        try {
+            statement = connection.prepareStatement(settings.selectLastChange);
+            rs = statement.executeQuery();
+
+            if (rs.next()) {
+                changeSet = rs.getString(1);
+            }
+        } catch (Exception e) {
+            return e;
+        } finally {
+            safeClose(rs);
+            safeClose(statement);
+        }
+        return changeSet;
     }
 }

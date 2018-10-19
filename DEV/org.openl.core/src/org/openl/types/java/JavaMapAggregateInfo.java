@@ -11,6 +11,7 @@ import java.util.*;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
+import org.openl.types.impl.AAggregateInfo;
 
 public class JavaMapAggregateInfo implements IAggregateInfo {
 
@@ -72,8 +73,8 @@ public class JavaMapAggregateInfo implements IAggregateInfo {
     }
 
     @Override
-    public IOpenClass getIndexedAggregateType(IOpenClass componentType, int dims) {
-        return JavaOpenClass.getOpenClass(Map.class);
+    public IOpenClass getIndexedAggregateType(IOpenClass componentType, int dim) {
+        return AAggregateInfo.getArrayType(componentType, dim);
     }
 
     @Override

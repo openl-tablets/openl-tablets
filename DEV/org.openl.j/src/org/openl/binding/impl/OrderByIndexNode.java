@@ -1,5 +1,6 @@
 package org.openl.binding.impl;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -10,7 +11,7 @@ import org.openl.binding.ILocalVar;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenIndex;
+import org.openl.types.java.JavaArrayAggregateInfo;
 import org.openl.vm.IRuntimeEnv;
 
 class OrderByIndexNode extends ABoundNode {
@@ -61,16 +62,15 @@ class OrderByIndexNode extends ABoundNode {
             ++size;
         }
 
-        Object result = aggregateInfo.makeIndexedAggregate(aggregateInfo.getComponentType(getType()), size);
+        Object result = Array.newInstance(tempVar.getType().getInstanceClass(), size);
 
-        IOpenIndex index = aggregateInfo.getIndex(targetNode.getType());
         int idx = 0;
         for (Object element : map.values()) {
             if (element.getClass() != OrderList.class) {
-                index.setValue(result, idx++, element);
+                Array.set(result, idx++, element);
             } else {
                 for (Object item : (OrderList) element) {
-                    index.setValue(result, idx++, item);
+                    Array.set(result, idx++, item);
                 }
             }
         }
@@ -90,12 +90,8 @@ class OrderByIndexNode extends ABoundNode {
             return type;
         }
 
-        if (type.getAggregateInfo() != null && type.getAggregateInfo().isAggregate(type)) {
-            return type;
-        }
-
         IOpenClass varType = tempVar.getType();
-        return varType.getAggregateInfo().getIndexedAggregateType(varType, 1);
+        return JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(varType, 1);
     }
 
     private static class OrderList extends ArrayList<Object> {

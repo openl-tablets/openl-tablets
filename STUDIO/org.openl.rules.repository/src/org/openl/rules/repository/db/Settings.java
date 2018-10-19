@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 final class Settings {
     private final Logger log = LoggerFactory.getLogger(Settings.class);
     int timerPeriod;
-    String tableName;
     Collection<String> initStatements;
     String selectAllMetainfo;
     String selectAllHistoryMetainfo;
@@ -42,7 +41,6 @@ final class Settings {
         resolve(queries);
 
         timerPeriod = getIntValue(queries, "setting.timerPeriod", 10000);
-        tableName = getRequired(queries, "setting.tablename");
 
         insertFile = getRequired(queries, "query.insert-new-file");
         copyFile = getRequired(queries, "query.copy-last-file");

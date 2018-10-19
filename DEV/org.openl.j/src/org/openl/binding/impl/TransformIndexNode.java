@@ -9,13 +9,13 @@ import java.util.List;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaArrayAggregateInfo;
 import org.openl.vm.IRuntimeEnv;
 
 class TransformIndexNode extends ABoundNode {
     private ILocalVar tempVar;
-    private boolean isUnique;
+    private final boolean isUnique;
     private IBoundNode transformer;
     private IBoundNode targetNode;
 
@@ -33,7 +33,6 @@ class TransformIndexNode extends ABoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        IAggregateInfo aggregateInfo = getType().getAggregateInfo();
         Iterator<Object> elementsIterator = targetNode.getType().getAggregateInfo().getIterator(
             targetNode.evaluate(env));
         List<Object> firedElements = new ArrayList<>();
@@ -54,7 +53,7 @@ class TransformIndexNode extends ABoundNode {
             }
 
         }
-        Object result = aggregateInfo.makeIndexedAggregate(transformer.getType(), firedElements.size());
+        Object result = Array.newInstance(transformer.getType().getInstanceClass(), firedElements.size());
         for (int i = 0; i < firedElements.size(); i++) {
             Array.set(result, i, firedElements.get(i));
         }
@@ -63,6 +62,6 @@ class TransformIndexNode extends ABoundNode {
 
     public IOpenClass getType() {
         IOpenClass targetType = transformer.getType();
-        return targetType.getAggregateInfo().getIndexedAggregateType(targetType, 1);
+        return JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(targetType, 1);
     }
 }
