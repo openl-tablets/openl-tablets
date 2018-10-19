@@ -47,8 +47,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethodHeader;
+import org.openl.types.*;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
@@ -100,7 +99,7 @@ public class RuleRowHelper {
      *
      * @return Array of parameters.
      */
-    public static Object loadCommaSeparatedParam(IOpenClass paramType,
+    public static Object loadCommaSeparatedParam(IOpenClass aggregateType, IOpenClass paramType,
             String paramName,
             String ruleName,
             ILogicalTable cell,
@@ -126,13 +125,15 @@ public class RuleRowHelper {
             }
 
             int valuesArraySize = values.size();
-            arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, valuesArraySize);
+            IAggregateInfo aggregateInfo = aggregateType.getAggregateInfo();
+            arrayValues = aggregateInfo.makeIndexedAggregate(paramType, valuesArraySize);
+            IOpenIndex index = aggregateInfo.getIndex(aggregateType);
 
             for (int i = 0; i < valuesArraySize; i++) {
-                Array.set(arrayValues, i, values.get(i));
+                index.setValue(arrayValues, i, values.get(i));
             }
         } else {
-            arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, 0);
+            arrayValues = aggregateType.getAggregateInfo().makeIndexedAggregate(paramType, 0);
         }
 
         return arrayValues;
@@ -618,12 +619,12 @@ public class RuleRowHelper {
         if (oneCellTable) {
             if (!isFormula) {
                 // load comma separated array
-                return loadCommaSeparatedArrayParams(dataTable, paramName, ruleName, openlAdaptor, arrayType);
+                return loadCommaSeparatedArrayParams(dataTable, paramName, ruleName, openlAdaptor, paramType, arrayType);
             } else {
                 return loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
             }
         } else {
-            return loadSimpleArrayParams(dataTable, paramName, ruleName, openlAdaptor, arrayType);
+            return loadSimpleArrayParams(dataTable, paramName, ruleName, openlAdaptor, paramType, arrayType);
         }
     }
 
@@ -631,11 +632,11 @@ public class RuleRowHelper {
             String paramName,
             String ruleName,
             OpenlToolAdaptor openlAdaptor,
-            IOpenClass paramType) throws SyntaxNodeException {
+            IOpenClass aggregateType, IOpenClass paramType) throws SyntaxNodeException {
 
         ILogicalTable paramSource = dataTable.getRow(0);
         Object params = RuleRowHelper
-            .loadCommaSeparatedParam(paramType, paramName, ruleName, paramSource, openlAdaptor);
+            .loadCommaSeparatedParam(aggregateType, paramType, paramName, ruleName, paramSource, openlAdaptor);
         Class<?> paramClass = params.getClass();
         if (paramClass.isArray() && !paramClass.getComponentType().isPrimitive()) {
             return processAsObjectParams(paramType, (Object[]) params);
@@ -683,6 +684,7 @@ public class RuleRowHelper {
             String paramName,
             String ruleName,
             OpenlToolAdaptor openlAdaptor,
+            IOpenClass aggregateType,
             IOpenClass paramType) throws SyntaxNodeException {
 
         int height = RuleRowHelper.calculateHeight(dataTable);
@@ -704,10 +706,12 @@ public class RuleRowHelper {
             }
         }
 
-        Object ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, values.size());
+        IAggregateInfo aggregateInfo = aggregateType.getAggregateInfo();
+        Object ary = aggregateInfo.makeIndexedAggregate(paramType, values.size());
+        IOpenIndex index = aggregateInfo.getIndex(aggregateType);
 
         for (int i = 0; i < values.size(); i++) {
-            Array.set(ary, i, values.get(i));
+            index.setValue(ary, i, values.get(i));
         }
 
         return methodsList == null ? ary
