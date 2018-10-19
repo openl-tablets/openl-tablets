@@ -19,8 +19,10 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.IdentifierNode;
+import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.IOpenIndex;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -39,7 +41,7 @@ public class ColumnDescriptor {
      * Flag indicating that current column descriptor is a constructor.<br>
      * See {@link DataTableBindHelper#CONSTRUCTOR_FIELD}.
      */
-    private boolean constructor = false;
+    private boolean constructor;
 
     private Map<String, Integer> uniqueIndex = null;
     private Map<String, Integer> formattedUniqueIndex = null;
@@ -97,13 +99,11 @@ public class ColumnDescriptor {
     /**
      * Method is using to load data. Is used when data table is represents <b>AS</b> a constructor (see
      * {@link #isConstructor()}).
-     * 
-     * @throws SyntaxNodeException
      */
     public Object getLiteral(IOpenClass paramType,
             ILogicalTable valuesTable,
             OpenlToolAdaptor ota) throws SyntaxNodeException {
-        Object resultLiteral = null;
+        Object resultLiteral;
         boolean valuesAnArray = isValuesAnArray(paramType);
 
         valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
@@ -115,15 +115,17 @@ public class ColumnDescriptor {
                 valuesTable,
                 ota);
         } else {
-            paramType = paramType.getAggregateInfo().getComponentType(paramType);
+            IOpenClass aggregateType = paramType;
+            paramType = aggregateType.getAggregateInfo().getComponentType(paramType);
             if (valuesTable.getHeight() == 1 && valuesTable.getWidth() == 1) {
-                resultLiteral = RuleRowHelper.loadCommaSeparatedParam(paramType,
+                resultLiteral = RuleRowHelper.loadCommaSeparatedParam(aggregateType,
+                    paramType,
                     field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(),
                     null,
                     valuesTable,
                     ota);
             } else {
-                resultLiteral = loadMultiRowArray(valuesTable, ota, paramType);
+                resultLiteral = loadMultiRowArray(valuesTable, ota, paramType, aggregateType);
             }
         }
 
@@ -163,15 +165,14 @@ public class ColumnDescriptor {
     /**
      * Method is using to load data. Is used when data table is represents as <b>NOT</b> a constructor (see
      * {@link #isConstructor()}). Support loading single value, array of values.
-     * 
-     * @throws SyntaxNodeException
      */
     public Object populateLiteral(Object literal,
             ILogicalTable valuesTable,
             OpenlToolAdaptor toolAdapter,
             IRuntimeEnv env) throws SyntaxNodeException {
         if (field != null) {
-            IOpenClass paramType = field.getType();
+            IOpenClass aggregateType = field.getType();
+            IOpenClass paramType = aggregateType;
 
             if (valuesAnArray) {
                 paramType = paramType.getAggregateInfo().getComponentType(paramType);
@@ -182,7 +183,7 @@ public class ColumnDescriptor {
             if (!valuesAnArray) {
                 env.pushThis(literal);
                 if (supportMultirows) {
-                    processWithMultiRowsSupport(literal, valuesTable, toolAdapter, env, paramType, valuesAnArray);
+                    processWithMultiRowsSupport(literal, valuesTable, toolAdapter, env, aggregateType, paramType, valuesAnArray);
                 } else {
                     Object res = RuleRowHelper.loadSingleParam(paramType,
                         field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(),
@@ -197,17 +198,17 @@ public class ColumnDescriptor {
                 return env.popThis();
             } else {
                 env.pushThis(literal);
-                Object arrayValues = null;
+                Object arrayValues;
                 if (supportMultirows) {
-                    processWithMultiRowsSupport(literal, valuesTable, toolAdapter, env, paramType, valuesAnArray);
+                    processWithMultiRowsSupport(literal, valuesTable, toolAdapter, env, aggregateType, paramType, valuesAnArray);
                 } else {
-                    arrayValues = getArrayValues(valuesTable, toolAdapter, paramType);
+                    arrayValues = getArrayValues(valuesTable, toolAdapter, aggregateType, paramType);
                     field.set(literal, arrayValues, getRuntimeEnv());
                 }
                 return env.popThis();
             }
         } else {
-            /**
+            /*
              * field == null, in this case don`t do anything. The appropriate information why it is null would have been
              * processed during prepDaring column descriptor. See
              * {@link DataTableBindHelper#makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type, OpenL openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow, boolean hasColumnTytleRow)}
@@ -222,6 +223,7 @@ public class ColumnDescriptor {
             ILogicalTable valuesTable,
             OpenlToolAdaptor toolAdapter,
             IRuntimeEnv env,
+            IOpenClass aggregateType,
             IOpenClass paramType,
             boolean valuesAnArray) throws SyntaxNodeException {
         DatatypeArrayMultiRowElementContext datatypeArrayMultiRowElementContext = (DatatypeArrayMultiRowElementContext) env
@@ -229,12 +231,12 @@ public class ColumnDescriptor {
         Object prevRes = PREV_RES_EMPTY;
         for (int i = 0; i < valuesTable.getSource().getHeight(); i++) {
             datatypeArrayMultiRowElementContext.setRow(i);
-            Object res = null;
+            Object res;
             ILogicalTable logicalTable = LogicalTableHelper
                 .logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1))
                 .getSubtable(0, 0, 1, 1);
             if (valuesAnArray) {
-                res = getArrayValues(logicalTable, toolAdapter, paramType);
+                res = getArrayValues(logicalTable, toolAdapter, aggregateType, paramType);
                 if (prevRes != null && prevRes.getClass().isArray()) {
                     boolean prevResIsEmpty = Array.getLength(prevRes) == 0;
                     boolean resIsEmpty = Array.getLength(res) == 0;
@@ -277,23 +279,23 @@ public class ColumnDescriptor {
 
     private Object getArrayValues(ILogicalTable valuesTable,
             OpenlToolAdaptor ota,
-            IOpenClass paramType) throws SyntaxNodeException {
+            IOpenClass aggregateType, IOpenClass paramType) throws SyntaxNodeException {
 
         if (valuesTable.getHeight() == 1 && valuesTable.getWidth() == 1) {
-            return RuleRowHelper.loadCommaSeparatedParam(paramType, field.getName(), null, valuesTable.getRow(0), ota);
+            return RuleRowHelper.loadCommaSeparatedParam(aggregateType, paramType, field.getName(), null, valuesTable.getRow(0), ota);
         }
 
-        return loadMultiRowArray(valuesTable, ota, paramType);
+        return loadMultiRowArray(valuesTable, ota, paramType, aggregateType);
     }
 
     private Object loadMultiRowArray(ILogicalTable logicalTable,
             OpenlToolAdaptor openlAdaptor,
-            IOpenClass paramType) throws SyntaxNodeException {
+            IOpenClass paramType, IOpenClass aggregateType) throws SyntaxNodeException {
 
         // get height of table without empty cells at the end
         //
         int valuesTableHeight = RuleRowHelper.calculateHeight(logicalTable);/* logicalTable.getHeight(); */
-        ArrayList<Object> values = new ArrayList<Object>(valuesTableHeight);
+        ArrayList<Object> values = new ArrayList<>(valuesTableHeight);
 
         for (int i = 0; i < valuesTableHeight; i++) {
 
@@ -313,10 +315,12 @@ public class ColumnDescriptor {
             values.add(res);
         }
 
-        Object arrayValues = paramType.getAggregateInfo().makeIndexedAggregate(paramType, values.size());
+        IAggregateInfo aggregateInfo = aggregateType.getAggregateInfo();
+        Object arrayValues = aggregateInfo.makeIndexedAggregate(paramType, values.size());
+        IOpenIndex index = aggregateInfo.getIndex(aggregateType);
 
         for (int i = 0; i < values.size(); i++) {
-            Array.set(arrayValues, i, values.get(i));
+            index.setValue(arrayValues, i, values.get(i));
         }
 
         return arrayValues;

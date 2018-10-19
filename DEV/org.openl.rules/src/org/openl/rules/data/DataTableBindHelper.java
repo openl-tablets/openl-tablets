@@ -982,7 +982,7 @@ public class DataTableBindHelper {
         return collectionAccessField;
     }
 
-    private static Object getCollectionKey(IdentifierNode currentFieldNameNode) {
+    public static Object getCollectionKey(IdentifierNode currentFieldNameNode) {
         String s = currentFieldNameNode.getIdentifier();
         s = s.substring(s.indexOf("[") + 1, s.lastIndexOf("]")).trim();
         if (s.matches("\\\".*\\\"")) {
