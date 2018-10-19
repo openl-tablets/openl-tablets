@@ -106,8 +106,8 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     private TableSyntaxNode findTable(String name, String lob) {
         for (TableSyntaxNode tsn : getTableSyntaxNodes()) {
             if (name.equals(tsn.getDisplayName())) {
-                String tableLob = tsn.getTableProperties().getLob();
-                if (Objects.equals(lob, tableLob)) {
+                String[] tableLobs = tsn.getTableProperties().getLob();
+                if (contains(tableLobs, lob)) {
                     return tsn;
                 }
             }
@@ -117,5 +117,18 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     private CellMetaInfo getMetaInfo(MetaInfoReader metaInfoReader, ICell cell) {
         return metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
+    }
+
+    private boolean contains(String[] sourceArr, String target) {
+        if (sourceArr == null) {
+            return target == null;
+        } else {
+            for (String source : sourceArr) {
+                if (Objects.equals(target, source)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

@@ -97,16 +97,16 @@ public class DefaultPropertiesIntersectionFinder {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
-        constraints.put("lob", new IntersectionConstraint<java.lang.String>() { 
+        constraints.put("lob", new IntersectionConstraint<java.lang.String[]>() { 
 
             @Override
-            protected java.lang.String getPropertyValue(ITableProperties properties) {
+            protected java.lang.String[] getPropertyValue(ITableProperties properties) {
                 return properties.getLob();
             }
 
             @Override
-            protected IntersectionType matchNotNulls(java.lang.String firstValue, java.lang.String secondValue) {
-                return intersectionForEQ(firstValue, secondValue);
+            protected IntersectionType matchNotNulls(java.lang.String[] firstValue, java.lang.String[] secondValue) {
+                return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
         constraints.put("usregion", new IntersectionConstraint<org.openl.rules.enumeration.UsRegionsEnum[]>() { 

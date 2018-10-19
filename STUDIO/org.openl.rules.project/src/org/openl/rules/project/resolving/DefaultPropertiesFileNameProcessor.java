@@ -19,11 +19,13 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.util.StringUtils;
 
 public class DefaultPropertiesFileNameProcessor implements PropertiesFileNameProcessor, FileNamePatternValidator {
+
     private static Pattern pattern = Pattern.compile("(\\%[^%]+\\%)");
     private static final String EMPTY_STRING = "";
+    private static final String ARRAY_SEPARATOR = ",";
+    private static final String DEFAULT_PATTERN = ".+?";
 
     @Override
     public ITableProperties process(Module module, String fileNamePattern) throws NoMatchFileNameException,
@@ -155,7 +157,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                     }
                     propertyNames.add(propertyName);
                     Class<?> returnType = TablePropertyDefinitionUtils.getTypeByPropertyName(propertyName);
-                    
+
                     String pattern = getPattern(propertyName, returnType);
                     fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch, "(" + pattern + ")");
                     start = matcher.end();
@@ -168,7 +170,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         }
 
         private String getPattern(String propertyName, Class<?> returnType) throws InvalidFileNamePatternException {
-            String pattern = ".*"; // Default pattern for non-restricted values.
+            String pattern = DEFAULT_PATTERN; // Default pattern for non-restricted values.
             if (Boolean.class.equals(returnType)) {
                 pattern = "true|false|True|False|TRUE|FALSE|Yes|No|yes|no";
             } else if (Date.class.equals(returnType)) {
@@ -177,26 +179,18 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                         "Date property '" + propertyName + "' must define date format!");
                 }
             } else if (returnType.isEnum()) {
-                Enum<?>[] enums = (Enum<?>[]) returnType.getEnumConstants();
-                List<String> list = new ArrayList<>(enums.length + 1);
-
-                for (Enum<?> value : enums) {
-                    list.add(value.name());
-                }
-                list = processEnumArray(propertyName, list);
-                pattern = StringUtils.join(list, "|");
+                pattern = "[a-zA-Z$_][\\w$_]*";
             } else if (returnType.isArray()) {
                 Class<?> componentClass = returnType.getComponentType();
                 if (componentClass.isArray()) {
                     throw new OpenlNotCheckedException("Two dim arrays aren't supported!");
                 }
                 pattern = getPattern(propertyName, componentClass);
+                if (!DEFAULT_PATTERN.equals(pattern)) {
+                    pattern = String.format("(?:%s)(?:%s(?:%s))*", pattern, ARRAY_SEPARATOR, pattern);
+                }
             }
             return pattern;
-        }
-
-        protected List<String> processEnumArray(String propertyName, List<String> values) {
-            return values;
         }
 
         protected Object convert(String propertyName, String value) {
@@ -222,20 +216,26 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 }
             } else if (clazz.isEnum()) {
                 propValue = Enum.valueOf((Class) clazz, value);
-                ;
             } else if (clazz.isArray()) {
                 Class<?> componentClass = clazz.getComponentType();
                 if (componentClass.isArray()) {
                     throw new OpenlNotCheckedException("Two dim arrays aren't supported!");
                 }
-                Object arrayValue = getObject(propertyName, value, componentClass);
-                Object arrObject = Array.newInstance(componentClass, 1);
-                Array.set(arrObject, 0, arrayValue);
-                propValue = arrObject;
+                propValue = toArray(propertyName, value, componentClass);
             } else {
                 throw new OpenlNotCheckedException("Unsupported data type");
             }
             return propValue;
+        }
+
+        private Object[] toArray(String propertyName, String sourceValue, Class<?> componentClass) {
+            String[] values = sourceValue.split(ARRAY_SEPARATOR);
+            List<Object> arrObject = new ArrayList<>(values.length);
+            for (String str : values) {
+                Object arrayValue = getObject(propertyName, str, componentClass);
+                arrObject.add(arrayValue);
+            }
+            return arrObject.toArray((Object[]) Array.newInstance(componentClass, 0));
         }
     }
 }

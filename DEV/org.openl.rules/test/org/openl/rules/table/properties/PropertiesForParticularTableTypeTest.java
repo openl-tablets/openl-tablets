@@ -51,7 +51,7 @@ public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper
             // check that we have all properties from category level
             assertEquals(InheritanceLevel.CATEGORY.getDisplayName(), (String) categoryProperties.get("scope"));
             assertEquals("My Category", (String) categoryProperties.get("category"));
-            assertEquals("newLob", (String) categoryProperties.get("lob"));
+            assertEquals("newLob", ((String[]) categoryProperties.get("lob"))[0]);
             assertEquals(UsRegionsEnum.SE.name(), ((UsRegionsEnum[]) categoryProperties.get("usregion"))[0].name());
             assertEquals(RegionsEnum.NCSA.name(), ((RegionsEnum[]) categoryProperties.get("region"))[0].name());
 
