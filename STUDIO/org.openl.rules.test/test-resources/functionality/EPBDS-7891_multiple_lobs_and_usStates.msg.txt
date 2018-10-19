@@ -1,0 +1,3 @@
+WARN: Module 'Product-CRV,MTH,STR-rules-01012018-01012018-UT,WRONG' doesn't match file name pattern!
+WARN: Module 'Product-CRV,MTH,STR-rules-01012018-01012018-WRONG' doesn't match file name pattern!
+WARN: Module 'Test' doesn't match file name pattern! File name pattern: .*-%lob%-.*-%effectiveDate:ddMMyyyy%-%startRequestDate:ddMMyyyy%-%state%
