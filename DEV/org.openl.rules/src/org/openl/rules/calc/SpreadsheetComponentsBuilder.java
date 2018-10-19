@@ -52,7 +52,7 @@ public class SpreadsheetComponentsBuilder {
     
     private CellsHeaderExtractor cellsHeaderExtractor;
     
-    private SpreadsheetHeaderDefinition returnHeaderDefinition;
+    private ReturnSpreadsheetHeaderDefinition returnHeaderDefinition;
     
     private Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = new HashMap<>();
     private Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = new HashMap<>();
@@ -365,7 +365,8 @@ public class SpreadsheetComponentsBuilder {
             throw SyntaxNodeExceptionUtils.createError(message, headerDefinition.getVars().get(0).getName());
         }
 
-        returnHeaderDefinition = headerDefinition;
+        returnHeaderDefinition = new ReturnSpreadsheetHeaderDefinition(headerDefinition, spreadsheetHeaderType);
+        headerDefinitions.put(SpreadsheetSymbols.RETURN_NAME.toString(), returnHeaderDefinition);
     }
     
     private int calculateNonEmptyCells(SpreadsheetHeaderDefinition headerDefinition) {
@@ -476,7 +477,7 @@ public class SpreadsheetComponentsBuilder {
                     resultBuilder = new ScalarResultBuilder(notEmptyReturnDefinitions);
                     break;
                 default:
-                    resultBuilder = new ArrayResultBuilder(notEmptyReturnDefinitions, returnHeaderDefinition.getType());
+                    resultBuilder = new ArrayResultBuilder(notEmptyReturnDefinitions, returnHeaderDefinition.getReturnType());
             }
         }
         return resultBuilder;

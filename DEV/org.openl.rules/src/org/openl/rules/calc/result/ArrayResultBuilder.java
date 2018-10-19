@@ -1,11 +1,12 @@
 package org.openl.rules.calc.result;
 
-import java.lang.reflect.Array;
 import java.util.List;
 
 import org.openl.rules.calc.SpreadsheetResultCalculator;
 import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenIndex;
 
 public class ArrayResultBuilder implements IResultBuilder {
 
@@ -20,8 +21,10 @@ public class ArrayResultBuilder implements IResultBuilder {
     public Object makeResult(SpreadsheetResultCalculator resultCalculator) {
         
         int size = cells.size();
-        Object array = type.getAggregateInfo().makeIndexedAggregate(type, size);
+        IAggregateInfo aggregateInfo = type.getAggregateInfo();
+        Object array = aggregateInfo.makeIndexedAggregate(aggregateInfo.getComponentType(type), size);
 
+        IOpenIndex index = aggregateInfo.getIndex(type);
         for (int i = 0; i < size; ++i) {
         
             SpreadsheetCell cell = cells.get(i);
@@ -31,7 +34,7 @@ public class ArrayResultBuilder implements IResultBuilder {
                 value = type.nullObject();
             }
 
-            Array.set(array, i, value);
+            index.setValue(array, i, value);
         }
 
         return array;
