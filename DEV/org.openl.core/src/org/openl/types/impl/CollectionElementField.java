@@ -86,6 +86,9 @@ public class CollectionElementField extends AOpenField {
     @SuppressWarnings("unchecked")
     private Object getForMap(Object v) {
         Map<Object, Object> map = (Map<Object, Object>) v;
+        if (v == null) {
+            return getType().nullObject();
+        }
         return map.get(mapKey);
     }
 
@@ -131,7 +134,7 @@ public class CollectionElementField extends AOpenField {
     @SuppressWarnings("unchecked")
     private void setForList(Object target, Object value, IRuntimeEnv env, Object v) {
         if (v == null) {
-            List<Object> list = new ArrayList<Object>();
+            List<Object> list = new ArrayList<>();
             while (list.size() <= elementIndex) {
                 list.add(getType().nullObject());
             }
