@@ -17,8 +17,8 @@ public class DatatypeOpenField extends AOpenField {
 
     private IOpenClass declaringClass;
     private volatile byte flag;
-    private Method getter;
-    private Method setter;
+    private volatile Method getter;
+    private volatile Method setter;
 
     public DatatypeOpenField(IOpenClass declaringClass, String name, IOpenClass type) {
         super(name, type);
@@ -27,9 +27,10 @@ public class DatatypeOpenField extends AOpenField {
 
     private void initMethods() {
         if (flag == 0) {
+            // TODO: Refactoring. Move this method to DatatypeTableBoundNode.processRow()
+            // No needs in lazy-initialization in run-time when it is known in compile-time
             synchronized (this) {
                 if (flag == 0) {
-                    flag = 1;
                     Class<?> instanceClass = declaringClass.getInstanceClass();
                     String name = ClassUtils.capitalize(getName()); // According to JavaBeans v1.01
                     try {
@@ -49,6 +50,7 @@ public class DatatypeOpenField extends AOpenField {
                     } catch (NoSuchMethodException e) {
                         throw new RuntimeException(e);
                     }
+                    flag = 1;
                 }
             }
         }
