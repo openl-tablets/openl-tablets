@@ -10,10 +10,10 @@
             }
 
             public int compareNotNulls($priorityRuleWrapper.propertyType propertyValue1, $priorityRuleWrapper.propertyType propertyValue2) {
-                return $priorityRuleWrapper.operationName (propertyValue1, propertyValue2);
+                return ${priorityRuleWrapper.operationName}(propertyValue1, propertyValue2);
             }
         });
 #end
 #foreach( $priorityRuleWrapper in $priorityRuleWrappers.javaClassPriorityRuleWrappers )
-        maxMinPriorityRules.add(new JavaClassTablesComparator(new $priorityRuleWrapper.className ()));
+        maxMinPriorityRules.add(new JavaClassTablesComparator(new ${priorityRuleWrapper.className}()}));
 #end

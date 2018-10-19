@@ -32,7 +32,7 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
             }
 
             public int compareNotNulls(java.util.Date propertyValue1, java.util.Date propertyValue2) {
-                return MAX (propertyValue1, propertyValue2);
+                return MAX(propertyValue1, propertyValue2);
             }
         });
         maxMinPriorityRules.add(new ASimplePriorityRule<java.util.Date>("endRequestDate") {
@@ -46,7 +46,7 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
             }
 
             public int compareNotNulls(java.util.Date propertyValue1, java.util.Date propertyValue2) {
-                return MIN (propertyValue1, propertyValue2);
+                return MIN(propertyValue1, propertyValue2);
             }
         });
         maxMinPriorityRules.add(new ASimplePriorityRule<org.openl.rules.enumeration.OriginsEnum>("origin") {
@@ -60,7 +60,7 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
             }
 
             public int compareNotNulls(org.openl.rules.enumeration.OriginsEnum propertyValue1, org.openl.rules.enumeration.OriginsEnum propertyValue2) {
-                return MAX (propertyValue1, propertyValue2);
+                return MAX(propertyValue1, propertyValue2);
             }
         });
 // <<< END INSERT >>>
