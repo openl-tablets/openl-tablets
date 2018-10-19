@@ -137,63 +137,63 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
         return defaultRulesRuntimeContext;
     }
 
-    public void setValue(String name, Object value){
-        if ("currentDate".equals(name)){
+    public void setValue(String name, Object value) {
+        if ("currentDate".equals(name)) {
             setCurrentDate((java.util.Date)value);
             uuid = UUID.randomUUID();
             return;
         }
-        if ("requestDate".equals(name)){
+        if ("requestDate".equals(name)) {
             setRequestDate((java.util.Date)value);
             uuid = UUID.randomUUID();
             return;
         }
-        if ("lob".equals(name)){
+        if ("lob".equals(name)) {
             setLob((java.lang.String)value);
             uuid = UUID.randomUUID();
             return;
         }
-        if ("nature".equals(name)){
+        if ("nature".equals(name)) {
             setNature((java.lang.String)value);
             uuid = UUID.randomUUID();
             return;
         }
-        if ("usState".equals(name)){
+        if ("usState".equals(name)) {
             setUsState((org.openl.rules.enumeration.UsStatesEnum)value);
             uuid = UUID.randomUUID();
             return;
         }
-        if ("country".equals(name)){
+        if ("country".equals(name)) {
             setCountry((org.openl.rules.enumeration.CountriesEnum)value);
             uuid = UUID.randomUUID();
             return;
         }
-        if ("usRegion".equals(name)){
+        if ("usRegion".equals(name)) {
             setUsRegion((org.openl.rules.enumeration.UsRegionsEnum)value);
             uuid = UUID.randomUUID();
             return;
         }
-        if ("currency".equals(name)){
+        if ("currency".equals(name)) {
             setCurrency((org.openl.rules.enumeration.CurrenciesEnum)value);
             uuid = UUID.randomUUID();
             return;
         }
-        if ("lang".equals(name)){
+        if ("lang".equals(name)) {
             setLang((org.openl.rules.enumeration.LanguagesEnum)value);
             uuid = UUID.randomUUID();
             return;
         }
-        if ("region".equals(name)){
+        if ("region".equals(name)) {
             setRegion((org.openl.rules.enumeration.RegionsEnum)value);
             uuid = UUID.randomUUID();
             return;
         }
-        if ("caProvince".equals(name)){
+        if ("caProvince".equals(name)) {
             setCaProvince((org.openl.rules.enumeration.CaProvincesEnum)value);
             uuid = UUID.randomUUID();
             return;
         }
-        if ("caRegion".equals(name)){
+        if ("caRegion".equals(name)) {
             setCaRegion((org.openl.rules.enumeration.CaRegionsEnum)value);
             uuid = UUID.randomUUID();
             return;
@@ -204,6 +204,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     public java.util.Date getCurrentDate() {
         return currentDate;
     }
+
     public void setCurrentDate(java.util.Date currentDate) {
         this.currentDate = currentDate;
         internalMap.put("currentDate", currentDate);
@@ -214,6 +215,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     public java.util.Date getRequestDate() {
         return requestDate;
     }
+
     public void setRequestDate(java.util.Date requestDate) {
         this.requestDate = requestDate;
         internalMap.put("requestDate", requestDate);
@@ -224,6 +226,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     public java.lang.String getLob() {
         return lob;
     }
+
     public void setLob(java.lang.String lob) {
         this.lob = lob;
         internalMap.put("lob", lob);
@@ -234,6 +237,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     public java.lang.String getNature() {
         return nature;
     }
+
     public void setNature(java.lang.String nature) {
         this.nature = nature;
         internalMap.put("nature", nature);
@@ -244,6 +248,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     public org.openl.rules.enumeration.UsStatesEnum getUsState() {
         return usState;
     }
+
     public void setUsState(org.openl.rules.enumeration.UsStatesEnum usState) {
         this.usState = usState;
         internalMap.put("usState", usState);
@@ -254,6 +259,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     public org.openl.rules.enumeration.CountriesEnum getCountry() {
         return country;
     }
+
     public void setCountry(org.openl.rules.enumeration.CountriesEnum country) {
         this.country = country;
         internalMap.put("country", country);
@@ -264,6 +270,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     public org.openl.rules.enumeration.UsRegionsEnum getUsRegion() {
         return usRegion;
     }
+
     public void setUsRegion(org.openl.rules.enumeration.UsRegionsEnum usRegion) {
         this.usRegion = usRegion;
         internalMap.put("usRegion", usRegion);
@@ -274,6 +281,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     public org.openl.rules.enumeration.CurrenciesEnum getCurrency() {
         return currency;
     }
+
     public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum currency) {
         this.currency = currency;
         internalMap.put("currency", currency);
@@ -284,6 +292,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     public org.openl.rules.enumeration.LanguagesEnum getLang() {
         return lang;
     }
+
     public void setLang(org.openl.rules.enumeration.LanguagesEnum lang) {
         this.lang = lang;
         internalMap.put("lang", lang);
@@ -294,6 +303,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     public org.openl.rules.enumeration.RegionsEnum getRegion() {
         return region;
     }
+
     public void setRegion(org.openl.rules.enumeration.RegionsEnum region) {
         this.region = region;
         internalMap.put("region", region);
@@ -304,6 +314,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     public org.openl.rules.enumeration.CaProvincesEnum getCaProvince() {
         return caProvince;
     }
+
     public void setCaProvince(org.openl.rules.enumeration.CaProvincesEnum caProvince) {
         this.caProvince = caProvince;
         internalMap.put("caProvince", caProvince);
@@ -314,6 +325,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     public org.openl.rules.enumeration.CaRegionsEnum getCaRegion() {
         return caRegion;
     }
+
     public void setCaRegion(org.openl.rules.enumeration.CaRegionsEnum caRegion) {
         this.caRegion = caRegion;
         internalMap.put("caRegion", caRegion);

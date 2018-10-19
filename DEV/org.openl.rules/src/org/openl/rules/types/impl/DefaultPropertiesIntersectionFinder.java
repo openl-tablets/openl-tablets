@@ -25,7 +25,7 @@ public class DefaultPropertiesIntersectionFinder {
 
     protected void initilaize() {
 // <<< INSERT >>>
-        constraints.put("caRegions", new IntersectionConstraint<org.openl.rules.enumeration.CaRegionsEnum[]>() { 
+        constraints.put("caRegions", new IntersectionConstraint<org.openl.rules.enumeration.CaRegionsEnum[]>() {
 
             @Override
             protected org.openl.rules.enumeration.CaRegionsEnum[] getPropertyValue(ITableProperties properties) {
@@ -37,7 +37,7 @@ public class DefaultPropertiesIntersectionFinder {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
-        constraints.put("caProvinces", new IntersectionConstraint<org.openl.rules.enumeration.CaProvincesEnum[]>() { 
+        constraints.put("caProvinces", new IntersectionConstraint<org.openl.rules.enumeration.CaProvincesEnum[]>() {
 
             @Override
             protected org.openl.rules.enumeration.CaProvincesEnum[] getPropertyValue(ITableProperties properties) {
@@ -49,7 +49,7 @@ public class DefaultPropertiesIntersectionFinder {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
-        constraints.put("country", new IntersectionConstraint<org.openl.rules.enumeration.CountriesEnum[]>() { 
+        constraints.put("country", new IntersectionConstraint<org.openl.rules.enumeration.CountriesEnum[]>() {
 
             @Override
             protected org.openl.rules.enumeration.CountriesEnum[] getPropertyValue(ITableProperties properties) {
@@ -61,7 +61,7 @@ public class DefaultPropertiesIntersectionFinder {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
-        constraints.put("region", new IntersectionConstraint<org.openl.rules.enumeration.RegionsEnum[]>() { 
+        constraints.put("region", new IntersectionConstraint<org.openl.rules.enumeration.RegionsEnum[]>() {
 
             @Override
             protected org.openl.rules.enumeration.RegionsEnum[] getPropertyValue(ITableProperties properties) {
@@ -73,7 +73,7 @@ public class DefaultPropertiesIntersectionFinder {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
-        constraints.put("currency", new IntersectionConstraint<org.openl.rules.enumeration.CurrenciesEnum[]>() { 
+        constraints.put("currency", new IntersectionConstraint<org.openl.rules.enumeration.CurrenciesEnum[]>() {
 
             @Override
             protected org.openl.rules.enumeration.CurrenciesEnum[] getPropertyValue(ITableProperties properties) {
@@ -85,7 +85,7 @@ public class DefaultPropertiesIntersectionFinder {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
-        constraints.put("lang", new IntersectionConstraint<org.openl.rules.enumeration.LanguagesEnum[]>() { 
+        constraints.put("lang", new IntersectionConstraint<org.openl.rules.enumeration.LanguagesEnum[]>() {
 
             @Override
             protected org.openl.rules.enumeration.LanguagesEnum[] getPropertyValue(ITableProperties properties) {
@@ -97,7 +97,7 @@ public class DefaultPropertiesIntersectionFinder {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
-        constraints.put("lob", new IntersectionConstraint<java.lang.String[]>() { 
+        constraints.put("lob", new IntersectionConstraint<java.lang.String[]>() {
 
             @Override
             protected java.lang.String[] getPropertyValue(ITableProperties properties) {
@@ -109,7 +109,7 @@ public class DefaultPropertiesIntersectionFinder {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
-        constraints.put("usregion", new IntersectionConstraint<org.openl.rules.enumeration.UsRegionsEnum[]>() { 
+        constraints.put("usregion", new IntersectionConstraint<org.openl.rules.enumeration.UsRegionsEnum[]>() {
 
             @Override
             protected org.openl.rules.enumeration.UsRegionsEnum[] getPropertyValue(ITableProperties properties) {
@@ -121,7 +121,7 @@ public class DefaultPropertiesIntersectionFinder {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
-        constraints.put("state", new IntersectionConstraint<org.openl.rules.enumeration.UsStatesEnum[]>() { 
+        constraints.put("state", new IntersectionConstraint<org.openl.rules.enumeration.UsStatesEnum[]>() {
 
             @Override
             protected org.openl.rules.enumeration.UsStatesEnum[] getPropertyValue(ITableProperties properties) {
@@ -133,7 +133,7 @@ public class DefaultPropertiesIntersectionFinder {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
-        constraints.put("nature", new IntersectionConstraint<java.lang.String>() { 
+        constraints.put("nature", new IntersectionConstraint<java.lang.String>() {
 
             @Override
             protected java.lang.String getPropertyValue(ITableProperties properties) {

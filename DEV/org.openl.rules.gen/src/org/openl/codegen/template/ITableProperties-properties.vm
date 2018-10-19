@@ -1,4 +1,4 @@
 #foreach( $tablePropertyDefinition in $tablePropertyDefinitions )
-	$tool.getTypeName($tablePropertyDefinition.Type.InstanceClass) get$tool.formatAccessorName($tablePropertyDefinition.Name)();
-	void set$tool.formatAccessorName($tablePropertyDefinition.Name)($tool.getTypeName($tablePropertyDefinition.Type.InstanceClass) $tablePropertyDefinition.Name);
+    $tool.getTypeName($tablePropertyDefinition.Type.InstanceClass) get$tool.formatAccessorName($tablePropertyDefinition.Name)();
+    void set$tool.formatAccessorName($tablePropertyDefinition.Name)($tool.getTypeName($tablePropertyDefinition.Type.InstanceClass) $tablePropertyDefinition.Name);
 #end

@@ -1,5 +1,5 @@
 #foreach( $tablePropertyDefinition in $tablePropertyDefinitions )
-        constraints.put("$tablePropertyDefinition.PropertyVar", new IntersectionConstraint<$tool.getTypeName($tablePropertyDefinition.Definition.Type.InstanceClass)>() { 
+        constraints.put("$tablePropertyDefinition.PropertyVar", new IntersectionConstraint<$tool.getTypeName($tablePropertyDefinition.Definition.Type.InstanceClass)>() {
 
             @Override
             protected $tool.getTypeName($tablePropertyDefinition.Definition.Type.InstanceClass) getPropertyValue(ITableProperties properties) {

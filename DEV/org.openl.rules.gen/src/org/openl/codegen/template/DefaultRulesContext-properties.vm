@@ -1,30 +1,31 @@
-	public IRuntimeContext clone() throws CloneNotSupportedException {
+    public IRuntimeContext clone() throws CloneNotSupportedException {
         DefaultRulesRuntimeContext defaultRulesRuntimeContext = (DefaultRulesRuntimeContext) super.clone();
 #foreach( $contextPropertyDefinition in $contextPropertyDefinitions )
-		defaultRulesRuntimeContext.set$tool.formatAccessorName($contextPropertyDefinition.Name)(this.$contextPropertyDefinition.Name);
+        defaultRulesRuntimeContext.set$tool.formatAccessorName($contextPropertyDefinition.Name)(this.$contextPropertyDefinition.Name);
 #end
         return defaultRulesRuntimeContext;
     }
 
-	public void setValue(String name, Object value){
+    public void setValue(String name, Object value) {
 #foreach( $contextPropertyDefinition in $contextPropertyDefinitions )
-		if ("$contextPropertyDefinition.Name".equals(name)){
-			set$tool.formatAccessorName($contextPropertyDefinition.Name)(($tool.getTypeName($contextPropertyDefinition.Type.InstanceClass))value);
-			uuid = UUID.randomUUID();
-			return;
-		}
+        if ("$contextPropertyDefinition.Name".equals(name)) {
+            set$tool.formatAccessorName($contextPropertyDefinition.Name)(($tool.getTypeName($contextPropertyDefinition.Type.InstanceClass))value);
+            uuid = UUID.randomUUID();
+            return;
+        }
 #end
-	}
+    }
 
 #foreach( $contextPropertyDefinition in $contextPropertyDefinitions )
-	private $tool.getTypeName($contextPropertyDefinition.Type.InstanceClass) $contextPropertyDefinition.Name = null;
-	public $tool.getTypeName($contextPropertyDefinition.Type.InstanceClass) get$tool.formatAccessorName($contextPropertyDefinition.Name)() {
-		return $contextPropertyDefinition.Name;
-	}
-	public void set$tool.formatAccessorName($contextPropertyDefinition.Name)($tool.getTypeName($contextPropertyDefinition.Type.InstanceClass) $contextPropertyDefinition.Name) {
-		this.$contextPropertyDefinition.Name = $contextPropertyDefinition.Name;
-		internalMap.put("$contextPropertyDefinition.Name", $contextPropertyDefinition.Name);
-		uuid = UUID.randomUUID();
-	}
-		
+    private $tool.getTypeName($contextPropertyDefinition.Type.InstanceClass) $contextPropertyDefinition.Name = null;
+    public $tool.getTypeName($contextPropertyDefinition.Type.InstanceClass) get$tool.formatAccessorName($contextPropertyDefinition.Name)() {
+        return $contextPropertyDefinition.Name;
+    }
+
+    public void set$tool.formatAccessorName($contextPropertyDefinition.Name)($tool.getTypeName($contextPropertyDefinition.Type.InstanceClass) $contextPropertyDefinition.Name) {
+        this.$contextPropertyDefinition.Name = $contextPropertyDefinition.Name;
+        internalMap.put("$contextPropertyDefinition.Name", $contextPropertyDefinition.Name);
+        uuid = UUID.randomUUID();
+    }
+
 #end
