@@ -53,7 +53,7 @@ public class PropertiesTableInExecutionModeTest {
             Map<String, Object> categoryProperties = tableProperties.getCategoryProperties();
             assertTrue(categoryProperties.size() == 4);
             assertEquals(InheritanceLevel.CATEGORY.getDisplayName(), (String) categoryProperties.get("scope"));
-            assertEquals("newLob", (String) categoryProperties.get("lob"));
+            assertEquals("newLob", ((String[]) categoryProperties.get("lob"))[0]);
             assertEquals(UsRegionsEnum.SE.name(), ((UsRegionsEnum[]) categoryProperties.get("usregion"))[0].name());
             assertEquals(RegionsEnum.NCSA.name(), ((RegionsEnum[]) categoryProperties.get("region"))[0].name());
 

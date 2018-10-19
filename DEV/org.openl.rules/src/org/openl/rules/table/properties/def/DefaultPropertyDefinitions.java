@@ -276,7 +276,7 @@ public class DefaultPropertyDefinitions
 		definitions[18].setDescription("LOB (line of business) for which this table works and should be used");
 		definitions[18].setDimensional(true);
 		definitions[18].setDisplayName("LOB");
-		definitions[18].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("eq(lob)"));
+		definitions[18].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("contains(lob)"));
 		definitions[18].setGroup("Business Dimension");
 		definitions[18].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
 		definitions[18].setName("lob");
@@ -284,7 +284,7 @@ public class DefaultPropertyDefinitions
 		definitions[18].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
 		definitions[18].setSystem(false);
 		definitions[18].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
-		definitions[18].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
+		definitions[18].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String[].class));
 		definitions[19] = new TablePropertyDefinition();
 		definitions[19].setConstraints(new org.openl.rules.table.constraints.Constraints("data: origins"));
 		definitions[19].setDescription("Indicates origin of the rules to allow hierarchy of more generic and more specif"

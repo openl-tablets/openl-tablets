@@ -209,7 +209,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			}
 			
         });
-		constraints.put("lob", new MatchingConstraint<java.lang.String, java.lang.String>() { 
+		constraints.put("lob", new MatchingConstraint<java.lang.String[], java.lang.String>() { 
 
 			@Override
 			protected java.lang.String getContextValue(IRulesRuntimeContext context) {
@@ -217,13 +217,13 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			}
 			
 			@Override
-			protected java.lang.String getPropertyValue(ITableProperties properties) {
+			protected java.lang.String[] getPropertyValue(ITableProperties properties) {
 			    return properties.getLob();
 			}
 			
 			@Override
-			protected boolean matchNotNulls(java.lang.String propertyValue, java.lang.String contextValue) {
-			    return EQ(propertyValue, contextValue);
+			protected boolean matchNotNulls(java.lang.String[] propertyValue, java.lang.String contextValue) {
+			    return CONTAINS(propertyValue, contextValue);
 			}
 			
         });

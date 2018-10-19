@@ -1,7 +1,5 @@
 package org.openl.rules.project.resolving;
 
-import java.util.List;
-
 import org.openl.rules.enumeration.UsStatesEnum;
 
 /**
@@ -32,15 +30,5 @@ public class CWPropertyFileNameProcessor extends DefaultPropertiesFileNameProces
             }
         }
 
-        /**
-         * Overriden to add the CW value to the states values
-         */
-        @Override
-        protected List<String> processEnumArray(String propertyName, List<String> values) {
-            if (STATE_PROPERTY_NAME.equals(propertyName)) {
-                values.add(CW_STATE_VALUE);
-            }
-            return values;
-        }
     }
 }

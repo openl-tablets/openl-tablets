@@ -158,8 +158,8 @@ public interface ITableProperties {
 	void setCurrency(org.openl.rules.enumeration.CurrenciesEnum[] currency);
 	org.openl.rules.enumeration.LanguagesEnum[] getLang();
 	void setLang(org.openl.rules.enumeration.LanguagesEnum[] lang);
-	java.lang.String getLob();
-	void setLob(java.lang.String lob);
+	java.lang.String[] getLob();
+	void setLob(java.lang.String[] lob);
 	org.openl.rules.enumeration.OriginsEnum getOrigin();
 	void setOrigin(org.openl.rules.enumeration.OriginsEnum origin);
 	org.openl.rules.enumeration.UsRegionsEnum[] getUsregion();
@@ -195,6 +195,8 @@ public interface ITableProperties {
 	java.lang.String getNature();
 	void setNature(java.lang.String nature);
 // <<< END INSERT >>>
+
+	void setLob(String lob);
 	
     void setCategoryProperties(Map<String, Object> categoryProperties);
     
