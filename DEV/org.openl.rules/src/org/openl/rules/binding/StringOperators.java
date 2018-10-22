@@ -19,8 +19,8 @@ import org.openl.meta.number.Formulas;
 @Deprecated
 public class StringOperators extends Operators {
 
-    private static final int STRING_TO_TYPE_DISTANCE = 20;
-    private static final int TYPE_TO_STRING_DISTANCE = 21;
+    private static final int STRING_TO_TYPE_DISTANCE = 40;
+    private static final int TYPE_TO_STRING_DISTANCE = 41;
 
     public static Byte add(Byte x, String y) {
         return (byte) (x + Byte.valueOf(y));
@@ -755,6 +755,39 @@ public class StringOperators extends Operators {
 
     public static Integer distance(String x, ShortValue y) {
         return STRING_TO_TYPE_DISTANCE;
+    }
+
+    public static boolean gt(String x, Integer y) {
+        return x != null && y!= null && Integer.valueOf(x) > y;
+    }
+
+    public static boolean ge(String x, Integer y) {
+        return x != null && y!= null && Integer.valueOf(x) >= y;
+    }
+
+    public static boolean lt(String x, Integer y) {
+        return x != null && y!= null && Integer.valueOf(x) < y;
+    }
+
+    public static boolean le(String x, Integer y) {
+        return x != null && y!= null && Integer.valueOf(x) <= y;
+    }
+
+
+    public static boolean gt(Integer x, String y) {
+        return x != null && y!= null && Integer.valueOf(y) < x;
+    }
+
+    public static boolean ge(Integer x, String y) {
+        return x != null && y!= null && Integer.valueOf(y) <= x;
+    }
+
+    public static boolean lt(Integer x, String y) {
+        return x != null && y!= null && Integer.valueOf(y) > x;
+    }
+
+    public static boolean le(Integer x, String y) {
+        return x != null && y!= null && Integer.valueOf(y) >= x;
     }
 
 }
