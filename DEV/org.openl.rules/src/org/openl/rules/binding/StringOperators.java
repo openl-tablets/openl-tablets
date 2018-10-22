@@ -16,10 +16,11 @@ import org.openl.meta.ShortValue;
 import org.openl.meta.number.Formulas;
 
 @OperatorsNamespace
+@Deprecated
 public class StringOperators extends Operators {
 
-    private static final int STRING_TO_TYPE_DISTANCE = 40;
-    private static final int TYPE_TO_STRING_DISTANCE = 41;
+    private static final int STRING_TO_TYPE_DISTANCE = 20;
+    private static final int TYPE_TO_STRING_DISTANCE = 21;
 
     public static Byte add(Byte x, String y) {
         return (byte) (x + Byte.valueOf(y));
@@ -446,6 +447,103 @@ public class StringOperators extends Operators {
     }
 
     public static Integer distance(String x, double y) {
+        return STRING_TO_TYPE_DISTANCE;
+    }
+
+    // AutoCasts to String
+    public static String autocast(Byte x, String y) {
+        return Byte.toString(x);
+    }
+
+    public static Integer distance(Byte x, String y) {
+        return TYPE_TO_STRING_DISTANCE;
+    }
+
+    public static Byte autocast(String x, Byte y) {
+        return x == null ? null :Byte.valueOf(x);
+    }
+
+    public static Integer distance(String x, Byte y) {
+        return STRING_TO_TYPE_DISTANCE;
+    }
+
+    public static String autocast(Short x, String y) {
+        return Short.toString(x);
+    }
+
+    public static Integer distance(Short x, String y) {
+        return TYPE_TO_STRING_DISTANCE;
+    }
+
+    public static short autocast(String x, Short y) {
+        return x == null ? null : Short.valueOf(x);
+    }
+
+    public static Integer distance(String x, Short y) {
+        return STRING_TO_TYPE_DISTANCE;
+    }
+
+    public static String autocast(Integer x, String y) {
+        return Integer.toString(x);
+    }
+
+    public static Integer distance(Integer x, String y) {
+        return TYPE_TO_STRING_DISTANCE;
+    }
+
+    public static Integer autocast(String x, Integer y) {
+        return x == null ? null : Integer.valueOf(x);
+    }
+
+    public static Integer distance(String x, Integer y) {
+        return STRING_TO_TYPE_DISTANCE;
+    }
+
+    public static String autocast(Long x, String y) {
+        return Long.toString(x);
+    }
+
+    public static Integer distance(Long x, String y) {
+        return TYPE_TO_STRING_DISTANCE;
+    }
+
+    public static Long autocast(String x, Long y) {
+        return x == null ? null : Long.valueOf(x);
+    }
+
+    public static Integer distance(String x, Long y) {
+        return STRING_TO_TYPE_DISTANCE;
+    }
+
+    public static String autocast(Float x, String y) {
+        return Float.toString(x);
+    }
+
+    public static Integer distance(Float x, String y) {
+        return TYPE_TO_STRING_DISTANCE;
+    }
+
+    public static Float autocast(String x, Float y) {
+        return x == null ? null : Float.valueOf(x);
+    }
+
+    public static Integer distance(String x, Float y) {
+        return STRING_TO_TYPE_DISTANCE;
+    }
+
+    public static String autocast(Double x, String y) {
+        return Double.toString(x);
+    }
+
+    public static Integer distance(Double x, String y) {
+        return TYPE_TO_STRING_DISTANCE;
+    }
+
+    public static Double autocast(String x, Double y) {
+        return x == null ? null : Double.valueOf(x);
+    }
+
+    public static Integer distance(String x, Double y) {
         return STRING_TO_TYPE_DISTANCE;
     }
 
