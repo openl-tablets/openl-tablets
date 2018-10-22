@@ -2,27 +2,27 @@ package org.openl.rules.enumeration;
 
 public enum CaRegionsEnum {
 
-	QC("Québec"),
-	HQ("Hors Québec");
+    QC("Québec"),
+    HQ("Hors Québec");
 
-	private final String displayName;
+    private final String displayName;
 
-	private CaRegionsEnum (String displayName) {
-		this.displayName = displayName;
-	}
+    private CaRegionsEnum (String displayName) {
+        this.displayName = displayName;
+    }
 
-	@Override
-	public String toString() {
-		return displayName;
-	}
-	
-	public static CaRegionsEnum fromString(String displayName) {
-		for (CaRegionsEnum v : CaRegionsEnum.values()) {
-			if (displayName.equalsIgnoreCase(v.displayName)) {
-				return v;
-			}
-		}
-		
-		throw new IllegalArgumentException("No constant with displayName " + displayName + " found");
-  	}
+    @Override
+    public String toString() {
+        return displayName;
+    }
+
+    public static CaRegionsEnum fromString(String displayName) {
+        for (CaRegionsEnum v : CaRegionsEnum.values()) {
+            if (displayName.equalsIgnoreCase(v.displayName)) {
+                return v;
+            }
+        }
+
+        throw new IllegalArgumentException("No constant with displayName " + displayName + " found");
+    }
 }
