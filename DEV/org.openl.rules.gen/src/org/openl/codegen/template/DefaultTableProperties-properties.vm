@@ -3,7 +3,7 @@
         return ($tool.getTypeName($tablePropertyDefinition.Type.InstanceClass)) getPropertyValue("$tablePropertyDefinition.Name");
     }
 
-    public void set$tool.formatAccessorName($tablePropertyDefinition.Name)($tool.getTypeName($tablePropertyDefinition.Type.InstanceClass) $tablePropertyDefinition.Name) {
+    public void set$tool.formatAccessorName($tablePropertyDefinition.Name)($tool.getVarArgTypeName($tablePropertyDefinition.Type.InstanceClass) $tablePropertyDefinition.Name) {
         setFieldValue("$tablePropertyDefinition.Name", $tablePropertyDefinition.Name);
         reset();
     }
