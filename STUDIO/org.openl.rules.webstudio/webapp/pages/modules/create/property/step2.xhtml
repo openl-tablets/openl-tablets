@@ -50,7 +50,9 @@
                                     selected="#{prop.enumArrayValue}" rendered="#{prop.enumArray}" required="true" requiredMessage="Please select anything"/>
 
                                 <h:inputText id="inputText" value="#{prop.value}" validator="#{wizard.validatePropsValue}"
-                                    rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray)}"/>
+                                    rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray || prop.stringArray)}"/>
+
+                                <h:inputText id="inputTextArray" value="#{prop.stringValue}"  validator="#{wizard.validatePropsValue}" rendered="#{prop.stringArray}" />
 
                                 <h:selectOneMenu id="oneSelect" value="#{prop.value}" rendered="#{prop.enumType and !prop.enumArray}">
                                     <f:selectItems value="#{prop.enumArrayItems}" />
@@ -70,6 +72,8 @@
                                         styleClass="error" />
                                     <h:message for="inputText"
                                         styleClass="error" />
+                                    <h:message for="inputTextArray"
+                                               styleClass="error" />
                                     <h:message for="multiselect-select"
                                         styleClass="error" />
                                 </a4j:outputPanel>
