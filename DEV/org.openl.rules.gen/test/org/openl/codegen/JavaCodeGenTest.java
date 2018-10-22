@@ -51,8 +51,8 @@ public class JavaCodeGenTest extends TestCase {
         Assert.assertEquals("\"a\\'\\\"\\n\"", cg.genLiteralString("a\'\"\n", sb()).toString());
         String baseLongStr = "0123456789";
         String longStr = makeLongStr(baseLongStr, 20);
-        Assert.assertEquals("\"" + makeLongStr(baseLongStr, 8) + "\"\n" + " + \"" + makeLongStr(baseLongStr, 8)
-                + "\"\n" + " + \"" + makeLongStr(baseLongStr, 4) + "\"", cg.genLiteralString(longStr, sb()).toString());
+        Assert.assertEquals("\"" + makeLongStr(baseLongStr, 8) + "\"\r\n" + " + \"" + makeLongStr(baseLongStr, 8)
+                + "\"\r\n" + " + \"" + makeLongStr(baseLongStr, 4) + "\"", cg.genLiteralString(longStr, sb()).toString());
     }
 
     String makeLongStr(String base, int n) {
