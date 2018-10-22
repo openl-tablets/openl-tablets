@@ -22,14 +22,19 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 
 public class DefaultPropertiesFileNameProcessor implements PropertiesFileNameProcessor, FileNamePatternValidator {
 
-    private static Pattern pattern = Pattern.compile("(\\%[^%]+\\%)");
     private static final String EMPTY_STRING = "";
     private static final String ARRAY_SEPARATOR = ",";
     private static final String DEFAULT_PATTERN = ".+?";
+    private static Pattern pattern = Pattern.compile("(\\%[^%]+\\%)");
 
     @Override
     public ITableProperties process(Module module, String fileNamePattern) throws NoMatchFileNameException,
                                                                            InvalidFileNamePatternException {
+        String fileName = FilenameExtractorUtil.extractFileNameFromModule(module);
+        return process(fileName, fileNamePattern);
+    }
+
+    ITableProperties process(String fileName, String fileNamePattern) throws InvalidFileNamePatternException, NoMatchFileNameException {
         if (fileNamePattern == null) {
             fileNamePattern = EMPTY_STRING;
         }
@@ -44,7 +49,6 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         } catch (PatternSyntaxException e) {
             throw new InvalidFileNamePatternException("Invalid file name pattern! Invalid at: " + fileNamePattern);
         }
-        String fileName = FilenameExtractorUtil.extractFileNameFromModule(module);
         Matcher fileNameMatcher = p.matcher(fileName);
         if (fileNameMatcher.matches()) {
             TableProperties props = new TableProperties();
@@ -140,26 +144,27 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 if (matcher.find(start)) {
                     String propertyMatch = matcher.group();
                     String propertyName = propertyMatch.substring(1, propertyMatch.length() - 1);
-                    try {
-                        if (propertyName.contains(":")) {
-                            int t = propertyName.indexOf(':');
-                            String p = propertyName.substring(0, t);
-                            dateFormats.put(p, new SimpleDateFormat(propertyName.substring(t + 1)));
-                            propertyName = p;
-                        }
-                    } catch (RuntimeException e) {
-                        throw new InvalidFileNamePatternException(
-                            "Wrong file name pattern! Wrong at: " + propertyMatch);
+                    String format = null;
+                    if (propertyName.contains(":")) {
+                        int t = propertyName.indexOf(':');
+                        format = propertyName.substring(t + 1);
+                        propertyName = propertyName.substring(0, t);
                     }
                     if (!TablePropertyDefinitionUtils.isPropertyExist(propertyName)) {
                         throw new InvalidFileNamePatternException(
                             "Wrong file name pattern! Unknown property: " + propertyName);
                     }
-                    propertyNames.add(propertyName);
                     Class<?> returnType = TablePropertyDefinitionUtils.getTypeByPropertyName(propertyName);
 
-                    String pattern = getPattern(propertyName, returnType);
+                    String pattern;
+                    try {
+                        pattern = getPattern(propertyName, format, returnType);
+                    } catch (RuntimeException e) {
+                        throw new InvalidFileNamePatternException(
+                            "Wrong file name pattern! Wrong at: " + propertyMatch);
+                    }
                     fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch, "(" + pattern + ")");
+                    propertyNames.add(propertyName);
                     start = matcher.end();
                 } else {
                     start = fileNamePattern.length();
@@ -169,15 +174,15 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
             return fileNameRegexpPattern;
         }
 
-        private String getPattern(String propertyName, Class<?> returnType) throws InvalidFileNamePatternException {
+        private String getPattern(String propertyName,
+                String format,
+                Class<?> returnType) throws InvalidFileNamePatternException {
             String pattern = DEFAULT_PATTERN; // Default pattern for non-restricted values.
             if (Boolean.class.equals(returnType)) {
-                pattern = "true|false|True|False|TRUE|FALSE|Yes|No|yes|no";
+                pattern = "[a-zA-Z]+";
             } else if (Date.class.equals(returnType)) {
-                if (!dateFormats.containsKey(propertyName)) {
-                    throw new InvalidFileNamePatternException(
-                        "Date property '" + propertyName + "' must define date format!");
-                }
+                dateFormats.put(propertyName, new SimpleDateFormat(format));
+                pattern = dateFormatToPattern(format);
             } else if (returnType.isEnum()) {
                 pattern = "[a-zA-Z$_][\\w$_]*";
             } else if (returnType.isArray()) {
@@ -185,11 +190,21 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 if (componentClass.isArray()) {
                     throw new OpenlNotCheckedException("Two dim arrays aren't supported!");
                 }
-                pattern = getPattern(propertyName, componentClass);
+                pattern = getPattern(propertyName, format, componentClass);
                 if (!DEFAULT_PATTERN.equals(pattern)) {
                     pattern = String.format("(?:%s)(?:%s(?:%s))*", pattern, ARRAY_SEPARATOR, pattern);
                 }
             }
+            return pattern;
+        }
+
+        private String dateFormatToPattern(String format) {
+            String pattern = format.replaceAll("([ydDwWHkmsSuF])(?!\\1)", "%"); // pattern for the lastes digits
+            pattern = pattern.replaceAll("[ydDwWHkmsSuF]", "\\\\d");
+            pattern = pattern.replaceAll("%", "\\\\d+"); // restore pattern
+            pattern = pattern.replaceAll("MMM+", "\\\\p{Alpha}+");
+            pattern = pattern.replaceAll("MM", "\\\\d{2}");
+            pattern = pattern.replaceAll("M", "\\\\d{1,2}");
             return pattern;
         }
 
@@ -201,10 +216,13 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         protected Object getObject(String propertyName, String value, Class<?> clazz) {
             Object propValue;
             if (Boolean.class.equals(clazz)) {
-                if ("YES".equals(value.toUpperCase()) || "TRUE".equals(value.toUpperCase())) {
+                String upCase = value.toUpperCase();
+                if ("YES".equals(upCase) || "TRUE".equals(upCase)) {
                     propValue = Boolean.TRUE;
-                } else {
+                } else if ("NO".equals(upCase) || "FALSE".equals(upCase)) {
                     propValue = Boolean.FALSE;
+                } else {
+                    throw new OpenlNotCheckedException("YES/NO or TRUE/FALSE is supported as Boolean values.");
                 }
             } else if (String.class.equals(clazz)) {
                 propValue = value;
