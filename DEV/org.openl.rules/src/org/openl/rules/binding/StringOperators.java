@@ -773,6 +773,13 @@ public class StringOperators extends Operators {
         return x != null && y!= null && Integer.valueOf(x) <= y;
     }
 
+    public static boolean eq(String x, Integer y) {
+        return x == null && y == null || x!= null && y!= null && Integer.valueOf(x) == y;
+    }
+
+    public static boolean ne(String x, Integer y) {
+        return !eq(x, y);
+    }
 
     public static boolean gt(Integer x, String y) {
         return x != null && y!= null && Integer.valueOf(y) < x;
@@ -790,4 +797,12 @@ public class StringOperators extends Operators {
         return x != null && y!= null && Integer.valueOf(y) >= x;
     }
 
+
+    public static boolean eq(Integer x, String y) {
+        return eq(y, x);
+    }
+
+    public static boolean ne(Integer x, String y) {
+        return ne(y, x);
+    }
 }
