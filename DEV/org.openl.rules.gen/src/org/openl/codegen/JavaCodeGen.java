@@ -135,7 +135,7 @@ public class JavaCodeGen implements ICodeGen {
             char c = src.charAt(i);
 
             if (i % MAX_STR_LEN == 0 && i > 0) {
-                sb.append("\"\n");
+                sb.append("\"\r\n");
                 startLine(sb);
                 sb.append(" + \"");
             }
@@ -173,7 +173,7 @@ public class JavaCodeGen implements ICodeGen {
 
         for (String line : lines) {
             startLine(sb);
-            sb.append(MULTILINE_COMMENT).append(line).append('\n');
+            sb.append(MULTILINE_COMMENT).append(line).append("\r\n");
         }
 
         startLine(sb);
@@ -184,7 +184,7 @@ public class JavaCodeGen implements ICodeGen {
     }
 
     public StringBuilder genSingleLineComment(String comment, StringBuilder sb) {
-        sb.append(START_SINGLELINE_COMMENT).append(comment).append('\n');
+        sb.append(START_SINGLELINE_COMMENT).append(comment).append("\r\n");
 
         return sb;
     }
