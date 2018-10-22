@@ -25,6 +25,14 @@ public class VelocityTool {
         return clazz.getName();
     }
 
+    public String getVarArgTypeName(Class<?> clazz) {
+
+        if (clazz.isArray()) {
+            return String.format("%s...", clazz.getComponentType().getName());
+        }
+        return clazz.getName();
+    }
+
     public boolean hasConstructorWithoutParams(Class<?> clazz) {
         return hasPublicConstructor(clazz, EMPTY);
     }

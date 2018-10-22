@@ -137,7 +137,7 @@ public interface ITableProperties {
     java.lang.String getDescription();
     void setDescription(java.lang.String description);
     java.lang.String[] getTags();
-    void setTags(java.lang.String[] tags);
+    void setTags(java.lang.String... tags);
     java.util.Date getEffectiveDate();
     void setEffectiveDate(java.util.Date effectiveDate);
     java.util.Date getExpirationDate();
@@ -147,25 +147,25 @@ public interface ITableProperties {
     java.util.Date getEndRequestDate();
     void setEndRequestDate(java.util.Date endRequestDate);
     org.openl.rules.enumeration.CaRegionsEnum[] getCaRegions();
-    void setCaRegions(org.openl.rules.enumeration.CaRegionsEnum[] caRegions);
+    void setCaRegions(org.openl.rules.enumeration.CaRegionsEnum... caRegions);
     org.openl.rules.enumeration.CaProvincesEnum[] getCaProvinces();
-    void setCaProvinces(org.openl.rules.enumeration.CaProvincesEnum[] caProvinces);
+    void setCaProvinces(org.openl.rules.enumeration.CaProvincesEnum... caProvinces);
     org.openl.rules.enumeration.CountriesEnum[] getCountry();
-    void setCountry(org.openl.rules.enumeration.CountriesEnum[] country);
+    void setCountry(org.openl.rules.enumeration.CountriesEnum... country);
     org.openl.rules.enumeration.RegionsEnum[] getRegion();
-    void setRegion(org.openl.rules.enumeration.RegionsEnum[] region);
+    void setRegion(org.openl.rules.enumeration.RegionsEnum... region);
     org.openl.rules.enumeration.CurrenciesEnum[] getCurrency();
-    void setCurrency(org.openl.rules.enumeration.CurrenciesEnum[] currency);
+    void setCurrency(org.openl.rules.enumeration.CurrenciesEnum... currency);
     org.openl.rules.enumeration.LanguagesEnum[] getLang();
-    void setLang(org.openl.rules.enumeration.LanguagesEnum[] lang);
+    void setLang(org.openl.rules.enumeration.LanguagesEnum... lang);
     java.lang.String[] getLob();
-    void setLob(java.lang.String[] lob);
+    void setLob(java.lang.String... lob);
     org.openl.rules.enumeration.OriginsEnum getOrigin();
     void setOrigin(org.openl.rules.enumeration.OriginsEnum origin);
     org.openl.rules.enumeration.UsRegionsEnum[] getUsregion();
-    void setUsregion(org.openl.rules.enumeration.UsRegionsEnum[] usregion);
+    void setUsregion(org.openl.rules.enumeration.UsRegionsEnum... usregion);
     org.openl.rules.enumeration.UsStatesEnum[] getState();
-    void setState(org.openl.rules.enumeration.UsStatesEnum[] state);
+    void setState(org.openl.rules.enumeration.UsStatesEnum... state);
     java.lang.String getVersion();
     void setVersion(java.lang.String version);
     java.lang.Boolean getActive();
@@ -196,8 +196,6 @@ public interface ITableProperties {
     void setNature(java.lang.String nature);
 // <<< END INSERT >>>
 
-	void setLob(String lob);
-	
     void setCategoryProperties(Map<String, Object> categoryProperties);
     
     void setModuleProperties(Map<String, Object> moduleProperties);  

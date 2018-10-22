@@ -139,7 +139,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         return (java.lang.String[]) getPropertyValue("tags");
     }
 
-    public void setTags(java.lang.String[] tags) {
+    public void setTags(java.lang.String... tags) {
         setFieldValue("tags", tags);
         reset();
     }
@@ -179,7 +179,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         return (org.openl.rules.enumeration.CaRegionsEnum[]) getPropertyValue("caRegions");
     }
 
-    public void setCaRegions(org.openl.rules.enumeration.CaRegionsEnum[] caRegions) {
+    public void setCaRegions(org.openl.rules.enumeration.CaRegionsEnum... caRegions) {
         setFieldValue("caRegions", caRegions);
         reset();
     }
@@ -187,7 +187,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         return (org.openl.rules.enumeration.CaProvincesEnum[]) getPropertyValue("caProvinces");
     }
 
-    public void setCaProvinces(org.openl.rules.enumeration.CaProvincesEnum[] caProvinces) {
+    public void setCaProvinces(org.openl.rules.enumeration.CaProvincesEnum... caProvinces) {
         setFieldValue("caProvinces", caProvinces);
         reset();
     }
@@ -195,7 +195,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         return (org.openl.rules.enumeration.CountriesEnum[]) getPropertyValue("country");
     }
 
-    public void setCountry(org.openl.rules.enumeration.CountriesEnum[] country) {
+    public void setCountry(org.openl.rules.enumeration.CountriesEnum... country) {
         setFieldValue("country", country);
         reset();
     }
@@ -203,7 +203,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         return (org.openl.rules.enumeration.RegionsEnum[]) getPropertyValue("region");
     }
 
-    public void setRegion(org.openl.rules.enumeration.RegionsEnum[] region) {
+    public void setRegion(org.openl.rules.enumeration.RegionsEnum... region) {
         setFieldValue("region", region);
         reset();
     }
@@ -211,7 +211,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         return (org.openl.rules.enumeration.CurrenciesEnum[]) getPropertyValue("currency");
     }
 
-    public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum[] currency) {
+    public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum... currency) {
         setFieldValue("currency", currency);
         reset();
     }
@@ -219,7 +219,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         return (org.openl.rules.enumeration.LanguagesEnum[]) getPropertyValue("lang");
     }
 
-    public void setLang(org.openl.rules.enumeration.LanguagesEnum[] lang) {
+    public void setLang(org.openl.rules.enumeration.LanguagesEnum... lang) {
         setFieldValue("lang", lang);
         reset();
     }
@@ -227,7 +227,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         return (java.lang.String[]) getPropertyValue("lob");
     }
 
-    public void setLob(java.lang.String[] lob) {
+    public void setLob(java.lang.String... lob) {
         setFieldValue("lob", lob);
         reset();
     }
@@ -243,7 +243,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         return (org.openl.rules.enumeration.UsRegionsEnum[]) getPropertyValue("usregion");
     }
 
-    public void setUsregion(org.openl.rules.enumeration.UsRegionsEnum[] usregion) {
+    public void setUsregion(org.openl.rules.enumeration.UsRegionsEnum... usregion) {
         setFieldValue("usregion", usregion);
         reset();
     }
@@ -251,7 +251,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         return (org.openl.rules.enumeration.UsStatesEnum[]) getPropertyValue("state");
     }
 
-    public void setState(org.openl.rules.enumeration.UsStatesEnum[] state) {
+    public void setState(org.openl.rules.enumeration.UsStatesEnum... state) {
         setFieldValue("state", state);
         reset();
     }
@@ -368,10 +368,6 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         reset();
     }
 // <<< END INSERT >>>
-
-    public void setLob(String lob) {
-        setLob(new String[] { lob});
-    }
 
     /**
      * {@inheritDoc}
@@ -619,7 +615,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         if (externalProperties == null) {
             this.externalModuleProperties = Collections.emptyMap();
         }
-        this.externalModuleProperties = extractPropertiesMap(externalProperties);;
+        this.externalModuleProperties = extractPropertiesMap(externalProperties);
         reset();
     }
 
