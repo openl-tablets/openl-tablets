@@ -13,6 +13,7 @@ import org.openl.types.IOpenField;
 import org.openl.util.ArrayTool;
 import org.openl.util.ClassUtils;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -63,8 +64,19 @@ public class BeanOpenField implements IOpenField {
                         fieldName = field.getName();
                         pd.setName(fieldName);
                     } catch (NoSuchFieldException e1) {
-                        // It is possible that there is no such field at all
-                        //
+                        try {
+                            // Special case for backward compatibility
+                            // when getAB() was generated for 'aB' field name.
+                            // In this case Introspector returns 'AB' field name.
+                            String fname = StringUtils.uncapitalize(fieldName);
+                            field = c.getDeclaredField(fname);
+                            // Reset the name
+                            fieldName = field.getName();
+                            pd.setName(fieldName);
+                        } catch (NoSuchFieldException e2) {
+                            // It is possible that there is no such field at all
+                            //
+                        }
                     }
 
                 }
