@@ -58,7 +58,7 @@ public class FileCodeGen {
             while ((line = br.readLine()) != null) {
 
                 if (line.contains(insertTag)) {
-                    sb.append(line).append('\n');
+                    sb.append(line).append("\r\n");
                     cga.processInsertTag(line, sb);
                     endInsert.push(getEndInsertTag(line));
                 }
@@ -69,12 +69,12 @@ public class FileCodeGen {
                     String endTag = endInsert.peek();
                     if (line.contains(endTag)) {
                         cga.processEndInsertTag(line, sb);
-                        sb.append(line.trim()).append('\n');
+                        sb.append(line.trim()).append("\r\n");
                         endInsert.pop();
                     }
                     continue;
                 }
-                sb.append(line).append('\n');
+                sb.append(line).append("\r\n");
 
             }
 
