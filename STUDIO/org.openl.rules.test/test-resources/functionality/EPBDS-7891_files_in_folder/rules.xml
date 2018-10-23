@@ -1,0 +1,34 @@
+<project>
+  <name>FileVersioning</name>
+  <modules>
+    <module>
+      <name>Home</name>
+      <rules-root path="Home-*.*"/>
+    </module>
+    <module>
+      <name>Auto</name>
+      <rules-root path="Folder/*.*"/>
+    </module>
+    <module>
+      <name>Life1</name>
+      <rules-root path="Life-FL.xlsx"/>
+    </module>
+    <module>
+      <name>Life2</name>
+      <rules-root path="Life-NY.xls"/>
+    </module>
+    <module>
+      <name>Not1</name>
+      <rules-root path="Not-versioned.xlsx"/>
+    </module>
+    <module>
+      <name>Not2</name>
+      <rules-root path="Not-versioned2.xls"/>
+    </module>
+    <module>
+      <name>Test</name>
+      <rules-root path="Test.xlsx"/>
+    </module>
+  </modules>
+  <properties-file-name-pattern>%lob%-%state%</properties-file-name-pattern>
+</project>
