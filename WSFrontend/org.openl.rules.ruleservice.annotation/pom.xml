@@ -12,4 +12,12 @@
     <name>OpenL - RuleService - Core - Annotations</name>
     <description>Common OpenL Rules Service Annotation</description>
     <url>//openl-tablets.org</url>
+    <dependencies>
+        <!-- Required for Java11 -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

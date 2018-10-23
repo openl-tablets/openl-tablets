@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.trace;
 import java.io.IOException;
 import java.io.Writer;
 
-import javax.activation.MimetypesFileTypeMap;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
@@ -51,8 +50,7 @@ public class TraceIntoFileBean {
         String outputFileName = "trace.txt";
         WebTool.setContentDisposition(response, outputFileName);
 
-        String contentType = new MimetypesFileTypeMap().getContentType(outputFileName);
-        response.setContentType(contentType);
+        response.setContentType("text/plain");
 
         Writer writer = null;
 
