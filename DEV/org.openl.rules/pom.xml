@@ -53,12 +53,11 @@
             <groupId>org.openl</groupId>
             <artifactId>org.openl.j</artifactId>
         </dependency>
-        <!-- OPENL MODIFIED POI -->
+        <!-- 3rd party dependencies -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
         </dependency>
-        <!-- 3rd party dependencies -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
