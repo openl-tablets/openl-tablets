@@ -196,7 +196,8 @@ public interface ITableProperties {
     void setNature(java.lang.String nature);
 // <<< END INSERT >>>
 
-	void setLob(String lob);
+    @Deprecated
+    void setLob(String lob);
 
     void setCategoryProperties(Map<String, Object> categoryProperties);
     

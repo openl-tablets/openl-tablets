@@ -369,6 +369,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 // <<< END INSERT >>>
 
+    @Deprecated
     public void setLob(String lob) {
         setLob(new String[] { lob});
     }
