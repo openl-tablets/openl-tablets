@@ -45,9 +45,9 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator {
 
     private WorkbookLoader workbookLoader;
 
-    private Set<Short> wbColors = new TreeSet<Short>();
+    private Set<Short> wbColors = new TreeSet<>();
 
-    private Collection<XlsWorkbookListener> listeners = new ArrayList<XlsWorkbookListener>();
+    private Collection<XlsWorkbookListener> listeners = new ArrayList<>();
 
     private ModificationChecker modificationChecker = DEFAULT_MODIDFICATION_CHECKER;
 
@@ -77,8 +77,8 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator {
             wbColors.add(cellStyle.getRightBorderColor());
         }
 
-        short numFonts = workbook.getNumberOfFonts();
-        for (short i = 0; i < numFonts; i++) {
+        int numFonts = workbook.getNumberOfFontsAsInt();
+        for (int i = 0; i < numFonts; i++) {
             Font font = workbook.getFontAt(i);
             wbColors.add(font.getColor());
         }

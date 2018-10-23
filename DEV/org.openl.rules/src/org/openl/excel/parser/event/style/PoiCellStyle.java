@@ -61,6 +61,11 @@ class PoiCellStyle implements CellStyle {
     }
 
     @Override
+    public int getFontIndexAsInt() {
+        return format.getFontIndex();
+    }
+
+    @Override
     public void setHidden(boolean hidden) {
 
     }
@@ -96,8 +101,8 @@ class PoiCellStyle implements CellStyle {
     }
 
     @Override
-    public short getAlignment() {
-        return format.getAlignment();
+    public HorizontalAlignment getAlignment() {
+        return HorizontalAlignment.forInt(format.getAlignment());
     }
 
     @Override
@@ -121,8 +126,8 @@ class PoiCellStyle implements CellStyle {
     }
 
     @Override
-    public short getVerticalAlignment() {
-        return format.getVerticalAlignment();
+    public VerticalAlignment getVerticalAlignment() {
+        return VerticalAlignment.forInt(format.getVerticalAlignment());
     }
 
     @Override
@@ -165,8 +170,8 @@ class PoiCellStyle implements CellStyle {
     }
 
     @Override
-    public short getBorderLeft() {
-        return format.getBorderLeft();
+    public BorderStyle getBorderLeft() {
+        return BorderStyle.valueOf(format.getBorderLeft());
     }
 
     @Override
@@ -180,8 +185,8 @@ class PoiCellStyle implements CellStyle {
     }
 
     @Override
-    public short getBorderRight() {
-        return format.getBorderRight();
+    public BorderStyle getBorderRight() {
+        return BorderStyle.valueOf(format.getBorderRight());
     }
 
     @Override
@@ -195,8 +200,8 @@ class PoiCellStyle implements CellStyle {
     }
 
     @Override
-    public short getBorderTop() {
-        return format.getBorderTop();
+    public BorderStyle getBorderTop() {
+        return BorderStyle.valueOf(format.getBorderTop());
     }
 
     @Override
@@ -210,8 +215,8 @@ class PoiCellStyle implements CellStyle {
     }
 
     @Override
-    public short getBorderBottom() {
-        return format.getBorderBottom();
+    public BorderStyle getBorderBottom() {
+        return BorderStyle.valueOf(format.getBorderBottom());
     }
 
     @Override
@@ -265,8 +270,8 @@ class PoiCellStyle implements CellStyle {
     }
 
     @Override
-    public short getFillPattern() {
-        return 0;
+    public FillPatternType getFillPattern() {
+        return FillPatternType.NO_FILL;
     }
 
     @Override

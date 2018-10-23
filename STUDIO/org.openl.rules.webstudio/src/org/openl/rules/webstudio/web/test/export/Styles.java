@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.IndexedColorMap;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.openl.rules.table.xls.PoiExcelHelper;
@@ -88,7 +89,8 @@ final class Styles {
         XSSFCellStyle style = (XSSFCellStyle) workbook.createCellStyle();
 
         if (rgb != null) {
-            XSSFColor color = new XSSFColor(new java.awt.Color(rgb));
+            IndexedColorMap indexedColors = workbook.getXSSFWorkbook().getStylesSource().getIndexedColors();
+            XSSFColor color = new XSSFColor(new java.awt.Color(rgb), indexedColors);
             style.setFillForegroundColor(color);
             style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         }

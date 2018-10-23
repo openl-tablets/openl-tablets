@@ -14,10 +14,6 @@ package org.openl.rules.table;
  */
 public interface IGrid {
 
-    /**
-     * Same as in HSSFCell - no conversion requires for POI
-     */
-
     int CELL_TYPE_NUMERIC = 0;
 
     int CELL_TYPE_STRING = 1;
@@ -29,13 +25,6 @@ public interface IGrid {
     int CELL_TYPE_BOOLEAN = 4;
 
     int CELL_TYPE_ERROR = 5;
-
-    // This type is not supported by HSSF, so it can be used only for read-only
-    // grids (filters)
-    // May be make it not type but subtype
-
-    // public final static int CELL_SUB_TYPE_URL = 11;
-    // public final static int CELL_SUB_TYPE_DATE = 12;
 
     IGridTable[] getTables();
 

@@ -2,13 +2,9 @@ package org.openl.excel.grid;
 
 import java.util.Date;
 
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.openl.excel.parser.TableStyles;
-import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.ICellComment;
-import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.*;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsUtil;
@@ -114,15 +110,15 @@ public class ParsedCell implements ICell {
     public int getType() {
         Object value = getObjectValue();
         if (value == null) {
-            return Cell.CELL_TYPE_BLANK;
+            return IGrid.CELL_TYPE_BLANK;
         } else if (value instanceof Boolean) {
-            return Cell.CELL_TYPE_BOOLEAN;
+            return IGrid.CELL_TYPE_BOOLEAN;
         } else if (value instanceof Number || value instanceof Date) {
-            return Cell.CELL_TYPE_NUMERIC;
+            return IGrid.CELL_TYPE_NUMERIC;
         } else if (value instanceof String) {
-            return Cell.CELL_TYPE_STRING;
+            return IGrid.CELL_TYPE_STRING;
         }
-        return Cell.CELL_TYPE_ERROR;
+        return IGrid.CELL_TYPE_ERROR;
     }
 
     @Override

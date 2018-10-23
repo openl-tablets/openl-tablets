@@ -21,8 +21,6 @@ public class HTMLToExcelStyleCoverter {
     private final static String BOTTOM = "Bottom";
     private final static String LEFT = "Left";
 
-    JSONObject style;
-
     static public short getBackgroundColor(JSONObject style, Workbook workbook) {
         return getColorByHtmlStyleName("backgroundColor", style, workbook);
     }
@@ -83,7 +81,7 @@ public class HTMLToExcelStyleCoverter {
 
     static public Font getFont(JSONObject style, Workbook wb) {
         boolean boldWeight = false;
-        short color = HSSFColor.BLACK.index;
+        short color = HSSFColor.HSSFColorPredefined.BLACK.getIndex();
         short fontHeight = 10*20;
         String name = "Arial";
         boolean italic = false;
@@ -140,7 +138,7 @@ public class HTMLToExcelStyleCoverter {
                 }
             }
             //TODO add initialization of strikeout, typeOffset, underline
-        } catch (JSONException e) {
+        } catch (JSONException ignored) {
 
         }
 
@@ -196,7 +194,7 @@ public class HTMLToExcelStyleCoverter {
             return hssfColor.getIndex();
         }
 
-        return HSSFColor.WHITE.index;
+        return HSSFColor.HSSFColorPredefined.WHITE.getIndex();
     }
 
     private static short[] stringRGBToShort(String rgbColor) {
@@ -243,41 +241,47 @@ public class HTMLToExcelStyleCoverter {
         return BorderStyle.NONE;
     }
 
-    public static XSSFColor getXSSFBackgroundColor(JSONObject style) {
-        return getXSSFColorByHtmlStyleName("backgroundColor", style);
+    public static XSSFColor getXSSFBackgroundColor(JSONObject style,
+            XSSFWorkbook workbook) {
+        return getXSSFColorByHtmlStyleName("backgroundColor", style, workbook);
     }
 
-    public static XSSFColor getXSSFTopBorderColor(JSONObject style) {
-        return getXSSFColorByHtmlStyleName("borderTopColor", style);
+    public static XSSFColor getXSSFTopBorderColor(JSONObject style, XSSFWorkbook workbook) {
+        return getXSSFColorByHtmlStyleName("borderTopColor", style, workbook);
     }
 
-    public static XSSFColor getXSSFRightBorderColor(JSONObject style) {
-        return getXSSFColorByHtmlStyleName("borderRightColor", style);
+    public static XSSFColor getXSSFRightBorderColor(JSONObject style,
+            XSSFWorkbook workbook) {
+        return getXSSFColorByHtmlStyleName("borderRightColor", style, workbook);
     }
 
-    public static XSSFColor getXSSFBottomBorderColor(JSONObject style) {
-        return getXSSFColorByHtmlStyleName("borderBottomColor", style);
+    public static XSSFColor getXSSFBottomBorderColor(JSONObject style,
+            XSSFWorkbook workbook) {
+        return getXSSFColorByHtmlStyleName("borderBottomColor", style, workbook);
     }
 
-    public static XSSFColor getXSSFLeftBorderColor(JSONObject style) {
-        return getXSSFColorByHtmlStyleName("borderLeftColor", style);
+    public static XSSFColor getXSSFLeftBorderColor(JSONObject style,
+            XSSFWorkbook workbook) {
+        return getXSSFColorByHtmlStyleName("borderLeftColor", style, workbook);
     }
     
-    private static XSSFColor getXSSFColorByHtmlStyleName(String styleName, JSONObject style) {
+    private static XSSFColor getXSSFColorByHtmlStyleName(String styleName,
+            JSONObject style,
+            XSSFWorkbook workbook) {
         if (!style.isNull(styleName)) {
             try {
                 if (StringUtils.isNotEmpty(style.getString(styleName))) {
                     short[] rgb = stringRGBToShort(style.getString(styleName));
-                    return PoiExcelHelper.getColor(rgb);
+                    return PoiExcelHelper.getColor(rgb, workbook);
                 } else {
-                    return PoiExcelHelper.getColor(new short[]{0,0,0});
+                    return PoiExcelHelper.getColor(new short[]{0,0,0}, workbook);
                 }
             } catch (JSONException e) {
-                return PoiExcelHelper.getColor(new short[]{0,0,0});
+                return PoiExcelHelper.getColor(new short[]{0,0,0}, workbook);
             }
         }
 
-        return PoiExcelHelper.getColor(new short[]{0,0,0});
+        return PoiExcelHelper.getColor(new short[]{0,0,0}, workbook);
     }
 
     public static short getColorByHtmlStyleName(String styleName, JSONObject style, Workbook workbook) {
@@ -285,11 +289,11 @@ public class HTMLToExcelStyleCoverter {
             try {
                 return getColorIndex(stringRGBToShort(style.getString(styleName)), workbook);
             } catch (JSONException e) {
-                return HSSFColor.WHITE.index;
+                return HSSFColor.HSSFColorPredefined.WHITE.getIndex();
             }
         }
 
-        return HSSFColor.WHITE.index;
+        return HSSFColor.HSSFColorPredefined.WHITE.getIndex();
     }
 
     public static Font getXSSFFont(JSONObject style, XSSFWorkbook workbook) {
@@ -326,7 +330,7 @@ public class HTMLToExcelStyleCoverter {
                 String rgbColor = style.getString("color");
 
                 if(StringUtils.isNotEmpty(rgbColor)) {
-                    color = PoiExcelHelper.getColor(stringRGBToShort(rgbColor));
+                    color = PoiExcelHelper.getColor(stringRGBToShort(rgbColor), workbook);
                     indexedColor = color.getIndexed();
                 }
             }
@@ -355,7 +359,7 @@ public class HTMLToExcelStyleCoverter {
                 }
             }
             //TODO add initialization of strikeout, typeOffset, underline
-        } catch (JSONException e) {
+        } catch (JSONException ignored) {
 
         }
         //FIXME equals fronts never find

@@ -35,7 +35,7 @@ public class XlsCellStyle implements ICellStyle {
 
     @Override
     public FillPatternType getFillPattern() {
-        return xlsStyle.getFillPatternEnum();
+        return xlsStyle.getFillPattern();
     }
 
     public boolean hasNoFill() {
@@ -74,12 +74,12 @@ public class XlsCellStyle implements ICellStyle {
 
     @Override
     public HorizontalAlignment getHorizontalAlignment() {
-        return xlsStyle == null ? HorizontalAlignment.GENERAL : xlsStyle.getAlignmentEnum();
+        return xlsStyle == null ? HorizontalAlignment.GENERAL : xlsStyle.getAlignment();
     }
 
     @Override
     public VerticalAlignment getVerticalAlignment() {
-        return xlsStyle == null ? VerticalAlignment.TOP : xlsStyle.getVerticalAlignmentEnum();
+        return xlsStyle == null ? VerticalAlignment.TOP : xlsStyle.getVerticalAlignment();
     }
 
     @Override

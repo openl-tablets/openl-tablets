@@ -54,6 +54,9 @@ public interface ICell {
 
     String getFormula();
 
+    /**
+     * Returns one of IGrid.CELL_TYPE_* values.
+     */
     int getType();
 
     String getUri();

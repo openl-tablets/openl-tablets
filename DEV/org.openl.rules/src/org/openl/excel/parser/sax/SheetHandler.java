@@ -8,7 +8,6 @@ import java.util.Map;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.xssf.model.SharedStringsTable;
-import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.ExcelParseException;
 import org.openl.excel.parser.MergedCell;
@@ -164,7 +163,7 @@ public class SheetHandler extends DefaultHandler {
                         int idx = Integer.parseInt(sstIndex);
                         String strValue = lruCache.get(idx);
                         if (strValue == null && !lruCache.containsKey(idx)) {
-                            strValue = new XSSFRichTextString(sharedStringsTable.getEntryAt(idx)).toString();
+                            strValue = sharedStringsTable.getItemAt(idx).toString();
                             lruCache.put(idx, strValue);
                         }
                         parsedValue = StringUtils.trimToNull(strValue);

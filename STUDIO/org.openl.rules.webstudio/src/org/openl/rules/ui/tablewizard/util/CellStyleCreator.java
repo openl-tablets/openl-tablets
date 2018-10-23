@@ -44,22 +44,23 @@ public class CellStyleCreator {
  
                 return new XlsCellStyle(cellStyle, workbook);
             } else if (workbook instanceof XSSFWorkbook) {
+                XSSFWorkbook xssfWorkbook = (XSSFWorkbook) workbook;
                 XSSFCellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
-                cellStyle.setFillForegroundColor((HTMLToExcelStyleCoverter.getXSSFBackgroundColor(style)));
+                cellStyle.setFillForegroundColor((HTMLToExcelStyleCoverter.getXSSFBackgroundColor(style, xssfWorkbook)));
                 cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-                cellStyle.setTopBorderColor(HTMLToExcelStyleCoverter.getXSSFTopBorderColor(style));
-                cellStyle.setRightBorderColor(HTMLToExcelStyleCoverter.getXSSFRightBorderColor(style));
-                cellStyle.setBottomBorderColor(HTMLToExcelStyleCoverter.getXSSFBottomBorderColor(style));
-                cellStyle.setLeftBorderColor(HTMLToExcelStyleCoverter.getXSSFLeftBorderColor(style));
+                cellStyle.setTopBorderColor(HTMLToExcelStyleCoverter.getXSSFTopBorderColor(style, xssfWorkbook));
+                cellStyle.setRightBorderColor(HTMLToExcelStyleCoverter.getXSSFRightBorderColor(style, xssfWorkbook));
+                cellStyle.setBottomBorderColor(HTMLToExcelStyleCoverter.getXSSFBottomBorderColor(style, xssfWorkbook));
+                cellStyle.setLeftBorderColor(HTMLToExcelStyleCoverter.getXSSFLeftBorderColor(style, xssfWorkbook));
                 
                 cellStyle.setBorderTop(HTMLToExcelStyleCoverter.getBorderTop(style));
                 cellStyle.setBorderRight(HTMLToExcelStyleCoverter.getBorderRight(style));
                 cellStyle.setBorderBottom(HTMLToExcelStyleCoverter.getBorderBottom(style));
                 cellStyle.setBorderLeft(HTMLToExcelStyleCoverter.getBorderLeft(style));
                 cellStyle.setAlignment(HTMLToExcelStyleCoverter.getAlignment(style));
-                cellStyle.setFont(HTMLToExcelStyleCoverter.getXSSFFont(style, (XSSFWorkbook) workbook));
+                cellStyle.setFont(HTMLToExcelStyleCoverter.getXSSFFont(style, xssfWorkbook));
 
                 return new XlsCellStyle(cellStyle, workbook);
             }

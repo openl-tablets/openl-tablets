@@ -21,11 +21,7 @@ import java.util.Comparator;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.xssf.usermodel.XSSFColor;
-import org.apache.poi.xssf.usermodel.XSSFComment;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -506,9 +502,12 @@ public class TestResultExportTest {
     private void assertRowColors(XSSFRow row, Integer... colors) {
         int column = TestResultExport.FIRST_COLUMN;
 
-        String sheetName = row.getSheet().getSheetName();
+        XSSFSheet sheet = row.getSheet();
+        String sheetName = sheet.getSheetName();
+        XSSFWorkbook workbook = sheet.getWorkbook();
+        IndexedColorMap indexedColors = workbook.getStylesSource().getIndexedColors();
         for (Integer color : colors) {
-            XSSFColor expected = color == null ? null : new XSSFColor(new Color(color));
+            XSSFColor expected = color == null ? null : new XSSFColor(new Color(color), indexedColors);
             String message = "Incorrect color in: {" + sheetName + "[" + row.getRowNum() + ", " + column + "]}";
             assertEquals(message, expected, row.getCell(column).getCellStyle().getFillForegroundColorColor());
             column++;
@@ -534,16 +533,16 @@ public class TestResultExportTest {
     @SuppressWarnings("deprecation")
     private String asString(Cell cell) {
         switch (cell.getCellType()) {
-            case Cell.CELL_TYPE_BLANK:
+            case BLANK:
                 return null;
-            case Cell.CELL_TYPE_BOOLEAN:
+            case BOOLEAN:
                 return "" + cell.getBooleanCellValue();
-            case Cell.CELL_TYPE_NUMERIC:
+            case NUMERIC:
                 if (DateUtil.isCellDateFormatted(cell)) {
                     return new SimpleDateFormat(DATE_FORMAT).format(cell.getDateCellValue());
                 }
                 return "" + NumberUtils.intOrDouble(cell.getNumericCellValue());
-            case Cell.CELL_TYPE_STRING:
+            case STRING:
                 return cell.getStringCellValue();
             default:
                 throw new UnsupportedOperationException();
@@ -556,13 +555,17 @@ public class TestResultExportTest {
 
         File createExcelFile(TestUnitsResults[] results, int testsPerPage) throws IOException {
             tempFile = File.createTempFile("test-results", ".xlsx");
-            new TestResultExport().export(new FileOutputStream(tempFile), testsPerPage, results);
+            try (FileOutputStream outputStream = new FileOutputStream(tempFile)) {
+                new TestResultExport().export(outputStream, testsPerPage, results);
+            }
             return tempFile;
         }
 
         @Override
         public void close() throws Exception {
-            tempFile.delete();
+            if (!tempFile.delete()) {
+                throw new IOException("File " + tempFile + " isn't deleted. Possibly it's locked.");
+            }
         }
     }
 }

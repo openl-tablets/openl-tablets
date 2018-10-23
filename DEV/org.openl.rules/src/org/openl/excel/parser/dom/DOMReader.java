@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -56,7 +55,7 @@ public class DOMReader implements ExcelReader {
             }
 
             return sheets;
-        } catch (InvalidFormatException | IOException e) {
+        } catch (IOException e) {
             throw new ExcelParseException(e);
         }
     }
@@ -145,7 +144,7 @@ public class DOMReader implements ExcelReader {
             }
 
             return cells;
-        } catch (IOException | InvalidFormatException e) {
+        } catch (IOException e) {
             throw new ExcelParseException(e);
         }
     }
@@ -162,7 +161,7 @@ public class DOMReader implements ExcelReader {
             }
 
             throw new UnsupportedOperationException("Unsupported workbook type");
-        } catch (IOException | InvalidFormatException e) {
+        } catch (IOException e) {
             throw new ExcelParseException(e);
         }
     }
@@ -186,7 +185,7 @@ public class DOMReader implements ExcelReader {
 
                 @Override
                 public ICellFont getFont(int row, int column) {
-                    Font font = workbook.getFontAt(getCell(row, column).getCellStyle().getFontIndex());
+                    Font font = workbook.getFontAt(getCell(row, column).getCellStyle().getFontIndexAsInt());
                     return new XlsCellFont(font, workbook);
                 }
 
@@ -199,14 +198,14 @@ public class DOMReader implements ExcelReader {
                 @Override
                 public String getFormula(int row, int column) {
                     Cell cell = getCell(row, column);
-                    return cell.getCellType() == CellType.FORMULA.getCode() ? cell.getCellFormula() : null;
+                    return cell.getCellType() == CellType.FORMULA ? cell.getCellFormula() : null;
                 }
 
                 private Cell getCell(int row, int column) {
                     return workbook.getSheet(sheet.getName()).getRow(row).getCell(column);
                 }
             };
-        } catch (IOException | InvalidFormatException e) {
+        } catch (IOException e) {
             throw new ExcelParseException(e);
         }
     }
@@ -226,7 +225,7 @@ public class DOMReader implements ExcelReader {
         tempFile = null;
     }
 
-    private void initializeWorkbook() throws IOException, InvalidFormatException {
+    private void initializeWorkbook() throws IOException {
         if (workbook == null) {
             // Open the file in read only mode
             workbook = WorkbookFactory.create(new File(fileName), null, true);
@@ -237,24 +236,24 @@ public class DOMReader implements ExcelReader {
     @SuppressWarnings("deprecation")
     private Object extractCellValue(Cell cell) {
         if (cell != null) {
-            int type = cell.getCellType();
-            if (type == Cell.CELL_TYPE_FORMULA) {
-                // Replace Cell.CELL_TYPE_FORMULA with the type from the formula result
+            CellType type = cell.getCellType();
+            if (type == CellType.FORMULA) {
+                // Replace IGrid.CELL_TYPE_FORMULA with the type from the formula result
                 type = cell.getCachedFormulaResultType();
             }
-            // There Cell.CELL_TYPE_FORMULA should never be at this step
+            // There IGrid.CELL_TYPE_FORMULA should never be at this step
             switch (type) {
-                case Cell.CELL_TYPE_BLANK:
+                case BLANK:
                     return null;
-                case Cell.CELL_TYPE_BOOLEAN:
+                case BOOLEAN:
                     return cell.getBooleanCellValue();
-                case Cell.CELL_TYPE_NUMERIC:
+                case NUMERIC:
                     if (DateUtil.isCellDateFormatted(cell)) {
                         return cell.getDateCellValue();
                     }
                     double value = cell.getNumericCellValue();
                     return NumberUtils.intOrDouble(value);
-                case Cell.CELL_TYPE_STRING:
+                case STRING:
                     return StringUtils.trimToNull(cell.getStringCellValue());
                 default:
                     return "unknown type: " + cell.getCellType();

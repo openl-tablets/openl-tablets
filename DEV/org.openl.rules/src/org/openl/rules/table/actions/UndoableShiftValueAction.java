@@ -2,11 +2,7 @@ package org.openl.rules.table.actions;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
-import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IWritableGrid;
+import org.openl.rules.table.*;
 
 /**
  * Shift cell with merged region.
@@ -56,7 +52,7 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         metaInfoWriter.setMetaInfo(getRow(), getCol(), getPrevMetaInfo());
 
         ICell newCell = grid.getCell(getCol(), getRow());
-        if (cell.getType() == Cell.CELL_TYPE_STRING && newCell.getType() == Cell.CELL_TYPE_FORMULA) {
+        if (cell.getType() == IGrid.CELL_TYPE_STRING && newCell.getType() == IGrid.CELL_TYPE_FORMULA) {
             grid.setCellStringValue(getCol(), getRow(), cell.getObjectValue().toString());
         }
     }

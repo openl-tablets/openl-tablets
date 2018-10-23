@@ -7,6 +7,7 @@ import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.junit.Test;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -213,17 +214,17 @@ public class MergedRegionsTest {
     }
 
     private Object extractCellValue(Cell cell) {
-        int type = cell.getCellType();
+        CellType type = cell.getCellType();
         switch (type) {
-            case Cell.CELL_TYPE_BLANK:
+            case BLANK:
                 return null;
-            case Cell.CELL_TYPE_BOOLEAN:
+            case BOOLEAN:
                 return cell.getBooleanCellValue();
-            case Cell.CELL_TYPE_NUMERIC:
+            case NUMERIC:
                 return cell.getNumericCellValue();
-            case Cell.CELL_TYPE_STRING:
+            case STRING:
                 return cell.getStringCellValue();
-            case Cell.CELL_TYPE_FORMULA:
+            case FORMULA:
                 return cell.getCellFormula();
             default:
                 return "unknown type: " + cell.getCellType();

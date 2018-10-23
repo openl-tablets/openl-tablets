@@ -65,7 +65,7 @@ public class TableBuilder {
             throw new IllegalArgumentException("gridModel is null");
         }
         this.gridModel = gridModel;
-        style2style = new HashMap<CellStyle, CellStyle>();
+        style2style = new HashMap<>();
         this.metaInfoWriter = metaInfoWriter;
     }
 
@@ -383,8 +383,8 @@ public class TableBuilder {
                 Cell newCell = PoiExcelHelper.getCell(i + region.getLeft(),
                     currentRow + j + region.getTop(),
                     gridModel.getSheetSource().getSheet());
-                if (cell.getType() != Cell.CELL_TYPE_FORMULA && newCell.getCellType() == Cell.CELL_TYPE_FORMULA) {
-                    newCell.setCellType(Cell.CELL_TYPE_STRING);
+                if (cell.getType() != IGrid.CELL_TYPE_FORMULA && newCell.getCellType() == CellType.FORMULA) {
+                    newCell.setCellType(CellType.STRING);
                     newCell.setCellValue(cellValue.toString());
                 }
                 ICellComment iCellComment = cell.getComment();

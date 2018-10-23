@@ -69,7 +69,7 @@ public class XlsCell implements ICell {
     public ICellFont getFont() {
         Cell cell = getCell();
         if (cell == null) return null;
-        Font font = gridModel.getSheetSource().getSheet().getWorkbook().getFontAt(cell.getCellStyle().getFontIndex());
+        Font font = gridModel.getSheetSource().getSheet().getWorkbook().getFontAt(cell.getCellStyle().getFontIndexAsInt());
         return new XlsCellFont(font, gridModel.getSheetSource().getSheet().getWorkbook());
     }
 
@@ -139,24 +139,24 @@ public class XlsCell implements ICell {
     private Object extractCellValue() {
         Cell cell = getCell();
         if (cell != null) {
-            int type = cell.getCellType();
-            if (type == Cell.CELL_TYPE_FORMULA) {
-                // Replace Cell.CELL_TYPE_FORMULA with the type from the formula result
+            CellType type = cell.getCellType();
+            if (type == CellType.FORMULA) {
+                // Replace IGrid.CELL_TYPE_FORMULA with the type from the formula result
                 type = cell.getCachedFormulaResultType();
             }
-            // There Cell.CELL_TYPE_FORMULA should never be at this step
+            // There IGrid.CELL_TYPE_FORMULA should never be at this step
             switch (type) {
-                case Cell.CELL_TYPE_BLANK:
+                case BLANK:
                     return null;
-                case Cell.CELL_TYPE_BOOLEAN:
+                case BOOLEAN:
                     return cell.getBooleanCellValue();
-                case Cell.CELL_TYPE_NUMERIC:
+                case NUMERIC:
                     if (DateUtil.isCellDateFormatted(cell)) {
                         return cell.getDateCellValue();
                     }
                     double value = cell.getNumericCellValue();
                     return NumberUtils.intOrDouble(value);
-                case Cell.CELL_TYPE_STRING:
+                case STRING:
                     String str = StringUtils.trimToNull(cell.getStringCellValue());
                     return StringPool.intern(str);
                 default:
@@ -186,24 +186,24 @@ public class XlsCell implements ICell {
 
     private String cellFormula() {
         Cell cell = getCell();
-        return cell.getCellType() == IGrid.CELL_TYPE_FORMULA ? cell.getCellFormula() : null;
+        return cell.getCellType() == CellType.FORMULA ? cell.getCellFormula() : null;
     }
 
     public int getType() {
         Cell cell = getCell();
         if (cell == null && region == null) {
-            return Cell.CELL_TYPE_BLANK;
+            return IGrid.CELL_TYPE_BLANK;
         } else if (region != null) {
             return getTypeFromRegion();
         } else {
-            return cell.getCellType();
+            return getIGridCellType(cell.getCellType());
         }
 
     }
 
     private int getTypeFromRegion() {
         if (isCurrentCellATopLeftCellInRegion()) {
-            return getCell().getCellType();
+            return getIGridCellType(getCell().getCellType());
         }
         ICell topLeftCell = getTopLeftCellFromRegion();
         return topLeftCell.getType();
@@ -231,11 +231,11 @@ public class XlsCell implements ICell {
             return IGrid.CELL_TYPE_BLANK;
         }
 
-        int type = cell.getCellType();
-        if (type == IGrid.CELL_TYPE_FORMULA) {
-            return cell.getCachedFormulaResultType();
+        CellType type = cell.getCellType();
+        if (type == CellType.FORMULA) {
+            return getIGridCellType(cell.getCachedFormulaResultType());
         }
-        return type;
+        return getIGridCellType(type);
     }
 
     public boolean hasNativeType() {
@@ -282,11 +282,26 @@ public class XlsCell implements ICell {
         return null;
     }
 
-    public Cell getXlsCell() {
-        return getCell();
-    }
-
     private Cell getCell() {
         return cellLoader.getCell();
+    }
+
+    private int getIGridCellType(CellType cellType) {
+        switch (cellType) {
+            case NUMERIC:
+                return IGrid.CELL_TYPE_NUMERIC;
+            case STRING:
+                return IGrid.CELL_TYPE_STRING;
+            case FORMULA:
+                return IGrid.CELL_TYPE_FORMULA;
+            case BLANK:
+                return IGrid.CELL_TYPE_BLANK;
+            case BOOLEAN:
+                return IGrid.CELL_TYPE_BOOLEAN;
+            case ERROR:
+                return IGrid.CELL_TYPE_ERROR;
+            default:
+                throw new IllegalArgumentException("Unsupported cell type " + cellType);
+        }
     }
 }

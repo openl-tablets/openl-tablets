@@ -20,9 +20,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellUtil;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFColor;
-import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.*;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.*;
 import org.openl.rules.table.ui.ICellStyle;
@@ -225,12 +223,12 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             return true;
         }
 
-        final int cellType = cell.getCellType();
-        if (cellType == Cell.CELL_TYPE_BLANK) {
+        final CellType cellType = cell.getCellType();
+        if (cellType == CellType.BLANK) {
             return true;
         }
 
-        if (cellType == Cell.CELL_TYPE_STRING) {
+        if (cellType == CellType.STRING) {
             String v = cell.getStringCellValue();
             return StringUtils.isBlank(v);
         }
@@ -263,7 +261,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             cellWriter.setValueToWrite(value);
             cellWriter.writeCellValue();
         } else {
-            poiCell.setCellType(CELL_TYPE_BLANK);
+            poiCell.setCellType(CellType.BLANK);
         }
     }
 
@@ -360,7 +358,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         CellStyle newStyle = PoiExcelHelper.cloneStyleFrom(cell);
 
         if (color != null) {
-            if (newStyle.getFillPatternEnum() == FillPatternType.NO_FILL) {
+            if (newStyle.getFillPattern() == FillPatternType.NO_FILL) {
                 newStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             }
             setCellFillColor(newStyle, color);
@@ -374,7 +372,9 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     private void setCellFillColor(CellStyle dest, short[] rgb) {
         // Xlsx
         if (dest instanceof XSSFCellStyle) {
-            XSSFColor color = new XSSFColor(new Color(rgb[0], rgb[1], rgb[2]));
+            XSSFWorkbook workbook = (XSSFWorkbook) getSheet().getWorkbook();
+            IndexedColorMap indexedColors = workbook.getStylesSource().getIndexedColors();
+            XSSFColor color = new XSSFColor(new Color(rgb[0], rgb[1], rgb[2]), indexedColors);
             ((XSSFCellStyle) dest).setFillForegroundColor(color);
 
             // Xls
@@ -395,7 +395,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         if (color != null) {
             setCellFontColor(newFont, color);
         } else {
-            newFont.setColor(HSSFColor.BLACK.index);
+            newFont.setColor(HSSFColor.HSSFColorPredefined.BLACK.getIndex());
         }
 
         newStyle.setFont(newFont);
@@ -405,7 +405,9 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     private void setCellFontColor(Font dest, short[] rgb) {
         // Xlsx
         if (dest instanceof XSSFFont) {
-            XSSFColor color = new XSSFColor(new Color(rgb[0], rgb[1], rgb[2]));
+            XSSFWorkbook workbook = (XSSFWorkbook) getSheet().getWorkbook();
+            IndexedColorMap indexedColors = workbook.getStylesSource().getIndexedColors();
+            XSSFColor color = new XSSFColor(new Color(rgb[0], rgb[1], rgb[2]), indexedColors);
             ((XSSFFont) dest).setColor(color);
 
             // Xls

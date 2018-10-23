@@ -8,9 +8,7 @@ import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellUtil;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFColor;
-import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.*;
 
 public class PoiExcelHelper {
 
@@ -19,7 +17,7 @@ public class PoiExcelHelper {
 
     public static void copyCellValue(Cell cellFrom, Cell cellTo) {
         cellTo.setCellType(CellType.BLANK);
-        switch (cellFrom.getCellTypeEnum()) {
+        switch (cellFrom.getCellType()) {
             case BLANK:
                 break;
             case BOOLEAN:
@@ -39,7 +37,7 @@ public class PoiExcelHelper {
                 cellTo.setCellValue(cellFrom.getRichStringCellValue());
                 break;
             default:
-                throw new RuntimeException("Unknown cell type: " + cellFrom.getCellTypeEnum());
+                throw new RuntimeException("Unknown cell type: " + cellFrom.getCellType());
         }
     }
 
@@ -139,7 +137,7 @@ public class PoiExcelHelper {
     public static void evaluateFormula(Cell cell) throws Exception {
         FormulaEvaluator formulaEvaluator = cell.getSheet().getWorkbook()
             .getCreationHelper().createFormulaEvaluator();
-        formulaEvaluator.evaluateFormulaCellEnum(cell);
+        formulaEvaluator.evaluateFormulaCell(cell);
     }
 
     public static <T extends CellStyle> T createCellStyle(Workbook workbook) {
@@ -173,7 +171,7 @@ public class PoiExcelHelper {
         if (cell != null) {
             Workbook workbook = cell.getSheet().getWorkbook();
             newFont = workbook.createFont();
-            short fontIndex = cell.getCellStyle().getFontIndex();
+            int fontIndex = cell.getCellStyle().getFontIndexAsInt();
             Font fromFont = workbook.getFontAt(fontIndex);
 
             newFont.setBold(fromFont.getBold());
@@ -193,8 +191,8 @@ public class PoiExcelHelper {
         Font font = null;
         if (cell != null) {
             CellStyle style = cell.getCellStyle();
-            int fontIndex = style.getFontIndex();
-            font = cell.getSheet().getWorkbook().getFontAt((short) fontIndex);
+            int fontIndex = style.getFontIndexAsInt();
+            font = cell.getSheet().getWorkbook().getFontAt(fontIndex);
         }
         return font;
     }
@@ -370,10 +368,10 @@ public class PoiExcelHelper {
     public static BorderStyle[] getCellBorderStyles(CellStyle style) {
         BorderStyle[] styles = new BorderStyle[4];
 
-        styles[0] = style.getBorderTopEnum();
-        styles[1] = style.getBorderRightEnum();
-        styles[2] = style.getBorderBottomEnum();
-        styles[3] = style.getBorderLeftEnum();
+        styles[0] = style.getBorderTop();
+        styles[1] = style.getBorderRight();
+        styles[2] = style.getBorderBottom();
+        styles[3] = style.getBorderLeft();
 
         return styles;
     }
@@ -394,28 +392,30 @@ public class PoiExcelHelper {
                 style.setLeftBorderColor(getOrAddColorIndex(colors[3], hssfWorkbook));
             }
         } else if(style instanceof XSSFCellStyle) {
+            XSSFWorkbook xssfWorkbook = (XSSFWorkbook) workbook;
             XSSFCellStyle xssfStyle = (XSSFCellStyle) style;
             if (colors[0] != null) {
-                xssfStyle.setTopBorderColor(getColor(colors[0]));
+                xssfStyle.setTopBorderColor(getColor(colors[0], xssfWorkbook));
             }
             if (colors[1] != null) {
-                xssfStyle.setRightBorderColor(getColor(colors[1]));
+                xssfStyle.setRightBorderColor(getColor(colors[1], xssfWorkbook));
             }
             if (colors[2] != null) {
-                xssfStyle.setBottomBorderColor(getColor(colors[2]));
+                xssfStyle.setBottomBorderColor(getColor(colors[2], xssfWorkbook));
             }
             if (colors[3] != null) {
-                xssfStyle.setLeftBorderColor(getColor(colors[3]));
+                xssfStyle.setLeftBorderColor(getColor(colors[3], xssfWorkbook));
             }
         }
     }
 
-    public static XSSFColor getColor(short[] color) {
+    public static XSSFColor getColor(short[] color, XSSFWorkbook workbook) {
         byte rgb[] = new byte[3];
         for (int i = 0; i < 3; i++) {
             rgb[i] = (byte) (color[i] & 0xFF);
         }
-        XSSFColor xssfColor = new XSSFColor();
+        IndexedColorMap indexedColors = workbook.getStylesSource().getIndexedColors();
+        XSSFColor xssfColor = new XSSFColor(indexedColors);
         xssfColor.setRGB(rgb);
         return xssfColor;
     }

@@ -35,7 +35,7 @@ public final class XSSFOptimizer {
             }
 
             // Change XfId references to the new ones
-            List<CTCellStyle> cellStyleArray = new ArrayList<>(Arrays.asList(cellStyles.getCellStyleArray()));
+            List<CTCellStyle> cellStyleArray = new ArrayList<>(cellStyles.getCellStyleList());
             long newXfId = 0;
             for (Integer usedStyleXf : usedStyleXfs) {
                 CTXf styleXf = styleXfs.get(usedStyleXf);
