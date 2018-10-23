@@ -90,7 +90,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                                 moduleErrorMessages.add(e.getMessage());
                             }
                         }
-                    } catch (Exception e) {
+                    } catch (Exception | LinkageError e) {
                         log.warn("Failed to load custom file name processor!", e);
                         moduleErrorMessages.add("Failed to load custom file name processor!");
                     }
