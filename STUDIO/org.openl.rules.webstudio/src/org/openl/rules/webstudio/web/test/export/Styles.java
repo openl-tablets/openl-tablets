@@ -90,7 +90,7 @@ final class Styles {
 
         if (rgb != null) {
             IndexedColorMap indexedColors = workbook.getXSSFWorkbook().getStylesSource().getIndexedColors();
-            XSSFColor color = new XSSFColor(new java.awt.Color(rgb), indexedColors);
+            XSSFColor color = new XSSFColor(convertRGB(rgb), indexedColors);
             style.setFillForegroundColor(color);
             style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         }
@@ -115,4 +115,12 @@ final class Styles {
         font.setBold(true);
         return font;
     }
+
+    static byte[] convertRGB(int rgb) {
+        byte red = (byte) ((rgb >> 16) & 0xFF);
+        byte green = (byte) ((rgb >> 8) & 0xFF);
+        byte blue = (byte) (rgb & 0xFF);
+        return new byte[] { red, green, blue };
+    }
+
 }

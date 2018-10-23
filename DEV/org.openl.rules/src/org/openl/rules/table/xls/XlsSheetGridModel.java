@@ -6,7 +6,6 @@
 
 package org.openl.rules.table.xls;
 
-import java.awt.Color;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -374,7 +373,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         if (dest instanceof XSSFCellStyle) {
             XSSFWorkbook workbook = (XSSFWorkbook) getSheet().getWorkbook();
             IndexedColorMap indexedColors = workbook.getStylesSource().getIndexedColors();
-            XSSFColor color = new XSSFColor(new Color(rgb[0], rgb[1], rgb[2]), indexedColors);
+            XSSFColor color = new XSSFColor(convertRGB(rgb), indexedColors);
             ((XSSFCellStyle) dest).setFillForegroundColor(color);
 
             // Xls
@@ -407,7 +406,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         if (dest instanceof XSSFFont) {
             XSSFWorkbook workbook = (XSSFWorkbook) getSheet().getWorkbook();
             IndexedColorMap indexedColors = workbook.getStylesSource().getIndexedColors();
-            XSSFColor color = new XSSFColor(new Color(rgb[0], rgb[1], rgb[2]), indexedColors);
+            XSSFColor color = new XSSFColor(convertRGB(rgb), indexedColors);
             ((XSSFFont) dest).setColor(color);
 
             // Xls
@@ -499,5 +498,9 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     private Sheet getSheet() {
         return sheetSource.getSheet();
+    }
+
+    private byte[] convertRGB(short[] rgb) {
+        return new byte[] { (byte) rgb[0], (byte) rgb[1], (byte) rgb[2] };
     }
 }

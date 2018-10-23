@@ -5,13 +5,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.openl.rules.webstudio.web.test.export.Styles.GREEN_FIELDS;
-import static org.openl.rules.webstudio.web.test.export.Styles.GREEN_MAIN;
-import static org.openl.rules.webstudio.web.test.export.Styles.HEADER;
-import static org.openl.rules.webstudio.web.test.export.Styles.RED_FIELDS;
-import static org.openl.rules.webstudio.web.test.export.Styles.RED_MAIN;
+import static org.openl.rules.webstudio.web.test.export.Styles.*;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -507,7 +502,7 @@ public class TestResultExportTest {
         XSSFWorkbook workbook = sheet.getWorkbook();
         IndexedColorMap indexedColors = workbook.getStylesSource().getIndexedColors();
         for (Integer color : colors) {
-            XSSFColor expected = color == null ? null : new XSSFColor(new Color(color), indexedColors);
+            XSSFColor expected = color == null ? null : new XSSFColor(convertRGB(color), indexedColors);
             String message = "Incorrect color in: {" + sheetName + "[" + row.getRowNum() + ", " + column + "]}";
             assertEquals(message, expected, row.getCell(column).getCellStyle().getFillForegroundColorColor());
             column++;
