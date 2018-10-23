@@ -78,7 +78,7 @@ public class SAXReader implements ExcelReader {
         try (OPCPackage pkg = OPCPackage.open(fileName, PackageAccess.READ)) {
             XSSFReader r = new XSSFReader(pkg);
 
-            initializeNeededData(r);
+            initializeNeededData(r, pkg);
 
             XMLReader parser = SAXHelper.newXMLReader();
             SheetHandler handler = new SheetHandler(r.getSharedStringsTable(), use1904Windowing, styleTable, parserDateUtil);
@@ -115,7 +115,7 @@ public class SAXReader implements ExcelReader {
 
             XSSFReader r = new XSSFReader(pkg);
 
-            initializeNeededData(r);
+            initializeNeededData(r, pkg);
 
             XMLReader parser = SAXHelper.newXMLReader();
             StyleIndexHandler styleIndexHandler = new StyleIndexHandler(tableRegion, saxSheet.getIndex());
@@ -146,18 +146,23 @@ public class SAXReader implements ExcelReader {
         parserDateUtil.reset();
     }
 
-    private void initializeNeededData(XSSFReader r) {
+    private void initializeNeededData(XSSFReader r, OPCPackage pkg) {
         // Ensure that needed settings were read from workbook and styles files
         if (sheets == null) {
             getSheets();
         }
 
         if (styleTable == null) {
-            parseStyles(r);
+            parseStyles(r, pkg);
         }
     }
 
-    private void parseStyles(XSSFReader r) throws ExcelParseException {
+    private void parseStyles(XSSFReader r, OPCPackage pkg) throws ExcelParseException {
+        List<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.STYLES.getContentType());
+        if (parts.isEmpty()) {
+            return;
+        }
+
         try (InputStream stylesData = r.getStylesData()) {
             XMLReader styleParser = SAXHelper.newXMLReader();
             StyleHandler styleHandler = new StyleHandler();

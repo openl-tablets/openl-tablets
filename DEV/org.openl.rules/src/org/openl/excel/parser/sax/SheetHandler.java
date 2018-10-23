@@ -91,7 +91,7 @@ public class SheetHandler extends DefaultHandler {
 
             String cellStyleStr = attributes.getValue("s");
             int styleIndex = cellStyleStr != null ? Integer.parseInt(cellStyleStr) : 0;
-            indent = stylesTable.getIndent(styleIndex);
+            indent = stylesTable == null ? null : stylesTable.getIndent(styleIndex);
 
             String cellType = attributes.getValue("t");
             if ("b".equals(cellType)) {
@@ -104,7 +104,7 @@ public class SheetHandler extends DefaultHandler {
                 nextDataType = XmlCellType.SHARED_STRING_TABLE_STRING;
             } else if ("str".equals(cellType)) {
                 nextDataType = XmlCellType.FORMULA;
-            } else {
+            } else if (stylesTable != null) {
                 // Number. We must get retrieve format to determine if it's a date.
                 NumberFormat numberFormat = stylesTable.getFormat(styleIndex);
                 if (numberFormat != null) {
