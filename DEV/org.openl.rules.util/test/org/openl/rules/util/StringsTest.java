@@ -6,10 +6,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.openl.rules.util.Strings.*;
 
-import org.junit.Test;
-
 import java.math.BigDecimal;
 import java.util.Date;
+
+import org.junit.Test;
 
 public class StringsTest {
 
