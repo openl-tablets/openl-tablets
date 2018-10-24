@@ -8,6 +8,7 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 /**
  * A set of util methods to work with strings.
@@ -835,4 +836,127 @@ public class Strings {
         return hasNumbers && !allowSigns;
     }
 
+    /**
+     * Checks if the String is matched using given Pattern.<br/>
+     * <br/>
+     * Syntax:<br/>
+     * <br/>
+     * <p>
+     *     #           - matches any single digit
+     *     ?           - matches any single symbol
+     *     *           - matches any character 0 or more times
+     *     @           - matches any single alphabetic character
+     *     @           - matches any single alphabetic character
+     *     [charlist]  - matches any single character in {@code charlist}
+     *     [!charlist] - matches any single character not in {@code charlist}
+     *     \           - quotes the following character
+     *     X+          - matches @{code X} one or more times
+     * </p>
+     * <br/>
+     * Examples:<br/>
+     * <br/>
+     * <code>
+     *     like(null, "")      = true<br/>
+     *     like("", "#")       = false<br/>
+     *     like("9", "#")      = true<br/>
+     *     like("a", "?")      = true<br/>
+     *     like("a", "@")      = true<br/>
+     *     like("1a23", "*")   = true<br/>
+     *     like("foo@bar.com", "?+\@?+\.?+")                = true<br/>
+     *     like("+38(099) 123-12-12", "+##(###) ###-##-##") = true<br/>
+     * </code>
+     *
+     * @param str any String
+     * @param pattern pattern
+     * @return {@code true} if the String matches given pattern
+     */
+    public static boolean like(String str, String pattern) {
+        if (isEmpty(str)) {
+            return pattern == null || pattern.isEmpty();
+        }
+
+        Pattern regex = Pattern.compile(parseLikePattern(pattern));
+        return regex.matcher(str).matches();
+    }
+
+    static String parseLikePattern(String pattern) {
+        StringBuilder regex = new StringBuilder();
+
+        final char[] chars = pattern.toCharArray();
+        final int size = chars.length;
+
+        int i = 0;
+        boolean allowMultiOccur = false;
+        boolean quoteNextChar = false;
+        while (i < size) {
+            final char ch = chars[i];
+            i++;
+            if (quoteNextChar) {
+                if ("[.?*+^$[]\\(){}|-]".indexOf(ch) != -1) {
+                    regex.append('\\');
+                }
+                regex.append(ch);
+                quoteNextChar = false;
+                allowMultiOccur = false;
+            } else {
+                switch (ch) {
+                    case '?':
+                        regex.append(".");
+                        allowMultiOccur = true;
+                        break;
+                    case '*':
+                        regex.append(".*");
+                        allowMultiOccur = false;
+                        break;
+                    case '#':
+                        regex.append("\\d");
+                        allowMultiOccur = true;
+                        break;
+                    case '@':
+                        regex.append("\\p{Alpha}");
+                        allowMultiOccur = true;
+                        break;
+                    case '[':
+                        int sqBrackets = 1;
+                        final int start = i - 1;
+                        while (i < size) {
+                            if (chars[i] == '[') {
+                                sqBrackets++;
+                                allowMultiOccur = false;
+                            } else if (chars[i] == ']') {
+                                sqBrackets--;
+                                allowMultiOccur = true;
+                            }
+                            i++;
+                            if (sqBrackets == 0) {
+                                break;
+                            }
+                        }
+                        regex.append(pattern.substring(start, i).replaceAll("\\[!", "[^"));
+                        break;
+                    case '\\':
+                        quoteNextChar = true;
+                        break;
+                    case ' ':
+                        regex.append("\\s");
+                        allowMultiOccur = false;
+                        break;
+                    default:
+                        if (allowMultiOccur && ch == '+') {
+                            regex.append(ch);
+                            allowMultiOccur = false;
+                        } else {
+                            if ("[.?*+^$[]\\(){}|-]".indexOf(ch) != -1) {
+                                regex.append('\\');
+                            }
+                            regex.append(ch);
+                            allowMultiOccur = false;
+                        }
+                        break;
+                }
+            }
+        }
+
+        return regex.toString();
+    }
 }
