@@ -1,8 +1,12 @@
 package org.openl.rules.util;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -602,4 +606,233 @@ public class Strings {
     private static boolean isEmpty0(String str) {
         return str == null || str.isEmpty();
     }
+
+    /**
+     * Checks if the Object is valid date. <br/>
+     * <br/>
+     * Strings will be tested using following pattern {@code "MM/dd/yyyy"}.<br/>
+     * <br/>
+     * <code>
+     *     isDate(null)         = false<br/>
+     *     isDate("")           = false<br/>
+     *     isDate("  ")         = false<br/>
+     *     isDate(new Date())   = true<br/>
+     *     isDate("10/24/2018") = true<br/>
+     *     isDate("10.24.2018") = false<br/>
+     * </code>
+     *
+     * @param source any object
+     * @return {@code true} if the Object is correctly formatted date
+     */
+    public static boolean isDate(Object source) {
+        return isDate(source, null);
+    }
+
+    /**
+     * Checks if the Object is valid date by pattern. <br/>
+     * <br/>
+     * If the Pattern is not passed, strings will be tested using following pattern {@code "MM/dd/yyyy"}.<br/>
+     * <br/>
+     * <code>
+     *     isDate(null, null)                 = false<br/>
+     *     isDate(null, "dd/MM/yyyy")         = false<br/>
+     *     isDate("", "dd/MM/yyyy")           = false<br/>
+     *     isDate("  ", "dd/MM/yyyy")         = false<br/>
+     *     isDate(new Date(), "dd/MM/yyyy")   = true<br/>
+     *     isDate("10.24.2018", "dd.MM.yyyy") = true<br/>
+     *     isDate("10.24.2018", "dd/MM./yyy") = false<br/>
+     * </code>
+     *
+     * @param source any object
+     * @param pattern any valid date patten like {@code "MM/dd/yyyy"}
+     * @return {@code true} if the Object is correctly formatted date
+     */
+    public static boolean isDate(Object source, String pattern) {
+        if (source == null) {
+            return false;
+        }
+        if (source.getClass() == String.class) {
+            final String str = (String) source;
+            if (isEmpty(str)) {
+                return false;
+            }
+            DateFormat dateFormat;
+            if (isEmpty(pattern)) {
+                dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
+            } else {
+                dateFormat = new SimpleDateFormat(pattern);
+            }
+            dateFormat.setLenient(false);
+
+            try {
+                dateFormat.parse(str);
+                return true;
+            } catch (ParseException unused) {
+                return false;
+            }
+        }
+        return source instanceof Date;
+    }
+
+    /**
+     * Checks if the Object is valid integer.<br/>
+     * <br/>
+     * <code>
+     *     isInteger(null)           = false<br/>
+     *     isInteger("")             = false<br/>
+     *     isInteger("  ")           = false<br/>
+     *     isInteger(new Integer(1)) = true<br/>
+     *     isInteger(new Object())   = false<br/>
+     *     isInteger("123")          = true<br/>
+     *     isInteger("-123")         = true<br/>
+     *     isInteger("0")            = true<br/>
+     *     isInteger("123.4")        = false<br/>
+     *     isInteger("123L")         = false<br/>
+     *     isInteger("123D")         = false<br/>
+     * </code>
+     *
+     * @param source any object
+     * @return {@code true} if the Object is correctly formatted integer
+     */
+    public static boolean isInteger(Object source) {
+        if (source == null) {
+            return false;
+        }
+
+        if (source.getClass() == String.class) {
+            final String str = (String) source;
+            if (isEmpty(str)) {
+                return false;
+            }
+            final char[] chars = str.toCharArray();
+            int starts = chars[0] == '-' || chars[0] == '+' ? 1 : 0;
+            boolean hasNumbers = false;
+            for (int i = starts; i < chars.length; i++) {
+                if (chars[i] < '0' || chars[i] > '9') {
+                    return false;
+                }
+                hasNumbers = true;
+            }
+            return hasNumbers;
+        }
+        return source.getClass() == Integer.class;
+    }
+
+    /**
+     * Checks if the Object is valid number.<br/>
+     * <br/>
+     * Always returns {@code true} if Object is instance of {@link Number}.<br/>
+     * <br/>
+     * <code>
+     *     isNumber(null)           = false<br/>
+     *     isNumber("")             = false<br/>
+     *     isNumber("  ")           = false<br/>
+     *     isNumber(new Integer(1)) = true<br/>
+     *     isNumber(new Object())   = false<br/>
+     *     isNumber("123")          = true<br/>
+     *     isNumber("-123")         = true<br/>
+     *     isNumber("0")            = true<br/>
+     *     isNumber("123.4")        = true<br/>
+     *     isNumber("123L")         = true<br/>
+     *     isNumber("123D")         = true<br/>
+     *     isNumber("123.E21")      = true<br/>
+     *     isNumber("1.23.E21")     = false<br/>
+     *     isNumber("NaN")          = false<br/>
+     * </code>
+     *
+     * @param source any object
+     * @return {@code true} if the Object is correctly formatted number
+     */
+    public static boolean isNumber(Object source) {
+        if (source == null) {
+            return false;
+        }
+
+        if (source.getClass() == String.class) {
+            final String str = (String) source;
+            if (isEmpty(str)) {
+                return false;
+            }
+            return isNumber(str);
+        }
+        return source instanceof Number;
+    }
+
+    private static boolean isNumber(String str) {
+        final char[] chars = str.toCharArray();
+        final int size = chars.length;
+
+        boolean hasNumbers = false;
+        boolean allowSigns = false;
+        boolean hasDecSep = false;
+        boolean hasExp = false;
+
+        int i = chars[0] == '-' || chars[0] == '+' ? 1 : 0;
+
+        // the last char will be checked after while block
+        while (i < size - 1) {
+            final char ch = chars[i];
+            if (ch >= '0' && ch <= '9') {
+                hasNumbers = true;
+                allowSigns = false;
+            } else if (ch == '.') {
+                if (hasDecSep || hasExp) {
+                    // do not allow second . or decimal separator after E
+                    return false;
+                }
+                hasDecSep = true;
+            } else if (ch == 'e' || ch == 'E') {
+                if (hasExp) {
+                    // do not allow second E
+                    return false;
+                }
+                if (!hasNumbers) {
+                    // do not allow E if no numbers before
+                    return false;
+                }
+                hasExp = true;
+                allowSigns = true;
+            } else if (ch == '+' || ch == '-') {
+                if (!allowSigns) {
+                    // do not allow second sing before exponent
+                    return false;
+                }
+                allowSigns = false;
+                // to make sure that numbers are present between ['-', 'E'] or ['+', 'E']
+                hasNumbers = false;
+            } else {
+                return false;
+            }
+            i++;
+        }
+
+        if (i < size) {
+            final char lastChar = chars[i];
+            if (lastChar >= '0' && lastChar <= '9') {
+                return true;
+            }
+            if (lastChar == 'e' || lastChar == 'E') {
+                // number can't be ended with exponent
+                return false;
+            }
+            if (lastChar == '.') {
+                if (hasDecSep || hasExp) {
+                    // two '.' or '.' in exp
+                    return false;
+                }
+                // single trailing decimal point after non-exponent is ok
+                return hasNumbers;
+            }
+            if (!allowSigns && (lastChar == 'd' || lastChar == 'D' || lastChar == 'f' || lastChar == 'F')) {
+                return hasNumbers;
+            }
+            if (lastChar == 'l' || lastChar == 'L') {
+                // not allow 'L' with 'E' or '.'
+                return hasNumbers && !hasExp && !hasDecSep;
+            }
+            return false;
+        }
+        return hasNumbers && !allowSigns;
+    }
+
 }
