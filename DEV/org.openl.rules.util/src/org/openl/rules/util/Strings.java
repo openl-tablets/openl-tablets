@@ -659,9 +659,9 @@ public class Strings {
             }
             DateFormat dateFormat;
             if (isEmpty(pattern)) {
-                dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
+                dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Locale.US);
             } else {
-                dateFormat = new SimpleDateFormat(pattern);
+                dateFormat = new SimpleDateFormat(pattern, Locale.US);
             }
             dateFormat.setLenient(false);
 
