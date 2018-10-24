@@ -9,6 +9,7 @@ import static org.openl.rules.util.Strings.*;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 public class StringsTest {
 
@@ -446,5 +447,159 @@ public class StringsTest {
         assertEquals("1", concatenate(1));
         assertEquals("ASD12.0", concatenate("ASD", 1, 2.0));
         assertEquals("true12.03.0%SEN", concatenate(true, 1, 2.0, 3f, '%', "SEN"));
+    }
+
+    @Test
+    public void testIsInteger() {
+        assertFalse(isInteger(null));
+        assertFalse(isInteger(""));
+        assertFalse(isInteger("+"));
+        assertFalse(isInteger("-"));
+        assertFalse(isInteger(" "));
+        assertFalse(isInteger("123-"));
+        assertFalse(isInteger("123+"));
+        assertFalse(isInteger("12+34"));
+        assertFalse(isInteger("12,34"));
+        assertFalse(isInteger("12-34"));
+        assertFalse(isInteger("12.3"));
+        assertFalse(isInteger(".123"));
+        assertFalse(isInteger("+.123"));
+        assertFalse(isInteger("-.123"));
+        assertFalse(isInteger("\n"));
+        assertFalse(isInteger("\n\r"));
+        assertFalse(isInteger("\t"));
+        assertFalse(isInteger("foo"));
+        assertFalse(isInteger("++123"));
+        assertFalse(isInteger("--123"));
+        assertFalse(isInteger("-+123"));
+        assertFalse(isInteger("123d"));
+        assertFalse(isInteger("123 "));
+        assertFalse(isInteger(" 123"));
+        assertFalse(isInteger("12 34"));
+        assertFalse(isInteger("12a34"));
+        assertFalse(isInteger("a1234"));
+        assertFalse(isInteger("1234b"));
+        assertFalse(isInteger("1234l"));
+        assertFalse(isInteger("1234L"));
+        assertTrue(isInteger("1234"));
+        assertTrue(isInteger("+1234"));
+        assertTrue(isInteger("-1234"));
+        assertTrue(isInteger("0"));
+        assertTrue(isInteger("+0"));
+        assertTrue(isInteger("-0"));
+        assertFalse(isInteger(10.2));
+        assertFalse(isInteger(10L));
+        assertFalse(isInteger(10D));
+        assertFalse(isInteger(10F));
+        assertFalse(isInteger(new Object()));
+        assertTrue(isInteger(1234));
+    }
+
+    @Test
+    public void testIsNumber() {
+        assertFalse(isNumber(null));
+        assertFalse(isNumber(""));
+        assertFalse(isNumber("+"));
+        assertFalse(isNumber("-"));
+        assertFalse(isNumber(" "));
+        assertFalse(isNumber("."));
+        assertFalse(isNumber("NAN"));
+        assertFalse(isNumber("nAn"));
+        assertFalse(isNumber("naN"));
+        assertFalse(isNumber("123-"));
+        assertFalse(isNumber("123+"));
+        assertFalse(isNumber("12+34"));
+        assertFalse(isNumber("12,34"));
+        assertFalse(isNumber("12-34"));
+        assertFalse(isNumber("\n"));
+        assertFalse(isNumber("\n\r"));
+        assertFalse(isNumber("\t"));
+        assertFalse(isNumber("foo"));
+        assertFalse(isNumber("++123"));
+        assertFalse(isNumber("--123"));
+        assertFalse(isNumber("-+123"));
+        assertFalse(isNumber("123 "));
+        assertFalse(isNumber(" 123"));
+        assertFalse(isNumber("12 34"));
+        assertFalse(isNumber("12a34"));
+        assertFalse(isNumber("a1234"));
+        assertFalse(isNumber("1234b"));
+        assertTrue(isNumber("1234l"));
+        assertTrue(isNumber("1234L"));
+        assertFalse(isNumber("NaN1"));
+        assertFalse(isNumber("1NaN"));
+        assertFalse(isNumber("-NaN-"));
+        assertFalse(isNumber("NaN+"));
+        assertFalse(isNumber("NaN-"));
+        assertFalse(isNumber("1.23.4"));
+        assertFalse(isNumber("123.3E1."));
+        assertFalse(isNumber("123.3E"));
+        assertFalse(isNumber("123.3E1E1"));
+        assertFalse(isNumber("123.+E1"));
+        assertFalse(isNumber("123.-E1"));
+        assertFalse(isNumber("123.3ED"));
+        assertFalse(isNumber("123.3E-D"));
+        assertFalse(isNumber("123.3E+F"));
+        assertFalse(isNumber("+000E.123"));
+        assertFalse(isNumber("-000E.123"));
+        assertFalse(isNumber("123E4l"));
+        assertFalse(isNumber(".E21"));
+        assertTrue(isNumber("+.123"));
+        assertTrue(isNumber("-.123"));
+        assertTrue(isNumber("123d"));
+        assertTrue(isNumber("123D"));
+        assertTrue(isNumber("123f"));
+        assertTrue(isNumber("123F"));
+        assertTrue(isNumber("123.F"));
+        assertTrue(isNumber(".123"));
+        assertTrue(isNumber("12.3"));
+        assertTrue(isNumber("1234"));
+        assertTrue(isNumber("+1234"));
+        assertTrue(isNumber("-1234"));
+        assertTrue(isNumber("0"));
+        assertTrue(isNumber("+0"));
+        assertTrue(isNumber("-0"));
+        assertFalse(isNumber("NaN"));
+        assertFalse(isNumber("+NaN"));
+        assertFalse(isNumber("-NaN"));
+        assertTrue(isNumber("123.4E21"));
+        assertTrue(isNumber("123.E21"));
+        assertTrue(isNumber("123.E21"));
+        assertTrue(isNumber("123.E21F"));
+        assertTrue(isNumber("123.E21D"));
+        assertTrue(isNumber("1234E5"));
+        assertTrue(isNumber("1234E+5"));
+        assertTrue(isNumber("1234E-5"));
+        assertTrue(isNumber("-0001.123"));
+        assertTrue(isNumber("-000.123"));
+        assertTrue(isNumber("+00.123"));
+        assertTrue(isNumber("+0002.123"));
+        assertTrue(isNumber(10.2));
+        assertTrue(isNumber(10L));
+        assertTrue(isNumber(10D));
+        assertTrue(isNumber(10F));
+        assertFalse(isNumber(new Object()));
+        assertTrue(isNumber(1234));
+    }
+
+    @Test
+    public void testIsDate() {
+        assertFalse(isDate("foo"));
+        assertFalse(isDate(""));
+        assertFalse(isDate(" "));
+        assertFalse(isDate(null));
+        assertFalse(isDate("12.30"));
+        assertFalse(isDate("121222121"));
+        assertFalse(isDate("2014-12-12"));
+        assertFalse(isDate("06.27.2014"));
+        assertTrue(isDate("06/17/2014"));
+        assertFalse(isDate("31/17/2014"));
+        assertTrue(isDate("2014-12-12", "yyyy-MM-dd"));
+        assertFalse(isDate("2014-13-12", "yyyy-MM-dd"));
+        assertTrue(isDate("06.27.2014", "MM.dd.yyyy"));
+        assertFalse(isDate("fo.ba.2014", "MM.dd.yyyy"));
+        assertTrue(isDate(new Date()));
+        assertTrue(isDate(new java.sql.Date(1221212212)));
+        assertFalse(isDate(new Object()));
     }
 }
