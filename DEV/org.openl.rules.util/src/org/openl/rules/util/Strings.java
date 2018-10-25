@@ -1,12 +1,8 @@
 package org.openl.rules.util;
 
 import java.math.BigDecimal;
-import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -609,73 +605,6 @@ public class Strings {
     }
 
     /**
-     * Checks if the Object is valid date. <br/>
-     * <br/>
-     * Strings will be tested using following pattern {@code "MM/dd/yyyy"}.<br/>
-     * <br/>
-     * <code>
-     *     isDate(null)         = false<br/>
-     *     isDate("")           = false<br/>
-     *     isDate("  ")         = false<br/>
-     *     isDate(new Date())   = true<br/>
-     *     isDate("10/24/2018") = true<br/>
-     *     isDate("10.24.2018") = false<br/>
-     * </code>
-     *
-     * @param source any object
-     * @return {@code true} if the Object is correctly formatted date
-     */
-    public static boolean isDate(Object source) {
-        return isDate(source, null);
-    }
-
-    /**
-     * Checks if the Object is valid date by pattern. <br/>
-     * <br/>
-     * If the Pattern is not passed, strings will be tested using following pattern {@code "MM/dd/yyyy"}.<br/>
-     * <br/>
-     * <code>
-     *     isDate(null, null)                 = false<br/>
-     *     isDate(null, "dd/MM/yyyy")         = false<br/>
-     *     isDate("", "dd/MM/yyyy")           = false<br/>
-     *     isDate("  ", "dd/MM/yyyy")         = false<br/>
-     *     isDate(new Date(), "dd/MM/yyyy")   = true<br/>
-     *     isDate("10.24.2018", "dd.MM.yyyy") = true<br/>
-     *     isDate("10.24.2018", "dd/MM./yyy") = false<br/>
-     * </code>
-     *
-     * @param source any object
-     * @param pattern any valid date patten like {@code "MM/dd/yyyy"}
-     * @return {@code true} if the Object is correctly formatted date
-     */
-    public static boolean isDate(Object source, String pattern) {
-        if (source == null) {
-            return false;
-        }
-        if (source.getClass() == String.class) {
-            final String str = (String) source;
-            if (isEmpty(str)) {
-                return false;
-            }
-            DateFormat dateFormat;
-            if (isEmpty(pattern)) {
-                dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Locale.US);
-            } else {
-                dateFormat = new SimpleDateFormat(pattern, Locale.US);
-            }
-            dateFormat.setLenient(false);
-
-            try {
-                dateFormat.parse(str);
-                return true;
-            } catch (ParseException unused) {
-                return false;
-            }
-        }
-        return source instanceof Date;
-    }
-
-    /**
      * Checks if the Object is valid integer.<br/>
      * <br/>
      * <code>
@@ -842,15 +771,10 @@ public class Strings {
      * Syntax:<br/>
      * <br/>
      * <p>
-     *     #           - matches any single digit
-     *     ?           - matches any single symbol
-     *     *           - matches any character 0 or more times
-     *     @           - matches any single alphabetic character
-     *     @           - matches any single alphabetic character
-     *     [charlist]  - matches any single character in {@code charlist}
-     *     [!charlist] - matches any single character not in {@code charlist}
-     *     \           - quotes the following character
-     *     X+          - matches @{code X} one or more times
+     * # - matches any single digit ? - matches any single symbol * - matches any character 0 or more times @ - matches
+     * any single alphabetic character @ - matches any single alphabetic character [charlist] - matches any single
+     * character in {@code charlist} [!charlist] - matches any single character not in {@code charlist} \ - quotes the
+     * following character X+ - matches @{code X} one or more times
      * </p>
      * <br/>
      * Examples:<br/>

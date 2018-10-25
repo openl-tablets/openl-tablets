@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 import static org.openl.rules.util.Strings.*;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 import org.junit.Test;
 
@@ -16,13 +15,13 @@ public class StringsTest {
     @Test
     public void testContains() {
         // String
-        assertFalse(contains((String)null, (String)null));
+        assertFalse(contains((String) null, (String) null));
         assertFalse(contains(null, ""));
         assertFalse(contains(null, "s"));
-        assertFalse(contains("", (String)null));
+        assertFalse(contains("", (String) null));
         assertTrue(contains("", ""));
         assertFalse(contains("", "s"));
-        assertFalse(contains("asd", (String)null));
+        assertFalse(contains("asd", (String) null));
         assertTrue(contains("asd", ""));
         assertTrue(contains("asd", "a"));
         assertTrue(contains("asd", "s"));
@@ -580,27 +579,6 @@ public class StringsTest {
         assertTrue(isNumber(10F));
         assertFalse(isNumber(new Object()));
         assertTrue(isNumber(1234));
-    }
-
-    @Test
-    public void testIsDate() {
-        assertFalse(isDate("foo"));
-        assertFalse(isDate(""));
-        assertFalse(isDate(" "));
-        assertFalse(isDate(null));
-        assertFalse(isDate("12.30"));
-        assertFalse(isDate("121222121"));
-        assertFalse(isDate("2014-12-12"));
-        assertFalse(isDate("06.27.2014"));
-        assertTrue(isDate("06/17/2014"));
-        assertFalse(isDate("31/17/2014"));
-        assertTrue(isDate("2014-12-12", "yyyy-MM-dd"));
-        assertFalse(isDate("2014-13-12", "yyyy-MM-dd"));
-        assertTrue(isDate("06.27.2014", "MM.dd.yyyy"));
-        assertFalse(isDate("fo.ba.2014", "MM.dd.yyyy"));
-        assertTrue(isDate(new Date()));
-        assertTrue(isDate(new java.sql.Date(1221212212)));
-        assertFalse(isDate(new Object()));
     }
 
     @Test
