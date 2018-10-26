@@ -88,6 +88,7 @@
         <org.apache.poi.version>4.0.0</org.apache.poi.version>
         <org.apache.jackrabbit.version>2.8.0</org.apache.jackrabbit.version>
         <com.fasterxml.jackson.version>2.9.7</com.fasterxml.jackson.version>
+        <jaxb.version>2.3.1</jaxb.version>
         <maven.api.version>3.2.5</maven.api.version>
         <maven.plugin.version>3.5</maven.plugin.version>
         <jetty.http.port>9999</jetty.http.port>
@@ -251,7 +252,7 @@
                 <plugin>
                     <groupId>org.basepom.maven</groupId>
                     <artifactId>duplicate-finder-maven-plugin</artifactId>
-                    <version>1.1.2</version>
+                    <version>1.3.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -1059,9 +1060,9 @@
             </dependency>
             <dependency>
                 <!-- https://docs.oracle.com/javase/9/docs/api/java.activation-summary.html -->
-                <groupId>javax.activation</groupId>
-                <artifactId>activation</artifactId>
-                <version>1.1.1</version>
+                <groupId>com.sun.activation</groupId>
+                <artifactId>javax.activation</artifactId>
+                <version>1.2.0</version>
             </dependency>
             <dependency>
                 <groupId>javax.annotation</groupId>
@@ -1239,11 +1240,17 @@
                 <version>${org.apache.poi.version}</version>
             </dependency>
             <!-- http://download.java.net/java/jdk9/docs/api/java.xml.bind-summary.html -->
-            <!-- Required for Java9 -->
+            <!-- Required for Java11 -->
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
-                <version>2.2.11</version>
+                <version>${jaxb.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>javax.activation-api</artifactId>
+                        <groupId>javax.activation</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- Full jar with all schemas. It's a replacement for poi-ooxml-schemas jar when the full schema is needed -->
             <dependency>
@@ -1255,12 +1262,17 @@
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-impl</artifactId>
-                <version>2.2.11</version>
+                <version>${jaxb.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-core</artifactId>
-                <version>2.2.11</version>
+                <groupId>com.sun.istack</groupId>
+                <artifactId>istack-commons-runtime</artifactId>
+                <version>3.0.7</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>txw2</artifactId>
+                <version>${jaxb.version}</version>
             </dependency>
             <!-- serialize objects to XML (or JSON) and back again. -->
             <dependency>
