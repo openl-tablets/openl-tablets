@@ -152,7 +152,7 @@ set _MEMORY=%_MEMORY:~0,-9%
 
 @rem reset to safe settings for 32bit
 @pushd "%_JRE_HOME%"
-@if %_MEMORY% GEQ 4 FOR /f "tokens=3" %%G IN ('bin\java.exe -d64 -version 2^>^&1 ^| find "Error"') DO (
+@if %_MEMORY% GEQ 4 bin\java.exe -version 2>&1 | find "64-Bit" >nul || (
 set _JAVA_MEMORY=-Xms512m -Xmx1024m
 echo.
 echo.
