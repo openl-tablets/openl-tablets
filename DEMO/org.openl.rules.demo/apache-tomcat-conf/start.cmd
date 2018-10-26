@@ -103,7 +103,7 @@ rem SUBROUTINES
 
 @rem Determine Java version
 @pushd "%_JRE_HOME%"
-@FOR /f "tokens=3" %%G IN ('bin\java.exe -version 2^>^&1 ^| find "java version"') DO set _JAVA_VERSION=%%~G
+@FOR /f "tokens=3" %%G IN ('bin\java.exe -version 2^>^&1 ^| find "version"') DO set _JAVA_VERSION=%%~G
 @popd
 @if "%_JAVA_VERSION%" == "" set _JAVA_VERSION=UNKNOWN
 @if "%_JAVA_VERSION:~0,3%" == "1.6" echo Java version %_JAVA_VERSION% is not supported. & exit /b 4 & endlocal
