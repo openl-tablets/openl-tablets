@@ -411,7 +411,7 @@ public class TableBean {
         if (currentProject != null) {
             try {
                 return currentProject.tryLock();
-            } catch (ProjectException e) {
+            } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 return false;
             }
@@ -444,6 +444,20 @@ public class TableBean {
     public void afterSaveAction(String newId) {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         studio.compile();
+    }
+
+    public void cancelEditing() {
+        final WebStudio studio = WebStudioUtils.getWebStudio();
+        RulesProject currentProject = studio.getCurrentProject();
+        if (currentProject != null) {
+            try {
+                if (!currentProject.isModified()) {
+                    currentProject.unlock();
+                }
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+        }
     }
 
     public boolean getCanEdit() {
