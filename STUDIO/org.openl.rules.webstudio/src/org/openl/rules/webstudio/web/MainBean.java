@@ -14,6 +14,7 @@ import org.openl.rules.ui.ParameterRegistry;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
+import org.openl.rules.webstudio.web.tableeditor.TableBean;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
@@ -110,6 +111,7 @@ public class MainBean {
             log.debug("Page unload for request id: {}", requestId);
             Explanator.remove(requestId);
             ParameterRegistry.remove(requestId);
+            TableBean.tryUnlock(requestId);
         }
     }
 }

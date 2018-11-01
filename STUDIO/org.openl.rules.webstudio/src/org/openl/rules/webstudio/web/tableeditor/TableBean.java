@@ -61,6 +61,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +71,7 @@ import org.slf4j.LoggerFactory;
 @ManagedBean
 @RequestScoped
 public class TableBean {
+    private static final String REQUEST_ID_PREFIX = "project-";
     private final Logger log = LoggerFactory.getLogger(TableBean.class);
 
     private IOpenMethod method;
@@ -458,16 +460,29 @@ public class TableBean {
         studio.compile();
     }
 
-    public void cancelEditing() {
+    public String getRequestId() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         RulesProject currentProject = studio.getCurrentProject();
+        return REQUEST_ID_PREFIX + currentProject.getName();
+    }
+
+    public static void tryUnlock(String requestId) {
+        if (StringUtils.isBlank(requestId) || !requestId.startsWith(REQUEST_ID_PREFIX)) {
+            return;
+        }
+
+        String projectName = requestId.substring(REQUEST_ID_PREFIX.length());
+
+        final WebStudio studio = WebStudioUtils.getWebStudio();
+        RulesProject currentProject = studio.getProject(projectName);
         if (currentProject != null) {
             try {
                 if (!currentProject.isModified()) {
                     currentProject.unlock();
                 }
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                Logger logger = LoggerFactory.getLogger(TableBean.class);
+                logger.error(e.getMessage(), e);
             }
         }
     }

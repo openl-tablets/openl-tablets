@@ -89,7 +89,6 @@
                 var showConfirmDialog = function() {};
 
                 var setHasChanges = function () {};
-                var cancelEditing = function () {};
                 var hadChanges = false;
 
                 var afterUnloadActions = [];
@@ -117,7 +116,6 @@
                     hasChanges = project.hasChanges || empty;
                     showConfirmDialog = project.showConfirmDialog || empty;
                     setHasChanges = project.setHasChanges || empty;
-                    cancelEditing = project.cancelEditing || empty;
                     this.applyCurrentChanges = project.applyCurrentChanges || empty;
 
                     window.onbeforeunload = function (e) {
@@ -143,13 +141,11 @@
 
                         var revertAndProceed = function () {
                             self.revertChanges();
-                            cancelEditing();
                             retryUrlChange();
                         };
                         showConfirmDialog(revertAndProceed);
                         return true;
                     } else {
-                        cancelEditing();
                         proceed();
                         return false;
                     }
