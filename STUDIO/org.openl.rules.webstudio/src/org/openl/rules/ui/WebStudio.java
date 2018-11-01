@@ -852,7 +852,7 @@ public class WebStudio {
         return project != null && project != currentProject;
     }
 
-    private RulesProject getProject(String name) {
+    public RulesProject getProject(String name) {
         HttpSession session = FacesUtils.getSession();
         UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
         RulesProject project = null;

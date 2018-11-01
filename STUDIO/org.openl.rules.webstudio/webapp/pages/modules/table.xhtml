@@ -594,10 +594,6 @@
                     rendered="#{tableBean.canEdit}">Edit in Excel</h:outputLink>
                 <h:outputLink value="javascript:ws.nav.search($j(PopupMenu.lastTarget).text(), '#{studio.url('')}')">Search</h:outputLink>
             </rules:tableEditor>
-
-            <h:form>
-                <a4j:jsFunction name="cancelEditing" action="#{tableBean.cancelEditing}"/>
-            </h:form>
         </div>
     </div>
     </c:if>
@@ -808,6 +804,8 @@
             };
         }
         $j(function () {
+            ws.nav.setRequestId('#{tableBean.requestId}');
+
             var projectAdapter = {
                 hasChanges: function () {
                     return getCurrentTable().isHasChanges();
@@ -817,9 +815,6 @@
                 },
                 applyCurrentChanges: function () {
                     return getCurrentTable().setCellValue();
-                },
-                cancelEditing: function() {
-                    cancelEditing();
                 },
                 showConfirmDialog: function (revertAndProceed) {
                     var $discardButton = $j('#discardChangesForm\\:discardButton');
