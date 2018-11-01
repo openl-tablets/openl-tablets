@@ -25,7 +25,6 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -463,7 +462,8 @@ public class TableBean {
     public String getRequestId() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         RulesProject currentProject = studio.getCurrentProject();
-        return REQUEST_ID_PREFIX + currentProject.getName();
+        String projectName = currentProject == null ? "" : currentProject.getName();
+        return REQUEST_ID_PREFIX + projectName;
     }
 
     public static void tryUnlock(String requestId) {
