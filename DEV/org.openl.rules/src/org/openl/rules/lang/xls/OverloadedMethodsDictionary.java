@@ -1,4 +1,4 @@
-package org.openl.rules.ui;
+package org.openl.rules.lang.xls;
 
 import java.util.HashMap;
 import java.util.HashSet;

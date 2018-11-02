@@ -13,7 +13,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.openl.rules.data.PrimaryKeyField;
 import org.openl.rules.testmethod.*;
-import org.openl.rules.ui.TableSyntaxNodeUtils;
+import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.types.IOpenField;
 
 class ParameterExport extends BaseExport {
