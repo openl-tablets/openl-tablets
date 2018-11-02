@@ -48,7 +48,7 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
                 }
 
                 ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(type, element)
-                        .previewField(config.getPreviewField())
+                        .keyField(config.getKeyField())
                         .parent(this)
                         .hasExplainLinks(config.isHasExplainLinks())
                         .requestId(config.getRequestId())
@@ -155,7 +155,7 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
 
     protected ParameterDeclarationTreeNode createNode(Object key, Object value) {
         ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(getType().getComponentClass(), value)
-                .previewField(config.getPreviewField())
+                .keyField(config.getKeyField())
                 .parent(this)
                 .hasExplainLinks(config.isHasExplainLinks())
                 .requestId(config.getRequestId())

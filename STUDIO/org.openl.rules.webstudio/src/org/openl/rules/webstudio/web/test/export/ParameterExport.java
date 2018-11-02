@@ -14,7 +14,6 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.openl.rules.data.PrimaryKeyField;
 import org.openl.rules.testmethod.*;
 import org.openl.rules.ui.TableSyntaxNodeUtils;
-import org.openl.rules.webstudio.web.test.ParameterWithValueAndPreviewDeclaration;
 import org.openl.types.IOpenField;
 
 class ParameterExport extends BaseExport {
@@ -106,8 +105,7 @@ class ParameterExport extends BaseExport {
     }
 
     private boolean isHasPK(ParameterWithValueDeclaration param) {
-        return param instanceof ParameterWithValueAndPreviewDeclaration &&
-                ((ParameterWithValueAndPreviewDeclaration) param).getPreviewField() instanceof PrimaryKeyField;
+        return param.getKeyField() instanceof PrimaryKeyField;
     }
 
     private int addHeaderTasks(TreeSet<WriteTask> tasks, Cursor cursor, List<FieldDescriptor> fields, String prefix) {
@@ -160,8 +158,8 @@ class ParameterExport extends BaseExport {
 
                 // _PK_
                 if (isHasPK(parameter)) {
-                    IOpenField previewField = ((ParameterWithValueAndPreviewDeclaration) parameter).getPreviewField();
-                    Object id = ExportUtils.fieldValue(parameter.getValue(), previewField);
+                    IOpenField keyField = parameter.getKeyField();
+                    Object id = ExportUtils.fieldValue(parameter.getValue(), keyField);
 
 
                     if (id != null && id.getClass().isArray()) {

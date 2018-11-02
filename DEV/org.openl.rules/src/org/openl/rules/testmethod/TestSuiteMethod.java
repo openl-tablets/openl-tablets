@@ -14,10 +14,7 @@ import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
-import org.openl.rules.data.ColumnDescriptor;
-import org.openl.rules.data.DataTableBindHelper;
-import org.openl.rules.data.FieldChain;
-import org.openl.rules.data.PrecisionFieldChain;
+import org.openl.rules.data.*;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -43,10 +40,12 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     private final boolean runmethod;
     private DynamicObject[] testObjects;
     private ColumnDescriptor[] descriptors;
+    private final IDataBase db;
 
     public TestSuiteMethod(IOpenMethod testedMethod, IOpenMethodHeader header, TestMethodBoundNode boundNode) {
         super(header, boundNode);
 
+        db = boundNode.getDataBase();
         this.testedMethod = testedMethod;
         initProperties(getSyntaxNode().getTableProperties());
         runmethod = XlsNodeTypes.XLS_RUN_METHOD.toString().equals(getSyntaxNode().getType());
@@ -55,6 +54,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     public TestSuiteMethod(IOpenMethod testedMethod, TestSuiteMethod copy) {
         super(copy.getHeader(), copy.getBoundNode());
 
+        db = copy.db;
         this.testedMethod = testedMethod;
         initProperties(copy.getMethodProperties());
         this.runmethod = copy.isRunmethod();
@@ -77,7 +77,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         List<IOpenField> fields = createFieldsToTest(testedMethod, descriptors, precision);
 
         for (int i = 0; i < tests.length; i++) {
-            tests[i] = new TestDescription(testedMethod, testObjects[i], fields, descriptors);
+            tests[i] = new TestDescription(testedMethod, testObjects[i], fields, descriptors, db);
             tests[i].setIndex(i);
             indeces.put(tests[i].getId(), i);
         }

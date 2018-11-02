@@ -1,10 +1,6 @@
 package org.openl.rules.webstudio.web.test.export;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.openl.rules.webstudio.web.test.export.Styles.*;
 
 import java.io.File;
@@ -21,13 +17,11 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.CompiledOpenClass;
-import org.openl.rules.data.IDataBase;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.testmethod.ProjectHelper;
+import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.rules.webstudio.web.test.TestSuiteWithPreview;
 import org.openl.types.IOpenClass;
 import org.openl.util.NumberUtils;
 
@@ -68,8 +62,7 @@ public class TestResultExportTest {
         TestUnitsResults[] results = new TestUnitsResults[tests.length];
         for (int i = 0; i < tests.length; i++) {
             TestSuiteMethod test = tests[i];
-            IDataBase db = ((XlsModuleOpenClass) openClass).getDataBase();
-            results[i] = new TestSuiteWithPreview(db, test).invokeSequentially(openClass, 1L);
+            results[i] = new TestSuite(test).invokeSequentially(openClass, 1L);
         }
 
         // Tests can appear in a random order. For testing convenience sort them alphabetically
@@ -93,8 +86,7 @@ public class TestResultExportTest {
         TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
         for (TestSuiteMethod test : tests) {
             if (test.getName().equals(testName)) {
-                IDataBase db = ((XlsModuleOpenClass) openClass).getDataBase();
-                return new TestSuiteWithPreview(db, test, indices).invokeSequentially(openClass, 1L);
+                return new TestSuite(test, indices).invokeSequentially(openClass, 1L);
             }
         }
 

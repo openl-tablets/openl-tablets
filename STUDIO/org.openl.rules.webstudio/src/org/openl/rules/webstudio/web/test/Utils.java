@@ -46,16 +46,14 @@ public final class Utils {
             if (method instanceof TestSuiteMethod) {
                 TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
 
-                IDataBase db = getDb(model);
-
                 TestSuite testSuite;
                 if (testRanges == null) {
                     // Run all test cases of selected test suite
-                    testSuite = new TestSuiteWithPreview(db, testSuiteMethod);
+                    testSuite = new TestSuite(testSuiteMethod);
                 } else {
                     // Run only selected test cases of selected test suite
                     int[] indices = testSuiteMethod.getIndices(testRanges);
-                    testSuite = new TestSuiteWithPreview(db, testSuiteMethod, indices);
+                    testSuite = new TestSuite(testSuiteMethod, indices);
                 }
                 // Concrete test with cases
                 results = new TestUnitsResults[1];
@@ -75,10 +73,9 @@ public final class Utils {
 
     private static TestUnitsResults[] runAllTests(ProjectModel model, IOpenMethod[] tests) {
         if (tests != null) {
-            IDataBase db = getDb(model);
             TestUnitsResults[] results = new TestUnitsResults[tests.length];
             for (int i = 0; i < tests.length; i++) {
-                TestSuiteWithPreview testSuite = new TestSuiteWithPreview(db, (TestSuiteMethod) tests[i]);
+                TestSuite testSuite = new TestSuite((TestSuiteMethod) tests[i]);
                 results[i] = model.runTest(testSuite);
             }
             return results;

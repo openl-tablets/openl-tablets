@@ -1,14 +1,13 @@
 package org.openl.rules.webstudio.web.test;
 
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
 
 import java.util.LinkedHashMap;
 
 public class UnmodifiableParameterTreeNode extends ParameterDeclarationTreeNode {
 
-    public static final String UNMODIFIABLE_TYPE = "unmodifiable";
+    private static final String UNMODIFIABLE_TYPE = "unmodifiable";
 
     private String warnMessage;
 
@@ -17,10 +16,6 @@ public class UnmodifiableParameterTreeNode extends ParameterDeclarationTreeNode 
                                          IOpenClass fieldType,
                                          ParameterDeclarationTreeNode parent) {
         super(fieldName, value, fieldType, parent);
-    }
-
-    public UnmodifiableParameterTreeNode(ParameterWithValueDeclaration paramDescription, ParameterDeclarationTreeNode parent) {
-        super(paramDescription, parent);
     }
 
     @Override
@@ -36,7 +31,7 @@ public class UnmodifiableParameterTreeNode extends ParameterDeclarationTreeNode 
 
     @Override
     protected LinkedHashMap<Object, ParameterDeclarationTreeNode> initChildrenMap() {
-        return new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
+        return new LinkedHashMap<>();
     }
 
     @Override

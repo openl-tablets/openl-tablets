@@ -6,7 +6,6 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
-import org.openl.rules.webstudio.web.test.ParameterWithValueAndPreviewDeclaration;
 import org.openl.types.IOpenField;
 
 public abstract class BaseExport {
@@ -64,16 +63,15 @@ public abstract class BaseExport {
         }
 
         if (value instanceof ParameterWithValueDeclaration) {
-            Object simpleValue = ((ParameterWithValueDeclaration) value).getValue();
+            ParameterWithValueDeclaration parameter = (ParameterWithValueDeclaration) value;
+            Object simpleValue = parameter.getValue();
 
-            if (value instanceof ParameterWithValueAndPreviewDeclaration) {
-                // Return preview field for complex objects
-                IOpenField previewField = ((ParameterWithValueAndPreviewDeclaration) value).getPreviewField();
-                if (previewField != null) {
-                    // If preview can't be found, return the object itself
-                    Object previewValue = ExportUtils.fieldValue(simpleValue, previewField);
-                    simpleValue = previewValue == null ? simpleValue : previewValue;
-                }
+            // Return key field for complex objects
+            IOpenField keyField = parameter.getKeyField();
+            if (keyField != null) {
+                // If key can't be found, return the object itself
+                Object key = ExportUtils.fieldValue(simpleValue, keyField);
+                simpleValue = key == null ? simpleValue : key;
             }
 
             return getSimpleValue(simpleValue);

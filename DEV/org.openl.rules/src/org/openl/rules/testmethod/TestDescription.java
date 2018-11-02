@@ -6,8 +6,11 @@ import java.util.List;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.data.ColumnDescriptor;
+import org.openl.rules.data.ForeignKeyColumnDescriptor;
+import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.RowIdField;
 import org.openl.rules.table.OpenLArgumentsCloner;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -24,18 +27,22 @@ public class TestDescription {
     private ColumnDescriptor[] columnDescriptors;
     private List<IOpenField> fields = new ArrayList<>();
 
-    public TestDescription(IOpenMethod testedMethod, DynamicObject testObject, List<IOpenField> fields, ColumnDescriptor[] columnDescriptors) {
+    public TestDescription(IOpenMethod testedMethod,
+            DynamicObject testObject,
+            List<IOpenField> fields,
+            ColumnDescriptor[] columnDescriptors,
+            IDataBase db) {
         this.testedMethod = testedMethod;
         this.testObject = testObject;
         this.fields = fields;
         this.columnDescriptors = columnDescriptors;
-        executionParams = initExecutionParams(testedMethod, testObject);
+        executionParams = initExecutionParams(testedMethod, testObject, db, columnDescriptors);
     }
 
-    public TestDescription(IOpenMethod testedMethod, Object[] arguments) {
+    public TestDescription(IOpenMethod testedMethod, Object[] arguments, IDataBase db) {
         this.testedMethod = testedMethod;
         this.testObject = createTestObject(testedMethod, arguments);
-        executionParams = initExecutionParams(testedMethod, testObject);
+        executionParams = initExecutionParams(testedMethod, testObject, db, null);
     }
 
     private static DynamicObject createTestObject(IOpenMethod testedMethod, Object[] arguments) {
@@ -94,16 +101,20 @@ public class TestDescription {
         return args;
     }
 
-    private static ParameterWithValueDeclaration[] initExecutionParams(IOpenMethod testedMethod, DynamicObject testObject) {
+    private static ParameterWithValueDeclaration[] initExecutionParams(IOpenMethod testedMethod, DynamicObject testObject, IDataBase db, ColumnDescriptor[] columnDescriptors) {
         ParameterWithValueDeclaration[] executionParams = new ParameterWithValueDeclaration[testedMethod.getSignature()
                 .getNumberOfParameters()];
         for (int i = 0; i < executionParams.length; i++) {
             String paramName = testedMethod.getSignature().getParameterName(i);
             Object paramValue = testObject.getFieldValue(paramName);
             IOpenClass paramType = testedMethod.getSignature().getParameterType(i);
+
+            IOpenField keyField = getKeyField(paramName, paramType, paramValue, db, columnDescriptors);
+
             executionParams[i] = new ParameterWithValueDeclaration(paramName,
                     paramValue,
-                    paramType
+                    paramType,
+                    keyField
             );
         }
         return executionParams;
@@ -189,4 +200,40 @@ public class TestDescription {
         return fields;
     }
 
+    protected static IOpenField getKeyField(String paramName, IOpenClass type, Object value, IDataBase db, ColumnDescriptor[] columnDescriptors) {
+        if (value == null) {
+            return null;
+        }
+        IOpenField foreignKeyField = null;
+        if (columnDescriptors != null) {
+            for (ColumnDescriptor columnDescriptor : columnDescriptors) {
+                if (columnDescriptor == null) {
+                    continue;
+                }
+                IdentifierNode[] fieldChainTokens = columnDescriptor.getFieldChainTokens();
+                if (fieldChainTokens.length > 0 && fieldChainTokens[0].getIdentifier().equals(paramName)) {
+                    // Found first column descriptor for needed parameter
+                    if (columnDescriptor.isReference() && columnDescriptor instanceof ForeignKeyColumnDescriptor) {
+                        // Foreign key to a data described in the Data Table
+                        ForeignKeyColumnDescriptor descriptor = (ForeignKeyColumnDescriptor) columnDescriptor;
+                        foreignKeyField = descriptor.getForeignKeyField(type, db);
+                    } else {
+                        // Test data is described in the current Test Table
+                        if (fieldChainTokens.length > 1) {
+                            // The field of a complex bean
+                            IdentifierNode fieldName = fieldChainTokens[fieldChainTokens.length - 1];
+                            foreignKeyField = type.getField(fieldName.getIdentifier());
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        if (foreignKeyField == null) {
+            // Couldn't find foreign key field in foreign Data Table or current Test Table - fallback to index field
+            foreignKeyField = type ==null ? null : type.getIndexField();
+        }
+
+        return foreignKeyField;
+    }
 }
