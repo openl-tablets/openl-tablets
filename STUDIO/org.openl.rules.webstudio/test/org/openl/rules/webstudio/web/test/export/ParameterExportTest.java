@@ -29,7 +29,7 @@ import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.rules.webstudio.web.test.ParameterWithValueAndPreviewDeclaration;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
@@ -353,21 +353,28 @@ public class ParameterExportTest {
     private ParameterWithValueDeclaration[] params(String[] pkValues, Class[] types, Object... values) {
         ParameterWithValueDeclaration[] params = new ParameterWithValueDeclaration[values.length];
         for (int i = 0; i < values.length; i++) {
+
+            IOpenClass type;
             if (types == null) {
-                params[i] = new ParameterWithValueDeclaration("p" + (i + 1), values[i]);
+                type = ParameterWithValueDeclaration.getParamType(values[i]);
             } else {
-                JavaOpenClass type = JavaOpenClass.getOpenClass(types[i]);
-                params[i] = new ParameterWithValueDeclaration("p" + (i + 1), values[i], type);
+                type = JavaOpenClass.getOpenClass(types[i]);
             }
 
-            if (pkValues != null && pkValues[i] != null) {
-                PrimaryKeyField field = mock(PrimaryKeyField.class);
-                when(field.get(any(), any(IRuntimeEnv.class))).thenReturn(pkValues[i]);
-
-                params[i] = new ParameterWithValueAndPreviewDeclaration(params[i], field);
-            }
+            PrimaryKeyField field = mockKeyField(pkValues, i);
+            params[i] = new ParameterWithValueDeclaration("p" + (i + 1), values[i], type, field);
         }
         return params;
+    }
+
+    private PrimaryKeyField mockKeyField(String[] pkValues, int i) {
+        if (pkValues != null && pkValues[i] != null) {
+            PrimaryKeyField field = mock(PrimaryKeyField.class);
+            when(field.get(any(), any(IRuntimeEnv.class))).thenReturn(pkValues[i]);
+            return field;
+        }
+
+        return null;
     }
 
     private XSSFSheet saveAndReadSheet() throws IOException {

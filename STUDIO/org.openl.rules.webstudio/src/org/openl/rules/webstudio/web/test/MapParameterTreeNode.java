@@ -98,7 +98,7 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
         Entry element = new Entry(getMap(), key, value);
 
         ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(JavaOpenClass.getOpenClass(element.getClass()), element)
-                .previewField(config.getPreviewField())
+                .keyField(config.getKeyField())
                 .parent(this)
                 .hasExplainLinks(config.isHasExplainLinks())
                 .requestId(config.getRequestId())

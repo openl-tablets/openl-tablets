@@ -35,7 +35,7 @@ public class TestDescriptionTest {
     @Test
     public void testNotModifyInputParameters() {
 
-        TestDescription description = new TestDescription(createTestMethodMock(), arguments);
+        TestDescription description = new TestDescription(createTestMethodMock(), arguments, null);
 
         testRunner.runTest(description, target, env, 1);
         assertEquals("test", arguments[0].value);
