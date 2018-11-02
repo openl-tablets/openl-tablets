@@ -1,6 +1,6 @@
 package org.openl.rules.ui.tree;
 
-import org.openl.rules.ui.OverloadedMethodsDictionary;
+import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
 
 /**
  * Base tree node builder that uses information about method groups in build

@@ -2,6 +2,7 @@ package org.openl.rules.ui;
 
 import java.util.*;
 
+import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;

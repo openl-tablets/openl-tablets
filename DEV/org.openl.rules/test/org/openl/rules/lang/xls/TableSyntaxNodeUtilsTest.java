@@ -1,8 +1,9 @@
-package org.openl.rules.ui;
+package org.openl.rules.lang.xls;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 
 public class TableSyntaxNodeUtilsTest {

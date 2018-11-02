@@ -33,7 +33,7 @@ import org.openl.rules.testmethod.*;
 import org.openl.rules.types.IUriMember;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.RecentlyVisitedTables;
-import org.openl.rules.ui.TableSyntaxNodeUtils;
+import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.util.XSSFOptimizer;
