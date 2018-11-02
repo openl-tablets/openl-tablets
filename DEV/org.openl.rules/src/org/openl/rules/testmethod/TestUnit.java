@@ -59,20 +59,19 @@ public class TestUnit extends BaseTestUnit {
 
     @Override
     public List<ComparedResult> getResultParams() {
-        List<ComparedResult> params = new ArrayList<ComparedResult>();
+        List<ComparedResult> params = new ArrayList<>();
 
         if (expectedError == null && getActualError() == null) {
             List<ComparedResult> results = getComparisonResults();
+            // Don't modify original ComparedResult!
+            // TODO: Investigate why we need to wrap actual value and expected value with ParameterWithValueDeclaration
             for (ComparedResult comparedResult : results) {
-                if (!(comparedResult.getActualValue() instanceof ParameterWithValueDeclaration)) {
-                    comparedResult.setActualValue(new ParameterWithValueDeclaration(comparedResult.getFieldName(),
-                        comparedResult.getActualValue()));
-                }
-                if (!(comparedResult.getExpectedValue() instanceof ParameterWithValueDeclaration)) {
-                    comparedResult.setExpectedValue(new ParameterWithValueDeclaration(comparedResult.getFieldName(),
-                        comparedResult.getExpectedValue()));
-                }
-                params.add(comparedResult);
+                ComparedResult copy = new ComparedResult();
+                copy.setFieldName(comparedResult.getFieldName());
+                copy.setActualValue(new ParameterWithValueDeclaration(comparedResult.getFieldName(), comparedResult.getActualValue()));
+                copy.setExpectedValue(new ParameterWithValueDeclaration(comparedResult.getFieldName(), comparedResult.getExpectedValue()));
+                copy.setStatus(comparedResult.getStatus());
+                params.add(copy);
             }
             return params;
         }

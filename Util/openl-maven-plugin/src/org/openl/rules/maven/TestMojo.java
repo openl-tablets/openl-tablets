@@ -66,6 +66,12 @@ public final class TestMojo extends BaseOpenLMojo {
     private File reportsDirectory;
 
     /**
+     * The file format of the test reports. For example junit4 or xlsx.
+     */
+    @Parameter(defaultValue = "junit4")
+    private ReportFormat[] reportsFormat;
+
+    /**
      * Thread count to run test cases. The parameter is as follows:
      * <ul>
      * <li>4 - Runs tests with 4 threads</li>
@@ -95,7 +101,7 @@ public final class TestMojo extends BaseOpenLMojo {
     @Parameter(defaultValue = "${project.testClasspathElements}", readonly = true, required = true)
     private List<String> classpath;
 
-    private final TestRunner testRunner = new TestRunner(BaseTestUnit.Builder.getInstance());
+    private TestRunner testRunner;
 
     @Override
     public void execute(String sourcePath, boolean hasDependencies) throws Exception {
@@ -269,6 +275,8 @@ public final class TestMojo extends BaseOpenLMojo {
     }
 
     private Summary executeTests(CompiledOpenClass openLRules) {
+        TestRunner testRunner = getTestRunner();
+
         IOpenClass openClass = openLRules.getOpenClassWithErrors();
 
         if (openLRules.hasErrors()) {
@@ -307,7 +315,7 @@ public final class TestMojo extends BaseOpenLMojo {
                     } else {
                         result = new TestSuite(test, testRunner).invokeParallel(testSuiteExecutor, openClass, 1L);
                     }
-                    new JUnitReportWriter(reportsDirectory).write(result);
+                    writeReport(result);
 
                     int suitTests = result.getNumberOfTestUnits();
                     int suitFailures = result.getNumberOfAssertionFailures();
@@ -348,6 +356,30 @@ public final class TestMojo extends BaseOpenLMojo {
             if (testSuiteExecutor != null) {
                 testSuiteExecutor.destroy();
             }
+        }
+    }
+
+    private TestRunner getTestRunner() {
+        if (testRunner == null) {
+            TestRunner runner = new TestRunner(BaseTestUnit.Builder.getInstance());
+
+            for (ReportFormat reportFormat : reportsFormat) {
+                // For now xlsx exporter needs all info.
+                if (reportFormat == ReportFormat.xlsx) {
+                    runner = new TestRunner(TestUnit.Builder.getInstance());
+                    break;
+                }
+            }
+
+            testRunner = runner;
+        }
+
+        return testRunner;
+    }
+
+    private void writeReport(TestUnitsResults result) throws Exception {
+        for (ReportFormat reporter : reportsFormat) {
+            reporter.write(reportsDirectory, result);
         }
     }
 

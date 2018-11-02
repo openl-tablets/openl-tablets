@@ -38,6 +38,13 @@ try {
     assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Simple Rules.GreetingTest.xml").exists();
     assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Spreadsheets.calcTest.xml").exists();
 
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Rules With Error.TryFailedGreetingTest.xlsx").exists();
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Rules With Error.TryGreetingTest.xlsx").exists();
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Simple Rules.GreetingSuccessful1.xlsx").exists();
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Simple Rules.GreetingSuccessful2.xlsx").exists();
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Simple Rules.GreetingTest.xlsx").exists();
+    assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Spreadsheets.calcTest.xlsx").exists();
+
     return true
 } catch(Throwable e) {
     e.printStackTrace()
