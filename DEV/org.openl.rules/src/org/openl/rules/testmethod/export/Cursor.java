@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.test.export;
+package org.openl.rules.testmethod.export;
 
 final class Cursor {
     private final int rowNum;

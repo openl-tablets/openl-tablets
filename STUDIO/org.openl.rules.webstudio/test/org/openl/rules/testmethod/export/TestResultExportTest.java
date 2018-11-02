@@ -1,7 +1,7 @@
-package org.openl.rules.webstudio.web.test.export;
+package org.openl.rules.testmethod.export;
 
 import static org.junit.Assert.*;
-import static org.openl.rules.webstudio.web.test.export.Styles.*;
+import static org.openl.rules.testmethod.export.Styles.*;
 
 import java.io.File;
 import java.io.FileOutputStream;

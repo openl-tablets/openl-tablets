@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.test.export;
+package org.openl.rules.testmethod.export;
 
 import org.apache.poi.ss.usermodel.*;
 import org.openl.rules.table.formatters.FormattersManager;
