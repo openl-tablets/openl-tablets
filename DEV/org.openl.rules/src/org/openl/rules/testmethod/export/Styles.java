@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.test.export;
+package org.openl.rules.testmethod.export;
 
 import static org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined.*;
 
@@ -33,7 +33,7 @@ final class Styles {
     final CellStyle resultSuccess;
     final CellStyle resultFailure;
     final CellStyle resultOther;
-    
+
     final CellStyle parametersInfo;
     final CellStyle parameterValue;
     final CellStyle parameterAbsent;

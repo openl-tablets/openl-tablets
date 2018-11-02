@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.test.export;
+package org.openl.rules.testmethod.export;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;

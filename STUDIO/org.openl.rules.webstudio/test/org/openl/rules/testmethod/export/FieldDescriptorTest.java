@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.test.export;
+package org.openl.rules.testmethod.export;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
