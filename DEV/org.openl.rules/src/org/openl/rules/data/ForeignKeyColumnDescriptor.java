@@ -491,6 +491,9 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     }
 
     private DomainOpenClass getDomainClass(ITable foreignTable, int foreignKeyIndex) throws SyntaxNodeException {
+        if (getField() == null) {
+            return null;
+        }
         final List<Object> foreignTableValues = foreignTable.getUniqueValues(foreignKeyIndex);
 
         IOpenClass columnType = foreignTable.getColumnType(foreignKeyIndex);
