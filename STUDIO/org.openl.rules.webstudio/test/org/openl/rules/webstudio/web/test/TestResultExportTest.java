@@ -550,13 +550,17 @@ public class TestResultExportTest {
 
         File createExcelFile(TestUnitsResults[] results, int testsPerPage) throws IOException {
             tempFile = File.createTempFile("test-results", ".xlsx");
-            new TestResultExport().export(results, testsPerPage, new FileOutputStream(tempFile));
+            try (FileOutputStream outputStream = new FileOutputStream(tempFile)) {
+                new TestResultExport().export(results, testsPerPage, outputStream);
+            }
             return tempFile;
         }
 
         @Override
         public void close() throws Exception {
-            tempFile.delete();
+            if (!tempFile.delete()) {
+                throw new IOException("File " + tempFile + " isn't deleted. Possibly it's locked.");
+            }
         }
     }
 }

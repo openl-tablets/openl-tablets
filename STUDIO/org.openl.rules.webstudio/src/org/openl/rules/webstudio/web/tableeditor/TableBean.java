@@ -25,7 +25,6 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -61,6 +60,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +70,7 @@ import org.slf4j.LoggerFactory;
 @ManagedBean
 @RequestScoped
 public class TableBean {
+    private static final String REQUEST_ID_PREFIX = "project-";
     private final Logger log = LoggerFactory.getLogger(TableBean.class);
 
     private IOpenMethod method;
@@ -423,7 +424,7 @@ public class TableBean {
         if (currentProject != null) {
             try {
                 return currentProject.tryLock();
-            } catch (ProjectException e) {
+            } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 return false;
             }
@@ -456,6 +457,34 @@ public class TableBean {
     public void afterSaveAction(String newId) {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         studio.compile();
+    }
+
+    public String getRequestId() {
+        final WebStudio studio = WebStudioUtils.getWebStudio();
+        RulesProject currentProject = studio.getCurrentProject();
+        String projectName = currentProject == null ? "" : currentProject.getName();
+        return REQUEST_ID_PREFIX + projectName;
+    }
+
+    public static void tryUnlock(String requestId) {
+        if (StringUtils.isBlank(requestId) || !requestId.startsWith(REQUEST_ID_PREFIX)) {
+            return;
+        }
+
+        String projectName = requestId.substring(REQUEST_ID_PREFIX.length());
+
+        final WebStudio studio = WebStudioUtils.getWebStudio();
+        RulesProject currentProject = studio.getProject(projectName);
+        if (currentProject != null) {
+            try {
+                if (!currentProject.isModified()) {
+                    currentProject.unlock();
+                }
+            } catch (Exception e) {
+                Logger logger = LoggerFactory.getLogger(TableBean.class);
+                logger.error(e.getMessage(), e);
+            }
+        }
     }
 
     public boolean getCanEdit() {

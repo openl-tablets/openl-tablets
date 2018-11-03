@@ -796,6 +796,8 @@
             };
         }
         $j(function () {
+            ws.nav.setRequestId('#{tableBean.requestId}');
+
             var projectAdapter = {
                 hasChanges: function () {
                     return getCurrentTable().isHasChanges();

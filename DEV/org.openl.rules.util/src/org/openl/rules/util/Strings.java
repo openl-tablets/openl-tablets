@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 /**
  * A set of util methods to work with strings.
@@ -601,5 +602,285 @@ public class Strings {
 
     private static boolean isEmpty0(String str) {
         return str == null || str.isEmpty();
+    }
+
+    /**
+     * Checks if the Object is valid integer.<br/>
+     * <br/>
+     * <code>
+     *     isInteger(null)           = false<br/>
+     *     isInteger("")             = false<br/>
+     *     isInteger("  ")           = false<br/>
+     *     isInteger(new Integer(1)) = true<br/>
+     *     isInteger(new Object())   = false<br/>
+     *     isInteger("123")          = true<br/>
+     *     isInteger("-123")         = true<br/>
+     *     isInteger("0")            = true<br/>
+     *     isInteger("123.4")        = false<br/>
+     *     isInteger("123L")         = false<br/>
+     *     isInteger("123D")         = false<br/>
+     * </code>
+     *
+     * @param source any object
+     * @return {@code true} if the Object is correctly formatted integer
+     */
+    public static boolean isInteger(Object source) {
+        if (source == null) {
+            return false;
+        }
+
+        if (source.getClass() == String.class) {
+            final String str = (String) source;
+            if (isEmpty(str)) {
+                return false;
+            }
+            final char[] chars = str.toCharArray();
+            int starts = chars[0] == '-' || chars[0] == '+' ? 1 : 0;
+            boolean hasNumbers = false;
+            for (int i = starts; i < chars.length; i++) {
+                if (chars[i] < '0' || chars[i] > '9') {
+                    return false;
+                }
+                hasNumbers = true;
+            }
+            return hasNumbers;
+        }
+        return source.getClass() == Integer.class;
+    }
+
+    /**
+     * Checks if the Object is valid number.<br/>
+     * <br/>
+     * Always returns {@code true} if Object is instance of {@link Number}.<br/>
+     * <br/>
+     * <code>
+     *     isNumber(null)           = false<br/>
+     *     isNumber("")             = false<br/>
+     *     isNumber("  ")           = false<br/>
+     *     isNumber(new Integer(1)) = true<br/>
+     *     isNumber(new Object())   = false<br/>
+     *     isNumber("123")          = true<br/>
+     *     isNumber("-123")         = true<br/>
+     *     isNumber("0")            = true<br/>
+     *     isNumber("123.4")        = true<br/>
+     *     isNumber("123L")         = true<br/>
+     *     isNumber("123D")         = true<br/>
+     *     isNumber("123.E21")      = true<br/>
+     *     isNumber("1.23.E21")     = false<br/>
+     *     isNumber("NaN")          = false<br/>
+     * </code>
+     *
+     * @param source any object
+     * @return {@code true} if the Object is correctly formatted number
+     */
+    public static boolean isNumber(Object source) {
+        if (source == null) {
+            return false;
+        }
+
+        if (source.getClass() == String.class) {
+            final String str = (String) source;
+            if (isEmpty(str)) {
+                return false;
+            }
+            return isNumber(str);
+        }
+        return source instanceof Number;
+    }
+
+    private static boolean isNumber(String str) {
+        final char[] chars = str.toCharArray();
+        final int size = chars.length;
+
+        boolean hasNumbers = false;
+        boolean allowSigns = false;
+        boolean hasDecSep = false;
+        boolean hasExp = false;
+
+        int i = chars[0] == '-' || chars[0] == '+' ? 1 : 0;
+
+        // the last char will be checked after while block
+        while (i < size - 1) {
+            final char ch = chars[i];
+            if (ch >= '0' && ch <= '9') {
+                hasNumbers = true;
+                allowSigns = false;
+            } else if (ch == '.') {
+                if (hasDecSep || hasExp) {
+                    // do not allow second . or decimal separator after E
+                    return false;
+                }
+                hasDecSep = true;
+            } else if (ch == 'e' || ch == 'E') {
+                if (hasExp) {
+                    // do not allow second E
+                    return false;
+                }
+                if (!hasNumbers) {
+                    // do not allow E if no numbers before
+                    return false;
+                }
+                hasExp = true;
+                allowSigns = true;
+            } else if (ch == '+' || ch == '-') {
+                if (!allowSigns) {
+                    // do not allow second sing before exponent
+                    return false;
+                }
+                allowSigns = false;
+                // to make sure that numbers are present between ['-', 'E'] or ['+', 'E']
+                hasNumbers = false;
+            } else {
+                return false;
+            }
+            i++;
+        }
+
+        if (i < size) {
+            final char lastChar = chars[i];
+            if (lastChar >= '0' && lastChar <= '9') {
+                return true;
+            }
+            if (lastChar == 'e' || lastChar == 'E') {
+                // number can't be ended with exponent
+                return false;
+            }
+            if (lastChar == '.') {
+                if (hasDecSep || hasExp) {
+                    // two '.' or '.' in exp
+                    return false;
+                }
+                // single trailing decimal point after non-exponent is ok
+                return hasNumbers;
+            }
+            if (!allowSigns && (lastChar == 'd' || lastChar == 'D' || lastChar == 'f' || lastChar == 'F')) {
+                return hasNumbers;
+            }
+            if (lastChar == 'l' || lastChar == 'L') {
+                // not allow 'L' with 'E' or '.'
+                return hasNumbers && !hasExp && !hasDecSep;
+            }
+            return false;
+        }
+        return hasNumbers && !allowSigns;
+    }
+
+    /**
+     * Checks if the String is matched using given Pattern.<br/>
+     * <br/>
+     * Syntax:<br/>
+     * <br/>
+     * <p>
+     * # - matches any single digit ? - matches any single symbol * - matches any character 0 or more times @ - matches
+     * any single alphabetic character @ - matches any single alphabetic character [charlist] - matches any single
+     * character in {@code charlist} [!charlist] - matches any single character not in {@code charlist} \ - quotes the
+     * following character X+ - matches @{code X} one or more times
+     * </p>
+     * <br/>
+     * Examples:<br/>
+     * <br/>
+     * <code>
+     *     like(null, "")      = true<br/>
+     *     like("", "#")       = false<br/>
+     *     like("9", "#")      = true<br/>
+     *     like("a", "?")      = true<br/>
+     *     like("a", "@")      = true<br/>
+     *     like("1a23", "*")   = true<br/>
+     *     like("foo@bar.com", "?+\@?+\.?+")                = true<br/>
+     *     like("+38(099) 123-12-12", "+##(###) ###-##-##") = true<br/>
+     * </code>
+     *
+     * @param str any String
+     * @param pattern pattern
+     * @return {@code true} if the String matches given pattern
+     */
+    public static boolean like(String str, String pattern) {
+        if (isEmpty(str)) {
+            return pattern == null || pattern.isEmpty();
+        }
+
+        Pattern regex = Pattern.compile(parseLikePattern(pattern));
+        return regex.matcher(str).matches();
+    }
+
+    static String parseLikePattern(String pattern) {
+        StringBuilder regex = new StringBuilder();
+
+        final char[] chars = pattern.toCharArray();
+        final int size = chars.length;
+
+        int i = 0;
+        boolean allowMultiOccur = false;
+        boolean quoteNextChar = false;
+        while (i < size) {
+            final char ch = chars[i];
+            i++;
+            if (quoteNextChar) {
+                if ("[.?*+^$[]\\(){}|-]".indexOf(ch) != -1) {
+                    regex.append('\\');
+                }
+                regex.append(ch);
+                quoteNextChar = false;
+                allowMultiOccur = false;
+            } else {
+                switch (ch) {
+                    case '?':
+                        regex.append(".");
+                        allowMultiOccur = true;
+                        break;
+                    case '*':
+                        regex.append(".*");
+                        allowMultiOccur = false;
+                        break;
+                    case '#':
+                        regex.append("\\d");
+                        allowMultiOccur = true;
+                        break;
+                    case '@':
+                        regex.append("\\p{Alpha}");
+                        allowMultiOccur = true;
+                        break;
+                    case '[':
+                        int sqBrackets = 1;
+                        final int start = i - 1;
+                        while (i < size) {
+                            if (chars[i] == '[') {
+                                sqBrackets++;
+                                allowMultiOccur = false;
+                            } else if (chars[i] == ']') {
+                                sqBrackets--;
+                                allowMultiOccur = true;
+                            }
+                            i++;
+                            if (sqBrackets == 0) {
+                                break;
+                            }
+                        }
+                        regex.append(pattern.substring(start, i).replaceAll("\\[!", "[^"));
+                        break;
+                    case '\\':
+                        quoteNextChar = true;
+                        break;
+                    case ' ':
+                        regex.append("\\s");
+                        allowMultiOccur = false;
+                        break;
+                    default:
+                        if (allowMultiOccur && ch == '+') {
+                            regex.append(ch);
+                            allowMultiOccur = false;
+                        } else {
+                            if ("[.?*+^$[]\\(){}|-]".indexOf(ch) != -1) {
+                                regex.append('\\');
+                            }
+                            regex.append(ch);
+                            allowMultiOccur = false;
+                        }
+                        break;
+                }
+            }
+        }
+
+        return regex.toString();
     }
 }
