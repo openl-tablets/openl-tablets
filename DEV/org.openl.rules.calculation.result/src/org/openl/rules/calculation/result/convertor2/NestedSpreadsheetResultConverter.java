@@ -46,7 +46,7 @@ public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q exten
     private final Logger log = LoggerFactory.getLogger(NestedSpreadsheetResultConverter.class);
 
     private NestedSpreadsheetConfiguration<T, Q> conf;
-
+    
     private int currentNestingLevel;
 
     /**
@@ -133,7 +133,7 @@ public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q exten
                     column));
                 isNestedRow = true;
             } else {
-                extractors.add(new SpreadsheetColumnExtractor<Q>(column));
+                extractors.add(new SpreadsheetColumnExtractor<Q>(column, conf));
             }
         }
         RowExtractor<? extends CalculationStep> rowExtractor = null;
@@ -143,7 +143,7 @@ public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q exten
         } else {
             List<SpreadsheetColumnExtractor<T>> simpleExtractors = new ArrayList<SpreadsheetColumnExtractor<T>>();
             for (ColumnToExtract column : compoundColumns) {
-                simpleExtractors.add(new SpreadsheetColumnExtractor<T>(column));
+                simpleExtractors.add(new SpreadsheetColumnExtractor<T>(column, conf));
             }
             rowExtractor = conf.initSimpleRowExtractor(simpleExtractors);
             rowExtractor.setConf(conf);
