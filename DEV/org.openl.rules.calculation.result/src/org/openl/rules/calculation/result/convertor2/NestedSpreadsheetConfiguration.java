@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
+
 /**
  * Configuration for the nested spreadsheet result converter. Extend it by
  * overriding abstract methods {@link #initCompoundRowExtractor(List)} and
@@ -34,6 +36,12 @@ public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, 
     
     /** Row filter**/
     private RowFilter rowFilter;
+    
+    private ObjectToDataOpenCastConvertor objectToDataOpenCastConvertor = new ObjectToDataOpenCastConvertor();
+    
+    public ObjectToDataOpenCastConvertor getObjectToDataOpenCastConvertor() {
+        return objectToDataOpenCastConvertor;
+    }
     
     /**
      * 

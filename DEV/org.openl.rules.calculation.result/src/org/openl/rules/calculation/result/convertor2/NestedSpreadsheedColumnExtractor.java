@@ -32,27 +32,16 @@ public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor
     /**
      * Configuration for each level of converting.
      */
-    private NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> conf;
 
     public NestedSpreadsheedColumnExtractor(int nestingLevel,
             NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> configuration,
             ColumnToExtract column) {
-        super(column);
+        super(column, configuration);
         this.nestingLevel = nestingLevel;
-        this.conf = configuration;
     }
 
     public NestedSpreadsheedColumnExtractor(int nestingLevel, ColumnToExtract column) {
         this(nestingLevel, null, column);
-    }
-
-    /**
-     * Gets the configuration
-     * 
-     * @return {@link NestedSpreadsheetConfiguration}
-     */
-    public NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> getConfiguration() {
-        return conf;
     }
 
     /**
@@ -69,18 +58,18 @@ public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor
                 // process SpreadsheetResult[] as nesting column value.
                 //
                 for (SpreadsheetResult result : (SpreadsheetResult[]) from) {
-                    CompoundStep compoundStep = conf.initCompoundRowExtractor(null).makeRowInstance();
+                    CompoundStep compoundStep = getConfiguration().initCompoundRowExtractor(null).makeRowInstance();
                     compoundStep.setSteps((List<CalculationStep>) convertCompoundPremium(result));
 
                     // additional processing of converted results
                     //
                     postProcess(compoundStep);
 
-                    if (conf.isConvertationMetadataEnabled()){
+                    if (getConfiguration().isConvertationMetadataEnabled()) {
                         ConvertationMetadata convertationMetadata = new ConvertationMetadata();
                         compoundStep.setConvertationMetadata(convertationMetadata);
                     }
-                    
+
                     to.addStep(compoundStep);
                 }
                 nestedType = ConvertationMetadata.NestedType.ARRAY;
@@ -109,12 +98,14 @@ public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor
         return compoundStep;
     }
 
-    private <T extends CalculationStep, Q extends CompoundStep> NestedSpreadsheetResultConverter<T, Q> createNextLevelConverter(NestedSpreadsheetConfiguration<T, Q> configuration) {
+    private <T extends CalculationStep, Q extends CompoundStep> NestedSpreadsheetResultConverter<T, Q> createNextLevelConverter(
+            NestedSpreadsheetConfiguration<T, Q> configuration) {
         return new NestedSpreadsheetResultConverter<T, Q>(nestingLevel + 1, configuration);
     }
 
     private List<? extends CalculationStep> convertCompoundPremium(SpreadsheetResult result) {
-        NestedSpreadsheetResultConverter<? extends CalculationStep, ? extends CompoundStep> converter = createNextLevelConverter(conf);
+        NestedSpreadsheetResultConverter<? extends CalculationStep, ? extends CompoundStep> converter = createNextLevelConverter(
+            getConfiguration());
         return converter.process(result);
     }
 }
