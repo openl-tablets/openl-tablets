@@ -5,6 +5,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundMethodHeader;
 import org.openl.binding.IBoundMethodNode;
+import org.openl.binding.impl.ANodeBinder;
 import org.openl.binding.impl.module.MethodBindingContext;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.SourceType;
@@ -26,7 +27,6 @@ public class OpenLCodeManager extends OpenLHolder {
 
     private OpenLSourceManager sourceManager;
     private OpenLCompileManager compileManager;
-    private OpenLBindManager bindManager;
 
     /**
      * Default constructor.
@@ -37,14 +37,13 @@ public class OpenLCodeManager extends OpenLHolder {
         super(openl);
         sourceManager = new OpenLSourceManager(openl);
         compileManager = new OpenLCompileManager(openl);
-        bindManager = new OpenLBindManager(openl);
     }
 
     /**
      * Makes open class that describes a type.
      * 
      * @param source source
-     * @param bindingContextDelegator binding context
+     * @param bindingContext binding context
      * @return {@link IOpenClass} instance
      */
     public IOpenClass makeType(IOpenSourceCodeModule source, IBindingContext bindingContext) {
@@ -89,11 +88,10 @@ public class OpenLCodeManager extends OpenLHolder {
      * Makes a method header from source.
      * 
      * @param source source
-     * @param bindingContextDelegator binding context
+     * @param bindingContext binding context
      * @return {@link IOpenMethodHeader} instance
      */
-    public IOpenMethodHeader makeMethodHeader(IOpenSourceCodeModule source,
-            IBindingContext bindingContext) {
+    public IOpenMethodHeader makeMethodHeader(IOpenSourceCodeModule source, IBindingContext bindingContext) {
         try {
             if (bindingContext != null) {
                 bindingContext.pushErrors();
@@ -149,7 +147,7 @@ public class OpenLCodeManager extends OpenLHolder {
 
             header.setTypeClass(retType);
 
-            IBoundMethodNode boundMethodNode = bindManager.bindMethod(boundCode, header, bindingContext);
+            IBoundMethodNode boundMethodNode = ANodeBinder.bindMethod(boundCode, header, bindingContext);
             
             if (bindingContext.getErrors().length > 0) {
                 throw new CompositeSyntaxNodeException("Parsing Error:", bindingContext.getErrors());

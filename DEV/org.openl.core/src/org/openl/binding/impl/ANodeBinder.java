@@ -1,15 +1,21 @@
 package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
+import org.openl.binding.IBoundCode;
+import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethodHeader;
 import org.openl.types.NullOpenClass;
+import org.openl.types.java.JavaOpenClass;
+import org.openl.util.StringUtils;
 
 /**
  * A base node binder with a bunch of utility methods.
@@ -227,6 +233,36 @@ public abstract class ANodeBinder implements INodeBinder {
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, exception, node);
         bindingContext.addError(error);
         return new ErrorBoundNode(node);
+    }
+
+    /**
+     * Binds method which defines by header descriptor.
+     *
+     * @param boundCode bound code that contains method bound code
+     * @param header method header descriptor
+     * @param bindingContext binding context
+     * @return node of bound code that contains information about method
+     */
+    public static IBoundMethodNode bindMethod(IBoundCode boundCode, IOpenMethodHeader header, IBindingContext bindingContext) {
+
+
+        try {
+            IBoundMethodNode boundMethodNode = (IBoundMethodNode) boundCode.getTopNode();
+            IOpenClass type = header.getType();
+
+            if (type != JavaOpenClass.VOID && type != NullOpenClass.the) {
+
+                IOpenCast cast = getCast(boundMethodNode, type, bindingContext);
+
+                if (cast != null) {
+                    boundMethodNode = new MethodCastNode(boundMethodNode, cast, type);
+                }
+            }
+            return boundMethodNode;
+        } catch (TypeCastException ex) {
+            throw new CompositeSyntaxNodeException(StringUtils.EMPTY, new SyntaxNodeException[] { ex });
+        }
+
     }
 
     /*

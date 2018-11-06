@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.openl.CompiledOpenClass;
+import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundCode;
@@ -41,7 +42,6 @@ public class OpenLSourceManager extends OpenLHolder {
     public static final String ADDITIONAL_ERROR_MESSAGES_KEY = "additional-error-messages";
 
     private OpenLParseManager parseManager;
-    private OpenLBindManager bindManager;
 
     /**
      * Create new instance of OpenL engine manager.
@@ -52,7 +52,6 @@ public class OpenLSourceManager extends OpenLHolder {
 
         super(openl);
 
-        bindManager = new OpenLBindManager(openl);
         parseManager = new OpenLParseManager(openl);
 
     }
@@ -126,7 +125,7 @@ public class OpenLSourceManager extends OpenLHolder {
      * 
      * @param source source
      * @param sourceType type of source
-     * @param bindingContextDelegator binding context
+     * @param bindingContext binding context
      * @param ignoreErrors define a flag that indicates to suppress errors or break source processing when an error has
      *            occurred
      * @return processed code descriptor
@@ -220,7 +219,8 @@ public class OpenLSourceManager extends OpenLHolder {
         // packages.
         FullClassnameSupport.transformIdentifierBindersWithBindingContextInfo(bindingContext, parsedCode);
 
-        IBoundCode boundCode = bindManager.bindCode(bindingContext, parsedCode);
+        IOpenBinder binder = getOpenL().getBinder();
+        IBoundCode boundCode = binder.bind(parsedCode, bindingContext);
         for (OpenLMessage message : boundCode.getMessages()) {
             messages.add(message);
         }
