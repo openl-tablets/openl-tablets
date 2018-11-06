@@ -9,6 +9,7 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundMethodNode;
+import org.openl.binding.impl.ANodeBinder;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.binding.impl.module.MethodBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -29,7 +30,6 @@ import org.openl.validation.ValidationResult;
 public class OpenLCompileManager extends OpenLHolder {
 
     private OpenLSourceManager sourceManager;
-    private OpenLBindManager bindManager;
     private OpenLValidationManager validationManager;
 
     /**
@@ -40,7 +40,6 @@ public class OpenLCompileManager extends OpenLHolder {
     public OpenLCompileManager(OpenL openl) {
         super(openl);
         sourceManager = new OpenLSourceManager(openl);
-        bindManager = new OpenLBindManager(openl);
         validationManager = new OpenLValidationManager(openl);
     }
 
@@ -135,7 +134,7 @@ public class OpenLCompileManager extends OpenLHolder {
 
             IBoundCode boundCode = processedCode.getBoundCode();
 
-            IBoundMethodNode boundMethodNode = bindManager
+            IBoundMethodNode boundMethodNode = ANodeBinder
                 .bindMethod(boundCode, compositeMethod.getHeader(), bindingContext);
 
             compositeMethod.setMethodBodyBoundNode(boundMethodNode);
