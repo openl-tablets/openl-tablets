@@ -82,7 +82,9 @@
                                         </h:panelGroup>
 
                                         <h:inputText value="#{prop.value}" id="input-prop-text"
-                                            rendered="#{!(prop.dateType || prop.name == 'version' || prop.booleanType || prop.enumType || prop.enumArray)}" />
+                                            rendered="#{!(prop.dateType || prop.name == 'version' || prop.booleanType || prop.enumType || prop.enumArray || prop.stringArray)}" />
+
+                                        <h:inputText id="input-text-array" value="#{prop.stringValue}" rendered="#{prop.stringArray}" />
                                     </td>
                                 </tr>
                             </a4j:repeat>
