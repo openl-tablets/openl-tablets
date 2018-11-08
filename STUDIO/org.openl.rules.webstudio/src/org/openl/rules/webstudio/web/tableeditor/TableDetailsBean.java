@@ -257,12 +257,14 @@ public class TableDetailsBean {
                 Object newValue = property.getValue();
                 Object oldValue = props.getPropertyValue(name);
                 boolean enumArray = property.isEnumArray();
+                boolean stringArray = property.isStringArray();
 
                 if (newValue == null && oldValue != null) {
                     //if value is empty we have to delete it
                     propsToRemove.add(name);
                 } else if ((enumArray && !Arrays.equals((Enum<?>[]) oldValue, (Enum<?>[]) newValue))
-                        || (!enumArray && ObjectUtils.notEqual(oldValue, newValue))) {
+                        || (stringArray && !Arrays.equals((String[]) oldValue, (String[]) newValue))
+                        || (!enumArray && !stringArray && ObjectUtils.notEqual(oldValue, newValue))) {
                     tableEditorModel.setProperty(name,
                             newValue.getClass().isArray() && ArrayUtils.getLength(newValue) == 0 ? null : newValue);
                     toSave = true;
