@@ -29,6 +29,7 @@
         <module>itest.swaggerSchemas</module>
         <module>itest.EPBDS-7819</module>
         <module>itest.EPBDS-7187</module>
+        <module>itest.EPBDS-7654</module>
     </modules>
 
     <dependencyManagement>

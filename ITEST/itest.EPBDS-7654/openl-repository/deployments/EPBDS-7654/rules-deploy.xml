@@ -1,0 +1,13 @@
+<rules-deploy>
+	<isProvideRuntimeContext>false</isProvideRuntimeContext>
+	<isProvideVariations>false</isProvideVariations>
+	<serviceName>EPBDS-7654</serviceName>
+	<url>EPBDS-7654</url>
+	<!-- STATIC INTERFACE -->
+	<serviceClass>org.openl.itest.epbds7654.project.DayDiffService</serviceClass>
+	<!-- //STATIC INTERFACE -->
+	<publishers>
+		<publisher>WEBSERVICE</publisher>
+		<publisher>RESTFUL</publisher>
+	</publishers>
+</rules-deploy>
