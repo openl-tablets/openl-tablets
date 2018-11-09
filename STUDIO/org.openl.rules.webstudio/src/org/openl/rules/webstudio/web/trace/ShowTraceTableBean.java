@@ -144,7 +144,7 @@ public class ShowTraceTableBean {
     }
 
     public static boolean isSpreadsheetResult(Object value) {
-        return value != null && ClassUtils.isAssignable(value.getClass(), SpreadsheetResult.class);
+        return value != null && ClassUtils.isAssignable(value.getClass(), SpreadsheetResult.class) && ((SpreadsheetResult) value).getLogicalTable() != null;
     }
 
     public String getFormattedSpreadsheetResult(Object value) {
