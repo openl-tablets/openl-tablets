@@ -15,6 +15,7 @@ import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
+import org.openl.rules.util.Statistics;
 import org.openl.util.ArrayTool;
 import org.openl.util.CollectionUtils;
 import org.openl.util.math.MathUtils;
@@ -52,6 +53,16 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
             i++;
         }
         return doubleValues;
+    }
+
+    public static BigIntegerValue max(BigIntegerValue... values) {
+        BigIntegerValue result = Statistics.max(values);
+        return result == null ? null : new BigIntegerValue(result, NumberOperations.MAX, values);
+    }
+
+    public static BigIntegerValue min(BigIntegerValue... values) {
+        BigIntegerValue result = Statistics.min(values);
+        return result == null ? null : new BigIntegerValue(result, NumberOperations.MIN, values);
     }
 
     /**
@@ -108,82 +119,6 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         return median != null ? new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(median),
             NumberOperations.MEDIAN,
             values1) : null;
-    }
-
-    /**
-     * Compares value1 and value2 and returns the max value
-     * 
-     * @param value1
-     * @param value2
-     * @return max value
-     */
-    public static org.openl.meta.BigIntegerValue max(org.openl.meta.BigIntegerValue value1,
-            org.openl.meta.BigIntegerValue value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        // validate(value1, value2, NumberOperations.MAX.toString());
-        if (value1 == null)
-            return value2;
-        if (value2 == null)
-            return value1;
-
-        return new org.openl.meta.BigIntegerValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
-            NumberOperations.MAX,
-            new org.openl.meta.BigIntegerValue[] { value1, value2 });
-    }
-
-    /**
-     * Compares value1 and value2 and returns the min value
-     * 
-     * @param value1
-     * @param value2
-     * @return min value
-     */
-    public static org.openl.meta.BigIntegerValue min(org.openl.meta.BigIntegerValue value1,
-            org.openl.meta.BigIntegerValue value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        // validate(value1, value2, NumberOperations.MIN.toString());
-        if (value1 == null)
-            return value2;
-        if (value2 == null)
-            return value1;
-
-        return new org.openl.meta.BigIntegerValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
-            NumberOperations.MIN,
-            new org.openl.meta.BigIntegerValue[] { value1, value2 });
-    }
-
-    /**
-     * 
-     * @param values an array org.openl.meta.BigIntegerValue, must not be null
-     * @return org.openl.meta.BigIntegerValue the max element from array
-     */
-    public static org.openl.meta.BigIntegerValue max(org.openl.meta.BigIntegerValue[] values) {
-        org.openl.meta.BigIntegerValue result = (org.openl.meta.BigIntegerValue) MathUtils.max(values);
-        if (result == null) {
-            return null;
-        }
-
-        return new org.openl.meta.BigIntegerValue((org.openl.meta.BigIntegerValue) getAppropriateValue(values, result),
-            NumberOperations.MAX_IN_ARRAY,
-            values);
-    }
-
-    /**
-     * 
-     * @param values an array org.openl.meta.BigIntegerValue, must not be null
-     * @return org.openl.meta.BigIntegerValue the min element from array
-     */
-    public static org.openl.meta.BigIntegerValue min(org.openl.meta.BigIntegerValue[] values) {
-        org.openl.meta.BigIntegerValue result = (org.openl.meta.BigIntegerValue) MathUtils.min(values);
-        if (result == null) {
-            return null;
-        }
-
-        return new org.openl.meta.BigIntegerValue((org.openl.meta.BigIntegerValue) getAppropriateValue(values, result),
-            NumberOperations.MIN_IN_ARRAY,
-            values);
     }
 
     /**

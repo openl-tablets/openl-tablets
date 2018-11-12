@@ -16,6 +16,7 @@ import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
+import org.openl.rules.util.Statistics;
 import org.openl.util.ArrayTool;
 import org.openl.util.CollectionUtils;
 import org.openl.util.math.MathUtils;
@@ -39,6 +40,16 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         public BigDecimal marshal(BigDecimalValue val) throws Exception {
             return val.getValue();
         }
+    }
+
+    public static BigDecimalValue max(BigDecimalValue... values) {
+        BigDecimalValue result = Statistics.max(values);
+        return result == null ? null : new BigDecimalValue(result, NumberOperations.MAX, values);
+    }
+
+    public static BigDecimalValue min(BigDecimalValue... values) {
+        BigDecimalValue result = Statistics.min(values);
+        return result == null ? null : new BigDecimalValue(result, NumberOperations.MIN, values);
     }
 
     /**
@@ -150,74 +161,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         java.math.BigDecimal[] unwrappedArray = unwrap(values);
         java.math.BigDecimal median = MathUtils.median(unwrappedArray);
         return median != null ? new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(median), NumberOperations.MEDIAN, values) : null;
-    }
-
-     /**
-     * Compares value1 and value2 and returns the max value
-     * @param value1
-     * @param value2
-     * @return max value
-     */
-    public static org.openl.meta.BigDecimalValue max(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        // validate(value1, value2, NumberOperations.MAX.toString());
-        if (value1 == null)
-            return value2; 
-        if (value2 == null)
-            return value1; 
-
-        return new org.openl.meta.BigDecimalValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
-            NumberOperations.MAX,
-            new org.openl.meta.BigDecimalValue[] { value1, value2 });
-    }
-     /**
-     * Compares value1 and value2 and returns the min value
-     * @param value1
-     * @param value2
-     * @return min value
-     */
-    public static org.openl.meta.BigDecimalValue min(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        // validate(value1, value2, NumberOperations.MIN.toString());
-        if (value1 == null)
-            return value2; 
-        if (value2 == null)
-            return value1; 
-
-        return new org.openl.meta.BigDecimalValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
-            NumberOperations.MIN,
-            new org.openl.meta.BigDecimalValue[] { value1, value2 });
-    }
-
-    /**
-     * 
-     * @param values an array org.openl.meta.BigDecimalValue, must not be null
-     * @return org.openl.meta.BigDecimalValue the max element from array
-     */
-    public static org.openl.meta.BigDecimalValue max(org.openl.meta.BigDecimalValue[] values) {
-        org.openl.meta.BigDecimalValue result = (org.openl.meta.BigDecimalValue) MathUtils.max(values);
-        if (result == null) {
-            return null;
-        }
-
-        return new org.openl.meta.BigDecimalValue((org.openl.meta.BigDecimalValue) getAppropriateValue(values, result),
-            NumberOperations.MAX_IN_ARRAY, values);
-    }
-    /**
-     * 
-     * @param values an array org.openl.meta.BigDecimalValue, must not be null
-     * @return org.openl.meta.BigDecimalValue the min element from array
-     */
-    public static org.openl.meta.BigDecimalValue min(org.openl.meta.BigDecimalValue[] values) {
-        org.openl.meta.BigDecimalValue result = (org.openl.meta.BigDecimalValue) MathUtils.min(values);
-        if (result == null) {
-            return null;
-        }
-
-        return new org.openl.meta.BigDecimalValue((org.openl.meta.BigDecimalValue) getAppropriateValue(values, result),
-            NumberOperations.MIN_IN_ARRAY, values);
     }
         /**
      * 

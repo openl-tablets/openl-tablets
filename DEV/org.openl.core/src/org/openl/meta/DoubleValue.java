@@ -16,6 +16,7 @@ import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
+import org.openl.rules.util.Statistics;
 import org.openl.rules.util.Round;
 import org.openl.util.ArrayTool;
 import org.openl.util.CollectionUtils;
@@ -83,6 +84,16 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public void setValue(double value) {
         this.value = value;
         this.hashCode = ((Double) value).hashCode();
+    }
+
+    public static DoubleValue max(DoubleValue... values) {
+        DoubleValue result = Statistics.max(values);
+        return result == null ? null : new DoubleValue(result, NumberOperations.MAX, values);
+    }
+
+    public static DoubleValue min(DoubleValue... values) {
+        DoubleValue result = Statistics.min(values);
+        return result == null ? null : new DoubleValue(result, NumberOperations.MIN, values);
     }
 
     /**
@@ -193,74 +204,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         Double[] unwrappedArray = unwrap(values);
         Double median = MathUtils.median(unwrappedArray);
         return median != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median), NumberOperations.MEDIAN, values) : null;
-    }
-
-     /**
-     * Compares value1 and value2 and returns the max value
-     * @param value1
-     * @param value2
-     * @return max value
-     */
-    public static org.openl.meta.DoubleValue max(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        // validate(value1, value2, NumberOperations.MAX.toString());
-        if (value1 == null)
-            return value2; 
-        if (value2 == null)
-            return value1; 
-
-        return new org.openl.meta.DoubleValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
-            NumberOperations.MAX,
-            new org.openl.meta.DoubleValue[] { value1, value2 });
-    }
-     /**
-     * Compares value1 and value2 and returns the min value
-     * @param value1
-     * @param value2
-     * @return min value
-     */
-    public static org.openl.meta.DoubleValue min(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        // validate(value1, value2, NumberOperations.MIN.toString());
-        if (value1 == null)
-            return value2; 
-        if (value2 == null)
-            return value1; 
-
-        return new org.openl.meta.DoubleValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
-            NumberOperations.MIN,
-            new org.openl.meta.DoubleValue[] { value1, value2 });
-    }
-
-    /**
-     * 
-     * @param values an array org.openl.meta.DoubleValue, must not be null
-     * @return org.openl.meta.DoubleValue the max element from array
-     */
-    public static org.openl.meta.DoubleValue max(org.openl.meta.DoubleValue[] values) {
-        org.openl.meta.DoubleValue result = (org.openl.meta.DoubleValue) MathUtils.max(values);
-        if (result == null) {
-            return null;
-        }
-
-        return new org.openl.meta.DoubleValue((org.openl.meta.DoubleValue) getAppropriateValue(values, result),
-            NumberOperations.MAX_IN_ARRAY, values);
-    }
-    /**
-     * 
-     * @param values an array org.openl.meta.DoubleValue, must not be null
-     * @return org.openl.meta.DoubleValue the min element from array
-     */
-    public static org.openl.meta.DoubleValue min(org.openl.meta.DoubleValue[] values) {
-        org.openl.meta.DoubleValue result = (org.openl.meta.DoubleValue) MathUtils.min(values);
-        if (result == null) {
-            return null;
-        }
-
-        return new org.openl.meta.DoubleValue((org.openl.meta.DoubleValue) getAppropriateValue(values, result),
-            NumberOperations.MIN_IN_ARRAY, values);
     }
         /**
      * 

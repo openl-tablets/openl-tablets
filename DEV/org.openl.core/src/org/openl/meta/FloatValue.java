@@ -16,6 +16,7 @@ import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
+import org.openl.rules.util.Statistics;
 import org.openl.rules.util.Round;
 import org.openl.util.ArrayTool;
 import org.openl.util.CollectionUtils;
@@ -43,7 +44,17 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 
     private final float value;
     private final int hashCode;
-    
+
+    public static FloatValue max(FloatValue... values) {
+        FloatValue result = Statistics.max(values);
+        return result == null ? null : new FloatValue(result, NumberOperations.MAX, values);
+    }
+
+    public static FloatValue min(FloatValue... values) {
+        FloatValue result = Statistics.min(values);
+        return result == null ? null : new FloatValue(result, NumberOperations.MIN, values);
+    }
+
     /**
      * Compares two values
      * 
@@ -168,80 +179,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         Float[] unwrappedArray = unwrap(values);
         Float median = MathUtils.median(unwrappedArray);
         return median != null ? new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(median), NumberOperations.MEDIAN, values) : null;
-    }
-
-    /**
-     * Compares value1 and value2 and returns the max value
-     * 
-     * @param value1
-     * @param value2
-     * @return max value
-     */
-    public static org.openl.meta.FloatValue max(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        // validate(value1, value2, NumberOperations.MAX.toString());
-        if (value1 == null)
-            return value2;
-        if (value2 == null)
-            return value1;
-
-        return new org.openl.meta.FloatValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
-            NumberOperations.MAX,
-            new org.openl.meta.FloatValue[] { value1, value2 });
-    }
-
-    /**
-     * Compares value1 and value2 and returns the min value
-     * 
-     * @param value1
-     * @param value2
-     * @return min value
-     */
-    public static org.openl.meta.FloatValue min(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        // validate(value1, value2, NumberOperations.MIN.toString());
-        if (value1 == null)
-            return value2;
-        if (value2 == null)
-            return value1;
-
-        return new org.openl.meta.FloatValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
-            NumberOperations.MIN,
-            new org.openl.meta.FloatValue[] { value1, value2 });
-    }
-
-    /**
-     * 
-     * @param values an array org.openl.meta.FloatValue, must not be null
-     * @return org.openl.meta.FloatValue the max element from array
-     */
-    public static org.openl.meta.FloatValue max(org.openl.meta.FloatValue[] values) {
-        org.openl.meta.FloatValue result = (org.openl.meta.FloatValue) MathUtils.max(values);
-        if (result == null) {
-            return null;
-        }
-
-        return new org.openl.meta.FloatValue((org.openl.meta.FloatValue) getAppropriateValue(values, result),
-            NumberOperations.MAX_IN_ARRAY,
-            values);
-    }
-
-    /**
-     * 
-     * @param values an array org.openl.meta.FloatValue, must not be null
-     * @return org.openl.meta.FloatValue the min element from array
-     */
-    public static org.openl.meta.FloatValue min(org.openl.meta.FloatValue[] values) {
-        org.openl.meta.FloatValue result = (org.openl.meta.FloatValue) MathUtils.min(values);
-        if (result == null) {
-            return null;
-        }
-
-        return new org.openl.meta.FloatValue((org.openl.meta.FloatValue) getAppropriateValue(values, result),
-            NumberOperations.MIN_IN_ARRAY,
-            values);
     }
 
     /**

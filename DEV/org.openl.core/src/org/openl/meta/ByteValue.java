@@ -15,6 +15,7 @@ import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
+import org.openl.rules.util.Statistics;
 import org.openl.util.ArrayTool;
 import org.openl.util.CollectionUtils;
 import org.openl.util.math.MathUtils;
@@ -52,6 +53,16 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
             i++;
         }
         return doubleValues;
+    }
+
+    public static ByteValue max(ByteValue... values) {
+        ByteValue result = Statistics.max(values);
+        return result == null ? null : new ByteValue(result, NumberOperations.MAX, values);
+    }
+
+    public static ByteValue min(ByteValue... values) {
+        ByteValue result = Statistics.min(values);
+        return result == null ? null : new ByteValue(result, NumberOperations.MIN, values);
     }
 
     /**
@@ -104,80 +115,6 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         return median != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median),
             NumberOperations.MEDIAN,
             toDoubleValues(values)) : null;
-    }
-
-    /**
-     * Compares value1 and value2 and returns the max value
-     * 
-     * @param value1
-     * @param value2
-     * @return max value
-     */
-    public static org.openl.meta.ByteValue max(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        // validate(value1, value2, NumberOperations.MAX.toString());
-        if (value1 == null)
-            return value2;
-        if (value2 == null)
-            return value1;
-
-        return new org.openl.meta.ByteValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
-            NumberOperations.MAX,
-            new org.openl.meta.ByteValue[] { value1, value2 });
-    }
-
-    /**
-     * Compares value1 and value2 and returns the min value
-     * 
-     * @param value1
-     * @param value2
-     * @return min value
-     */
-    public static org.openl.meta.ByteValue min(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        // validate(value1, value2, NumberOperations.MIN.toString());
-        if (value1 == null)
-            return value2;
-        if (value2 == null)
-            return value1;
-
-        return new org.openl.meta.ByteValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
-            NumberOperations.MIN,
-            new org.openl.meta.ByteValue[] { value1, value2 });
-    }
-
-    /**
-     * 
-     * @param values an array org.openl.meta.ByteValue, must not be null
-     * @return org.openl.meta.ByteValue the max element from array
-     */
-    public static org.openl.meta.ByteValue max(org.openl.meta.ByteValue[] values) {
-        org.openl.meta.ByteValue result = (org.openl.meta.ByteValue) MathUtils.max(values);
-        if (result == null) {
-            return null;
-        }
-
-        return new org.openl.meta.ByteValue((org.openl.meta.ByteValue) getAppropriateValue(values, result),
-            NumberOperations.MAX_IN_ARRAY,
-            values);
-    }
-
-    /**
-     * 
-     * @param values an array org.openl.meta.ByteValue, must not be null
-     * @return org.openl.meta.ByteValue the min element from array
-     */
-    public static org.openl.meta.ByteValue min(org.openl.meta.ByteValue[] values) {
-        org.openl.meta.ByteValue result = (org.openl.meta.ByteValue) MathUtils.min(values);
-        if (result == null) {
-            return null;
-        }
-
-        return new org.openl.meta.ByteValue((org.openl.meta.ByteValue) getAppropriateValue(values, result),
-            NumberOperations.MIN_IN_ARRAY,
-            values);
     }
 
     /**
