@@ -15,6 +15,7 @@ import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
+import org.openl.rules.util.Statistics;
 import org.openl.util.ArrayTool;
 import org.openl.util.CollectionUtils;
 import org.openl.util.math.MathUtils;
@@ -52,6 +53,16 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
             i++;
         }
         return doubleValues;
+    }
+
+    public static LongValue max(LongValue... values) {
+        LongValue result = Statistics.max(values);
+        return result == null ? null : new LongValue(result, NumberOperations.MAX, values);
+    }
+
+    public static LongValue min(LongValue... values) {
+        LongValue result = Statistics.min(values);
+        return result == null ? null : new LongValue(result, NumberOperations.MIN, values);
     }
 
     /**
@@ -101,80 +112,6 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         return median != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median),
             NumberOperations.MEDIAN,
             toDoubleValues(values)) : null;
-    }
-
-    /**
-     * Compares value1 and value2 and returns the max value
-     * 
-     * @param value1
-     * @param value2
-     * @return max value
-     */
-    public static org.openl.meta.LongValue max(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        // validate(value1, value2, NumberOperations.MAX.toString());
-        if (value1 == null)
-            return value2;
-        if (value2 == null)
-            return value1;
-
-        return new org.openl.meta.LongValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
-            NumberOperations.MAX,
-            new org.openl.meta.LongValue[] { value1, value2 });
-    }
-
-    /**
-     * Compares value1 and value2 and returns the min value
-     * 
-     * @param value1
-     * @param value2
-     * @return min value
-     */
-    public static org.openl.meta.LongValue min(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        // Commented to support operations with nulls
-        // "null" means that data does not exist
-        // validate(value1, value2, NumberOperations.MIN.toString());
-        if (value1 == null)
-            return value2;
-        if (value2 == null)
-            return value1;
-
-        return new org.openl.meta.LongValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
-            NumberOperations.MIN,
-            new org.openl.meta.LongValue[] { value1, value2 });
-    }
-
-    /**
-     * 
-     * @param values an array org.openl.meta.LongValue, must not be null
-     * @return org.openl.meta.LongValue the max element from array
-     */
-    public static org.openl.meta.LongValue max(org.openl.meta.LongValue[] values) {
-        org.openl.meta.LongValue result = (org.openl.meta.LongValue) MathUtils.max(values);
-        if (result == null) {
-            return null;
-        }
-
-        return new org.openl.meta.LongValue((org.openl.meta.LongValue) getAppropriateValue(values, result),
-            NumberOperations.MAX_IN_ARRAY,
-            values);
-    }
-
-    /**
-     * 
-     * @param values an array org.openl.meta.LongValue, must not be null
-     * @return org.openl.meta.LongValue the min element from array
-     */
-    public static org.openl.meta.LongValue min(org.openl.meta.LongValue[] values) {
-        org.openl.meta.LongValue result = (org.openl.meta.LongValue) MathUtils.min(values);
-        if (result == null) {
-            return null;
-        }
-
-        return new org.openl.meta.LongValue((org.openl.meta.LongValue) getAppropriateValue(values, result),
-            NumberOperations.MIN_IN_ARRAY,
-            values);
     }
 
     /**
