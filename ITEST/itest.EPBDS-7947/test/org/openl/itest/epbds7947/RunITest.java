@@ -15,6 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.generated.beans.Coverage;
 import org.openl.generated.beans.Driver;
+import org.openl.generated.beans.PaymentPlan;
 import org.openl.generated.beans.Policy;
 import org.openl.generated.beans.Vehicle;
 import org.openl.itest.core.JettyServer;
@@ -91,6 +92,15 @@ public class RunITest {
             brandCodes[i] = (i + 1) * 10;
         }
         policy.setBrandCodes(brandCodes);
+
+        PaymentPlan[][] paymentMatrix = new PaymentPlan[3][3];
+        for (int i = 0; i < paymentMatrix.length; i++) {
+            for (int j = 0; j < paymentMatrix[i].length; j++) {
+                paymentMatrix[i][j] = new PaymentPlan();
+                paymentMatrix[i][j].setName("ANNUAL");
+            }
+        }
+        policy.setPaymentMatrix(paymentMatrix);
 
         return policy;
     }
@@ -208,6 +218,20 @@ public class RunITest {
             fail("Oops... Must be failed!");
         } catch (SoapFault e) {
             assertSoapValidationFault("Object 'NON' is outside of valid domain 'Gender'. Valid values: [male, female, other]", e);
+        }
+    }
+
+    @Test
+    public void test_validation_onPaymentMatrix_shouldBeFailed() {
+        policy.getPaymentMatrix()[1][1].setName("OTHER");
+        ResponseEntity<ErrorResponse> responseEntity = rest.exchange("/checkValidation", HttpMethod.POST, RestClientFactory.request(policy), ErrorResponse.class);
+        assertRestValidationResponse("Object 'OTHER' is outside of valid domain 'PlanName'. Valid values: [ANNUAL, NONANNUAL]", responseEntity);
+
+        try {
+            soapClient.checkValidation(policy);
+            fail("Oops... Must be failed!");
+        } catch (SoapFault e) {
+            assertSoapValidationFault("Object 'OTHER' is outside of valid domain 'PlanName'. Valid values: [ANNUAL, NONANNUAL]", e);
         }
     }
 

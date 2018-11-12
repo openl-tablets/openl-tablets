@@ -11,6 +11,7 @@ public class Policy {
     protected String transaction;
     protected Vehicle[] vehicles;
     protected Integer[] brandCodes;
+    protected PaymentPlan[][] paymentMatrix;
 
     public String getId() {
         return id;
@@ -52,6 +53,14 @@ public class Policy {
         this.brandCodes = brandCodes;
     }
 
+    public PaymentPlan[][] getPaymentMatrix() {
+        return paymentMatrix;
+    }
+
+    public void setPaymentMatrix(PaymentPlan[][] paymentMatrix) {
+        this.paymentMatrix = paymentMatrix;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -61,7 +70,8 @@ public class Policy {
                 Objects.equals(effectiveDate, policy.effectiveDate) &&
                 Objects.equals(transaction, policy.transaction) &&
                 Arrays.equals(vehicles, policy.vehicles) &&
-                Arrays.equals(brandCodes, policy.brandCodes);
+                Arrays.equals(brandCodes, policy.brandCodes) &&
+                Arrays.equals(paymentMatrix, policy.paymentMatrix);
     }
 
     @Override
@@ -69,6 +79,7 @@ public class Policy {
         int result = Objects.hash(id, effectiveDate, transaction);
         result = 31 * result + Arrays.hashCode(vehicles);
         result = 31 * result + Arrays.hashCode(brandCodes);
+        result = 31 * result + Arrays.hashCode(paymentMatrix);
         return result;
     }
 
@@ -80,6 +91,7 @@ public class Policy {
                 ", transaction='" + transaction + '\'' +
                 ", vehicles=" + Arrays.toString(vehicles) +
                 ", brandCodes=" + Arrays.toString(brandCodes) +
+                ", paymentMatrix=" + Arrays.toString(paymentMatrix) +
                 '}';
     }
 }
