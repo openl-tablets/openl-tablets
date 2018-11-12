@@ -1,9 +1,5 @@
 package org.openl.rules.runtime;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Map;
-
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.domain.IDomain;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
@@ -12,8 +8,8 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.ComponentTypeArrayOpenClass;
 import org.openl.types.impl.DomainOpenClass;
-import org.openl.util.ClassUtils;
 import org.openl.util.DomainUtils;
+import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +22,7 @@ class ValidationHandler {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    void validateProxyArguments(IMethodSignature methodSignature, Object[] args) {
+    void validateProxyArguments(IMethodSignature methodSignature, IRuntimeEnv env, Object[] args) {
         if (args == null || args.length == 0) {
             return;
         }
@@ -39,46 +35,46 @@ class ValidationHandler {
             if (generatedType instanceof DomainOpenClass) {
                 validateAliasValue(arg, generatedType);
             } else if (generatedType instanceof ComponentTypeArrayOpenClass) {
-                doValidate((Object[]) arg, generatedType.getComponentClass());
+                doValidate(env, (Object[]) arg, generatedType.getComponentClass());
             } else if (generatedType instanceof DatatypeOpenClass) {
-                doValidate(arg, generatedType);
+                doValidate(env, arg, generatedType);
             }
         }
     }
 
-    private void doValidate(Object[] objs, IOpenClass openType) {
+    private void doValidate(IRuntimeEnv env, Object[] objs, IOpenClass openType) {
         for (Object obj : objs) {
             if (obj == null) {
                 continue;
             }
             if (openType instanceof ComponentTypeArrayOpenClass) {
-                doValidate((Object[]) obj, openType.getComponentClass());
+                doValidate(env, (Object[]) obj, openType.getComponentClass());
             } else if (openType instanceof DatatypeOpenClass) {
-                doValidate(obj, openType);
+                doValidate(env, obj, openType);
             }
         }
     }
 
-    private void doValidate(Object obj, IOpenClass openType) {
+    private void doValidate(IRuntimeEnv env, Object obj, IOpenClass openType) {
         if (!obj.getClass().equals(openType.getInstanceClass())) {
             return;
         }
-        for (Map.Entry<String, IOpenField> openField : openType.getFields().entrySet()) {
-            IOpenClass openClass = openField.getValue().getType();
+        for (IOpenField openField : openType.getFields().values()) {
+            IOpenClass openClass = openField.getType();
             if (openClass instanceof ComponentTypeArrayOpenClass) {
-                Object value = getValue(obj, openField.getKey());
+                Object value = openField.get(obj, env);
                 if (value == null) {
                     continue;
                 }
-                doValidate((Object[]) value, openClass.getComponentClass());
+                doValidate(env, (Object[]) value, openClass.getComponentClass());
             } else if (openClass instanceof DatatypeOpenClass) {
-                Object value = getValue(obj, openField.getKey());
+                Object value = openField.get(obj, env);
                 if (value == null) {
                     continue;
                 }
-                doValidate(value, openClass);
+                doValidate(env, value, openClass);
             } else if (openClass instanceof DomainOpenClass) {
-                Object value = getValue(obj, openField.getKey());
+                Object value = openField.get(obj, env);
                 if (value == null) {
                     continue;
                 }
@@ -109,18 +105,6 @@ class ValidationHandler {
                     openClass.getName(),
                     DomainUtils.toString(domain)));
         }
-    }
-
-    private Object getValue(Object obj, String propName) {
-        Class<?> clazz = obj.getClass();
-        String getterName = "get" + ClassUtils.capitalize(propName);
-        try {
-            Method getMethod = clazz.getMethod(getterName);
-            return getMethod.invoke(obj);
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-            log.error("Cannot get value from {}.{}", clazz.getSimpleName(), propName);
-        }
-        return null;
     }
 
 }
