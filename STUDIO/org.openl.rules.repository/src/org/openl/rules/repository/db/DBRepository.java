@@ -19,8 +19,8 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.rules.repository.common.ChangesMonitor;
+import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.db.JDBCDriverRegister;
@@ -477,70 +477,71 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
 
     @Override
     public void initialize() {
-        JDBCDriverRegister.registerDrivers();
-        Exception actualException = null;
         try {
-            Connection connection = getConnection();
-            try {
-                DatabaseMetaData metaData = connection.getMetaData();
-                String databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
-                int majorVersion = metaData.getDatabaseMajorVersion();
-                int minorVersion = metaData.getDatabaseMinorVersion();
-
-                log.info("Driver name      : {}", metaData.getDriverName());
-                log.info("Driver version   : {}", metaData.getDriverVersion());
-                log.info("Database name    : {}", metaData.getDatabaseProductName());
-                log.info("Database version : {}", metaData.getDatabaseProductVersion());
-                log.info("Database code    : {}-v{}.{}", databaseCode, majorVersion, minorVersion);
-                settings = new Settings(databaseCode, majorVersion, minorVersion);
-                initializeDatabase(connection);
-                monitor = new ChangesMonitor(new DBRepositoryRevisionGetter(), settings.timerPeriod);
-            } catch (Exception e) {
-                actualException = e;
-            } finally {
-                try {
-                    if (!connection.getAutoCommit()) {
-                        connection.commit();
-                    }
-                } catch (Exception e) {
-                    if (actualException == null) {
-                        actualException = e;
-                    }
-                }
-                try {
-                    connection.close();
-                } catch (Exception e) {
-                    if (actualException == null) {
-                        actualException = e;
-                    }
-                }
-            }
-        } catch (SQLException e) {
+            JDBCDriverRegister.registerDrivers();
+            loadDBsettings();
+            initializeDatabase();
+            monitor = new ChangesMonitor(new DBRepositoryRevisionGetter(), settings.timerPeriod);
+        } catch (Exception e) {
             throw new IllegalStateException("Failed to initialize a repository", e);
-        }
-        if (actualException != null) {
-            throw new IllegalStateException("Failed to initialize a repository", actualException);
         }
     }
 
-    private void initializeDatabase(Connection connection) throws SQLException {
-        Object revision = checkRepository(connection);
+    private void loadDBsettings() throws IOException, SQLException {
+        Connection connection = null;
+        try {
+            connection = getConnection();
+            DatabaseMetaData metaData = connection.getMetaData();
+            String databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
+            int majorVersion = metaData.getDatabaseMajorVersion();
+            int minorVersion = metaData.getDatabaseMinorVersion();
+
+            log.info("Driver name      : {}", metaData.getDriverName());
+            log.info("Driver version   : {}", metaData.getDriverVersion());
+            log.info("Database name    : {}", metaData.getDatabaseProductName());
+            log.info("Database version : {}", metaData.getDatabaseProductVersion());
+            log.info("Database code    : {}-v{}.{}", databaseCode, majorVersion, minorVersion);
+            settings = new Settings(databaseCode, majorVersion, minorVersion);
+        } finally {
+            safeClose(connection);
+        }
+    }
+
+    private void initializeDatabase() throws SQLException {
+        Object revision = checkRepository();
         if (!(revision instanceof Throwable)) {
             log.info("SQL result: {}. The repository is already initialized.", revision);
             return;
         }
-        log.info("SQL error: {}", ((Throwable)revision).getMessage());
+        log.info("SQL error: {}", ((Throwable) revision).getMessage());
         log.info("Initializing  the repository in the DB...");
-        Statement statement = connection.createStatement();
+        Connection connection = null;
+        Statement statement = null;
+        Boolean autoCommit = null;
         try {
+            connection = getConnection();
+            autoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            statement = connection.createStatement();
+
             for (String query : settings.initStatements) {
                 if (StringUtils.isNotBlank(query)) {
                     statement.execute(query);
                 }
             }
+            connection.commit();
             log.info("The repository has been initialized.");
+        } catch (Exception e) {
+            if (connection != null) {
+                connection.rollback();
+            }
+            throw e;
         } finally {
+            if (autoCommit != null) {
+                connection.setAutoCommit(autoCommit);
+            }
             safeClose(statement);
+            safeClose(connection);
         }
     }
 
@@ -548,32 +549,25 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
 
         @Override
         public Object getRevision() {
-            Connection connection = null;
-            try {
-                connection = getConnection();
-                Object revision = checkRepository(connection);
-                if (revision instanceof Throwable) {
-                    log.warn("Cannot to check revision of the repository", revision);
-                    return null;
-                }
-                return revision;
-            } catch (Exception e) {
-                log.warn("Cannot to check revision of the repository", e);
+            Object revision = checkRepository();
+            if (revision instanceof Throwable) {
+                log.warn("Cannot to check revision of the repository", revision);
                 return null;
-            } finally {
-                safeClose(connection);
             }
+            return revision;
         }
     }
 
     /**
      * Return a hash of the repository or an exception.
      */
-    private Object checkRepository(final Connection connection) {
+    private Object checkRepository() {
         String changeSet = null;
+        Connection connection = null;
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
+            connection = getConnection();
             statement = connection.prepareStatement(settings.selectLastChange);
             rs = statement.executeQuery();
 
@@ -585,6 +579,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         } finally {
             safeClose(rs);
             safeClose(statement);
+            safeClose(connection);
         }
         return changeSet;
     }
