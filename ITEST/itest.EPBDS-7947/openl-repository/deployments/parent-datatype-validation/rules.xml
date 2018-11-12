@@ -1,0 +1,18 @@
+<project>
+    <name>parent-datatype-validation</name>
+    <modules>
+        <module>
+            <name>parent-datatype-validation</name>
+            <rules-root path="parent-datatype-validation.xlsx"/>
+        </module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <name>datatype-validation</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+    </dependencies>
+    <classpath>
+        <entry path="lib/*.jar"/>
+    </classpath>
+</project>
