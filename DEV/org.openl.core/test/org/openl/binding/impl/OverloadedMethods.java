@@ -340,4 +340,20 @@ public class OverloadedMethods {
     public static String vararg3(Integer args) {
         return "Integer";
     }
+
+    public static <T> String vararg4(T... args) {
+        return "Generic..." + args.getClass().getSimpleName();
+    }
+
+    public static <T extends Comparable<T>> String vararg4(T... args) {
+        return "Generic_Comparable..." + args.getClass().getSimpleName();
+    }
+
+    public static <T extends Comparable<T>> String vararg4(DoubleValue... args) {
+        return "DoubleValue..." + args.getClass().getSimpleName();
+    }
+
+    public static <T extends Comparable<T>> String vararg4(Long... args) {
+        return "Long..." + args.getClass().getSimpleName();
+    }
 }
