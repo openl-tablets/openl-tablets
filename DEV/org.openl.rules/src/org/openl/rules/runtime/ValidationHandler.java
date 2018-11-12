@@ -51,9 +51,9 @@ class ValidationHandler {
             if (obj == null) {
                 continue;
             }
-            if (obj.getClass().isArray()) {
-                doValidate((Object[]) obj, openType);
-            } else {
+            if (openType instanceof ComponentTypeArrayOpenClass) {
+                doValidate((Object[]) obj, openType.getComponentClass());
+            } else if (openType instanceof DatatypeOpenClass) {
                 doValidate(obj, openType);
             }
         }
@@ -65,20 +65,18 @@ class ValidationHandler {
         }
         for (Map.Entry<String, IOpenField> openField : openType.getFields().entrySet()) {
             IOpenClass openClass = openField.getValue().getType();
-            boolean openArrayType = openClass.isArray();
             if (openClass instanceof ComponentTypeArrayOpenClass) {
-                openClass = openClass.getComponentClass();
-            }
-            if (openClass instanceof DatatypeOpenClass) {
                 Object value = getValue(obj, openField.getKey());
                 if (value == null) {
                     continue;
                 }
-                if (openArrayType) {
-                    doValidate((Object[]) value, openClass);
-                } else {
-                    doValidate(value, openClass);
+                doValidate((Object[]) value, openClass.getComponentClass());
+            } else if (openClass instanceof DatatypeOpenClass) {
+                Object value = getValue(obj, openField.getKey());
+                if (value == null) {
+                    continue;
                 }
+                doValidate(value, openClass);
             } else if (openClass instanceof DomainOpenClass) {
                 Object value = getValue(obj, openField.getKey());
                 if (value == null) {
