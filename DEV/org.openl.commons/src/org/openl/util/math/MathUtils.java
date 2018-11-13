@@ -106,7 +106,17 @@ public class MathUtils {
             return null;
         }
 
-        return sum(values) / values.length;
+        return sum(values, new Adder<Float>() {
+            @Override
+            public Float add(Float a, Float b) {
+                return a + b;
+            }
+
+            @Override
+            public Float zero() {
+                return 0f;
+            }
+        }) / values.length;
     }
 
     public static BigDecimal avg(java.math.BigInteger[] values) {
@@ -118,7 +128,17 @@ public class MathUtils {
             return null;
         }
 
-        return divide(new BigDecimal(sum(values)), java.math.BigDecimal.valueOf(values.length));
+        return divide(new BigDecimal(sum(values, new Adder<BigInteger>() {
+            @Override
+            public BigInteger add(BigInteger a, BigInteger b) {
+                return a.add(b);
+            }
+
+            @Override
+            public BigInteger zero() {
+                return BigInteger.ZERO;
+            }
+        })), java.math.BigDecimal.valueOf(values.length));
     }
 
     public static BigDecimal avg(java.math.BigDecimal[] values) {
@@ -130,7 +150,17 @@ public class MathUtils {
             return null;
         }
 
-        return divide(sum(values), java.math.BigDecimal.valueOf(values.length));
+        return divide(sum(values, new Adder<BigDecimal>() {
+            @Override
+            public BigDecimal add(BigDecimal a, BigDecimal b) {
+                return a.add(b);
+            }
+
+            @Override
+            public BigDecimal zero() {
+                return BigDecimal.ZERO;
+            }
+        }), java.math.BigDecimal.valueOf(values.length));
     }
 
     public static Double avg(byte[] values) {
@@ -405,118 +435,6 @@ public class MathUtils {
             }
         }
         return hasValues ? sum : null;
-    }
-
-    public static Byte sum(Byte[] values) {
-        return sum(values, new Adder<Byte>() {
-            @Override
-            public Byte add(Byte a, Byte b) {
-                return (byte) (a + b);
-            }
-
-            @Override
-            public Byte zero() {
-                return 0;
-            }
-        });
-    }
-
-    public static Short sum(Short[] values) {
-        return sum(values, new Adder<Short>() {
-            @Override
-            public Short add(Short a, Short b) {
-                return (short) (a + b);
-            }
-
-            @Override
-            public Short zero() {
-                return 0;
-            }
-        });
-    }
-
-    public static Integer sum(Integer[] values) {
-        return sum(values, new Adder<Integer>() {
-            @Override
-            public Integer add(Integer a, Integer b) {
-                return a + b;
-            }
-
-            @Override
-            public Integer zero() {
-                return 0;
-            }
-        });
-    }
-
-    public static Long sum(Long[] values) {
-        return sum(values, new Adder<Long>() {
-            @Override
-            public Long add(Long a, Long b) {
-                return a + b;
-            }
-
-            @Override
-            public Long zero() {
-                return 0l;
-            }
-        });
-    }
-
-    public static Float sum(Float[] values) {
-        return sum(values, new Adder<Float>() {
-            @Override
-            public Float add(Float a, Float b) {
-                return a + b;
-            }
-
-            @Override
-            public Float zero() {
-                return 0f;
-            }
-        });
-    }
-
-    public static Double sum(Double[] values) {
-        return sum(values, new Adder<Double>() {
-            @Override
-            public Double add(Double a, Double b) {
-                return a + b;
-            }
-
-            @Override
-            public Double zero() {
-                return 0d;
-            }
-        });
-    }
-
-    public static java.math.BigInteger sum(java.math.BigInteger[] values) {
-        return sum(values, new Adder<java.math.BigInteger>() {
-            @Override
-            public java.math.BigInteger add(java.math.BigInteger a, java.math.BigInteger b) {
-                return a.add(b);
-            }
-
-            @Override
-            public java.math.BigInteger zero() {
-                return BigInteger.ZERO;
-            }
-        });
-    }
-
-    public static java.math.BigDecimal sum(java.math.BigDecimal[] values) {
-        return sum(values, new Adder<java.math.BigDecimal>() {
-            @Override
-            public java.math.BigDecimal add(java.math.BigDecimal a, java.math.BigDecimal b) {
-                return a.add(b);
-            }
-
-            @Override
-            public java.math.BigDecimal zero() {
-                return BigDecimal.ZERO;
-            }
-        });
     }
 
     public static Byte sum(byte[] values) {

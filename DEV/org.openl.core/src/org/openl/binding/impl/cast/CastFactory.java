@@ -46,8 +46,9 @@ public class CastFactory implements ICastFactory {
 
     public static final int JAVA_BOXING_CAST_DISTANCE = 14;
 
-    public static final int PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 16;
-    public static final int JAVA_BOXING_UP_CAST_DISTANCE = 18;
+    public static final int JAVA_BOXING_UP_CAST_DISTANCE = 16;
+    
+    public static final int PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 18;
 
     public static final int JAVA_UNBOXING_CAST_DISTANCE = 22;
 

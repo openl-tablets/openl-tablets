@@ -17,7 +17,6 @@ import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
 import org.openl.rules.util.Statistics;
 import org.openl.util.ArrayTool;
-import org.openl.util.CollectionUtils;
 import org.openl.util.math.MathUtils;
 
 @XmlRootElement
@@ -55,66 +54,32 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         return doubleValues;
     }
 
+    private static ByteValue instance(Byte result, NumberOperations operation, ByteValue... values) {
+        return result == null ? null : new ByteValue(new ByteValue(result), operation, values);
+    }
+
+    private static ByteValue instance(ByteValue result, NumberOperations operation, ByteValue... values) {
+        return result == null ? null : new ByteValue(result, operation, values);
+    }
+
     public static ByteValue max(ByteValue... values) {
-        ByteValue result = Statistics.max(values);
-        return result == null ? null : new ByteValue(result, NumberOperations.MAX, values);
+        return instance(Statistics.max(values), NumberOperations.MAX, values);
     }
 
     public static ByteValue min(ByteValue... values) {
-        ByteValue result = Statistics.min(values);
-        return result == null ? null : new ByteValue(result, NumberOperations.MIN, values);
+        return instance(Statistics.min(values), NumberOperations.MIN, values);
     }
 
-    /**
-     * average
-     * 
-     * @param values array of org.openl.meta.ByteValue values
-     * @return the average value from the array
-     */
-    public static org.openl.meta.DoubleValue avg(org.openl.meta.ByteValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
-        Byte[] unwrappedArray = unwrap(values);
-        Double avg = MathUtils.avg(unwrappedArray);
-
-        return avg != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg),
-            NumberOperations.AVG,
-            toDoubleValues(values)) : null;
+    public static ByteValue sum(ByteValue... values) {
+        return instance(Statistics.sum(unwrap(values)), NumberOperations.SUM, values);
     }
 
-    /**
-     * sum
-     * 
-     * @param values array of org.openl.meta.ByteValue values
-     * @return the sum value from the array
-     */
-    public static org.openl.meta.ByteValue sum(org.openl.meta.ByteValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
-        Byte[] unwrappedArray = unwrap(values);
-        Byte sum = MathUtils.sum(unwrappedArray);
-        return sum != null ? new org.openl.meta.ByteValue(new org.openl.meta.ByteValue(sum),
-            NumberOperations.SUM,
-            values) : null;
+    public static DoubleValue avg(ByteValue... values) {
+        return DoubleValue.instance(MathUtils.avg(unwrap(values)), NumberOperations.AVG, toDoubleValues(values));
     }
 
-    /**
-     * median
-     * 
-     * @param values array of org.openl.meta.ByteValue values
-     * @return the median value from the array
-     */
-    public static org.openl.meta.DoubleValue median(org.openl.meta.ByteValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
-        Byte[] unwrappedArray = unwrap(values);
-        Double median = MathUtils.median(unwrappedArray);
-        return median != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median),
-            NumberOperations.MEDIAN,
-            toDoubleValues(values)) : null;
+    public static DoubleValue median(ByteValue... values) {
+        return DoubleValue.instance(MathUtils.median(unwrap(values)), NumberOperations.MEDIAN, toDoubleValues(values));
     }
 
     /**
@@ -336,16 +301,8 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
-    public static org.openl.meta.ByteValue small(org.openl.meta.ByteValue[] values, int position) {
-        if (values == null) {
-            return null;
-        }
-        Byte[] unwrappedArray = unwrap(values);
-        Byte small = MathUtils.small(unwrappedArray, position);
-        return new org.openl.meta.ByteValue(
-            (org.openl.meta.ByteValue) getAppropriateValue(values, new org.openl.meta.ByteValue(small)),
-            NumberOperations.SMALL,
-            values);
+    public static ByteValue small(ByteValue[] values, int position) {
+        return instance(MathUtils.small(unwrap(values), position), NumberOperations.SMALL, values);
     }
 
     /**
@@ -356,16 +313,8 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
-    public static org.openl.meta.ByteValue big(org.openl.meta.ByteValue[] values, int position) {
-        if (values == null) {
-            return null;
-        }
-        Byte[] unwrappedArray = unwrap(values);
-        Byte big = MathUtils.big(unwrappedArray, position);
-        return new org.openl.meta.ByteValue(
-            (org.openl.meta.ByteValue) getAppropriateValue(values, new org.openl.meta.ByteValue(big)),
-            NumberOperations.BIG,
-            values);
+    public static ByteValue big(ByteValue[] values, int position) {
+        return instance(MathUtils.big(unwrap(values), position), NumberOperations.BIG, values);
     }
 
     /**
@@ -697,6 +646,9 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     }
 
     private static Byte[] unwrap(ByteValue[] values) {
+        if (values == null) {
+            return null;
+        }
         values = ArrayTool.removeNulls(values);
 
         Byte[] unwrappedArray = new Byte[values.length];

@@ -19,7 +19,6 @@ import org.openl.meta.number.NumberOperations;
 import org.openl.rules.util.Statistics;
 import org.openl.rules.util.Round;
 import org.openl.util.ArrayTool;
-import org.openl.util.CollectionUtils;
 import org.openl.util.math.MathUtils;
 
 @XmlRootElement
@@ -45,14 +44,32 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     private final float value;
     private final int hashCode;
 
+    private static FloatValue instance(Float result, NumberOperations operation, FloatValue... values) {
+        return result == null ? null : new FloatValue(new FloatValue(result), operation, values);
+    }
+
+    private static FloatValue instance(FloatValue result, NumberOperations operation, FloatValue... values) {
+        return result == null ? null : new FloatValue(result, operation, values);
+    }
+
     public static FloatValue max(FloatValue... values) {
-        FloatValue result = Statistics.max(values);
-        return result == null ? null : new FloatValue(result, NumberOperations.MAX, values);
+        return instance(Statistics.max(values), NumberOperations.MAX, values);
     }
 
     public static FloatValue min(FloatValue... values) {
-        FloatValue result = Statistics.min(values);
-        return result == null ? null : new FloatValue(result, NumberOperations.MIN, values);
+        return instance(Statistics.min(values), NumberOperations.MIN, values);
+    }
+
+    public static FloatValue sum(FloatValue... values) {
+        return instance(Statistics.sum(unwrap(values)), NumberOperations.SUM, values);
+    }
+
+    public static FloatValue avg(FloatValue... values) {
+        return instance(MathUtils.avg(unwrap(values)), NumberOperations.AVG, values);
+    }
+
+    public static FloatValue median(FloatValue... values) {
+        return instance(MathUtils.median(unwrap(values)), NumberOperations.MEDIAN, values);
     }
 
     /**
@@ -134,51 +151,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
 
         return Comparison.ne(value1.getValue(), value2.getValue());
-    }
-
-    /**
-     * average
-     * 
-     * @param values array of org.openl.meta.FloatValue values
-     * @return the average value from the array
-     */
-    public static org.openl.meta.FloatValue avg(org.openl.meta.FloatValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
-        Float[] unwrappedArray = unwrap(values);
-        Float avg = MathUtils.avg(unwrappedArray);
-        return avg != null ? new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(avg), NumberOperations.AVG, values) : null;
-    }
-
-    /**
-     * sum
-     * 
-     * @param values array of org.openl.meta.FloatValue values
-     * @return the sum value from the array
-     */
-    public static org.openl.meta.FloatValue sum(org.openl.meta.FloatValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
-        Float[] unwrappedArray = unwrap(values);
-        Float sum = MathUtils.sum(unwrappedArray);
-        return sum != null ? new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(sum), NumberOperations.SUM, values) : null;
-    }
-
-    /**
-     * median
-     * 
-     * @param values array of org.openl.meta.FloatValue values
-     * @return the median value from the array
-     */
-    public static org.openl.meta.FloatValue median(org.openl.meta.FloatValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
-        Float[] unwrappedArray = unwrap(values);
-        Float median = MathUtils.median(unwrappedArray);
-        return median != null ? new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(median), NumberOperations.MEDIAN, values) : null;
     }
 
     /**
@@ -396,16 +368,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
-    public static org.openl.meta.FloatValue small(org.openl.meta.FloatValue[] values, int position) {
-        if (values == null) {
-            return null;
-        }
-        Float[] unwrappedArray = unwrap(values);
-        Float small = MathUtils.small(unwrappedArray, position);
-        return new org.openl.meta.FloatValue(
-            (org.openl.meta.FloatValue) getAppropriateValue(values, new org.openl.meta.FloatValue(small)),
-            NumberOperations.SMALL,
-            values);
+    public static FloatValue small(FloatValue[] values, int position) {
+        return instance(MathUtils.small(unwrap(values), position), NumberOperations.SMALL, values);
     }
 
     /**
@@ -416,16 +380,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
-    public static org.openl.meta.FloatValue big(org.openl.meta.FloatValue[] values, int position) {
-        if (values == null) {
-            return null;
-        }
-        Float[] unwrappedArray = unwrap(values);
-        Float big = MathUtils.big(unwrappedArray, position);
-        return new org.openl.meta.FloatValue(
-            (org.openl.meta.FloatValue) getAppropriateValue(values, new org.openl.meta.FloatValue(big)),
-            NumberOperations.BIG,
-            values);
+    public static FloatValue big(FloatValue[] values, int position) {
+        return instance(MathUtils.big(unwrap(values), position), NumberOperations.BIG, values);
     }
 
     /**
@@ -826,6 +782,9 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
 
     private static Float[] unwrap(FloatValue[] values) {
+        if (values == null) {
+            return null;
+        }
         values = ArrayTool.removeNulls(values);
 
         Float[] unwrappedArray = new Float[values.length];

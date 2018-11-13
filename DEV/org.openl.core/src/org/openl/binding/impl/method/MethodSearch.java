@@ -82,13 +82,8 @@ public class MethodSearch {
                         IOpenCast cast2 = casts.getCast(t, existedType);
                         if ((cast1 == null || !cast1.isImplicit()) && (cast2 == null || !cast2.isImplicit())) {
                             IOpenClass clazz = casts.findClosestClass(t, existedType);
-                            if (clazz != null && clazz.getInstanceClass() != null && clazz.getInstanceClass()
-                                .isPrimitive()) {
-                                clazz = JavaOpenClass
-                                    .getOpenClass(ClassUtils.primitiveToWrapper(clazz.getInstanceClass()));
-                            }
                             if (clazz != null) {
-                                m.put(typeNames[i], clazz);
+                                m.put(typeNames[i], unwrapPrimitiveClassIfNeeded(clazz));
                             } else {
                                 return NO_MATCH;
                             }
@@ -101,7 +96,7 @@ public class MethodSearch {
                             }
                         }
                     } else {
-                        m.put(typeNames[i], t);
+                        m.put(typeNames[i], unwrapPrimitiveClassIfNeeded(t));
                     }
                 }
                 i++;
@@ -190,6 +185,15 @@ public class MethodSearch {
         }
         
         return m;
+    }
+
+    private static IOpenClass unwrapPrimitiveClassIfNeeded(IOpenClass clazz) {
+        if (clazz != null && clazz.getInstanceClass() != null && clazz.getInstanceClass()
+            .isPrimitive()) {
+            return JavaOpenClass
+                .getOpenClass(ClassUtils.primitiveToWrapper(clazz.getInstanceClass()));
+        }
+        return clazz;
     }
 
     private static final boolean zeroCasts(int[] m) {
