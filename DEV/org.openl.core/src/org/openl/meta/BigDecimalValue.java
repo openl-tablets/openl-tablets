@@ -18,7 +18,6 @@ import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
 import org.openl.rules.util.Statistics;
 import org.openl.util.ArrayTool;
-import org.openl.util.CollectionUtils;
 import org.openl.util.math.MathUtils;
 
 @XmlRootElement
@@ -128,9 +127,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
      * @return the average value from the array
      */
     public static org.openl.meta.BigDecimalValue avg(org.openl.meta.BigDecimalValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
         java.math.BigDecimal[] unwrappedArray = unwrap(values);
         java.math.BigDecimal avg = MathUtils.avg(unwrappedArray);
         return avg != null ? new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(avg), NumberOperations.AVG, values) : null;
@@ -141,9 +137,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
      * @return the sum value from the array
      */
     public static org.openl.meta.BigDecimalValue sum(org.openl.meta.BigDecimalValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
         java.math.BigDecimal[] unwrappedArray = unwrap(values);
         java.math.BigDecimal sum = MathUtils.sum(unwrappedArray);
         
@@ -155,9 +148,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
      * @return the median value from the array
      */
     public static org.openl.meta.BigDecimalValue median(org.openl.meta.BigDecimalValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
         java.math.BigDecimal[] unwrappedArray = unwrap(values);
         java.math.BigDecimal median = MathUtils.median(unwrappedArray);
         return median != null ? new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(median), NumberOperations.MEDIAN, values) : null;
@@ -338,9 +328,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
      * @return the product as a number
      */
     public static org.openl.meta.BigDecimalValue product(org.openl.meta.BigDecimalValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
         java.math.BigDecimal[] unwrappedArray = unwrap(values);
         java.math.BigDecimal product = MathUtils.product(unwrappedArray);
         // we loose the parameters, but not the result of computation.
@@ -367,9 +354,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.BigDecimalValue small(org.openl.meta.BigDecimalValue[] values, int position) {
-        if (values == null) {
-            return null;
-        }
         java.math.BigDecimal small = MathUtils.small(unwrap(values), position);
         return new org.openl.meta.BigDecimalValue((org.openl.meta.BigDecimalValue) new BigDecimalValue(small),
             NumberOperations.SMALL, values);
@@ -382,9 +366,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.BigDecimalValue big(org.openl.meta.BigDecimalValue[] values, int position) {
-        if (values == null) {
-            return null;
-        }
         java.math.BigDecimal[] unwrappedArray = unwrap(values);
         java.math.BigDecimal big = MathUtils.big(unwrappedArray, position);
         return new org.openl.meta.BigDecimalValue((org.openl.meta.BigDecimalValue) new BigDecimalValue(big),
@@ -784,6 +765,9 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     }
 
     private static BigDecimal[] unwrap(BigDecimalValue[] values) {
+        if (values == null) {
+            return null;
+        }
         values = ArrayTool.removeNulls(values);
 
         BigDecimal[] unwrappedArray = new BigDecimal[values.length];

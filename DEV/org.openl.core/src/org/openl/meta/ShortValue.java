@@ -17,7 +17,6 @@ import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
 import org.openl.rules.util.Statistics;
 import org.openl.util.ArrayTool;
-import org.openl.util.CollectionUtils;
 import org.openl.util.math.MathUtils;
 
 @XmlRootElement
@@ -72,9 +71,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
      * @return the average value from the array
      */
     public static org.openl.meta.DoubleValue avg(org.openl.meta.ShortValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
         Short[] unwrappedArray = unwrap(values);
         Double avg = MathUtils.avg(unwrappedArray);
         return avg != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg),
@@ -89,9 +85,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
      * @return the sum value from the array
      */
     public static org.openl.meta.ShortValue sum(org.openl.meta.ShortValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
         Short[] unwrappedArray = unwrap(values);
         Short sum = MathUtils.sum(unwrappedArray);
         return sum != null ? new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(sum), NumberOperations.SUM, values) : null;
@@ -104,9 +97,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
      * @return the median value from the array
      */
     public static org.openl.meta.DoubleValue median(org.openl.meta.ShortValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
         Short[] unwrappedArray = unwrap(values);
         Double median = MathUtils.median(unwrappedArray);
         return median != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median),
@@ -337,9 +327,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.ShortValue small(org.openl.meta.ShortValue[] values, int position) {
-        if (values == null) {
-            return null;
-        }
         Short[] unwrappedArray = unwrap(values);
         Short small = MathUtils.small(unwrappedArray, position);
         return new org.openl.meta.ShortValue(
@@ -357,9 +344,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.ShortValue big(org.openl.meta.ShortValue[] values, int position) {
-        if (values == null) {
-            return null;
-        }
         Short[] unwrappedArray = unwrap(values);
         Short big = MathUtils.big(unwrappedArray, position);
         return new org.openl.meta.ShortValue(
@@ -704,6 +688,9 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     }
 
     private static Short[] unwrap(ShortValue[] values) {
+        if (values == null) {
+            return null;
+        }
         values = ArrayTool.removeNulls(values);
         Short[] shortArray = new Short[values.length];
         for (int i = 0; i < values.length; i++) {

@@ -17,7 +17,6 @@ import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
 import org.openl.rules.util.Statistics;
 import org.openl.util.ArrayTool;
-import org.openl.util.CollectionUtils;
 import org.openl.util.math.MathUtils;
 
 @XmlRootElement
@@ -72,9 +71,6 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @return the average value from the array
      */
     public static org.openl.meta.DoubleValue avg(org.openl.meta.IntValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
         Integer[] unwrappedArray = unwrap(values);
         Double avg = MathUtils.avg(unwrappedArray);
         return avg != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg),
@@ -89,9 +85,6 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @return the sum value from the array
      */
     public static org.openl.meta.IntValue sum(org.openl.meta.IntValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
         Integer[] unwrappedArray = unwrap(values);
         Integer sum = MathUtils.sum(unwrappedArray);
         return sum != null ? new org.openl.meta.IntValue(new org.openl.meta.IntValue(sum), NumberOperations.SUM, values) : null;
@@ -104,9 +97,6 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @return the median value from the array
      */
     public static org.openl.meta.DoubleValue median(org.openl.meta.IntValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
         Integer[] unwrappedArray = unwrap(values);
         Double median = MathUtils.median(unwrappedArray);
         return median != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median),
@@ -335,9 +325,6 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.IntValue small(org.openl.meta.IntValue[] values, int position) {
-        if (values == null) {
-            return null;
-        }
         Integer[] unwrappedArray = unwrap(values);
         Integer small = MathUtils.small(unwrappedArray, position);
         return new org.openl.meta.IntValue(
@@ -355,9 +342,6 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.IntValue big(org.openl.meta.IntValue[] values, int position) {
-        if (values == null) {
-            return null;
-        }
         Integer[] unwrappedArray = unwrap(values);
         Integer big = MathUtils.big(unwrappedArray, position);
         return new org.openl.meta.IntValue(
@@ -717,6 +701,9 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     }
 
     private static Integer[] unwrap(IntValue[] values) {
+        if (values == null) {
+            return null;
+        }
         values = ArrayTool.removeNulls(values);
 
         Integer[] intArray = new Integer[values.length];
