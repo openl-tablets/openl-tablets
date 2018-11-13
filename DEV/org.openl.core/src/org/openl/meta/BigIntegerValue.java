@@ -17,7 +17,6 @@ import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
 import org.openl.rules.util.Statistics;
 import org.openl.util.ArrayTool;
-import org.openl.util.CollectionUtils;
 import org.openl.util.math.MathUtils;
 
 @XmlRootElement
@@ -72,9 +71,6 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
      * @return the average value from the array
      */
     public static org.openl.meta.BigDecimalValue avg(org.openl.meta.BigIntegerValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
         java.math.BigInteger[] unwrappedArray = unwrap(values);
         java.math.BigDecimal avg = MathUtils.avg(unwrappedArray);
         return avg != null ? new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(avg),
@@ -89,9 +85,6 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
      * @return the sum value from the array
      */
     public static org.openl.meta.BigIntegerValue sum(org.openl.meta.BigIntegerValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
         java.math.BigInteger[] unwrappedArray = unwrap(values);
         java.math.BigInteger sum = MathUtils.sum(unwrappedArray);
         return sum != null ? new org.openl.meta.BigIntegerValue(new org.openl.meta.BigIntegerValue(sum),
@@ -106,19 +99,11 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
      * @return the median value from the array
      */
     public static org.openl.meta.BigDecimalValue median(org.openl.meta.BigIntegerValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
         java.math.BigInteger[] unwrappedArray = unwrap(values);
         java.math.BigDecimal median = MathUtils.median(unwrappedArray);
-        BigDecimalValue[] values1 = new BigDecimalValue[values.length];
-        int i = 0;
-        for (BigIntegerValue v : values) {
-            values1[i++] = new BigDecimalValue(new BigDecimal(v.getValue()));
-        }
         return median != null ? new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(median),
             NumberOperations.MEDIAN,
-            values1) : null;
+            toBigDecimalValueValues(values)) : null;
     }
 
     /**
@@ -328,9 +313,6 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
      * @return the product as a number
      */
     public static org.openl.meta.BigIntegerValue product(org.openl.meta.BigIntegerValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
         java.math.BigInteger[] unwrappedArray = unwrap(values);
         java.math.BigInteger product = MathUtils.product(unwrappedArray);
         // we loose the parameters, but not the result of computation.
@@ -367,9 +349,6 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.BigIntegerValue small(org.openl.meta.BigIntegerValue[] values, int position) {
-        if (values == null) {
-            return null;
-        }
         java.math.BigInteger[] unwrappedArray = unwrap(values);
         java.math.BigInteger small = MathUtils.small(unwrappedArray, position);
         return new org.openl.meta.BigIntegerValue(
@@ -387,9 +366,6 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.BigIntegerValue big(org.openl.meta.BigIntegerValue[] values, int position) {
-        if (values == null) {
-            return null;
-        }
         java.math.BigInteger[] unwrappedArray = unwrap(values);
         java.math.BigInteger big = MathUtils.big(unwrappedArray, position);
         return new org.openl.meta.BigIntegerValue(
@@ -781,6 +757,9 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     }
 
     private static BigInteger[] unwrap(BigIntegerValue[] values) {
+        if (values == null) {
+            return null;
+        }
         values = ArrayTool.removeNulls(values);
 
         BigInteger[] unwrapArray = new BigInteger[values.length];

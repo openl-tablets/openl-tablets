@@ -19,7 +19,6 @@ import org.openl.meta.number.NumberOperations;
 import org.openl.rules.util.Statistics;
 import org.openl.rules.util.Round;
 import org.openl.util.ArrayTool;
-import org.openl.util.CollectionUtils;
 import org.openl.util.math.MathUtils;
 
 @XmlRootElement
@@ -143,9 +142,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      * @return the average value from the array
      */
     public static org.openl.meta.FloatValue avg(org.openl.meta.FloatValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
         Float[] unwrappedArray = unwrap(values);
         Float avg = MathUtils.avg(unwrappedArray);
         return avg != null ? new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(avg), NumberOperations.AVG, values) : null;
@@ -158,9 +154,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      * @return the sum value from the array
      */
     public static org.openl.meta.FloatValue sum(org.openl.meta.FloatValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
         Float[] unwrappedArray = unwrap(values);
         Float sum = MathUtils.sum(unwrappedArray);
         return sum != null ? new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(sum), NumberOperations.SUM, values) : null;
@@ -173,9 +166,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      * @return the median value from the array
      */
     public static org.openl.meta.FloatValue median(org.openl.meta.FloatValue[] values) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
         Float[] unwrappedArray = unwrap(values);
         Float median = MathUtils.median(unwrappedArray);
         return median != null ? new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(median), NumberOperations.MEDIAN, values) : null;
@@ -397,9 +387,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.FloatValue small(org.openl.meta.FloatValue[] values, int position) {
-        if (values == null) {
-            return null;
-        }
         Float[] unwrappedArray = unwrap(values);
         Float small = MathUtils.small(unwrappedArray, position);
         return new org.openl.meta.FloatValue(
@@ -417,9 +404,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.FloatValue big(org.openl.meta.FloatValue[] values, int position) {
-        if (values == null) {
-            return null;
-        }
         Float[] unwrappedArray = unwrap(values);
         Float big = MathUtils.big(unwrappedArray, position);
         return new org.openl.meta.FloatValue(
@@ -826,6 +810,9 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
 
     private static Float[] unwrap(FloatValue[] values) {
+        if (values == null) {
+            return null;
+        }
         values = ArrayTool.removeNulls(values);
 
         Float[] unwrappedArray = new Float[values.length];
