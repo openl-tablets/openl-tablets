@@ -164,7 +164,7 @@ public class OverloadedMethods {
     public static String m0_comp(Comparable<?> arg) {
         return "Comparable";
     }
-
+    
     public static String m1(byte arg) {
         return "byte";
     }
@@ -349,11 +349,11 @@ public class OverloadedMethods {
         return "Generic_Comparable..." + args.getClass().getSimpleName();
     }
 
-    public static <T extends Comparable<T>> String vararg4(DoubleValue... args) {
+    public static String vararg4(DoubleValue... args) {
         return "DoubleValue..." + args.getClass().getSimpleName();
     }
 
-    public static <T extends Comparable<T>> String vararg4(Long... args) {
+    public static String vararg4(Long... args) {
         return "Long..." + args.getClass().getSimpleName();
     }
 }
