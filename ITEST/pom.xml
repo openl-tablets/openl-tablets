@@ -27,7 +27,7 @@
         <module>itest.HttpStatuses</module>
         <module>itest.EPBDS-7787</module>
         <module>itest.swaggerSchemas</module>
-        <module>itest.EPBDS-7819</module>
+        <module>itest.SpreadsheetResult</module>
         <module>itest.EPBDS-7187</module>
         <module>itest.EPBDS-7654</module>
         <module>itest.EPBDS-7947</module>

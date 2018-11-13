@@ -1,15 +1,14 @@
-package org.openl.itest;
+package org.openl.itest.epbds7819;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -21,6 +20,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.RestClientFactory;
+import org.openl.itest.ITestUtil;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -50,22 +50,20 @@ public class RunITest {
 
     @Before
     public void before() {
-        rest = new RestClientFactory(baseURI).create();
+        rest = new RestClientFactory(baseURI + "/wadl-and-spreadsheetresult").create();
     }
 
     @Test
     public void testSpreadsheetResultWadlSchema() throws XPathExpressionException {
-        ResponseEntity<String> response = rest.getForEntity("/wadl-and-spreadsheetresult?_wadl", String.class);
+        ResponseEntity<String> response = rest.getForEntity("?_wadl", String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        String result = response.getBody();
+        final String result = response.getBody();
         assertNotNull(result);
-        //cleanup xml
-        result = result.replaceAll("\\\\\"", "\"").replaceAll(">\\\\n\\s*<", "><");
 
         XPathFactory xPathFactory = XPathFactory.newInstance();
         XPath xpath = xPathFactory.newXPath();
-        InputSource inputSource = new InputSource(new StringReader(result.substring(1, result.length() - 1)));
+        InputSource inputSource = new InputSource(new StringReader(ITestUtil.cleanupXml(result)));
 
         final Node root = (Node) xpath.evaluate("/", inputSource, XPathConstants.NODE);
         String pathToSpreadsheetResultSchema = "/application/grammars/*[local-name()='schema']";
@@ -80,10 +78,8 @@ public class RunITest {
         assertEquals("spreadsheetResult", spreadsheetResultComplexTypeNode.getAttributes().getNamedItem("name").getTextContent());
 
         final String pathToSequence = pathToComplexType + "/*[local-name()='sequence']";
-        Node element = (Node) xpath.evaluate(pathToSequence, root, XPathConstants.NODE);
-        assertEquals(3, element.getChildNodes().getLength());
 
-        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='columnNames']", root, XPathConstants.NODE);
+        Node element = (Node) xpath.evaluate(pathToSequence + "/*[@name='columnNames']", root, XPathConstants.NODE);
         assertEquals("xs:element", element.getNodeName());
         assertEquals("xs:string", element.getAttributes().getNamedItem("type").getTextContent());
 
@@ -94,6 +90,24 @@ public class RunITest {
         element = (Node) xpath.evaluate(pathToSequence + "/*[@name='rowNames']", root, XPathConstants.NODE);
         assertEquals("xs:element", element.getNodeName());
         assertEquals("xs:string", element.getAttributes().getNamedItem("type").getTextContent());
+
+        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='height']", root, XPathConstants.NODE);
+        assertNull(element);
+
+        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='width']", root, XPathConstants.NODE);
+        assertNull(element);
+
+        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='rowTitles']", root, XPathConstants.NODE);
+        assertNull(element);
+
+        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='columnTitles']", root, XPathConstants.NODE);
+        assertNull(element);
+
+        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='logicalTable']", root, XPathConstants.NODE);
+        assertNull(element);
+
+        element = (Node) xpath.evaluate(pathToSequence, root, XPathConstants.NODE);
+        assertEquals(3, element.getChildNodes().getLength());
     }
 
     @Test
@@ -102,7 +116,7 @@ public class RunITest {
         requestBody.put("i", 100);
         requestBody.put("j", "foo");
 
-        ResponseEntity<SpreadsheetResult> response = rest.exchange("/wadl-and-spreadsheetresult/tiktak",
+        ResponseEntity<SpreadsheetResult> response = rest.exchange("/tiktak",
             HttpMethod.POST,
             RestClientFactory.request(requestBody),
             SpreadsheetResult.class);
