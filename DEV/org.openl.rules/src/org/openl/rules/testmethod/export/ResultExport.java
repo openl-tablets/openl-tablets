@@ -25,7 +25,7 @@ public abstract class ResultExport extends BaseExport {
             ParameterExport parameterExport = new ParameterExport(styles);
 
             SXSSFSheet sheet = workbook.createSheet("Result " + 1);
-            listsWithResults.add(new ArrayList<>());
+            listsWithResults.add(new ArrayList<TestUnitsResults>());
             sheet.trackAllColumnsForAutoSizing();
             int rowNum = FIRST_ROW;
             for (int i = 0; i < results.length; i++) {
@@ -37,7 +37,7 @@ public abstract class ResultExport extends BaseExport {
                         autoSizeColumns(sheet);
 
                         sheet = workbook.createSheet("Result " + pageNum);
-                        listsWithResults.add(new ArrayList<>());
+                        listsWithResults.add(new ArrayList<TestUnitsResults>());
                         sheet.trackAllColumnsForAutoSizing();
                         rowNum = FIRST_ROW;
                     }
