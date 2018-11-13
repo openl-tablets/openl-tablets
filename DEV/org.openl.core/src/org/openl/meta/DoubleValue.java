@@ -85,14 +85,36 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         this.hashCode = ((Double) value).hashCode();
     }
 
+    static DoubleValue instance(Double result, NumberOperations operation, DoubleValue... values) {
+        return result == null ? null : new DoubleValue(new DoubleValue(result), operation, values);
+    }
+
+    private static DoubleValue instance(DoubleValue result, NumberOperations operation, DoubleValue... values) {
+        return result == null ? null : new DoubleValue(result, operation, values);
+    }
+
     public static DoubleValue max(DoubleValue... values) {
-        DoubleValue result = Statistics.max(values);
-        return result == null ? null : new DoubleValue(result, NumberOperations.MAX, values);
+        return instance(Statistics.max(values), NumberOperations.MAX, values);
     }
 
     public static DoubleValue min(DoubleValue... values) {
-        DoubleValue result = Statistics.min(values);
-        return result == null ? null : new DoubleValue(result, NumberOperations.MIN, values);
+        return instance(Statistics.min(values), NumberOperations.MIN, values);
+    }
+
+    public static DoubleValue sum(DoubleValue... values) {
+        return instance(MathUtils.sum(unwrap(values)), NumberOperations.SUM, values);
+    }
+
+    public static DoubleValue avg(DoubleValue... values) {
+        return instance(MathUtils.avg(unwrap(values)), NumberOperations.AVG, values);
+    }
+
+    public static DoubleValue median(DoubleValue... values) {
+        return instance(MathUtils.median(unwrap(values)), NumberOperations.MEDIAN, values);
+    }
+
+    public static DoubleValue product(DoubleValue... values) {
+        return instance(MathUtils.product(unwrap(values)), NumberOperations.PRODUCT, values);
     }
 
     /**
@@ -163,37 +185,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
 
         return Comparison.ne(value1.getValue(), value2.getValue());
-    }
-
-     /**
-     * average
-     * @param values  array of org.openl.meta.DoubleValue values
-     * @return the average value from the array
-     */
-    public static org.openl.meta.DoubleValue avg(org.openl.meta.DoubleValue[] values) {
-        Double[] unwrappedArray = unwrap(values);
-        Double avg = MathUtils.avg(unwrappedArray);
-        return avg != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg), NumberOperations.AVG, values) : null;
-    }
-     /**
-     * sum
-     * @param values  array of org.openl.meta.DoubleValue values
-     * @return the sum value from the array
-     */
-    public static org.openl.meta.DoubleValue sum(org.openl.meta.DoubleValue[] values) {
-        Double[] unwrappedArray = unwrap(values);
-        Double sum = MathUtils.sum(unwrappedArray);
-        return sum != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(sum), NumberOperations.SUM, values) : null;
-    }
-     /**
-     * median
-     * @param values  array of org.openl.meta.DoubleValue values
-     * @return the median value from the array
-     */
-    public static org.openl.meta.DoubleValue median(org.openl.meta.DoubleValue[] values) {
-        Double[] unwrappedArray = unwrap(values);
-        Double median = MathUtils.median(unwrappedArray);
-        return median != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median), NumberOperations.MEDIAN, values) : null;
     }
         /**
      * 
@@ -368,18 +359,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         return null;
     }
 
-    // generated product function for types that are wrappers over primitives
-     /**
-     * Multiplies the numbers from the provided array and returns the product as a number.
-     * @param values an array of IntValue which will be converted to DoubleValue
-     * @return the product as a number
-     */
-    public static DoubleValue product(org.openl.meta.DoubleValue[] values) {
-        Double[] unwrappedArray = unwrap(values);
-        Double product = MathUtils.product(unwrappedArray);
-        // we loose the parameters, but not the result of computation.
-        return product != null ? new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null) : null;
-    }
      /**
      *   
      * @param number
@@ -400,11 +379,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
-    public static org.openl.meta.DoubleValue small(org.openl.meta.DoubleValue[] values, int position) {
-        Double[] unwrappedArray = unwrap(values);
-        Double small = MathUtils.small(unwrappedArray, position);
-        return new org.openl.meta.DoubleValue((org.openl.meta.DoubleValue) new DoubleValue(small),
-            NumberOperations.SMALL, values);
+    public static DoubleValue small(DoubleValue[] values, int position) {
+        return instance(MathUtils.small(unwrap(values), position), NumberOperations.SMALL, values);
     }
 
     /**
@@ -413,11 +389,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
-    public static org.openl.meta.DoubleValue big(org.openl.meta.DoubleValue[] values, int position) {
-        Double[] unwrappedArray = unwrap(values);
-        Double big = MathUtils.big(unwrappedArray, position);
-        return new org.openl.meta.DoubleValue((org.openl.meta.DoubleValue) new DoubleValue(big),
-            NumberOperations.BIG, values);
+    public static DoubleValue big(DoubleValue[] values, int position) {
+        return instance(MathUtils.big(unwrap(values), position), NumberOperations.BIG, values);
     }
 
     /**

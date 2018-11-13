@@ -41,14 +41,36 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         }
     }
 
+    static BigDecimalValue instance(BigDecimal result, NumberOperations operation, BigDecimalValue... values) {
+        return result == null ? null : new BigDecimalValue(new BigDecimalValue(result), operation, values);
+    }
+
+    private static BigDecimalValue instance(BigDecimalValue result, NumberOperations operation, BigDecimalValue... values) {
+        return result == null ? null : new BigDecimalValue(result, operation, values);
+    }
+
     public static BigDecimalValue max(BigDecimalValue... values) {
-        BigDecimalValue result = Statistics.max(values);
-        return result == null ? null : new BigDecimalValue(result, NumberOperations.MAX, values);
+        return instance(Statistics.max(values), NumberOperations.MAX, values);
     }
 
     public static BigDecimalValue min(BigDecimalValue... values) {
-        BigDecimalValue result = Statistics.min(values);
-        return result == null ? null : new BigDecimalValue(result, NumberOperations.MIN, values);
+        return instance(Statistics.min(values), NumberOperations.MIN, values);
+    }
+
+    public static BigDecimalValue sum(BigDecimalValue... values) {
+        return instance(MathUtils.sum(unwrap(values)), NumberOperations.SUM, values);
+    }
+
+    public static BigDecimalValue avg(BigDecimalValue... values) {
+        return instance(MathUtils.avg(unwrap(values)), NumberOperations.AVG, values);
+    }
+
+    public static BigDecimalValue median(BigDecimalValue... values) {
+        return instance(MathUtils.median(unwrap(values)), NumberOperations.MEDIAN, values);
+    }
+
+    public static BigDecimalValue product(BigDecimalValue... values) {
+        return instance(MathUtils.product(unwrap(values)), NumberOperations.PRODUCT, values);
     }
 
     /**
@@ -119,38 +141,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         }
 
         return Comparison.ne(value1.getValue(), value2.getValue());
-    }
-
-     /**
-     * average
-     * @param values  array of org.openl.meta.BigDecimalValue values
-     * @return the average value from the array
-     */
-    public static org.openl.meta.BigDecimalValue avg(org.openl.meta.BigDecimalValue[] values) {
-        java.math.BigDecimal[] unwrappedArray = unwrap(values);
-        java.math.BigDecimal avg = MathUtils.avg(unwrappedArray);
-        return avg != null ? new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(avg), NumberOperations.AVG, values) : null;
-    }
-     /**
-     * sum
-     * @param values  array of org.openl.meta.BigDecimalValue values
-     * @return the sum value from the array
-     */
-    public static org.openl.meta.BigDecimalValue sum(org.openl.meta.BigDecimalValue[] values) {
-        java.math.BigDecimal[] unwrappedArray = unwrap(values);
-        java.math.BigDecimal sum = MathUtils.sum(unwrappedArray);
-        
-        return sum != null ? new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(sum), NumberOperations.SUM, values) : null;
-    }
-     /**
-     * median
-     * @param values  array of org.openl.meta.BigDecimalValue values
-     * @return the median value from the array
-     */
-    public static org.openl.meta.BigDecimalValue median(org.openl.meta.BigDecimalValue[] values) {
-        java.math.BigDecimal[] unwrappedArray = unwrap(values);
-        java.math.BigDecimal median = MathUtils.median(unwrappedArray);
-        return median != null ? new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(median), NumberOperations.MEDIAN, values) : null;
     }
         /**
      * 
@@ -321,18 +311,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         return null;
     }
 
-    // generated product function for big types
-     /**
-     * Multiplies the numbers from the provided array and returns the product as a number.
-     * @param values an array of IntValue which will be converted to DoubleValue
-     * @return the product as a number
-     */
-    public static org.openl.meta.BigDecimalValue product(org.openl.meta.BigDecimalValue[] values) {
-        java.math.BigDecimal[] unwrappedArray = unwrap(values);
-        java.math.BigDecimal product = MathUtils.product(unwrappedArray);
-        // we loose the parameters, but not the result of computation.
-        return product != null ? new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(product), NumberOperations.PRODUCT, null) : null;
-    }
      /**
      *   
      * @param number
@@ -353,10 +331,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
-    public static org.openl.meta.BigDecimalValue small(org.openl.meta.BigDecimalValue[] values, int position) {
-        java.math.BigDecimal small = MathUtils.small(unwrap(values), position);
-        return new org.openl.meta.BigDecimalValue((org.openl.meta.BigDecimalValue) new BigDecimalValue(small),
-            NumberOperations.SMALL, values);
+    public static BigDecimalValue small(BigDecimalValue[] values, int position) {
+        return instance(MathUtils.small(unwrap(values), position), NumberOperations.SMALL, values);
     }
 
     /**
@@ -365,11 +341,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
-    public static org.openl.meta.BigDecimalValue big(org.openl.meta.BigDecimalValue[] values, int position) {
-        java.math.BigDecimal[] unwrappedArray = unwrap(values);
-        java.math.BigDecimal big = MathUtils.big(unwrappedArray, position);
-        return new org.openl.meta.BigDecimalValue((org.openl.meta.BigDecimalValue) new BigDecimalValue(big),
-            NumberOperations.BIG, values);
+    public static BigDecimalValue big(BigDecimalValue[] values, int position) {
+        return instance(MathUtils.big(unwrap(values), position), NumberOperations.BIG, values);
     }
 
     /**

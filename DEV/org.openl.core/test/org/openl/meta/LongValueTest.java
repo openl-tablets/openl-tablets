@@ -85,7 +85,7 @@ public class LongValueTest {
     @Test
     public void testProduct() {
         LongValue[] la = getTestArray();
-        assertEquals(new DoubleValue(5000), LongValue.product(la));
+        assertEquals(new LongValue(5000), LongValue.product(la));
 
         LongValue[] nullArray = null;
         assertEquals(null, LongValue.product(nullArray));
