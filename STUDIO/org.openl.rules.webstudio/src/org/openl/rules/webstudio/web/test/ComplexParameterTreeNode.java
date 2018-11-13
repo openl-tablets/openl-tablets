@@ -15,37 +15,34 @@ import org.slf4j.LoggerFactory;
 public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     private final Logger log = LoggerFactory.getLogger(ComplexParameterTreeNode.class);
     private static final String COMPLEX_TYPE = "complex";
-    private final String valuePreview;
+    private final String valueKey;
     private IOpenClass typeToCreate;
     private final ParameterRenderConfig config;
 
     public ComplexParameterTreeNode(ParameterRenderConfig config) {
-        super(config.getFieldNameInParent(), config.getValue(), config.getType(), config.getParent());
+        super(config.getFieldNameInParent(), config.getValue(), config.getType(), config.getParent(), config.getKeyField());
         this.config = config;
 
-        Object preview = null;
+        Object key = null;
         if (config.getValue() != null) {
-            IOpenField previewField = config.getPreviewField();
-            if (previewField == null) {
-                previewField = config.getType().getIndexField();
-            }
-            if (previewField != null) {
-                preview = previewField.get(config.getValue(), null);
+            IOpenField keyField = config.getKeyField();
+            if (keyField != null) {
+                key = keyField.get(config.getValue(), null);
             }
         }
 
-        if (preview == null) {
-            this.valuePreview = null;
+        if (key == null) {
+            this.valueKey = null;
         } else {
-            ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(config.getType(), preview).build();
-            this.valuePreview = ParameterTreeBuilder.createSimpleNode(childConfig).getDisplayedValue();
+            ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(config.getType(), key).build();
+            this.valueKey = ParameterTreeBuilder.createSimpleNode(childConfig).getDisplayedValue();
         }
     }
 
     @Override
     public String getDisplayedValue() {
         String typeName = getType().getDisplayName(INameSpacedThing.SHORT);
-        return valuePreview == null ? typeName : typeName + " (" + valuePreview + ")";
+        return valueKey == null ? typeName : typeName + " (" + valueKey + ")";
     }
 
     @Override

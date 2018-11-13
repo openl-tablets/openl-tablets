@@ -10,7 +10,7 @@ import org.openl.types.IOpenField;
 public class ParameterRenderConfig {
     private final IOpenClass type;
     private final Object value;
-    private final IOpenField previewField;
+    private final IOpenField keyField;
     private final ParameterDeclarationTreeNode parent;
     private final String fieldNameInParent;
     private final boolean hasExplainLinks;
@@ -19,7 +19,7 @@ public class ParameterRenderConfig {
     private ParameterRenderConfig(Builder builder) {
         this.type = builder.type;
         this.value = builder.value;
-        this.previewField = builder.previewField;
+        this.keyField = builder.keyField;
         this.parent = builder.parent;
         this.fieldNameInParent = builder.fieldNameInParent;
         this.hasExplainLinks = builder.hasExplainLinks;
@@ -43,14 +43,14 @@ public class ParameterRenderConfig {
     /**
      * Get the field of a complex object that can be represented as a simple representation of an object.
      * For example this field often is used as a foreign key in Data and Test tables.
-     * Preview field is shown in parentheses. For example if preview field of a Driver type is firstName,
+     * Key field is shown in parentheses. For example if key field of a Driver type is firstName,
      * the object is displayed as: <pre>Driver (John), Driver (Jill)</pre>
      *
      * @see ComplexParameterTreeNode#getDisplayedValue()
      * @see ComplexParameterTreeNode#ComplexParameterTreeNode(ParameterRenderConfig)
      */
-    public IOpenField getPreviewField() {
-        return previewField;
+    public IOpenField getKeyField() {
+        return keyField;
     }
 
     /**
@@ -91,7 +91,7 @@ public class ParameterRenderConfig {
     public static class Builder {
         private IOpenClass type;
         private Object value;
-        private IOpenField previewField;
+        private IOpenField keyField;
         private ParameterDeclarationTreeNode parent;
         private String fieldNameInParent;
         private boolean hasExplainLinks;
@@ -113,10 +113,10 @@ public class ParameterRenderConfig {
         }
 
         /**
-         * @see #getPreviewField()
+         * @see #getKeyField()
          */
-        public Builder previewField(IOpenField previewField) {
-            this.previewField = previewField;
+        public Builder keyField(IOpenField keyField) {
+            this.keyField = keyField;
             return this;
         }
 
@@ -153,6 +153,10 @@ public class ParameterRenderConfig {
         }
 
         public ParameterRenderConfig build() {
+            if (keyField == null) {
+                keyField = type.getIndexField();
+            }
+
             return new ParameterRenderConfig(this);
         }
     }

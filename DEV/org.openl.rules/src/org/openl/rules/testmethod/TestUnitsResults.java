@@ -1,6 +1,3 @@
-/**
- * Created Jan 5, 2007
- */
 package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
@@ -123,6 +120,16 @@ public class TestUnitsResults implements INamedThing {
         return false;
     }
 
+    public boolean hasExpected() {
+        for (ITestUnit testUnit : testUnits) {
+            TestDescription test = testUnit.getTest();
+            if (test.isExpectedResultDefined() || test.isExpectedErrorDefined()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean isSpreadsheetResultTester() {
         return ClassUtils.isAssignable(testSuite.getTestedMethod().getType().getInstanceClass(),
             SpreadsheetResult.class);
@@ -136,7 +143,8 @@ public class TestUnitsResults implements INamedThing {
         String[] columnTechnicalNames = getTestDataColumnHeaders();
         String[] columnDisplayNames = new String[columnTechnicalNames.length];
         for (int i = 0; i < columnDisplayNames.length; i++) {
-            String displayName = testSuite.getTestSuiteMethod().getColumnDisplayName(columnTechnicalNames[i]);
+            TestSuiteMethod testSuiteMethod = testSuite.getTestSuiteMethod();
+            String displayName = testSuiteMethod == null ? null : testSuiteMethod.getColumnDisplayName(columnTechnicalNames[i]);
             if (displayName != null){
                 columnDisplayNames[i] = displayName;
             }else{

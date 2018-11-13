@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.richfaces.model.TreeNode;
 
 public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDeclaration implements TreeNode {
@@ -17,13 +18,17 @@ public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDec
     public ParameterDeclarationTreeNode(String fieldName,
             Object value,
             IOpenClass fieldType,
-            ParameterDeclarationTreeNode parent) {
-        super(fieldName, value, fieldType);
+            ParameterDeclarationTreeNode parent,
+            IOpenField keyField) {
+        super(fieldName, value, fieldType, keyField);
         this.parent = parent;
     }
 
-    public ParameterDeclarationTreeNode(ParameterWithValueDeclaration paramDescription, ParameterDeclarationTreeNode parent) {
-        this(paramDescription.getName(), paramDescription.getValue(), paramDescription.getType(), parent);
+    public ParameterDeclarationTreeNode(String fieldName,
+            Object value,
+            IOpenClass fieldType,
+            ParameterDeclarationTreeNode parent) {
+        this(fieldName, value, fieldType, parent, null);
     }
 
     public ParameterDeclarationTreeNode getParent() {

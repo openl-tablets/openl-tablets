@@ -17,6 +17,12 @@
                 <artifactId>openl-maven-plugin</artifactId>
                 <version>${org.openl.version}</version>
                 <extensions>true</extensions>
+                <configuration>
+                    <reportsFormat>
+                        <param>junit4</param>
+                        <param>xlsx</param>
+                    </reportsFormat>
+                </configuration>
             </plugin>
         </plugins>
     </build>

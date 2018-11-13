@@ -1,4 +1,4 @@
-package org.openl.rules.ui;
+package org.openl.rules.lang.xls;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,7 +20,7 @@ public class OverloadedMethodsDictionary {
     /**
      * Internal map of groups.
      */
-    private Map<MethodKey, Set<TableSyntaxNodeKey>> internalMap = new HashMap<MethodKey, Set<TableSyntaxNodeKey>>();
+    private Map<MethodKey, Set<TableSyntaxNodeKey>> internalMap = new HashMap<>();
 
     /**
      * Checks that method already in dictionary.
@@ -51,7 +51,7 @@ public class OverloadedMethodsDictionary {
             Set<TableSyntaxNodeKey> value = internalMap.get(key);
             value.add(buildKey(table));
         } else {
-            Set<TableSyntaxNodeKey> value = new HashSet<TableSyntaxNodeKey>();
+            Set<TableSyntaxNodeKey> value = new HashSet<>();
             value.add(buildKey(table));
 
             internalMap.put(key, value);
@@ -61,7 +61,7 @@ public class OverloadedMethodsDictionary {
     /**
      * Adds all nodes to dictionary.
      * 
-     * @param methods list of executable nodes
+     * @param tables list of executable nodes
      */
     public void addAll(List<TableSyntaxNode> tables) {
 

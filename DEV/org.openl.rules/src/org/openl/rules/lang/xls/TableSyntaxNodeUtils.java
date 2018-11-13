@@ -1,8 +1,7 @@
-package org.openl.rules.ui;
+package org.openl.rules.lang.xls;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
-import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -92,7 +91,7 @@ public final class TableSyntaxNodeUtils {
 
         } else if (tableType.equals(XlsNodeTypes.XLS_DT) || tableType.equals(XlsNodeTypes.XLS_SPREADSHEET)
                 || tableType.equals(XlsNodeTypes.XLS_TBASIC) || tableType.equals(XlsNodeTypes.XLS_COLUMN_MATCH)
-                || tableType.equals(XlsNodeTypes.XLS_DATA) || tableType.equals(XlsNodeTypes.XLS_DATATYPE)
+                || tableType.equals(XlsNodeTypes.XLS_DATA)
                 || tableType.equals(XlsNodeTypes.XLS_METHOD) || tableType.equals(XlsNodeTypes.XLS_TEST_METHOD)
                 || tableType.equals(XlsNodeTypes.XLS_RUN_METHOD) || tableType.equals(XlsNodeTypes.XLS_CONSTANTS)
                 || tableType.equals(XlsNodeTypes.XLS_ENVIRONMENT) || tableType.equals(XlsNodeTypes.XLS_PROPERTIES)) {
