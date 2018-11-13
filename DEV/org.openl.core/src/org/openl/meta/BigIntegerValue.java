@@ -373,7 +373,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         java.math.BigInteger[] unwrappedArray = unwrap(values);
         java.math.BigInteger small = MathUtils.small(unwrappedArray, position);
         return new org.openl.meta.BigIntegerValue(
-            (org.openl.meta.BigIntegerValue) getAppropriateValue(values, new org.openl.meta.BigIntegerValue(small)),
+            (org.openl.meta.BigIntegerValue) new org.openl.meta.BigIntegerValue(small),
             NumberOperations.SMALL,
             values);
     }
@@ -393,7 +393,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         java.math.BigInteger[] unwrappedArray = unwrap(values);
         java.math.BigInteger big = MathUtils.big(unwrappedArray, position);
         return new org.openl.meta.BigIntegerValue(
-            (org.openl.meta.BigIntegerValue) getAppropriateValue(values, new org.openl.meta.BigIntegerValue(big)),
+            (org.openl.meta.BigIntegerValue) new org.openl.meta.BigIntegerValue(big),
             NumberOperations.BIG,
             values);
     }

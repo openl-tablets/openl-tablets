@@ -343,7 +343,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         Short[] unwrappedArray = unwrap(values);
         Short small = MathUtils.small(unwrappedArray, position);
         return new org.openl.meta.ShortValue(
-            (org.openl.meta.ShortValue) getAppropriateValue(values, new org.openl.meta.ShortValue(small)),
+            (org.openl.meta.ShortValue) new ShortValue(small),
             NumberOperations.SMALL,
             values);
     }
@@ -363,7 +363,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         Short[] unwrappedArray = unwrap(values);
         Short big = MathUtils.big(unwrappedArray, position);
         return new org.openl.meta.ShortValue(
-            (org.openl.meta.ShortValue) getAppropriateValue(values, new org.openl.meta.ShortValue(big)),
+            (org.openl.meta.ShortValue) new ShortValue(big),
             NumberOperations.BIG,
             values);
     }

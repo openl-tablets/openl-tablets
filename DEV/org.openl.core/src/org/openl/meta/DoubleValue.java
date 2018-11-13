@@ -419,7 +419,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
         Double[] unwrappedArray = unwrap(values);
         Double small = MathUtils.small(unwrappedArray, position);
-        return new org.openl.meta.DoubleValue((org.openl.meta.DoubleValue) getAppropriateValue(values, new org.openl.meta.DoubleValue(small)), 
+        return new org.openl.meta.DoubleValue((org.openl.meta.DoubleValue) new DoubleValue(small),
             NumberOperations.SMALL, values);
     }
 
@@ -435,7 +435,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
         Double[] unwrappedArray = unwrap(values);
         Double big = MathUtils.big(unwrappedArray, position);
-        return new org.openl.meta.DoubleValue((org.openl.meta.DoubleValue) getAppropriateValue(values, new org.openl.meta.DoubleValue(big)),
+        return new org.openl.meta.DoubleValue((org.openl.meta.DoubleValue) new DoubleValue(big),
             NumberOperations.BIG, values);
     }
 

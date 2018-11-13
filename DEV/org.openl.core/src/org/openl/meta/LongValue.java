@@ -359,7 +359,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         Long[] unwrappedArray = unwrap(values);
         Long small = MathUtils.small(unwrappedArray, position);
         return new org.openl.meta.LongValue(
-            (org.openl.meta.LongValue) getAppropriateValue(values, new org.openl.meta.LongValue(small)),
+            (org.openl.meta.LongValue) new LongValue(small),
             NumberOperations.SMALL,
             values);
     }
@@ -379,7 +379,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         Long[] unwrappedArray = unwrap(values);
         Long big = MathUtils.big(unwrappedArray, position);
         return new org.openl.meta.LongValue(
-            (org.openl.meta.LongValue) getAppropriateValue(values, new org.openl.meta.LongValue(big)),
+            (org.openl.meta.LongValue) new LongValue(big),
             NumberOperations.BIG,
             values);
     }
