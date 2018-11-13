@@ -9,9 +9,9 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>itest.EPBDS-7819</artifactId>
+    <artifactId>itest.SpreadsheetResult</artifactId>
     <packaging>jar</packaging>
-    <name>ITEST - EPBDS-7819 Test</name>
+    <name>ITEST - SpreadsheetResult Test</name>
     <url>//openl-tablets.org</url>
 
     <dependencies>

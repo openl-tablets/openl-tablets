@@ -267,9 +267,7 @@ public class RunITest {
         String result = response.getBody();
         assertNotNull(result);
         // Cleanup
-        return result.replaceAll("\\\\\"", "\"")
-                .replaceAll(">\\\\n\\s*<", "><")
-                .replaceFirst("^\"(.+)\"$", "$1");
+        return ITestUtil.cleanupXml(result);
     }
 
 }
