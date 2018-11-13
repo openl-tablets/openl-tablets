@@ -138,20 +138,5 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
     public String toString() {
         return printValue();
     }
-    
-    /**
-     * Returns the equal element from collection
-     * @param values
-     * @param result
-     * @return
-     */
-    protected static <T extends ExplanationNumberValue<T>> ExplanationNumberValue<T> getAppropriateValue(ExplanationNumberValue<T>[] values, ExplanationNumberValue<?> result) {
-        for (ExplanationNumberValue<T> value : values) {
-            if (value == result || value != null && value.equals(result)) {
-                return value;
-            }
-        }
-        return null;
-    }
 
 }

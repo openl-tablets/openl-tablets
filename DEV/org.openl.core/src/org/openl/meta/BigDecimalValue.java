@@ -370,9 +370,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         if (values == null) {
             return null;
         }
-        java.math.BigDecimal[] unwrappedArray = unwrap(values);
-        java.math.BigDecimal small = MathUtils.small(unwrappedArray, position);
-        return new org.openl.meta.BigDecimalValue((org.openl.meta.BigDecimalValue) getAppropriateValue(values, new org.openl.meta.BigDecimalValue(small)), 
+        java.math.BigDecimal small = MathUtils.small(unwrap(values), position);
+        return new org.openl.meta.BigDecimalValue((org.openl.meta.BigDecimalValue) new BigDecimalValue(small),
             NumberOperations.SMALL, values);
     }
 
@@ -388,7 +387,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         }
         java.math.BigDecimal[] unwrappedArray = unwrap(values);
         java.math.BigDecimal big = MathUtils.big(unwrappedArray, position);
-        return new org.openl.meta.BigDecimalValue((org.openl.meta.BigDecimalValue) getAppropriateValue(values, new org.openl.meta.BigDecimalValue(big)),
+        return new org.openl.meta.BigDecimalValue((org.openl.meta.BigDecimalValue) new BigDecimalValue(big),
             NumberOperations.BIG, values);
     }
 

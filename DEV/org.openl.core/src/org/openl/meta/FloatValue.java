@@ -403,7 +403,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         Float[] unwrappedArray = unwrap(values);
         Float small = MathUtils.small(unwrappedArray, position);
         return new org.openl.meta.FloatValue(
-            (org.openl.meta.FloatValue) getAppropriateValue(values, new org.openl.meta.FloatValue(small)),
+            (org.openl.meta.FloatValue) new FloatValue(small),
             NumberOperations.SMALL,
             values);
     }
@@ -423,7 +423,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         Float[] unwrappedArray = unwrap(values);
         Float big = MathUtils.big(unwrappedArray, position);
         return new org.openl.meta.FloatValue(
-            (org.openl.meta.FloatValue) getAppropriateValue(values, new org.openl.meta.FloatValue(big)),
+            (org.openl.meta.FloatValue) new FloatValue(big),
             NumberOperations.BIG,
             values);
     }

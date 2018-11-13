@@ -341,7 +341,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         Integer[] unwrappedArray = unwrap(values);
         Integer small = MathUtils.small(unwrappedArray, position);
         return new org.openl.meta.IntValue(
-            (org.openl.meta.IntValue) getAppropriateValue(values, new org.openl.meta.IntValue(small)),
+            (org.openl.meta.IntValue) new IntValue(small),
             NumberOperations.SMALL,
             values);
     }
@@ -361,7 +361,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         Integer[] unwrappedArray = unwrap(values);
         Integer big = MathUtils.big(unwrappedArray, position);
         return new org.openl.meta.IntValue(
-            (org.openl.meta.IntValue) getAppropriateValue(values, new org.openl.meta.IntValue(big)),
+            (org.openl.meta.IntValue) new IntValue(big),
             NumberOperations.BIG,
             values);
     }

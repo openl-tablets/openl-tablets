@@ -343,7 +343,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         Byte[] unwrappedArray = unwrap(values);
         Byte small = MathUtils.small(unwrappedArray, position);
         return new org.openl.meta.ByteValue(
-            (org.openl.meta.ByteValue) getAppropriateValue(values, new org.openl.meta.ByteValue(small)),
+            (org.openl.meta.ByteValue) new ByteValue(small),
             NumberOperations.SMALL,
             values);
     }
@@ -363,7 +363,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         Byte[] unwrappedArray = unwrap(values);
         Byte big = MathUtils.big(unwrappedArray, position);
         return new org.openl.meta.ByteValue(
-            (org.openl.meta.ByteValue) getAppropriateValue(values, new org.openl.meta.ByteValue(big)),
+            (org.openl.meta.ByteValue) new ByteValue(big),
             NumberOperations.BIG,
             values);
     }
