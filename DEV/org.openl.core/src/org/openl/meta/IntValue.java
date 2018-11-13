@@ -71,7 +71,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     }
 
     public static IntValue sum(IntValue... values) {
-        return instance(MathUtils.sum(unwrap(values)), NumberOperations.SUM, values);
+        return instance(Statistics.sum(unwrap(values)), NumberOperations.SUM, values);
     }
 
     public static DoubleValue avg(IntValue... values) {

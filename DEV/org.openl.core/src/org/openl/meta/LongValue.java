@@ -71,7 +71,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     }
 
     public static LongValue sum(LongValue... values) {
-        return instance(MathUtils.sum(unwrap(values)), NumberOperations.SUM, values);
+        return instance(Statistics.sum(unwrap(values)), NumberOperations.SUM, values);
     }
 
     public static DoubleValue avg(LongValue... values) {

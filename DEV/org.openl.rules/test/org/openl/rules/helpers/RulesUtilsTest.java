@@ -5632,7 +5632,7 @@ public class RulesUtilsTest {
     public void testSumDoubleTypeArray() {
         assertEquals(new Double(11.37), instance.testSumDoubleType(new double[] { -1.4, 5.77, 7., 10.44, -10.44 }));
         assertNull(instance.testSumDoubleType(null));
-        assertEquals(new Double(0), instance.testSumDoubleType(new double[] {}));
+        assertNull(instance.testSumDoubleType(new double[] {})); // Nothing to sum
     }
 
     @Test

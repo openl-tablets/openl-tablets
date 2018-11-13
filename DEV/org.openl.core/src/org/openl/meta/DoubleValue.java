@@ -102,7 +102,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
 
     public static DoubleValue sum(DoubleValue... values) {
-        return instance(MathUtils.sum(unwrap(values)), NumberOperations.SUM, values);
+        return instance(Statistics.sum(unwrap(values)), NumberOperations.SUM, values);
     }
 
     public static DoubleValue avg(DoubleValue... values) {

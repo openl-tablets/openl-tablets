@@ -61,7 +61,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
 
     public static FloatValue sum(FloatValue... values) {
-        return instance(MathUtils.sum(unwrap(values)), NumberOperations.SUM, values);
+        return instance(Statistics.sum(unwrap(values)), NumberOperations.SUM, values);
     }
 
     public static FloatValue avg(FloatValue... values) {
