@@ -58,7 +58,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     }
 
     public static BigDecimalValue sum(BigDecimalValue... values) {
-        return instance(MathUtils.sum(unwrap(values)), NumberOperations.SUM, values);
+        return instance(Statistics.sum(unwrap(values)), NumberOperations.SUM, values);
     }
 
     public static BigDecimalValue avg(BigDecimalValue... values) {

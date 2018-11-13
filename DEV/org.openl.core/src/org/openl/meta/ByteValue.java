@@ -71,7 +71,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     }
 
     public static ByteValue sum(ByteValue... values) {
-        return instance(MathUtils.sum(unwrap(values)), NumberOperations.SUM, values);
+        return instance(Statistics.sum(unwrap(values)), NumberOperations.SUM, values);
     }
 
     public static DoubleValue avg(ByteValue... values) {

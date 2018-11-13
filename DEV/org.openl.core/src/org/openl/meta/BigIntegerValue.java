@@ -71,7 +71,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     }
 
     public static BigIntegerValue sum(BigIntegerValue... values) {
-        return instance(MathUtils.sum(unwrap(values)), NumberOperations.SUM, values);
+        return instance(Statistics.sum(unwrap(values)), NumberOperations.SUM, values);
     }
 
     public static BigDecimalValue avg(BigIntegerValue... values) {

@@ -71,7 +71,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     }
 
     public static ShortValue sum(ShortValue... values) {
-        return instance(MathUtils.sum(unwrap(values)), NumberOperations.SUM, values);
+        return instance(Statistics.sum(unwrap(values)), NumberOperations.SUM, values);
     }
 
     public static DoubleValue avg(ShortValue... values) {
