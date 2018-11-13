@@ -54,54 +54,32 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         return doubleValues;
     }
 
+    private static ShortValue instance(Short result, NumberOperations operation, ShortValue... values) {
+        return result == null ? null : new ShortValue(new ShortValue(result), operation, values);
+    }
+
+    private static ShortValue instance(ShortValue result, NumberOperations operation, ShortValue... values) {
+        return result == null ? null : new ShortValue(result, operation, values);
+    }
+
     public static ShortValue max(ShortValue... values) {
-        ShortValue result = Statistics.max(values);
-        return result == null ? null : new ShortValue(result, NumberOperations.MAX, values);
+        return instance(Statistics.max(values), NumberOperations.MAX, values);
     }
 
     public static ShortValue min(ShortValue... values) {
-        ShortValue result = Statistics.min(values);
-        return result == null ? null : new ShortValue(result, NumberOperations.MIN, values);
+        return instance(Statistics.min(values), NumberOperations.MIN, values);
     }
 
-    /**
-     * average
-     * 
-     * @param values array of org.openl.meta.ShortValue values
-     * @return the average value from the array
-     */
-    public static org.openl.meta.DoubleValue avg(org.openl.meta.ShortValue[] values) {
-        Short[] unwrappedArray = unwrap(values);
-        Double avg = MathUtils.avg(unwrappedArray);
-        return avg != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg),
-            NumberOperations.AVG,
-            toDoubleValues(values)) : null;
+    public static ShortValue sum(ShortValue... values) {
+        return instance(MathUtils.sum(unwrap(values)), NumberOperations.SUM, values);
     }
 
-    /**
-     * sum
-     * 
-     * @param values array of org.openl.meta.ShortValue values
-     * @return the sum value from the array
-     */
-    public static org.openl.meta.ShortValue sum(org.openl.meta.ShortValue[] values) {
-        Short[] unwrappedArray = unwrap(values);
-        Short sum = MathUtils.sum(unwrappedArray);
-        return sum != null ? new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(sum), NumberOperations.SUM, values) : null;
+    public static DoubleValue avg(ShortValue... values) {
+        return DoubleValue.instance(MathUtils.avg(unwrap(values)), NumberOperations.AVG, toDoubleValues(values));
     }
 
-    /**
-     * median
-     * 
-     * @param values array of org.openl.meta.ShortValue values
-     * @return the median value from the array
-     */
-    public static org.openl.meta.DoubleValue median(org.openl.meta.ShortValue[] values) {
-        Short[] unwrappedArray = unwrap(values);
-        Double median = MathUtils.median(unwrappedArray);
-        return median != null ? new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median),
-            NumberOperations.MEDIAN,
-            toDoubleValues(values)) : null;
+    public static DoubleValue median(ShortValue... values) {
+        return DoubleValue.instance(MathUtils.median(unwrap(values)), NumberOperations.MEDIAN, toDoubleValues(values));
     }
 
     /**
@@ -326,13 +304,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
-    public static org.openl.meta.ShortValue small(org.openl.meta.ShortValue[] values, int position) {
-        Short[] unwrappedArray = unwrap(values);
-        Short small = MathUtils.small(unwrappedArray, position);
-        return new org.openl.meta.ShortValue(
-            (org.openl.meta.ShortValue) new ShortValue(small),
-            NumberOperations.SMALL,
-            values);
+    public static ShortValue small(ShortValue[] values, int position) {
+        return instance(MathUtils.small(unwrap(values), position), NumberOperations.SMALL, values);
     }
 
     /**
@@ -343,13 +316,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
-    public static org.openl.meta.ShortValue big(org.openl.meta.ShortValue[] values, int position) {
-        Short[] unwrappedArray = unwrap(values);
-        Short big = MathUtils.big(unwrappedArray, position);
-        return new org.openl.meta.ShortValue(
-            (org.openl.meta.ShortValue) new ShortValue(big),
-            NumberOperations.BIG,
-            values);
+    public static ShortValue big(ShortValue[] values, int position) {
+        return instance(MathUtils.big(unwrap(values), position), NumberOperations.BIG, values);
     }
 
     /**
