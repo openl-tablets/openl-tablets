@@ -53,34 +53,6 @@ public class RulesUtilsTest {
     private static String str;
 
     public interface TestInterf {
-        java.lang.Double testAvgByte(java.lang.Byte[] values);
-
-        java.lang.Double testAvgShort(java.lang.Short[] values);
-
-        java.lang.Double testAvgInteger(java.lang.Integer[] values);
-
-        java.lang.Double testAvgLong(java.lang.Long[] values);
-
-        java.lang.Float testAvgFloat(java.lang.Float[] values);
-
-        java.lang.Double testAvgDouble(java.lang.Double[] values);
-
-        Double testAvgByteType(byte[] values);
-
-        Double testAvgShortType(short[] values);
-
-        Double testAvgIntegerType(int[] values);
-
-        Double testAvgLongType(long[] values);
-
-        Float testAvgFloatType(float[] values);
-
-        Double testAvgDoubleType(double[] values);
-
-        BigDecimalValue testAvgBigDecimal(BigDecimalValue[] values);
-
-        BigDecimalValue testAvgBigInteger(BigIntegerValue[] values);
-
         LongValue testQuaotientByteValue(ByteValue number, ByteValue divisor);
 
         LongValue testQuaotientShortValue(ShortValue number, ShortValue divisor);
@@ -799,10 +771,6 @@ public class RulesUtilsTest {
 
         boolean testInstanceOf(Long a);
 
-        BigDecimal testAvgBigIntegerArray(BigInteger[] values);
-
-        BigDecimal testAvgBigDecimalArray(BigDecimal[] values);
-
         Double testMedianByte(Byte[] values);
 
         Double testMedianShort(Short[] values);
@@ -853,120 +821,6 @@ public class RulesUtilsTest {
     @Test
     public void testInstanceOf() {
         assertTrue(instance.testInstanceOf(new Long(1)));
-    }
-
-    @Test
-    public void testByteTypeAvg() {
-        assertEquals(12.666666666666666d,
-            instance.testAvgByteType(new byte[] { (byte) 10, (byte) 15, (byte) 13 }),
-            1e-8);
-    }
-
-    @Test
-    public void testShortTypeAvg() {
-        assertEquals(12.666666666666666d,
-            instance.testAvgShortType(new short[] { (short) 10, (short) 15, (short) 13 }),
-            1e-8);
-    }
-
-    @Test
-    public void testIntegerTypeAvg() {
-        assertEquals(12.666666666666666d, instance.testAvgIntegerType(new int[] { 10, 15, 13 }), 1e-8);
-    }
-
-    @Test
-    public void testLongTypeAvg() {
-        assertEquals(12.666666666666666d,
-            instance.testAvgLongType(new long[] { (long) 10, (long) 15, (long) 13 }),
-            1e-8);
-    }
-
-    @Test
-    public void testFloatTypeAvg() {
-        assertEquals((float) 12.666666984558105,
-            instance.testAvgFloatType(new float[] { (float) 10, (float) 15, (float) 13 }),
-            1e-15);
-    }
-
-    @Test
-    public void testDoubleTypeAvg() {
-        assertEquals(12.666666666666666d,
-            instance.testAvgDoubleType(new double[] { (double) 10, (double) 15, (double) 13 }),
-            1e-8);
-    }
-
-    @Test
-    public void testByteAvg() {
-        assertEquals(12.666666666666666d,
-            instance.testAvgByte(new java.lang.Byte[] { java.lang.Byte.valueOf((byte) 10),
-                    java.lang.Byte.valueOf((byte) 15),
-                    java.lang.Byte.valueOf((byte) 13) }),
-            1e-8);
-    }
-
-    @Test
-    public void testShortAvg() {
-        assertEquals(12.666666666666666d,
-            instance.testAvgShort(new java.lang.Short[] { java.lang.Short.valueOf((short) 10),
-                    java.lang.Short.valueOf((short) 15),
-                    java.lang.Short.valueOf((short) 13) }),
-            1e-8);
-    }
-
-    @Test
-    public void testIntegerAvg() {
-        assertEquals(12.666666666666666d,
-            instance.testAvgInteger(new java.lang.Integer[] { java.lang.Integer.valueOf(10),
-                    java.lang.Integer.valueOf(15),
-                    java.lang.Integer.valueOf(13) }),
-            1e-8);
-    }
-
-    @Test
-    public void testLongAvg() {
-        assertEquals(12.666666666666666d,
-            instance.testAvgLong(new java.lang.Long[] { java.lang.Long.valueOf((long) 10),
-                    java.lang.Long.valueOf((long) 15),
-                    java.lang.Long.valueOf((long) 13) }),
-            1e-8);
-    }
-
-    @Test
-    public void testFloatAvg() {
-        assertEquals(java.lang.Float.valueOf((float) 12.666667),
-            instance.testAvgFloat(new java.lang.Float[] { java.lang.Float.valueOf((float) 10),
-                    java.lang.Float.valueOf((float) 15),
-                    java.lang.Float.valueOf((float) 13) }),
-            1e-15);
-    }
-
-    @Test
-    public void testDoubleAvg() {
-        assertEquals(java.lang.Double.valueOf((double) 12.666666666666666),
-            instance.testAvgDouble(new java.lang.Double[] { java.lang.Double.valueOf((double) 10),
-                    java.lang.Double.valueOf((double) 15),
-                    java.lang.Double.valueOf((double) 13) }),
-            1e-15);
-    }
-
-    @Test
-    public void testBigDecimalValueAvg() {
-        assertEquals(new BigDecimalValue("12.666667"),
-            instance.testAvgBigDecimal(new BigDecimalValue[] { new BigDecimalValue("10"),
-                    new BigDecimalValue("15"),
-                    new BigDecimalValue("13") }));
-
-    }
-
-    @Test
-    public void testBigIntegerlValueAvg() {
-        assertEquals(new BigDecimalValue("12.66666666666").doubleValue(),
-            instance.testAvgBigInteger(new BigIntegerValue[] { new BigIntegerValue("10"),
-                    new BigIntegerValue("15"),
-                    new BigIntegerValue("13") })
-                .doubleValue(),
-            0.001);
-
     }
 
     @Test(expected = OpenLRuntimeException.class)
@@ -4795,29 +4649,6 @@ public class RulesUtilsTest {
         Object[] primes = instance.testGetValuesPrimesAlias();
         assertArrayEquals(new Integer[] { 5, 7, 13, 17 }, primes);
         assertEquals(Integer.class, primes.getClass().getComponentType());
-    }
-
-    @Test
-    public void testAvgBigDecimalArray() {
-        assertEquals(new BigDecimal("2.28"),
-            instance.testAvgBigDecimalArray(new BigDecimal[] { new BigDecimal("-1.4"),
-                    new BigDecimal("5.77"),
-                    new BigDecimal("7"),
-                    new BigDecimal("10.47"),
-                    new BigDecimal("-10.44") }));
-        assertNull(instance.testAvgBigDecimalArray(null));
-        assertNull(instance.testAvgBigDecimalArray(new BigDecimal[] {}));
-    }
-
-    @Test
-    public void testAvgBigIntegerArray() {
-        assertEquals(new BigDecimal(5.25),
-            instance.testAvgBigIntegerArray(new BigInteger[] { BigInteger.valueOf(-1),
-                    BigInteger.valueOf(5),
-                    BigInteger.valueOf(7),
-                    BigInteger.valueOf(10) }));
-        assertNull(instance.testAvgBigIntegerArray(null));
-        assertNull(instance.testAvgBigIntegerArray(new BigInteger[] {}));
     }
 
     @Test

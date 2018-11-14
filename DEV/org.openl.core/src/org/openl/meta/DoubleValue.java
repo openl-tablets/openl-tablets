@@ -16,8 +16,10 @@ import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
+import org.openl.rules.util.Avg;
 import org.openl.rules.util.Statistics;
 import org.openl.rules.util.Round;
+import org.openl.rules.util.Sum;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
 
@@ -102,11 +104,11 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
 
     public static DoubleValue sum(DoubleValue... values) {
-        return instance(Statistics.sum(unwrap(values)), NumberOperations.SUM, values);
+        return instance(Sum.sum(unwrap(values)), NumberOperations.SUM, values);
     }
 
     public static DoubleValue avg(DoubleValue... values) {
-        return instance(MathUtils.avg(unwrap(values)), NumberOperations.AVG, values);
+        return instance(Avg.avg(unwrap(values)), NumberOperations.AVG, values);
     }
 
     public static DoubleValue median(DoubleValue... values) {
