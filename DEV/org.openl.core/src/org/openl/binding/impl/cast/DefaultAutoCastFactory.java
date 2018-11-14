@@ -67,7 +67,7 @@ public class DefaultAutoCastFactory implements AutoCastFactory {
         if (!method.getType().isArray()) {
             IOpenCast cast = bindingContext.getCast(method.getType(), simpleType);
             if (cast != null) {
-                return new AutoCastableResultOpenMethod(methodCaller.getMethod(), simpleType, cast);
+                return new AutoCastableResultOpenMethod(methodCaller, simpleType, cast);
             }
         } else {
             IOpenClass v = method.getType();
@@ -91,14 +91,12 @@ public class DefaultAutoCastFactory implements AutoCastFactory {
                     null);
                 IOpenCast cast = bindingContext.getCast(method.getType(), domainArrayType);
                 if (cast != null) {
-                    return new AutoCastableResultOpenMethod(methodCaller.getMethod(), domainArrayType, cast);
+                    return new AutoCastableResultOpenMethod(methodCaller, domainArrayType, cast);
                 }
             } else {
                 IOpenCast cast = bindingContext.getCast(method.getType(), componentTypeArrayOpenClass);
                 if (cast != null) {
-                    return new AutoCastableResultOpenMethod(methodCaller.getMethod(),
-                        componentTypeArrayOpenClass,
-                        cast);
+                    return new AutoCastableResultOpenMethod(methodCaller, componentTypeArrayOpenClass, cast);
                 }
             }
         }

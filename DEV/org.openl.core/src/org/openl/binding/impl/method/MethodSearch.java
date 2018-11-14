@@ -351,7 +351,7 @@ public class MethodSearch {
                     IOpenCast c = matchingMethodsReturnCast.get(k);
                     IOpenClass t = matchingMethodsReturnType.get(k);
                     if (c != null && t != mostSecificMethod.getType()) {
-                        return new AutoCastableResultOpenMethod(methodCaller.getMethod(), t, c);
+                        return new AutoCastableResultOpenMethod(methodCaller, t, c);
                     } else {
                         return methodCaller;
                     }
@@ -364,7 +364,7 @@ public class MethodSearch {
             IOpenMethod m,
             IMethodCaller methodCaller) {
         if (methodsReturnCast != null && methodsReturnType != m.getType()) {
-            return new AutoCastableResultOpenMethod(methodCaller.getMethod(), methodsReturnType, methodsReturnCast);
+            return new AutoCastableResultOpenMethod(methodCaller, methodsReturnType, methodsReturnCast);
         } else {
             return methodCaller;
         }
