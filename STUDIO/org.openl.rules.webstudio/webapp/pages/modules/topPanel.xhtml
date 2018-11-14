@@ -257,7 +257,7 @@
         function downloadTest(e) {
             e.preventDefault();
             var query = getGlobalTestQuery();
-            ws.nav.download("#{contextPath}/web/test/download?" + query);
+            ws.nav.download("#{contextPath}/web/test/testcase?" + query);
         }
 
         function canOverwriteRevision() {

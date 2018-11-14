@@ -68,6 +68,32 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
             DoubleValue.class,
             BigIntegerValue.class,
             BigDecimalValue.class };
+    private static final Class<?>[] primitivesArray = new Class[] { byte[].class,
+            short[].class,
+            int[].class,
+            long[].class,
+            float[].class,
+            double[].class };
+    private static final Class<?>[] boxedArray = new Class[] { Byte[].class,
+            Short[].class,
+            Integer[].class,
+            Long[].class,
+            Float[].class,
+            Double[].class,
+            BigInteger[].class,
+            BigDecimal[].class };
+    private static final Class<?>[] nonNumbersArray = new Class[] { boolean[].class,
+            char[].class,
+            Boolean[].class,
+            Character[].class };
+    private static final Class<?>[] valuedArray = new Class[] { ByteValue[].class,
+            ShortValue[].class,
+            IntValue[].class,
+            LongValue[].class,
+            FloatValue[].class,
+            DoubleValue[].class,
+            BigIntegerValue[].class,
+            BigDecimalValue[].class };
 
     @Test
     public void testSearch() {
@@ -524,22 +550,38 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
 
         assertMethod("Generic_Comparable...Integer[]", target, "vararg4", Integer.class);
         assertMethod("Generic_Comparable...Integer[]", target, "vararg4", int.class);
+        assertMethod("Generic_Comparable...Integer[]", target, "vararg4", int.class, int.class);
+        assertMethod("Generic_Comparable...Integer[]", target, "vararg4", Integer.class, int.class);
+        assertMethod("Generic_Comparable...Integer[]", target, "vararg4", Integer[].class);
+        assertMethod("Generic_Comparable...Integer[]", target, "vararg4", int[].class);
         assertMethod("Generic_Comparable...IntValue[]", target, "vararg4", IntValue.class);
+        assertMethod("Generic_Comparable...IntValue[]", target, "vararg4", IntValue[].class);
 
         assertMethod("Long...Long[]", target, "vararg4", Long.class);
         assertMethod("Long...Long[]", target, "vararg4", long.class);
+        assertMethod("Long...Long[]", target, "vararg4", Long.class, long.class);
+        assertMethod("Long...Long[]", target, "vararg4", long.class, long.class);
+        assertMethod("Long...Long[]", target, "vararg4", Long[].class);
+        assertMethod("Long...Long[]", target, "vararg4", long[].class);
         assertMethod("Generic_Comparable...LongValue[]", target, "vararg4", LongValue.class);
+        assertMethod("Generic_Comparable...LongValue[]", target, "vararg4", LongValue[].class);
 
         assertMethod("Generic_Comparable...Double[]", target, "vararg4", Double.class);
         assertMethod("Generic_Comparable...Double[]", target, "vararg4", double.class);
-        assertMethod("DoubleValue...DoubleValue[]", target, "vararg4", DoubleValue.class);
-
-        assertMethod("Generic_Comparable...String[]", target, "vararg4", String.class);
-        assertMethod("Generic...List[]", target, "vararg4", List.class);
-
         assertMethod("Generic_Comparable...Double[]", target, "vararg4", double.class, double.class);
         assertMethod("Generic_Comparable...Double[]", target, "vararg4", Double.class, double.class);
-        assertMethod("Generic_Comparable...Integer[]", target, "vararg4", Integer.class, int.class);
+        assertMethod("Generic_Comparable...Double[]", target, "vararg4", Double[].class);
+        assertMethod("Generic_Comparable...Double[]", target, "vararg4", double[].class);
+        assertMethod("DoubleValue...DoubleValue[]", target, "vararg4", DoubleValue.class);
+        assertMethod("DoubleValue...DoubleValue[]", target, "vararg4", DoubleValue[].class);
+
+        assertMethod("Generic_Comparable...String[]", target, "vararg4", String.class);
+        assertMethod("Generic_Comparable...String[]", target, "vararg4", String.class, String.class);
+        assertMethod("Generic_Comparable...String[]", target, "vararg4", String[].class);
+        assertMethod("Generic...List[]", target, "vararg4", List.class);
+        assertMethod("Generic...List[]", target, "vararg4", List.class, List.class);
+        assertMethod("Generic...List[]", target, "vararg4", List[].class);
+
         assertMethod("Generic...Object[]", target, "vararg4", String.class, Integer.class);
         assertMethod("Generic...Number[]", target, "vararg4", Integer.class, double.class);
     }
@@ -555,5 +597,18 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
         assertMethod("Collection", target, "gen", ConcurrentLinkedQueue.class);
         assertMethod("DequeArrayDeque", target, "gen", ArrayDeque.class);
         assertAmbigiouse(target, "gen", LinkedList.class);
+    }
+
+    @Test
+    public void testGenericsVararg() {
+        assertMethod(target, "singleGenVararg", primitives, "Byte[]", "Short[]", "Integer[]", "Long[]", "Float[]", "Double[]");
+        assertMethod(target, "singleGenVararg", boxed, "Byte[]", "Short[]", "Integer[]", "Long[]", "Float[]", "Double[]", "BigInteger[]", "BigDecimal[]");
+        assertMethod(target, "singleGenVararg", nonNumbers, "Boolean[]", "Character[]", "Boolean[]", "Character[]");
+        assertMethod(target, "singleGenVararg", valued, "ByteValue[]", "ShortValue[]", "IntValue[]", "LongValue[]", "FloatValue[]", "DoubleValue[]", "BigIntegerValue[]", "BigDecimalValue[]");
+        assertMethod(target, "singleGenVararg", primitivesArray, "Byte[]", "Short[]", "Integer[]", "Long[]", "Float[]", "Double[]");
+        assertMethod(target, "singleGenVararg", boxedArray, "Byte[]", "Short[]", "Integer[]", "Long[]", "Float[]", "Double[]", "BigInteger[]", "BigDecimal[]");
+        assertMethod(target, "singleGenVararg", nonNumbersArray, "Boolean[]", "Character[]", "Boolean[]", "Character[]");
+        assertMethod(target, "singleGenVararg", valuedArray, "ByteValue[]", "ShortValue[]", "IntValue[]", "LongValue[]", "FloatValue[]", "DoubleValue[]", "BigIntegerValue[]", "BigDecimalValue[]");
+        assertNotFound(target, "singleGenVararg", List.class);
     }
 }

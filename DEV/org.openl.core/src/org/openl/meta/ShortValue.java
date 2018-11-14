@@ -54,8 +54,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         return doubleValues;
     }
 
-    private static ShortValue instance(Short result, NumberOperations operation, ShortValue... values) {
-        return result == null ? null : new ShortValue(new ShortValue(result), operation, values);
+    private static ShortValue instance(Number result, NumberOperations operation, ShortValue... values) {
+        return result == null ? null : new ShortValue(new ShortValue(result.shortValue()), operation, values);
     }
 
     private static ShortValue instance(ShortValue result, NumberOperations operation, ShortValue... values) {

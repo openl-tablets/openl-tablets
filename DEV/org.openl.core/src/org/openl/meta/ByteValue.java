@@ -54,8 +54,8 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         return doubleValues;
     }
 
-    private static ByteValue instance(Byte result, NumberOperations operation, ByteValue... values) {
-        return result == null ? null : new ByteValue(new ByteValue(result), operation, values);
+    private static ByteValue instance(Number result, NumberOperations operation, ByteValue... values) {
+        return result == null ? null : new ByteValue(new ByteValue(result.byteValue()), operation, values);
     }
 
     private static ByteValue instance(ByteValue result, NumberOperations operation, ByteValue... values) {

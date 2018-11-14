@@ -21,7 +21,6 @@ import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.ParameterRegistry;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.vm.SimpleVM;
@@ -129,13 +128,8 @@ public class ParameterTreeBuilder {
                 boolean empty = !fieldType.getAggregateInfo().getIterator(value).hasNext();
                 return Utils.displayNameForCollection(fieldType, empty);
             } else if (!fieldType.isSimple()) {
-                IOpenField previewField = null;
-                if (param instanceof ParameterWithValueAndPreviewDeclaration) {
-                    previewField = ((ParameterWithValueAndPreviewDeclaration) param).getPreviewField();
-                }
-
                 ParameterRenderConfig config = new ParameterRenderConfig.Builder(fieldType, value)
-                        .previewField(previewField)
+                        .keyField(param.getKeyField())
                         .build();
 
                 return createComplexBeanNode(config).getDisplayedValue();
@@ -149,13 +143,8 @@ public class ParameterTreeBuilder {
         TreeNodeImpl root = new TreeNodeImpl();
 
         if (param != null) {
-            IOpenField previewField = null;
-            if (param instanceof ParameterWithValueAndPreviewDeclaration) {
-                previewField = ((ParameterWithValueAndPreviewDeclaration) param).getPreviewField();
-            }
-
             ParameterRenderConfig config = new ParameterRenderConfig.Builder(param.getType(), param.getValue())
-                    .previewField(previewField)
+                    .keyField(param.getKeyField())
                     .hasExplainLinks(hasExplainLinks)
                     .requestId(requestId)
                     .build();

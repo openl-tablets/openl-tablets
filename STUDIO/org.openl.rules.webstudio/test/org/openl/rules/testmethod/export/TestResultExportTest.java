@@ -1,7 +1,7 @@
-package org.openl.rules.webstudio.web.test;
+package org.openl.rules.testmethod.export;
 
 import static org.junit.Assert.*;
-import static org.openl.rules.webstudio.web.test.TestResultExport.Styles.*;
+import static org.openl.rules.testmethod.export.Styles.*;
 
 import java.awt.*;
 import java.io.File;
@@ -22,11 +22,10 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.CompiledOpenClass;
-import org.openl.rules.data.IDataBase;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestMethodNodeBinder;
+import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.types.IOpenClass;
@@ -75,8 +74,7 @@ public class TestResultExportTest {
         TestUnitsResults[] results = new TestUnitsResults[tests.length];
         for (int i = 0; i < tests.length; i++) {
             TestSuiteMethod test = tests[i];
-            IDataBase db = ((XlsModuleOpenClass) openClass).getDataBase();
-            results[i] = new TestSuiteWithPreview(db, test).invokeSequentially(openClass, 1L);
+            results[i] = new TestSuite(test).invokeSequentially(openClass, 1L);
         }
 
         // Tests can appear in a random order. For testing convenience sort them alphabetically
@@ -107,8 +105,7 @@ public class TestResultExportTest {
         TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
         for (TestSuiteMethod test : tests) {
             if (test.getName().equals(testName)) {
-                IDataBase db = ((XlsModuleOpenClass) openClass).getDataBase();
-                return new TestSuiteWithPreview(db, test, indices).invokeSequentially(openClass, 1L);
+                return new TestSuite(test, indices).invokeSequentially(openClass, 1L);
             }
         }
 
@@ -123,7 +120,8 @@ public class TestResultExportTest {
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
-                assertEquals(1, workbook.getNumberOfSheets());
+                assertEquals(2, workbook.getNumberOfSheets());
+                assertNotNull(workbook.getSheet("Parameters 1"));
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
                 int rowNum = TestResultExport.FIRST_ROW;
@@ -149,7 +147,10 @@ public class TestResultExportTest {
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
-                assertEquals(3, workbook.getNumberOfSheets());
+                assertEquals(6, workbook.getNumberOfSheets());
+                assertNotNull(workbook.getSheet("Parameters 1"));
+                assertNotNull(workbook.getSheet("Parameters 2"));
+                assertNotNull(workbook.getSheet("Parameters 3"));
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
                 int rowNum = TestResultExport.FIRST_ROW;
@@ -179,7 +180,9 @@ public class TestResultExportTest {
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
-                assertEquals(1, workbook.getNumberOfSheets());
+                assertEquals(2, workbook.getNumberOfSheets());
+                assertNotNull(workbook.getSheet("Result 1"));
+                assertNotNull(workbook.getSheet("Parameters 1"));
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
                 int rowNum = TestResultExport.FIRST_ROW;
@@ -217,11 +220,11 @@ public class TestResultExportTest {
         TestUnitsResults singleTestCase = runTest(TRIVIAL_PROJECT, "HelloTest", 0);
 
         try (TempFileExporter export = new TempFileExporter()) {
-            xlsx = export.createExcelFile(new TestUnitsResults[]{singleTestCase}, -1);
+            xlsx = export.createExcelFile(new TestUnitsResults[] {singleTestCase}, -1);
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
-                assertEquals(1, workbook.getNumberOfSheets());
+                assertEquals(2, workbook.getNumberOfSheets());
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
                 int rowNum = TestResultExport.FIRST_ROW;
@@ -236,11 +239,12 @@ public class TestResultExportTest {
 
         singleTestCase = runTest(TRIVIAL_PROJECT, "HelloTest", 1);
         try (TempFileExporter export = new TempFileExporter()) {
-            xlsx = export.createExcelFile(new TestUnitsResults[]{singleTestCase}, -1);
+            xlsx = export.createExcelFile(new TestUnitsResults[] {singleTestCase}, -1);
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
-                assertEquals(1, workbook.getNumberOfSheets());
+                assertEquals(2, workbook.getNumberOfSheets());
+                assertNotNull(workbook.getSheet("Parameters 1"));
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
                 int rowNum = TestResultExport.FIRST_ROW;
@@ -262,7 +266,8 @@ public class TestResultExportTest {
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
-                assertEquals(1, workbook.getNumberOfSheets());
+                assertEquals(2, workbook.getNumberOfSheets());
+                assertNotNull(workbook.getSheet("Parameters 1"));
 
                 // Test the case when parameter is referenced by primary key
                 XSSFSheet sheet = workbook.getSheetAt(0);
@@ -334,7 +339,9 @@ public class TestResultExportTest {
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
-                assertEquals(2, workbook.getNumberOfSheets());
+                assertEquals(4, workbook.getNumberOfSheets());
+                assertNotNull(workbook.getSheet("Parameters 1"));
+                assertNotNull(workbook.getSheet("Parameters 2"));
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
                 int rowNum = TestResultExport.FIRST_ROW;
@@ -365,7 +372,8 @@ public class TestResultExportTest {
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
-                assertEquals(1, workbook.getNumberOfSheets());
+                assertEquals(2, workbook.getNumberOfSheets());
+                assertNotNull(workbook.getSheet("Parameters 1"));
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
                 int rowNum = TestResultExport.FIRST_ROW;
@@ -551,7 +559,7 @@ public class TestResultExportTest {
         File createExcelFile(TestUnitsResults[] results, int testsPerPage) throws IOException {
             tempFile = File.createTempFile("test-results", ".xlsx");
             try (FileOutputStream outputStream = new FileOutputStream(tempFile)) {
-                new TestResultExport().export(results, testsPerPage, outputStream);
+                new TestResultExport().export(outputStream, testsPerPage, results);
             }
             return tempFile;
         }

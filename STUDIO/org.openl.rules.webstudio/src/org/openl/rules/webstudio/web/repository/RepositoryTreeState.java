@@ -344,7 +344,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public void onRepositoryModified() {
         synchronized (lock) {
             // We must not refresh the table when getting selected node.
-            AProjectArtefact artefact = repositorySelectNodeStateHolder.getSelectedNode().getData();
+            TreeNode selectedNode = repositorySelectNodeStateHolder.getSelectedNode();
+            AProjectArtefact artefact = selectedNode == null ? null : selectedNode.getData();
             if (artefact != null) {
                 AProject project = artefact instanceof UserWorkspaceProject ? (UserWorkspaceProject) artefact : artefact.getProject();
 

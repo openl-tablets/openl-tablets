@@ -26,6 +26,7 @@ import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.runtime.RulesEngineFactory;
+import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
@@ -260,6 +261,14 @@ public final class OpenLTest {
                                     "Failed test: {}  Errors #: {}",
                                     res.getName(),
                                     numberOfFailures);
+                                List<ITestUnit> failed = res.getFilteredTestUnits(true, 3);
+                                for (ITestUnit testcase : failed) {
+                                    error(errors++,
+                                        sourceFile,
+                                        "   #{}  Actual: {}",
+                                        testcase.getTest().getId(),
+                                        testcase.getActualResult());
+                                }
                             }
                         } else {
                             if (numberOfFailures != res.getNumberOfTestUnits()) {

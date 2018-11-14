@@ -54,6 +54,11 @@ public final class RunTestHelper {
         this.params = ((InputArgsBean) FacesUtils.getBackingBean("inputArgsBean")).getParams();
     }
 
+    public void catchParamsToDownload() {
+        catchParams();
+        Utils.saveTestToSession(FacesUtils.getSession(), getTestSuite());
+    }
+
     public TestSuite getTestSuite() {
         String id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
 
@@ -77,19 +82,18 @@ public final class RunTestHelper {
             String testRanges = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_RANGES);
             if (testRanges == null) {
                 // Run all test cases of selected test suite
-                testSuite = new TestSuiteWithPreview(db, testSuiteMethod);
+                testSuite = new TestSuite(testSuiteMethod);
             } else {
                 // Run only selected test cases of selected test suite
                 int[] indices = testSuiteMethod.getIndices(testRanges);
-                testSuite = new TestSuiteWithPreview(db, testSuiteMethod, indices);
+                testSuite = new TestSuite(testSuiteMethod, indices);
             }
         } else {
             if (method.getSignature().getNumberOfParameters() > params.length) {
                 // View expired
                 return null;
             }
-            TestDescription testDescription = new TestDescription(method, params);
-            testSuite = new TestSuiteWithPreview(db, testDescription);
+            testSuite = new TestSuite(new TestDescription(method, params, db));
         }
 
         params = new Object[0]; // Reset caught params

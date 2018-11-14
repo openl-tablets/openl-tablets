@@ -47,11 +47,12 @@ public class StatisticsTest {
         assertEquals(Integer.valueOf(10), sum(8, null, 2));
         assertEquals(Double.valueOf(3.0), sum(-10.0, 6.0, 7.0));
 
-        assertEquals(Byte.valueOf((byte) 15), sum((byte) 3, (byte) 4, (byte) 8));
-        assertEquals(Short.valueOf((short) 15), sum((short) 3, (short) 4, (short) 8));
+        assertEquals(Integer.valueOf(15), sum((byte) 3, (byte) 4, (byte) 8));
+        assertEquals(Integer.valueOf(15), sum((short) 3, (short) 4, (short) 8));
         assertEquals(Integer.valueOf(15), sum(3, 4, 8));
         assertEquals(Long.valueOf(15), sum(3l, 4l, 8l));
         assertEquals(Float.valueOf(15), sum(3f, 4f, 8f));
         assertEquals(Double.valueOf(15), sum(3d, 4d, 8d));
+        assertEquals(Double.valueOf(15), sum((byte) 3, (short) 4, 8));
     }
 }
