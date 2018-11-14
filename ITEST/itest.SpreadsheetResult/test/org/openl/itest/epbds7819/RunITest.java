@@ -18,9 +18,11 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openl.itest.MainService;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.RestClientFactory;
 import org.openl.itest.ITestUtil;
+import org.openl.itest.core.SoapClientFactory;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -36,10 +38,11 @@ public class RunITest {
     private static String baseURI;
 
     private RestTemplate rest;
+    private MainService soapService;
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = new JettyServer();
+        server = new JettyServer(true);
         baseURI = server.start();
     }
 
@@ -50,7 +53,8 @@ public class RunITest {
 
     @Before
     public void before() {
-        rest = new RestClientFactory(baseURI + "/wadl-and-spreadsheetresult").create();
+        rest = new RestClientFactory(baseURI + "/REST/wadl-and-spreadsheetresult").create();
+        soapService = new SoapClientFactory<>(baseURI + "/wadl-and-spreadsheetresult", MainService.class).createProxy();
     }
 
     @Test
@@ -80,14 +84,17 @@ public class RunITest {
         final String pathToSequence = pathToComplexType + "/*[local-name()='sequence']";
 
         Node element = (Node) xpath.evaluate(pathToSequence + "/*[@name='columnNames']", root, XPathConstants.NODE);
+        assertNotNull(element);
         assertEquals("xs:element", element.getNodeName());
         assertEquals("xs:string", element.getAttributes().getNamedItem("type").getTextContent());
 
         element = (Node) xpath.evaluate(pathToSequence + "/*[@name='results']", root, XPathConstants.NODE);
+        assertNotNull(element);
         assertEquals("xs:element", element.getNodeName());
         assertEquals("ns1:anyTypeArray", element.getAttributes().getNamedItem("type").getTextContent());
 
         element = (Node) xpath.evaluate(pathToSequence + "/*[@name='rowNames']", root, XPathConstants.NODE);
+        assertNotNull(element);
         assertEquals("xs:element", element.getNodeName());
         assertEquals("xs:string", element.getAttributes().getNamedItem("type").getTextContent());
 
@@ -117,12 +124,22 @@ public class RunITest {
         requestBody.put("j", "foo");
 
         ResponseEntity<SpreadsheetResult> response = rest.exchange("/tiktak",
-            HttpMethod.POST,
-            RestClientFactory.request(requestBody),
-            SpreadsheetResult.class);
+                HttpMethod.POST,
+                RestClientFactory.request(requestBody),
+                SpreadsheetResult.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         SpreadsheetResult result = response.getBody();
+        assertNotNull(result);
+        assertEquals(100, result.getFieldValue("$calc$INT"));
+        assertEquals("foo", result.getFieldValue("$calc$String"));
+        assertNull(result.getRowTitles());
+        assertNull(result.getLogicalTable());
+    }
+
+    @Test
+    public void testSoap_tiktakMethod_shouldReturnSpreadsheetResult() {
+        SpreadsheetResult result = soapService.tiktak(100, "foo");
         assertNotNull(result);
         assertEquals(100, result.getFieldValue("$calc$INT"));
         assertEquals("foo", result.getFieldValue("$calc$String"));

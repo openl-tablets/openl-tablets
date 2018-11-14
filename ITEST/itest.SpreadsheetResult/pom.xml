@@ -17,6 +17,12 @@
     <dependencies>
         <!-- Itegration Tests-->
         <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.openl.itest</groupId>
             <artifactId>server-core</artifactId>
             <scope>test</scope>

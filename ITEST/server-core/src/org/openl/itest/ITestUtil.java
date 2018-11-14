@@ -8,7 +8,7 @@ public final class ITestUtil {
 
     public static String cleanupXml(String s) {
         return s.replaceAll("\\\\\"", "\"")
-                .replaceAll(">\\\\n\\s*<", "><")
+                .replaceAll(">(\\\\n|\\n)\\s*<", "><")
                 .replaceFirst("^\"(.+)\"$", "$1");
     }
 
