@@ -16,8 +16,10 @@ import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
+import org.openl.rules.util.Avg;
 import org.openl.rules.util.Statistics;
 import org.openl.rules.util.Round;
+import org.openl.rules.util.Sum;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
 
@@ -61,11 +63,11 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
 
     public static FloatValue sum(FloatValue... values) {
-        return instance(Statistics.sum(unwrap(values)), NumberOperations.SUM, values);
+        return instance(Sum.sum(unwrap(values)), NumberOperations.SUM, values);
     }
 
     public static FloatValue avg(FloatValue... values) {
-        return instance(MathUtils.avg(unwrap(values)), NumberOperations.AVG, values);
+        return instance(Avg.avg(unwrap(values)), NumberOperations.AVG, values);
     }
 
     public static FloatValue median(FloatValue... values) {

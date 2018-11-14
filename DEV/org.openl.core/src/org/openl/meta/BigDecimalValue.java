@@ -16,7 +16,9 @@ import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
+import org.openl.rules.util.Avg;
 import org.openl.rules.util.Statistics;
+import org.openl.rules.util.Sum;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
 
@@ -58,11 +60,11 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     }
 
     public static BigDecimalValue sum(BigDecimalValue... values) {
-        return instance(Statistics.sum(unwrap(values)), NumberOperations.SUM, values);
+        return instance(Sum.sum(unwrap(values)), NumberOperations.SUM, values);
     }
 
     public static BigDecimalValue avg(BigDecimalValue... values) {
-        return instance(MathUtils.avg(unwrap(values)), NumberOperations.AVG, values);
+        return instance(Avg.avg(unwrap(values)), NumberOperations.AVG, values);
     }
 
     public static BigDecimalValue median(BigDecimalValue... values) {
