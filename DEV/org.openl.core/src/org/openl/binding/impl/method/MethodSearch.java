@@ -351,7 +351,7 @@ public class MethodSearch {
                     IOpenCast c = matchingMethodsReturnCast.get(k);
                     IOpenClass t = matchingMethodsReturnType.get(k);
                     if (c != null && t != mostSecificMethod.getType()) {
-                        return new AutoCastableResultOpenMethod(methodCaller.getMethod(), t, c);
+                        return new AutoCastableResultOpenMethod(methodCaller, t, c);
                     } else {
                         return methodCaller;
                     }
@@ -364,7 +364,7 @@ public class MethodSearch {
             IOpenMethod m,
             IMethodCaller methodCaller) {
         if (methodsReturnCast != null && methodsReturnType != m.getType()) {
-            return new AutoCastableResultOpenMethod(methodCaller.getMethod(), methodsReturnType, methodsReturnCast);
+            return new AutoCastableResultOpenMethod(methodCaller, methodsReturnType, methodsReturnCast);
         } else {
             return methodCaller;
         }
@@ -450,20 +450,6 @@ public class MethodSearch {
             }
         }
         return null;
-    }
-
-    private static IMethodCaller findCastingMethod(String name,
-            IOpenClass[] params,
-            ICastFactory casts,
-            IMethodFactory factory) throws AmbiguousMethodException {
-        return findCastingMethod(name, params, casts, factory.methods(name));
-    }
-
-    private static IMethodCaller findVarArgMethod(String name,
-            IOpenClass[] params,
-            ICastFactory casts,
-            IMethodFactory factory) throws AmbiguousMethodException {
-        return findVarArgMethod(name, params, casts, factory.methods(name));
     }
 
     /**
@@ -630,11 +616,7 @@ public class MethodSearch {
             return null;
         }
         if (!strictMatch) {
-            caller = findCastingMethod(name, params, casts, factory);
-            if (caller != null) {
-                return caller;
-            }
-            return findVarArgMethod(name, params, casts, factory);
+            return findMethod(name, params, casts, factory.methods(name));
         }
         return null;
     }

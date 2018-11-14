@@ -28,7 +28,7 @@ public class RulesUtilsGetValuesAutoCastFactory implements AutoCastFactory {
                 .getOpenClass(Array.newInstance(parameterTypes[0].getInstanceClass(), 1).getClass());
             IOpenCast cast = bindingContext.getCast(javaOpenMethod.getType(), arrayType);
             if (cast != null) {
-                return new AutoCastableResultOpenMethod(methodCaller.getMethod(), arrayType, cast);
+                return new AutoCastableResultOpenMethod(methodCaller, arrayType, cast);
             }
         }
 

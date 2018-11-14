@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
@@ -32,15 +33,20 @@ public class ProductionRepositoriesTreeController {
      * @return list of rules projects
      */
     public List<TreeNode> getRulesProjects() {
-        return repositorySelectNodeStateHolder.getSelectedNode().getChildNodes();
+        TreeNode selectedNode = repositorySelectNodeStateHolder.getSelectedNode();
+        return selectedNode == null ? Collections.<TreeNode>emptyList() : selectedNode.getChildNodes();
     }
 
     public String selectRulesProject() {
         String projectName = FacesUtils.getRequestParameter("projectName");
 
-        if (repositorySelectNodeStateHolder.getSelectedNode().getType().equals(UiConst.TYPE_PRODUCTION_REPOSITORY) ||
-                repositorySelectNodeStateHolder.getSelectedNode().getType().equals(UiConst.TYPE_PRODUCTION_DEPLOYMENT_PROJECT)) {
-            for (TreeNode node : repositorySelectNodeStateHolder.getSelectedNode().getChildNodes()) {
+        TreeNode selectedNode = repositorySelectNodeStateHolder.getSelectedNode();
+        if (selectedNode == null) {
+            return null;
+        }
+        if (selectedNode.getType().equals(UiConst.TYPE_PRODUCTION_REPOSITORY) ||
+                selectedNode.getType().equals(UiConst.TYPE_PRODUCTION_DEPLOYMENT_PROJECT)) {
+            for (TreeNode node : selectedNode.getChildNodes()) {
                 if (node.getName().equals(projectName)) {
                     repositorySelectNodeStateHolder.setSelectedNode(node);
                     break;

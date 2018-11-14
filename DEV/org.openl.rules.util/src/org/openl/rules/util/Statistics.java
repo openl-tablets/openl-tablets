@@ -39,6 +39,18 @@ public class Statistics {
     /**
      * Returns the sum of values.
      */
+    public static <T extends Number> Double sum(T... values) {
+        return process(values, new Result<T, Double>() {
+            @Override
+            public void processNonNull(T value) {
+                result = result == null ? value.doubleValue() : (result + value.doubleValue());
+            }
+        });
+    }
+
+    /**
+     * Returns the sum of values.
+     */
     public static Double sum(Double... values) {
         return process(values, new Simple<Double>() {
             @Override
@@ -87,12 +99,11 @@ public class Statistics {
     /**
      * Returns the sum of values.
      */
-    public static Short sum(Short... values) {
-        return process(values, new Simple<Short>() {
+    public static Integer sum(Short... values) {
+        return process(values, new Result<Short, Integer>() {
             @Override
             public void processNonNull(Short value) {
-                // TODO: remove cast
-                result = result == null ? value : (short) (result + value);
+                result = result == null ? value : (result + value);
             }
         });
     }
@@ -100,12 +111,11 @@ public class Statistics {
     /**
      * Returns the sum of values.
      */
-    public static Byte sum(Byte... values) {
-        return process(values, new Simple<Byte>() {
+    public static Integer sum(Byte... values) {
+        return process(values, new Result<Byte, Integer>() {
             @Override
             public void processNonNull(Byte value) {
-                // TODO: remove cast
-                result = result == null ? value : (byte) (result + value);
+                result = result == null ? value : (result + value);
             }
         });
     }
@@ -150,21 +160,26 @@ public class Statistics {
         R result();
     }
 
-    private static abstract class Simple<T> implements Processor<T, T> {
-        T result;
+    private static abstract class Simple<T> extends Result<T, T> {
+    }
 
-        void processNonNull(T value) {
+    private static abstract class Result<V, R> implements Processor<V, R> {
+        R result;
+        int counter;
+
+        void processNonNull(V value) {
         }
 
         @Override
-        public void process(T value) {
+        public void process(V value) {
             if (value != null) {
                 processNonNull(value);
+                counter++;
             }
         }
 
         @Override
-        public T result() {
+        public R result() {
             return result;
         }
     }
