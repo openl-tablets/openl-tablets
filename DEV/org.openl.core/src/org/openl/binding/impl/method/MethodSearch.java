@@ -452,20 +452,6 @@ public class MethodSearch {
         return null;
     }
 
-    private static IMethodCaller findCastingMethod(String name,
-            IOpenClass[] params,
-            ICastFactory casts,
-            IMethodFactory factory) throws AmbiguousMethodException {
-        return findCastingMethod(name, params, casts, factory.methods(name));
-    }
-
-    private static IMethodCaller findVarArgMethod(String name,
-            IOpenClass[] params,
-            ICastFactory casts,
-            IMethodFactory factory) throws AmbiguousMethodException {
-        return findVarArgMethod(name, params, casts, factory.methods(name));
-    }
-
     /**
      * Choosing the most specific method according to:
      * 
@@ -630,11 +616,7 @@ public class MethodSearch {
             return null;
         }
         if (!strictMatch) {
-            caller = findCastingMethod(name, params, casts, factory);
-            if (caller != null) {
-                return caller;
-            }
-            return findVarArgMethod(name, params, casts, factory);
+            return findMethod(name, params, casts, factory.methods(name));
         }
         return null;
     }
