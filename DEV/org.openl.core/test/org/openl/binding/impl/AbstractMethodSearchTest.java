@@ -18,15 +18,11 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 
+import java.lang.reflect.Array;
+
 public abstract class AbstractMethodSearchTest {
     static final String AMB = "AMBIGUOUS";
     static final String NF = "NOT FOUND";
-    static ICastFactory castFactory;
-
-    private static class Not {
-        Object notExpected;
-    }
-
     private static final String[] CAST_LIBRARY_NAMES = new String[] {
             org.openl.binding.impl.cast.CastOperators.class.getName(),
             org.openl.meta.ByteValue.class.getName(),
@@ -39,6 +35,7 @@ public abstract class AbstractMethodSearchTest {
             org.openl.meta.ObjectValue.class.getName(),
             org.openl.meta.BigIntegerValue.class.getName(),
             org.openl.meta.BigDecimalValue.class.getName() };
+    static ICastFactory castFactory;
 
     @BeforeClass
     public static void init() {
@@ -165,6 +162,13 @@ public abstract class AbstractMethodSearchTest {
             return null;
         }
         Object o;
+        if (clazz.isArray()) {
+            Class<?> componentType = clazz.getComponentType();
+            Object item = instance(componentType);
+            o = Array.newInstance(componentType, 1);
+            Array.set(o, 0, item);
+            return o;
+        }
         if (clazz.isPrimitive()) {
             clazz = ClassUtils.primitiveToWrapper(clazz);
         }
@@ -205,5 +209,9 @@ public abstract class AbstractMethodSearchTest {
         }
         builder.append(')');
         return builder.toString();
+    }
+
+    private static class Not {
+        Object notExpected;
     }
 }
