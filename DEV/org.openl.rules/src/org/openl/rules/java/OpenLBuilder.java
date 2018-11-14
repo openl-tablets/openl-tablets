@@ -25,6 +25,7 @@ public class OpenLBuilder extends AOpenLBuilder {
             org.openl.rules.util.Arrays.class.getName(),
             org.openl.rules.util.Statistics.class.getName(),
             org.openl.rules.util.Sum.class.getName(),
+            org.openl.rules.util.Product.class.getName(),
             org.openl.rules.util.Avg.class.getName(),
             org.openl.rules.util.Miscs.class.getName(),
             org.openl.rules.helpers.RulesUtils.class.getName(),

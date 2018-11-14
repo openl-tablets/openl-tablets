@@ -17,6 +17,7 @@ import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
 import org.openl.rules.util.Avg;
+import org.openl.rules.util.Product;
 import org.openl.rules.util.Statistics;
 import org.openl.rules.util.Round;
 import org.openl.rules.util.Sum;
@@ -116,7 +117,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
 
     public static DoubleValue product(DoubleValue... values) {
-        return instance(MathUtils.product(unwrap(values)), NumberOperations.PRODUCT, values);
+        return instance(Product.product(unwrap(values)), NumberOperations.PRODUCT, values);
     }
 
     /**
