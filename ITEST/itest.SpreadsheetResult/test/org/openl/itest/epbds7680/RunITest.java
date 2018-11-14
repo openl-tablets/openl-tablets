@@ -1,21 +1,30 @@
 package org.openl.itest.epbds7680;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openl.itest.ITestUtil;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.RestClientFactory;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
@@ -24,6 +33,8 @@ import com.jayway.jsonpath.PathNotFoundException;
 
 public class RunITest {
 
+    private static final String SOAP_REQUEST = "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap:Body><ns1:tiktak xmlns:ns1=\"http://itest.openl.org/\"><ns1:arg0>100</ns1:arg0><ns1:arg1>foo</ns1:arg1></ns1:tiktak></soap:Body></soap:Envelope>";
+
     private static JettyServer server;
     private static String baseURI;
 
@@ -31,7 +42,7 @@ public class RunITest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = new JettyServer();
+        server = new JettyServer(true);
         baseURI = server.start();
     }
 
@@ -42,7 +53,7 @@ public class RunITest {
 
     @Before
     public void before() {
-        rest = new RestClientFactory(baseURI + "/wadl-and-spreadsheetresult").create();
+        rest = new RestClientFactory(baseURI).create();
     }
 
     @Test
@@ -51,21 +62,21 @@ public class RunITest {
         requestBody.put("i", 100);
         requestBody.put("j", "foo");
 
-        ResponseEntity<String> response = rest.exchange("/tiktak",
+        ResponseEntity<String> response = rest.exchange("/REST/wadl-and-spreadsheetresult/tiktak",
                 HttpMethod.POST, RestClientFactory.request(requestBody), String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         DocumentContext documentContext = JsonPath.using(Configuration.defaultConfiguration()).parse(response.getBody());
 
-        assertEquals(2, documentContext.read("$.results.length()"));
-        assertEquals(1, documentContext.read("$.results[0].length()"));
-        assertEquals(1, documentContext.read("$.results[1].length()"));
-        assertEquals(100, documentContext.read("$.results[0][0]"));
+        assertEquals((Integer) 2, documentContext.read("$.results.length()"));
+        assertEquals((Integer)1, documentContext.read("$.results[0].length()"));
+        assertEquals((Integer)1, documentContext.read("$.results[1].length()"));
+        assertEquals((Integer)100, documentContext.read("$.results[0][0]"));
         assertEquals("foo", documentContext.read("$.results[1][0]"));
-        assertEquals(1, documentContext.read("$.columnNames.length()"));
+        assertEquals((Integer)1, documentContext.read("$.columnNames.length()"));
         assertEquals("calc", documentContext.read("$.columnNames[0]"));
-        assertEquals(2, documentContext.read("$.rowNames.length()"));
+        assertEquals((Integer)2, documentContext.read("$.rowNames.length()"));
         assertEquals("INT", documentContext.read("$.rowNames[0]"));
         assertEquals("String", documentContext.read("$.rowNames[1]"));
 
@@ -75,16 +86,121 @@ public class RunITest {
         assertDoesNotExist(documentContext, "$.columnTitles");
         assertDoesNotExist(documentContext, "$.logicalTable");
 
-        assertEquals(3, documentContext.read("$.length()"));
+        assertEquals((Integer)3, documentContext.read("$.length()"));
     }
 
-    public static void assertDoesNotExist(DocumentContext documentContext, String expression) {
+    @Test
+    public void test_validate_SpreadsheetResultTypeInWsdlSchema() throws XPathExpressionException {
+        ResponseEntity<String> response = rest.getForEntity("/wadl-and-spreadsheetresult?wsdl", String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        final String result = response.getBody();
+        assertNotNull(result);
+
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        InputSource inputSource = new InputSource(new StringReader(ITestUtil.cleanupXml(result)));
+
+        final Node root = (Node) xpath.evaluate("/", inputSource, XPathConstants.NODE);
+        final String spreadsheetResultTypePath = "/*[local-name()='definitions']/*[local-name()='types']/*/*[local-name()='complexType'][@name='SpreadsheetResult']";
+        Node spreadsheetResultTypeNode = (Node) xpath.evaluate(spreadsheetResultTypePath, root, XPathConstants.NODE);
+        assertNotNull(spreadsheetResultTypeNode);
+
+        final String pathToSequence = spreadsheetResultTypePath + "/*[local-name()='sequence']";
+
+        Node element = (Node) xpath.evaluate(pathToSequence + "/*[@name='columnNames']", root, XPathConstants.NODE);
+        assertEquals("xsd:element", element.getNodeName());
+        assertEndsWith(":ArrayOfString", element.getAttributes().getNamedItem("type").getTextContent());
+
+        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='results']", root, XPathConstants.NODE);
+        assertNotNull(element);
+        assertEquals("xsd:element", element.getNodeName());
+        assertEndsWith(":ArrayOfArrayOfAnyType", element.getAttributes().getNamedItem("type").getTextContent());
+
+        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='rowNames']", root, XPathConstants.NODE);
+        assertNotNull(element);
+        assertEquals("xsd:element", element.getNodeName());
+        assertEndsWith(":ArrayOfString", element.getAttributes().getNamedItem("type").getTextContent());
+
+        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='height']", root, XPathConstants.NODE);
+        assertNull(element);
+
+        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='width']", root, XPathConstants.NODE);
+        assertNull(element);
+
+        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='rowTitles']", root, XPathConstants.NODE);
+        assertNull(element);
+
+        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='columnTitles']", root, XPathConstants.NODE);
+        assertNotNull(element);//TODO: must be null. Fix it when EPBDS-7958 will be fixed
+
+        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='logicalTable']", root, XPathConstants.NODE);
+        assertNull(element);
+
+        element = (Node) xpath.evaluate(pathToSequence, root, XPathConstants.NODE);
+        //TODO: must contains 3 elements! Fix it when EPBDS-7958 will be fixed
+        assertEquals(4, element.getChildNodes().getLength());
+    }
+
+    @Test
+    public void test_soapResponse_spreadsheetResult() throws XPathExpressionException {
+        ResponseEntity<String> response = rest.exchange("/wadl-and-spreadsheetresult", HttpMethod.POST, new HttpEntity<>(SOAP_REQUEST), String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        final String result = response.getBody();
+        assertNotNull(result);
+
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        InputSource inputSource = new InputSource(new StringReader(ITestUtil.cleanupXml(result)));
+
+        final Node root = (Node) xpath.evaluate("/", inputSource, XPathConstants.NODE);
+        final String spreadsheetResultTypePath = "/*[local-name()='Envelope']/*[local-name()='Body']/*[local-name()='tiktakResponse']/*[local-name()='return']";
+        Node spreadsheetResultTypeNode = (Node) xpath.evaluate(spreadsheetResultTypePath, root, XPathConstants.NODE);
+        assertNotNull(spreadsheetResultTypeNode);
+
+        assertEndsWith(":SpreadsheetResult",  spreadsheetResultTypeNode.getAttributes().getNamedItemNS("http://www.w3.org/2001/XMLSchema-instance", "type").getTextContent());
+
+        Node element = (Node) xpath.evaluate(spreadsheetResultTypePath + "/*[local-name()='columnNames']", root, XPathConstants.NODE);
+        assertNotNull(element);
+
+        element = (Node) xpath.evaluate(spreadsheetResultTypePath + "/*[local-name()='results']", root, XPathConstants.NODE);
+        assertNotNull(element);
+
+        element = (Node) xpath.evaluate(spreadsheetResultTypePath + "/*[local-name()='rowNames']", root, XPathConstants.NODE);
+        assertNotNull(element);
+
+        element = (Node) xpath.evaluate(spreadsheetResultTypePath + "/*[local-name()='columnTitles']", root, XPathConstants.NODE);
+        assertNotNull(element); //TODO: must be null. Fix it when EPBDS-7958 will be fixed
+
+        element = (Node) xpath.evaluate(spreadsheetResultTypePath + "/*[local-name()='logicalTable']", root, XPathConstants.NODE);
+        assertNull(element);
+
+        element = (Node) xpath.evaluate(spreadsheetResultTypePath + "/*[local-name()='rowTitles']", root, XPathConstants.NODE);
+        assertNull(element);
+
+        element = (Node) xpath.evaluate(spreadsheetResultTypePath + "/*[local-name()='width']", root, XPathConstants.NODE);
+        assertNull(element);
+
+        element = (Node) xpath.evaluate(spreadsheetResultTypePath + "/*[local-name()='height']", root, XPathConstants.NODE);
+        assertNull(element);
+
+        element = (Node) xpath.evaluate(spreadsheetResultTypePath, root, XPathConstants.NODE);
+        //TODO: must contains 3 elements! Fix it when EPBDS-7958 will be fixed
+        assertEquals(4, element.getChildNodes().getLength());
+    }
+
+    private static void assertDoesNotExist(DocumentContext documentContext, String expression) {
         try {
             documentContext.read("$.height");
             fail("The result for path '" + expression + "' must not be present!");
         } catch (PathNotFoundException unused) {
             //OK
         }
+    }
+
+    private static void assertEndsWith(String expected, String actual) {
+        assertNotNull(actual);
+        String msg = String.format("An actual value '%s' must end with '%s'", actual, expected);
+        assertTrue(msg, actual.endsWith(expected));
     }
 
 }
