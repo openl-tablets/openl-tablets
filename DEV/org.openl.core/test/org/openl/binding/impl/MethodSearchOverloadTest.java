@@ -524,22 +524,38 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
 
         assertMethod("Generic_Comparable...Integer[]", target, "vararg4", Integer.class);
         assertMethod("Generic_Comparable...Integer[]", target, "vararg4", int.class);
+        assertMethod("Generic_Comparable...Integer[]", target, "vararg4", int.class, int.class);
+        assertMethod("Generic_Comparable...Integer[]", target, "vararg4", Integer.class, int.class);
+        assertMethod("Generic_Comparable...Integer[]", target, "vararg4", Integer[].class);
+        assertMethod("Generic_Comparable...Integer[]", target, "vararg4", int[].class);
         assertMethod("Generic_Comparable...IntValue[]", target, "vararg4", IntValue.class);
+        assertMethod("Generic_Comparable...IntValue[]", target, "vararg4", IntValue[].class);
 
         assertMethod("Long...Long[]", target, "vararg4", Long.class);
         assertMethod("Long...Long[]", target, "vararg4", long.class);
+        assertMethod("Long...Long[]", target, "vararg4", Long.class, long.class);
+        assertMethod("Long...Long[]", target, "vararg4", long.class, long.class);
+        assertMethod("Long...Long[]", target, "vararg4", Long[].class);
+        assertMethod("Long...Long[]", target, "vararg4", long[].class);
         assertMethod("Generic_Comparable...LongValue[]", target, "vararg4", LongValue.class);
+        assertMethod("Generic_Comparable...LongValue[]", target, "vararg4", LongValue[].class);
 
         assertMethod("Generic_Comparable...Double[]", target, "vararg4", Double.class);
         assertMethod("Generic_Comparable...Double[]", target, "vararg4", double.class);
-        assertMethod("DoubleValue...DoubleValue[]", target, "vararg4", DoubleValue.class);
-
-        assertMethod("Generic_Comparable...String[]", target, "vararg4", String.class);
-        assertMethod("Generic...List[]", target, "vararg4", List.class);
-
         assertMethod("Generic_Comparable...Double[]", target, "vararg4", double.class, double.class);
         assertMethod("Generic_Comparable...Double[]", target, "vararg4", Double.class, double.class);
-        assertMethod("Generic_Comparable...Integer[]", target, "vararg4", Integer.class, int.class);
+        assertMethod("Generic_Comparable...Double[]", target, "vararg4", Double[].class);
+        assertMethod("Generic_Comparable...Double[]", target, "vararg4", double[].class);
+        assertMethod("DoubleValue...DoubleValue[]", target, "vararg4", DoubleValue.class);
+        assertMethod("DoubleValue...DoubleValue[]", target, "vararg4", DoubleValue[].class);
+
+        assertMethod("Generic_Comparable...String[]", target, "vararg4", String.class);
+        assertMethod("Generic_Comparable...String[]", target, "vararg4", String.class, String.class);
+        assertMethod("Generic_Comparable...String[]", target, "vararg4", String[].class);
+        assertMethod("Generic...List[]", target, "vararg4", List.class);
+        assertMethod("Generic...List[]", target, "vararg4", List.class, List.class);
+        assertMethod("Generic...List[]", target, "vararg4", List[].class);
+
         assertMethod("Generic...Object[]", target, "vararg4", String.class, Integer.class);
         assertMethod("Generic...Number[]", target, "vararg4", Integer.class, double.class);
     }

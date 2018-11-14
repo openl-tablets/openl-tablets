@@ -1,5 +1,12 @@
 package org.openl.binding.impl;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.AbstractList;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.List;
+
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.BigIntegerValue;
 import org.openl.meta.ByteValue;
@@ -8,13 +15,6 @@ import org.openl.meta.FloatValue;
 import org.openl.meta.IntValue;
 import org.openl.meta.LongValue;
 import org.openl.meta.ShortValue;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.AbstractList;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.List;
 
 public class OverloadedMethods {
     public static String _byte(byte arg) {
@@ -164,7 +164,7 @@ public class OverloadedMethods {
     public static String m0_comp(Comparable<?> arg) {
         return "Comparable";
     }
-    
+
     public static String m1(byte arg) {
         return "byte";
     }
