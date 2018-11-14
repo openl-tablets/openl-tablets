@@ -1645,31 +1645,6 @@ public class RulesUtils {
 
     // Math functions
 
-    // PRODUCT
-    public static Long product(long[] values) {
-        return MathUtils.product(values);
-    }
-
-    public static Double product(double[] values) {
-        return MathUtils.product(values);
-    }
-
-    public static Long product(Long[] values) {
-        return MathUtils.product(values);
-    }
-
-    public static Double product(Double[] values) {
-        return MathUtils.product(values);
-    }
-
-    public static BigInteger product(BigInteger[] values) {
-        return MathUtils.product(values);
-    }
-
-    public static BigDecimal product(BigDecimal[] values) {
-        return MathUtils.product(values);
-    }
-
     /**
      * Return a new array without null elements
      *
