@@ -356,4 +356,8 @@ public class OverloadedMethods {
     public static String vararg4(Long... args) {
         return "Long..." + args.getClass().getSimpleName();
     }
+
+    public static <T extends Comparable<T>> String singleGenVararg(T... args) {
+        return args.getClass().getSimpleName();
+    }
 }
