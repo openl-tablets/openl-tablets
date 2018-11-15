@@ -1,15 +1,14 @@
-package org.openl.itest;
+package org.openl.itest.epbds7819;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -19,8 +18,11 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openl.itest.MainService;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.RestClientFactory;
+import org.openl.itest.ITestUtil;
+import org.openl.itest.core.SoapClientFactory;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -36,10 +38,11 @@ public class RunITest {
     private static String baseURI;
 
     private RestTemplate rest;
+    private MainService soapService;
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = new JettyServer();
+        server = new JettyServer(true);
         baseURI = server.start();
     }
 
@@ -50,22 +53,21 @@ public class RunITest {
 
     @Before
     public void before() {
-        rest = new RestClientFactory(baseURI).create();
+        rest = new RestClientFactory(baseURI + "/REST/wadl-and-spreadsheetresult").create();
+        soapService = new SoapClientFactory<>(baseURI + "/wadl-and-spreadsheetresult", MainService.class).createProxy();
     }
 
     @Test
     public void testSpreadsheetResultWadlSchema() throws XPathExpressionException {
-        ResponseEntity<String> response = rest.getForEntity("/wadl-and-spreadsheetresult?_wadl", String.class);
+        ResponseEntity<String> response = rest.getForEntity("?_wadl", String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        String result = response.getBody();
+        final String result = response.getBody();
         assertNotNull(result);
-        //cleanup xml
-        result = result.replaceAll("\\\\\"", "\"").replaceAll(">\\\\n\\s*<", "><");
 
         XPathFactory xPathFactory = XPathFactory.newInstance();
         XPath xpath = xPathFactory.newXPath();
-        InputSource inputSource = new InputSource(new StringReader(result.substring(1, result.length() - 1)));
+        InputSource inputSource = new InputSource(new StringReader(ITestUtil.cleanupXml(result)));
 
         final Node root = (Node) xpath.evaluate("/", inputSource, XPathConstants.NODE);
         String pathToSpreadsheetResultSchema = "/application/grammars/*[local-name()='schema']";
@@ -80,20 +82,39 @@ public class RunITest {
         assertEquals("spreadsheetResult", spreadsheetResultComplexTypeNode.getAttributes().getNamedItem("name").getTextContent());
 
         final String pathToSequence = pathToComplexType + "/*[local-name()='sequence']";
-        Node element = (Node) xpath.evaluate(pathToSequence, root, XPathConstants.NODE);
-        assertEquals(3, element.getChildNodes().getLength());
 
-        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='columnNames']", root, XPathConstants.NODE);
+        Node element = (Node) xpath.evaluate(pathToSequence + "/*[@name='columnNames']", root, XPathConstants.NODE);
+        assertNotNull(element);
         assertEquals("xs:element", element.getNodeName());
         assertEquals("xs:string", element.getAttributes().getNamedItem("type").getTextContent());
 
         element = (Node) xpath.evaluate(pathToSequence + "/*[@name='results']", root, XPathConstants.NODE);
+        assertNotNull(element);
         assertEquals("xs:element", element.getNodeName());
         assertEquals("ns1:anyTypeArray", element.getAttributes().getNamedItem("type").getTextContent());
 
         element = (Node) xpath.evaluate(pathToSequence + "/*[@name='rowNames']", root, XPathConstants.NODE);
+        assertNotNull(element);
         assertEquals("xs:element", element.getNodeName());
         assertEquals("xs:string", element.getAttributes().getNamedItem("type").getTextContent());
+
+        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='height']", root, XPathConstants.NODE);
+        assertNull(element);
+
+        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='width']", root, XPathConstants.NODE);
+        assertNull(element);
+
+        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='rowTitles']", root, XPathConstants.NODE);
+        assertNull(element);
+
+        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='columnTitles']", root, XPathConstants.NODE);
+        assertNull(element);
+
+        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='logicalTable']", root, XPathConstants.NODE);
+        assertNull(element);
+
+        element = (Node) xpath.evaluate(pathToSequence, root, XPathConstants.NODE);
+        assertEquals(3, element.getChildNodes().getLength());
     }
 
     @Test
@@ -102,13 +123,23 @@ public class RunITest {
         requestBody.put("i", 100);
         requestBody.put("j", "foo");
 
-        ResponseEntity<SpreadsheetResult> response = rest.exchange("/wadl-and-spreadsheetresult/tiktak",
-            HttpMethod.POST,
-            RestClientFactory.request(requestBody),
-            SpreadsheetResult.class);
+        ResponseEntity<SpreadsheetResult> response = rest.exchange("/tiktak",
+                HttpMethod.POST,
+                RestClientFactory.request(requestBody),
+                SpreadsheetResult.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         SpreadsheetResult result = response.getBody();
+        assertNotNull(result);
+        assertEquals(100, result.getFieldValue("$calc$INT"));
+        assertEquals("foo", result.getFieldValue("$calc$String"));
+        assertNull(result.getRowTitles());
+        assertNull(result.getLogicalTable());
+    }
+
+    @Test
+    public void testSoap_tiktakMethod_shouldReturnSpreadsheetResult() {
+        SpreadsheetResult result = soapService.tiktak(100, "foo");
         assertNotNull(result);
         assertEquals(100, result.getFieldValue("$calc$INT"));
         assertEquals("foo", result.getFieldValue("$calc$String"));

@@ -53,34 +53,6 @@ public class RulesUtilsTest {
     private static String str;
 
     public interface TestInterf {
-        java.lang.Double testAvgByte(java.lang.Byte[] values);
-
-        java.lang.Double testAvgShort(java.lang.Short[] values);
-
-        java.lang.Double testAvgInteger(java.lang.Integer[] values);
-
-        java.lang.Double testAvgLong(java.lang.Long[] values);
-
-        java.lang.Float testAvgFloat(java.lang.Float[] values);
-
-        java.lang.Double testAvgDouble(java.lang.Double[] values);
-
-        Double testAvgByteType(byte[] values);
-
-        Double testAvgShortType(short[] values);
-
-        Double testAvgIntegerType(int[] values);
-
-        Double testAvgLongType(long[] values);
-
-        Float testAvgFloatType(float[] values);
-
-        Double testAvgDoubleType(double[] values);
-
-        BigDecimalValue testAvgBigDecimal(BigDecimalValue[] values);
-
-        BigDecimalValue testAvgBigInteger(BigIntegerValue[] values);
-
         LongValue testQuaotientByteValue(ByteValue number, ByteValue divisor);
 
         LongValue testQuaotientShortValue(ShortValue number, ShortValue divisor);
@@ -431,34 +403,6 @@ public class RulesUtilsTest {
 
         Object testAmPm(Date date);
 
-        Object testDoubleProduct(Double[] inputArray);
-
-        double testFloatProduct(Float[] inputArray);
-
-        Object testLongProduct(Long[] inputArray);
-
-        Object testIntegerProduct(Integer[] inputArray);
-
-        Object testBigDecimalProduct(BigDecimal[] inputArray);
-
-        Object testBigIntegerProduct(BigInteger[] inputArray);
-
-        Object testShortProduct(Short[] inputArray);
-
-        Object testByteProduct(Byte[] inputArray);
-
-        Object testDoubleTypeProduct(double[] inputArray);
-
-        double testFloatTypeProduct(float[] inputArray);
-
-        Object testLongTypeProduct(long[] inputArray);
-
-        Object testIntegerTypeProduct(int[] inputArray);
-
-        Object testShortTypeProduct(short[] inputArray);
-
-        Object testByteTypeProduct(byte[] inputArray);
-
         Object testDoubleTypeRound(double d);
 
         Object testFloatTypeRound(float f);
@@ -799,10 +743,6 @@ public class RulesUtilsTest {
 
         boolean testInstanceOf(Long a);
 
-        BigDecimal testAvgBigIntegerArray(BigInteger[] values);
-
-        BigDecimal testAvgBigDecimalArray(BigDecimal[] values);
-
         Double testMedianByte(Byte[] values);
 
         Double testMedianShort(Short[] values);
@@ -853,120 +793,6 @@ public class RulesUtilsTest {
     @Test
     public void testInstanceOf() {
         assertTrue(instance.testInstanceOf(new Long(1)));
-    }
-
-    @Test
-    public void testByteTypeAvg() {
-        assertEquals(12.666666666666666d,
-            instance.testAvgByteType(new byte[] { (byte) 10, (byte) 15, (byte) 13 }),
-            1e-8);
-    }
-
-    @Test
-    public void testShortTypeAvg() {
-        assertEquals(12.666666666666666d,
-            instance.testAvgShortType(new short[] { (short) 10, (short) 15, (short) 13 }),
-            1e-8);
-    }
-
-    @Test
-    public void testIntegerTypeAvg() {
-        assertEquals(12.666666666666666d, instance.testAvgIntegerType(new int[] { 10, 15, 13 }), 1e-8);
-    }
-
-    @Test
-    public void testLongTypeAvg() {
-        assertEquals(12.666666666666666d,
-            instance.testAvgLongType(new long[] { (long) 10, (long) 15, (long) 13 }),
-            1e-8);
-    }
-
-    @Test
-    public void testFloatTypeAvg() {
-        assertEquals((float) 12.666666984558105,
-            instance.testAvgFloatType(new float[] { (float) 10, (float) 15, (float) 13 }),
-            1e-15);
-    }
-
-    @Test
-    public void testDoubleTypeAvg() {
-        assertEquals(12.666666666666666d,
-            instance.testAvgDoubleType(new double[] { (double) 10, (double) 15, (double) 13 }),
-            1e-8);
-    }
-
-    @Test
-    public void testByteAvg() {
-        assertEquals(12.666666666666666d,
-            instance.testAvgByte(new java.lang.Byte[] { java.lang.Byte.valueOf((byte) 10),
-                    java.lang.Byte.valueOf((byte) 15),
-                    java.lang.Byte.valueOf((byte) 13) }),
-            1e-8);
-    }
-
-    @Test
-    public void testShortAvg() {
-        assertEquals(12.666666666666666d,
-            instance.testAvgShort(new java.lang.Short[] { java.lang.Short.valueOf((short) 10),
-                    java.lang.Short.valueOf((short) 15),
-                    java.lang.Short.valueOf((short) 13) }),
-            1e-8);
-    }
-
-    @Test
-    public void testIntegerAvg() {
-        assertEquals(12.666666666666666d,
-            instance.testAvgInteger(new java.lang.Integer[] { java.lang.Integer.valueOf(10),
-                    java.lang.Integer.valueOf(15),
-                    java.lang.Integer.valueOf(13) }),
-            1e-8);
-    }
-
-    @Test
-    public void testLongAvg() {
-        assertEquals(12.666666666666666d,
-            instance.testAvgLong(new java.lang.Long[] { java.lang.Long.valueOf((long) 10),
-                    java.lang.Long.valueOf((long) 15),
-                    java.lang.Long.valueOf((long) 13) }),
-            1e-8);
-    }
-
-    @Test
-    public void testFloatAvg() {
-        assertEquals(java.lang.Float.valueOf((float) 12.666667),
-            instance.testAvgFloat(new java.lang.Float[] { java.lang.Float.valueOf((float) 10),
-                    java.lang.Float.valueOf((float) 15),
-                    java.lang.Float.valueOf((float) 13) }),
-            1e-15);
-    }
-
-    @Test
-    public void testDoubleAvg() {
-        assertEquals(java.lang.Double.valueOf((double) 12.666666666666666),
-            instance.testAvgDouble(new java.lang.Double[] { java.lang.Double.valueOf((double) 10),
-                    java.lang.Double.valueOf((double) 15),
-                    java.lang.Double.valueOf((double) 13) }),
-            1e-15);
-    }
-
-    @Test
-    public void testBigDecimalValueAvg() {
-        assertEquals(new BigDecimalValue("12.666667"),
-            instance.testAvgBigDecimal(new BigDecimalValue[] { new BigDecimalValue("10"),
-                    new BigDecimalValue("15"),
-                    new BigDecimalValue("13") }));
-
-    }
-
-    @Test
-    public void testBigIntegerlValueAvg() {
-        assertEquals(new BigDecimalValue("12.66666666666").doubleValue(),
-            instance.testAvgBigInteger(new BigIntegerValue[] { new BigIntegerValue("10"),
-                    new BigIntegerValue("15"),
-                    new BigIntegerValue("13") })
-                .doubleValue(),
-            0.001);
-
     }
 
     @Test(expected = OpenLRuntimeException.class)
@@ -2958,134 +2784,6 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testProductByteType() {
-        byte[] inputArray = { (byte) 0, (byte) 9, (byte) 7 };
-        assertEquals(0.0, instance.testByteTypeProduct(inputArray));
-        inputArray = new byte[] { (byte) 1, (byte) 9, (byte) 7 };
-        assertEquals(63.0, instance.testByteTypeProduct(inputArray));
-    }
-
-    @Test
-    public void testProductShortType() {
-        short[] inputArray = { (short) 0, (short) 9, (short) 7 };
-        assertEquals(0.0, instance.testShortTypeProduct(inputArray));
-        inputArray = new short[] { (short) 1, (short) 9, (short) 7 };
-        assertEquals(63.0, instance.testShortTypeProduct(inputArray));
-    }
-
-    @Test
-    public void testProductIntegerType() {
-        int[] inputArray = { 0, 9, 7 };
-        assertEquals(0.0, instance.testIntegerTypeProduct(inputArray));
-        inputArray = new int[] { 1, 9, 7 };
-        assertEquals(63.0, instance.testIntegerTypeProduct(inputArray));
-    }
-
-    @Test
-    public void testProductLongType() {
-        long[] inputArray = { (long) 0, (long) 9, (long) 7 };
-        assertEquals(0.0, instance.testLongTypeProduct(inputArray));
-        inputArray = new long[] { (long) 1, (long) 9, (long) 7 };
-        assertEquals(63.0, instance.testLongTypeProduct(inputArray));
-    }
-
-    @Test
-    public void testProductFloatType() {
-        float[] inputArray = { (float) 0.0, (float) 9.1, (float) 7.2 };
-        assertEquals(0.0, instance.testFloatTypeProduct(inputArray), 1e-15);
-        inputArray = new float[] { (float) 1.0, (float) 9.1, (float) 7.9 };
-        assertEquals(71.89, instance.testFloatTypeProduct(inputArray), 0.001f);
-    }
-
-    @Test
-    public void testProductDoubleType() {
-        double[] inputArray = { 0.0, 9.1, 7.2 };
-        assertEquals(0.0, instance.testDoubleTypeProduct(inputArray));
-        inputArray = new double[] { 1.0, 9.1, 7.9 };
-        assertEquals(71.89, instance.testDoubleTypeProduct(inputArray));
-    }
-
-    @Test
-    public void testProductByte() {
-        Byte[] inputArray = { 0, 9, 7 };
-        assertEquals(0.0, instance.testByteProduct(inputArray));
-        inputArray = new Byte[] { 1, 9, 7 };
-        assertEquals(63.0, instance.testByteProduct(inputArray));
-        inputArray = new Byte[] { null, 9, 7 };
-        assertEquals(63.0, instance.testByteProduct(inputArray));
-    }
-
-    @Test
-    public void testProductShort() {
-        Short[] inputArray = { 0, 9, 7 };
-        assertEquals(0.0, instance.testShortProduct(inputArray));
-        inputArray = new Short[] { 1, 9, 7 };
-        assertEquals(63.0, instance.testShortProduct(inputArray));
-        inputArray = new Short[] { null, 9, 7 };
-        assertEquals(63.0, instance.testShortProduct(inputArray));
-    }
-
-    @Test
-    public void testProductInteger() {
-        Integer[] inputArray = { 0, 9, 7 };
-        assertEquals(0.0, instance.testIntegerProduct(inputArray));
-        inputArray = new Integer[] { 1, 9, 7 };
-        assertEquals(63.0, instance.testIntegerProduct(inputArray));
-        inputArray = new Integer[] { null, 9, 7 };
-        assertEquals(63.0, instance.testIntegerProduct(inputArray));
-    }
-
-    @Test
-    public void testProductLong() {
-        Long[] inputArray = { (long) 0, (long) 9, (long) 7 };
-        assertEquals(0.0, instance.testLongProduct(inputArray));
-        inputArray = new Long[] { (long) 1, (long) 9, (long) 7 };
-        assertEquals(63.0, instance.testLongProduct(inputArray));
-        inputArray = new Long[] { null, (long) 9, (long) 7 };
-        assertEquals(63.0, instance.testLongProduct(inputArray));
-    }
-
-    @Test
-    public void testProductFloat() {
-        Float[] inputArray = { (float) 0.0, (float) 9.1, (float) 7.2 };
-        assertEquals(0.0, instance.testFloatProduct(inputArray), 0.001f);
-        inputArray = new Float[] { (float) 1.0, (float) 9.1, (float) 7.9 };
-        assertEquals(71.89, instance.testFloatProduct(inputArray), 0.001f);
-        inputArray = new Float[] { null, (float) 9.0, (float) 7.4 };
-        assertEquals(66.6, instance.testFloatProduct(inputArray), 0.001f);
-    }
-
-    @Test
-    public void testProductDouble() {
-        Double[] inputArray = { (double) 0.0, (double) 9.1, (double) 7.2 };
-        assertEquals((double) 0.0, instance.testDoubleProduct(inputArray));
-        inputArray = new Double[] { (double) 1.0, (double) 9.1, (double) 7.9 };
-        assertEquals((double) 71.89, instance.testDoubleProduct(inputArray));
-        inputArray = new Double[] { null, (double) 9.1, (double) 7.7 };
-        assertEquals(70.07, instance.testDoubleProduct(inputArray));
-    }
-
-    @Test
-    public void testProductBigInteger() {
-        BigInteger[] inputArray = { BigInteger.valueOf(0), BigInteger.valueOf(9), BigInteger.valueOf(7) };
-        assertEquals(BigInteger.valueOf(0), instance.testBigIntegerProduct(inputArray));
-        inputArray = new BigInteger[] { BigInteger.valueOf(1), BigInteger.valueOf(9), BigInteger.valueOf(7) };
-        assertEquals(BigInteger.valueOf(63), instance.testBigIntegerProduct(inputArray));
-        inputArray = new BigInteger[] { null, BigInteger.valueOf(9), BigInteger.valueOf(7) };
-        assertEquals(BigInteger.valueOf(63), instance.testBigIntegerProduct(inputArray));
-    }
-
-    @Test
-    public void testProductBigDecimal() {
-        BigDecimal[] inputArray = { BigDecimal.valueOf(0), BigDecimal.valueOf(9), BigDecimal.valueOf(7) };
-        assertEquals(BigDecimal.valueOf(0), instance.testBigDecimalProduct(inputArray));
-        inputArray = new BigDecimal[] { BigDecimal.valueOf(1), BigDecimal.valueOf(9), BigDecimal.valueOf(7) };
-        assertEquals(BigDecimal.valueOf(63), instance.testBigDecimalProduct(inputArray));
-        inputArray = new BigDecimal[] { null, BigDecimal.valueOf(9), BigDecimal.valueOf(7) };
-        assertEquals(BigDecimal.valueOf(63), instance.testBigDecimalProduct(inputArray));
-    }
-
-    @Test
     public void testRoundDoubleType() {
         assertEquals(6l, instance.testDoubleTypeRound(5.67));
         assertEquals(0l, instance.testDoubleTypeRound(0.01));
@@ -4795,29 +4493,6 @@ public class RulesUtilsTest {
         Object[] primes = instance.testGetValuesPrimesAlias();
         assertArrayEquals(new Integer[] { 5, 7, 13, 17 }, primes);
         assertEquals(Integer.class, primes.getClass().getComponentType());
-    }
-
-    @Test
-    public void testAvgBigDecimalArray() {
-        assertEquals(new BigDecimal("2.28"),
-            instance.testAvgBigDecimalArray(new BigDecimal[] { new BigDecimal("-1.4"),
-                    new BigDecimal("5.77"),
-                    new BigDecimal("7"),
-                    new BigDecimal("10.47"),
-                    new BigDecimal("-10.44") }));
-        assertNull(instance.testAvgBigDecimalArray(null));
-        assertNull(instance.testAvgBigDecimalArray(new BigDecimal[] {}));
-    }
-
-    @Test
-    public void testAvgBigIntegerArray() {
-        assertEquals(new BigDecimal(5.25),
-            instance.testAvgBigIntegerArray(new BigInteger[] { BigInteger.valueOf(-1),
-                    BigInteger.valueOf(5),
-                    BigInteger.valueOf(7),
-                    BigInteger.valueOf(10) }));
-        assertNull(instance.testAvgBigIntegerArray(null));
-        assertNull(instance.testAvgBigIntegerArray(new BigInteger[] {}));
     }
 
     @Test

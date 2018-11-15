@@ -15,7 +15,10 @@ import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
+import org.openl.rules.util.Avg;
+import org.openl.rules.util.Product;
 import org.openl.rules.util.Statistics;
+import org.openl.rules.util.Sum;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
 
@@ -71,11 +74,11 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     }
 
     public static LongValue sum(LongValue... values) {
-        return instance(Statistics.sum(unwrap(values)), NumberOperations.SUM, values);
+        return instance(Sum.sum(unwrap(values)), NumberOperations.SUM, values);
     }
 
     public static DoubleValue avg(LongValue... values) {
-        return DoubleValue.instance(MathUtils.avg(unwrap(values)), NumberOperations.AVG, toDoubleValues(values));
+        return DoubleValue.instance(Avg.avg(unwrap(values)), NumberOperations.AVG, toDoubleValues(values));
     }
 
     public static DoubleValue median(LongValue... values) {
@@ -83,7 +86,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     }
 
     public static LongValue product(LongValue... values) {
-        return instance(MathUtils.product(unwrap(values)), NumberOperations.PRODUCT);
+        return instance(Product.product(unwrap(values)), NumberOperations.PRODUCT);
     }
 
     /**
