@@ -104,6 +104,9 @@ public class CastFactory implements ICastFactory {
             ICastFactory casts,
             Iterable<IOpenMethod> methods) {
 
+        openClass1 = JavaOpenClass.getOpenClass(openClass1.getInstanceClass()); //AliasDatatypes support
+        openClass2 = JavaOpenClass.getOpenClass(openClass2.getInstanceClass());
+        
         Iterator<IOpenMethod> itr = methods.iterator();
         Set<IOpenClass> openClass1Candidates = new HashSet<>();
         addClassToCandidates(openClass1, openClass1Candidates);
@@ -166,11 +169,10 @@ public class CastFactory implements ICastFactory {
 
     private static void addClassToCandidates(IOpenClass openClass, Set<IOpenClass> candidates) {
         if (openClass.getInstanceClass() != null) {
+            candidates.add(openClass); 
             if (openClass.getInstanceClass().isPrimitive()) {
-                candidates.add(openClass);
                 candidates.add(JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(openClass.getInstanceClass())));
             } else {
-                candidates.add(openClass);
                 Class<?> t = ClassUtils.wrapperToPrimitive(openClass.getInstanceClass());
                 if (t != null) {
                     candidates.add(JavaOpenClass.getOpenClass(t));
