@@ -140,6 +140,25 @@ public class CastFactory implements ICastFactory {
             }
         }
         openClass1Candidates.retainAll(openClass2Candidates);
+
+        int bestDistance = Integer.MAX_VALUE;
+        Set<IOpenClass> closestClasses = new HashSet<>();
+        for (IOpenClass to : openClass1Candidates) {
+            int distance = getDistance(casts, openClass1, openClass2, to);
+
+            if (distance > bestDistance) {
+                continue;
+            }
+
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                closestClasses.clear();
+            }
+            closestClasses.add(to);
+        }
+
+        openClass1Candidates = closestClasses;
+
         IOpenClass ret = null;
         for (IOpenClass openClass : openClass1Candidates) {
             if (ret == null) {
@@ -165,6 +184,19 @@ public class CastFactory implements ICastFactory {
         }
 
         return ret;
+    }
+
+    private static int getDistance(ICastFactory casts, IOpenClass from1, IOpenClass from2, IOpenClass to) {
+        IOpenCast cast1 = casts.getCast(from1, to);
+        IOpenCast cast2 = casts.getCast(from2, to);
+
+        int distance;
+        if (cast1 == null || !cast1.isImplicit() || cast2 == null || !cast2.isImplicit()) {
+            distance = Integer.MAX_VALUE;
+        } else {
+            distance = Math.max(cast1.getDistance(), cast2.getDistance());
+        }
+        return distance;
     }
 
     private static void addClassToCandidates(IOpenClass openClass, Set<IOpenClass> candidates) {
