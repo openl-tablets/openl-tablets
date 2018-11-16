@@ -13,3 +13,22 @@ For Java developers, OpenL Tablets provides many rich usage scenarios in which a
 All of OpenL Tablets is open sourced under **LGPL** license.
 
 [Visit our website](//openl-tablets.org)
+
+## How to build
+
+#####Requirements:
+
+* JDK 8
+* Maven 3.5.4
+* 1 GiB RAM free
+
+#####Build command:
+
+`mvn clean verify`
+
+Estimated build time: ~15 minutes
+
+#####Build artifacts:
+* **WebStudio** - STUDIO\org.openl.rules.webstudio\target\*.war
+* **RuleService WS** - WSFrontend\org.openl.rules.ruleservice.ws\target\*.war
+* **DEMO App** - DEMO\org.openl.rules.demo\target\*.zip
