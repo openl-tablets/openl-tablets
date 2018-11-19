@@ -76,9 +76,7 @@ public class TestDescription {
         return names;
     }
 
-    private OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
-
-    public Object[] getArguments() {
+    public Object[] getArguments(OpenLArgumentsCloner cloner) {
         Object[] args = new Object[executionParams.length];
         for (int i = 0; i < args.length; i++) {
             Object value = executionParams[i].getValue();
@@ -154,7 +152,7 @@ public class TestDescription {
         return testObject.containsField(TestMethodHelper.CONTEXT_NAME);
     }
 
-    public IRulesRuntimeContext getRuntimeContext() {
+    public IRulesRuntimeContext getRuntimeContext(OpenLArgumentsCloner cloner) {
         IRulesRuntimeContext context = (IRulesRuntimeContext) getArgumentValue(TestMethodHelper.CONTEXT_NAME);
         
         if (context == null) {

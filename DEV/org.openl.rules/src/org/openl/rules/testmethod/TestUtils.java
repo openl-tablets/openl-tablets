@@ -4,14 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.table.OpenLArgumentsCloner;
 
 public final class TestUtils {
 
     public static ParameterWithValueDeclaration[] getContextParams(TestSuite test, TestDescription testCase) {
+        OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
         List<ParameterWithValueDeclaration> params = new ArrayList<ParameterWithValueDeclaration>();
 
         TestSuiteMethod testMethod = test.getTestSuiteMethod();
-        IRulesRuntimeContext context = testCase.getRuntimeContext();
+        IRulesRuntimeContext context = testCase.getRuntimeContext(cloner);
 
         for (int i = 0; i < testMethod.getColumnsCount(); i++) {
             String columnName = testMethod.getColumnName(i);
