@@ -4,6 +4,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
 import org.openl.base.INamedThing;
+import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -14,6 +15,7 @@ public class TestSuite implements INamedThing {
     private TestSuiteMethod testSuiteMethod;
     private TestDescription[] tests;
     private TestRunner testRunner = new TestRunner(TestUnit.Builder.getInstance());
+    private OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
 
     public TestSuite(TestSuiteMethod testSuiteMethod) {
         this.testSuiteMethod = testSuiteMethod;
@@ -100,7 +102,7 @@ public class TestSuite implements INamedThing {
         TestDescription currentTest = getTest(test);
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         final Object target = openClass.newInstance(env);
-        return testRunner.runTest(currentTest, target, env, ntimes);
+        return testRunner.runTest(currentTest, target, env, cloner, ntimes);
     }
 
     public TestUnitsResults invoke(Object target, IRuntimeEnv env) {
@@ -108,7 +110,7 @@ public class TestSuite implements INamedThing {
 
         for (int i = 0; i < getNumberOfTests(); i++) {
             TestDescription currentTest = getTest(i);
-            ITestUnit testUnit = testRunner.runTest(currentTest, target, env, 1L);
+            ITestUnit testUnit = testRunner.runTest(currentTest, target, env, cloner, 1L);
             testUnitResults.addTestUnit(testUnit);
         }
 
@@ -158,5 +160,9 @@ public class TestSuite implements INamedThing {
         } else {
             return getTestedMethod().getInfo().getSourceUrl();
         }
+    }
+
+    public OpenLArgumentsCloner getArgumentsCloner() {
+        return cloner;
     }
 }
