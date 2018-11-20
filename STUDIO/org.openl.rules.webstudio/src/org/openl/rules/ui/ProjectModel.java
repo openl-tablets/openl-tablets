@@ -54,6 +54,7 @@ import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
@@ -215,7 +216,8 @@ public class ProjectModel {
             public void runNtimes(long times) throws Exception {
                 try {
                     TestDescription test = testSuite.getTest(testIndex);
-                    testRunner.runTest(test, target, env, times);
+                    OpenLArgumentsCloner cloner = testSuite.getArgumentsCloner();
+                    testRunner.runTest(test, target, env, cloner, times);
                 } catch (Throwable t) {
                     Log.error("Error during Method run: ", t);
                     throw RuntimeExceptionWrapper.wrap(t);
