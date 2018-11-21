@@ -1,0 +1,18 @@
+<project>
+    <name>My parser</name>
+    <modules>
+        <module>
+            <name>ALL</name>
+            <rules-root path="*.xlsx"/>
+            <method-filter>
+                <includes>
+                    <value>.*p.*</value>
+                </includes>
+            </method-filter>
+        </module>
+    </modules>
+    <classpath>
+        <entry path="lib/*.jar"/>
+    </classpath>
+    <properties-file-name-pattern>MAIN-%startRequestDate:yyyyMMdd%</properties-file-name-pattern>
+</project>

@@ -190,7 +190,7 @@ public class RunITest {
 
     private static void assertDoesNotExist(DocumentContext documentContext, String expression) {
         try {
-            documentContext.read("$.height");
+            documentContext.read(expression);
             fail("The result for path '" + expression + "' must not be present!");
         } catch (PathNotFoundException unused) {
             //OK

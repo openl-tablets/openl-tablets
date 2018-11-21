@@ -1,0 +1,11 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>String Parser</serviceName>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <annotationTemplateClassName>org.openl.itest.service.MyService</annotationTemplateClassName>
+    <url>string/toNumber</url>
+    <version>v1</version>
+</rules-deploy>
