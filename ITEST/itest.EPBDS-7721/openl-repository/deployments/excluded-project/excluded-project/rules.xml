@@ -1,0 +1,12 @@
+<project>
+    <name>excluded-project</name>
+    <modules>
+        <module>
+            <name>main</name>
+            <rules-root path="main.xlsx"/>
+        </module>
+    </modules>
+    <classpath>
+        <entry path="classes"/>
+    </classpath>
+</project>
