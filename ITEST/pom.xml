@@ -32,6 +32,7 @@
         <module>itest.EPBDS-7187</module>
         <module>itest.EPBDS-7654</module>
         <module>itest.EPBDS-7947</module>
+        <module>itest.EPBDS-7721</module>
     </modules>
 
     <dependencyManagement>
