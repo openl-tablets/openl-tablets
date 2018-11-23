@@ -1,8 +1,8 @@
 package org.openl.binding.impl.cast;
 
 import java.lang.reflect.Modifier;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -108,9 +108,9 @@ public class CastFactory implements ICastFactory {
         openClass2 = JavaOpenClass.getOpenClass(openClass2.getInstanceClass());
         
         Iterator<IOpenMethod> itr = methods.iterator();
-        Set<IOpenClass> openClass1Candidates = new HashSet<>();
+        Set<IOpenClass> openClass1Candidates = new LinkedHashSet<>();
         addClassToCandidates(openClass1, openClass1Candidates);
-        Set<IOpenClass> openClass2Candidates = new HashSet<>();
+        Set<IOpenClass> openClass2Candidates = new LinkedHashSet<>();
         addClassToCandidates(openClass2, openClass2Candidates);
         while (itr.hasNext()) {
             IOpenMethod method = itr.next();
@@ -142,7 +142,7 @@ public class CastFactory implements ICastFactory {
         openClass1Candidates.retainAll(openClass2Candidates);
 
         int bestDistance = Integer.MAX_VALUE;
-        Set<IOpenClass> closestClasses = new HashSet<>();
+        Set<IOpenClass> closestClasses = new LinkedHashSet<>();
         for (IOpenClass to : openClass1Candidates) {
             int distance = getDistance(casts, openClass1, openClass2, to);
 
