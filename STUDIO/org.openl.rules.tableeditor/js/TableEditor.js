@@ -257,7 +257,7 @@ var TableEditor = Class.create({
      * Sends corresponding request to the server.
      */
     save: function() {
-    	this.setCellValue();
+        this.setCellValue();
         var self = this;
 
         var beforeSavePassed = true;
@@ -289,6 +289,8 @@ var TableEditor = Class.create({
      * Rolls back all changes. Sends corresponding request to the server.
      */
     rollback: function() {
+        this.editor && this.editor.cancelEdit();
+
         this.doOperation(TableEditor.Operations.ROLLBACK, params, function() {
             window.onbeforeunload = Prototype.emptyFunction;
         });
@@ -780,6 +782,7 @@ var TableEditor = Class.create({
 
     undoredo: function(redo) {
         if (Ajax.activeRequestCount > 0) return;
+        this.editor && this.editor.cancelEdit();
         this.doOperation(redo ? TableEditor.Operations.REDO : TableEditor.Operations.UNDO, { editorId: this.editorId });
     },
 
@@ -798,7 +801,9 @@ var TableEditor = Class.create({
 
     setAlignment: function(_align, elt) {
         if (!this.checkSelection()) return;
-        
+
+        this.setCellValue();
+
         var cell = this.currentElement;
         var self = this;
         var cellStyle = cell.style.textAlign;
@@ -897,6 +902,8 @@ var TableEditor = Class.create({
     setColor: function(_color, operation) {
         if (!this.checkSelection()) return;
 
+        this.setCellValue();
+
         var params = {
             editorId: this.editorId,
             row : this.selectionPos[0],
@@ -909,6 +916,8 @@ var TableEditor = Class.create({
 
     indent: function(_indent) {
         if (!this.checkSelection()) return;
+
+        this.setCellValue();
 
         var cell = this.currentElement;
 
@@ -937,6 +946,8 @@ var TableEditor = Class.create({
     setFontBold: function(elt) {
         if (!this.checkSelection()) return;
 
+        this.setCellValue();
+
         var cell = this.currentElement;
         var _bold = cell.style.fontWeight == "bold";
         var decorator = this.decorator;
@@ -961,7 +972,9 @@ var TableEditor = Class.create({
 
     setFontItalic: function(elt) {
         if (!this.checkSelection()) return;
-        
+
+        this.setCellValue();
+
         var cell = this.currentElement;
         var _italic = cell.style.fontStyle == "italic";
         var decorator = this.decorator;
@@ -986,6 +999,8 @@ var TableEditor = Class.create({
 
     setFontUnderline: function(elt) {
         if (!this.checkSelection()) return;
+
+        this.setCellValue();
 
         var cell = this.currentElement;
         var _underline = cell.style.textDecoration == "underline";
@@ -1020,6 +1035,11 @@ var TableEditor = Class.create({
 
     doTableOperation: function(operation) {
         if (!this.checkSelection()) return;
+
+        // Due to asynchronous nature of setCellValue() it can be executed after next operation.
+        // So we cancel unsaved changes instead.
+        // TODO: Refactor to invoke operation after successful asynchronous this.setCellValue() operation
+        this.editor && this.editor.cancelEdit();
 
         var params = {
             editorId: this.editorId,
