@@ -40,7 +40,7 @@ final class Settings {
         fillQueries(queries, "/openl-db-repository-ext"); // For customization purposes
         resolve(queries);
 
-        timerPeriod = getIntValue(queries, "setting.timerPeriod", 10000);
+        timerPeriod = getIntValue(queries, "setting.timerPeriod", 10);
 
         insertFile = getRequired(queries, "query.insert-new-file");
         copyFile = getRequired(queries, "query.copy-last-file");
