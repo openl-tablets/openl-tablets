@@ -1,10 +1,7 @@
 package org.openl.binding.impl.cast;
 
 import java.lang.reflect.Modifier;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.binding.ICastFactory;
@@ -25,7 +22,7 @@ import org.openl.util.ClassUtils;
 /**
  * Base implementation of {@link ICastFactory} abstraction that used by engine
  * for type conversion operations.
- * 
+ *
  * @author snshor, Yury Molchan, Marat Kamalov
  */
 public class CastFactory implements ICastFactory {
@@ -34,7 +31,7 @@ public class CastFactory implements ICastFactory {
     public static final int ALIAS_TO_TYPE_CAST_DISTANCE = 1;
 
     // USE ONLY EVEN NUMBERS FOR DISTANCES
-    
+
     public static final int TYPE_TO_ALIAS_CAST_DISTANCE = 2;
     public static final int JAVA_UP_ARRAY_TO_ARRAY_CAST_DISTANCE = 4;
     public static final int JAVA_UP_CAST_DISTANCE = 6;
@@ -48,7 +45,7 @@ public class CastFactory implements ICastFactory {
     public static final int JAVA_BOXING_CAST_DISTANCE = 14;
 
     public static final int JAVA_BOXING_UP_CAST_DISTANCE = 16;
-    
+
     public static final int PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 18;
 
     public static final int JAVA_UNBOXING_CAST_DISTANCE = 22;
@@ -107,7 +104,7 @@ public class CastFactory implements ICastFactory {
 
         openClass1 = JavaOpenClass.getOpenClass(openClass1.getInstanceClass()); //AliasDatatypes support
         openClass2 = JavaOpenClass.getOpenClass(openClass2.getInstanceClass());
-        
+
         Iterator<IOpenMethod> itr = methods.iterator();
         Set<IOpenClass> openClass1Candidates = new LinkedHashSet<>();
         addClassToCandidates(openClass1, openClass1Candidates);
@@ -174,8 +171,10 @@ public class CastFactory implements ICastFactory {
         return ret;
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     private static IOpenClass chooseClosest(ICastFactory casts, Collection<IOpenClass> openClass1Candidates) {
         IOpenClass ret = null;
+        Collection<IOpenClass> notConvertible = new LinkedHashSet<>();
         for (IOpenClass openClass : openClass1Candidates) {
             if (ret == null) {
                 ret = openClass;
@@ -184,11 +183,52 @@ public class CastFactory implements ICastFactory {
                 if (cast == null || !cast.isImplicit()) {
                     cast = casts.getCast(openClass, ret);
                     if (cast != null && cast.isImplicit()) {
+                        // Found narrower candidate. For example Integer is narrower than Double (when convert from int).
                         ret = openClass;
+                    } else {
+                        // Two candidate classes are not convertible between each over. For example Float and BigInteger.
+                        // Compare second candidate with remaining candidates later.
+                        notConvertible.add(openClass);
+                    }
+                } else {
+                    IOpenCast backCast = casts.getCast(openClass, ret);
+                    if (backCast != null && backCast.isImplicit()) {
+                        int distance = cast.getDistance();
+                        int backDistance = backCast.getDistance();
+
+                        if (distance > backDistance) {
+                            // Assume that a cast to openClass is narrower than a cast to ret.
+                            ret = openClass;
+                        } else if (distance == backDistance) {
+                            // We have a collision.
+                            String message = "Can't find closest cast: have two candidate classes with same cast distance: " +
+                                    ret.getName() + " and " + openClass.getName();
+                            throw new IllegalStateException(message);
+                        } else {
+                            // Previous candidate is narrower. Keep it.
+                        }
+                    } else {
+                        // Previous candidate is narrower. Keep it.
                     }
                 }
             }
         }
+
+        if (!notConvertible.isEmpty()) {
+            Collection<IOpenClass> newCandidates = new LinkedHashSet<>();
+            newCandidates.add(ret);
+            newCandidates.addAll(notConvertible);
+
+            if (newCandidates.size() == openClass1Candidates.size()) {
+                // Can't filter out classes to choose a closest. Prevent infinite recursion.
+                String message = "Can't find closest cast: have several candidate classes not convertible between each over: " +
+                        Arrays.toString(newCandidates.toArray());
+                throw new IllegalStateException(message);
+            }
+
+            return chooseClosest(casts, newCandidates);
+        }
+
         return ret;
     }
 
