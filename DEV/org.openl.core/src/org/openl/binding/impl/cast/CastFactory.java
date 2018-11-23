@@ -1,6 +1,7 @@
 package org.openl.binding.impl.cast;
 
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -159,6 +160,21 @@ public class CastFactory implements ICastFactory {
 
         openClass1Candidates = closestClasses;
 
+        IOpenClass ret = chooseClosest(casts, openClass1Candidates);
+
+        // If one class is not primitive we use wrapper for prevent NPE
+        if (ret != null && openClass1.getInstanceClass() != null && openClass2.getInstanceClass() != null) {
+            if (!openClass1.getInstanceClass().isPrimitive() || !openClass1.getInstanceClass().isPrimitive()) {
+                if (ret.getInstanceClass().isPrimitive()) {
+                    return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(ret.getInstanceClass()));
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    private static IOpenClass chooseClosest(ICastFactory casts, Collection<IOpenClass> openClass1Candidates) {
         IOpenClass ret = null;
         for (IOpenClass openClass : openClass1Candidates) {
             if (ret == null) {
@@ -173,16 +189,6 @@ public class CastFactory implements ICastFactory {
                 }
             }
         }
-
-        // If one class is not primitive we use wrapper for prevent NPE
-        if (ret != null && openClass1.getInstanceClass() != null && openClass2.getInstanceClass() != null) {
-            if (!openClass1.getInstanceClass().isPrimitive() || !openClass1.getInstanceClass().isPrimitive()) {
-                if (ret.getInstanceClass().isPrimitive()) {
-                    return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(ret.getInstanceClass()));
-                }
-            }
-        }
-
         return ret;
     }
 
