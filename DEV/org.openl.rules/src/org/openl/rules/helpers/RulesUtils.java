@@ -4719,8 +4719,7 @@ public class RulesUtils {
         return clazz.isAssignableFrom(o.getClass());
     }
 
-    @AutoCastReturnType
-    public static <T> T copy(@ReturnType T origin) {
+    public static <T> T copy(T origin) {
         // Create new instance every time because of the issue with updating a module in WebStudio.
         // It is needed to investigate class loading/unloading mechanism.
         // FIXME: Needless memory consumption - no needs to create 'cloner' instance every time.
