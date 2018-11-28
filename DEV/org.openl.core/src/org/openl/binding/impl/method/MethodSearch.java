@@ -73,9 +73,6 @@ public class MethodSearch {
                     if (arrayDim > 0) {
                         return NO_MATCH;
                     }
-                    if (t.isArray()) {
-                        t = JavaOpenClass.OBJECT;
-                    }
                     if (m.containsKey(typeNames[i])) {
                         IOpenClass existedType = m.get(typeNames[i]);
                         IOpenCast cast1 = casts.getCast(existedType, t);
