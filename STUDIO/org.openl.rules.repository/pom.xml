@@ -10,7 +10,7 @@
     <artifactId>org.openl.rules.repository</artifactId>
     <packaging>jar</packaging>
     <name>OpenL - STUDIO - Repository</name>
-    <description>OpenL Repostory API</description>
+    <description>OpenL Repository API</description>
     <url>//openl-tablets.org</url>
     <dependencies>
         <dependency>
