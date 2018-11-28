@@ -1,9 +1,7 @@
 package org.openl.rules.util;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 
@@ -78,26 +76,5 @@ public class DatesTest {
 
         assertNull(Dates.toDate("13/13/2013"));
         assertNull(Dates.toDate("12/12/2013", "a"));
-    }
-
-    @Test
-    public void testIsDate() {
-        assertFalse(Dates.isDate("foo"));
-        assertFalse(Dates.isDate(""));
-        assertFalse(Dates.isDate(" "));
-        assertFalse(Dates.isDate(null));
-        assertFalse(Dates.isDate("12.30"));
-        assertFalse(Dates.isDate("121222121"));
-        assertFalse(Dates.isDate("2014-12-12"));
-        assertFalse(Dates.isDate("06.27.2014"));
-        assertTrue(Dates.isDate("06/17/2014"));
-        assertFalse(Dates.isDate("31/17/2014"));
-        assertTrue(Dates.isDate("2014-12-12", "yyyy-MM-dd"));
-        assertFalse(Dates.isDate("2014-13-12", "yyyy-MM-dd"));
-        assertTrue(Dates.isDate("06.27.2014", "MM.dd.yyyy"));
-        assertFalse(Dates.isDate("fo.ba.2014", "MM.dd.yyyy"));
-        assertTrue(Dates.isDate(new Date()));
-        assertTrue(Dates.isDate(new java.sql.Date(1221212212)));
-        assertFalse(Dates.isDate(new Object()));
     }
 }
