@@ -66,53 +66,6 @@ public final class Dates {
         return isEmpty(str) ? null : parse(str, pattern);
     }
 
-    /**
-     * Checks if the Object is valid date. <br/>
-     * <br/>
-     * Strings will be tested using following pattern {@code "MM/dd/yyyy"}.<br/>
-     * <br/>
-     * <code>
-     *     isDate(null)         = false<br/>
-     *     isDate("")           = false<br/>
-     *     isDate("  ")         = false<br/>
-     *     isDate(new Date())   = true<br/>
-     *     isDate("10/24/2018") = true<br/>
-     *     isDate("10.24.2018") = false<br/>
-     * </code>
-     *
-     * @param source any object
-     * @return {@code true} if the Object is correctly formatted date
-     */
-    public static boolean isDate(Object source) {
-        return source instanceof Date || source instanceof String && isDate((String) source, null);
-    }
-
-    /**
-     * Checks if the Object is valid date by pattern. <br/>
-     * <br/>
-     * If the Pattern is not passed, strings will be tested using following pattern {@code "MM/dd/yyyy"}.<br/>
-     * <br/>
-     * <code>
-     *     isDate(null, null)                 = false<br/>
-     *     isDate(null, "dd/MM/yyyy")         = false<br/>
-     *     isDate("", "dd/MM/yyyy")           = false<br/>
-     *     isDate("  ", "dd/MM/yyyy")         = false<br/>
-     *     isDate("10.24.2018", "dd.MM.yyyy") = true<br/>
-     *     isDate("10.24.2018", "dd/MM./yyy") = false<br/>
-     * </code>
-     *
-     * @param str any String
-     * @param pattern any valid date patten like {@code "MM/dd/yyyy"}
-     * @return {@code true} if the Object is correctly formatted date
-     */
-    public static boolean isDate(String str, String pattern) {
-        if (isEmpty(str)) {
-            return false;
-        }
-        Date parse = parse(str, pattern);
-        return parse != null;
-    }
-
     private static Date parse(String str, String pattern) {
         try {
             return getDateFormat(pattern).parse(str);
