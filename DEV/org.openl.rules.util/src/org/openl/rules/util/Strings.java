@@ -633,8 +633,11 @@ public class Strings {
      * @return {@code true} if the String matches given pattern
      */
     public static boolean like(String str, String pattern) {
-        if (isEmpty(str)) {
-            return pattern == null || pattern.isEmpty();
+        if (isEmpty0(str)) {
+            return isEmpty0(pattern);
+        }
+        if (isEmpty0(pattern)) {
+            return false;
         }
 
         Pattern regex = Pattern.compile(parseLikePattern(pattern));
