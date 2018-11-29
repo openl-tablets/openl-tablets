@@ -603,17 +603,23 @@ public class Strings {
     private static boolean isEmpty0(String str) {
         return str == null || str.isEmpty();
     }
+
     /**
      * Checks if the String is matched using given Pattern.<br/>
      * <br/>
      * Syntax:<br/>
      * <br/>
-     * <p>
-     * # - matches any single digit ? - matches any single symbol * - matches any character 0 or more times @ - matches
-     * any single alphabetic character @ - matches any single alphabetic character [charlist] - matches any single
-     * character in {@code charlist} [!charlist] - matches any single character not in {@code charlist} \ - quotes the
-     * following character X+ - matches @{code X} one or more times
-     * </p>
+     *
+     * <pre>
+     * # - matches any single digit
+     * ? - matches any single character
+     * * - matches any character 0 or more times
+     * &#64; - matches any single alphabetic character
+     * [charlist] - matches any single character in {@code charlist}
+     * [!charlist]- matches any single character not in {@code charlist}
+     * X+ - matches @{code X} one or more times
+     * </pre>
+     *
      * <br/>
      * Examples:<br/>
      * <br/>
@@ -640,86 +646,102 @@ public class Strings {
             return false;
         }
 
-        Pattern regex = Pattern.compile(parseLikePattern(pattern));
+        String likePattern = parseLikePattern(pattern);
+        Pattern regex = Pattern.compile(likePattern);
         return regex.matcher(str).matches();
     }
 
-    static String parseLikePattern(String pattern) {
-        StringBuilder regex = new StringBuilder();
-
-        final char[] chars = pattern.toCharArray();
-        final int size = chars.length;
+    private static String parseLikePattern(String pattern) {
+        final int size = pattern.length();
+        StringBuilder regex = new StringBuilder(size * 2);
 
         int i = 0;
-        boolean allowMultiOccur = false;
-        boolean quoteNextChar = false;
+        char prevCh = 0;
+        char nextCh = pattern.charAt(i);
+        boolean inSet = false;
         while (i < size) {
-            final char ch = chars[i];
+            final char ch = nextCh;
             i++;
-            if (quoteNextChar) {
-                if ("[.?*+^$[]\\(){}|-]".indexOf(ch) != -1) {
-                    regex.append('\\');
-                }
-                regex.append(ch);
-                quoteNextChar = false;
-                allowMultiOccur = false;
-            } else {
-                switch (ch) {
-                    case '?':
-                        regex.append(".");
-                        allowMultiOccur = true;
-                        break;
-                    case '*':
+            nextCh = i < size ? pattern.charAt(i) : 0;
+            switch (ch) {
+                case '?':
+                    if (!inSet) {
+                        regex.append('.');
+                    } else {
+                        regex.append(ch);
+                    }
+                    break;
+                case '*':
+                    if (!inSet) {
                         regex.append(".*");
-                        allowMultiOccur = false;
-                        break;
-                    case '#':
+                    } else {
+                        regex.append(ch);
+                    }
+                    break;
+                case '#':
+                    if (!inSet) {
                         regex.append("\\d");
-                        allowMultiOccur = true;
-                        break;
-                    case '@':
+                    } else {
+                        regex.append(ch);
+                    }
+                    break;
+                case '@':
+                    if (!inSet) {
                         regex.append("\\p{Alpha}");
-                        allowMultiOccur = true;
-                        break;
-                    case '[':
-                        int sqBrackets = 1;
-                        final int start = i - 1;
-                        while (i < size) {
-                            if (chars[i] == '[') {
-                                sqBrackets++;
-                                allowMultiOccur = false;
-                            } else if (chars[i] == ']') {
-                                sqBrackets--;
-                                allowMultiOccur = true;
-                            }
-                            i++;
-                            if (sqBrackets == 0) {
-                                break;
-                            }
-                        }
-                        regex.append(pattern.substring(start, i).replaceAll("\\[!", "[^"));
-                        break;
-                    case '\\':
-                        quoteNextChar = true;
-                        break;
-                    case ' ':
-                        regex.append("\\s");
-                        allowMultiOccur = false;
-                        break;
-                    default:
-                        if (allowMultiOccur && ch == '+') {
-                            regex.append(ch);
-                            allowMultiOccur = false;
-                        } else {
-                            if ("[.?*+^$[]\\(){}|-]".indexOf(ch) != -1) {
-                                regex.append('\\');
-                            }
-                            regex.append(ch);
-                            allowMultiOccur = false;
-                        }
-                        break;
-                }
+                    } else {
+                        regex.append(ch);
+                    }
+                    break;
+                case '!':
+                    if (inSet && prevCh == '[' && nextCh != ']') {
+                        regex.append('^');
+                    } else {
+                        regex.append(ch);
+                    }
+                    break;
+                case '[':
+                    if (inSet) {
+                        regex.append('\\');
+                    }
+                    regex.append(ch);
+                    inSet = true;
+                    break;
+                case ']':
+                    regex.append(ch);
+                    inSet = false;
+                    break;
+                case ' ':
+                    if (prevCh != ' ') {
+                        regex.append("\\s+");
+                    }
+                    break;
+                case '+':
+                    if (prevCh != '?' && prevCh != '@' && prevCh != '#' && prevCh != ']') {
+                        regex.append('\\');
+                    }
+                    regex.append(ch);
+                    break;
+                case '\\':
+                    regex.append('\\');
+                    regex.append(ch);
+                    break;
+                case '{':
+                case '}':
+                case '(':
+                case ')':
+                case '.':
+                case '$':
+                case '|':
+                    if (!inSet) {
+                        regex.append('\\');
+                    }
+                    regex.append(ch);
+                    break;
+                default:
+                    regex.append(ch);
+                    break;
             }
+            prevCh = ch;
         }
 
         return regex.toString();
