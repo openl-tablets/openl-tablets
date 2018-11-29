@@ -18,6 +18,8 @@ import org.openl.vm.IRuntimeEnv;
 
 public abstract class AEngineFactory {
 
+    private static final String INCORRECT_RET_TYPE_MSG = "Return type of method \"%s\" should be %s";
+
     /**
      * This method deprecated. Use newInstance method. 
      */
@@ -89,6 +91,7 @@ public abstract class AEngineFactory {
             IOpenMethod rulesMethod = moduleOpenClass.getMethod(interfaceMethodName, params);
 
             if (rulesMethod != null) {
+                validateReturnType(rulesMethod, interfaceMethod);
                 // If openClass has appropriate method then add new entry to
                 // methods map.
                 //
@@ -132,8 +135,7 @@ public abstract class AEngineFactory {
                             // equal to method return type) then throw runtime
                             // exception.
                             //
-                            String message = String.format("Return type of method \"%s\" should be %s",
-                                    interfaceMethodName, rulesField.getType());
+                            String message = String.format(INCORRECT_RET_TYPE_MSG, interfaceMethodName, rulesField.getType());
 
                             throw new RuntimeException(message);
                         }
@@ -151,6 +153,19 @@ public abstract class AEngineFactory {
         }
 
         return methodMap;
+    }
+
+    protected void validateReturnType(IOpenMethod openMethod, Method interfaceMethod) {
+        Class<?> returnType = interfaceMethod.getReturnType();
+        if (Void.TYPE.equals(returnType) && "org.openl.rules.testmethod.TestSuiteMethod".equals(openMethod.getClass().getName())) {
+            return;
+        }
+        Class<?> openClassReturnType = openMethod.getType().getInstanceClass();
+        boolean isAssignable = ClassUtils.isAssignable(openClassReturnType, returnType);
+        if (!isAssignable) {
+            String message = String.format(INCORRECT_RET_TYPE_MSG, interfaceMethod.getName(), openClassReturnType.getName());
+            throw new RuntimeException(message);
+        }
     }
 
 }
