@@ -471,8 +471,20 @@ public class StringsTest {
 
     @Test
     public void testLike() {
-        assertFalse(like("", "F"));
         assertTrue(like("", ""));
+        assertTrue(like("", null));
+        assertTrue(like(null, ""));
+        assertTrue(like(null, null));
+
+        assertFalse(like("", "F"));
+        assertFalse(like("F", ""));
+        assertFalse(like("F", null));
+        assertFalse(like(null, "F"));
+
+        assertTrue(like(" ", " "));
+        assertFalse(like(" ", ""));
+        assertFalse(like("", " "));
+
         assertTrue(like("F", "F"));
         assertFalse(like("F", "f"));
         assertFalse(like("F", "FFF"));
