@@ -358,6 +358,45 @@ public class RunAnnotationsITest {
     }
 
     @Test
+    public void test_aroundLongMethod_REST() {
+        ResponseEntity<Response> response = serviceClassRest
+                .exchange("/aroundLongMethod", HttpMethod.POST, RestClientFactory.request("1111"), Response.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        Response body = response.getBody();
+        assertNotNull(body);
+        assertEquals("SUCCESS", body.getStatus());
+        assertEquals(1111, body.getCode());
+    }
+
+    @Test
+    public void test_aroundLongMethod_SOAP() {
+        Response body = soapClient.aroundLongMethod("1111");
+        assertNotNull(body);
+        assertEquals("SUCCESS", body.getStatus());
+        assertEquals(1111, body.getCode());
+    }
+
+    @Test
+    public void test_aroundVoidMethod_REST() {
+        ResponseEntity<Response> response = serviceClassRest.getForEntity("/aroundVoidMethod", Response.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        Response body = response.getBody();
+        assertNotNull(body);
+        assertEquals("SUCCESS", body.getStatus());
+        assertEquals(0, body.getCode());
+    }
+
+    @Test
+    public void test_aroundVoidMethod_SOAP() {
+        Response body = soapClient.aroundVoidMethod();
+        assertNotNull(body);
+        assertEquals("SUCCESS", body.getStatus());
+        assertEquals(0, body.getCode());
+    }
+
+    @Test
     public void test_doSomething_negative_REST() {
         ResponseEntity<String> response = serviceClassNegativeRest.exchange("/doSomething", HttpMethod.POST, RestClientFactory.request("1001"), String.class);
 
