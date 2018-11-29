@@ -449,28 +449,64 @@ public class StringsTest {
     }
 
     @Test
-    public void testParsePattern() {
-        assertEquals("", parseLikePattern(""));
-        assertEquals(".", parseLikePattern("?"));
-        assertEquals("....", parseLikePattern("????"));
-        assertEquals(".*", parseLikePattern("*"));
-        assertEquals("\\d", parseLikePattern("#"));
-        assertEquals("\\d\\d\\d\\d\\d", parseLikePattern("#####"));
-        assertEquals("\\p{Alpha}", parseLikePattern("@"));
-        assertEquals("\\p{Alpha}\\p{Alpha}\\p{Alpha}", parseLikePattern("@@@"));
-        assertEquals("[A-Z]", parseLikePattern("[A-Z]"));
-        assertEquals("[A-Z]+", parseLikePattern("[A-Z]+"));
-        assertEquals("[^A-Z]", parseLikePattern("[!A-Z]"));
-        assertEquals("F", parseLikePattern("F"));
-        assertEquals("Foo\\-Bar", parseLikePattern("Foo-Bar"));
-        assertEquals("a.*a", parseLikePattern("a*a"));
-        assertEquals("a\\da", parseLikePattern("a#a"));
-        assertEquals("\\d\\d\\d\\-\\d\\d..+", parseLikePattern("###-##??+"));
-        assertEquals(".+@.+\\..+", parseLikePattern("?+\\@?+\\.?+"));
-    }
-
-    @Test
     public void testLike() {
+        assertTrue(like("#", "[#]"));
+        assertTrue(like("*", "[*]"));
+        assertTrue(like("?", "[?]"));
+        assertTrue(like("@", "[@]"));
+        assertTrue(like("+", "[+]"));
+        assertTrue(like("-", "[-]"));
+        assertTrue(like("!", "[!]"));
+        assertTrue(like("[", "[[]"));
+
+        assertFalse(like("#", "[!#]"));
+        assertFalse(like("*", "[!*]"));
+        assertFalse(like("?", "[!?]"));
+        assertFalse(like("@", "[!@]"));
+        assertFalse(like("+", "[!+]"));
+        assertFalse(like("-", "[!-]"));
+        assertFalse(like("!", "[!!]"));
+        assertFalse(like("[", "[![]"));
+
+        assertTrue(like("0", "[!#]"));
+        assertTrue(like("0", "[!*]"));
+        assertTrue(like("0", "[!?]"));
+        assertTrue(like("0", "[!@]"));
+        assertTrue(like("0", "[!+]"));
+        assertTrue(like("0", "[!-]"));
+        assertTrue(like("0", "[!!]"));
+        assertTrue(like("0", "[![]"));
+
+        assertTrue(like("#", "[#*?@+![-]"));
+        assertTrue(like("*", "[#*?@+![-]"));
+        assertTrue(like("?", "[#*?@+![-]"));
+        assertTrue(like("@", "[#*?@+![-]"));
+        assertTrue(like("+", "[#*?@+![-]"));
+        assertTrue(like("-", "[#*?@+![-]"));
+        assertTrue(like("!", "[#*?@+![-]"));
+        assertTrue(like("[", "[#*?@+![-]"));
+
+        assertFalse(like("#", "[!#*?@+![-]"));
+        assertFalse(like("*", "[!#*?@+![-]"));
+        assertFalse(like("?", "[!#*?@+![-]"));
+        assertFalse(like("@", "[!#*?@+![-]"));
+        assertFalse(like("+", "[!#*?@+![-]"));
+        assertFalse(like("-", "[!#*?@+![-]"));
+        assertFalse(like("!", "[!#*?@+![-]"));
+        assertFalse(like("[", "[!#*?@+![-]"));
+
+        assertTrue(like("-", "[-1-3]"));
+        assertFalse(like("0", "[-1-3]"));
+        assertTrue(like("1", "[-1-3]"));
+        assertTrue(like("2", "[-1-3]"));
+        assertTrue(like("3", "[-1-3]"));
+        assertFalse(like("4", "[-1-3]"));
+
+        assertTrue(like("[123]", "[[]123]"));
+        assertTrue(like("[123]", "[[][1-3]+]"));
+        assertFalse(like("[123]", "[123]"));
+        assertTrue(like("1", "[123]"));
+
         assertTrue(like("", ""));
         assertTrue(like("", null));
         assertTrue(like(null, ""));
@@ -502,16 +538,26 @@ public class StringsTest {
         assertTrue(like("AE1234AE", "@@####@@"));
         assertFalse(like("1E1234AE", "@@####@@"));
         assertTrue(like("123-45AE", "###-##@@"));
-        assertTrue(like("123-45AE", "###-##@@"));
+        assertFalse(like("123-45A7", "###-##@@"));
         assertFalse(like("A23-45AE", "###-##@@"));
         assertTrue(like("123-45AE", "###-##??+"));
         assertTrue(like("123-45AE123", "###-##??+"));
         assertTrue(like("123-45-AE", "#+-#+-@+"));
-        assertTrue(like("foo.bar@gmail.com", "*\\@*.*"));
-        assertTrue(like("foo@bar.com", "?+\\@?+.?+"));
-        assertFalse(like("foo.bar@gmail.", "?+\\@?+.?+"));
-        assertFalse(like("foo.bar@gmailcom", "?+\\@?+.?+"));
+        assertTrue(like("foo.bar@gmail.com", "*[@]*.*"));
+        assertTrue(like("foo@bar.com", "?+[@]?+.?+"));
+        assertFalse(like("foo.bar@gmail.", "?+[@]?+.?+"));
+        assertFalse(like("foo.bar@gmailcom", "?+[@]?+.?+"));
         assertTrue(like("+38(099) 123-12-12", "+##(###) ###-##-##"));
         assertFalse(like("+38(099)123-12-12", "+7#(###)###-##-##"));
+        assertTrue(like("#123", "[#]###"));
+        assertFalse(like("#1234", "[#]###"));
+        assertFalse(like("0123", "[#]###"));
+        assertFalse(like("# 123", "[#]###"));
+        assertTrue(like("# 123", "[#] ###"));
+        assertTrue(like("# \t123", "[#] ###"));
+        assertTrue(like("0123", "####"));
+        assertFalse(like("012", "####"));
+        assertFalse(like("01234", "####"));
+        assertTrue(like("0123", "#+"));
     }
 }
