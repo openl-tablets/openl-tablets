@@ -4,13 +4,18 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;
+import org.openl.OpenClassUtil;
+import org.openl.classloader.ClassLoaderUtils;
+import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.engine.OpenLValidationManager;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
+import org.openl.types.java.JavaOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,10 +101,17 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
         return null;
     }
 
+    private ClassLoader buildClassLoader(AbstractProjectDependencyManager dependencyManager) {
+        ClassLoader projectClassLoader = dependencyManager.getClassLoader(modules.iterator().next().getProject());
+        SimpleBundleClassLoader simpleBundleClassLoader = new SimpleBundleClassLoader(dependencyManager.getRootClassLoader());
+        simpleBundleClassLoader.addClassLoader(projectClassLoader);
+        return simpleBundleClassLoader;
+    }
+    
 	protected CompiledDependency compileDependency(String dependencyName,
 			AbstractProjectDependencyManager dependencyManager) throws OpenLCompilationException {
 		RulesInstantiationStrategy rulesInstantiationStrategy;
-		ClassLoader classLoader = dependencyManager.getClassLoader(modules.iterator().next().getProject());
+		ClassLoader classLoader = buildClassLoader(dependencyManager);
 		if (modules.size() == 1) {
 		    dependencyManager.getCompilationStack().add(dependencyName);
 		    log.debug("Creating dependency for dependencyName = {}", dependencyName);
@@ -148,6 +160,9 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
     }
     
     public void reset() {
+        if (compiledDependency != null) {
+            OpenClassUtil.release(compiledDependency.getCompiledOpenClass());
+        }
         compiledDependency = null;
     }
 

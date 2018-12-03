@@ -9,13 +9,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.classloader.ClassLoaderUtils;
+import org.openl.OpenClassUtil;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.DependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
@@ -26,7 +25,6 @@ import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.types.java.JavaOpenClass;
 
 public abstract class AbstractProjectDependencyManager extends DependencyManager {
 
@@ -83,7 +81,9 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
             return true;
         }
     }
+    
     private final ClassLoader rootClassLoader;
+    
     protected AbstractProjectDependencyManager(ClassLoader rootClassLoader) {
         this.rootClassLoader = rootClassLoader;
     }
@@ -153,6 +153,10 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         return classLoader;
     }
     
+    public ClassLoader getRootClassLoader() {
+        return rootClassLoader;
+    }
+    
     private List<ClassLoader> oldClassLoaders = new ArrayList<ClassLoader>();
 
     public synchronized void reset(IDependency dependency){
@@ -211,21 +215,13 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         }
     }
     
-    private void releaseClassLoader(ClassLoader classLoader) {
-        if (classLoader != null) {
-            JavaOpenClass.resetClassloader(classLoader);
-            String2DataConvertorFactory.unregisterClassLoader(classLoader);
-            ClassLoaderUtils.close(classLoader);
-        }
-    }
-
     public synchronized void resetAll(){
         for (ClassLoader classLoader : oldClassLoaders){
-            releaseClassLoader(classLoader);
+            OpenClassUtil.releaseClassLoader(classLoader);
         }
         oldClassLoaders.clear();
         for (ClassLoader classLoader : classLoaders.values()){
-            releaseClassLoader(classLoader);
+            OpenClassUtil.releaseClassLoader(classLoader);
         }
         classLoaders.clear();
         for (IDependencyLoader dependencyLoader : getDependencyLoaders()) {

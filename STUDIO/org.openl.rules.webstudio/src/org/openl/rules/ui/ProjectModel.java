@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;
+import org.openl.OpenClassUtil;
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
@@ -28,6 +30,7 @@ import org.openl.extension.ExtensionWrapperGrid;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
 import org.openl.rules.lang.xls.*;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule.ModificationChecker;
@@ -89,6 +92,7 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.FileUtils;
 import org.openl.util.ISelector;
 import org.openl.util.Log;
@@ -873,7 +877,7 @@ public class ProjectModel {
         reset(reloadType, moduleInfo);
     }
 
-    public void reset(ReloadType reloadType, Module moduleToOpen) throws Exception {
+    public void reset(ReloadType reloadType, Module moduleToOpen) throws Exception { 
         switch (reloadType) {
             case FORCED:
                 moduleToOpen = studio.getCurrentModule();
@@ -927,13 +931,15 @@ public class ProjectModel {
     public void setProjectTree(ProjectTreeNode projectRoot) {
         this.projectRoot = projectRoot;
     }
-
+    
     public void clearModuleInfo() {
         this.moduleInfo = null;
 
         clearModuleResources(); // prevent memory leak
-
+        
+        OpenClassUtil.release(compiledOpenClass);
         compiledOpenClass = null;
+        
         if (webStudioWorkspaceDependencyManager != null){
             webStudioWorkspaceDependencyManager.resetAll();
         }
@@ -1011,8 +1017,7 @@ public class ProjectModel {
         
         //Create instantiation strategy for opened module
         if (singleModuleMode) {
-            ClassLoader classLoader = webStudioWorkspaceDependencyManager.getClassLoader(this.moduleInfo.getProject());
-            instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(this.moduleInfo, false, webStudioWorkspaceDependencyManager, classLoader);
+            instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(this.moduleInfo, false, webStudioWorkspaceDependencyManager);
             externalParameters = studio.getSystemConfigManager().getProperties();
         } else {
             List<Module> modules = this.moduleInfo.getProject().getModules();
