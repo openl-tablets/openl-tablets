@@ -29,9 +29,9 @@ final class SysInfoLogger extends OpenLLogger {
         }
         try {
             Runtime runtime = Runtime.getRuntime();
-            log("    Total Memory : {} bytes", runtime.totalMemory());
-            log("     Free Memory : {} bytes", runtime.freeMemory());
-            log("      Max Memory : {} bytes", runtime.maxMemory());
+            log("    Total Memory : {} MiB", runtime.totalMemory() / 262144 / 4.0);
+            log("     Free Memory : {} MiB", runtime.freeMemory() / 262144 / 4.0);
+            log("      Max Memory : {} MiB", runtime.maxMemory() / 262144 / 4.0);
             log("      Processors : {}", runtime.availableProcessors());
         } catch (Exception ignored) {
             log("##### Cannot access to the Runtime environment");
