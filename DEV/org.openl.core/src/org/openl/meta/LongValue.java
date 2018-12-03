@@ -24,7 +24,7 @@ import org.openl.util.math.MathUtils;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(LongValueAdapter.class)
-public class LongValue extends ExplanationNumberValue<LongValue> {
+public class LongValue extends ExplanationNumberValue<LongValue> implements Comparable<LongValue> {
 
     private static final long serialVersionUID = -437788531108803012L;
 
@@ -673,6 +673,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         return value;
     }
 
+    @Override
     public int compareTo(LongValue o) {
         return Long.compare(value, o.value);
     }

@@ -1,0 +1,21 @@
+<project>
+  <name>EPBDS-7999_single</name>
+  <modules>
+    <module>
+      <name>Main</name>
+      <rules-root path="Main.xlsx"/>
+    </module>
+    <module>
+      <name>Datatype</name>
+      <rules-root path="Datatype.xlsx"/>
+    </module>
+    <module>
+      <name>Main2</name>
+      <rules-root path="Main2.xlsx"/>
+    </module>
+    <module>
+      <name>Datatype2</name>
+      <rules-root path="Datatype2.xlsx"/>
+    </module>
+  </modules>
+</project>

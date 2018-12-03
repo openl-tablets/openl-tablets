@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.meta.IMetaInfo;
 import org.openl.types.IAggregateInfo;
@@ -18,6 +19,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     protected IOpenClass componentClass;
     protected HashMap<String, IOpenField> fieldMap;
     protected IOpenIndex index;
+    private final String javaName;
 
     public final static ComponentTypeArrayOpenClass createComponentTypeArrayOpenClass(IOpenClass componentClass,
                                                                                       int dimensions) {
@@ -33,6 +35,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
         this.componentClass = componentClass;
         this.fieldMap = new HashMap<>(1);
         this.fieldMap.put(lengthOpenField.getName(), lengthOpenField);
+        this.javaName = createJavaName(componentClass);
     }
 
     public IAggregateInfo getAggregateInfo() {
@@ -90,6 +93,10 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
 
     @Override
     public String getJavaName() {
+        return javaName;
+    }
+
+    private String createJavaName(IOpenClass componentClass) {
         String componentName = componentClass.getJavaName();
         if (componentName.charAt(0) == '[') {
             return '[' + componentName;
@@ -122,5 +129,28 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
             }
             return Array.getLength(target);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ComponentTypeArrayOpenClass that = (ComponentTypeArrayOpenClass) o;
+        return Objects.equals(componentClass, that.componentClass);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(javaName);
+    }
+
+    @Override
+    public String toString() {
+        return javaName;
     }
 }

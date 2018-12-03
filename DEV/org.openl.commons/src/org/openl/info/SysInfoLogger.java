@@ -25,7 +25,16 @@ final class SysInfoLogger extends OpenLLogger {
                 System.getProperty("os.version"),
                 System.getProperty("os.arch"));
         } catch (Exception ignored) {
-            log("##### Cannot access to System properties");
+            log("##### Cannot access to the System properties");
+        }
+        try {
+            Runtime runtime = Runtime.getRuntime();
+            log("    Total Memory : {} MiB", runtime.totalMemory() / 262144 / 4.0);
+            log("     Free Memory : {} MiB", runtime.freeMemory() / 262144 / 4.0);
+            log("      Max Memory : {} MiB", runtime.maxMemory() / 262144 / 4.0);
+            log("      Processors : {}", runtime.availableProcessors());
+        } catch (Exception ignored) {
+            log("##### Cannot access to the Runtime environment");
         }
         try {
             log("    Time : {} ({} - {})",
