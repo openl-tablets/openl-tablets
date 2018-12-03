@@ -26,7 +26,7 @@ import org.openl.util.math.MathUtils;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(DoubleValueAdapter.class)
-public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
+public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements Comparable<DoubleValue> {
 
     private static final long serialVersionUID = -4594250562069599646L;
 
@@ -784,6 +784,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         this.value = result.doubleValue();
     }
 
+    @Override
     public int compareTo(DoubleValue o) {
         return Double.compare(value, o.value);
     }

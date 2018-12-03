@@ -23,7 +23,7 @@ import org.openl.util.math.MathUtils;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(ByteValueAdapter.class)
-public class ByteValue extends ExplanationNumberValue<ByteValue> {
+public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comparable<ByteValue> {
 
     private static final long serialVersionUID = -3137978912171407672L;
 
@@ -638,6 +638,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         return (long) value;
     }
 
+    @Override
     public int compareTo(ByteValue o) {
         return value - o.value;
     }

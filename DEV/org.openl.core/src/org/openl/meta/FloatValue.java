@@ -25,7 +25,7 @@ import org.openl.util.math.MathUtils;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(FloatValueAdapter.class)
-public class FloatValue extends ExplanationNumberValue<FloatValue> {
+public class FloatValue extends ExplanationNumberValue<FloatValue> implements Comparable<FloatValue> {
 
     private static final long serialVersionUID = -8235832583740963916L;
 
@@ -774,6 +774,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         return (long) value;
     }
 
+    @Override
     public int compareTo(FloatValue o) {
         return Float.compare(value, o.value);
     }
