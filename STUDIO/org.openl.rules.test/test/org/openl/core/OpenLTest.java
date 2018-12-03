@@ -133,9 +133,10 @@ public final class OpenLTest {
         }
 
         File[] files = sourceDir.listFiles();
-//        files = new File[] {new File(sourceDir, "Arithmetic.xlsx")}; // Just for debugging.
+        // files = new File[] {new File(sourceDir, "Arithmetic.xlsx")}; // Just for debugging.
 
         for (File file : files) {
+            final long startTime = System.nanoTime();
             int errors = 0;
             String sourceFile = file.getName();
             CompiledOpenClass compiledOpenClass = null;
@@ -143,7 +144,7 @@ public final class OpenLTest {
                 try {
                     new FileInputStream(file).close();
                 } catch (Exception ex) {
-                    error(errors++, sourceFile, "Failed to read file.", ex);
+                    error(errors++, startTime, sourceFile, "Failed to read file.", ex);
                     hasErrors = true;
                     continue;
                 }
@@ -160,7 +161,7 @@ public final class OpenLTest {
                 try {
                     compiledOpenClass = engineFactory.getCompiledOpenClass();
                 } catch (ClassNotFoundException | ProjectResolvingException | RulesInstantiationException e) {
-                    error(errors++, sourceFile, "Compilation fails.", e);
+                    error(errors++, startTime, sourceFile, "Compilation fails.", e);
                     hasErrors = true;
                     continue;
                 }
@@ -186,7 +187,7 @@ public final class OpenLTest {
                             }
                         }
                     } catch (IOException exc) {
-                        error(errors++, sourceFile, "Cannot read a file {}", msgFile, exc);
+                        error(errors++, startTime, sourceFile, "Cannot read a file {}", msgFile, exc);
                     }
 
                     Collection<OpenLMessage> unexpectedMessages = new LinkedHashSet<>();
@@ -212,9 +213,10 @@ public final class OpenLTest {
                     }
                     if (!unexpectedMessages.isEmpty()) {
                         success = false;
-                        error(errors++, sourceFile, "  UNEXPECTED messages:");
+                        error(errors++, startTime, sourceFile, "  UNEXPECTED messages:");
                         for (OpenLMessage msg : unexpectedMessages) {
                             error(errors++,
+                                startTime,
                                 sourceFile,
                                 "   {}: {}    at {}",
                                 msg.getSeverity(),
@@ -224,9 +226,9 @@ public final class OpenLTest {
                     }
                     if (!restMessages.isEmpty()) {
                         success = false;
-                        error(errors++, sourceFile, "  MISSED messages:");
+                        error(errors++, startTime, sourceFile, "  MISSED messages:");
                         for (String msg : restMessages) {
-                            error(errors++, sourceFile, "   {}", msg);
+                            error(errors++, startTime, sourceFile, "   {}", msg);
                         }
                     }
                 }
@@ -236,6 +238,7 @@ public final class OpenLTest {
             if (success && compiledOpenClass.hasErrors()) {
                 for (OpenLMessage msg : compiledOpenClass.getMessages()) {
                     error(errors++,
+                        startTime,
                         sourceFile,
                         "   {}: {}    at {}",
                         msg.getSeverity(),
@@ -257,6 +260,7 @@ public final class OpenLTest {
                         if (pass) {
                             if (numberOfFailures != 0) {
                                 error(errors++,
+                                    startTime,
                                     sourceFile,
                                     "Failed test: {}  Errors #: {}",
                                     res.getName(),
@@ -264,6 +268,7 @@ public final class OpenLTest {
                                 List<ITestUnit> failed = res.getFilteredTestUnits(true, 3);
                                 for (ITestUnit testcase : failed) {
                                     error(errors++,
+                                        startTime,
                                         sourceFile,
                                         "   #{}  Actual: {}",
                                         testcase.getTest().getId(),
@@ -273,6 +278,7 @@ public final class OpenLTest {
                         } else {
                             if (numberOfFailures != res.getNumberOfTestUnits()) {
                                 error(errors++,
+                                    startTime,
                                     sourceFile,
                                     "Unexpected result test: {}  Errors #: {}",
                                     res.getName(),
@@ -287,16 +293,22 @@ public final class OpenLTest {
             if (errors != 0) {
                 hasErrors = true;
             } else {
-                LOG.info("OK in [{}].", sourceFile);
+                ok(startTime, sourceFile);
             }
         }
 
         assertFalse("Some tests have been failed!", hasErrors);
     }
 
-    private void error(int count, String sourceFile, String msg, Object... args) {
+    private void ok(long startTime, String sourceFile) {
+        final long ms = (System.nanoTime() - startTime) / 1000000;
+        LOG.info("OK in [{}] ({} ms).", sourceFile, ms);
+    }
+
+    private void error(int count, long startTime, String sourceFile, String msg, Object... args) {
         if (count == 0) {
-            LOG.error("ERROR in [{}].", sourceFile);
+            final long ms = (System.nanoTime() - startTime) / 1000000;
+            LOG.error("ERROR in [{}] ({} ms).", sourceFile, ms);
         }
         LOG.error(msg, args);
     }
