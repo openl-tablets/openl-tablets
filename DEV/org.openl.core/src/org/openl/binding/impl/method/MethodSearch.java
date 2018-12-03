@@ -7,13 +7,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.cast.CastsLinkageCast;
-import org.openl.binding.impl.cast.IgnoredByMethodSearchOpenCast;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.binding.impl.cast.IgnoredByMethodSearchOpenCast;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -325,7 +326,7 @@ public class MethodSearch {
                     return buildMethod(matchingMethodsReturnCast.get(0), matchingMethodsReturnType.get(0), m, m);
                 }
             default:
-                IOpenMethod mostSecificMethod = findMostSpecificMethod(name, params, matchingMethods, casts);
+                IOpenMethod mostSecificMethod = findMostSpecificMethod(name, params, matchingMethods, matchingMethodsCastHolder, casts);
                 boolean f = true;
                 for (int i = 0; i < nParams; i++) {
                     if (!params[i].equals(mostSecificMethod.getSignature().getParameterType(i))) {
@@ -470,6 +471,7 @@ public class MethodSearch {
     private static IOpenMethod findMostSpecificMethod(String name,
             IOpenClass[] params,
             List<IOpenMethod> matchingMethods,
+            List<IOpenCast[]> matchingMethodsCastHolder, 
             ICastFactory casts) throws AmbiguousMethodException {
         List<IOpenMethod> moreSpecificMethods = new ArrayList<IOpenMethod>();
         for (IOpenMethod res : matchingMethods) {
@@ -495,7 +497,7 @@ public class MethodSearch {
                 int penalty1 = 0;
                 int penalty2 = 0;
                 if (m.getSignature().getNumberOfParameters() == params.length) {
-                    for (int i = 0; i < params.length; i++) {
+                    for (int i = 0; i < params.length; i++) { 
                         if (!params[i].getInstanceClass().isPrimitive() && m.getSignature()
                             .getParameterType(i)
                             .getInstanceClass()
@@ -527,14 +529,46 @@ public class MethodSearch {
                     }
                 }
             }
-
+            
             int countOfFoundMethods = mostSpecificMethods.size();
             if (countOfFoundMethods == 1) {
                 return mostSpecificMethods.get(0);
             } else if (countOfFoundMethods == 0) {
                 throw new AmbiguousMethodException(name, params, matchingMethods);
             } else {
-                throw new AmbiguousMethodException(name, params, mostSpecificMethods);
+                Map<IOpenMethod, Integer> w = new HashMap<>();
+                for (IOpenMethod m : mostSpecificMethods) {
+                    w.put(m, Integer.MAX_VALUE);
+                }
+                int i = 0;
+                for (IOpenMethod m : matchingMethods) {
+                    if (w.containsKey(m)) {
+                        int d = 0;
+                        for (IOpenCast cast : matchingMethodsCastHolder.get(i)) {
+                            d = d + cast.getDistance();
+                        }
+                        w.put(m, d);
+                    }
+                    i++;
+                }
+                Integer min = Integer.MAX_VALUE;
+                for (Integer v : w.values()) {
+                    if (v < min) {
+                        min = v;
+                    }
+                }
+                IOpenMethod best = null;
+                for (Entry<IOpenMethod, Integer> e : w.entrySet()) {
+                    if (e.getValue().equals(min)) {
+                        if (best != null) {
+                            throw new AmbiguousMethodException(name, params, mostSpecificMethods);
+                        } else {
+                            best = e.getKey();
+                        }
+                    }
+                }
+
+                return best;
             }
         }
     }
