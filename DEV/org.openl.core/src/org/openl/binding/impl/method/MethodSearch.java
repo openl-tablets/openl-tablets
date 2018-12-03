@@ -134,7 +134,7 @@ public class MethodSearch {
                         } else {
                             castHolder[i] = gCast;
                         }
-                        castHolderDistance[i] = gCast.getDistance();
+                        castHolderDistance[i] = castHolder[i].getDistance();
                     } else {
                         if (callParam[i] != methodParam[i]) {
                             castHolder[i] = casts.getCast(callParam[i], methodParam[i]);
@@ -176,7 +176,7 @@ public class MethodSearch {
             }
         }
         
-        for (int i = 0;i<castHolder.length;i++) {
+        for (int i = 0; i < castHolder.length; i++) {
             if (castHolder[i] instanceof IgnoredByMethodSearchOpenCast) {
                 return NO_MATCH;
             }
@@ -536,39 +536,7 @@ public class MethodSearch {
             } else if (countOfFoundMethods == 0) {
                 throw new AmbiguousMethodException(name, params, matchingMethods);
             } else {
-                Map<IOpenMethod, Integer> w = new HashMap<>();
-                for (IOpenMethod m : mostSpecificMethods) {
-                    w.put(m, Integer.MAX_VALUE);
-                }
-                int i = 0;
-                for (IOpenMethod m : matchingMethods) {
-                    if (w.containsKey(m)) {
-                        int d = 0;
-                        for (IOpenCast cast : matchingMethodsCastHolder.get(i)) {
-                            d = d + cast.getDistance();
-                        }
-                        w.put(m, d);
-                    }
-                    i++;
-                }
-                Integer min = Integer.MAX_VALUE;
-                for (Integer v : w.values()) {
-                    if (v < min) {
-                        min = v;
-                    }
-                }
-                IOpenMethod best = null;
-                for (Entry<IOpenMethod, Integer> e : w.entrySet()) {
-                    if (e.getValue().equals(min)) {
-                        if (best != null) {
-                            throw new AmbiguousMethodException(name, params, mostSpecificMethods);
-                        } else {
-                            best = e.getKey();
-                        }
-                    }
-                }
-
-                return best;
+                throw new AmbiguousMethodException(name, params, mostSpecificMethods);
             }
         }
     }
