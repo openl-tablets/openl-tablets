@@ -23,7 +23,7 @@ import org.openl.util.math.MathUtils;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(ShortValueAdapter.class)
-public class ShortValue extends ExplanationNumberValue<ShortValue> {
+public class ShortValue extends ExplanationNumberValue<ShortValue> implements Comparable<ShortValue> {
 
     private static final long serialVersionUID = 5259931539737847856L;
 
@@ -648,6 +648,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         return (long) value;
     }
 
+    @Override
     public int compareTo(ShortValue o) {
         return value - o.value;
     }

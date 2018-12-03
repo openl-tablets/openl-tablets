@@ -25,7 +25,7 @@ import org.openl.util.math.MathUtils;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(BigDecimalValueAdapter.class)
-public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
+public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> implements Comparable<BigDecimalValue> {
 
     private static final long serialVersionUID = 1996508840075924034L;
 
@@ -731,6 +731,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         return value.longValue();
     }
 
+    @Override
     public int compareTo(BigDecimalValue o) {
         return value.compareTo(o.value);
     }

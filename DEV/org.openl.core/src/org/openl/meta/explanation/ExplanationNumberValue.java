@@ -15,8 +15,7 @@ import org.openl.util.tree.ITreeElement;
  *
  * @param <T> type that extends {@link ExplanationNumberValue}
  */
-public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>> extends Number implements Comparable<T>,
-    ExplanationForNumber<T> {
+public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>> extends Number implements ExplanationForNumber<T> {
     
     private static final long serialVersionUID = -5461468496220613277L;
     
