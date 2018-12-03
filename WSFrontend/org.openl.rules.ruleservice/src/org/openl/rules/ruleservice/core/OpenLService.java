@@ -6,12 +6,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.openl.classloader.ClassLoaderUtils;
-import org.openl.classloader.SimpleBundleClassLoader;
-import org.openl.rules.convertor.String2DataConvertorFactory;
+import org.openl.OpenClassUtil;
 import org.openl.rules.project.model.Module;
 import org.openl.types.IOpenClass;
-import org.openl.types.java.JavaOpenClass;
 
 /**
  * Class designed for storing settings for service configuration and compiled service bean.
@@ -330,15 +327,8 @@ public final class OpenLService {
      * Unregister ClassLoaders of this service.
      */
     public void destroy() {
-        if (getClassLoader() != null) {
-            ClassLoader classLoader = getClassLoader();
-            while (classLoader instanceof SimpleBundleClassLoader) {
-                JavaOpenClass.resetClassloader(classLoader);
-                String2DataConvertorFactory.unregisterClassLoader(classLoader);
-                ClassLoaderUtils.close(classLoader);
-                classLoader = classLoader.getParent();
-            }
-        }
+        ClassLoader classloader = getClassLoader();
+        OpenClassUtil.releaseClassLoader(classloader);
     }
 
     /**
