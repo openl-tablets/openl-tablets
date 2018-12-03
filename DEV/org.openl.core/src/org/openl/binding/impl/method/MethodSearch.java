@@ -175,13 +175,13 @@ public class MethodSearch {
                 }
             }
         }
-        
+
         for (int i = 0; i < castHolder.length; i++) {
             if (castHolder[i] instanceof IgnoredByMethodSearchOpenCast) {
                 return NO_MATCH;
             }
         }
-        
+
         return m;
     }
 
@@ -326,7 +326,7 @@ public class MethodSearch {
                     return buildMethod(matchingMethodsReturnCast.get(0), matchingMethodsReturnType.get(0), m, m);
                 }
             default:
-                IOpenMethod mostSecificMethod = findMostSpecificMethod(name, params, matchingMethods, matchingMethodsCastHolder, casts);
+                IOpenMethod mostSecificMethod = findMostSpecificMethod(name, params, matchingMethods, casts);
                 boolean f = true;
                 for (int i = 0; i < nParams; i++) {
                     if (!params[i].equals(mostSecificMethod.getSignature().getParameterType(i))) {
@@ -452,28 +452,27 @@ public class MethodSearch {
 
     /**
      * Choosing the most specific method according to:
-     * 
+     *
      * @see <a href=
      *      "http://java.sun.com/docs/books/jls/second_edition/html/expressions.doc.html#18428"
      *      >java documentation </a >
-     * 
-     * 
+     *
+     *
      * @param name The name of the method.
      * @param params Argument types of the method.
      * @param matchingMethods All matching methods for this argument types.
      * @param casts OpenL cast factory.
-     * 
+     *
      * @return The most specific method from matching methods collection.
-     * 
+     *
      * @throws AmbiguousMethodException Exception will be thrown if most
      *             specific method can not be determined.
      */
     private static IOpenMethod findMostSpecificMethod(String name,
             IOpenClass[] params,
             List<IOpenMethod> matchingMethods,
-            List<IOpenCast[]> matchingMethodsCastHolder, 
             ICastFactory casts) throws AmbiguousMethodException {
-        List<IOpenMethod> moreSpecificMethods = new ArrayList<IOpenMethod>();
+        List<IOpenMethod> moreSpecificMethods = new ArrayList<>();
         for (IOpenMethod res : matchingMethods) {
             boolean f = true;
             for (IOpenMethod next : matchingMethods) {
@@ -497,7 +496,7 @@ public class MethodSearch {
                 int penalty1 = 0;
                 int penalty2 = 0;
                 if (m.getSignature().getNumberOfParameters() == params.length) {
-                    for (int i = 0; i < params.length; i++) { 
+                    for (int i = 0; i < params.length; i++) {
                         if (!params[i].getInstanceClass().isPrimitive() && m.getSignature()
                             .getParameterType(i)
                             .getInstanceClass()
@@ -529,7 +528,7 @@ public class MethodSearch {
                     }
                 }
             }
-            
+
             int countOfFoundMethods = mostSpecificMethods.size();
             if (countOfFoundMethods == 1) {
                 return mostSpecificMethods.get(0);
@@ -578,7 +577,7 @@ public class MethodSearch {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.openl.binding.IMethodFactory#getMethod(java.lang.String,
      * org.openl.types.IOpenClass[], org.openl.binding.ICastFactory)
      */
