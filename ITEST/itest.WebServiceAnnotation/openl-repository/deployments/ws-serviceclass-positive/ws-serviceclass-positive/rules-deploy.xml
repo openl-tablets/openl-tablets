@@ -1,0 +1,13 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>ws-serviceclass-positive</serviceName>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+        <publisher>WEBSERVICE</publisher>
+    </publishers>
+    <!-- STATIC INTERFACE -->
+    <serviceClass>org.openl.itest.serviceclass.MyService</serviceClass>
+    <!-- //STATIC INTERFACE -->
+    <url>ws-serviceclass-positive</url>
+</rules-deploy>

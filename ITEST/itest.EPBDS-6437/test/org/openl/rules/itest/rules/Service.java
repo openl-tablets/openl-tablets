@@ -16,7 +16,7 @@ public interface Service {
     VariationsResult<Date> nowDate(IRulesRuntimeContext runtimeContext,
             VariationsPack variationPack);
 
-    Integer nowTimestamp(IRulesRuntimeContext runtimeContext);
+    Long nowTimestamp(IRulesRuntimeContext runtimeContext);
     VariationsResult<Integer> nowTimestamp(IRulesRuntimeContext runtimeContext,
             VariationsPack variationPack);
 

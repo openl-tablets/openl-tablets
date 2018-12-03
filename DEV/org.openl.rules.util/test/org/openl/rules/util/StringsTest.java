@@ -449,163 +449,78 @@ public class StringsTest {
     }
 
     @Test
-    public void testIsInteger() {
-        assertFalse(isInteger(null));
-        assertFalse(isInteger(""));
-        assertFalse(isInteger("+"));
-        assertFalse(isInteger("-"));
-        assertFalse(isInteger(" "));
-        assertFalse(isInteger("123-"));
-        assertFalse(isInteger("123+"));
-        assertFalse(isInteger("12+34"));
-        assertFalse(isInteger("12,34"));
-        assertFalse(isInteger("12-34"));
-        assertFalse(isInteger("12.3"));
-        assertFalse(isInteger(".123"));
-        assertFalse(isInteger("+.123"));
-        assertFalse(isInteger("-.123"));
-        assertFalse(isInteger("\n"));
-        assertFalse(isInteger("\n\r"));
-        assertFalse(isInteger("\t"));
-        assertFalse(isInteger("foo"));
-        assertFalse(isInteger("++123"));
-        assertFalse(isInteger("--123"));
-        assertFalse(isInteger("-+123"));
-        assertFalse(isInteger("123d"));
-        assertFalse(isInteger("123 "));
-        assertFalse(isInteger(" 123"));
-        assertFalse(isInteger("12 34"));
-        assertFalse(isInteger("12a34"));
-        assertFalse(isInteger("a1234"));
-        assertFalse(isInteger("1234b"));
-        assertFalse(isInteger("1234l"));
-        assertFalse(isInteger("1234L"));
-        assertTrue(isInteger("1234"));
-        assertTrue(isInteger("+1234"));
-        assertTrue(isInteger("-1234"));
-        assertTrue(isInteger("0"));
-        assertTrue(isInteger("+0"));
-        assertTrue(isInteger("-0"));
-        assertFalse(isInteger(10.2));
-        assertFalse(isInteger(10L));
-        assertFalse(isInteger(10D));
-        assertFalse(isInteger(10F));
-        assertFalse(isInteger(new Object()));
-        assertTrue(isInteger(1234));
-    }
-
-    @Test
-    public void testIsNumber() {
-        assertFalse(isNumber(null));
-        assertFalse(isNumber(""));
-        assertFalse(isNumber("+"));
-        assertFalse(isNumber("-"));
-        assertFalse(isNumber(" "));
-        assertFalse(isNumber("."));
-        assertFalse(isNumber("NAN"));
-        assertFalse(isNumber("nAn"));
-        assertFalse(isNumber("naN"));
-        assertFalse(isNumber("123-"));
-        assertFalse(isNumber("123+"));
-        assertFalse(isNumber("12+34"));
-        assertFalse(isNumber("12,34"));
-        assertFalse(isNumber("12-34"));
-        assertFalse(isNumber("\n"));
-        assertFalse(isNumber("\n\r"));
-        assertFalse(isNumber("\t"));
-        assertFalse(isNumber("foo"));
-        assertFalse(isNumber("++123"));
-        assertFalse(isNumber("--123"));
-        assertFalse(isNumber("-+123"));
-        assertFalse(isNumber("123 "));
-        assertFalse(isNumber(" 123"));
-        assertFalse(isNumber("12 34"));
-        assertFalse(isNumber("12a34"));
-        assertFalse(isNumber("a1234"));
-        assertFalse(isNumber("1234b"));
-        assertTrue(isNumber("1234l"));
-        assertTrue(isNumber("1234L"));
-        assertFalse(isNumber("NaN1"));
-        assertFalse(isNumber("1NaN"));
-        assertFalse(isNumber("-NaN-"));
-        assertFalse(isNumber("NaN+"));
-        assertFalse(isNumber("NaN-"));
-        assertFalse(isNumber("1.23.4"));
-        assertFalse(isNumber("123.3E1."));
-        assertFalse(isNumber("123.3E"));
-        assertFalse(isNumber("123.3E1E1"));
-        assertFalse(isNumber("123.+E1"));
-        assertFalse(isNumber("123.-E1"));
-        assertFalse(isNumber("123.3ED"));
-        assertFalse(isNumber("123.3E-D"));
-        assertFalse(isNumber("123.3E+F"));
-        assertFalse(isNumber("+000E.123"));
-        assertFalse(isNumber("-000E.123"));
-        assertFalse(isNumber("123E4l"));
-        assertFalse(isNumber(".E21"));
-        assertTrue(isNumber("+.123"));
-        assertTrue(isNumber("-.123"));
-        assertTrue(isNumber("123d"));
-        assertTrue(isNumber("123D"));
-        assertTrue(isNumber("123f"));
-        assertTrue(isNumber("123F"));
-        assertTrue(isNumber("123.F"));
-        assertTrue(isNumber(".123"));
-        assertTrue(isNumber("12.3"));
-        assertTrue(isNumber("1234"));
-        assertTrue(isNumber("+1234"));
-        assertTrue(isNumber("-1234"));
-        assertTrue(isNumber("0"));
-        assertTrue(isNumber("+0"));
-        assertTrue(isNumber("-0"));
-        assertFalse(isNumber("NaN"));
-        assertFalse(isNumber("+NaN"));
-        assertFalse(isNumber("-NaN"));
-        assertTrue(isNumber("123.4E21"));
-        assertTrue(isNumber("123.E21"));
-        assertTrue(isNumber("123.E21"));
-        assertTrue(isNumber("123.E21F"));
-        assertTrue(isNumber("123.E21D"));
-        assertTrue(isNumber("1234E5"));
-        assertTrue(isNumber("1234E+5"));
-        assertTrue(isNumber("1234E-5"));
-        assertTrue(isNumber("-0001.123"));
-        assertTrue(isNumber("-000.123"));
-        assertTrue(isNumber("+00.123"));
-        assertTrue(isNumber("+0002.123"));
-        assertTrue(isNumber(10.2));
-        assertTrue(isNumber(10L));
-        assertTrue(isNumber(10D));
-        assertTrue(isNumber(10F));
-        assertFalse(isNumber(new Object()));
-        assertTrue(isNumber(1234));
-    }
-
-    @Test
-    public void testParsePattern() {
-        assertEquals("", parseLikePattern(""));
-        assertEquals(".", parseLikePattern("?"));
-        assertEquals("....", parseLikePattern("????"));
-        assertEquals(".*", parseLikePattern("*"));
-        assertEquals("\\d", parseLikePattern("#"));
-        assertEquals("\\d\\d\\d\\d\\d", parseLikePattern("#####"));
-        assertEquals("\\p{Alpha}", parseLikePattern("@"));
-        assertEquals("\\p{Alpha}\\p{Alpha}\\p{Alpha}", parseLikePattern("@@@"));
-        assertEquals("[A-Z]", parseLikePattern("[A-Z]"));
-        assertEquals("[A-Z]+", parseLikePattern("[A-Z]+"));
-        assertEquals("[^A-Z]", parseLikePattern("[!A-Z]"));
-        assertEquals("F", parseLikePattern("F"));
-        assertEquals("Foo\\-Bar", parseLikePattern("Foo-Bar"));
-        assertEquals("a.*a", parseLikePattern("a*a"));
-        assertEquals("a\\da", parseLikePattern("a#a"));
-        assertEquals("\\d\\d\\d\\-\\d\\d..+", parseLikePattern("###-##??+"));
-        assertEquals(".+@.+\\..+", parseLikePattern("?+\\@?+\\.?+"));
-    }
-
-    @Test
     public void testLike() {
-        assertFalse(like("", "F"));
+        assertTrue(like("#", "[#]"));
+        assertTrue(like("*", "[*]"));
+        assertTrue(like("?", "[?]"));
+        assertTrue(like("@", "[@]"));
+        assertTrue(like("+", "[+]"));
+        assertTrue(like("-", "[-]"));
+        assertTrue(like("!", "[!]"));
+        assertTrue(like("[", "[[]"));
+
+        assertFalse(like("#", "[!#]"));
+        assertFalse(like("*", "[!*]"));
+        assertFalse(like("?", "[!?]"));
+        assertFalse(like("@", "[!@]"));
+        assertFalse(like("+", "[!+]"));
+        assertFalse(like("-", "[!-]"));
+        assertFalse(like("!", "[!!]"));
+        assertFalse(like("[", "[![]"));
+
+        assertTrue(like("0", "[!#]"));
+        assertTrue(like("0", "[!*]"));
+        assertTrue(like("0", "[!?]"));
+        assertTrue(like("0", "[!@]"));
+        assertTrue(like("0", "[!+]"));
+        assertTrue(like("0", "[!-]"));
+        assertTrue(like("0", "[!!]"));
+        assertTrue(like("0", "[![]"));
+
+        assertTrue(like("#", "[#*?@+![-]"));
+        assertTrue(like("*", "[#*?@+![-]"));
+        assertTrue(like("?", "[#*?@+![-]"));
+        assertTrue(like("@", "[#*?@+![-]"));
+        assertTrue(like("+", "[#*?@+![-]"));
+        assertTrue(like("-", "[#*?@+![-]"));
+        assertTrue(like("!", "[#*?@+![-]"));
+        assertTrue(like("[", "[#*?@+![-]"));
+
+        assertFalse(like("#", "[!#*?@+![-]"));
+        assertFalse(like("*", "[!#*?@+![-]"));
+        assertFalse(like("?", "[!#*?@+![-]"));
+        assertFalse(like("@", "[!#*?@+![-]"));
+        assertFalse(like("+", "[!#*?@+![-]"));
+        assertFalse(like("-", "[!#*?@+![-]"));
+        assertFalse(like("!", "[!#*?@+![-]"));
+        assertFalse(like("[", "[!#*?@+![-]"));
+
+        assertTrue(like("-", "[-1-3]"));
+        assertFalse(like("0", "[-1-3]"));
+        assertTrue(like("1", "[-1-3]"));
+        assertTrue(like("2", "[-1-3]"));
+        assertTrue(like("3", "[-1-3]"));
+        assertFalse(like("4", "[-1-3]"));
+
+        assertTrue(like("[123]", "[[]123]"));
+        assertTrue(like("[123]", "[[][1-3]+]"));
+        assertFalse(like("[123]", "[123]"));
+        assertTrue(like("1", "[123]"));
+
         assertTrue(like("", ""));
+        assertTrue(like("", null));
+        assertTrue(like(null, ""));
+        assertTrue(like(null, null));
+
+        assertFalse(like("", "F"));
+        assertFalse(like("F", ""));
+        assertFalse(like("F", null));
+        assertFalse(like(null, "F"));
+
+        assertTrue(like(" ", " "));
+        assertFalse(like(" ", ""));
+        assertFalse(like("", " "));
+
         assertTrue(like("F", "F"));
         assertFalse(like("F", "f"));
         assertFalse(like("F", "FFF"));
@@ -623,16 +538,26 @@ public class StringsTest {
         assertTrue(like("AE1234AE", "@@####@@"));
         assertFalse(like("1E1234AE", "@@####@@"));
         assertTrue(like("123-45AE", "###-##@@"));
-        assertTrue(like("123-45AE", "###-##@@"));
+        assertFalse(like("123-45A7", "###-##@@"));
         assertFalse(like("A23-45AE", "###-##@@"));
         assertTrue(like("123-45AE", "###-##??+"));
         assertTrue(like("123-45AE123", "###-##??+"));
         assertTrue(like("123-45-AE", "#+-#+-@+"));
-        assertTrue(like("foo.bar@gmail.com", "*\\@*.*"));
-        assertTrue(like("foo@bar.com", "?+\\@?+.?+"));
-        assertFalse(like("foo.bar@gmail.", "?+\\@?+.?+"));
-        assertFalse(like("foo.bar@gmailcom", "?+\\@?+.?+"));
+        assertTrue(like("foo.bar@gmail.com", "*[@]*.*"));
+        assertTrue(like("foo@bar.com", "?+[@]?+.?+"));
+        assertFalse(like("foo.bar@gmail.", "?+[@]?+.?+"));
+        assertFalse(like("foo.bar@gmailcom", "?+[@]?+.?+"));
         assertTrue(like("+38(099) 123-12-12", "+##(###) ###-##-##"));
         assertFalse(like("+38(099)123-12-12", "+7#(###)###-##-##"));
+        assertTrue(like("#123", "[#]###"));
+        assertFalse(like("#1234", "[#]###"));
+        assertFalse(like("0123", "[#]###"));
+        assertFalse(like("# 123", "[#]###"));
+        assertTrue(like("# 123", "[#] ###"));
+        assertTrue(like("# \t123", "[#] ###"));
+        assertTrue(like("0123", "####"));
+        assertFalse(like("012", "####"));
+        assertFalse(like("01234", "####"));
+        assertTrue(like("0123", "#+"));
     }
 }

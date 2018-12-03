@@ -10,7 +10,7 @@
     <artifactId>org.openl.rules.repository.aws</artifactId>
     <packaging>jar</packaging>
     <name>OpenL - STUDIO - Repository AWS</name>
-    <description>OpenL Repostory API</description>
+    <description>OpenL Repository AWS implementation</description>
     <url>//openl-tablets.org</url>
     <dependencies>
         <dependency>
