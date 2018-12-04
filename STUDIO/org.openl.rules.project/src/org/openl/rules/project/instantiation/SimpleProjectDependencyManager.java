@@ -78,7 +78,8 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
                             dependencyLoaders.add(new SimpleProjectDependencyLoader(m.getName(),
                                 Arrays.asList(m),
                                 singleModuleMode,
-                                executionMode));
+                                executionMode,
+                                false));
                             dependencyNames.add(m.getName());
                         }
                     }
@@ -87,7 +88,8 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
                     IDependencyLoader projectLoader = new SimpleProjectDependencyLoader(dependencyName,
                         project.getModules(),
                         singleModuleMode,
-                        executionMode);
+                        executionMode,
+                        true);
                     projectDescriptors.add(project);
                     dependencyLoaders.add(projectLoader);
                 } catch (Exception e) {

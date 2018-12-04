@@ -5,17 +5,14 @@ import java.util.Map;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
-import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.engine.OpenLValidationManager;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
-import org.openl.types.java.JavaOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +25,7 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
     private CompiledDependency compiledDependency = null;
     private boolean executionMode = false;
     private boolean singleModuleMode = false;
+    private final boolean isProject;
 
     protected Map<String, Object> configureParameters(IDependencyManager dependencyManager) {
         Map<String, Object> params = dependencyManager.getExternalParameters();
@@ -50,7 +48,7 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
         return executionMode;
     }
     
-    public SimpleProjectDependencyLoader(String dependencyName, Collection<Module> modules, boolean singleModuleMode, boolean executionMode) {
+    public SimpleProjectDependencyLoader(String dependencyName, Collection<Module> modules, boolean singleModuleMode, boolean executionMode, boolean isProject) {
         if (dependencyName == null) {
             throw new IllegalArgumentException("dependencyName arg must not be null!");
         }
@@ -61,10 +59,11 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
         this.modules = modules;
         this.executionMode = executionMode;
         this.singleModuleMode = singleModuleMode;
+        this.isProject = isProject;
     }
 
-    public SimpleProjectDependencyLoader(String dependencyName, Collection<Module> modules, boolean singleModuleMode) {
-        this(dependencyName, modules, singleModuleMode, false);
+    public SimpleProjectDependencyLoader(String dependencyName, Collection<Module> modules, boolean singleModuleMode, boolean isProject) {
+        this(dependencyName, modules, singleModuleMode, false, isProject);
     }
 
     @Override
@@ -112,13 +111,13 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
 			AbstractProjectDependencyManager dependencyManager) throws OpenLCompilationException {
 		RulesInstantiationStrategy rulesInstantiationStrategy;
 		ClassLoader classLoader = buildClassLoader(dependencyManager);
-		if (modules.size() == 1) {
+		if (!isProject && modules.size() == 1) {
 		    dependencyManager.getCompilationStack().add(dependencyName);
 		    log.debug("Creating dependency for dependencyName = {}", dependencyName);
 		    rulesInstantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(modules.iterator()
 		            .next(), executionMode, dependencyManager, classLoader);
 		} else {
-		    if (modules.size() > 1) {
+		    if (isProject && modules.size() > 0) {
 		        rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
 		                dependencyManager,
 		                classLoader, executionMode);

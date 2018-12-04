@@ -262,9 +262,10 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
                                         moduleLoader = new LazyRuleServiceDependencyLoader(deploymentDescription,
                                             moduleName,
                                             module,
-                                            compileAfterLazyCompilation);
+                                            compileAfterLazyCompilation,
+                                            false);
                                     } else {
-                                        moduleLoader = new RuleServiceDependencyLoader(moduleName, module);
+                                        moduleLoader = new RuleServiceDependencyLoader(moduleName, module, false);
                                     }
                                     dependencyLoaders.add(moduleLoader);
                                     dependencyNames.add(moduleName);
@@ -277,12 +278,13 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
                                         ProjectExternalDependenciesHelper
                                             .buildDependencyNameForProjectName(projectDescriptor.getName()),
                                         projectDescriptor.getModules(),
-                                        false);
+                                        false,
+                                        true);
                                 } else {
                                     projectLoader = new RuleServiceDependencyLoader(
                                         ProjectExternalDependenciesHelper
                                             .buildDependencyNameForProjectName(projectDescriptor.getName()),
-                                        projectDescriptor.getModules());
+                                        projectDescriptor.getModules(), true);
                                 }
                                 projectDescriptors.add(projectDescriptor);
                                 dependencyLoaders.add(projectLoader);

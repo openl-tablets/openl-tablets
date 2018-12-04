@@ -45,11 +45,13 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
     private final Collection<Module> modules;
     private final boolean realCompileRequred;
     private CompiledOpenClass lazyCompiledOpenClass;
+    private final boolean isProject;
 
     LazyRuleServiceDependencyLoader(DeploymentDescription deployment,
             String dependencyName,
             Collection<Module> modules,
-            boolean realCompileRequred) {
+            boolean realCompileRequred,
+            boolean isProject) {
         if (deployment == null) {
             throw new IllegalArgumentException("deployment arg must not be null.");
         }
@@ -63,6 +65,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         this.deployment = deployment;
         this.modules = modules;
         this.realCompileRequred = realCompileRequred;
+        this.isProject = isProject;
     }
     
     private ClassLoader buildClassLoader(AbstractProjectDependencyManager dependencyManager) {
@@ -91,7 +94,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                 deployment.getVersion().getVersionName(),
                 dependencyName);
 
-            if (modules.size() > 1) {
+            if (isProject) {
                 rulesInstantiationStrategy = new LazyInstantiationStrategy(deployment,
                     modules,
                     dependencyManager,
