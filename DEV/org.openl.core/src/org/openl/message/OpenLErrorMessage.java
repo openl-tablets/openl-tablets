@@ -7,6 +7,8 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
 import org.openl.main.SourceCodeURLConstants;
 import org.openl.main.SourceCodeURLTool;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.util.StringUtils;
 
 /**
@@ -46,7 +48,10 @@ public class OpenLErrorMessage extends OpenLMessage {
                 getError().getSourceModule());
 
             if (StringUtils.isNotEmpty(url)) {
-                printWriter.print(SourceCodeURLConstants.AT_PREFIX + url);
+                printWriter.println(SourceCodeURLConstants.AT_PREFIX + url);
+            }
+            if (getError().getCause() != null && getError().getLocation() == null) {
+                getError().getCause().printStackTrace(printWriter);
             }
         }
 

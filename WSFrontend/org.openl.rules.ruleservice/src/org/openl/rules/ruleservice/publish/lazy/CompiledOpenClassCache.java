@@ -59,8 +59,10 @@ public final class CompiledOpenClassCache {
                 void process(Object key) {
                     synchronized (CompiledOpenClassCache.this.eventsMap) {
                         Collection<Event> events = CompiledOpenClassCache.this.eventsMap.get(key);
-                        for (Event e : events) {
-                            e.onEvent();
+                        if (events != null) {
+                            for (Event e : events) {
+                                e.onEvent();
+                            }
                         }
                     }
                 }

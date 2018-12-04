@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 import org.openl.CompiledOpenClass;
+import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
@@ -15,6 +16,7 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
+import org.openl.rules.project.instantiation.AbstractProjectDependencyManager;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
@@ -62,6 +64,13 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         this.modules = modules;
         this.realCompileRequred = realCompileRequred;
     }
+    
+    private ClassLoader buildClassLoader(AbstractProjectDependencyManager dependencyManager) {
+        ClassLoader projectClassLoader = dependencyManager.getClassLoader(modules.iterator().next().getProject());
+        SimpleBundleClassLoader simpleBundleClassLoader = new SimpleBundleClassLoader(dependencyManager.getRootClassLoader());
+        simpleBundleClassLoader.addClassLoader(projectClassLoader);
+        return simpleBundleClassLoader;
+    }
 
     public CompiledOpenClass compile(final String dependencyName,
             final RuleServiceDeploymentRelatedDependencyManager dependencyManager) throws OpenLCompilationException {
@@ -74,7 +83,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                 throw new OpenLCompilationException("Circular dependency has been detected in module: " + dependencyName);
             }
             RulesInstantiationStrategy rulesInstantiationStrategy = null;
-            final ClassLoader classLoader = dependencyManager.getClassLoader(modules.iterator().next().getProject());
+            final ClassLoader classLoader = buildClassLoader(dependencyManager);
             dependencyManager.getCompilationStack().add(dependencyName);
             log.debug(
                 "Compiling lazy module for:\n" + " deploymentName='{}',\n" + " deploymentVersion='{}',\n" + " dependencyName='{}'",
