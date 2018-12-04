@@ -1,0 +1,19 @@
+<rules-deploy>
+  <isProvideRuntimeContext>false</isProvideRuntimeContext>
+  <isProvideVariations>false</isProvideVariations>
+  <serviceName>CPD_Service2</serviceName>
+  <publishers>
+    <publisher>RESTFUL</publisher>
+  </publishers>
+  <interceptingTemplateClassName></interceptingTemplateClassName>
+  <annotationTemplateClassName></annotationTemplateClassName>
+  <serviceClass></serviceClass>
+  <rmiServiceClass></rmiServiceClass>
+  <url>CPD-service2</url>
+  <version></version>
+  <groups></groups>
+  <lazy-modules-for-compilation>
+    <!-- Compile of the rules on startup rather than on demand -->
+    <module name="*"/>
+  </lazy-modules-for-compilation>
+</rules-deploy>
