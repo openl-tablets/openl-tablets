@@ -29,10 +29,11 @@ final class SysInfoLogger extends OpenLLogger {
         }
         try {
             Runtime runtime = Runtime.getRuntime();
-            log("    Total Memory : {} MiB", runtime.totalMemory() / 262144 / 4.0);
-            log("     Free Memory : {} MiB", runtime.freeMemory() / 262144 / 4.0);
-            log("      Max Memory : {} MiB", runtime.maxMemory() / 262144 / 4.0);
-            log("      Processors : {}", runtime.availableProcessors());
+            log("     ENV : {} CPU / -Xmx={}M / Allocated={} MiB / Free={} MiB ",
+                Integer.toString(runtime.availableProcessors()),
+                toMiB(runtime.maxMemory()),
+                toMiB(runtime.totalMemory()),
+                toMiB(runtime.freeMemory()));
         } catch (Exception ignored) {
             log("##### Cannot access to the Runtime environment");
         }
@@ -55,5 +56,9 @@ final class SysInfoLogger extends OpenLLogger {
         } catch (Exception ignored) {
             log("##### Cannot access to the Application location");
         }
+    }
+
+    private String toMiB(long bytes) {
+        return String.valueOf(bytes / 262144 / 4.0);
     }
 }
