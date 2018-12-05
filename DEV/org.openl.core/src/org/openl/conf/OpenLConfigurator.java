@@ -6,6 +6,8 @@
 
 package org.openl.conf;
 
+import org.openl.OpenL;
+
 import java.io.File;
 import java.util.Properties;
 
@@ -66,6 +68,23 @@ public class OpenLConfigurator extends Configurator {
     }
 
     private IOpenLBuilder makeBuilder(String openl, IConfigurableResourceContext cxt, IUserContext ucxt) throws Exception {
+        String builderClassPath = cxt.findProperty(openl + BUILDER_CLASS_PATH);
+        if (builderClassPath == null) {
+            builderClassPath = cxt.findProperty(DEFAULT_BUILDER_CLASS_PATH_PROPERTY);
+        }
+        ClassLoader ucl = ucxt.getUserClassLoader();
+        ClassLoader cl = OpenL.class.getClassLoader();
+        try {
+            Class<?> c = ucl.loadClass(OpenL.class.getName());
+            if (c != null) {
+                cl = ucl;
+            }
+        } catch (Exception ignored) {
+            // Ignore
+        }
+        if (builderClassPath != null) {
+            cl = ClassLoaderFactory.createClassLoader(builderClassPath, cl, ucxt.getUserHome());
+        }
 
         String builderClassName = cxt.findProperty(openl + BUILDER_CLASS);
         if (builderClassName == null) {
@@ -74,16 +93,6 @@ public class OpenLConfigurator extends Configurator {
         if (builderClassName == null) {
             builderClassName = openl + "." + OPENL_BUILDER;
         }
-        String builderClassPath = cxt.findProperty(openl + BUILDER_CLASS_PATH);
-        if (builderClassPath == null) {
-            builderClassPath = cxt.findProperty(DEFAULT_BUILDER_CLASS_PATH_PROPERTY);
-        }
-
-        ClassLoader cl = ClassLoaderFactory.getOpenlCoreClassLoader(ucxt.getUserClassLoader());
-        if (builderClassPath != null) {
-            cl = ClassLoaderFactory.createClassLoader(builderClassPath, cl, ucxt.getUserHome());
-        }
-
         return (IOpenLBuilder)ClassFactory.forName(builderClassName, cl).newInstance();
     }
 }
