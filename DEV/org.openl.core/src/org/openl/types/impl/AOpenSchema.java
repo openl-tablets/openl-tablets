@@ -18,13 +18,8 @@ import org.openl.types.IOpenSchema;
  *
  */
 public abstract class AOpenSchema implements IOpenSchema {
-    protected IOpenFactory factory;
 
     protected Map<String, IOpenClassHolder> allClasses;
-
-    protected AOpenSchema(IOpenFactory factory) {
-        this.factory = factory;
-    }
 
     protected synchronized Map<String, IOpenClassHolder> allClasses() {
         if (allClasses == null) {
@@ -34,10 +29,6 @@ public abstract class AOpenSchema implements IOpenSchema {
     }
 
     protected abstract Map<String, IOpenClassHolder> buildAllClasses();
-
-    public IOpenFactory getFactory() {
-        return factory;
-    }
 
     public synchronized IOpenClass getType(String name) {
         IOpenClassHolder holder = allClasses().get(name);

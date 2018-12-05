@@ -15,7 +15,6 @@ import java.util.zip.ZipFile;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenClassHolder;
-import org.openl.types.IOpenFactory;
 import org.openl.types.impl.AOpenSchema;
 import org.openl.util.ASelector;
 import org.openl.util.IConvertor;
@@ -122,8 +121,7 @@ public class JavaOpenSchema extends AOpenSchema {
 
     ClassLoader classLoader;
 
-    public JavaOpenSchema(IOpenFactory factory, String[] classpath, ClassLoader classLoader) {
-        super(factory);
+    public JavaOpenSchema(String[] classpath, ClassLoader classLoader) {
         this.classpath = classpath;
         this.classLoader = classLoader;
 

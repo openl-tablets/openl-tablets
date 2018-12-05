@@ -14,6 +14,4 @@ package org.openl.types;
  */
 public interface IOpenSchema extends ITypeLibrary {
 
-    IOpenFactory getFactory();
-
 }
