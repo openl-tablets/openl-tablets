@@ -25,6 +25,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.CompiledOpenClass;
+import org.openl.OpenClassUtil;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
@@ -189,7 +190,7 @@ public final class TestMojo extends BaseOpenLMojo {
             CompiledOpenClass openLRules = factory.getCompiledOpenClass();
             return executeTests(openLRules);
         } finally {
-            releaseResources(classLoader);
+            OpenClassUtil.releaseClassLoader(classLoader);
         }
     }
 
@@ -255,7 +256,7 @@ public final class TestMojo extends BaseOpenLMojo {
                 summaryErrors.addAll(summary.getSummaryErrors());
                 hasCompilationErrors |= summary.isHasCompilationErrors();
             } finally {
-                releaseResources(classLoader);
+                OpenClassUtil.releaseClassLoader(classLoader);
             }
         }
 

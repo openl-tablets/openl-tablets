@@ -28,7 +28,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.openl.base.INamedThing;
-import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -143,28 +142,6 @@ public class JavaOpenClass extends AOpenClass {
 
     public static ArrayIndex makeArrayIndex(IOpenClass arrayType) {
         return new ArrayIndex(getOpenClass(arrayType.getInstanceClass().getComponentType()));
-    }
-
-    public static synchronized void resetClassloader(ClassLoader cl) {
-        List<Class<?>> toRemove = new ArrayList<Class<?>>();
-
-        Collection<Class<?>> nonJavaClasses = JavaOpenClassCache.getInstance().getNonJavaClasses();
-
-        for (Class<?> c : nonJavaClasses) {
-            ClassLoader classLoader = c.getClassLoader();
-            if (classLoader == cl) {
-                toRemove.add(c);
-            }
-            if (cl instanceof OpenLBundleClassLoader) {
-                if (((OpenLBundleClassLoader) cl).containsClassLoader(classLoader)) {
-                    toRemove.add(c);
-                }
-            }
-        }
-
-        for (Class<?> c : toRemove) {
-            JavaOpenClassCache.getInstance().remove(c);
-        }
     }
 
     public static boolean isVoid(IOpenClass clazz) {

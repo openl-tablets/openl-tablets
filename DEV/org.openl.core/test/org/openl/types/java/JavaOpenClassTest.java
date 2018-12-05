@@ -40,8 +40,8 @@ public class JavaOpenClassTest {
         assertSame(doubleValue, JavaOpenClass.getOpenClass(DoubleValue.class));
         assertSame(myType, JavaOpenClass.getOpenClass(MyType.class));
 
-        JavaOpenClass.resetClassloader(DoubleValue.class.getClassLoader());
-        JavaOpenClass.resetClassloader(Exception.class.getClassLoader());
+        JavaOpenClassCache.getInstance().resetClassloader(DoubleValue.class.getClassLoader());
+        JavaOpenClassCache.getInstance().resetClassloader(Exception.class.getClassLoader());
 
         assertSame(doubleValue, JavaOpenClass.getOpenClass(DoubleValue.class));
         assertNotSame(myType, JavaOpenClass.getOpenClass(MyType.class));
