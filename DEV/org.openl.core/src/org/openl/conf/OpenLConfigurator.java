@@ -63,26 +63,6 @@ public class OpenLConfigurator extends Configurator {
         }
     }
 
-    String getBuilderClassName(String openl, IConfigurableResourceContext cxt) {
-
-        String builderClassName = cxt.findProperty(openl + BUILDER_CLASS);
-        if (builderClassName == null) {
-            builderClassName = cxt.findProperty(DEFAULT_BUILDER_CLASS_PROPERTY);
-        }
-
-        return builderClassName;
-    }
-
-    String getBuilderClassPath(String openl, IConfigurableResourceContext cxt) {
-
-        String builderClassPath = cxt.findProperty(openl + BUILDER_CLASS_PATH);
-        if (builderClassPath == null) {
-            builderClassPath = cxt.findProperty(DEFAULT_BUILDER_CLASS_PATH_PROPERTY);
-        }
-
-        return builderClassPath;
-    }
-
     public String makeAlternativeHome(String userHome) {
         try {
             return new File(userHome + "/../" + OPENL_ALT_CONFIG_ROOT).getCanonicalPath();
@@ -91,9 +71,18 @@ public class OpenLConfigurator extends Configurator {
         }
     }
 
-    IOpenLBuilder makeBuilder(String openl, IConfigurableResourceContext cxt, IUserContext ucxt) throws Exception {
-        String builderClassName = getBuilderClassName(openl, cxt);
-        String builderClassPath = getBuilderClassPath(openl, cxt);
+    private IOpenLBuilder makeBuilder(String openl, IConfigurableResourceContext cxt, IUserContext ucxt) throws Exception {
+
+        String builderClassName = cxt.findProperty(openl + BUILDER_CLASS);
+        if (builderClassName == null) {
+            builderClassName = cxt.findProperty(DEFAULT_BUILDER_CLASS_PROPERTY);
+        }
+
+        String builderClassPath = cxt.findProperty(openl + BUILDER_CLASS_PATH);
+        if (builderClassPath == null) {
+            builderClassPath = cxt.findProperty(DEFAULT_BUILDER_CLASS_PATH_PROPERTY);
+        }
+
         if (builderClassName != null) {
             return makeBuilderInstance(builderClassName, builderClassPath, ucxt);
         }
