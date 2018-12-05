@@ -36,11 +36,15 @@ public class OpenLConfigurator extends Configurator {
     public static final String OPENL_BUILDER = "OpenLBuilder";
 
     public synchronized IOpenLBuilder getBuilder(String openlName, IUserContext ucxt) throws OpenConfigurationException {
-
         String userHome = ucxt.getUserHome();
-        String altHome = makeAlternativeHome(userHome);
 
-        String[] homes = altHome == null ? new String[] { userHome } : new String[] { userHome, altHome };
+        String[] homes;
+        try {
+            String altHome = new File(userHome + "/../" + OPENL_ALT_CONFIG_ROOT).getCanonicalPath();
+            homes = new String[] { userHome, altHome };
+        } catch (Exception t) {
+            homes = new String[] { userHome };
+        }
 
         ConfigurableResourceContext cxt = new ConfigurableResourceContext(ucxt.getUserClassLoader(), homes);
 
@@ -58,14 +62,6 @@ public class OpenLConfigurator extends Configurator {
             return builder;
         } catch (Exception ex) {
             throw new OpenConfigurationException("Error creating builder: ", null, ex);
-        }
-    }
-
-    public String makeAlternativeHome(String userHome) {
-        try {
-            return new File(userHome + "/../" + OPENL_ALT_CONFIG_ROOT).getCanonicalPath();
-        } catch (Throwable t) {
-            return null;
         }
     }
 
