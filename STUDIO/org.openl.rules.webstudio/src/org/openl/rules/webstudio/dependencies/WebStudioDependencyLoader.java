@@ -17,8 +17,8 @@ import org.openl.types.NullOpenClass;
 
 final class WebStudioDependencyLoader extends SimpleProjectDependencyLoader {
 
-    WebStudioDependencyLoader(String dependencyName, Collection<Module> modules, boolean singleModuleMode) {
-        super(dependencyName, modules, singleModuleMode, false);
+    WebStudioDependencyLoader(String dependencyName, Collection<Module> modules, boolean singleModuleMode, boolean isProject) {
+        super(dependencyName, modules, singleModuleMode, false, isProject);
     }
 
     @Override
