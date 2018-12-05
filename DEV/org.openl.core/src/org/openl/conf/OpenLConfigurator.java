@@ -9,8 +9,6 @@ package org.openl.conf;
 import java.io.File;
 import java.util.Properties;
 
-import org.openl.util.Log;
-
 /**
  *
  * This class is responsible for configuration of a particular OpenL instance
@@ -77,28 +75,13 @@ public class OpenLConfigurator extends Configurator {
         if (builderClassName == null) {
             builderClassName = cxt.findProperty(DEFAULT_BUILDER_CLASS_PROPERTY);
         }
-
+        if (builderClassName == null) {
+            builderClassName = openl + "." + OPENL_BUILDER;
+        }
         String builderClassPath = cxt.findProperty(openl + BUILDER_CLASS_PATH);
         if (builderClassPath == null) {
             builderClassPath = cxt.findProperty(DEFAULT_BUILDER_CLASS_PATH_PROPERTY);
         }
-
-        if (builderClassName != null) {
-            return makeBuilderInstance(builderClassName, builderClassPath, ucxt);
-        }
-
-        try {
-            builderClassName = openl + "." + OPENL_BUILDER;
-            IOpenLBuilder bb = makeBuilderInstance(builderClassName, builderClassPath, ucxt);
-            return bb;
-        } catch (Exception e) {
-            Log.error("Can not build " + openl + " using cp: " + builderClassPath + " UCXT: " + ucxt, e);
-            throw e;
-        }
-    }
-
-    IOpenLBuilder makeBuilderInstance(String builderClassName, String builderClassPath, IUserContext ucxt)
-            throws Exception {
 
         ClassLoader cl = ClassLoaderFactory.getOpenlCoreClassLoader(ucxt.getUserClassLoader());
         if (builderClassPath != null) {
