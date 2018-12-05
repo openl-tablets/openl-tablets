@@ -25,6 +25,4 @@ public interface IOpenLConfiguration extends IGrammarFactory, INodeBinderFactory
 
     IConfigurableResourceContext getConfigurationContext();
 
-    IOpenFactory getOpenFactory(String name);
-
 }

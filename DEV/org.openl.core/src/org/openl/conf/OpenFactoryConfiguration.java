@@ -34,14 +34,6 @@ public class OpenFactoryConfiguration extends AGenericConfiguration implements I
         return name;
     }
 
-    public IOpenFactory getOpenFactory(IConfigurableResourceContext cxt) {
-        if (factory == null) {
-            factory = (IOpenFactory) createResource(cxt);
-        }
-
-        return factory;
-    }
-
     /**
      * @param string
      */
