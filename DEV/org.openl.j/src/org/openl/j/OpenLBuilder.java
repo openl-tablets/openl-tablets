@@ -13,7 +13,6 @@ import org.openl.conf.NameSpacedTypeConfiguration;
 import org.openl.conf.NoAntOpenLTask;
 import org.openl.conf.NodeBinderFactoryConfiguration;
 import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
-import org.openl.conf.OpenFactoryConfiguration;
 import org.openl.conf.TypeCastFactory;
 import org.openl.conf.TypeFactoryConfiguration;
 import org.openl.grammar.bexgrammar.BExGrammarWithParsingHelp;
@@ -113,17 +112,6 @@ public class OpenLBuilder extends AOpenLBuilder {
          * <libraries> <library namespace="org.openl.operators"> <javalib
          * classname="org.openl.binding.impl.Operators"/> </library>
          * </libraries>
-         */
-
-        OpenFactoryConfiguration of = new OpenFactoryConfiguration();
-        of.setName("java.factory");
-        of.setImplementingClass(org.openl.types.java.JavaOpenFactory.class.getName());
-        op.addConfiguredTypeFactory(of);
-
-        /*
-         * 
-         * <typefactory name="java.factory"
-         * implementingClass="org.openl.types.java.JavaOpenFactory"/>
          */
 
         TypeFactoryConfiguration types = op.createTypes();

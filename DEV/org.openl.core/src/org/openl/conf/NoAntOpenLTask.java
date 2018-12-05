@@ -31,10 +31,6 @@ public class NoAntOpenLTask {
         return ret;
     }
 
-    public void addConfiguredTypeFactory(OpenFactoryConfiguration of) {
-        conf.addOpenFactory(of);
-    }
-
     public NodeBinderFactoryConfiguration createBindings() {
         NodeBinderFactoryConfiguration nbf = new NodeBinderFactoryConfiguration();
         conf.setBinderFactory(nbf);
