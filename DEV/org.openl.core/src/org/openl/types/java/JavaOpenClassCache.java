@@ -2,10 +2,10 @@ package org.openl.types.java;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -13,6 +13,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.collections4.map.AbstractReferenceMap;
 import org.apache.commons.collections4.map.ReferenceMap;
+import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.BigIntegerValue;
 import org.openl.meta.ByteValue;
@@ -22,7 +23,7 @@ import org.openl.meta.IntValue;
 import org.openl.meta.LongValue;
 import org.openl.meta.ShortValue;
 
-final class JavaOpenClassCache {
+public final class JavaOpenClassCache {
 
     private static class JavaOpenClassCacheHolder {
         private static final JavaOpenClassCache INSTANCE = new JavaOpenClassCache();
@@ -98,7 +99,7 @@ final class JavaOpenClassCache {
         return javaClassCache;
     }
 
-    public JavaOpenClass get(Class<?> c) {
+    JavaOpenClass get(Class<?> c) {
         JavaOpenClass openClass = getJavaClassCache().get(c);
         if (openClass != null) {
             return openClass;
@@ -112,17 +113,37 @@ final class JavaOpenClassCache {
         }
     }
 
-    public Collection<Class<?>> getNonJavaClasses() {
-        Lock lock = readWriteLock.readLock();
+    public void resetClassloader(ClassLoader cl) {
+        final Lock lock = readWriteLock.writeLock();
+
         try {
             lock.lock();
-            return Collections.unmodifiableCollection(cache.keySet());
+
+            List<Class<?>> toRemove = new ArrayList<>();
+            for (Class<?> c : cache.keySet()) {
+                ClassLoader classLoader = c.getClassLoader();
+                if (classLoader == cl) {
+                    toRemove.add(c);
+                }
+                if (cl instanceof OpenLBundleClassLoader) {
+                    if (((OpenLBundleClassLoader) cl).containsClassLoader(classLoader)) {
+                        toRemove.add(c);
+                    }
+                }
+            }
+
+            for (Class<?> c : toRemove) {
+                if (getJavaClassCache().containsKey(c)) {
+                    continue;
+                }
+                cache.remove(c);
+            }
         } finally {
             lock.unlock();
         }
     }
 
-    public void put(Class<?> c, JavaOpenClass openClass) {
+    void put(Class<?> c, JavaOpenClass openClass) {
         if (getJavaClassCache().containsKey(c)) {
             return;
         }
@@ -135,16 +156,4 @@ final class JavaOpenClassCache {
         }
     }
 
-    public void remove(Class<?> c) {
-        if (getJavaClassCache().containsKey(c)) {
-            return;
-        }
-        Lock lock = readWriteLock.writeLock();
-        try {
-            lock.lock();
-            cache.remove(c);
-        } finally {
-            lock.unlock();
-        }
-    }
 }

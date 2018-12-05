@@ -10,9 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openl.classloader.ClassLoaderUtils;
-import org.openl.rules.convertor.String2DataConvertorFactory;
-import org.openl.types.java.JavaOpenClass;
+import org.openl.OpenClassUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
@@ -122,7 +120,7 @@ public class ProjectDescriptor {
      */
     public ClassLoader getClassLoader(boolean reload) {
         if (classLoader == null || reload) {
-            unregisterClassloader(classLoader);
+            OpenClassUtil.releaseClassLoader(classLoader);
             URL[] urls = new URL[0];
             // temporary commented. as we extends the strategies classloaders
             // with this URLS.
@@ -210,28 +208,10 @@ public class ProjectDescriptor {
         }
     }
 
-    /**
-     * Class loader of current project have to be unregistered if it is not in
-     * use to prevent memory leaks.
-     *
-     * @param classLoader ClassLoader to unregister.
-     * @deprecated Must be removed to separate class. Project descriptor is just
-     *             description of project and must be simple java bean.
-     */
-    private void unregisterClassloader(ClassLoader classLoader) {
-        if (classLoader != null) {
-            JavaOpenClass.resetClassloader(classLoader);
-            String2DataConvertorFactory.unregisterClassLoader(classLoader);
-            ClassLoaderUtils.close(classLoader);
-        }
-    }
-
     @Override
     protected void finalize() throws Throwable {
         try {
-            // TODO Must be removed to separate class. Project descriptor is
-            // just description of project and must be simple java bean.
-            unregisterClassloader(classLoader);
+            OpenClassUtil.releaseClassLoader(classLoader);
         } catch (Throwable ignore) {
         } finally {
             super.finalize();

@@ -40,6 +40,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.CompiledOpenClass;
+import org.openl.OpenClassUtil;
 import org.openl.OpenL;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.maven.gen.GenerateInterface;
@@ -373,7 +374,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
 
             project.addCompileSourceRoot(outputDirectory.getPath());
         } finally {
-            releaseResources(classLoader);
+            OpenClassUtil.releaseClassLoader(classLoader);
         }
     }
 
