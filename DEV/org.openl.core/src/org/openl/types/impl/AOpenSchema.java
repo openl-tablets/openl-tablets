@@ -10,7 +10,6 @@ import java.util.Map;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenClassHolder;
-import org.openl.types.IOpenFactory;
 import org.openl.types.IOpenSchema;
 
 /**
