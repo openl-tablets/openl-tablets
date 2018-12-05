@@ -509,7 +509,15 @@ public class DecisionTableHelper {
     private static int calculateCompoundReturnColumnsCount(ILogicalTable originalTable,
             int numberOfConditions,
             int numberOfMergedRows) {
-        return originalTable.getRow(numberOfMergedRows).getWidth() - numberOfConditions;
+        IGridTable gt = originalTable.getSource().getRow(numberOfMergedRows);
+        int w = gt.getWidth();
+        int w0 = 0;
+        int i = 0;
+        while (i < w) {
+            i = i + gt.getCell(i, 0).getWidth();
+            w0++;
+        }
+        return w0 - numberOfConditions;
     }
 
     private static IOpenMethod findBestMatchOpenMethod(String description,
@@ -930,7 +938,7 @@ public class DecisionTableHelper {
         public IOpenMethod[] getMethodsChain() {
             return methodsChain;
         }
-        
+
         public int getColumn() {
             return column;
         }
@@ -1062,12 +1070,13 @@ public class DecisionTableHelper {
             for (int i = 0; i < bestMatchedTokens.length; i++) {
                 conditions.add(new Condition(parameterTokensMap.get(bestMatchedTokens[i].getValue()),
                     description,
-                    parameterTokenMethodsChainMap.get(bestMatchedTokens[i].getValue()), column));
+                    parameterTokenMethodsChainMap.get(bestMatchedTokens[i].getValue()),
+                    column));
             }
 
             vConditions.add(conditions);
         }
-        
+
         List<Condition> fitConditions = new ArrayList<>();
         while (!vConditions.isEmpty()) { // Greedy algorithm. Bipartite graph
                                          // maximum matching algorithm is
@@ -1118,7 +1127,7 @@ public class DecisionTableHelper {
             throw new CompositeSyntaxNodeException(null, errors.toArray(new SyntaxNodeException[] {}));
         }
 
-        boolean[] parameterIsUsed = new boolean[numberOfParameters];        
+        boolean[] parameterIsUsed = new boolean[numberOfParameters];
         Arrays.fill(parameterIsUsed, false);
         for (Condition condition : fitConditions) {
             parameterIsUsed[condition.getParameterIndex()] = true;
@@ -1132,11 +1141,12 @@ public class DecisionTableHelper {
             }
             i--;
         }
-        
-        while (k < numberOfHcondition) { //i<>0
+
+        while (k < numberOfHcondition) { // i<>0
             Condition maxColumnCondition = null;
             for (Condition condition : fitConditions) {
-                if ((maxColumnCondition == null || condition.getColumn() > maxColumnCondition.getColumn()) && parameterIsUsed[condition.parameterIndex]) {
+                if ((maxColumnCondition == null || condition.getColumn() > maxColumnCondition
+                    .getColumn()) && parameterIsUsed[condition.parameterIndex]) {
                     maxColumnCondition = condition;
                 }
             }
@@ -1148,14 +1158,14 @@ public class DecisionTableHelper {
         if (k < numberOfHcondition) {
             throw new OpenLCompilationException("No input parameter found for horizontal condition!");
         }
-        
+
         Condition[] conditions = new Condition[fitConditions.size() + numberOfHcondition];
         int j = 0;
         for (Condition condition : fitConditions) {
             conditions[j] = condition;
             j++;
         }
-        
+
         j = 0;
         for (int w = i + 1; w < numberOfParameters; w++) {
             if (!parameterIsUsed[w] && j < numberOfHcondition) {
@@ -1190,7 +1200,7 @@ public class DecisionTableHelper {
         "org.openl.meta.BigDecimalValue");
 
     private static final List<String> CHAR_TYPES = Arrays.asList("char", "java.lang.Character");
-    
+
     private static final Pattern MAYBE_INT_ARRAY_PATTERN = Pattern.compile("\\s*(\\d+,)*\\d+\\s*");
 
     /**
@@ -1270,7 +1280,7 @@ public class DecisionTableHelper {
             if (INT_TYPES.contains(typeName)) {
                 try {
                     boolean f = false;
-                    if (MAYBE_INT_ARRAY_PATTERN.matcher(value).matches()) { 
+                    if (MAYBE_INT_ARRAY_PATTERN.matcher(value).matches()) {
                         f = true;
                     }
                     if (IntRangeParser.getInstance().parse(value) != null && !f) {
