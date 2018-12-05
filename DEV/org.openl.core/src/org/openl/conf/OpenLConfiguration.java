@@ -23,7 +23,6 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.grammar.IGrammar;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenFactory;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodKey;
@@ -221,21 +220,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
             return binder;
         }
         return parent == null ? NotExistNodeBinder.the : parent.getNodeBinder(node);
-    }
-
-    public IOpenFactory getOpenFactory(String name) {
-        OpenFactoryConfiguration conf = openFactories == null ? null
-                                                              : (OpenFactoryConfiguration) openFactories.get(name);
-
-        if (conf != null) {
-            return conf.getOpenFactory(configurationContext);
-        }
-
-        if (parent != null) {
-            return parent.getOpenFactory(name);
-        }
-
-        return null;
     }
 
     Map<String, Map<String, IOpenClass>> cache = new HashMap<String, Map<String, IOpenClass>>();
