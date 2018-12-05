@@ -11,6 +11,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.CompiledOpenClass;
+import org.openl.OpenClassUtil;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
@@ -59,7 +60,7 @@ public final class CompileMojo extends BaseOpenLMojo {
             info("Methods  : " + openClass.getMethods().size());
             info("Warnings : " + warnMessages.size());
         } finally {
-            releaseResources(classLoader);
+            OpenClassUtil.releaseClassLoader(classLoader);
         }
     }
 

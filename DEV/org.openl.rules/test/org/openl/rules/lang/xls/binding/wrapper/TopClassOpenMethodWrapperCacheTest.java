@@ -8,7 +8,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.AMethod;
-import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.JavaOpenClassCache;
 import org.openl.vm.IRuntimeEnv;
 
 public class TopClassOpenMethodWrapperCacheTest {
@@ -36,7 +36,7 @@ public class TopClassOpenMethodWrapperCacheTest {
         cache.put(openClass2, m2);
         cache.put(openClass3, m3);
 
-        JavaOpenClass.resetClassloader(Thread.currentThread().getContextClassLoader());
+        JavaOpenClassCache.getInstance().resetClassloader(Thread.currentThread().getContextClassLoader());
 
         // Initial test
         assertEquals(3, cache.cache.size());
