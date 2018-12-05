@@ -88,6 +88,6 @@ public class OpenLConfigurator extends Configurator {
             cl = ClassLoaderFactory.createClassLoader(builderClassPath, cl, ucxt);
         }
 
-        return (IOpenLBuilder) ClassFactory.newInstanceForName(builderClassName, cl);
+        return (IOpenLBuilder)ClassFactory.forName(builderClassName, cl).newInstance();
     }
 }
