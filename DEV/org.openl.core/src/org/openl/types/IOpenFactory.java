@@ -16,14 +16,4 @@ package org.openl.types;
 
 public interface IOpenFactory {
 
-    /**
-     * Produces a schema according to uri
-     *
-     * @param uri
-     * @param reload if true forces reloading of the schema
-     * @return
-     */
-
-    IOpenSchema getSchema(String uri, boolean reload) throws Exception;
-
 }
