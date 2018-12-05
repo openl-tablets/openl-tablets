@@ -38,7 +38,7 @@ public class JavaOpenFactory extends AOpenFactory {
             urls[i] = new File(classpath[i]).getCanonicalFile().toURI().toURL();
         }
 
-        return new JavaOpenSchema(this, classpath, new URLClassLoader(urls));
+        return new JavaOpenSchema(classpath, new URLClassLoader(urls));
     }
 
     protected String[] splitClassPath(String classpath) {
