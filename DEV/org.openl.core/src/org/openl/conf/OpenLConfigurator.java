@@ -81,7 +81,7 @@ public class OpenLConfigurator extends Configurator {
 
         ClassLoader cl = ClassLoaderFactory.getOpenlCoreClassLoader(ucxt.getUserClassLoader());
         if (builderClassPath != null) {
-            cl = ClassLoaderFactory.createClassLoader(builderClassPath, cl, ucxt);
+            cl = ClassLoaderFactory.createClassLoader(builderClassPath, cl, ucxt.getUserHome());
         }
 
         return (IOpenLBuilder)ClassFactory.forName(builderClassName, cl).newInstance();

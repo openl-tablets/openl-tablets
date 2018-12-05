@@ -24,21 +24,10 @@ import org.openl.util.tree.FileTreeIterator;
 
 public class ClassLoaderFactory {
 
-    public static ClassLoader createClassLoader(String classpath,
-            ClassLoader parent,
-            IUserContext ucxt) throws Exception {
-        return createClassLoader(splitClassPath(classpath), parent, ucxt);
-    }
-
-    public static ClassLoader createClassLoader(String classpath,
+    public static ClassLoader createClassLoader(String cp,
             ClassLoader parent,
             String userHome) throws Exception {
-        return createClassLoader(splitClassPath(classpath), parent, userHome);
-    }
-
-    public static ClassLoader createClassLoader(String[] classpath,
-            ClassLoader parent,
-            String userHome) throws Exception {
+        String[] classpath = splitClassPath(cp);
         List<URL> urls = new ArrayList<URL>();
         for (int i = 0; i < classpath.length; i++) {
 
@@ -59,12 +48,6 @@ public class ClassLoaderFactory {
 
         URL[] uurl = urls.toArray(new URL[urls.size()]);
         return new URLClassLoader(uurl, parent);
-    }
-
-    public static ClassLoader createClassLoader(String[] classpath,
-            ClassLoader parent,
-            IUserContext ucxt) throws Exception {
-        return createClassLoader(classpath, parent, ucxt.getUserHome());
     }
 
     public static ClassLoader getOpenlCoreClassLoader(ClassLoader ucl) {
