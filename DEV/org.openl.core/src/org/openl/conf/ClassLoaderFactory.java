@@ -16,7 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.openl.OpenL;
 import org.openl.util.ASelector;
 import org.openl.util.ISelector;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -48,17 +47,6 @@ public class ClassLoaderFactory {
 
         URL[] uurl = urls.toArray(new URL[urls.size()]);
         return new URLClassLoader(uurl, parent);
-    }
-
-    public static ClassLoader getOpenlCoreClassLoader(ClassLoader ucl) {
-        try {
-            Class<?> c = ucl.loadClass(OpenL.class.getName());
-            if (c != null) {
-                return ucl;
-            }
-        } catch (Exception e) {
-        }
-        return OpenL.class.getClassLoader();
     }
 
     private static File makeFile(String root, String name) throws Exception {
