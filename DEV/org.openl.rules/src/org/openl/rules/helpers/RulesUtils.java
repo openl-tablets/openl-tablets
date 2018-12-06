@@ -33,6 +33,7 @@ import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.ArrayTool;
 import org.openl.util.CollectionUtils;
 import org.openl.util.DateTool;
+import org.openl.util.IOUtils;
 import org.openl.util.math.MathUtils;
 
 /**
@@ -4734,16 +4735,21 @@ public class RulesUtils {
         Class<?> clazz = origin.getClass();
         if ((clazz.isArray() && Serializable.class.isAssignableFrom(clazz.getComponentType()))
                 ||  (!clazz.isArray() && origin instanceof Serializable)) {
+            ObjectOutputStream oos = null;
+            ObjectInputStream ois = null;
             try {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream(512);
-                ObjectOutputStream oos = new ObjectOutputStream(baos);
+                oos = new ObjectOutputStream(baos);
                 oos.writeObject(origin);
 
                 ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-                ObjectInputStream ois = new ClassLoaderObjectInputStream(Thread.currentThread().getContextClassLoader(), bais);
+                ois = new ClassLoaderObjectInputStream(Thread.currentThread().getContextClassLoader(), bais);
                 return (T) ois.readObject();
             } catch (Exception unused) {
                 //OK lets use cloner
+            } finally {
+                IOUtils.closeQuietly(oos);
+                IOUtils.closeQuietly(ois);
             }
         }
         // FIXME: Needless memory consumption - no needs to create 'cloner' instance every time.
