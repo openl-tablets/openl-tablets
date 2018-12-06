@@ -74,5 +74,9 @@
             <groupId>uk.com.robust-it</groupId>
             <artifactId>cloning</artifactId>
         </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
     </dependencies>
 </project>
