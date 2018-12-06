@@ -5,9 +5,13 @@
  */
 package org.openl.rules.helpers;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.reflect.Array;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -16,6 +20,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.io.input.ClassLoaderObjectInputStream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.cast.AutoCastReturnType;
 import org.openl.binding.impl.cast.DefaultAutoCastFactory.ReturnType;
@@ -4719,9 +4724,29 @@ public class RulesUtils {
         return clazz.isAssignableFrom(o.getClass());
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T copy(T origin) {
         // Create new instance every time because of the issue with updating a module in WebStudio.
         // It is needed to investigate class loading/unloading mechanism.
+        if (origin == null) {
+            return null;
+        }
+
+        Class<?> clazz = origin.getClass();
+        if ((clazz.isArray() && Serializable.class.isAssignableFrom(clazz.getComponentType()))
+                ||  (!clazz.isArray() && origin instanceof Serializable)) {
+            try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream(512);
+                ObjectOutputStream oos = new ObjectOutputStream(baos);
+                oos.writeObject(origin);
+
+                ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+                ObjectInputStream ois = new ClassLoaderObjectInputStream(Thread.currentThread().getContextClassLoader(), bais);
+                return (T) ois.readObject();
+            } catch (Exception unused) {
+                //OK lets use cloner
+            }
+        }
         // FIXME: Needless memory consumption - no needs to create 'cloner' instance every time.
         return new OpenLArgumentsCloner().deepClone(origin);
     }
