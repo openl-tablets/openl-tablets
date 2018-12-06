@@ -1,5 +1,6 @@
 package org.openl.conf;
 
+import org.openl.OpenL;
 import org.openl.syntax.grammar.IGrammar;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -29,10 +30,6 @@ public class NoAntOpenLTask {
         IOpenLConfiguration ret = lastConfiguration;
         lastConfiguration = null;
         return ret;
-    }
-
-    public void addConfiguredTypeFactory(OpenFactoryConfiguration of) {
-        conf.addOpenFactory(of);
     }
 
     public NodeBinderFactoryConfiguration createBindings() {
@@ -106,7 +103,7 @@ public class NoAntOpenLTask {
     }
 
     private IConfigurableResourceContext getConfigurationContext(IOpenLConfiguration extendsConfiguration, IUserContext ucxt) {
-        ClassLoader parentLoader = extendsConfiguration == null ? ClassLoaderFactory.getOpenlCoreClassLoader(null)
+        ClassLoader parentLoader = extendsConfiguration == null ? OpenL.class.getClassLoader()
                 : extendsConfiguration.getConfigurationContext().getClassLoader();
 
         if (!inheritExtendedConfigurationLoader) {

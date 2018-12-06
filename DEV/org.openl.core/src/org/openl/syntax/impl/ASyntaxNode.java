@@ -6,44 +6,39 @@
 
 package org.openl.syntax.impl;
 
-import java.util.Iterator;
-
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.util.AIndexedIterator;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInterval;
-import org.openl.util.tree.TreeIterator;
 
 /**
  * @author snshor
  */
 public abstract class ASyntaxNode implements ISyntaxNode {
-    
-    public static final TreeIterator.TreeAdaptor<ISyntaxNode> TREE_ADAPTOR = new SyntaxTreeAdaptor();
-    
+
     private String type;
 
     private IOpenSourceCodeModule module;
 
     private ISyntaxNode parent;
 
-    private ILocation location;    
+    private ILocation location;
 
-    private static void printSpace(int level, StringBuilder buf) {
-        for (int j = 0; j < level; j++) {
-            buf.append("  ");
-        }
-    }
-
-    public ASyntaxNode(String type, ILocation location,
-    // Map<String, String> properties,
+    public ASyntaxNode(String type,
+            ILocation location,
+            // Map<String, String> properties,
             IOpenSourceCodeModule module) {
         this.type = type;
         this.location = location;
         // this.properties = properties;
         this.module = module;
         // this.namespace = namespace;
+    }
+
+    private static void printSpace(int level, StringBuilder buf) {
+        for (int j = 0; j < level; j++) {
+            buf.append("  ");
+        }
     }
 
     public ILocation getLocation() {
@@ -62,6 +57,10 @@ public abstract class ASyntaxNode implements ISyntaxNode {
 
     public ISyntaxNode getParent() {
         return parent;
+    }
+
+    public void setParent(ISyntaxNode parent) {
+        this.parent = parent;
     }
 
     public ILocation getSourceLocation() {
@@ -96,6 +95,10 @@ public abstract class ASyntaxNode implements ISyntaxNode {
         return type;
     }
 
+    public void setType(String string) {
+        type = string;
+    }
+
     public void print(int level, StringBuilder buf) {
         int nkids = getNumberOfChildren();
 
@@ -118,45 +121,10 @@ public abstract class ASyntaxNode implements ISyntaxNode {
 
     }
 
-    public void setParent(ISyntaxNode parent) {
-        this.parent = parent;
-    }
-    public void setType(String string) {
-        type = string;
-    }
-
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
         print(0, buf);
         return buf.toString();
     }
-    
-    private static class SyntaxTreeAdaptor implements TreeIterator.TreeAdaptor<ISyntaxNode> {
-        private static class SyntaxNodeChildrenIterator extends AIndexedIterator<ISyntaxNode> {
-            private ISyntaxNode node;
-
-            public SyntaxNodeChildrenIterator(ISyntaxNode node) {
-                super(0, node.getNumberOfChildren(), 1);
-                this.node = node;
-            }
-
-            /*
-             * (non-Javadoc)
-             *
-             * @see org.openl.util.AIndexedIterator#indexedElement(int)
-             */
-            @Override
-            protected ISyntaxNode indexedElement(int i) {
-                return node.getChild(i);
-            }
-
-        }
-
-        public Iterator<ISyntaxNode> children(ISyntaxNode syntaxNode) {
-            return new SyntaxNodeChildrenIterator(syntaxNode);
-        }
-
-    }
-
 }

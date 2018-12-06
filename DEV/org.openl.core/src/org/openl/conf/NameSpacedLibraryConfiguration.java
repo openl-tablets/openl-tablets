@@ -24,10 +24,6 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
 
     ArrayList<IMethodFactoryConfigurationElement> factories = new ArrayList<IMethodFactoryConfigurationElement>();
 
-    public void addAnyLibrary(GenericLibraryConfiguration glb) {
-        factories.add(glb);
-    }
-
     public void addJavalib(JavaLibraryConfiguration factory) {
         factories.add(factory);
     }

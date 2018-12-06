@@ -48,10 +48,6 @@ public class NullOpenClass implements IOpenClass {
         return null;
     }
 
-    public IOpenFactory getFactory() {
-        return null;
-    }
-
     public IOpenField getField(String name) {
         return null;
     }
