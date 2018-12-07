@@ -76,7 +76,7 @@
                 <span>#{project.name}</span>
                 <h:panelGroup rendered="#{editable}">
                 <a href="javascript:void(0)" title="Edit" class="editable-link"
-                   onclick="editProject()"><img src="webresource/images/edit.png" style="opacity:0.4" /></a>
+                   onclick="editProject()"><img src="#{request.contextPath}/webresource/images/edit.png" style="opacity:0.4" /></a>
                 </h:panelGroup>
             </h1>
 
@@ -142,7 +142,7 @@
                     <span>Modules</span>
                     <h:panelGroup rendered="#{editable}">
                         <a href="javascript:void(0)" title="Add Module" class="editable-link"
-                           onclick="addModule()"><img src="webresource/images/add.png" style="opacity:0.4" /></a>
+                           onclick="addModule()"><img src="#{request.contextPath}/webresource/images/add.png" style="opacity:0.4" /></a>
                     </h:panelGroup>
                 </h3>
                 <div class="block-content">
@@ -171,7 +171,7 @@
                                     <div style="margin-top:4px">
                                         <h:panelGroup rendered="#{!empty module.methodFilter.includes}">
                                             <div title="Included Methods">
-                                                <img src="webresource/images/include.png" style="opacity:0.6" />
+                                                <img src="#{request.contextPath}/webresource/images/include.png" style="opacity:0.6" />
                                                 <a4j:repeat value="#{module.methodFilter.includes.toArray()}" var="include">
                                                     #{include}
                                                 </a4j:repeat>
@@ -180,7 +180,7 @@
 
                                         <h:panelGroup rendered="#{!empty module.methodFilter.excludes}">
                                             <div title="Excluded Methods">
-                                                <img src="webresource/images/exclude.png" style="opacity:0.6" />
+                                                <img src="#{request.contextPath}/webresource/images/exclude.png" style="opacity:0.6" />
                                                 <a4j:repeat value="#{module.methodFilter.excludes.toArray()}" var="exclude">
                                                     #{exclude}
                                                 </a4j:repeat>
@@ -191,16 +191,16 @@
                                 <h:panelGroup rendered="#{editable}">
                                     <a href="javascript:void(0)" title="Edit Module" class="editable-link-inner first-button"
                                         onclick="editModule({index:'#{i.index}',name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'})"><img
-                                            src="webresource/images/edit.png" style="opacity:0.4" /></a>
+                                            src="#{request.contextPath}/webresource/images/edit.png" style="opacity:0.4" /></a>
                                     <h:panelGroup>
                                         <a href="javascript:void(0)" title="Copy Module" class="editable-link-inner second-button"
                                             onclick="copyModule({isModuleWithWildcard:#{isModuleWithWildcard},index:'#{i.index}',name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'})"><img
-                                                src="webresource/images/copy.png" style="opacity:0.4" /></a>
+                                                src="#{request.contextPath}/webresource/images/copy.png" style="opacity:0.4" /></a>
                                     </h:panelGroup>
                                     <h:panelGroup rendered="#{modulesNumber > 1}">
                                         <a href="javascript:void(0)" title="Remove Module" class="editable-link-inner third-button"
                                                onclick="removeModule('#{i.index}')"><img
-                                                    src="webresource/images/remove.png" style="opacity:0.4" /></a>
+                                                    src="#{request.contextPath}/webresource/images/remove.png" style="opacity:0.4" /></a>
                                     </h:panelGroup>
                                 </h:panelGroup>
                             </h:panelGroup>
@@ -215,7 +215,7 @@
                     <span>Dependencies</span>
                     <h:panelGroup rendered="#{editable}">
                         <a href="javascript:void(0)" title="Manage Dependencies" class="editable-link"
-                           onclick="manageDependencies()"><img src="webresource/images/edit.png" style="opacity:0.4" /></a>
+                           onclick="manageDependencies()"><img src="#{request.contextPath}/webresource/images/edit.png" style="opacity:0.4" /></a>
                     </h:panelGroup>
                 </h3>
                 <div class="block-content">
@@ -237,7 +237,7 @@
                                         <h:form style="display: inline;">
                                             <a4j:commandLink action="#{projectBean.removeDependency(dependency.name)}"
                                                 oncomplete="ws.nav.reload()" title="Remove dependency">
-                                                <img src="webresource/images/remove.png" style="opacity: 0.4;margin-left: 3px; vertical-align: top" />
+                                                <img src="#{request.contextPath}/webresource/images/remove.png" style="opacity: 0.4;margin-left: 3px; vertical-align: top" />
                                             </a4j:commandLink>
                                         </h:form>
                                     </span>
@@ -257,7 +257,7 @@
                     <span>Sources</span>
                     <h:panelGroup rendered="#{editable}">
                         <a href="javascript:void(0)" title="Manage Sources" class="editable-link"
-                           onclick="manageSources()"><img src="webresource/images/edit.png" style="opacity:0.4" /></a>
+                           onclick="manageSources()"><img src="#{request.contextPath}/webresource/images/edit.png" style="opacity:0.4" /></a>
                     </h:panelGroup>
                 </h3>
                 <div class="block-content">

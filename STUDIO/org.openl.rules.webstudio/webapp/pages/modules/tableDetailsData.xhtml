@@ -69,14 +69,14 @@
                 <td style="padding: 0 7px">
                     <h:panelGroup rendered="#{prop.inheritedProperty and !prop.externalPropery}">
                         <a href="#{studio.url('table')}?id=#{prop.inheritedTableId}"
-                            title="Go to Properties table"><img src="webresource/images/up.gif" /></a>
+                            title="Go to Properties table"><img src="#{request.contextPath}/webresource/images/up.gif" /></a>
                     </h:panelGroup>
                     <h:panelGroup rendered="#{editable and !prop.inheritedProperty}">
                         <a4j:commandLink id="removePropBtn" action="#{tableDetailsBean.remove(prop)}" title="Remove"
                             render="propsTable :addPropsPanel"
                             onclick="return canOverwriteRevision();"
                             style="#{empty prop.deprecation ? 'display: none' : ''}">
-                            <img style="opacity: 0.5" src="webresource/images/close.gif" />
+                            <img style="opacity: 0.5" src="#{request.contextPath}/webresource/images/close.gif" />
                         </a4j:commandLink>
                     </h:panelGroup>
                 </td>

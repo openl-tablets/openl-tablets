@@ -38,12 +38,12 @@
             </c:forEach>
             <td>
                 <a href="?#{tableViewMenuBean.requestParams}&amp;transparency=down">
-                    <img src="webresource/images/arrow_open.png"
+                    <img src="#{request.contextPath}/webresource/images/arrow_open.png"
                         title="Less Transparent (#{filterHolder.transparency}%)"/></a>
             </td>
             <td>
                 <a href="?#{tableViewMenuBean.requestParams}&amp;transparency=up">
-                    <img src="webresource/images/arrow_close.png"
+                    <img src="#{request.contextPath}/webresource/images/arrow_close.png"
                         title="More Transparent (#{filterHolder.transparency}%)"/></a>
             </td>
             </tr>
