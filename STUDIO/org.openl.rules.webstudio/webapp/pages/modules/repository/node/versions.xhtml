@@ -58,7 +58,7 @@
         <a4j:commandLink id="openPrjVersion" title="Open Revision ##{version.versionName}" onclick="return backToPropsTab();"
             immediate="true"
             action="#{repositoryTreeController.openProjectVersion(version.versionName)}" render="nodeView nodeTabPanel projectTree content">
-            <img src="webresource/images/view.png" />
+            <img src="#{request.contextPath}/webresource/images/view.png" />
         </a4j:commandLink>
       </rich:column>
   </rich:dataTable>
