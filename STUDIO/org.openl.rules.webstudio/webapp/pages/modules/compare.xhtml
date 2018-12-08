@@ -38,7 +38,7 @@
                 </h:panelGrid>
             </div>
             <div style="text-align: right; padding: 0 13px 5px">
-                <img src="webresource/images/arrow_close.png"
+                <img src="#{request.contextPath}/webresource/images/arrow_close.png"
                     onclick="$j('#diffFormPanel').toggle('fast');this.src=(this.title == '#{msg['ws.compare.panel.hide']}' ? 'webresource/images/arrow_open.png' : 'webresource/images/arrow_close.png');this.title=(this.title == '#{msg['ws.compare.panel.hide']}' ? '#{msg['ws.compare.panel.show']}' : '#{msg['ws.compare.panel.hide']}');"
                     style="cursor: pointer;" title="#{msg['ws.compare.panel.hide']}" />
             </div>

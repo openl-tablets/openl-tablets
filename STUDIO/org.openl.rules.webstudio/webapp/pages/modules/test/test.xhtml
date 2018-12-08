@@ -12,7 +12,7 @@
     <ui:param name="complexResult" value="#{testBean.showComplexResult}" />
     <c:set var="failuresPerTest" value="#{testBean.testsFailuresPerTest}" />
 
-    <script src="webresource/js/tooltip.js"></script>
+    <script src="#{contextPath}/webresource/js/tooltip.js"></script>
     <script>
         function explain(url) {
            window.open('#{contextPath}/faces/pages/layout/frameView.xhtml' + url
