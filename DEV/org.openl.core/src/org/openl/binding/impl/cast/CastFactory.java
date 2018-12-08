@@ -328,14 +328,21 @@ public class CastFactory implements ICastFactory {
         IOpenCast javaCast = findJavaCast(from, to);
         // Select minimum between alias cast and java cast
         typeCast = selectBetterCast(from, to, typeCast, javaCast);
-
+        
         IOpenCast methodBasedCast = findMethodBasedCast(from, to, methodFactory);
         typeCast = selectBetterCast(from, to, typeCast, methodBasedCast);
 
+        if (typeCast == null) {
+            typeCast = findOneElementArrayCast(from, to);
+        }
+        
         return typeCast;
     }
 
     private IOpenCast selectBetterCast(IOpenClass from, IOpenClass to, IOpenCast castA, IOpenCast castB) {
+        if (castA == null && castB == null) {
+            return null;
+        }
         if (castA == null) {
             return castB;
         }
@@ -389,6 +396,10 @@ public class CastFactory implements ICastFactory {
                 }
             }
         }
+        return null;
+    }
+    
+    private IOpenCast findOneElementArrayCast(IOpenClass from, IOpenClass to) {
         if (!from.isArray() && to.isArray() && !to.getComponentClass().isArray()) {
             IOpenClass componentClass = to.getComponentClass();
             IOpenCast cast = getCast(from, componentClass);
