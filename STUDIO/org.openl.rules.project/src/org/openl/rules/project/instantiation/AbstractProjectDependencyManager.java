@@ -153,10 +153,6 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         return classLoader;
     }
     
-    public ClassLoader getRootClassLoader() {
-        return rootClassLoader;
-    }
-    
     private List<ClassLoader> oldClassLoaders = new ArrayList<ClassLoader>();
 
     public synchronized void reset(IDependency dependency){
