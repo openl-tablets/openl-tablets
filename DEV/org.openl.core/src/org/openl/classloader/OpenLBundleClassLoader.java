@@ -8,7 +8,7 @@ import java.util.Set;
 
 public abstract class OpenLBundleClassLoader extends OpenLClassLoader {
 
-    private Set<ClassLoader> bundleClassLoaders = new LinkedHashSet<ClassLoader>();
+    protected Set<ClassLoader> bundleClassLoaders = new LinkedHashSet<ClassLoader>();
     
     OpenLBundleClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);

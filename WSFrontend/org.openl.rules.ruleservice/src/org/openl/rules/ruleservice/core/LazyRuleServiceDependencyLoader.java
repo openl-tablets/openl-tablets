@@ -69,10 +69,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
     }
     
     private ClassLoader buildClassLoader(AbstractProjectDependencyManager dependencyManager) {
-        ClassLoader projectClassLoader = dependencyManager.getClassLoader(modules.iterator().next().getProject());
-        SimpleBundleClassLoader simpleBundleClassLoader = new SimpleBundleClassLoader(dependencyManager.getRootClassLoader());
-        simpleBundleClassLoader.addClassLoader(projectClassLoader);
-        return simpleBundleClassLoader;
+        return dependencyManager.getClassLoader(modules.iterator().next().getProject());
     }
 
     public CompiledOpenClass compile(final String dependencyName,

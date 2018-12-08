@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
-import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
@@ -20,9 +19,9 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
 
     private final Logger log = LoggerFactory.getLogger(SimpleProjectDependencyLoader.class);
 
-    private final String dependencyName;
-    private final Collection<Module> modules;
-    private CompiledDependency compiledDependency = null;
+    protected final String dependencyName;
+    protected final Collection<Module> modules;
+    protected CompiledDependency compiledDependency = null;
     private boolean executionMode = false;
     private boolean singleModuleMode = false;
     private final boolean isProject;
@@ -100,11 +99,8 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
         return null;
     }
 
-    private ClassLoader buildClassLoader(AbstractProjectDependencyManager dependencyManager) {
-        ClassLoader projectClassLoader = dependencyManager.getClassLoader(modules.iterator().next().getProject());
-        SimpleBundleClassLoader simpleBundleClassLoader = new SimpleBundleClassLoader(dependencyManager.getRootClassLoader());
-        simpleBundleClassLoader.addClassLoader(projectClassLoader);
-        return simpleBundleClassLoader;
+    protected ClassLoader buildClassLoader(AbstractProjectDependencyManager dependencyManager) {
+        return dependencyManager.getClassLoader(modules.iterator().next().getProject());
     }
     
 	protected CompiledDependency compileDependency(String dependencyName,

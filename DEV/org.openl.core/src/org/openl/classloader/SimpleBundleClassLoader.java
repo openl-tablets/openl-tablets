@@ -1,6 +1,8 @@
 package org.openl.classloader;
 
 import java.net.URL;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.Set;
 
 /**
@@ -22,7 +24,13 @@ public class SimpleBundleClassLoader extends OpenLBundleClassLoader {
 
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
-        Class<?> clazz = findClassInBundles(name);
+        Set<ClassLoader> c = Collections.newSetFromMap(new IdentityHashMap<ClassLoader, Boolean>());
+        c.add(this);
+        return loadClass(name, c);
+    }
+
+    protected Class<?> loadClass(String name, Set<ClassLoader> c) throws ClassNotFoundException {
+        Class<?> clazz = findClassInBundles(name, c);
 
         if (clazz != null) {
             return clazz;
@@ -35,30 +43,41 @@ public class SimpleBundleClassLoader extends OpenLBundleClassLoader {
      * Searches for class in bundle classLoaders.
      */
     protected Class<?> findClassInBundles(String name) {
+        Set<ClassLoader> c = Collections.newSetFromMap(new IdentityHashMap<ClassLoader, Boolean>());
+        return findClassInBundles(name, c);
+    }
 
-        Set<ClassLoader> bundleClassLoaders = getBundleClassLoaders();
+    protected Class<?> findClassInBundles(String name, Set<ClassLoader> c) {
 
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
+            if (c.contains(bundleClassLoader)) {
+                continue;
+            }
+            c.add(bundleClassLoader);
             try {
                 // if current class loader contains appropriate class - it will
                 // be returned as a result
                 //
                 Class<?> clazz = null;
                 if (bundleClassLoader instanceof SimpleBundleClassLoader && bundleClassLoader.getParent() == this) {
-                    clazz = ((SimpleBundleClassLoader) bundleClassLoader).findLoadedClassInBundle(name);
-                    if (clazz == null){
-                        clazz = ((SimpleBundleClassLoader) bundleClassLoader).findClassInBundles(name);
+                    SimpleBundleClassLoader sbc = ((SimpleBundleClassLoader) bundleClassLoader);
+                    clazz = sbc.findLoadedClassInBundle(name);
+                    if (clazz == null) {
+                        clazz = sbc.findClassInBundles(name, c);
                     }
                 } else {
-                    clazz = bundleClassLoader.loadClass(name);
+                    if (bundleClassLoader instanceof SimpleBundleClassLoader) {
+                        clazz = ((SimpleBundleClassLoader) bundleClassLoader).loadClass(name, c);
+                    } else {
+                        clazz = bundleClassLoader.loadClass(name);
+                    }
                 }
                 // Class<?> clazz = findLoadedClass(name);
                 if (clazz != null) {
                     return clazz;
                 }
             } catch (ClassNotFoundException e) {
-                // ignore exception
-            } 
+            }
         }
 
         return null;
