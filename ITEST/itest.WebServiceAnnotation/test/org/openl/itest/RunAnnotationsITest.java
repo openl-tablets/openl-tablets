@@ -17,7 +17,6 @@ import javax.xml.xpath.XPathFactory;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.RestClientFactory;
@@ -64,51 +63,33 @@ public class RunAnnotationsITest {
     }
 
     @Test
-    @Ignore //FIXME: when EPBDS-7975 will be fixed
     public void call_parse_interfaceMethod_shouldBeCalledSuccessfully_OK() {
+        //parse method was bound to the "/parse1" endpoint
         ResponseEntity<Integer> response = annotationClassRest
-            .exchange("/parse", HttpMethod.POST, RestClientFactory.request("1001"), Integer.class);
+            .exchange("/parse1", HttpMethod.POST, RestClientFactory.request("1001"), Integer.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals((Integer) 1001, response.getBody());
     }
 
     @Test
-    @Ignore //FIXME: when EPBDS-7975 will be fixed
     public void call_parse_interfaceMethod_shouldReturn_UNPROCESSABLE_ENTITY() {
-        ResponseEntity<Parse2Dto> response = annotationClassRest
-                .exchange("/parse", HttpMethod.POST, RestClientFactory.request("B"), Parse2Dto.class);
+        ResponseEntity<ErrorResponse> response = annotationClassRest
+                .exchange("/parse1", HttpMethod.POST, RestClientFactory.request("B"), ErrorResponse.class);
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
-        Parse2Dto body = response.getBody();
+        ErrorResponse body = response.getBody();
         assertNotNull(body);
-        assertContains(body.getBody(), "not acceptable");
+        assertEquals("not acceptable", body.getMessage());
+        assertEquals(ExceptionType.USER_ERROR.name(), body.getType());
     }
 
     @Test
-    @Ignore //FIXME: when EPBDS-7975 will be fixed
-    public void call_parse1_interfaceMethod_thenInvokeBeforeInterceptorAndThrowAnException_thenInvokeAfterInterceptorAndWrapException_OK() {
-        ResponseEntity<MyType> response = annotationClassRest
-            .exchange("/parse1", HttpMethod.POST, RestClientFactory.request("throwBeforeCall"), MyType.class);
+    public void call_parse1_interfaceMethod_shouldReturn_NOT_FOUND() {
+        ResponseEntity<String> response = annotationClassRest
+                .exchange("/parse11", HttpMethod.POST, RestClientFactory.request("B"), String.class);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        MyType body = response.getBody();
-        assertNotNull(body);
-        assertEquals("ERROR", body.getStatus());
-        assertEquals(-1, body.getCode());
-    }
-
-    @Test
-    @Ignore //FIXME: when EPBDS-7975 will be fixed
-    public void call_parse1_interfaceMethod_thenInvokeAfterInterceptorAndWrapResponse_OK() {
-        ResponseEntity<MyType> response = annotationClassRest
-            .exchange("/parse1", HttpMethod.POST, RestClientFactory.request("11"), MyType.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        MyType body = response.getBody();
-        assertNotNull(body);
-        assertEquals("PARSED", body.getStatus());
-        assertEquals(11, body.getCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
