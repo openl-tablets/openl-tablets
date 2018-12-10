@@ -19,18 +19,18 @@
             <h:dataTable id="historyTable" value="#{recentlyVisitedTables}" var="table">
                 <c:set var="isLastVisited" value="#{studio.model.recentlyVisitedTables.lastVisitedTable.equals(table)}" />
                 <h:column>
-                    <h:graphicImage value="#{request.contextPath}/webresource/images/dt3.png" rendered="#{table.type == 'xls.dt'}" />
-                    <h:graphicImage value="#{request.contextPath}/webresource/images/spreadsheet.gif" rendered="#{table.type == 'xls.spreadsheet'}" />
-                    <h:graphicImage value="#{request.contextPath}/webresource/images/tbasic.gif" rendered="#{table.type == 'xls.tbasic'}" />
-                    <h:graphicImage value="#{request.contextPath}/webresource/images/cmatch.gif" rendered="#{table.type == 'xls.columnmatch'}" />
-                    <h:graphicImage value="#{request.contextPath}/webresource/images/data.gif" rendered="#{table.type == 'xls.data'}" />
-                    <h:graphicImage value="#{request.contextPath}/webresource/images/dataobject.gif" rendered="#{table.type == 'xls.datatype'}" />
-                    <h:graphicImage value="#{request.contextPath}/webresource/images/config_obj.gif" rendered="#{table.type == 'xls.environment'}" />
-                    <h:graphicImage value="#{request.contextPath}/webresource/images/method.gif" rendered="#{table.type == 'xls.method'}" />
-                    <h:graphicImage value="#{request.contextPath}/webresource/images/test_ok.gif" rendered="#{table.type == 'xls.test.method'}" />
-                    <h:graphicImage value="#{request.contextPath}/webresource/images/run.gif" rendered="#{table.type == 'xls.run.method'}" />
-                    <h:graphicImage value="#{request.contextPath}/webresource/images/data.gif" rendered="#{table.type == 'xls.properties'}" />
-                    <h:graphicImage value="#{request.contextPath}/webresource/images/leaf_icon.gif" rendered="#{table.type == 'xls.other'}" />
+                    <h:graphicImage value="/images/dt3.png" rendered="#{table.type == 'xls.dt'}" />
+                    <h:graphicImage value="/images/spreadsheet.gif" rendered="#{table.type == 'xls.spreadsheet'}" />
+                    <h:graphicImage value="/images/tbasic.gif" rendered="#{table.type == 'xls.tbasic'}" />
+                    <h:graphicImage value="/images/cmatch.gif" rendered="#{table.type == 'xls.columnmatch'}" />
+                    <h:graphicImage value="/images/data.gif" rendered="#{table.type == 'xls.data'}" />
+                    <h:graphicImage value="/images/dataobject.gif" rendered="#{table.type == 'xls.datatype'}" />
+                    <h:graphicImage value="/images/config_obj.gif" rendered="#{table.type == 'xls.environment'}" />
+                    <h:graphicImage value="/images/method.gif" rendered="#{table.type == 'xls.method'}" />
+                    <h:graphicImage value="/images/test_ok.gif" rendered="#{table.type == 'xls.test.method'}" />
+                    <h:graphicImage value="/images/run.gif" rendered="#{table.type == 'xls.run.method'}" />
+                    <h:graphicImage value="/images/data.gif" rendered="#{table.type == 'xls.properties'}" />
+                    <h:graphicImage value="/images/leaf_icon.gif" rendered="#{table.type == 'xls.other'}" />
                 </h:column>
                 <h:column>
                     <h:outputLink value="#{studio.url('table')}?id=#{table.id}&amp;saveTable=false"
