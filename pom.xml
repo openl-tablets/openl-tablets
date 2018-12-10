@@ -1376,6 +1376,12 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <!-- Since version 4.6 jgit requires Java 8 -->
+            <dependency>
+                <groupId>org.eclipse.jgit</groupId>
+                <artifactId>org.eclipse.jgit</artifactId>
+                <version>4.5.4.201711221230-r</version>
+            </dependency>
             <!--This examples uses Infinispan's JDBC cache store, which requires C3P0 and a JDBC database driver -->
             <dependency>
                 <groupId>org.infinispan</groupId>
