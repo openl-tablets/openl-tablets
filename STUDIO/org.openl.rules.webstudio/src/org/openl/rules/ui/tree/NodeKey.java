@@ -34,7 +34,11 @@ public class NodeKey implements Comparable<Object> {
         NodeKey key = (NodeKey) arg0;
 
         if (weight == key.weight) {
-            return value[0].compareTo(key.value[0]);
+            if (value[0] == null) {
+                return key.value[0] == null ? 0 : -1;
+            } else {
+                return value[0].compareTo(key.value[0]);
+            }
         }
 
         return weight - key.weight;
