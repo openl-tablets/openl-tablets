@@ -26,7 +26,7 @@ public interface MyService {
 
     @ServiceCallBeforeInterceptor({ InputInterceptor.class })
     @ServiceCallAfterInterceptor({ OutputInterceptor.class })
-    MyType parse1(@AnyType Object p);
+    MyType parse1(@AnyType Object p); // will be skipped because of such method doesn't exist in rules
 
     @ServiceCallAfterInterceptor({ ResponseInterceptor.class })
     Response parse2(@AnyType Object p);
