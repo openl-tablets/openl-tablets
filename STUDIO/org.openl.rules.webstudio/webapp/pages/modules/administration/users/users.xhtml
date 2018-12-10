@@ -49,12 +49,12 @@
         <h:column>
             <a href="javascript:void(0)"
                 onclick="editUser('#{jsffn:toJSText(user.username)}', '#{jsffn:toJSText(user.firstName)}', '#{jsffn:toJSText(user.lastName)}', #{user.internalUser}, #{jsffn:toJSON(usersBean.getGroups(user))}, #{jsffn:toJSON(usersBean.getOnlyAdminGroups(user))})"
-                title="Edit"><img src="#{request.contextPath}/webresource/images/edit2.gif" /></a>
+                title="Edit"><img src="#{request.contextPath}/images/edit2.gif" /></a>
             <a4j:commandLink execute="@this" render="@form" rendered="#{!usersBean.isOnlyAdmin(user)}"
                 action="#{usersBean.deleteUser(user.username)}"
                 onclick="if(!window.confirm('Are you sure you want to delete the user?')) {return false;}"
                 title="Delete">
-                <h:graphicImage url="#{request.contextPath}/webresource/images/delete.png" />
+                <h:graphicImage url="/images/delete.png" />
             </a4j:commandLink>
         </h:column>
     </h:dataTable>
