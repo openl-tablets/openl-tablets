@@ -43,7 +43,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
-import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author snshor
@@ -189,7 +190,11 @@ public class XlsLoader {
 
                 if (include.startsWith("<")) {
                     try {
-                        src = includeSeeker.findInclude(StringTool.openBrackets(include, '<', '>', "")[0]);
+                        Matcher matcher = Pattern.compile("<([^<>]+)>").matcher(include);
+                        matcher.find();
+                        System.out.println(matcher.group(1));
+
+                        src = includeSeeker.findInclude(matcher.group(1));
                     }catch (Exception e) {
                         messages.addAll(OpenLMessagesUtils.newErrorMessages(e));
                         

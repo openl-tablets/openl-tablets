@@ -2,7 +2,6 @@ package org.openl.rules.tableeditor.model;
 
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.tableeditor.event.TableEditorController;
-import org.openl.util.StringTool;
 
 public class MultiSelectCellEditor extends ComboBoxCellEditor {
     public static class MultiChoiceParam extends ComboBoxParam {
@@ -36,9 +35,9 @@ public class MultiSelectCellEditor extends ComboBoxCellEditor {
     public MultiSelectCellEditor(String[] choices, String[] displayValues) {
         super(displayValues);
         String[] insertedEscChoices = new String[choices.length];
-        for (int i=0; i<choices.length; i++) {
-            insertedEscChoices[i] = StringTool.insertStringToString(choices[i], 
-                    RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR, RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
+        for (int i = 0; i < choices.length; i++) {
+            insertedEscChoices[i] = choices[i].replaceAll(RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR,
+                RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR_ESCAPER + RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR);
         }
         super.setChoices(insertedEscChoices);
     }

@@ -3,24 +3,11 @@ package org.openl.codegen.tools;
 import java.lang.reflect.Array;
 
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.StringTool;
 
 public class CodeGenTools {
 
     public static String getClassSourcePathInRulesModule(Class<?> clazz) {
-        return getClassSourcePath(CodeGenConstants.RULES_SOURCE_LOCATION, clazz);
-    }
-
-    public static String getClassSourcePathInCoreModule(Class<?> clazz) {
-        return getClassSourcePath(CodeGenConstants.CORE_SOURCE_LOCATION, clazz);
-    }
-
-    public static String getClassSourcePathInCommonsModule(Class<?> clazz) {
-        return getClassSourcePath(CodeGenConstants.COMMONS_SOURCE_LOCATION, clazz);
-    }
-    
-    private static String getClassSourcePath(String modulePath, Class<?> clazz) {
-        return modulePath + StringTool.getFileNameOfJavaClass(clazz);
+        return CodeGenConstants.RULES_SOURCE_LOCATION + clazz.getName().replace('.', '/') + ".java";
     }
 
     public static JavaOpenClass getJavaOpenClass(String name, boolean isArray) {
