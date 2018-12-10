@@ -80,7 +80,7 @@ public abstract class XlsHelper {
                 file = file.substring(0, index);
             }
 
-            return StringTool.makeJavaIdentifier(file);
+            return makeJavaIdentifier(file);
 
         } catch (MalformedURLException e) {
             if(VirtualSourceCodeModule.SOURCE_URI.equals(uri)){
@@ -92,6 +92,20 @@ public abstract class XlsHelper {
         }
     }
 
+
+    private static String makeJavaIdentifier(String src) {
+        StringBuilder buf = new StringBuilder();
+        for (int i = 0; i < src.length(); i++) {
+            char c = src.charAt(i);
+            if (i == 0) {
+                buf.append(Character.isJavaIdentifierStart(c) ? c : '_');
+            } else {
+                buf.append(Character.isJavaIdentifierPart(c) ? c : '_');
+            }
+        }
+
+        return buf.toString();
+    }
 
     public static TableSyntaxNode createTableSyntaxNode(IGridTable table, XlsSheetSourceCodeModule source) throws
                                                                                                            OpenLCompilationException {

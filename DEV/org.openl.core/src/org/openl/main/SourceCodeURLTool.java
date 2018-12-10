@@ -8,7 +8,6 @@ package org.openl.main;
 
 import java.io.PrintWriter;
 
-import org.openl.exception.OpenLException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.CompositeSourceCodeModule;
 import org.openl.util.StringTool;
@@ -101,7 +100,7 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
 
         String src = module.getCode();
         TextInfo info = new TextInfo(src);
-        String[] lines = StringTool.splitLines(src);
+        String[] lines = src.split("[\\r\\n]+");
 
         // position = location.getStart().getAbsolutePosition(info);
 
@@ -119,7 +118,7 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
         int end = Math.min(start + 4, lines.length);
 
         for (int i = start; i < end; ++i) {
-            String line = StringTool.untab(lines[i], 2);
+            String line = untab(lines[i], 2);
             pw.println(line);
             if (i == line1) {
                 StringBuilder buf = new StringBuilder(Math.max(column1, column2) + 5);
@@ -141,6 +140,26 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
         if (!StringUtils.isEmpty(url)) {
             pw.println(SourceCodeURLConstants.AT_PREFIX + url);
         }
+    }
+
+
+    static private String untab(String src, int tabSize) {
+        StringBuilder buf = new StringBuilder(src.length() + 10);
+
+        for (int i = 0; i < src.length(); i++) {
+            char c = src.charAt(i);
+            if (c != '\t') {
+                buf.append(c);
+            } else {
+                buf.append(' ');
+
+                int extra = buf.length() % tabSize;
+                if (extra != 0) {
+                    StringTool.append(buf, ' ', tabSize - extra);
+                }
+            }
+        }
+        return buf.toString();
     }
 
 }
