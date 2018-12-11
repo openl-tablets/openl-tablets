@@ -1,4 +1,4 @@
-package org.openl.util.trie;
+package org.openl.rules.dt.algorithm2.nodes;
 
 public interface IARTNode{
 
