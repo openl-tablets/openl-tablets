@@ -11,6 +11,7 @@ import org.openl.util.ClassUtils;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -74,10 +75,6 @@ public class NicePrinterAdaptor {
         int idx = classname.lastIndexOf('.');
 
         return idx < 0 ? classname : classname.substring(idx + 1);
-    }
-
-    public NicePrinterAdaptor getAdaptor(Object obj) {
-        return this;
     }
 
     public Object getProperty(Object obj, String propertyName) {
@@ -184,7 +181,7 @@ public class NicePrinterAdaptor {
 
     public void printPrimitive(Object obj, NicePrinter printer) {
         if (obj.getClass() == Double.class) {
-            printer.getBuffer().append(DoublePrinter.printDouble(((Double) obj).doubleValue()));
+            printer.getBuffer().append(printDouble(((Double) obj).doubleValue()));
         } else {
             printer.getBuffer().append(obj);
         }
@@ -200,4 +197,25 @@ public class NicePrinterAdaptor {
         printer.getBuffer().append('(').append("id=").append(objID).append(')');
     }
 
+    private static String printDouble(double dd) {
+        double d = dd < 0 ? -dd : dd;
+
+        double x = 1;
+
+        for (int i = 0; i < 7; i++) {
+            if (d > x) {
+
+                NumberFormat nf = NumberFormat.getNumberInstance();
+
+                nf.setMinimumFractionDigits(0);
+                nf.setMaximumFractionDigits(2 + i);
+
+                return nf.format(dd);
+            }
+            x /= 10;
+        }
+
+        return String.valueOf(dd);
+
+    }
 }

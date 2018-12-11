@@ -17,10 +17,6 @@ import java.util.Map;
  */
 public class NicePrinter {
 
-    public interface PrintableObject {
-        void print(NicePrinter printer);
-    }
-
     int identStep = 2;
 
     StringBuilder buffer = null;

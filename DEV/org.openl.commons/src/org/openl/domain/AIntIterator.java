@@ -3,8 +3,6 @@
  */
 package org.openl.domain;
 
-import java.util.NoSuchElementException;
-
 import org.openl.util.AOpenIterator;
 
 /**
