@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -57,6 +56,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DomainOpenClass;
+import org.openl.types.java.JavaOpenClass;
 
 public class DecisionTableHelper {
 
@@ -832,7 +832,7 @@ public class DecisionTableHelper {
             }
 
             // Set type of condition values(for Ranges and Array)
-            Pair<String, String> typeOfValue = checkTypeOfValues(bindingContext,
+            Pair<String, IOpenClass> typeOfValue = checkTypeOfValues(bindingContext,
                 originalTable,
                 i,
                 typeOfCondition,
@@ -849,7 +849,7 @@ public class DecisionTableHelper {
                     metaInfoReader.addSimpleRulesCondition(cell.getAbsoluteRow(),
                         cell.getAbsoluteColumn(),
                         conditionStatement,
-                        conditionType);
+                        typeOfValue.getRight());
                 }
             }
 
@@ -1215,7 +1215,7 @@ public class DecisionTableHelper {
      *            calculating position of horizontal condition
      * @return type of condition values
      */
-    private static Pair<String, String> checkTypeOfValues(IBindingContext bindingContext,
+    private static Pair<String, IOpenClass> checkTypeOfValues(IBindingContext bindingContext,
             ILogicalTable originalTable,
             int column,
             IOpenClass type,
@@ -1243,9 +1243,9 @@ public class DecisionTableHelper {
             // if the name row is merged then we have Array
             if (isMerged) {
                 if (!type.isArray()) {
-                    return Pair.of(type.getName() + "[]", type.getDisplayName(0) + "[]");
+                    return Pair.of(type.getName() + "[]", JavaOpenClass.getArrayType(type, 1));
                 } else {
-                    return Pair.of(type.getName(), type.getDisplayName(0));
+                    return Pair.of(type.getName(), type);
                 }
             }
         }
@@ -1273,7 +1273,7 @@ public class DecisionTableHelper {
                     .equals(constantOpenField.getType().getInstanceClass()) || CharRange.class
                         .equals(constantOpenField.getType().getInstanceClass()))) {
                 return Pair.of(constantOpenField.getType().getInstanceClass().getSimpleName(),
-                    constantOpenField.getType().getInstanceClass().getSimpleName());
+                    constantOpenField.getType());
             }
 
             /* try to create range by values **/
@@ -1284,7 +1284,7 @@ public class DecisionTableHelper {
                         f = true;
                     }
                     if (IntRangeParser.getInstance().parse(value) != null && !f) {
-                        return Pair.of(IntRange.class.getSimpleName(), IntRange.class.getSimpleName());
+                        return Pair.of(IntRange.class.getSimpleName(), JavaOpenClass.getOpenClass(IntRange.class));
                     }
                 } catch (Exception e) {
                     continue;
@@ -1298,7 +1298,7 @@ public class DecisionTableHelper {
                         f = false;
                     }
                     if (DoubleRangeParser.getInstance().parse(value) != null && !f) {
-                        return Pair.of(DoubleRange.class.getSimpleName(), DoubleRange.class.getSimpleName());
+                        return Pair.of(DoubleRange.class.getSimpleName(), JavaOpenClass.getOpenClass(DoubleRange.class));
                     }
                 } catch (Exception e) {
                     continue;
@@ -1312,7 +1312,7 @@ public class DecisionTableHelper {
                         f = false;
                     }
                     if (f && value.length() != 1) {
-                        return Pair.of(CharRange.class.getSimpleName(), CharRange.class.getSimpleName());
+                        return Pair.of(CharRange.class.getSimpleName(), JavaOpenClass.getOpenClass(CharRange.class));
                     }
                 } catch (Exception e) {
                     continue;
@@ -1320,9 +1320,9 @@ public class DecisionTableHelper {
             }
         }
         if (!type.isArray()) {
-            return Pair.of(type.getName() + "[]", type.getDisplayName(0) + "[]");
+            return Pair.of(type.getName() + "[]", JavaOpenClass.getArrayType(type, 1));
         } else {
-            return Pair.of(type.getName(), type.getDisplayName(0));
+            return Pair.of(type.getName(), type);
         }
     }
 
