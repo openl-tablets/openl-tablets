@@ -44,8 +44,6 @@ public final class FastStack implements Cloneable, java.io.Serializable {
         try {
             FastStack v = (FastStack) super.clone();
             v.m_data = m_data.clone();
-            // v.m_data = new Object[m_data.length];
-            // System.arraycopy(m_data, 0, v.m_data, 0, m_data.length);
             return v;
         } catch (CloneNotSupportedException e) {
             // this shouldn't happen, since we are Cloneable
@@ -90,21 +88,6 @@ public final class FastStack implements Cloneable, java.io.Serializable {
 
     public int size() {
         return m_size;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder buf = new StringBuilder();
-        buf.append("[");
-        int maxIndex = m_size - 1;
-        for (int i = 0; i <= maxIndex; i++) {
-            buf.append(String.valueOf(m_data[i]));
-            if (i < maxIndex) {
-                buf.append(", ");
-            }
-        }
-        buf.append("]");
-        return buf.toString();
     }
 
 }

@@ -1,7 +1,6 @@
 package org.openl.ie.constrainer.impl;
 
 import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.TestConstrainer;
 import org.openl.ie.constrainer.TestConstrainerObjectImpl;
 import org.openl.ie.constrainer.TestFloatExpArray;
 import org.openl.ie.constrainer.TestGoalAnd;
@@ -76,7 +75,7 @@ public class AllTests extends TestSuite {
             TestUndoableIntImpl.class,
             TestUndoStack.class,
             // TestUtils.class,
-            TestLPIntegerProblemImpl.class, TestConstrainerLP.class, TestGoalSimplexSolve.class, TestConstrainer.class,
+            TestLPIntegerProblemImpl.class, TestConstrainerLP.class, TestGoalSimplexSolve.class,
             TestConstrainerObjectImpl.class, TestFloatExpArray.class, TestGoalAnd.class, TestGoalDichotomize.class,
             TestGoalFail.class, TestGoalFastMinimize.class, TestGoalFloatMinimize.class, TestGoalGenerateAll.class,
             TestGoalImpl.class, TestGoalInstantiate.class, TestGoalMinimize.class, TestGoalOr.class,
