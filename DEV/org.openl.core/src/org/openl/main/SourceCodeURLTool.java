@@ -10,7 +10,6 @@ import java.io.PrintWriter;
 
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.CompositeSourceCodeModule;
-import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
@@ -93,15 +92,12 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
         }
 
         if (!location.isTextLocation()) {
-            // stream.println(" at " + location);
             return;
         }
 
         String src = module.getCode();
         TextInfo info = new TextInfo(src);
-        String[] lines = src.split("[\\r\\n]+");
-
-        // position = location.getStart().getAbsolutePosition(info);
+        String[] lines = src.split("[\r\n]+");
 
         pw.println("Openl Code Fragment:");
         pw.println("=======================");
@@ -117,15 +113,18 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
         int end = Math.min(start + 4, lines.length);
 
         for (int i = start; i < end; ++i) {
-            String line = untab(lines[i], 2);
+            String line = lines[i].replace('\t', ' ');
             pw.println(line);
             if (i == line1) {
-                StringBuilder buf = new StringBuilder(Math.max(column1, column2) + 5);
-                StringTool.append(buf, ' ', column1);
+                for (int i2 = 0; i2 < column1; i2++) {
+                    pw.print(' ');
+                }
                 int col2 = line1 == line2 ? column2 + 1 : line.length();
 
-                StringTool.append(buf, '^', col2 - column1);
-                pw.println(buf.toString());
+                for (int i3 = 0; i3 < col2 - column1; i3++) {
+                    pw.print('^');
+                }
+                pw.println();
             }
         }
         pw.println("=======================");
@@ -139,26 +138,6 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
         if (!StringUtils.isEmpty(url)) {
             pw.println(SourceCodeURLConstants.AT_PREFIX + url);
         }
-    }
-
-
-    static private String untab(String src, int tabSize) {
-        StringBuilder buf = new StringBuilder(src.length() + 10);
-
-        for (int i = 0; i < src.length(); i++) {
-            char c = src.charAt(i);
-            if (c != '\t') {
-                buf.append(c);
-            } else {
-                buf.append(' ');
-
-                int extra = buf.length() % tabSize;
-                if (extra != 0) {
-                    StringTool.append(buf, ' ', tabSize - extra);
-                }
-            }
-        }
-        return buf.toString();
     }
 
 }

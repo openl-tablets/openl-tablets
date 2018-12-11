@@ -1,8 +1,5 @@
 package org.openl.util;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -13,13 +10,6 @@ import java.util.StringTokenizer;
 public class StringTool {
 
     public static final String NEW_LINE = "\n";
-
-    public static StringBuilder append(StringBuilder buf, char c, int n) {
-        for (int i = 0; i < n; i++) {
-            buf.append(c);
-        }
-        return buf;
-    }
 
     // TODO Move to URLUtils class
     public static String encodeURL(String url) {
@@ -47,11 +37,6 @@ public class StringTool {
             e.printStackTrace();
         }
         return decodedUrl;
-    }
-
-    public static String lastToken(String src, String delim) {
-        String[] tokens = tokenize(src, delim);
-        return tokens.length > 0 ? tokens[tokens.length - 1] : "";
     }
 
     public static String[] tokenize(String src, String delim) {
