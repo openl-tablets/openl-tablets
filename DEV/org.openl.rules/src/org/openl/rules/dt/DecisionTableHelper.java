@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -20,6 +19,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.SimpleNodeUsage;
@@ -845,12 +845,10 @@ public class DecisionTableHelper {
             grid.setCellValue(column, 2, typeOfValue.getLeft());
 
             if (!bindingContext.isExecutionMode()) {
-                if (!bindingContext.isExecutionMode()) {
-                    writeMetaInfoForCondition(originalTable,
-                        column,
-                        decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()),
-                        typeOfValue.getRight());
-                }
+                writeMetaInfoForCondition(originalTable,
+                    column,
+                    conditionStatement,
+                    conditionType.getDisplayName(INamedThing.SHORT));
             }
 
             // merge columns
@@ -901,7 +899,7 @@ public class DecisionTableHelper {
                     text,
                     null,
                     NodeType.OTHER);
-                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
+                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, 
                     null,
                     JavaOpenClass.STRING,
                     false,
