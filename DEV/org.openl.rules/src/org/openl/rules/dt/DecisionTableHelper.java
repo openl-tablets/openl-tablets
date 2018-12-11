@@ -13,7 +13,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -816,14 +815,12 @@ public class DecisionTableHelper {
 
             String conditionStatement = decisionTable.getSignature()
                 .getParameterName(conditions[i].getParameterIndex());
-            IOpenClass conditionType = decisionTable.getSignature().getParameterType(conditions[i].getParameterIndex());
 
             if (conditions[i].getMethodsChain() != null) {
                 Pair<String, IOpenClass> c = buildStatementByMethodsChain(
                     decisionTable.getSignature().getParameterType(conditions[i].getParameterIndex()),
                     conditions[i].getMethodsChain());
                 String chainStatement = c.getLeft();
-                conditionType = c.getRight();
                 conditionStatement = conditionStatement + "." + chainStatement;
             }
 
@@ -835,7 +832,7 @@ public class DecisionTableHelper {
             }
             
             // Set type of condition values(for Ranges and Array)
-            Pair<String, String> typeOfValue = checkTypeOfValues(bindingContext,
+            Pair<String, IOpenClass> typeOfValue = checkTypeOfValues(bindingContext,
                 originalTable,
                 i,
                 typeOfCondition,
@@ -848,7 +845,7 @@ public class DecisionTableHelper {
                 writeMetaInfoForCondition(originalTable,
                     column,
                     conditionStatement,
-                    conditionType.getDisplayName(INamedThing.SHORT));
+                    typeOfValue.getRight().getDisplayName(INamedThing.SHORT));
             }
 
             // merge columns
@@ -1231,7 +1228,8 @@ public class DecisionTableHelper {
      *            calculating position of horizontal condition
      * @return type of condition values
      */
-    private static Pair<String, String> checkTypeOfValues(IBindingContext bindingContext, ILogicalTable originalTable,
+    private static Pair<String, IOpenClass> checkTypeOfValues(IBindingContext bindingContext,
+            ILogicalTable originalTable,
             int column,
             IOpenClass type,
             boolean isThatVCondition,
@@ -1258,13 +1256,13 @@ public class DecisionTableHelper {
             // if the name row is merged then we have Array
             if (isMerged) {
                 if (!type.isArray()) {
-                    return new ImmutablePair<String, String>(type.getName() + "[]", type.getDisplayName(0) + "[]");
+                    return Pair.of(type.getName() + "[]", (IOpenClass) JavaOpenClass.getArrayType(type, 1));
                 } else {
-                    return new ImmutablePair<String, String>(type.getName(), type.getDisplayName(0));
+                    return Pair.of(type.getName(), type);
                 }
             }
         }
-        
+
         String typeName = type instanceof DomainOpenClass ? type.getInstanceClass().getCanonicalName() : type.getName();
 
         for (int valueNum = 1; valueNum < width; valueNum++) {
@@ -1281,13 +1279,17 @@ public class DecisionTableHelper {
             if (value == null) {
                 continue;
             }
-            
+
             ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, value);
-            if (constantOpenField != null && (IntRange.class.equals(constantOpenField.getType().getInstanceClass()) || DoubleRange.class.equals(constantOpenField.getType().getInstanceClass()))) {
-                return new ImmutablePair<String, String>(constantOpenField.getType().getInstanceClass().getSimpleName(),
-                        constantOpenField.getType().getInstanceClass().getSimpleName());
+            if (constantOpenField != null && (IntRange.class
+                .equals(constantOpenField.getType().getInstanceClass()) || DoubleRange.class
+                    .equals(constantOpenField.getType().getInstanceClass()) || CharRange.class
+                        .equals(constantOpenField.getType().getInstanceClass()))) {
+                return Pair.of(constantOpenField.getType().getInstanceClass().getSimpleName(),
+                    constantOpenField.getType());
             }
 
+            /* try to create range by values **/
             if (INT_TYPES.contains(typeName)) {
                 try {
                     boolean f = false;
@@ -1295,7 +1297,7 @@ public class DecisionTableHelper {
                         f = true;
                     }
                     if (IntRangeParser.getInstance().parse(value) != null && !f) {
-                        return Pair.of(IntRange.class.getSimpleName(), IntRange.class.getSimpleName());
+                        return Pair.of(IntRange.class.getSimpleName(), (IOpenClass) JavaOpenClass.getOpenClass(IntRange.class));
                     }
                 } catch (Exception e) {
                     continue;
@@ -1309,7 +1311,7 @@ public class DecisionTableHelper {
                         f = false;
                     }
                     if (DoubleRangeParser.getInstance().parse(value) != null && !f) {
-                        return Pair.of(DoubleRange.class.getSimpleName(), DoubleRange.class.getSimpleName());
+                        return Pair.of(DoubleRange.class.getSimpleName(), (IOpenClass) JavaOpenClass.getOpenClass(DoubleRange.class));
                     }
                 } catch (Exception e) {
                     continue;
@@ -1323,7 +1325,7 @@ public class DecisionTableHelper {
                         f = false;
                     }
                     if (f && value.length() != 1) {
-                        return Pair.of(CharRange.class.getSimpleName(), CharRange.class.getSimpleName());
+                        return Pair.of(CharRange.class.getSimpleName(), (IOpenClass) JavaOpenClass.getOpenClass(CharRange.class));
                     }
                 } catch (Exception e) {
                     continue;
@@ -1331,9 +1333,9 @@ public class DecisionTableHelper {
             }
         }
         if (!type.isArray()) {
-            return new ImmutablePair<String, String>(type.getName() + "[]", type.getDisplayName(0) + "[]");
+            return Pair.of(type.getName() + "[]", (IOpenClass) JavaOpenClass.getArrayType(type, 1));
         } else {
-            return new ImmutablePair<String, String>(type.getName(), type.getDisplayName(0));
+            return Pair.of(type.getName(), type);
         }
     }
 
