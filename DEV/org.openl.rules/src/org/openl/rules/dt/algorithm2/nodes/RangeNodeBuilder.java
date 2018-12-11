@@ -13,7 +13,6 @@ import org.openl.rules.dt.algorithm2.ISearchTreeNode;
 import org.openl.rules.dt.algorithm2.NodeBuilder;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.type.IRangeAdaptor;
-import org.openl.util.trie.IARTNode;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class RangeNodeBuilder {

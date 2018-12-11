@@ -13,7 +13,6 @@ import org.openl.rules.dt.algorithm2.NodeBuilder;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.types.IOpenClass;
-import org.openl.util.trie.IARTNode;
 
 public class ContainsInArrayNodeBuilder {
 

@@ -24,7 +24,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ISelector;
 import org.openl.util.RuntimeExceptionWrapper;
-import org.openl.util.StringTool;
 
 public class JavaCodeGen implements ICodeGen {
 
@@ -169,7 +168,7 @@ public class JavaCodeGen implements ICodeGen {
         startLine(sb);
         sb.append(START_MULTILINE_COMMENT);
 
-        String[] lines = StringTool.tokenize(comment, "\n");
+        String[] lines = comment.split("\n");
 
         for (String line : lines) {
             startLine(sb);
@@ -397,8 +396,7 @@ public class JavaCodeGen implements ICodeGen {
             pdlist.add(pd);
         }
 
-        String className = beanClass.getName();
-        String shortClassName = StringTool.lastToken(className, ".");
+        String shortClassName = beanClass.getSimpleName();
 
         startLine(sb);
         genInitFixedSizeArrayVar(aryName, shortClassName, beans.length, sb);

@@ -219,7 +219,7 @@ public class JavaOpenClass extends AOpenClass {
             case INamedThing.SHORT:
             case INamedThing.REGULAR:
             default:
-                return StringTool.lastToken(name, ".");
+                return name.substring(name.lastIndexOf('.') + 1);
             case INamedThing.LONG:
                 return name;
         }
