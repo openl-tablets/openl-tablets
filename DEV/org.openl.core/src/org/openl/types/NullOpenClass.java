@@ -13,7 +13,6 @@ import java.util.Map;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -90,15 +89,6 @@ public class NullOpenClass implements IOpenClass {
         return getName();
     }
 
-    public String getNameSpace() {
-        return ISyntaxConstants.THIS_NAMESPACE;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.types.IOpenClassHolder#getOpenClass()
-     */
     public IOpenClass getOpenClass() {
         return this;
     }

@@ -3,7 +3,7 @@ package org.openl.rules.webstudio.web.test;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
-import org.openl.base.INameSpacedThing;
+import org.openl.base.INamedThing;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
@@ -41,7 +41,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
 
     @Override
     public String getDisplayedValue() {
-        String typeName = getType().getDisplayName(INameSpacedThing.SHORT);
+        String typeName = getType().getDisplayName(INamedThing.SHORT);
         return valueKey == null ? typeName : typeName + " (" + valueKey + ")";
     }
 

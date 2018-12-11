@@ -23,13 +23,6 @@ public class BitSetIterator extends AIntIterator {
         this.bits = bits;
     }
 
-    public BitSetIterator(BitSet bits, int min) {
-        this.bits = bits;
-        this.min = min;
-    }
-
-    // From: BitSet#nextSetBit();
-
     /*
      * Returns the index of the first bit that is set to <code>true</code> that
      * occurs on or after the specified starting index. If no such bit exists
