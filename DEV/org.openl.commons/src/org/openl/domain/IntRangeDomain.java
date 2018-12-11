@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlTransient;
 /**
  * @author snshor
  */
-public class IntRangeDomain extends FixedSizeDomain<Integer> implements IIntDomain {
+public class IntRangeDomain implements IDomain<Integer>, IIntDomain {
     private class RangeIterator extends AIntIterator {
         private int current, step;
 
@@ -114,11 +114,6 @@ public class IntRangeDomain extends FixedSizeDomain<Integer> implements IIntDoma
 
     public boolean selectObject(Integer n) {
         return containsNumber(n);
-    }
-
-    public boolean selectType(IType type) {
-        // FIXME
-        return true;
     }
 
     public int size() {

@@ -10,7 +10,7 @@ import java.util.Iterator;
  * 
  * @author PUdalau
  */
-public class DateRangeDomain extends FixedSizeDomain<Date> {
+public class DateRangeDomain implements IDomain<Date> {
     private class DateIterator implements Iterator<Date> {
         private Calendar current;
 
@@ -44,26 +44,6 @@ public class DateRangeDomain extends FixedSizeDomain<Date> {
     public DateRangeDomain(Date min, Date max) {
         setMin(min);
         setMax(max);
-    }
-
-    /**
-     * Creates date range within interval:
-     * <code>[currentDate - yearsPerioud;currentDate + yearsPerioud]</code>
-     */
-    public DateRangeDomain(int yearsPeriond) {
-        this(min(yearsPeriond), max(yearsPeriond));
-    }
-
-    private static Date min(int yearsPeriond) {
-        Calendar date = Calendar.getInstance();
-        date.add(Calendar.YEAR, -yearsPeriond);
-        return date.getTime();
-    }
-
-    private static Date max(int yearsPeriond) {
-        Calendar date = Calendar.getInstance();
-        date.add(Calendar.YEAR, yearsPeriond);
-        return date.getTime();
     }
 
     /**
@@ -135,11 +115,6 @@ public class DateRangeDomain extends FixedSizeDomain<Date> {
 
     public boolean selectObject(Date obj) {
         return obj.before(max.getTime()) && obj.after(min.getTime());
-    }
-
-    public boolean selectType(IType type) {
-        // TODO Auto-generated method stub
-        return false;
     }
 
     /**

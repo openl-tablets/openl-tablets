@@ -8,19 +8,6 @@ package org.openl.meta.number;
  *
  */
 public enum NumberOperations {
-//    ADD("+"),
-//    MULTIPLY("*"),
-//    SUBTRACT("-"),
-//    DIVIDE("/"),  
-//    REM("%"),
-//    EQ("equal"),
-//    GE("greater or equal"),
-//    GT("greater"),
-//    LE("less or equal"),
-//    LT("less"),
-//    NE("not equal"),
-    
-    
     COPY("COPY"),
     MAX("max"), 
     MAX_IN_ARRAY("max"),
@@ -56,9 +43,4 @@ public enum NumberOperations {
     public String getName() {
         return name().toLowerCase();
     }
-    
-    public String getFullName() {
-        return this.getClass().getSimpleName() + "." + name();
-    }
-
 }
