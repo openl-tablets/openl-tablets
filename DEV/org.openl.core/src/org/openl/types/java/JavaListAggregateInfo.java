@@ -32,16 +32,6 @@ public class JavaListAggregateInfo extends AAggregateInfo {
             return JavaOpenClass.INT;
         }
 
-        @Override
-        public Collection getIndexes(Object container) {
-            int length = ((List) container).size();
-            List<Integer> indexes = new ArrayList<>(length);
-            for (int i = 0; i < length; i++) {
-                indexes.add(i);
-            }
-            return indexes;
-        }
-
         @SuppressWarnings("unchecked")
         public Object getValue(Object container, Object index) {
             if (container == null || index == null) {
