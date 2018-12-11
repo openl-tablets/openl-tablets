@@ -45,10 +45,6 @@ public class GoalCheckSolutionNumber extends GoalImpl {
         _current_solution = 0;
     }
 
-    void solutionNumber(int solution_number) {
-        _solution_number = solution_number;
-    }
-
     @Override
     public String toString() {
         return "GoalCheckSolutionNumber";

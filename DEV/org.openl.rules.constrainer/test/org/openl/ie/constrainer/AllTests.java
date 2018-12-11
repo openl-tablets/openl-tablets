@@ -5,7 +5,7 @@ import junit.framework.TestSuite;
 
 public class AllTests extends TestSuite {
 
-    static final Class[] _testClasses = { IntExpMulExpTest.class, GoalFloatFastMinimizeTest.class, };
+    static final Class[] _testClasses = { IntExpMulExpTest.class };
 
     public static Test suite() {
         TestSuite suite = new TestSuite();

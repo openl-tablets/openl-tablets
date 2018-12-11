@@ -4,11 +4,8 @@ import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Expression;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.Goal;
-import org.openl.ie.constrainer.GoalAnd;
 import org.openl.ie.constrainer.GoalFastMinimize;
 import org.openl.ie.constrainer.GoalGenerate;
-import org.openl.ie.constrainer.GoalPrintObject;
-import org.openl.ie.constrainer.GoalPrintSolution;
 import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntExpArray;
 import org.openl.ie.constrainer.IntVar;
@@ -162,7 +159,7 @@ public class TestMinimize {
         // IntVar var = c.addIntVar(cost.min()-10, cost.max()+10);
         // cost.equals(var).post();
 
-        Goal solution = new GoalAnd(new GoalGenerate(vars), new GoalPrintSolution(vars), new GoalPrintObject(c, cost));
+        Goal solution = new GoalGenerate(vars);
 
         // Goal searchGoal = new GoalGenerate(vars);
         Object tracer = new Object() {

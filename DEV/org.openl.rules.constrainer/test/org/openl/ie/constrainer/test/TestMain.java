@@ -31,10 +31,6 @@ import org.openl.ie.constrainer.GoalFloatInstantiate;
 import org.openl.ie.constrainer.GoalFloatMinimize;
 import org.openl.ie.constrainer.GoalGenerate;
 import org.openl.ie.constrainer.GoalMinimize;
-import org.openl.ie.constrainer.GoalPrint;
-import org.openl.ie.constrainer.GoalPrintObject;
-import org.openl.ie.constrainer.GoalPrintSolution;
-import org.openl.ie.constrainer.GoalPrintSolutionNumber;
 import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntExpArray;
 import org.openl.ie.constrainer.IntValueSelector;
@@ -145,8 +141,7 @@ public class TestMain {
 
             IntValueSelector value_selector = new IntValueSelectorMinMax();
             IntVarSelector var_selector = new IntVarSelectorMinSize(vars);
-            Goal solution = new GoalAnd(card.equals(1), new GoalGenerate(vars, var_selector, value_selector),
-                    new GoalPrint(vars));
+            Goal solution = new GoalAnd(card.equals(1), new GoalGenerate(vars, var_selector, value_selector));
 
             // C.traceExecution();
             // C.traceFailures();
@@ -195,8 +190,6 @@ public class TestMain {
         IntVarSelector var_selector = new IntVarSelectorMinSize(vars);
         Goal searchGoal = new GoalGenerate(vars, var_selector, value_selector);
 
-        Goal printSolution = new GoalPrint(vars, "Solution:");
-
         Goal fail = new GoalFail(c);
 
         c.printInformation();
@@ -242,8 +235,7 @@ public class TestMain {
 
         IntValueSelector value_selector = new IntValueSelectorMin();
         IntVarSelector var_selector = new IntVarSelectorMinSize(vars);
-        Goal print = new GoalAnd(new GoalPrint(vars), new GoalPrintObject(C, cost));
-        Goal solution = new GoalAnd(print, new GoalGenerate(vars, var_selector, value_selector), print);
+        Goal solution =  new GoalGenerate(vars, var_selector, value_selector);
 
         // if (!C.execute(new GoalMinimize(solution,cost)))
         if (!C.execute(solution)) {
@@ -306,8 +298,7 @@ public class TestMain {
 
             IntValueSelector value_selector = new IntValueSelectorMinMax();
             IntVarSelector var_selector = new IntVarSelectorMinSize(vars);
-            Goal solution = new GoalAnd(new GoalGenerate(vars, var_selector, value_selector),
-                    new GoalPrintSolutionNumber(C), new GoalPrint(vars));
+            Goal solution = new GoalGenerate(vars, var_selector, value_selector);
 
             Goal all_solutions = new GoalAllSolutions(solution);
             C.printInformation();
@@ -342,22 +333,7 @@ public class TestMain {
 
         IntValueSelector value_selector = new IntValueSelectorMinMax();
         IntVarSelector var_selector = new IntVarSelectorMinSize(vars);
-        Goal solution = new GoalAnd(new GoalGenerate(vars, var_selector, value_selector), new GoalPrintSolution(vars),
-                new GoalPrintObject(C, cost_var));
-
-        Object tracer = new Object() {
-            int solution = 0;
-
-            @Override
-            public String toString() {
-                ++solution;
-                try {
-                    return "\nSolution " + solution + ": cost=" + cost.value();
-                } catch (Failure f) {
-                    return "ERROR: unbound cost";
-                }
-            }
-        };
+        Goal solution = new GoalGenerate(vars, var_selector, value_selector);
 
         boolean goal_saves_solution = true;
         Goal minimize = new GoalFastMinimizeOld(solution, cost, goal_saves_solution);
@@ -479,8 +455,7 @@ public class TestMain {
 
         IntValueSelector value_selector = new IntValueSelectorMinMax();
         IntVarSelector var_selector = new IntVarSelectorMinSize(vars);
-        Goal solution = new GoalAnd(new GoalGenerate(vars, var_selector, value_selector), new GoalPrintSolution(vars),
-                new GoalPrintObject(C, cost_var));
+        Goal solution = new GoalGenerate(vars, var_selector, value_selector);
 
         boolean goal_saves_solution = false;
         Goal minimize = new GoalMinimize(solution, cost, goal_saves_solution);
