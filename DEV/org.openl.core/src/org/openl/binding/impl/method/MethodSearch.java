@@ -186,10 +186,8 @@ public class MethodSearch {
     }
 
     private static IOpenClass unwrapPrimitiveClassIfNeeded(IOpenClass clazz) {
-        if (clazz != null && clazz.getInstanceClass() != null && clazz.getInstanceClass()
-            .isPrimitive()) {
-            return JavaOpenClass
-                .getOpenClass(ClassUtils.primitiveToWrapper(clazz.getInstanceClass()));
+        if (clazz != null && clazz.getInstanceClass() != null && clazz.getInstanceClass().isPrimitive()) {
+            return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(clazz.getInstanceClass()));
         }
         return clazz;
     }
@@ -406,7 +404,13 @@ public class MethodSearch {
                 if (matchedMethod != null) {
                     if (NullOpenClass.isAnyNull(varArgType)) {
                         int lastParameterIndex = matchedMethod.getMethod().getSignature().getNumberOfParameters() - 1;
-                        return new VarArgsOpenMethod(matchedMethod, matchedMethod.getMethod().getSignature().getParameterType(lastParameterIndex).getComponentClass().getInstanceClass(), i);
+                        return new VarArgsOpenMethod(matchedMethod,
+                            matchedMethod.getMethod()
+                                .getSignature()
+                                .getParameterType(lastParameterIndex)
+                                .getComponentClass()
+                                .getInstanceClass(),
+                            i);
                     } else {
                         return new VarArgsOpenMethod(matchedMethod, varArgType.getInstanceClass(), i);
                     }
@@ -440,7 +444,14 @@ public class MethodSearch {
                     }
                     if (NullOpenClass.isAnyNull(varArgType)) {
                         int lastParameterIndex = matchedMethod.getMethod().getSignature().getNumberOfParameters() - 1;
-                        return new VarArgsOpenMethod(matchedMethod, matchedMethod.getMethod().getSignature().getParameterType(lastParameterIndex).getComponentClass().getInstanceClass(), i, parameterCasts);
+                        return new VarArgsOpenMethod(matchedMethod,
+                            matchedMethod.getMethod()
+                                .getSignature()
+                                .getParameterType(lastParameterIndex)
+                                .getComponentClass()
+                                .getInstanceClass(),
+                            i,
+                            parameterCasts);
                     } else {
                         return new VarArgsOpenMethod(matchedMethod, varArgType.getInstanceClass(), i, parameterCasts);
                     }
@@ -589,8 +600,8 @@ public class MethodSearch {
     }
 
     public static IMethodCaller findConstructor(IOpenClass[] params,
-                                                ICastFactory casts,
-                                                IMethodFactory factory) throws AmbiguousMethodException {
+            ICastFactory casts,
+            IMethodFactory factory) throws AmbiguousMethodException {
         IMethodCaller caller = factory.getConstructor(params);
         if (caller != null) {
             return caller;
@@ -607,6 +618,15 @@ public class MethodSearch {
             IMethodFactory factory,
             boolean strictMatch) throws AmbiguousMethodException {
         IMethodCaller caller = factory.getMethod(name, params);
+        if (caller != null) {
+            for (int i = 0; i < caller.getMethod().getSignature().getNumberOfParameters(); i++) {
+                if (!params[i].equals(caller.getMethod().getSignature().getParameterType(i))) {
+                    caller = null;
+                    break;
+                }
+            }
+        }
+
         if (caller != null) {
             return caller;
         }

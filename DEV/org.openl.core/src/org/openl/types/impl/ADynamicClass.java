@@ -36,7 +36,7 @@ public abstract class ADynamicClass extends AOpenClass {
 
     protected Map<String, IOpenField> fieldMap;
 
-    private Class<?> instanceClass;
+    protected Class<?> instanceClass;
 
     private IOpenClass[] arrayTypes = new IOpenClass[MAX_DIM];
 

@@ -1,0 +1,3 @@
+ERROR: The value 'blue' is outside of valid domain 'Color'. Valid values: [black, white]
+ERROR: The value 'yellow' is outside of valid domain 'Color'. Valid values: [black, white]
+ERROR: The value 'pink' is outside of valid domain 'Color'. Valid values: [black, white]

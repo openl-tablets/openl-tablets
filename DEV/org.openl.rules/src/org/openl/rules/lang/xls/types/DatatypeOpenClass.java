@@ -6,6 +6,7 @@
 
 package org.openl.rules.lang.xls.types;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -15,17 +16,14 @@ import java.util.Objects;
 
 import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.types.IAggregateInfo;
-import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.ADynamicClass;
+import org.openl.types.impl.DatatypeOpenField;
+import org.openl.types.impl.DatatypeOpenMethod;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.impl.MethodKey;
-import org.openl.types.impl.MethodSignature;
-import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -50,13 +48,15 @@ public class DatatypeOpenClass extends ADynamicClass {
     private final String packageName;
 
     /**
-     * User has a possibility to set the package (by table properties mechanism) where he wants to generate datatype
-     * beans classes.
+     * User has a possibility to set the package (by table properties mechanism)
+     * where he wants to generate datatype beans classes.
      */
-     public DatatypeOpenClass(String name, String packageName) {
+    public DatatypeOpenClass(String name, String packageName) {
         // NOTE! The instance class during the construction is null.
-        // It will be set after the generating the appropriate byte code for the datatype.
-        // See {@link org.openl.rules.datatype.binding.DatatypeTableBoundNode.addFields()}
+        // It will be set after the generating the appropriate byte code for the
+        // datatype.
+        // See {@link
+        // org.openl.rules.datatype.binding.DatatypeTableBoundNode.addFields()}
         //
         // @author Denis Levchuk
         //
@@ -68,7 +68,7 @@ public class DatatypeOpenClass extends ADynamicClass {
         }
         this.packageName = packageName;
     }
-    
+
     @Override
     public IAggregateInfo getAggregateInfo() {
         return DynamicArrayAggregateInfo.aggregateInfo;
@@ -102,7 +102,8 @@ public class DatatypeOpenClass extends ADynamicClass {
     }
 
     /**
-     * Used {@link LinkedHashMap} to store fields in order as them defined in DataType table
+     * Used {@link LinkedHashMap} to store fields in order as them defined in
+     * DataType table
      */
     @Override
     protected LinkedHashMap<String, IOpenField> fieldMap() {
@@ -113,12 +114,12 @@ public class DatatypeOpenClass extends ADynamicClass {
     }
 
     private Map<String, IOpenField> fields = null;
-    
+
     @Override
     public Map<String, IOpenField> getFields() {
-        if (fields == null){
+        if (fields == null) {
             synchronized (this) {
-                if (fields == null){
+                if (fields == null) {
                     fields = initializeFields();
                 }
             }
@@ -129,7 +130,7 @@ public class DatatypeOpenClass extends ADynamicClass {
     private Map<String, IOpenField> initializeFields() {
         Map<String, IOpenField> fields = new LinkedHashMap<String, IOpenField>();
         Iterable<IOpenClass> superClasses = superClasses();
-        for(IOpenClass superClass : superClasses) {
+        for (IOpenClass superClass : superClasses) {
             fields.putAll(superClass.getFields());
         }
         fields.putAll(fieldMap());
@@ -166,7 +167,8 @@ public class DatatypeOpenClass extends ADynamicClass {
     }
 
     /**
-     * Override super class implementation to provide possibility to compare datatypes with info about their fields
+     * Override super class implementation to provide possibility to compare
+     * datatypes with info about their fields
      *
      * @author DLiauchuk
      */
@@ -176,8 +178,9 @@ public class DatatypeOpenClass extends ADynamicClass {
     }
 
     /**
-     * Override super class implementation to provide possibility to compare datatypes with info about their fields
-     * Is used in {@link XlsBinder} (method filterDependencyTypes)
+     * Override super class implementation to provide possibility to compare
+     * datatypes with info about their fields Is used in {@link XlsBinder}
+     * (method filterDependencyTypes)
      *
      * @author DLiauchuk
      */
@@ -191,9 +194,8 @@ public class DatatypeOpenClass extends ADynamicClass {
             return false;
         DatatypeOpenClass other = (DatatypeOpenClass) obj;
 
-        return Objects.equals(superClass, other.getSuperClass()) &&
-                Objects.equals(getMetaInfo(), other.getMetaInfo()) &&
-                Objects.equals(javaName, other.getJavaName());
+        return Objects.equals(superClass, other.getSuperClass()) && Objects.equals(getMetaInfo(),
+            other.getMetaInfo()) && Objects.equals(javaName, other.getJavaName());
     }
 
     @Override
@@ -201,17 +203,48 @@ public class DatatypeOpenClass extends ADynamicClass {
         return javaName;
     }
 
+    private IOpenMethod wrapDatatypeOpenMethod(IOpenMethod method) {
+        if (method instanceof JavaOpenMethod) {
+            JavaOpenMethod javaOpenMethod = (JavaOpenMethod) method;
+            Method javaMethod = javaOpenMethod.getJavaMethod();
+            for (IOpenField field : fieldMap().values()) {
+                if (field instanceof DatatypeOpenField) {
+                    DatatypeOpenField datatypeOpenField = (DatatypeOpenField) field;
+                    if (datatypeOpenField.getGetter().equals(javaMethod)) {
+                        return new DatatypeOpenMethod(javaOpenMethod,
+                            this,
+                            javaOpenMethod.getParameterTypes(),
+                            field.getType());
+                    }
+                    if (datatypeOpenField.getSetter().equals(javaMethod)) {
+                        IOpenClass[] parameterTypes = new IOpenClass[] { field.getType() };
+                        return new DatatypeOpenMethod(javaOpenMethod, this, parameterTypes, javaOpenMethod.getType());
+                    }
+                }
+            }
+        }
+        return method;
+    }
+
     @Override
     protected Map<MethodKey, IOpenMethod> initMethodMap() {
         Map<MethodKey, IOpenMethod> methods = super.initMethodMap();
-        if (methods == STUB){
-            methods = new HashMap<MethodKey, IOpenMethod>(5);
-        }
-        methods.put(toStringKey, toString);
-        methods.put(equalsKey, equals);
-        methods.put(hashCodeKey, hashCode);
+        Map<MethodKey, IOpenMethod> methodMap = new HashMap<>();
 
-        return methods;
+        for (Entry<MethodKey, IOpenMethod> m : methods.entrySet()) {
+            IOpenMethod m1 = wrapDatatypeOpenMethod(m.getValue());
+            if (m1 != m.getValue()) {
+                methodMap.put(new MethodKey(m1), m1);
+            } else {
+                methodMap.put(m.getKey(), m.getValue());
+            }
+        }
+
+        methodMap.put(toStringKey, toString);
+        methodMap.put(equalsKey, equals);
+        methodMap.put(hashCodeKey, hashCode);
+
+        return methodMap;
     }
 
     private static final IOpenMethod toString;
