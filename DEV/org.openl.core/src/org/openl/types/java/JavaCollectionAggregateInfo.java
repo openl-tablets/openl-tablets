@@ -62,11 +62,6 @@ public class JavaCollectionAggregateInfo implements IAggregateInfo {
             return null;
         }
 
-        @Override
-        public Collection getIndexes(Object container) {
-            throw new UnsupportedOperationException();
-        }
-
         public Object getValue(Object container, Object index) {
             throw new UnsupportedOperationException();
         }

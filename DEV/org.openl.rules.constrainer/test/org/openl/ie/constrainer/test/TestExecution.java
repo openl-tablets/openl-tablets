@@ -14,7 +14,6 @@ import org.openl.ie.constrainer.GoalAnd;
 import org.openl.ie.constrainer.GoalDisplay;
 import org.openl.ie.constrainer.GoalFail;
 import org.openl.ie.constrainer.GoalOr;
-import org.openl.ie.constrainer.GoalPrintObject;
 import org.openl.ie.constrainer.IntExpArray;
 import org.openl.ie.constrainer.IntVar;
 
@@ -45,14 +44,13 @@ public class TestExecution {
             Goal g5 = var.less(5);
             Goal g56 = new GoalAnd(g5, g6);
             Goal G = new GoalOr(g1234, g56);
-            Goal print = new GoalPrintObject(C, var);
             C.traceChoicePoints(C);
             C.traceBacktracks(C);
             C.traceFailures(C);
             C.traceExecution();
             System.out.println(var);
             boolean restore = true;
-            boolean rc = C.execute(new GoalAnd(G, print), restore);
+            boolean rc = C.execute(G, restore);
             System.out.println(var);
 
             // test sum

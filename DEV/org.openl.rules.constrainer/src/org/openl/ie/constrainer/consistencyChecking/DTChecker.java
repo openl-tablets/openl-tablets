@@ -22,13 +22,6 @@ import org.openl.ie.constrainer.IntExpArray;
 
 public interface DTChecker {
     static class Utils {
-        static HashMap IntExpArray2HashMap(IntExpArray array) {
-            HashMap mp = new HashMap(array.size());
-            for (int i = 0; i < array.size(); i++) {
-                mp.put(array.get(i).name(), new Integer(array.get(i).max()));
-            }
-            return mp;
-        }
 
         /**
          * @param solution
@@ -72,65 +65,11 @@ public interface DTChecker {
      */
     public List<Overlapping> checkOverlappings();
 
-    /**
-     * @return current {@link CompletenessChecker}
-     * @see #setCompletenessChecker(CompletenessChecker)
-     */
-    public CompletenessChecker getCompletenessChecker();
-
     public CDecisionTable getDT();
-
-    /**
-     * @return current {@link CompletenessChecker}
-     * @see #setCompletenessChecker(OverlappingChecker)
-     */
-    public OverlappingChecker getOverlappingChecker();
-
-    /**
-     * Appoints an object of type {@link CompletenessChecker} to be responsible
-     * for handling overlappings monitoring problem.
-     * <p>
-     * The class implementing <code>interface</code>
-     * {@link CompletenessChecker} is responsible for granting the realization
-     * of algorithm performing completeness checking.
-     * </p>
-     * <p>
-     * <b>Note:</b>
-     * </p>
-     * Current implementation of {@link DTCheckerImpl} simply invokes method
-     * <code>check()</code> of currently active {@link CompletenessChecker} so
-     * if one makes a decision to override the default checker he should take
-     * care about requesting all the necessary information from
-     * {@link DTCheckerImpl}
-     *
-     * @param chk The completeness checker to be used
-     */
-    public void setCompletenessChecker(CompletenessChecker chk);
 
     /**
      * @param dtable the Decision Table to be checked
      */
     public void setDT(CDecisionTable dtable);
-
-    /**
-     * Appoints an object of type {@link OverlappingChecker} to be responsible
-     * for handling overlappings monitoring problem.
-     * <p>
-     * The class implementing <code>interface</code>
-     * {@link OverlappingChecker} is responsible for granting the realization of
-     * algorithm performing overlappings checking.
-     * </p>
-     * <p>
-     * <b>Note:</b>
-     * </p>
-     * Current implementation of {@link DTCheckerImpl} simply invokes method
-     * <code>check()</code> of currently active {@link OverlappingChecker} so
-     * if one makes a decision to override the default checker he should take
-     * care about requesting all the necessary information from
-     * {@link DTCheckerImpl}
-     *
-     * @param chk The overlappings checker to be used
-     */
-    public void setOverlappingChecker(OverlappingChecker chk);
 
 }

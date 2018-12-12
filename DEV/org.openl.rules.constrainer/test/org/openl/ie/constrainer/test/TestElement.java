@@ -21,7 +21,6 @@ import org.openl.ie.constrainer.GoalAnd;
 import org.openl.ie.constrainer.GoalFail;
 import org.openl.ie.constrainer.GoalGenerate;
 import org.openl.ie.constrainer.GoalGenerateAll;
-import org.openl.ie.constrainer.GoalPrint;
 import org.openl.ie.constrainer.IntArray;
 import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntExpArray;
@@ -150,9 +149,7 @@ public class TestElement {
         // C.displayOnBacktrack(channels);
         // C.traceFailures(channel_vars);
 
-        Goal print = new GoalPrint(channel_vars);
-        print = new GoalAnd(print, new GoalPrint(cost_vars));
-        Goal solution = new GoalAnd(print, new GoalGenerate(channel_vars), print, new GoalFail(C));
+        Goal solution = new GoalAnd(new GoalGenerate(channel_vars), new GoalFail(C));
         C.execute(solution);
     }
 

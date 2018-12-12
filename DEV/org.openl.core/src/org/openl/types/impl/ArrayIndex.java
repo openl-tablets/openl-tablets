@@ -1,9 +1,6 @@
 package org.openl.types.impl;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
@@ -22,16 +19,6 @@ public class ArrayIndex implements IOpenIndex {
 
     public IOpenClass getIndexType() {
         return JavaOpenClass.INT;
-    }
-
-    @Override
-    public Collection getIndexes(Object container) {
-        int length = Array.getLength(container);
-        List<Integer> indexes = new ArrayList<>(length);
-        for (int i = 0; i < length; i++) {
-            indexes.add(i);
-        }
-        return indexes;
     }
 
     public Object getValue(Object container, Object index) {

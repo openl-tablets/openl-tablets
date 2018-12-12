@@ -167,27 +167,12 @@ public class DTCheckerImpl implements DTChecker {
         return _opChecker.check();
     }
 
-    public CompletenessChecker getCompletenessChecker() {
-        return _cpChecker;
-    }
-
     public CDecisionTable getDT() {
         return _dt;
-    }
-
-    public OverlappingChecker getOverlappingChecker() {
-        return _opChecker;
-    }
-
-    public void setCompletenessChecker(CompletenessChecker chk) {
-        _cpChecker = chk;
     }
 
     public void setDT(CDecisionTable dtable) {
         _dt = dtable;
     }
 
-    public void setOverlappingChecker(OverlappingChecker chk) {
-        _opChecker = chk;
-    }
 }

@@ -1328,21 +1328,6 @@
                 <version>4.2.0</version>
             </dependency>
             <dependency>
-                <groupId>org.modeshape</groupId>
-                <artifactId>modeshape-jcr-api</artifactId>
-                <version>3.8.1.Final</version>
-            </dependency>
-            <dependency>
-                <groupId>org.modeshape</groupId>
-                <artifactId>modeshape-jcr</artifactId>
-                <version>3.8.1.Final</version>
-            </dependency>
-            <dependency>
-                <groupId>org.modeshape</groupId>
-                <artifactId>modeshape-common</artifactId>
-                <version>3.8.1.Final</version>
-            </dependency>
-            <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-s3</artifactId>
                 <version>1.11.86</version>
@@ -1363,17 +1348,6 @@
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit</artifactId>
                 <version>4.5.4.201711221230-r</version>
-            </dependency>
-            <!--This examples uses Infinispan's JDBC cache store, which requires C3P0 and a JDBC database driver -->
-            <dependency>
-                <groupId>org.infinispan</groupId>
-                <artifactId>infinispan-cachestore-jdbc</artifactId>
-                <version>5.2.10.Final</version>
-            </dependency>
-            <dependency>
-                <groupId>c3p0</groupId>
-                <artifactId>c3p0</artifactId>
-                <version>0.9.1.2</version>
             </dependency>
             <!-- Microsoft JDBC Driver for SQL Server -->
             <dependency>
@@ -1532,11 +1506,6 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.repository.jcr.modeshape</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -39,10 +39,6 @@ public class GoalSetTimes extends GoalImpl {
 
     JobVariableSelector _sel;
 
-    public GoalSetTimes(FastVector jobs) {
-        this(jobs, null);
-    }
-
     public GoalSetTimes(FastVector jobs, JobVariableSelector sel) {
         super(((Job) jobs.elementAt(0)).constrainer(), "GoalSetTimes");
         _jobs = jobs;
