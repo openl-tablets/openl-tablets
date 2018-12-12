@@ -40,25 +40,6 @@ public final class ConstraintConst extends ConstraintImpl {
     }
 
     @Override
-    public boolean isLinear() {
-        return true;
-    }
-
-    @Override
-    public Constraint opposite() {
-        return new ConstraintConst(constrainer(), !_flag);
-    }
-
-    @Override
-    public IntBoolExp toIntBoolExp() {
-        ExpressionFactory factory = constrainer().expressionFactory();
-        Class clazz = IntBoolExpConst.class;
-        Object[] args = new Object[] { constrainer(), new Boolean(_flag) };
-        Class[] types = new Class[] { Constrainer.class, boolean.class };
-        return (IntBoolExpConst) factory.getExpression(clazz, args, types);
-    }
-
-    @Override
     public String toString() {
         return (_flag ? "TRUE" : "FALSE");
     }

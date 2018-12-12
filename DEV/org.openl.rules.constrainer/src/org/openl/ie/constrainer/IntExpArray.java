@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.openl.ie.constrainer.impl.IntExpAddArray1;
 import org.openl.ie.constrainer.impl.IntExpArrayElement1;
-import org.openl.ie.constrainer.impl.IntExpCardIntExp;
 import org.openl.ie.tools.FastVector;
 
 
@@ -210,21 +209,6 @@ public final class IntExpArray extends ConstrainerObjectImpl {
     }
 
     /**
-     * Returns the expression that corresponds to the cardinality of value
-     * specified by the parameter expressions.
-     *
-     * @param exp expressions that specifies the value that cardinality is
-     *            required. <br>
-     *            <b>NOTE:</b> The expression is not required to be bound.
-     *
-     * @return The expression that corresponds the cardinality of
-     *         <code>exp</code>
-     */
-    public IntExp cardinality(IntExp exp) throws Failure {
-        return new IntExpCardIntExp(this, exp);
-    }
-
-    /**
      * Returns an array of cardinalities for the expressions. If such an array
      * doesn't exist it will be created using invokation
      * <code>IntArrayCards(this.constrainer(),this)</code>
@@ -243,23 +227,6 @@ public final class IntExpArray extends ConstrainerObjectImpl {
      */
     public IntExp[] data() {
         return _data;
-    }
-
-    /**
-     * Returns the cardinality of the cartesian product of the expression
-     * domains.
-     */
-    public long domainsProductCard() {
-        int size = size();
-        if (size == 0) {
-            return 0;
-        }
-
-        long total = _data[0].size();
-        for (int i = 1; i < size; ++i) {
-            total *= _data[i].size();
-        }
-        return total;
     }
 
     /**
@@ -339,69 +306,6 @@ public final class IntExpArray extends ConstrainerObjectImpl {
             }
         }
         return min;
-    }
-
-    /**
-     * The function provides the scalar production of this array by the array
-     * provided as the parameter and returns the resulted expression.
-     *
-     * @param array the array to be multiplied <br>
-     *            <b>NOTE:</b> the arrays should be of the same size.
-     *
-     * @return scalar product expression
-     */
-    public IntExp mul(IntArray array) {
-        if (size() != array.size()) {
-            throw new RuntimeException("IntExpArray.mul(IntArray) arrays have different sizes");
-        }
-
-        int[] factors = array.data();
-        switch (size()) {
-            case 0:
-                return (IntExp) _constrainer.expressionFactory().getExpression(IntExpConst.class,
-                        new Object[] { _constrainer, new Integer(0) });
-            case 1:
-                return _data[0].mul(factors[0]);
-            default: {
-                IntExpArray products = new IntExpArray(constrainer(), size());
-                for (int i = 0; i < size(); i++) {
-                    products.set(_data[i].mul(factors[i]), i);
-                }
-                return products.sum();
-            }
-        }
-
-    }
-
-    /**
-     * The function provides the scalar production of this array by the array
-     * provided as the parameter and returns the resulted expression.
-     *
-     * @param array the array to be multiplied <br>
-     *            <b>NOTE:</b> the arrays should be of the same size.
-     *
-     * @return scalar product expression
-     */
-    public IntExp mul(IntExpArray array) {
-        if (size() != array.size()) {
-            throw new RuntimeException("IntExpArray.mul(IntExpArray) arrays have different sizes");
-        }
-
-        switch (size()) {
-            case 0:
-                return (IntExp) _constrainer.expressionFactory().getExpression(IntExpConst.class,
-                        new Object[] { _constrainer, new Integer(0) });
-            case 1:
-                return _data[0].mul(array._data[0]);
-            default: {
-                IntExpArray products = new IntExpArray(constrainer(), size());
-                for (int i = 0; i < size(); i++) {
-                    products.set(_data[i].mul(array._data[i]), i);
-                }
-                return products.sum();
-            }
-        }
-
     }
 
     @Override

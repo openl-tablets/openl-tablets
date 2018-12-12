@@ -1,12 +1,9 @@
 package org.openl.ie.constrainer.impl;
 
-import java.util.Map;
-
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.FloatEvent;
 import org.openl.ie.constrainer.FloatExp;
-import org.openl.ie.constrainer.NonLinearExpression;
 import org.openl.ie.constrainer.Subject;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
@@ -123,11 +120,6 @@ public final class FloatExpAddValue extends FloatExpImpl {
     @Override
     public FloatExp add(double value) {
         return _exp.add(_value + value);
-    }
-
-    @Override
-    public double calcCoeffs(Map map, double factor) throws NonLinearExpression {
-        return _exp.calcCoeffs(map, factor) + _value * factor;
     }
 
     @Override

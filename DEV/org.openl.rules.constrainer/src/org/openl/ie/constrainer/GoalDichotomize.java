@@ -28,20 +28,12 @@ package org.openl.ie.constrainer;
  */
 public class GoalDichotomize extends GoalImpl {
     private IntVar _var;
-    // private GoalSetMax _goal_max;
-    // private GoalSetMin _goal_min;
     private boolean _recursive;
-
-    public GoalDichotomize(IntVar var) {
-        this(var, true);
-    }
 
     public GoalDichotomize(IntVar var, boolean recursive) {
         super(var.constrainer(), "Dichotomize(" + var.name() + ")");
         _var = var;
         _recursive = recursive;
-        // _goal_max = new GoalSetMax(_var);
-        // _goal_min = new GoalSetMin(_var);
     }
 
     /**
@@ -62,12 +54,9 @@ public class GoalDichotomize extends GoalImpl {
             mid = max - 1;
         }
 
-        // _goal_min.min(mid+1);
-        // _goal_max.max(mid);
         Goal _goal_min = new GoalSetMin(_var, mid + 1);
         Goal _goal_max = new GoalSetMax(_var, mid);
 
-        // Debug.on();Debug.print("Try "+mid_value);Debug.off();
         Goal new_goal;
         if (_recursive) {
             new_goal = new GoalAnd(new GoalOr(_goal_min, _goal_max), this);
@@ -77,7 +66,4 @@ public class GoalDichotomize extends GoalImpl {
         return new_goal;
     }
 
-    public boolean recursive() {
-        return _recursive;
-    }
 } // ~GoalDichotomize

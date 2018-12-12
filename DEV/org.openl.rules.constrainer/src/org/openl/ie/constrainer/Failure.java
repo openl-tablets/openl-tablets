@@ -67,13 +67,6 @@ public class Failure extends Exception {
     }
 
     /**
-     * Sets the description of this failure.
-     */
-    void message(String s) {
-        _msg = s;
-    }
-
-    /**
      * Returns the failure description.
      */
     @Override

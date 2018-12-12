@@ -52,25 +52,9 @@ public abstract class FloatEvent extends EventOfInterest {
     public abstract double max();
 
     /**
-     * Returns the delta-change of the largest value of the domain of the
-     * expression.
-     */
-    public double maxdiff() {
-        return max() - oldmax();
-    }
-
-    /**
      * Returns the current smallest value of the domain of the expression.
      */
     public abstract double min();
-
-    /**
-     * Returns the delta-change of the smallest value of the domain of the
-     * expression.
-     */
-    public double mindiff() {
-        return min() - oldmin();
-    }
 
     /**
      * Returns the old largest value of the domain of the expression.

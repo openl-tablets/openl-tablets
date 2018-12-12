@@ -3,10 +3,8 @@ package org.openl.ie.constrainer.impl;
 import org.openl.ie.constrainer.Constraint;
 import org.openl.ie.constrainer.ConstraintImpl;
 import org.openl.ie.constrainer.EventOfInterest;
-import org.openl.ie.constrainer.ExpressionFactory;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.Goal;
-import org.openl.ie.constrainer.IntBoolExp;
 import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
@@ -79,29 +77,6 @@ public final class ConstraintExpEqualsValue extends ConstraintImpl {
         _exp.setValue(_value); // may fail
         _exp.attachObserver(new ObserverEqualValue());
         return null;
-    }
-
-    @Override
-    public boolean isLinear() {
-        return _exp.isLinear();
-    }
-
-    @Override
-    public Constraint opposite() {
-        if (_opposite == null) {
-            _opposite = new ConstraintExpNotValue(_exp, _value);
-        }
-        return _opposite;
-    }
-
-    @Override
-    public IntBoolExp toIntBoolExp() {
-        ExpressionFactory factory = constrainer().expressionFactory();
-        Class clazz = IntBoolExpEqValue.class;
-        Object[] args = new Object[] { _exp, new Integer(_value) };
-        Class[] types = new Class[] { IntExp.class, int.class };
-
-        return (IntBoolExpEqValue) factory.getExpression(clazz, args, types);
     }
 
     @Override

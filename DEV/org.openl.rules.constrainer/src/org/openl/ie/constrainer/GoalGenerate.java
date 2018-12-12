@@ -132,21 +132,6 @@ public class GoalGenerate extends GoalImpl {
     }
 
     /**
-     * Returns true if the instantiation goals are recursive.
-     */
-    public boolean recursiveInstantiate() {
-        return _recursiveInstantiate;
-    }
-
-    /**
-     * Sets the recursive flag for the instantiation goals.
-     */
-    public void recursiveInstantiate(boolean recursive) {
-        _recursiveInstantiate = recursive;
-        initGoals();
-    }
-
-    /**
      * Returns a String representation of this goal.
      *
      * @return a String representation of this goal.

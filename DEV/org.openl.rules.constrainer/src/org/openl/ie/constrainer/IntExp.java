@@ -56,21 +56,6 @@ public interface IntExp extends Expression {
     int MAX_VALUE = Integer.MAX_VALUE;
 
     /**
-     * Returns the expression: <code>abs(this)</code>.
-     */
-    IntExp abs();
-
-    /**
-     * Returns the expression: <code>(this + value)</code>.
-     */
-    FloatExp add(double value);
-
-    /**
-     * Returns the expression: <code>(this + exp)</code>.
-     */
-    FloatExp add(FloatExp exp);
-
-    /**
      * Returns the expression: <code>(this + value)</code>.
      */
     IntExp add(int value);
@@ -79,16 +64,6 @@ public interface IntExp extends Expression {
      * Returns the expression: <code>(this + exp)</code>.
      */
     IntExp add(IntExp exp);
-
-    /**
-     * Returns the cast of this integer expression into floating-point
-     * expression.
-     *
-     * @return the FloatExp equals to this.
-     */
-    FloatExp asFloat();
-
-    IntExp bitAnd(IntExp exp);
 
     /**
      * Returns true if this expression is bound. An expression is considered
@@ -113,21 +88,6 @@ public interface IntExp extends Expression {
     boolean contains(int value);
 
     /**
-     * Returns the expression: <code>(this / value)</code>.
-     */
-    FloatExp div(double value);
-
-    /**
-     * Returns the expression: <code>(this / value)</code>.
-     */
-    IntExp div(int value);
-
-    /**
-     * Returns the expression: <code>(this / divisor)</code>.
-     */
-    IntExp div(IntExp divisor) throws Failure;
-
-    /**
      * Returns the display string for the current domain of this expression.
      */
     String domainToString();
@@ -135,22 +95,7 @@ public interface IntExp extends Expression {
     /**
      * Returns the boolean expression: <code>(this == value)</code>.
      */
-    IntBoolExp eq(double value);
-
-    /**
-     * Returns the boolean expression: <code>(this == value)</code>.
-     */
     IntBoolExp eq(int value);
-
-    /**
-     * Returns the boolean expression: <code>(this == exp)</code>.
-     */
-    IntBoolExp eq(IntExp exp);
-
-    /**
-     * Returns the constraint: <code>(this == exp + value)</code>.
-     */
-    Constraint equals(FloatExp exp, double value);
 
     /**
      * Returns the constraint: <code>(this == value)</code>.
@@ -163,33 +108,9 @@ public interface IntExp extends Expression {
     Constraint equals(IntExp exp);
 
     /**
-     * Returns the constraint: <code>(this == exp)</code>.
-     */
-    // public Constraint equals(FloatExp exp);
-    /**
-     * Returns the constraint: <code>(this == exp + value)</code>.
-     */
-    Constraint equals(IntExp exp, int value);
-
-    /**
-     * Returns the boolean expression: <code>(this >= value)</code>.
-     */
-    IntBoolExp ge(double value);
-
-    /**
      * Returns the boolean expression: <code>(this >= value)</code>.
      */
     IntBoolExp ge(int value);
-
-    /**
-     * Returns the boolean expression: <code>(this >= exp)</code>.
-     */
-    IntBoolExp ge(IntExp exp);
-
-    /**
-     * Returns the boolean expression: <code>(this > value)</code>.
-     */
-    IntBoolExp gt(double value);
 
     /**
      * Returns the boolean expression: <code>(this > value)</code>.
@@ -214,47 +135,7 @@ public interface IntExp extends Expression {
     /**
      * Returns the boolean expression: <code>(this <= value)</code>.
      */
-    IntBoolExp le(double value);
-
-    /**
-     * Returns the boolean expression: <code>(this <= value)</code>.
-     */
     IntBoolExp le(int value);
-
-    /**
-     * Returns the boolean expression: <code>(this <= exp)</code>.
-     */
-    IntBoolExp le(IntExp exp);
-
-    /**
-     * Returns the constraint: <code>(this < value)</code>.
-     */
-    Constraint less(int value);
-
-    /**
-     * Returns the constraint: <code>(this < exp)</code>.
-     */
-    Constraint less(IntExp exp);
-
-    /**
-     * Returns the constraint: <code>(this <= exp)</code>.
-     */
-    Constraint lessOrEqual(FloatExp exp);
-
-    /**
-     * Returns the constraint: <code>(this <= value)</code>.
-     */
-    Constraint lessOrEqual(int value);
-
-    /**
-     * Returns the constraint: <code>(this <= exp)</code>.
-     */
-    Constraint lessOrEqual(IntExp exp);
-
-    /**
-     * Returns the boolean expression: <code>(this < value)</code>.
-     */
-    IntBoolExp lt(double value);
 
     /**
      * Returns the boolean expression: <code>(this < value)</code>.
@@ -275,109 +156,6 @@ public interface IntExp extends Expression {
      * Returns the smallest value of the domain of this expression.
      */
     int min();
-
-    /**
-     * Returns the expression: <code>(this % value)</code>.
-     */
-    FloatExp mod(double value);
-
-    /**
-     * Returns the expression: <code>(this % value)</code>.
-     */
-    IntExp mod(int value);
-
-    /**
-     * Returns the constraint: <code>(this > value)</code>.
-     */
-    Constraint more(int value);
-
-    /**
-     * Returns the constraint: <code>(this > exp)</code>.
-     */
-    Constraint more(IntExp exp);
-
-    /**
-     * Returns the constraint: <code>(this >= exp)</code>.
-     */
-    Constraint moreOrEqual(FloatExp exp);
-
-    /**
-     * Returns the constraint: <code>(this >= value)</code>.
-     */
-    Constraint moreOrEqual(int value);
-
-    /**
-     * Returns the constraint: <code>(this >= exp)</code>.
-     */
-    Constraint moreOrEqual(IntExp exp);
-
-    /**
-     * Returns the expression: <code>(this * value)</code>.
-     */
-    FloatExp mul(double value);
-
-    /**
-     * Returns the expression: <code>(this * exp)</code>.
-     */
-    FloatExp mul(FloatExp exp);
-
-    /**
-     * Returns the expression: <code>(this * value)</code>.
-     */
-    IntExp mul(int value);
-
-    /**
-     * Returns the expression: <code>(this * exp)</code>.
-     */
-    IntExp mul(IntExp exp);
-
-    /**
-     * Returns the boolean expression: <code>(this != value)</code>.
-     */
-    IntBoolExp ne(double value);
-
-    /**
-     * Returns the boolean expression: <code>(this != value)</code>.
-     */
-    IntBoolExp ne(int value);
-
-    /**
-     * Returns the boolean expression: <code>(this != exp)</code>.
-     */
-    IntBoolExp ne(IntExp exp);
-
-    /**
-     * Returns the expression: <code>(-this)</code>. That expression is
-     * opposite by sign to this expression.
-     */
-    IntExp neg();
-
-    /**
-     * Returns the expression: <code>pow(this,value)</code>.
-     */
-    FloatExp pow(double value) throws Failure;
-
-    /**
-     * Returns the expression: <code>pow(this,value)</code>. Value should be >=
-     * 0. For value < 0 use pow(double value).
-     *
-     * Throws RuntimeException if there value < 0.
-     */
-    IntExp pow(int value);
-
-    /**
-     * Returns the expression: <code>pow(this,pow_exp)</code>. The constraint
-     * "pow_exp >= 0" is added to Costrainer.
-     *
-     * Throws RuntimeException if there value < 0.
-     */
-    IntExp pow(IntExp pow_exp) throws Failure;
-
-    /**
-     * Returns the expression:
-     * <code>((this < rangeMin)*(rangeMin - this) + (this > rangeMax)*(this - rangeMax))</code>.
-     */
-    IntExp rangeViolation(int rangeMin, int rangeMax);
 
     /**
      * Removes the range [min..max] from the domain of this expression.
@@ -427,38 +205,6 @@ public interface IntExp extends Expression {
      * @return the number of values in the domain of this variable.
      */
     int size();
-
-    /**
-     * Returns the expression: <code>(this * this)</code>.
-     */
-    IntExp sqr();
-
-    /**
-     * Returns the expression: <code>(this - value)</code>.
-     */
-    FloatExp sub(double value);
-
-    /**
-     * Returns the expression: <code>(this - exp)</code>.
-     */
-    FloatExp sub(FloatExp exp);
-
-    /**
-     * Returns the expression: <code>(this - value)</code>.
-     */
-    IntExp sub(int value);
-
-    /**
-     * Returns the expression: <code>(this - exp)</code>.
-     */
-    IntExp sub(IntExp exp);
-
-    /**
-     * Returns true if domain is not empty.
-     *
-     * @return true if domain is not empty.
-     */
-    boolean valid();
 
     /**
      * Returns the value this expression if it is bound.

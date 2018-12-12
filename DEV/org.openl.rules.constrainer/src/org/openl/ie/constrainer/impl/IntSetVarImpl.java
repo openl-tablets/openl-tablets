@@ -5,13 +5,11 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.Constraint;
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.Goal;
 import org.openl.ie.constrainer.GoalGenerate;
 import org.openl.ie.constrainer.IntBoolVar;
-import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntExpArray;
 import org.openl.ie.constrainer.IntSetVar;
 import org.openl.ie.constrainer.Observer;
@@ -122,10 +120,6 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
         return true;
     }
 
-    public IntExp cardinality() {
-        return _set.sum();
-    }
-
     public boolean contains(Set anotherSet) {
         if (!_values2index.keySet().containsAll(anotherSet)) {
             return false;
@@ -186,33 +180,8 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
         return result;
     }
 
-    public boolean isPossible(int val) {
-        if (!_values2index.keySet().contains(new Integer(val))) {
-            return false;
-        }
-        return (hasElem(val).max() == 1) ? true : false;
-    }
-
-    public Constraint nullIntersectWith(IntSetVar anotherVar) {
-        return intersectionWith(anotherVar).cardinality().equals(0);
-    }
-
     public boolean possible(int value) {
         return (hasElem(value).max() == 1);
-    }
-
-    /** TODO to be removed */
-    public Set possibleSet() {
-        java.util.HashSet values = new java.util.HashSet();
-        Iterator iter = _values2index.keySet().iterator();
-        while (iter.hasNext()) {
-            Integer curValue = (Integer) iter.next();
-            if (hasElem(curValue.intValue()).max() == 1) {
-                values.add(curValue);
-            }
-        }
-        /** @todo add emptiness chrecking */
-        return values;
     }
 
     @Override

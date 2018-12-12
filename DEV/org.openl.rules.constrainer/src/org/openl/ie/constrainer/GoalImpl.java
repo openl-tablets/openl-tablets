@@ -41,11 +41,4 @@ public abstract class GoalImpl extends ConstrainerObjectImpl implements Goal {
         return constrainer().toContinue(label, restore);
     }
 
-    // public boolean validate()
-    // {
-    // System.out.println("validate "+this);
-    // //...
-    // return true;
-    // }
-
 } // ~GoalImpl

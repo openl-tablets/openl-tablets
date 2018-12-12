@@ -19,6 +19,7 @@ import org.openl.ie.tools.ReusableImpl;
 /**
  * A generic implementation of the Undo interface.
  */
+
 public class UndoImpl extends ReusableImpl implements Undo {
     // private boolean _undone_flag;
     protected Undoable _undoable;
@@ -35,18 +36,7 @@ public class UndoImpl extends ReusableImpl implements Undo {
 
     public void undo() {
         free();
-        /*
-         * try { _undoable.undone(_undone_flag); free(); } catch(Exception e) {
-         * System.out.println("UNEXPECTED EXCEPTION during undo for "+this+":
-         * "+e); }
-         */
     }
-
-    /*
-     * public void undone(boolean f) { _undone_flag = f; }
-     *
-     * public boolean undone() { return _undone_flag; }
-     */
 
     public Undoable undoable() {
         return _undoable;
