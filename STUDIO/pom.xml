@@ -16,7 +16,6 @@
         <module>org.openl.rules.repository</module>
         <module>org.openl.rules.repository.jcr</module>
         <module>org.openl.rules.repository.jcr.jackrabbit</module>
-        <module>org.openl.rules.repository.jcr.modeshape</module>
         <module>org.openl.rules.repository.aws</module>
         <module>org.openl.rules.repository.git</module>
         <module>org.openl.rules.workspace</module>
