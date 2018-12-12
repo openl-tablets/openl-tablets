@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
@@ -19,6 +18,7 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
+import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenMethod;
@@ -617,16 +617,13 @@ public class MethodSearch {
             ICastFactory casts,
             IMethodFactory factory,
             boolean strictMatch) throws AmbiguousMethodException {
-        IMethodCaller caller = factory.getMethod(name, params);
-        if (caller != null) {
-            for (int i = 0; i < caller.getMethod().getSignature().getNumberOfParameters(); i++) {
-                if (!params[i].equals(caller.getMethod().getSignature().getParameterType(i))) {
-                    caller = null;
-                    break;
-                }
-            }
+        IMethodCaller caller = null;
+        if (factory instanceof ADynamicClass) {
+            ADynamicClass aDynamicClass = (ADynamicClass) factory;
+            caller = aDynamicClass.getMethod(name, params, true);
+        } else {
+            caller = factory.getMethod(name, params);
         }
-
         if (caller != null) {
             return caller;
         }
