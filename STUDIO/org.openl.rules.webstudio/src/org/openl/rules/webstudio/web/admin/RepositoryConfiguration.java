@@ -101,8 +101,6 @@ public class RepositoryConfiguration {
             case WEBDAV:
             case DB:
             case JNDI:
-            case PLAIN_DB:
-            case PLAIN_JNDI:
                 return "common";
             default:
                 return getType();
