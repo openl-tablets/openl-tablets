@@ -9,6 +9,7 @@ import org.openl.rules.dt.index.RangeIndex;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
 import org.openl.rules.webstudio.web.trace.node.SimpleTracerObject;
+import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.TracedObjectFactory;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
@@ -89,7 +90,9 @@ public final class TreeBuildTracer extends Tracer {
         try {
             R res = executor.invoke(target, params, env);
             trObj.setResult(res);
-            cacheNode(new TracerKeyNode<>(executor, target, params, env, source), trObj);
+            if (trObj instanceof SpreadsheetTracerLeaf) {
+                cacheNode(new TracerKeyNode<>(executor, target, params, env, source), trObj);
+            }
             return res;
         } catch (RuntimeException ex) {
             trObj.setError(ex);
