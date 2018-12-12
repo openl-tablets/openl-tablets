@@ -54,7 +54,6 @@ import org.openl.util.DomainUtils;
 import org.openl.util.StringPool;
 import org.openl.util.StringTool;
 import org.openl.util.text.LocationUtils;
-import org.openl.vm.IRuntimeEnv;
 
 public class RuleRowHelper {
 
@@ -173,27 +172,6 @@ public class RuleRowHelper {
         return bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeCode);
     }
 
-    public static void loadParams(Object[] array,
-            int from,
-            Object[] paramValues,
-            Object target,
-            Object[] params,
-            IRuntimeEnv env) {
-
-        for (int i = 0; i < paramValues.length; i++) {
-
-            Object value = paramValues[i];
-
-            if (value instanceof IOpenMethod) {
-                value = ((IOpenMethod) value).invoke(target, params, env);
-            } else if (value instanceof ArrayHolder) {
-                value = ((ArrayHolder) value).invoke(target, params, env);
-            }
-
-            array[i + from] = value;
-        }
-    }
-
     public static Object loadSingleParam(IOpenClass paramType,
             String paramName,
             String ruleName,
@@ -242,7 +220,7 @@ public class RuleRowHelper {
             try {
                 Object res = loadNativeValue(theValueCell, paramType, openlAdapter.getBindingContext());
 
-                if (res != null && res instanceof IMetaHolder) {
+                if (res instanceof IMetaHolder) {
                     setMetaInfo((IMetaHolder) res, table, paramName, ruleName, openlAdapter.getBindingContext());
                 }
 
@@ -531,7 +509,7 @@ public class RuleRowHelper {
      * @param cellTable original cell
      * @return top left cell if region is merged or the cell itself otherwise
      */
-    public static IGridTable getTopLeftCellFromMergedRegion(IGridTable cellTable) {
+    private static IGridTable getTopLeftCellFromMergedRegion(IGridTable cellTable) {
         if (cellTable instanceof SingleCellGridTable) {
             ICell cell = cellTable.getCell(0, 0);
             IGridRegion region = cell.getRegion();
@@ -664,10 +642,9 @@ public class RuleRowHelper {
     }
 
     private static Object loadEmptyCellParams(ILogicalTable dataTable,
-            String paramName,
-            String ruleName,
-            OpenlToolAdaptor openlAdaptor,
-            IOpenClass paramType) {
+                                              String paramName,
+                                              OpenlToolAdaptor openlAdaptor,
+                                              IOpenClass paramType) {
         if (!openlAdaptor.getBindingContext().isExecutionMode()) {
             if (paramType.isArray()) {
                 IOpenClass arrayType = paramType.getAggregateInfo().getComponentType(paramType);
@@ -697,7 +674,7 @@ public class RuleRowHelper {
         boolean oneCellTable = height == 1;
 
         if (height == 0) {
-            return loadEmptyCellParams(dataTable, paramName, ruleName, openlAdaptor, paramType);
+            return loadEmptyCellParams(dataTable, paramName, openlAdaptor, paramType);
         }
 
         // If data table contains one cell and parameter type is not array type

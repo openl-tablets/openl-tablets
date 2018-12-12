@@ -1,15 +1,11 @@
 package org.openl.rules.webstudio.web.admin;
 
-import org.openl.rules.repository.RepositoryFactoryInstatiator;
-
 public enum JcrType {
     LOCAL(org.openl.rules.repository.factories.LocalJackrabbitRepositoryFactory.class),
     RMI(org.openl.rules.repository.factories.RmiJackrabbitRepositoryFactory.class),
     WEBDAV(org.openl.rules.repository.factories.WebDavRepositoryFactory.class),
-    DB(org.openl.rules.repository.factories.JdbcDBRepositoryFactory.class),
-    JNDI(org.openl.rules.repository.factories.JndiDBRepositoryFactory.class),
-    PLAIN_DB(org.openl.rules.repository.db.JdbcDBRepositoryFactory.class),
-    PLAIN_JNDI(org.openl.rules.repository.db.DatasourceDBRepositoryFactory.class),
+    DB(org.openl.rules.repository.db.JdbcDBRepositoryFactory.class),
+    JNDI(org.openl.rules.repository.db.DatasourceDBRepositoryFactory.class),
     AWS_S3(org.openl.rules.repository.aws.S3Repository.class);
 
     public static JcrType findByAccessType(String accessType) {
@@ -22,8 +18,7 @@ public enum JcrType {
         return null;
     }
 
-    public static JcrType findByFactory(String factoryClassName) {
-        String className = RepositoryFactoryInstatiator.changeClassName(factoryClassName);
+    public static JcrType findByFactory(String className) {
         for (JcrType jcrType : values()) {
             if (jcrType.factoryClassName.equals(className)) {
                 return jcrType;

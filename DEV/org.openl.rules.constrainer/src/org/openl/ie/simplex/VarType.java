@@ -67,14 +67,6 @@ public class VarType {
 
     static private native int native_LPX_UP();
 
-    public VarType() {
-        setType(LPX_FR);
-    }
-
-    public VarType(double lb, double ub) {
-        this(LPX_DB, lb, ub);
-    }
-
     public VarType(int type, double lb, double ub) {
         setType(type);
         if ((lb > ub) && ((type == LPX_FR) || (type == LPX_DB))) {
@@ -100,14 +92,6 @@ public class VarType {
             return Double.MAX_VALUE;
         }
         return _ub;
-    }
-
-    public void setBounds(double lb, double ub) {
-        if ((lb > ub) && (_type == LPX_DB)) {
-            throw new IllegalArgumentException("the upper bound must not be less then the lower bound");
-        }
-        _lb = lb;
-        _ub = ub;
     }
 
     public void setType(int type) {

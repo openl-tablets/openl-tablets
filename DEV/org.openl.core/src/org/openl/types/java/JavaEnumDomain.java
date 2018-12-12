@@ -2,11 +2,11 @@ package org.openl.types.java;
 
 import java.util.Iterator;
 
-import org.openl.domain.FixedSizeDomain;
+import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.util.OpenIterator;
 
-public class JavaEnumDomain extends FixedSizeDomain<Object> {
+public class JavaEnumDomain implements IDomain<Object> {
     
     private JavaOpenEnum enumClass;
     
@@ -29,10 +29,6 @@ public class JavaEnumDomain extends FixedSizeDomain<Object> {
 
     public boolean selectObject(Object obj) {
         return enumClass.getInstanceClass().isInstance(obj);
-    }
-
-    public boolean selectType(IType type) {
-        return type == enumClass;
     }
 
     public Object getValue(int index) {

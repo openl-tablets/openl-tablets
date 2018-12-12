@@ -17,25 +17,9 @@ public interface IDomain<T> extends Iterable<T> {
 
     /**
      * 
-     * @return true in case of ranges and enumerations
-     */
-
-    boolean isFinite();
-
-    /**
-     * 
      * @param obj
      * @return true if object belongs to this domain
      */
     boolean selectObject(T obj);
-
-    /**
-     * 
-     * @param type
-     * @return true if any object of the type belong to this domain; NOTE: this
-     *         is strictly a type check, the method does not take into
-     *         consideration the domain of the type
-     */
-    boolean selectType(IType type);
 
 }

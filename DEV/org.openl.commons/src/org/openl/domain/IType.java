@@ -5,8 +5,7 @@
  */
 package org.openl.domain;
 
-import org.openl.base.INameSpacedThing;
-import org.openl.base.NameSpacedThing;
+import org.openl.base.INamedThing;
 
 /**
  * @author snshor
@@ -19,28 +18,7 @@ import org.openl.base.NameSpacedThing;
  *         non-java features as using non-java types, using composite types(for
  *         example int, Integer, BigInteger) etc.
  */
-public interface IType extends INameSpacedThing {
-
-    class AnyThing extends NameSpacedThing implements IType {
-
-        private AnyThing() {
-            super("Any", "http://domain.openl.org");
-        }
-
-        public IDomain<Object> getDomain() {
-            return null;
-        }
-
-        public boolean isAssignableFrom(IType type) {
-            return true;
-        }
-
-        public boolean isInstance(Object obj) {
-            return true;
-        }
-    }
-
-    AnyThing ANY = new AnyThing();
+public interface IType extends INamedThing {
 
     /**
      * Provides type validation(usually by constraining type)

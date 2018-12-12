@@ -25,7 +25,7 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 
-public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMetaHolder {
+public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
 
     IOpenClass[] EMPTY = {};
 
@@ -183,5 +183,5 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
     Collection<IOpenClass> getTypes();
     
     IOpenClass getArrayType(int dim);
-
+    IOpenClass getOpenClass();
 }
