@@ -16,10 +16,6 @@ public class TimeLimitException extends RuntimeException {
     private String _msg;
     private ChoicePointLabel _label = null;
 
-    public TimeLimitException() {
-        this("", null);
-    }
-
     /**
      * Constructor for a TimeLimitException with a given description and label.
      */
@@ -34,13 +30,6 @@ public class TimeLimitException extends RuntimeException {
      */
     public ChoicePointLabel label() {
         return _label;
-    }
-
-    /**
-     * Sets the description of this TimeLimitException.
-     */
-    void message(String s) {
-        _msg = s;
     }
 
     /**

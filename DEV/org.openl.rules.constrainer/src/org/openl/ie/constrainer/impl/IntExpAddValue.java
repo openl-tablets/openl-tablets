@@ -1,11 +1,8 @@
 package org.openl.ie.constrainer.impl;
 
-import java.util.Map;
-
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.IntExp;
-import org.openl.ie.constrainer.NonLinearExpression;
 import org.openl.ie.constrainer.Subject;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
@@ -139,11 +136,6 @@ public final class IntExpAddValue extends IntExpImpl {
     @Override
     public boolean bound() {
         return _exp.bound();
-    }
-
-    @Override
-    public double calcCoeffs(Map map, double factor) throws NonLinearExpression {
-        return _exp.calcCoeffs(map, factor) + _value * factor;
     }
 
     @Override

@@ -17,21 +17,13 @@ public interface IntSetVar extends Subject, IntSetEvent.IntSetEventConstants, ja
 
     public boolean bound();
 
-    public IntExp cardinality();
-
     public boolean contains(Set anotherSet);
 
     public Goal generate();
 
     public IntSetVar intersectionWith(IntSetVar anotherSet);
 
-    public boolean isPossible(int val);
-
-    public Constraint nullIntersectWith(IntSetVar anotherVar);
-
     public boolean possible(int value);
-
-    public Set possibleSet();
 
     public void propagate() throws Failure;
 

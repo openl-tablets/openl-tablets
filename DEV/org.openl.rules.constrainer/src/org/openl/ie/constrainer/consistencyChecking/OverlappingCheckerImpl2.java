@@ -158,40 +158,10 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
         
     }
     
-
-    // private class GoalCompare extends GoalImpl
-    // {
-    //
-    // Boolean result = null;
-    // IntExp exp1, exp2;
-    //
-    // public GoalCompare(Constrainer c, IntExp exp1, IntExp exp2) {
-    // super(c);
-    // this.exp1 = exp1;
-    // this.exp2 = exp2;
-    // }
-    //
-    // /**
-    // *
-    // */
-    // private static final long serialVersionUID = -1772201340972264887L;
-    //
-    // public Goal execute() throws Failure {
-    //
-    // result = exp1.bound() && exp2.bound();
-    // return null;
-    // }
-    //
-    // }
-
-    /**
-     * @return true if the first expression completely overlaps the second one.
-     */
-
     private boolean completelyOverlaps(IntExp exp1, IntExp exp2) {
         Constrainer C = exp1.constrainer();
         int stackSize = C.getStackSize();
-        Constraint overlaps = (exp1.sub(exp2).lt(0)).asConstraint();
+        Constraint overlaps = (exp1.lt(exp2)).asConstraint();
         // GoalCompare compare = new GoalCompare(C, exp1, exp2);
         Goal generate = new GoalGenerate(_dt.getVars());
         Goal target = new GoalAnd(overlaps, generate);

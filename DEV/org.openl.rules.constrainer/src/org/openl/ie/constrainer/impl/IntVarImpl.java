@@ -1,7 +1,5 @@
 package org.openl.ie.constrainer.impl;
 
-import java.util.Map;
-
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Domain;
 import org.openl.ie.constrainer.Failure;
@@ -9,7 +7,6 @@ import org.openl.ie.constrainer.Goal;
 import org.openl.ie.constrainer.GoalInstantiate;
 import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntVar;
-import org.openl.ie.constrainer.NonLinearExpression;
 import org.openl.ie.constrainer.Undo;
 import org.openl.ie.constrainer.Undoable;
 import org.openl.ie.tools.Reusable;
@@ -76,10 +73,6 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
 
     private IntDomainHistory _history;
 
-    public IntVarImpl(Constrainer constrainer) {
-        this(constrainer, 1000000);
-    }
-
     public IntVarImpl(Constrainer constrainer, int max) {
         this(constrainer, 0, max);
     }
@@ -122,25 +115,6 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
         }
 
         _history = new IntDomainHistory(this);
-    }
-
-    public IntVarImpl(Constrainer constrainer, String name) {
-        this(constrainer, 0, 1000000, name);
-    }
-
-    @Override
-    public double calcCoeffs(Map map, double factor) throws NonLinearExpression {
-        if (bound()) {
-            return max() * factor;
-        }
-
-        Double coef = (Double) map.get(this);
-        if (coef == null) {
-            map.put(this, new Double(factor));
-        } else {
-            map.put(this, new Double(factor + coef.doubleValue()));
-        }
-        return 0;
     }
 
     @Override

@@ -32,9 +32,6 @@ public interface Goal extends ConstrainerObject {
     public Goal execute() throws Failure;
 
     public boolean toContinue(ChoicePointLabel label, boolean restore_flag);
-    // /**
-    // * Returns true if this goal is valid.
-    // */
-    // public boolean validate();
+
 
 } // ~Goal

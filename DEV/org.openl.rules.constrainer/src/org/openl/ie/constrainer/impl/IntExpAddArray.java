@@ -1,14 +1,11 @@
 package org.openl.ie.constrainer.impl;
 
-import java.util.Map;
-
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntExpArray;
 import org.openl.ie.constrainer.IntVar;
-import org.openl.ie.constrainer.NonLinearExpression;
 import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
 
@@ -118,18 +115,6 @@ public final class IntExpAddArray extends IntExpImpl {
             min_sum += vars[i].min();
         }
         return min_sum;
-    }
-
-    @Override
-    public double calcCoeffs(Map map, double factor) throws NonLinearExpression {
-        if (!isLinear()) {
-            throw new NonLinearExpression(this);
-        }
-        double cumSum = 0;
-        for (int i = 0; i < _vars.size(); i++) {
-            cumSum += _vars.get(i).calcCoeffs(map, factor);
-        }
-        return cumSum;
     }
 
     @Override

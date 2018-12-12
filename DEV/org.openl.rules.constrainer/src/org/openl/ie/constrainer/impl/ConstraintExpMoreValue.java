@@ -5,7 +5,6 @@ import org.openl.ie.constrainer.ConstraintImpl;
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.Goal;
-import org.openl.ie.constrainer.IntBoolExp;
 import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
@@ -79,24 +78,6 @@ public final class ConstraintExpMoreValue extends ConstraintImpl {
         _exp.setMin(_value + 1); // may fail
         _exp.attachObserver(new ObserverMoreValue());
         return null;
-    }
-
-    @Override
-    public boolean isLinear() {
-        return _exp.isLinear();
-    }
-
-    @Override
-    public Constraint opposite() {
-        if (_opposite == null) {
-            _opposite = new ConstraintExpLessValue(_exp, _value + 1);
-        }
-        return _opposite;
-    }
-
-    @Override
-    public IntBoolExp toIntBoolExp() {
-        return _exp.gt(_value);
     }
 
     @Override
