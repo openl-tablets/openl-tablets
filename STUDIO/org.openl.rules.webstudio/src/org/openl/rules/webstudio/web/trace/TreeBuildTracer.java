@@ -6,8 +6,8 @@ package org.openl.rules.webstudio.web.trace;
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.RangeIndex;
-import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
+import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
 import org.openl.rules.webstudio.web.trace.node.SimpleTracerObject;
 import org.openl.rules.webstudio.web.trace.node.TracedObjectFactory;
 import org.openl.types.Invokable;
@@ -167,7 +167,7 @@ public final class TreeBuildTracer extends Tracer {
 
         SimpleTracerObject node = localCache.get(new TracerKeyNode<>(executor, target, params, env, source));
         if (node != null) {
-            SimpleTracerObject newNode = TracedObjectFactory.deepCopy(node);
+            ITracerObject newNode = new RefToTracerNodeObject(node);
             doPut(newNode);
         }
     }
