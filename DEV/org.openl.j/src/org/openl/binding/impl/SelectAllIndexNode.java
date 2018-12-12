@@ -33,6 +33,9 @@ class SelectAllIndexNode extends ABoundNode {
         List<Object> firedElements = new ArrayList<>();
         while (elementsIterator.hasNext()) {
             Object element = elementsIterator.next();
+            if (element == null) {
+                continue;
+            }
             tempVar.set(null, element, env);
             if (BooleanUtils.toBoolean(condition.evaluate(env))) {
                 firedElements.add(element);
