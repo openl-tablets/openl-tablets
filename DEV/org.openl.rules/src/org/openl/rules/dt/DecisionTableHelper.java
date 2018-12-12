@@ -461,8 +461,10 @@ public class DecisionTableHelper {
         sb.append("ret;");
         grid.setCellValue(firstReturnColumn, 1, sb.toString());
 
-        for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1; row++) {
-            grid.addMergedRegion(new GridRegion(row, firstReturnColumn, row, column - 1));
+        if (firstReturnColumn < column - 1) {
+            for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1; row++) {
+                grid.addMergedRegion(new GridRegion(row, firstReturnColumn, row, column - 1));
+            }
         }
     }
 
@@ -1298,7 +1300,8 @@ public class DecisionTableHelper {
                         f = false;
                     }
                     if (DoubleRangeParser.getInstance().parse(value) != null && !f) {
-                        return Pair.of(DoubleRange.class.getSimpleName(), JavaOpenClass.getOpenClass(DoubleRange.class));
+                        return Pair.of(DoubleRange.class.getSimpleName(),
+                            JavaOpenClass.getOpenClass(DoubleRange.class));
                     }
                 } catch (Exception e) {
                     continue;
