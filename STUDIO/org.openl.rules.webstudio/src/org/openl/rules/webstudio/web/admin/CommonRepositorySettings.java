@@ -21,7 +21,6 @@ public class CommonRepositorySettings extends RepositorySettings {
 
     public CommonRepositorySettings(ConfigurationManager configManager,
             String configPrefix,
-            String factoryClassName,
             RepositoryType repositoryType,
             JcrType jcrType) {
         super(configManager, configPrefix);
@@ -32,23 +31,12 @@ public class CommonRepositorySettings extends RepositorySettings {
         REPOSITORY_LOGIN = configPrefix + "login";
         REPOSITORY_PASS = configPrefix + "password";
 
-        String oldUriProperty = RepositoryFactoryInstatiator.getOldUriProperty(factoryClassName);
-        if (oldUriProperty != null) {
-            oldUriProperty = configPrefix + oldUriProperty;
-            uri = configManager.getStringProperty(oldUriProperty);
-            configManager.removeProperty(oldUriProperty);
-        }
-        if (uri == null) {
-            uri = configManager.getStringProperty(REPOSITORY_URI);
-        }
 
         if (jcrType == JcrType.LOCAL) {
-            defaultLocalUri = configManager.getStringProperty(oldUriProperty);
-            if (defaultLocalUri == null) {
-                defaultLocalUri = configManager.getStringProperty(REPOSITORY_URI);
-            }
+            defaultLocalUri = configManager.getStringProperty(REPOSITORY_URI);
         }
 
+        uri = configManager.getStringProperty(REPOSITORY_URI);
         login = configManager.getStringProperty(REPOSITORY_LOGIN);
         password = configManager.getPassword(REPOSITORY_PASS);
     }
@@ -107,10 +95,6 @@ public class CommonRepositorySettings extends RepositorySettings {
                 return "//localhost:1099/" + type + "-repository";
             case WEBDAV:
                 return "http://localhost:8080/" + type + "-repository";
-            case PLAIN_DB:
-                return "jdbc:mysql://localhost:3306/" + type + "-repository";
-            case PLAIN_JNDI:
-                return "java:comp/env/jdbc/" + type + "DB";
             case DB:
                 return "jdbc:mysql://localhost:3306/" + type + "-repository";
             case JNDI:

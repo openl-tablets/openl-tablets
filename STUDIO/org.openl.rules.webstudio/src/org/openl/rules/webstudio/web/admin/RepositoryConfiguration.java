@@ -63,7 +63,7 @@ public class RepositoryConfiguration {
                 newSettings = new AWSS3RepositorySettings(configManager, CONFIG_PREFIX);
                 break;
             default:
-                newSettings = new CommonRepositorySettings(configManager, CONFIG_PREFIX, factoryClassName, repositoryType, jcrType);
+                newSettings = new CommonRepositorySettings(configManager, CONFIG_PREFIX, repositoryType, jcrType);
                 break;
         }
 
