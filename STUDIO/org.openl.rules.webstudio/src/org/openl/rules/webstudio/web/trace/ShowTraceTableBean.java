@@ -27,6 +27,7 @@ import org.openl.rules.webstudio.web.trace.node.ATableTracerNode;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.DecisionTableTraceObject;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
+import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.CollectionUtils;
