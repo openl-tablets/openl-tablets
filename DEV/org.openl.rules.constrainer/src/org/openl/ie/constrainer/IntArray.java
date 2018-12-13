@@ -233,18 +233,6 @@ public final class IntArray extends ConstrainerObjectImpl {
     // elementAt???
     {
         return new IntExpElementAt(this, idx_exp);
-        /*
-         * String name = ""; if(constrainer().showInternalNames()) { name =
-         * name() + "[" + idx_exp.name() + "]"; } int domain =
-         * IntVar.DOMAIN_BIT_FAST; int trace = 0;//IntVar.TRACE_ALL; IntVar
-         * element_var = constrainer().addIntVarTrace(min(), max(), name,
-         * domain, trace);
-         *
-         * Constraint ce = new ConstraintElement(this,idx_exp,element_var);
-         * ce.post();
-         *
-         * return element_var;
-         */
     }
 
     /**

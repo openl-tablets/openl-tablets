@@ -24,13 +24,6 @@ import org.openl.ie.constrainer.Undoable;
  */
 public abstract class UndoableImpl extends ConstrainerObjectImpl implements Undoable {
     /**
-     * Constructor with a given constrainer.
-     */
-    public UndoableImpl(Constrainer c) {
-        super(c);
-    }
-
-    /**
      * Constructor with a given constrainer and name.
      */
     public UndoableImpl(Constrainer c, String name) {

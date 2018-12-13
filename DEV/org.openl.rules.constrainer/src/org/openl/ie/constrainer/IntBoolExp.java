@@ -34,18 +34,6 @@ public interface IntBoolExp extends IntExp {
      */
     Constraint asConstraint();
 
-    IntBoolExp eq(boolean b);
-
-    /**
-     * Returns the boolean expression: <code>(this -> value)</code>
-     */
-    IntBoolExp implies(boolean value);
-
-    /**
-     * Returns the boolean expression: <code>(this -> exp)</code>
-     */
-    IntBoolExp implies(IntBoolExp exp);
-
     /**
      * Returns true if the expression is false. Note: this is not equals to
      * <code>!isTrue()</code>
@@ -57,11 +45,6 @@ public interface IntBoolExp extends IntExp {
      * <code>!isFalse()</code>
      */
     boolean isTrue();
-
-    /**
-     * Returns the boolean expression: <code>(!this)</code>
-     */
-    IntBoolExp not();
 
     /**
      * Returns the boolean expression: <code>(this || value)</code>

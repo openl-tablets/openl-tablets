@@ -12,16 +12,7 @@ import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tbasic.runtime.Result;
-import org.openl.rules.webstudio.web.trace.node.ATableTracerNode;
-import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
-import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
-import org.openl.rules.webstudio.web.trace.node.ITracerObject;
-import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
-import org.openl.rules.webstudio.web.trace.node.OverloadedMethodChoiceTraceObject;
-import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
-import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
-import org.openl.rules.webstudio.web.trace.node.TBasicOperationTraceObject;
-import org.openl.rules.webstudio.web.trace.node.WScoreTraceObject;
+import org.openl.rules.webstudio.web.trace.node.*;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
@@ -46,6 +37,8 @@ public class TraceFormatter {
             return "Returned rule: " + Arrays.toString(((DTRuleTracerLeaf) obj).getRuleNames());
         } else if (obj instanceof ATableTracerNode) {
             return getDisplayName((ATableTracerNode) obj);
+        } else if (obj instanceof RefToTracerNodeObject) {
+            return getDisplayName(((RefToTracerNodeObject) obj).getOriginalTracerNode());
         }
         return "NULL - " + obj.getClass();
     }

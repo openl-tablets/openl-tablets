@@ -1,12 +1,9 @@
 package org.openl.ie.constrainer.impl;
 
-import java.util.Map;
-
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.FloatExp;
-import org.openl.ie.constrainer.NonLinearExpression;
 import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
 
@@ -59,11 +56,6 @@ public class IntBoolExpFloatLessExp extends IntBoolExpForSubject {
         _observer = new ObserverMinMax();
         _left.attachObserver(_observer);
         _right.attachObserver(_observer);
-    }
-
-    @Override
-    public double calcCoeffs(Map map, double factor) throws NonLinearExpression {
-        return (_right.sub(_left).add(_offset)).calcCoeffs(map, factor);
     }
 
     @Override

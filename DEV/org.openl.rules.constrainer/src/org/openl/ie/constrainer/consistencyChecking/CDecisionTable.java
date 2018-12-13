@@ -20,14 +20,6 @@ import org.openl.ie.constrainer.IntExpArray;
 import org.openl.ie.constrainer.IntVar;
 
 public interface CDecisionTable {
-    /**
-     * @param the number of rule the constraint belongs to
-     * @param the number of variable the constraint imposed on
-     *
-     * @return the constraint imposed by the i'th rule on the j'th variable
-     *         Note: may return nulls for some decision table entrys.
-     */
-    public IntBoolExp getEntry(int i, int j);
 
     /**
      * @param The number of rule to be returned (actually it is the number of

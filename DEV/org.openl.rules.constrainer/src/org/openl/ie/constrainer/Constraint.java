@@ -29,45 +29,6 @@ package org.openl.ie.constrainer;
  * @see ConstraintImpl
  */
 public interface Constraint extends Goal {
-    /**
-     * Returns a constraint: <code>(this AND constraint)</code>. This
-     * constraint is satisfied only when both the invoked constraint and the
-     * parameter-constraint are satisfied. 'And' condition has straightforward
-     * implementation for the constraints even in the minimal requirements to
-     * the interface Constraint.
-     */
-    public Constraint and(Constraint constraint);
-
-    public boolean isLinear();
-
-    /**
-     * Returns a constraint: <code>(NOT this)</code>. An opposite constraint
-     * has semantically an opposite meaning to this constraint.
-     */
-    public Constraint opposite();
-
-    // /**
-    // * <b> * to be hidden * </b>
-    // * Returns a constraint: <code>(this OR constraint)</code>.
-    // * This constraint is satisfied only
-    // * either the invoked constraint or the parameter-constraint is satisfied.
-    // */
-    // public Constraint or(Constraint constraint);
-    //
-    // /**
-    // * <b> * to be hidden * </b>
-    // * Returns a constraint satisfying the condition:
-    // * if this constraint is true, then the "constraint" should be true.
-    // */
-    // public Constraint ifThen(Constraint constraint);
-    //
-    // /**
-    // * <b> * to be hidden * </b>
-    // * Returns a constraint satisfying the condition:
-    // * if this "constraint" is true, then "constraint1" else "constraint2"
-    // */
-    // public Constraint ifThenElse(Constraint constraint1, Constraint
-    // constraint2);
 
     /**
      * Makes the constraint active.
@@ -75,7 +36,5 @@ public interface Constraint extends Goal {
      * @throws Failure if the constraint can not be satisfied.
      */
     public void post() throws Failure;
-
-    public IntBoolExp toIntBoolExp();
 
 }

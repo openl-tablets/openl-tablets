@@ -55,11 +55,6 @@ public interface Subject extends Undoable {
     public void forcePublisherMask(int mask);
 
     /**
-     * Returns true if this subject is in the propagation process.
-     */
-    public boolean inProcess();
-
-    /**
      * Sets the condition 'this subject is in the propagation process' to the
      * given value.
      */
@@ -70,11 +65,6 @@ public interface Subject extends Undoable {
      * this event are notified.
      */
     public void notifyObservers(EventOfInterest interest) throws Failure;
-
-    /**
-     * Returns the observers attached to this subject.
-     */
-    public FastVector observers();
 
     /**
      * Propagate changes made to this subject notifying the observers.

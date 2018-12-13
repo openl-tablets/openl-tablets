@@ -63,30 +63,6 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
         return new ConstraintConst(constrainer(), isTrue());
     }
 
-    public IntBoolExp eq(boolean b) {
-        return this.eq(b ? 1 : 0);
-    }
-
-    /**
-     *
-     * @return <code>this.not().or(value)</code>
-     * @see #not()
-     * @see #or(boolean)
-     */
-    final public IntBoolExp implies(boolean value) {
-        return not().or(value);
-    }
-
-    /**
-     *
-     * @return <code>this.not().or(exp)</code>
-     * @see #not()
-     * @see #or(IntBoolExp)
-     */
-    final public IntBoolExp implies(IntBoolExp exp) {
-        return not().or(exp);
-    }
-
     /**
      *
      * @return (boolean_const == 0)
@@ -101,15 +77,6 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
      */
     final public boolean isTrue() {
         return _const == 1;
-    }
-
-    /**
-     *
-     * @return (IntBoolExp)(!isTrue())
-     * @see #isTrue()
-     */
-    final public IntBoolExp not() {
-        return getIntBoolExpConst(constrainer(), !isTrue());
     }
 
     /**

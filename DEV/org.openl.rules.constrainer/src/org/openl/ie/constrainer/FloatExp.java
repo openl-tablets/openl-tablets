@@ -23,30 +23,11 @@ package org.openl.ie.constrainer;
  * returns the floating-point expression.
  */
 public interface FloatExp extends Expression {
-    /**
-     * Returns the expression: <code>abs(this)</code>.
-     */
-    public FloatExp abs();
 
     /**
      * Returns the expression: <code>(this + value)</code>.
      */
     public FloatExp add(double value);
-
-    /**
-     * Returns the expression: <code>(this + exp)</code>.
-     */
-    public FloatExp add(FloatExp exp);
-
-    /**
-     * Returns the expression: <code>(this + value)</code>.
-     */
-    public FloatExp add(int value);
-
-    /**
-     * Returns the expression: <code>(this + exp)</code>.
-     */
-    public FloatExp add(IntExp exp);
 
     /**
      * Returns truie if this expression is bound.
@@ -63,26 +44,6 @@ public interface FloatExp extends Expression {
      * @return true if this expression is bound.
      */
     public boolean bound();
-
-    /**
-     * Returns the expression: <code>(this / value)</code>.
-     */
-    public FloatExp div(double value);
-
-    /**
-     * Returns the expression: <code>(this / exp)</code>.
-     */
-    public FloatExp div(FloatExp exp);
-
-    /**
-     * Returns the expression: <code>(this / value)</code>.
-     */
-    public FloatExp div(int value);
-
-    /**
-     * Returns the expression: <code>(this / exp)</code>.
-     */
-    public FloatExp div(IntExp exp);
 
     /**
      * Returns the display string for the current domain of this expression.
@@ -103,41 +64,6 @@ public interface FloatExp extends Expression {
      * Returns the boolean expression: <code>(this == value)</code>.
      */
     public IntBoolExp eq(int value);
-
-    /**
-     * Returns the constraint: <code>(this == value)</code>.
-     */
-    public Constraint equals(double value);
-
-    /**
-     * Returns the constraint: <code>(this == exp)</code>.
-     */
-    public Constraint equals(FloatExp exp);
-
-    /**
-     * Returns the constraint: <code>(this == exp + value)</code>.
-     */
-    public Constraint equals(FloatExp exp, double value);
-
-    /**
-     * Returns the constraint: <code>(this == exp)</code>.
-     */
-    public Constraint equals(IntExp exp);
-
-    /**
-     * Returns the constraint: <code>(this == exp + value)</code>.
-     */
-    public Constraint equals(IntExp exp, double value);
-
-    /**
-     * Returns the expression: <code>exp(this)</code>.
-     */
-    public FloatExp exp();
-
-    /**
-     * Returns the expression: <code>pow(value,this)</code>.
-     */
-    public FloatExp exp(double value);
 
     /**
      * Returns the boolean expression: <code>(this >= value)</code>.
@@ -170,11 +96,6 @@ public interface FloatExp extends Expression {
     public IntBoolExp gt(int value);
 
     /**
-     * Returns the expression: <code>(1/this)</code>.
-     */
-    public FloatExp inv();
-
-    /**
      * Returns the boolean expression: <code>(this <= value)</code>.
      */
     public IntBoolExp le(double value);
@@ -193,21 +114,6 @@ public interface FloatExp extends Expression {
      * Returns the constraint: <code>(this <= value)</code>.
      */
     public Constraint lessOrEqual(double value);
-
-    /**
-     * Returns the constraint: <code>(this <= exp)</code>.
-     */
-    public Constraint lessOrEqual(FloatExp exp);
-
-    /**
-     * Returns the constraint: <code>(this <= exp)</code>.
-     */
-    public Constraint lessOrEqual(IntExp exp);
-
-    /**
-     * Returns the expression: <code>log(this)</code>.
-     */
-    public FloatExp log() throws Failure;
 
     /**
      * Returns the boolean expression: <code>(this < value)</code>.
@@ -250,86 +156,6 @@ public interface FloatExp extends Expression {
     public Constraint moreOrEqual(double value);
 
     /**
-     * Returns the constraint: <code>(this >= exp)</code>.
-     */
-    public Constraint moreOrEqual(FloatExp exp);
-
-    /**
-     * Returns the constraint: <code>(this >= exp)</code>.
-     */
-    public Constraint moreOrEqual(IntExp exp);
-
-    /**
-     * Returns the expression: <code>(this * value)</code>.
-     */
-    public FloatExp mul(double value);
-
-    /**
-     * Returns the expression: <code>(this * exp)</code>.
-     */
-    public FloatExp mul(FloatExp exp);
-
-    /**
-     * Returns the expression: <code>(this * value)</code>.
-     */
-    public FloatExp mul(int value);
-
-    /**
-     * Returns the expression: <code>(this * exp)</code>.
-     */
-    public FloatExp mul(IntExp exp);
-
-    /**
-     * Returns the boolean expression: <code>(this != value)</code>.
-     */
-    public IntBoolExp ne(double value);
-
-    /**
-     * Returns the boolean expression: <code>(this != exp)</code>.
-     */
-    public IntBoolExp ne(FloatExp exp);
-
-    /**
-     * Returns the boolean expression: <code>(this != value)</code>.
-     */
-    public IntBoolExp ne(int value);
-
-    /**
-     * Returns the expression: <code>(-this)</code>. That expression is
-     * opposite by sign to this expression.
-     */
-    public FloatExp neg();
-
-    /**
-     * Returns the expression: <code>pow(this,value)</code>.
-     */
-    public FloatExp pow(double value) throws Failure;
-
-    /**
-     * Returns the expression: <code>pow(this,exp)</code>.
-     *
-     * Throws RuntimeException if there exists invalid values for the
-     * expressions in domain.
-     */
-    public FloatExp pow(FloatExp exp) throws Failure;
-
-    /**
-     * Returns the expression: <code>pow(this,value)</code>.
-     *
-     * Throws RuntimeException if there exists invalid values for the
-     * expressions in domain.
-     */
-    public FloatExp pow(int value) throws Failure;
-
-    /**
-     * Returns the expression: <code>pow(this,exp)</code>.
-     *
-     * Throws RuntimeException if there exists invalid values for the
-     * expressions in domain.
-     */
-    public FloatExp pow(IntExp exp) throws Failure;
-
-    /**
      * Remove the (min..max) range from the domain of this expression.
      *
      * @param min range minimum value.
@@ -368,31 +194,6 @@ public interface FloatExp extends Expression {
      * @return <code>(max - min)</code>.
      */
     public double size();
-
-    /**
-     * Returns the expression: <code>(this * this)</code>.
-     */
-    public FloatExp sqr();
-
-    /**
-     * Returns the expression: <code>(this - value)</code>.
-     */
-    public FloatExp sub(double value);
-
-    /**
-     * Returns the expression: <code>(this - exp)</code>.
-     */
-    public FloatExp sub(FloatExp exp);
-
-    /**
-     * Returns the expression: <code>(this - value)</code>.
-     */
-    public FloatExp sub(int value);
-
-    /**
-     * Returns the expression: <code>(this - exp)</code>.
-     */
-    public FloatExp sub(IntExp exp);
 
     /**
      * Returns the value this expression if it is bound.

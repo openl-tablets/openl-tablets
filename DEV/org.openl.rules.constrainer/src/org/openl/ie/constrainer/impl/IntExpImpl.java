@@ -1,15 +1,11 @@
 package org.openl.ie.constrainer.impl;
 
-import java.util.Map;
-
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Constraint;
 import org.openl.ie.constrainer.Failure;
-import org.openl.ie.constrainer.FloatExp;
 import org.openl.ie.constrainer.IntBoolExp;
 import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntExpConst;
-import org.openl.ie.constrainer.NonLinearExpression;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -42,28 +38,6 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
         super(constrainer, name);
     }
 
-    public IntExp abs() {
-        if (min() >= 0) {
-            return this;
-        }
-
-        if (max() <= 0) {
-            return neg();
-        }
-
-        // return new IntExpAbs(this);
-        return getIntExp(IntExpAbs.class, this);
-    }
-
-    public FloatExp add(double value) {
-        return asFloat().add(value);
-    }
-
-    public FloatExp add(FloatExp exp) {
-        // return new FloatExpAddExp(this.asFloat(),exp);
-        return getFloatExp(FloatExpAddExp.class, asFloat(), exp);
-    }
-
     public IntExp add(int value) {
         // return new IntExpAddValue(this,value);
         return getIntExp(IntExpAddValue.class, this, value);
@@ -74,25 +48,8 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
         return getIntExp(IntExpAddExp.class, this, exp);
     }
 
-    public FloatExp asFloat() {
-        // return new FloatExpIntExp(this);
-        return getFloatExp(FloatExpIntExp.class, this);
-    }
-
-    public IntExp bitAnd(IntExp exp) {
-        return getIntExp(IntExpBitAndExp.class, this, exp);
-    }
-
     public boolean bound() {
         return min() == max();
-    }
-
-    public double calcCoeffs(Map map) throws NonLinearExpression {
-        return calcCoeffs(map, 1);
-    }
-
-    public double calcCoeffs(Map map, double factor) throws NonLinearExpression {
-        throw new NonLinearExpression(this);
     }
 
     public boolean contains(int value) // better to be redefined in subclasses
@@ -100,67 +57,13 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
         return (value >= min() && value <= max());
     }
 
-    public FloatExp div(double c) {
-        return asFloat().div(c);
-    }
-
-    /**
-     * changed by SV 02.13.03 to fixed invalid behaviour
-     */
-    public IntExp div(int c) {
-        if (c == 0) {
-            throw new IllegalArgumentException("div(IntExp exp, int value): value == 0");
-        } else if (c == 1) {
-            return this;
-        } else if (c == -1) {
-            return neg();
-        } else {
-            return getIntExp(IntExpDivValue.class, this, c);
-        }
-    }
-
-    public IntExp div(IntExp divisor) throws Failure {
-        divisor.removeValue(0);
-        if (divisor == this) {
-            return new IntExpConst(constrainer(), 1);
-        }
-        if (divisor.bound()) {
-            int value;
-            try {
-                value = divisor.value();
-            } catch (Exception e) {
-                value = 0;
-            }
-            return this.div(value);
-        }
-
-        return getIntExp(IntExpDivExp.class, this, divisor);
-    }
-
     public String domainToString() {
         return domainToString(min(), max());
-    }
-
-    public IntBoolExp eq(double value) {
-        return asFloat().eq(value);
     }
 
     public IntBoolExp eq(int value) {
         // return new IntBoolExpEqValue(this, value);
         return getIntBoolExp(IntBoolExpEqValue.class, this, value);
-    }
-
-    public IntBoolExp eq(IntExp exp) {
-        // return new IntBoolExpEqExp(this, exp);
-        return getIntBoolExp(IntBoolExpEqExp.class, this, exp);
-    }
-
-    public Constraint equals(FloatExp exp) {
-        return exp.equals(this);
-    }
-
-    public Constraint equals(FloatExp exp, double value) {
-        return exp.equals(this, value);
     }
 
     public Constraint equals(int value) // this == value
@@ -173,27 +76,8 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
         return new ConstraintExpEqualsExp(this, exp);
     }
 
-    public Constraint equals(IntExp exp, int value) // this == exp + value
-    {
-        return new ConstraintExpEqualsExp(this, exp, value);
-    }
-
-    public IntBoolExp ge(double value) {
-        return asFloat().ge(value);
-    }
-
     public IntBoolExp ge(int value) {
         return gt(value - 1);
-    }
-
-    public IntBoolExp ge(IntExp exp) {
-        // return new IntBoolExpLessExp(exp, this, 1);
-        return getIntBoolExp(IntBoolExpLessExp.class, exp, this, 1);
-        // return gt(exp.sub(1));
-    }
-
-    public IntBoolExp gt(double value) {
-        return asFloat().gt(value);
     }
 
     public IntBoolExp gt(int value) {
@@ -205,31 +89,6 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
         // return new IntBoolExpLessExp(exp, this);
         return getIntBoolExp(IntBoolExpLessExp.class, exp, this);
     }
-
-    /*
-     * IntExp mul_2(IntExp exp) { if (exp.min() >= 0) return mulPositive(exp);
-     *
-     * if (exp.max() <= 0) return mulNegative(exp);
-     *
-     * int c = -exp.min();
-     *
-     * return mulPositive(exp.add(c)).add(this.mul(-c)); }
-     *
-     * IntExp mulPositive(IntExp exp) {
-     *
-     * if (this.min() >= 0) // return new IntExpMulExpPP(this,exp); return
-     * getIntExp(IntExpMulExpPP.class, this, exp);
-     *
-     * if (this.max() <= 0) // return (new IntExpMulExpPP(neg(),exp)).neg();
-     * return getIntExp(IntExpMulExpPP.class, neg(), exp).neg();
-     *
-     * int c = - min();
-     *  // return new IntExpMulExpPP(add(c),exp).add(exp.mul(-c)); return
-     * getIntExp(IntExpMulExpPP.class, add(c), exp).add(exp.mul(-c)); }
-     *
-     * IntExp mulNegative(IntExp exp) { return mulPositive(exp.neg()).neg(); }
-     *
-     */
 
     public boolean isLinear() {
         return false;
@@ -246,42 +105,8 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
         }
     }
 
-    public IntBoolExp le(double value) {
-        return asFloat().le(value);
-    }
-
     public IntBoolExp le(int value) {
         return lt(value + 1);
-    }
-
-    public IntBoolExp le(IntExp exp) {
-        // return new IntBoolExpLessExp(this,exp,1);
-        return getIntBoolExp(IntBoolExpLessExp.class, this, exp, 1);
-        // return lt(exp.add(1));
-    }
-
-    public Constraint less(int value) {
-        return new ConstraintExpLessValue(this, value);
-    }
-
-    public Constraint less(IntExp exp) {
-        return new ConstraintExpLessExp(this, exp, 1);
-    }
-
-    public Constraint lessOrEqual(FloatExp exp) {
-        return exp.moreOrEqual(this);
-    }
-
-    public Constraint lessOrEqual(int value) {
-        return less(value + 1);
-    }
-
-    public Constraint lessOrEqual(IntExp exp) {
-        return new ConstraintExpLessExp(this, exp, 0);
-    }
-
-    public IntBoolExp lt(double value) {
-        return asFloat().lt(value);
     }
 
     public IntBoolExp lt(int value) {
@@ -292,30 +117,6 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
     public IntBoolExp lt(IntExp exp) {
         // return new IntBoolExpLessExp(this,exp);
         return getIntBoolExp(IntBoolExpLessExp.class, this, exp);
-    }
-
-    public FloatExp mod(double c) {
-        throw new UnsupportedOperationException("mod");
-    }
-
-    public IntExp mod(int c) {
-        throw new UnsupportedOperationException("mod");
-    }
-
-    public Constraint more(int value) {
-        return new ConstraintExpMoreValue(this, value);
-    }
-
-    public Constraint more(IntExp exp) {
-        return new ConstraintExpLessExp(exp, this, 1);
-    }
-
-    public Constraint moreOrEqual(FloatExp exp) {
-        return exp.lessOrEqual(this);
-    }
-
-    public Constraint moreOrEqual(int value) {
-        return more(value - 1);
     }
 
     /*
@@ -354,123 +155,14 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
      *
      */
 
-    public Constraint moreOrEqual(IntExp exp) {
-        return new ConstraintExpLessExp(exp, this, 0);
-    }
-
-    public FloatExp mul(double c) {
-        return asFloat().mul(c);
-    }
-
-    public FloatExp mul(FloatExp exp) {
-        return exp.mul(this);
-    }
-
-    public IntExp mul(int c) {
-        // Debug.print("Create " + this + " * " + Integer.toString(c));
-        if (c == 1) {
-            return this;
-        }
-
-        if (c > 0) {
-            // return new IntExpMultiplyPositive(this,c);
-            return getIntExp(IntExpMultiplyPositive.class, this, c);
-        }
-
-        if (c == 0) {
-            // return new IntExpConst(constrainer(),0);
-            return getIntExp(IntExpConst.class, 0);
-        }
-
-        // if ( c < 0 )
-        return neg().mul(-c);
-    }
-
-    public IntExp mul(IntExp exp) {
-        if (exp.bound()) {
-            return mul(exp.max());
-        }
-
-        if (exp == this) {
-            return sqr();
-        }
-
-        return mul_1(exp);
-    }
-
     IntExp mul_1(IntExp exp) {
         // return new IntExpMulExp(this,exp);
         return getIntExp(IntExpMulExp.class, this, exp);
     }
 
-    public IntBoolExp ne(double value) {
-        return asFloat().ne(value);
-    }
-
-    public IntBoolExp ne(int value) {
-        // return ne(new IntExpConst(_constrainer, value));
-        return ne(getIntExp(IntExpConst.class, value));
-    }
-
-    public IntBoolExp ne(IntExp exp) {
-        // return (new IntBoolExpEqExp(this, exp)).not();
-        return getIntBoolExp(IntBoolExpEqExp.class, this, exp).not();
-    }
-
-    public IntExp neg() {
-        // return new IntExpOpposite(this);
-        return getIntExp(IntExpOpposite.class, this);
-    }
-
-    public FloatExp pow(double value) throws Failure {
-        return asFloat().pow(value);
-    }
-
-    public IntExp pow(int value) {
-        switch (value) {
-            case 0:
-                // return new IntExpConst(constrainer(),1);
-                return getIntExp(IntExpConst.class, 1);
-            case 1:
-                return this;
-            case 2:
-                return sqr();
-            default:
-                if (value > 0) {
-                    // return new IntExpPowIntValue(this,value);
-                    return getIntExp(IntExpPowIntValue.class, this, value);
-                } else // if(value < 0)
-                {
-                    throw new IllegalArgumentException("pow(IntExp exp, int value): value < 0");
-                }
-        }
-    }
-
-    public IntExp pow(IntExp pow_exp) throws Failure {
-        if (pow_exp.max() < 0) {
-            throw new IllegalArgumentException("pow(IntExp exp, IntExp pow_exp): pow_exp < 0");
-        } else {
-            pow_exp.setMin(0);
-            return getIntExp(IntExpPowIntExp.class, this, pow_exp);
-        }
-    }
-
     // Only variables should implement propagation.
     @Override
     public void propagate() throws Failure {
-    }
-
-    public IntExp rangeViolation(int rangeMin, int rangeMax) {
-        // // An implementation as expression.
-        // // ((this < rangeMin)*(rangeMin - this) + (this > rangeMax)*(this -
-        // rangeMax))</code>.
-        // IntExp v1 = lt(rangeMin).mul(sub(rangeMin).neg());
-        // IntExp v2 = gt(rangeMax).mul(sub(rangeMax));
-        // return v1.add(v2);
-
-        // return new IntExpRangeViolation(this,rangeMin,rangeMax);
-        return (IntExp) getExpression(IntExpRangeViolation.class, new Object[] { this, new Integer(rangeMin),
-                new Integer(rangeMax) });
     }
 
     public void removeRange(int min, int max) throws Failure {
@@ -514,27 +206,6 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
         return max() - min() + 1;
     }
 
-    public IntExp sqr() {
-        // return new IntExpSqr(this);
-        return getIntExp(IntExpSqr.class, this);
-    }
-
-    public FloatExp sub(double value) {
-        return add(-value);
-    }
-
-    public FloatExp sub(FloatExp exp) {
-        return add(exp.neg());
-    }
-
-    public IntExp sub(int value) {
-        return add(-value);
-    }
-
-    public IntExp sub(IntExp exp) {
-        return add(exp.neg());
-    }
-
     /**
      * Returns a String representation of this object.
      *
@@ -543,10 +214,6 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
     @Override
     public String toString() {
         return name() + domainToString();
-    }
-
-    public boolean valid() {
-        return min() <= max();
     }
 
     public int value() throws Failure {
