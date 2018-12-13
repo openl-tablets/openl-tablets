@@ -69,18 +69,8 @@ public final class FloatDomainHistory {
         }
 
         @Override
-        public double maxdiff() {
-            return _max - _oldmax;
-        }
-
-        @Override
         public double min() {
             return _min;
-        }
-
-        @Override
-        public double mindiff() {
-            return _min - _oldmin;
         }
 
         @Override

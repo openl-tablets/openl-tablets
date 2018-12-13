@@ -115,12 +115,6 @@ public final class IntExpEnum extends IntExpImpl {
         init(values);
     }
 
-    public IntExpEnum(Constrainer c, IntArray values, String name) {
-        super(c, name);
-
-        init(values.data().clone());
-    }
-
     @Override
     public boolean contains(int value) {
         int idx = valueIndex(value, _index.min(), _index.max());
@@ -169,16 +163,6 @@ public final class IntExpEnum extends IntExpImpl {
     public void iterateDomain(IntExp.IntDomainIterator it) throws Failure {
         iterateDomain2(it);
     }
-
-    void iterateDomain1(final IntExp.IntDomainIterator it) throws Failure {
-        IntExp.IntDomainIterator indexIt = new IntExp.IntDomainIterator() {
-            public boolean doSomethingOrStop(int idx) throws Failure {
-                return it.doSomethingOrStop(_values[idx]);
-            }
-        };
-        _index.iterateDomain(indexIt);
-    }
-
     void iterateDomain2(final IntExp.IntDomainIterator it) throws Failure {
         int min = _index.min();
         int max = _index.max();

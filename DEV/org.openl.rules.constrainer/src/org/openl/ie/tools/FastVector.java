@@ -212,25 +212,4 @@ public final class FastVector implements Cloneable, java.io.Serializable {
         return a;
     }
 
-    /*
-     * public void cloneValues() { for(int i = 0; i < m_size; ++i) { if
-     * (m_data[i] != null) { Cloneable c = (Cloneable)m_data[i]; m_data[i] =
-     * c.clone(); } } }
-     *
-     */
-    @Override
-    public String toString() {
-        StringBuilder buf = new StringBuilder();
-        buf.append("[");
-        int maxIndex = m_size - 1;
-        for (int i = 0; i <= maxIndex; i++) {
-            buf.append(String.valueOf(m_data[i]));
-            if (i < maxIndex) {
-                buf.append(", ");
-            }
-        }
-        buf.append("]");
-        return buf.toString();
-    }
-
 }

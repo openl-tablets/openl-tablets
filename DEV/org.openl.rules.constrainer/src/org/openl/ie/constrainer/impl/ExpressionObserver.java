@@ -40,10 +40,6 @@ public abstract class ExpressionObserver extends Observer {
          */
         public int publishToSubscribe(int publish_mask);
 
-        /**
-         * Transform subscriber mask to publisher mask.
-         */
-        public int subscribeToPublish(int subscribe_mask);
     }
 
     /**
@@ -66,15 +62,6 @@ public abstract class ExpressionObserver extends Observer {
             return result_mask;
         }
 
-        public int subscribeToPublish(int subscribe_mask) {
-            int result_mask = 0;
-            for (int i = 0; i < _masks.length; i += 2) {
-                if ((_masks[i] & subscribe_mask) != 0) {
-                    result_mask |= _masks[i + 1];
-                }
-            }
-            return result_mask;
-        }
     } // ~ EventMapImpl
 
     /**

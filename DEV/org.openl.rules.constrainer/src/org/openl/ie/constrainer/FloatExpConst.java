@@ -1,11 +1,5 @@
 package org.openl.ie.constrainer;
 
-import java.util.Map;
-
-import org.openl.ie.constrainer.impl.ConstraintFloatExpEqualsValue;
-import org.openl.ie.constrainer.impl.ConstraintFloatExpLessValue;
-import org.openl.ie.constrainer.impl.ConstraintFloatExpMoreValue;
-import org.openl.ie.constrainer.impl.FloatExpAddValue;
 import org.openl.ie.constrainer.impl.FloatExpImpl;
 
 
@@ -28,47 +22,8 @@ public final class FloatExpConst extends FloatExpImpl {
     }
 
     @Override
-    public FloatExp add(FloatExp exp) {
-        // return new FloatExpAddValue(exp,_const);
-        return getFloatExp(FloatExpAddValue.class, exp, _const);
-    }
-
-    @Override
     public boolean bound() {
         return true;
-    }
-
-    @Override
-    public double calcCoeffs(Map map, double factor) throws NonLinearExpression {
-        return _const * factor;
-    }
-
-    @Override
-    public FloatExp div(double c) {
-        if (c == 0) {
-            throw new IllegalArgumentException("Division by zero");
-        }
-        // return new FloatExpConst(constrainer(),_const / c);
-        return getFloatExp(FloatExpConst.class, _const / c);
-    }
-
-    @Override
-    public Constraint equals(double value) // this = value
-    {
-        return new ConstraintConst(constrainer(), value == _const);
-    }
-
-    @Override
-    public Constraint equals(FloatExp exp) // this == exp
-    {
-        return new ConstraintFloatExpEqualsValue(exp, _const);
-    }
-
-    @Override
-    public Constraint equals(FloatExp exp, double value) // _const == exp +
-                                                            // value
-    {
-        return new ConstraintFloatExpEqualsValue(exp, _const - value);
     }
 
     @Override
@@ -79,11 +34,6 @@ public final class FloatExpConst extends FloatExpImpl {
     @Override
     public Constraint lessOrEqual(double value) {
         return new ConstraintConst(constrainer(), _const <= value);
-    }
-
-    @Override
-    public Constraint lessOrEqual(FloatExp exp) {
-        return new ConstraintFloatExpMoreValue(exp, _const);
     }
 
     public double max() {
@@ -97,23 +47,6 @@ public final class FloatExpConst extends FloatExpImpl {
     @Override
     public Constraint moreOrEqual(double value) {
         return new ConstraintConst(constrainer(), _const >= value);
-    }
-
-    @Override
-    public Constraint moreOrEqual(FloatExp exp) {
-        return new ConstraintFloatExpLessValue(exp, _const);
-    }
-
-    @Override
-    public FloatExp mul(double c) {
-        // return new FloatExpConst(constrainer(),_const * c);
-        return getFloatExp(FloatExpConst.class, _const * c);
-    }
-
-    @Override
-    public FloatExp neg() {
-        // return new FloatExpConst(constrainer(), -_const);
-        return getFloatExp(FloatExpConst.class, -_const);
     }
 
     @Override
@@ -136,11 +69,6 @@ public final class FloatExpConst extends FloatExpImpl {
         if (value != _const) {
             constrainer().fail("value!=const");
         }
-    }
-
-    @Override
-    public FloatExp sub(FloatExp exp) {
-        return exp.neg().add(_const);
     }
 
     @Override

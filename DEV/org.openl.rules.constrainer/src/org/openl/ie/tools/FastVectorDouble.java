@@ -19,25 +19,9 @@ public final class FastVectorDouble implements Cloneable, java.io.Serializable {
 
     static final int DEFAULT_CAPACITY = 10;
 
-    static int max_size = 0;
-
     double[] m_data;
     int m_size;
 
-    public FastVectorDouble() {
-        this(DEFAULT_CAPACITY);
-    }
-
-    public FastVectorDouble(double[] c) {
-        this(c, 0, c.length - 1);
-    }
-
-    public FastVectorDouble(double[] c, int fromIndex, int toIndex) {
-        this(Math.max(0, toIndex - fromIndex + 1));
-        if (m_size > 0) {
-            System.arraycopy(m_data, fromIndex, m_data, 0, m_size);
-        }
-    }
 
     public FastVectorDouble(int capacity) {
         m_size = 0;
@@ -55,17 +39,8 @@ public final class FastVectorDouble implements Cloneable, java.io.Serializable {
         m_data[m_size++] = val;
     }
 
-    public final void addElement(double val) {
-        if (m_size == m_data.length) {
-            grow();
-        }
-
-        m_data[m_size++] = val;
-    }
-
     public void clear() {
         m_size = 0;
-        // m_data = new Object[m_data.length];
     }
 
     @Override
@@ -73,8 +48,6 @@ public final class FastVectorDouble implements Cloneable, java.io.Serializable {
         try {
             FastVectorDouble v = (FastVectorDouble) super.clone();
             v.m_data = m_data.clone();
-            // v.m_data = new double[m_data.length];
-            // System.arraycopy(m_data, 0, v.m_data, 0, m_data.length);
             return v;
         } catch (CloneNotSupportedException e) {
             // this shouldn't happen, since we are Cloneable
@@ -90,10 +63,6 @@ public final class FastVectorDouble implements Cloneable, java.io.Serializable {
         return m_data[i];
     }
 
-    public double firstElement() {
-        return m_data[0];
-    }
-
     void grow() {
         double[] old = m_data;
 
@@ -101,58 +70,15 @@ public final class FastVectorDouble implements Cloneable, java.io.Serializable {
         System.arraycopy(old, 0, m_data, 0, m_size);
     }
 
-    public void insertElementAt(double val, int index) {
-        if (m_size == m_data.length) {
-            grow();
-        }
-
-        System.arraycopy(m_data, index, m_data, index + 1, m_size - index);
-        m_data[index] = val;
-        m_size++;
-    }
-
     public final boolean isEmpty() {
         return m_size == 0;
-    }
-
-    public double lastElement() {
-        return m_data[m_size - 1];
     }
 
     public final double peek() {
         return m_data[m_size - 1];
     }
 
-    public void removeElementAt(int index) {
-        int j = m_size - index - 1;
-        if (j > 0) {
-            System.arraycopy(m_data, index + 1, m_data, index, j);
-        }
-        m_size--;
-        // m_data[m_size] = null; /* to let gc do its work */
-    }
-
-    public final double removeLast() {
-        return m_data[--m_size];
-    }
-
     public int size() {
         return m_size;
     }
-
-    @Override
-    public String toString() {
-        StringBuilder buf = new StringBuilder();
-        buf.append("[");
-        int maxIndex = m_size - 1;
-        for (int i = 0; i <= maxIndex; i++) {
-            buf.append(String.valueOf(m_data[i]));
-            if (i < maxIndex) {
-                buf.append(", ");
-            }
-        }
-        buf.append("]");
-        return buf.toString();
-    }
-
 }

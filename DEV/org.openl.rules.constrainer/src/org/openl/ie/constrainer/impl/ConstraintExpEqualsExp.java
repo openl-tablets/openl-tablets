@@ -4,7 +4,6 @@ import org.openl.ie.constrainer.ConstraintImpl;
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.Goal;
-import org.openl.ie.constrainer.IntBoolExp;
 import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
@@ -105,21 +104,11 @@ public final class ConstraintExpEqualsExp extends ConstraintImpl {
         return null;
     }
 
-    @Override
-    public boolean isLinear() {
-        return (_exp1.isLinear() && _exp2.isLinear());
-    }
-
     public void minmax() throws Failure {
         _exp1.setMax(_exp2.max() + _offset); // may fail
         _exp2.setMax(_exp1.max() - _offset); // may fail
         _exp1.setMin(_exp2.min() + _offset); // may fail
         _exp2.setMin(_exp1.min() - _offset); // may fail
-    }
-
-    @Override
-    public IntBoolExp toIntBoolExp() {
-        return _exp1.eq(_exp2.add(_offset));
     }
 
     @Override

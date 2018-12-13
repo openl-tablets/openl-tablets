@@ -6,7 +6,6 @@ import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.FloatExp;
 import org.openl.ie.constrainer.Goal;
-import org.openl.ie.constrainer.IntBoolExp;
 import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
 
@@ -114,21 +113,4 @@ public final class ConstraintFloatExpLessExp extends ConstraintImpl {
         return null;
     }
 
-    @Override
-    public boolean isLinear() {
-        return (_exp1.isLinear() && _exp2.isLinear());
-    }
-
-    @Override
-    public Constraint opposite() {
-        if (_opposite == null) {
-            _opposite = new ConstraintFloatExpLessExp(_exp2, _exp1, -_offset);
-        }
-        return _opposite;
-    }
-
-    @Override
-    public IntBoolExp toIntBoolExp() {
-        return new IntBoolExpFloatLessExp(_exp1, _exp2, _offset);
-    }
 } // ~ ConstraintFloatExpLessExp

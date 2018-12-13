@@ -230,10 +230,6 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
         _publisher_mask = mask;
     }
 
-    public boolean inProcess() {
-        return _in_process;
-    }
-
     public void inProcess(boolean flag) {
         _in_process = flag;
     }
@@ -253,10 +249,6 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
             }
         }
         interest.free();
-    }
-
-    public FastVector observers() {
-        return _observers;
     }
 
     public void onMaskChange() {

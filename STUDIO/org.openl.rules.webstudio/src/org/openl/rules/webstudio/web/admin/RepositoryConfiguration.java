@@ -63,7 +63,7 @@ public class RepositoryConfiguration {
                 newSettings = new AWSS3RepositorySettings(configManager, CONFIG_PREFIX);
                 break;
             default:
-                newSettings = new CommonRepositorySettings(configManager, CONFIG_PREFIX, factoryClassName, repositoryType, jcrType);
+                newSettings = new CommonRepositorySettings(configManager, CONFIG_PREFIX, repositoryType, jcrType);
                 break;
         }
 
@@ -101,8 +101,6 @@ public class RepositoryConfiguration {
             case WEBDAV:
             case DB:
             case JNDI:
-            case PLAIN_DB:
-            case PLAIN_JNDI:
                 return "common";
             default:
                 return getType();

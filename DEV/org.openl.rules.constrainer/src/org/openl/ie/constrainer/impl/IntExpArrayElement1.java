@@ -19,9 +19,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
         IntExpArray _ary;
         IntExpArray _valuesUsed; // How many times a particular value could
                                     // be encountered within _ary[_index]
-        // IntExp _indexMin; //index corresponding to the element of _ary with
-        // min min()
-        // IntExp _indexMax;
+
         IntExpArray copyOfAry;
         IntExp _copyOfIndex;
         AryElementsObserver[] _observers;
@@ -75,7 +73,6 @@ public class IntExpArrayElement1 extends IntExpImpl {
             createCountersArray();
             _copyOfIndex = createCopyOfIntVar((IntVar) _index);
             copyOfAry = createCopyOfIntExpArray(_ary);
-            // index.constrainer().trace(_valuesUsed);
         }
 
         public void arrayElementMax(int oldmax, int max, int idx) throws Failure {
@@ -220,16 +217,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
 
         /**/
         public void indexValue(int value) throws Failure {
-            /*
-             * IntVar exp = (IntVar)copyOfAry.get(value); java.util.Iterator
-             * iter = valueToArrayIdx.keySet().iterator();
-             * while(iter.hasNext()){ Integer tmp = (Integer)iter.next(); int
-             * curValue = tmp.intValue(); Integer idx =
-             * (Integer)valueToArrayIdx.get(tmp); if
-             * (_ary.get(value).contains(curValue)){
-             * _valuesUsed.get(idx.intValue()).setMax(1); }else{
-             * _valuesUsed.get(idx.intValue()).setMax(0); } }
-             */
+
 
             _element.setMin(_ary.get(value).min());
             _element.setMax(_ary.get(value).max());
@@ -263,10 +251,6 @@ public class IntExpArrayElement1 extends IntExpImpl {
             SetValueFromElementIterator it = SetValueFromElementIterator.getIterator(_index, _ary, value);
             _index.iterateDomain(it);
             it.free();
-        }
-
-        void synchronizedUsageCounterWithIndex(int valueBeingSet) {
-
         }
 
         void updateResultDomainFromIndex() throws Failure {
@@ -990,43 +974,6 @@ public class IntExpArrayElement1 extends IntExpImpl {
     public String domainToString() {
         return _element.domainToString();
     }
-    /*
-     * static public void main(String[] args){ try{ Constrainer C = new
-     * Constrainer("");
-     *
-     * class PrintValues extends GoalImpl{ IntExpArray _arr; int[] _vals;
-     * PrintValues(IntExpArray arr, int[] vals){super(arr.constrainer());_arr =
-     * arr; _vals = vals;} public Goal execute(){ String s = " "; String space;
-     * for (int i=0; i<_arr.size(); i++){ if (_arr.get(i).size() > 1){ space = " ";
-     * s = s + " " + _vals[i] + space; } else{ space = " "; s = s + _vals[i] +
-     * space; }
-     *  } System.out.println("\n" + s + "\n" + _arr); return null; } }
-     *
-     *
-     * IntExpArray array = new IntExpArray(C, 9); for (int i=0;i<array.size();i++){
-     * array.set(C.addIntVar(i-2, i+2, IntVar.DOMAIN_BIT_FAST), i); }
-     *
-     *
-     * IntVar index = C.addIntVar(0, array.size(),
-     * "index",IntVar.DOMAIN_BIT_SMALL); IntExpArrayElement1 elem1 = new
-     * IntExpArrayElement1(array, index); AdvancedMapping mp =
-     * (AdvancedMapping)elem1._m;
-     *
-     * PrintValues prnVals = new PrintValues(mp._valuesUsed, new
-     * int[]{-2,-1,0,1,2,3,4,5,6,7,8,9,10});
-     *
-     * System.out.println("Started with:\n" + mp._valuesUsed + "\nand the domain
-     * was:\n" + elem1._element);
-     *
-     * for (int i = array.min(); i<=array.max(); i++){ values = values+" " + i + " "; }
-     * array.get(0).removeRange(-20, -10); Goal print = new GoalAnd(prnVals, new
-     * GoalPrint(new IntExpArray(C, elem1), "\ndomain: ")); Goal g1 = new
-     * GoalAnd(array.get(8).less(8), print, new GoalFail(C)); Goal g2 = new
-     * GoalAnd(new IntExpConst(C, -1).less(array.get(0)), print, new
-     * GoalFail(C)); Goal goalOr = new GoalOr(g1, g2); C.execute(goalOr);
-     *  // array.get(5).setMin(5); index.removeValue(4); C.propagate();
-     * C.execute(print); } catch(Failure f){;} }
-     */
 
     /**
      * Returns element-domain as an array of different sorted values.

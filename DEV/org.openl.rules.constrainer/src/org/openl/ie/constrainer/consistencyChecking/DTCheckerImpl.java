@@ -48,10 +48,6 @@ public class DTCheckerImpl implements DTChecker {
             }
         }
 
-        public IntBoolExp getEntry(int i, int j) {
-            return _data[i][j];
-        }
-
         public IntBoolExp getRule(int i) {
             return _rules[i];
         }
@@ -107,44 +103,6 @@ public class DTCheckerImpl implements DTChecker {
         }
     }
 
-    // private class OverlappingCheckerImpl implements OverlappingChecker {
-    // private class GoalSaveSolutions extends GoalImpl {
-    // public GoalSaveSolutions(Constrainer c) {
-    // super(c);
-    // }
-    //
-    // public Goal execute() throws Failure {
-    // Overlapping over = new Overlapping(_dt.getVars());
-    // for (int i = 0; i < _dt.getRules().length; i++) {
-    // IntBoolExp rule = _dt.getRule(i);
-    // if (rule.bound() && (rule.max() == 1)) {
-    // over.addRule(i);
-    // }
-    // }
-    // if (over.amount() > 0) {
-    // _overlappingRules.add(over);
-    // }
-    // return null;
-    // }
-    // }
-    //
-    // private Constrainer C = null;
-    //
-    // public List<Overlapping> check() {
-    // IntBoolExp[] rules = _dt.getRules();
-    // C = rules[0].constrainer();
-    // IntExpArray ruleArray = new IntExpArray(C, rules.length);
-    // for (int i = 0; i < rules.length; i++) {
-    // ruleArray.set(rules[i], i);
-    // }
-    // Constraint overlapping = (ruleArray.sum().gt(1)).asConstraint();
-    // Goal save = new GoalSaveSolutions(C);
-    // Goal generate = new GoalGenerate(_dt.getVars());
-    // Goal target = new GoalAnd(new GoalAnd(overlapping, generate), save);
-    // boolean flag = C.execute(target, true);
-    // return _overlappingRules;
-    // }
-    // }
     private CDecisionTable _dt = null;
     private CompletenessChecker _cpChecker = new CompletenessCheckerImpl();
 
@@ -167,27 +125,12 @@ public class DTCheckerImpl implements DTChecker {
         return _opChecker.check();
     }
 
-    public CompletenessChecker getCompletenessChecker() {
-        return _cpChecker;
-    }
-
     public CDecisionTable getDT() {
         return _dt;
-    }
-
-    public OverlappingChecker getOverlappingChecker() {
-        return _opChecker;
-    }
-
-    public void setCompletenessChecker(CompletenessChecker chk) {
-        _cpChecker = chk;
     }
 
     public void setDT(CDecisionTable dtable) {
         _dt = dtable;
     }
 
-    public void setOverlappingChecker(OverlappingChecker chk) {
-        _opChecker = chk;
-    }
 }
