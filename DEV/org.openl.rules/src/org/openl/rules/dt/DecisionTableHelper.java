@@ -449,7 +449,8 @@ public class DecisionTableHelper {
 
             if (!bindingContext.isExecutionMode()) {
                 String stringValue = originalTable.getSource().getCell(column, numberOfMergedRows - 1).getStringValue();
-                String description = "Return: " + type.getDisplayName(0) + " " + fieldChainSb.toString();
+                String description = "Return for " + fieldChainSb.toString() + ": " + type
+                    .getDisplayName(INamedThing.SHORT);
                 ICell cell = originalTable.getSource().getCell(column, previoush);
                 SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
                     stringValue.length() - 1,
@@ -724,6 +725,23 @@ public class DecisionTableHelper {
                         } else {
                             throw e;
                         }
+                    }
+                } else {
+                    if (!bindingContext.isExecutionMode()) {
+                        String stringValue = originalTable.getSource().getCell(firstReturnColumn, 0).getStringValue();
+                        String description = "Return: " + decisionTable.getHeader().getType().getDisplayName(INamedThing.SHORT);
+                        ICell cell = originalTable.getSource().getCell(firstReturnColumn, 0);
+                        SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
+                            stringValue.length() - 1,
+                            description,
+                            null,
+                            NodeType.OTHER);
+                        CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
+                            null,
+                            JavaOpenClass.STRING,
+                            false,
+                            Collections.singletonList(simpleNodeUsage));
+                        cell.setMetaInfo(meta);
                     }
                 }
 
