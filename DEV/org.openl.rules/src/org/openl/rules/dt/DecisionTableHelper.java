@@ -17,6 +17,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RuleRowHelper;
@@ -446,13 +447,10 @@ public class DecisionTableHelper {
 
             if (!bindingContext.isExecutionMode()) {
                 ICell cell = originalTable.getSource().getCell(column, previoush);
-                String description = "Return: " + type.getDisplayName(0) + " " + fieldChainSb.toString();
+                String description = "Return for " + fieldChainSb.toString() + ": " + type
+                    .getDisplayName(INamedThing.SHORT);
 
-                MetaInfoReader metaReader = tableSyntaxNode.getMetaInfoReader();
-                if (metaReader instanceof DecisionTableMetaInfoReader) {
-                    DecisionTableMetaInfoReader metaInfoReader = (DecisionTableMetaInfoReader) metaReader;
-                    metaInfoReader.addSimpleRulesReturn(cell.getAbsoluteRow(), cell.getAbsoluteColumn(), description);
-                }
+                writeMetaInfo(tableSyntaxNode, cell, description);
             }
 
             column += mergedColumnsCounts;
@@ -465,6 +463,14 @@ public class DecisionTableHelper {
             for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1; row++) {
                 grid.addMergedRegion(new GridRegion(row, firstReturnColumn, row, column - 1));
             }
+        }
+    }
+
+    private static void writeMetaInfo(TableSyntaxNode tableSyntaxNode, ICell cell, String description) {
+        MetaInfoReader metaReader = tableSyntaxNode.getMetaInfoReader();
+        if (metaReader instanceof DecisionTableMetaInfoReader) {
+            DecisionTableMetaInfoReader metaInfoReader = (DecisionTableMetaInfoReader) metaReader;
+            metaInfoReader.addSimpleRulesReturn(cell.getAbsoluteRow(), cell.getAbsoluteColumn(), description);
         }
     }
 
@@ -723,6 +729,14 @@ public class DecisionTableHelper {
                         } else {
                             throw e;
                         }
+                    }
+                } else {
+                    if (!bindingContext.isExecutionMode()) {
+                        ICell cell = originalTable.getSource().getCell(firstReturnColumn, 0);
+                        String description = "Return: " + decisionTable.getHeader().getType().getDisplayName(
+                            INamedThing.SHORT);
+
+                        writeMetaInfo(tableSyntaxNode, cell, description);
                     }
                 }
 
