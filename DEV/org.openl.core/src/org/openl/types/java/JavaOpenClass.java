@@ -15,17 +15,7 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 import org.openl.base.INamedThing;
 import org.openl.types.IAggregateInfo;
@@ -38,7 +28,6 @@ import org.openl.types.impl.ArrayIndex;
 import org.openl.types.impl.ArrayLengthOpenField;
 import org.openl.types.impl.MethodKey;
 import org.openl.util.RuntimeExceptionWrapper;
-import org.openl.util.StringTool;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -196,19 +185,24 @@ public class JavaOpenClass extends AOpenClass {
         return null;
     }
 
-    public synchronized IAggregateInfo getAggregateInfo() {
-        if (aggregateInfo != null)
+    public IAggregateInfo getAggregateInfo() {
+        if (aggregateInfo != null) {
             return aggregateInfo;
+        }
 
-        Class<?> instanceClass = getInstanceClass();
-        if (List.class.isAssignableFrom(instanceClass)) {
-            aggregateInfo = JavaListAggregateInfo.LIST_AGGREGATE;
-        } else if (Map.class.isAssignableFrom(instanceClass)) {
-            aggregateInfo = JavaMapAggregateInfo.MAP_AGGREGATE;
-        } else if (Collection.class.isAssignableFrom(instanceClass)) {
-            aggregateInfo = JavaCollectionAggregateInfo.COLLECTION_AGGREGATE;
-        } else {
-            aggregateInfo = JavaArrayAggregateInfo.ARRAY_AGGREGATE;
+        synchronized (this) {
+            if (aggregateInfo == null) {
+                Class<?> instanceClass = getInstanceClass();
+                if (List.class.isAssignableFrom(instanceClass)) {
+                    aggregateInfo = JavaListAggregateInfo.LIST_AGGREGATE;
+                } else if (Map.class.isAssignableFrom(instanceClass)) {
+                    aggregateInfo = JavaMapAggregateInfo.MAP_AGGREGATE;
+                } else if (Collection.class.isAssignableFrom(instanceClass)) {
+                    aggregateInfo = JavaCollectionAggregateInfo.COLLECTION_AGGREGATE;
+                } else {
+                    aggregateInfo = JavaArrayAggregateInfo.ARRAY_AGGREGATE;
+                }
+            }
         }
         return aggregateInfo;
     }
