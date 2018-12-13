@@ -1,6 +1,5 @@
 package org.openl.rules.calc.result;
 
-import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,20 +32,8 @@ public class DefaultResultBuilder implements IResultBuilder {
         
         String[] columnTitles = getColumnTitles(result);
 
-        Constructor<?> constructor = null;
-        try {
-        	constructor = result.getSpreadsheet().getResultConstructor();
-        } catch (Exception e1) {
-            //TODO: add logger
-        }
-        
-        SpreadsheetResult spreadsheetBean = null;
-        try {
-            spreadsheetBean = (SpreadsheetResult) constructor.newInstance(resultArray, rowNames, columnNames, rowTitles, columnTitles, result.getSpreadsheet().getFieldsCoordinates());
-        } catch (Exception e) {
-            //TODO: add logger
-        } 
-        
+        SpreadsheetResult spreadsheetBean = new SpreadsheetResult(resultArray, rowNames, columnNames, rowTitles, columnTitles, result.getSpreadsheet().getFieldsCoordinates());
+
         ILogicalTable table = getSpreadsheetTable(result);        
         spreadsheetBean.setLogicalTable(table);
         

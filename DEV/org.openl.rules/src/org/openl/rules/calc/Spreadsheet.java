@@ -1,6 +1,5 @@
 package org.openl.rules.calc;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -80,15 +79,6 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
     public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode) {
         this(header, boundNode, false);
-    }
-
-    Constructor<?> constructor;
-
-    public synchronized Constructor<?> getResultConstructor() throws SecurityException, NoSuchMethodException {
-        if (constructor == null)
-            constructor = this.getType().getInstanceClass()
-                    .getConstructor(Object[][].class, String[].class, String[].class, String[].class, String[].class, Map.class);
-        return constructor;
     }
 
     @Override
