@@ -104,24 +104,29 @@ public class Spreadsheet extends ExecutableRulesMethod {
         return customSpreadsheetType;
     }
 
-    private synchronized CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultType() {
+    private CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultType() {
         if (spreadsheetCustomType == null) {
-            initCustomSpreadsheetResultType();
+            synchronized (this) {
+                if (spreadsheetCustomType == null) {
+                    CustomSpreadsheetResultOpenClass type = initCustomSpreadsheetResultType();
+                    spreadsheetCustomType = type;
+                }
+            }
         }
         return spreadsheetCustomType;
     }
     
-    private void initCustomSpreadsheetResultType() {
+    private CustomSpreadsheetResultOpenClass initCustomSpreadsheetResultType() {
         Map<String, IOpenField> spreadsheetOpenClassFields = getSpreadsheetType().getFields();
         spreadsheetOpenClassFields.remove("this");
         String typeName = SPREADSHEETRESULT_TYPE_PREFIX + getName();
         CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(typeName, getRowNames(), getColumnNames(), getRowTitles(), getColumnTitles());
         customSpreadsheetResultOpenClass.setMetaInfo(new TableMetaInfo("Spreadsheet", getName(), getSourceUrl()));
         for (IOpenField field : spreadsheetOpenClassFields.values()) {
-            CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(spreadsheetCustomType, field.getName(), field.getType());
+            CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(customSpreadsheetResultOpenClass, field.getName(), field.getType());
             customSpreadsheetResultOpenClass.addField(customSpreadsheetResultField);
         }
-        spreadsheetCustomType = customSpreadsheetResultOpenClass;
+        return customSpreadsheetResultOpenClass;
     }
 
     public SpreadsheetCell[][] getCells() {
