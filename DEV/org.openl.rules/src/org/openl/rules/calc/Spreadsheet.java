@@ -60,7 +60,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
      * Custom return type of the spreadsheet method. Is a public type of the
      * spreadsheet
      */
-    private CustomSpreadsheetResultOpenClass spreadsheetCustomType;
+    private volatile CustomSpreadsheetResultOpenClass spreadsheetCustomType;
 
     /**
      * Whether <code>spreadsheetCustomType</code> should be generated or not.
