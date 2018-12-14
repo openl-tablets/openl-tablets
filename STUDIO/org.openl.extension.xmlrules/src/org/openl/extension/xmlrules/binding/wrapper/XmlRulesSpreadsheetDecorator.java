@@ -99,10 +99,6 @@ public class XmlRulesSpreadsheetDecorator extends Spreadsheet {
         return delegate.isStatic();
     }
 
-    public Constructor<?> getResultConstructor() throws SecurityException, NoSuchMethodException {
-        return delegate.getResultConstructor();
-    }
-
     public IOpenClass getType() {
         return delegate.getType();
     }

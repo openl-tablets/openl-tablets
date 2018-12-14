@@ -1,6 +1,5 @@
 package org.openl.rules.calc;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -82,15 +81,6 @@ public class Spreadsheet extends ExecutableRulesMethod {
         this(header, boundNode, false);
     }
 
-    Constructor<?> constructor;
-
-    public synchronized Constructor<?> getResultConstructor() throws SecurityException, NoSuchMethodException {
-        if (constructor == null)
-            constructor = this.getType().getInstanceClass()
-                    .getConstructor(Object[][].class, String[].class, String[].class, String[].class, String[].class, Map.class);
-        return constructor;
-    }
-
     @Override
     public IOpenClass getType() {
         if (isCustomSpreadsheetType()) {
@@ -104,24 +94,29 @@ public class Spreadsheet extends ExecutableRulesMethod {
         return customSpreadsheetType;
     }
 
-    private synchronized CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultType() {
+    private CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultType() {
         if (spreadsheetCustomType == null) {
-            initCustomSpreadsheetResultType();
+            synchronized (this) {
+                if (spreadsheetCustomType == null) {
+                    CustomSpreadsheetResultOpenClass type = initCustomSpreadsheetResultType();
+                    spreadsheetCustomType = type;
+                }
+            }
         }
         return spreadsheetCustomType;
     }
     
-    private void initCustomSpreadsheetResultType() {
+    private CustomSpreadsheetResultOpenClass initCustomSpreadsheetResultType() {
         Map<String, IOpenField> spreadsheetOpenClassFields = getSpreadsheetType().getFields();
         spreadsheetOpenClassFields.remove("this");
         String typeName = SPREADSHEETRESULT_TYPE_PREFIX + getName();
         CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(typeName, getRowNames(), getColumnNames(), getRowTitles(), getColumnTitles());
         customSpreadsheetResultOpenClass.setMetaInfo(new TableMetaInfo("Spreadsheet", getName(), getSourceUrl()));
         for (IOpenField field : spreadsheetOpenClassFields.values()) {
-            CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(spreadsheetCustomType, field.getName(), field.getType());
+            CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(customSpreadsheetResultOpenClass, field.getName(), field.getType());
             customSpreadsheetResultOpenClass.addField(customSpreadsheetResultField);
         }
-        spreadsheetCustomType = customSpreadsheetResultOpenClass;
+        return customSpreadsheetResultOpenClass;
     }
 
     public SpreadsheetCell[][] getCells() {

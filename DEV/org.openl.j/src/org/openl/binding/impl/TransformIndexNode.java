@@ -42,6 +42,9 @@ class TransformIndexNode extends ABoundNode {
         }
         while (elementsIterator.hasNext()) {
             Object element = elementsIterator.next();
+            if (element == null) {
+                continue;
+            }
             tempVar.set(null, element, env);
             Object transformed = transformer.evaluate(env);
             if (isUnique) {

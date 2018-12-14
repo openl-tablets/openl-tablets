@@ -93,11 +93,6 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
     }
 
     @Override
-    public Constructor<?> getResultConstructor() throws SecurityException, NoSuchMethodException {
-        return delegate.getResultConstructor();
-    }
-
-    @Override
     public IOpenClass getType() {
         return delegate.getType();
     }
