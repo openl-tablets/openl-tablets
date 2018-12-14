@@ -8,6 +8,7 @@ import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaArrayAggregateInfo;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -23,6 +24,7 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
      * cached return type for current bound node
      */
     private IOpenClass returnType;
+    private Class<?> arrayClass;
 
     /**
      * the indexes of the arguments in the method signature that are arrays
@@ -39,6 +41,14 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
             IBoundNode[] children,
             IMethodCaller singleParameterMethod, List<Integer> arrayArgArgumentList) {
         super(syntaxNode, children, singleParameterMethod);
+        returnType = singleParameterMethod.getMethod().getType();
+
+        if (!JavaOpenClass.VOID.equals(returnType)) {
+            arrayClass = returnType.getInstanceClass();
+            // create an array type.
+            returnType = returnType.getAggregateInfo().getIndexedAggregateType(returnType, 1);
+        }
+
         this.arrayArgArguments = new int[arrayArgArgumentList.size()];
 
         for (int i = 0; i < arrayArgArgumentList.size(); i++) {
@@ -70,10 +80,10 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
 
         IMethodCaller methodCaller = getMethodCaller(env);
         
-        if (!JavaOpenClass.VOID.equals(super.getType())) {
+        if (arrayClass != null) {
             // create an array of results
             //
-            results = Array.newInstance(super.getType().getInstanceClass(), paramsLength);
+            results = Array.newInstance(arrayClass, paramsLength);
         }
         
         if (paramsLength > 0) {
@@ -125,25 +135,7 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
     }
     
     public IOpenClass getType() {
-        if (returnType == null) {
-            returnType = getReturnType();
-        }
         return returnType;
     }
 
-    private IOpenClass getReturnType() {
-        IOpenClass result;
-        if (JavaOpenClass.VOID.equals(super.getType())) {
-            result = JavaOpenClass.VOID;
-        } else {
-            // gets the return type of bound node, it will be the single type.
-            //
-            IOpenClass singleReturnType = super.getType();
-
-            // create an array type.
-            //
-            result = singleReturnType.getAggregateInfo().getIndexedAggregateType(singleReturnType, 1);
-        }
-        return result;
-    }
 }

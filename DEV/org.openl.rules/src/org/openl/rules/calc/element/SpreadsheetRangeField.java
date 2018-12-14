@@ -14,6 +14,7 @@ public class SpreadsheetRangeField extends ASpreadsheetField implements NodeDesc
     private final SpreadsheetCellField fstart;
     private final SpreadsheetCellField fend;
     private final IOpenCast[][] casts;
+    private final Class<?> rangeType;
 
     public SpreadsheetRangeField(String name,
             SpreadsheetCellField fstart,
@@ -24,6 +25,7 @@ public class SpreadsheetRangeField extends ASpreadsheetField implements NodeDesc
         this.fstart = fstart;
         this.fend = fend;
         this.casts = casts;
+        this.rangeType = rangeType.getInstanceClass();
     }
 
     @Override
@@ -39,8 +41,7 @@ public class SpreadsheetRangeField extends ASpreadsheetField implements NodeDesc
         int size = w * h;
 
         SpreadsheetResultCalculator calc = (SpreadsheetResultCalculator) target;
-        Class<?> to = getType().getComponentClass().getInstanceClass();
-        Object array = Array.newInstance(to, size);
+        Object array = Array.newInstance(rangeType, size);
         int i = 0;
         for (int x = sx; x <= ex; ++x) {
             for (int y = sy; y <= ey; ++y) {
