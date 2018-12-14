@@ -52,7 +52,7 @@ public class JavaOpenClass extends AOpenClass {
 
     private final boolean simple;
 
-    private IAggregateInfo aggregateInfo;
+    private volatile IAggregateInfo aggregateInfo;
 
     protected volatile Map<String, IOpenField> fields;
 
