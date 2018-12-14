@@ -253,14 +253,18 @@ public class Spreadsheet extends ExecutableRulesMethod {
         this.invoker = invoker;
     }
     
-    Map<String, Point> fieldsCoordinates = null;
+    volatile Map<String, Point> fieldsCoordinates = null;
 
-    public synchronized Map<String, Point> getFieldsCoordinates() {
+    public Map<String, Point> getFieldsCoordinates() {
         if (fieldsCoordinates == null) {
-            if (isCustomSpreadsheetType()) {
-                fieldsCoordinates = getCustomSpreadsheetResultType().getFieldsCoordinates();
-            } else {
-                fieldsCoordinates = DefaultResultBuilder.getFieldsCoordinates(this.getSpreadsheetType().getFields());
+            synchronized (this) {
+                if (fieldsCoordinates == null) {
+                    if (isCustomSpreadsheetType()) {
+                        fieldsCoordinates = getCustomSpreadsheetResultType().getFieldsCoordinates();
+                    } else {
+                        fieldsCoordinates = DefaultResultBuilder.getFieldsCoordinates(this.getSpreadsheetType().getFields());
+                    }
+                }
             }
         }
         return fieldsCoordinates;
