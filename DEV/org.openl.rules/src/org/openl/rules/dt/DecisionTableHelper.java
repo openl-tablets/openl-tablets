@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -729,19 +730,22 @@ public class DecisionTableHelper {
                 } else {
                     if (!bindingContext.isExecutionMode()) {
                         String stringValue = originalTable.getSource().getCell(firstReturnColumn, 0).getStringValue();
-                        String description = "Return: " + decisionTable.getHeader().getType().getDisplayName(INamedThing.SHORT);
-                        ICell cell = originalTable.getSource().getCell(firstReturnColumn, 0);
-                        SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
-                            stringValue.length() - 1,
-                            description,
-                            null,
-                            NodeType.OTHER);
-                        CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
-                            null,
-                            JavaOpenClass.STRING,
-                            false,
-                            Collections.singletonList(simpleNodeUsage));
-                        cell.setMetaInfo(meta);
+                        if (!StringUtils.isEmpty(stringValue)) {
+                            String description = "Return: " + decisionTable.getHeader().getType().getDisplayName(
+                                INamedThing.SHORT);
+                            ICell cell = originalTable.getSource().getCell(firstReturnColumn, 0);
+                            SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
+                                stringValue.length() - 1,
+                                description,
+                                null,
+                                NodeType.OTHER);
+                            CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
+                                null,
+                                JavaOpenClass.STRING,
+                                false,
+                                Collections.singletonList(simpleNodeUsage));
+                            cell.setMetaInfo(meta);
+                        }
                     }
                 }
 
