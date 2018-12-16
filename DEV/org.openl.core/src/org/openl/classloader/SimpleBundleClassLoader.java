@@ -84,24 +84,52 @@ public class SimpleBundleClassLoader extends OpenLBundleClassLoader {
         return null;
     }
 
-    @Override
-    public URL getResource(String name) {
+    private URL findResourceInBundleClassLoader(String name) {
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
-            URL url = bundleClassLoader.getResource(name);
+            URL url = null;
+            if (bundleClassLoader instanceof SimpleBundleClassLoader && bundleClassLoader.getParent() == this) {
+                SimpleBundleClassLoader sbcl = (SimpleBundleClassLoader) bundleClassLoader;
+                url = sbcl.findResourceInBundleClassLoader(name);
+            } else {
+                url = bundleClassLoader.getResource(name);
+            }
             if (url != null) {
                 return url;
             }
+        }
+        return null;
+    }
+
+    private InputStream findResourceAsStreamInBundleClassLoader(String name) {
+        for (ClassLoader bundleClassLoader : bundleClassLoaders) {
+            InputStream inputStream = null;
+            if (bundleClassLoader instanceof SimpleBundleClassLoader && bundleClassLoader.getParent() == this) {
+                SimpleBundleClassLoader sbcl = (SimpleBundleClassLoader) bundleClassLoader;
+                inputStream = sbcl.findResourceAsStreamInBundleClassLoader(name);
+            } else {
+                inputStream = bundleClassLoader.getResourceAsStream(name);
+            }
+            if (inputStream != null) {
+                return inputStream;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public URL getResource(String name) {
+        URL url = findResourceInBundleClassLoader(name);
+        if (url != null) {
+            return url;
         }
         return super.getResource(name);
     }
 
     @Override
     public InputStream getResourceAsStream(String name) {
-        for (ClassLoader bundleClassLoader : bundleClassLoaders) {
-            InputStream inputStream = bundleClassLoader.getResourceAsStream(name);
-            if (inputStream != null) {
-                return inputStream;
-            }
+        InputStream inputStream = findResourceAsStreamInBundleClassLoader(name);
+        if (inputStream != null) {
+            return inputStream;
         }
         return super.getResourceAsStream(name);
     }
