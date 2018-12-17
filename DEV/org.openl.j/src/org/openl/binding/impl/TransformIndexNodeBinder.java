@@ -20,6 +20,10 @@ public class TransformIndexNodeBinder extends BaseAggregateIndexNodeBinder {
             ILocalVar localVar,
             IBindingContext bindingContext) {
         boolean isUnique = node.getType().contains("unique");
-        return new TransformIndexNode(node, targetNode, expressionNode, localVar, isUnique);
+        if (isUnique) {
+            return new TransformToUniqueIndexNode(node, targetNode, expressionNode, localVar);
+        } else {
+            return new TransformIndexNode(node, targetNode, expressionNode, localVar);
+        }
     }
 }

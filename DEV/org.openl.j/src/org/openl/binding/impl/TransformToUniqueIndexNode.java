@@ -1,8 +1,9 @@
 package org.openl.binding.impl;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
@@ -11,14 +12,14 @@ import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaArrayAggregateInfo;
 import org.openl.vm.IRuntimeEnv;
 
-class TransformIndexNode extends ABoundNode {
+class TransformToUniqueIndexNode extends ABoundNode {
     private ILocalVar tempVar;
     private IBoundNode transformer;
     private IBoundNode targetNode;
     private Object[] resultPrototype;
     private IOpenClass resultType;
 
-    TransformIndexNode(ISyntaxNode syntaxNode,
+    TransformToUniqueIndexNode(ISyntaxNode syntaxNode,
             IBoundNode targetNode,
             IBoundNode transformer,
             ILocalVar tempVar) {
@@ -33,14 +34,17 @@ class TransformIndexNode extends ABoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Iterator<Object> elementsIterator = targetNode.getType().getAggregateInfo().getIterator(
-            targetNode.evaluate(env));
-        ArrayList<Object> result = new ArrayList<>();
+        Iterator<Object> elementsIterator = targetNode.getType()
+            .getAggregateInfo()
+            .getIterator(targetNode.evaluate(env));
+        Collection<Object> result = new LinkedHashSet<>();
         while (elementsIterator.hasNext()) {
             Object element = elementsIterator.next();
             tempVar.set(null, element, env);
             Object transformed = transformer.evaluate(env);
-            result.add(transformed);
+            if (transformed != null) {
+                result.add(transformed);
+            }
         }
         return result.toArray(resultPrototype);
     }
