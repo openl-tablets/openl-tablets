@@ -305,15 +305,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                     nodes = ArrayUtils.remove(nodes, nodes.length - 1);
                 }
 
-                if (columnDescriptor.isReference()) {
-                    if (resultType.isSimple()) {
-                        fieldsToTest.add(new ThisField(resultType));
-                    } else if (resultType.isArray()) {
-                        fieldsToTest.add(new ThisField(resultType));
-                    } else {
-                        fieldsToTest.addAll(resultType.getFields().values());
-                    }
-                } else {
+                if (columnDescriptor.isReference() && !resultType.isSimple() && !resultType.isArray()) {
+                    fieldsToTest.addAll(resultType.getFields().values());
+                }  else {
                     IOpenField[] fieldSequence;
                     boolean resIsCollection = nodes[0].getIdentifier().matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN)
                             || nodes[0].getIdentifier().matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN);
