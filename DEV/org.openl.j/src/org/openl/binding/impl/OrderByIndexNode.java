@@ -1,6 +1,5 @@
 package org.openl.binding.impl;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -12,6 +11,7 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaArrayAggregateInfo;
+import org.openl.util.CollectionUtils;
 import org.openl.vm.IRuntimeEnv;
 
 class OrderByIndexNode extends ABoundNode {
@@ -77,8 +77,8 @@ class OrderByIndexNode extends ABoundNode {
                 objects.add(element);
             }
         }
-        Object[] typed = (Object[])Array.newInstance(tempVar.getType().getInstanceClass(), 0);
-        return objects.toArray(typed);
+        Class<?> instanceClass = tempVar.getType().getInstanceClass();
+        return CollectionUtils.toArray(objects, instanceClass);
     }
 
     public IOpenClass getType() {

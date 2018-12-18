@@ -1,6 +1,5 @@
 package org.openl.binding.impl;
 
-import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -10,13 +9,14 @@ import org.openl.binding.ILocalVar;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaArrayAggregateInfo;
+import org.openl.util.CollectionUtils;
 import org.openl.vm.IRuntimeEnv;
 
 class TransformToUniqueIndexNode extends ABoundNode {
     private ILocalVar tempVar;
     private IBoundNode transformer;
     private IBoundNode targetNode;
-    private Object[] resultPrototype;
+    private Class<?> componentClass;
     private IOpenClass resultType;
 
     TransformToUniqueIndexNode(ISyntaxNode syntaxNode,
@@ -28,7 +28,7 @@ class TransformToUniqueIndexNode extends ABoundNode {
         this.targetNode = targetNode;
         this.transformer = transformer;
         IOpenClass componentType = transformer.getType();
-        this.resultPrototype = (Object[]) Array.newInstance(componentType.getInstanceClass(), 0);
+        this.componentClass = componentType.getInstanceClass();
         this.resultType = JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(componentType, 1);
     }
 
@@ -46,7 +46,7 @@ class TransformToUniqueIndexNode extends ABoundNode {
                 result.add(transformed);
             }
         }
-        return result.toArray(resultPrototype);
+        return CollectionUtils.toArray(result, componentClass);
     }
 
     public IOpenClass getType() {
