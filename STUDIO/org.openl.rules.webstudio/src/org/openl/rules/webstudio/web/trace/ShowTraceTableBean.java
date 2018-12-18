@@ -57,9 +57,26 @@ public class ShowTraceTableBean {
     }
 
     public IOpenLTable getTraceTable() {
-        String uri = tto.getUri();
-        TableSyntaxNode tsn = WebStudioUtils.getProjectModel().findNode(uri);
+        TableSyntaxNode tsn = getTableSyntaxNode(tto);
         return new TableSyntaxNodeAdapter(tsn);
+    }
+
+    private TableSyntaxNode getTableSyntaxNode(ITracerObject tto) {
+        TableSyntaxNode syntaxNode = null;
+
+        if (tto instanceof ATableTracerNode) {
+            syntaxNode = ((ATableTracerNode) tto).getTraceObject().getSyntaxNode();
+        } else if (tto instanceof RefToTracerNodeObject) {
+            return getTableSyntaxNode(((RefToTracerNodeObject) tto).getOriginalTracerNode());
+        }
+
+        if (syntaxNode == null) {
+            //Default approach for TBasic nodes or if traced object doesn't have syntax node
+            String uri = tto.getUri();
+            return WebStudioUtils.getProjectModel().findNode(uri);
+        } else {
+            return syntaxNode;
+        }
     }
 
     public IGridFilter[] getTraceFilters() {
