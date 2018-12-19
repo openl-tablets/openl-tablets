@@ -38,13 +38,13 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
     private String uri;
     private String login;
     private String password;
+    private String localRepositoryPath;
+    private String branch = Constants.MASTER;
     // TODO: There should be 3 paths:
     //  1) for projects in design repository
     //  2) deployment configuration in design repository
     //  3) deployments path in production repository
-    //  These paths should be configured outside of GitRepository class and the field localRepositoryPath should be removed
-    private String localRepositoryPath;
-    private String branch = Constants.MASTER;
+    //  These paths should be configured outside of GitRepository class and the field folderInRepository should be removed
     private String folderInRepository = "";
     private String tagPrefix = "";
     private int listenerTimerPeriod = 10;
