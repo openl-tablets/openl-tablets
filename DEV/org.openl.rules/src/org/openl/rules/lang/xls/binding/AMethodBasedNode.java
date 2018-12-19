@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.openl.OpenL;
 import org.openl.base.INamedThing;
+import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.NodeType;
@@ -19,8 +20,10 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
@@ -32,6 +35,8 @@ import org.openl.util.StringUtils;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 import org.openl.vm.IRuntimeEnv;
+
+import java.util.Map;
 
 public abstract class AMethodBasedNode extends ATableBoundNode implements IMemberBoundNode {
 
@@ -92,15 +97,15 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         return StringUtils.isNotBlank(getTableSyntaxNode().getTableProperties().getId());
     }
 
-    protected IOpenMethod getServiceMethod(IOpenMethod originalMethod) {
+    protected IOpenMethod getServiceMethod(ExecutableRulesMethod originalMethod) {
         final String serviceMethodName = getTableSyntaxNode().getTableProperties().getId();
         return new AMethodBasedNodeServiceMethod(originalMethod, serviceMethodName);
     }
 
-    private static final class AMethodBasedNodeServiceMethod extends MethodDelegator {
+    private static final class AMethodBasedNodeServiceMethod extends MethodDelegator implements IMemberMetaInfo {
         private String serviceMethodName;
 
-        public AMethodBasedNodeServiceMethod(IOpenMethod originalMethod, String serviceMethodName) {
+        public AMethodBasedNodeServiceMethod(ExecutableRulesMethod originalMethod, String serviceMethodName) {
             super(originalMethod);
             this.serviceMethodName = serviceMethodName;
         }
@@ -113,6 +118,26 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         @Override
         public String getDisplayName(int mode) {
             return serviceMethodName;
+        }
+
+        @Override
+        public BindingDependencies getDependencies() {
+            return ((ExecutableRulesMethod) methodCaller).getDependencies();
+        }
+
+        @Override
+        public ISyntaxNode getSyntaxNode() {
+            return ((ExecutableRulesMethod) methodCaller).getSyntaxNode();
+        }
+
+        @Override
+        public Map<String, Object> getProperties() {
+            return ((ExecutableRulesMethod) methodCaller).getProperties();
+        }
+
+        @Override
+        public String getSourceUrl() {
+            return ((ExecutableRulesMethod) methodCaller).getSourceUrl();
         }
     }
 
