@@ -10,6 +10,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,7 +33,7 @@ public class GitRepositoryTest {
     @Before
     public void setUp() throws GitAPIException, IOException, RRepositoryException {
         File root = tempFolder.getRoot();
-        File remote = new File (root, "remote");
+        File remote = new File(root, "remote");
         File local = new File(root, "local");
 
         // Initialize remote repository
@@ -45,10 +46,11 @@ public class GitRepositoryTest {
             // create initial commit in master
             createNewFile(parent, "file-in-master", "root");
             git.add().addFilepattern(".").call();
-            git.commit()
+            RevCommit commit = git.commit()
                     .setMessage("Initial")
                     .setCommitter("user1", "user1@mail.to")
                     .call();
+            addTag(git, commit, 1);
 
             // create first commit in test branch
             git.branchCreate().setName(BRANCH).call();
@@ -58,29 +60,32 @@ public class GitRepositoryTest {
             createNewFile(rulesFolder, "file1", "Hi!");
             File file2 = createNewFile(rulesFolder, "file2", "Hello!");
             git.add().addFilepattern(".").call();
-            git.commit()
+            commit = git.commit()
                     .setMessage("Initial commit in test branch")
                     .setCommitter("user1", "user1@mail.to")
                     .call();
+            addTag(git, commit, 2);
 
             // create second commit
             writeText(file2, "Hello World!");
             createNewFile(new File(rulesFolder, "folder"), "file3", "In folder");
             git.add().addFilepattern(".").call();
-            git.commit()
+            commit = git.commit()
                     .setAll(true)
                     .setMessage("Second modification")
                     .setCommitter("user2", "user2@gmail.to")
                     .call();
+            addTag(git, commit, 3);
 
             // create commit in master
             git.checkout().setName("master").call();
             createNewFile(rulesFolder, "file1master", "root");
             git.add().addFilepattern(".").call();
-            git.commit()
+            commit = git.commit()
                     .setMessage("Additional commit in master")
                     .setCommitter("user1", "user1@mail.to")
                     .call();
+            addTag(git, commit, 4);
         }
 
         repo = new GitRepository();
@@ -96,7 +101,7 @@ public class GitRepositoryTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         repo.close();
     }
 
@@ -167,7 +172,7 @@ public class GitRepositoryTest {
         assertEquals("John Smith", result.getAuthor());
         assertEquals("Comment for folder/file4", result.getComment());
         assertEquals(text.length(), result.getSize());
-        assertEquals("Rules_1", result.getVersion());
+        assertEquals("Rules_5", result.getVersion());
         assertNotNull(result.getModifiedAt());
 
         assertEquals(text, IOUtils.toStringAndClose(repo.read("folder/file4").getStream()));
@@ -177,14 +182,14 @@ public class GitRepositoryTest {
         result = repo.save(createFileData(path, text), IOUtils.toInputStream(text));
         assertNotNull(result);
         assertEquals(text.length(), result.getSize());
-        assertEquals("Rules_2", result.getVersion());
+        assertEquals("Rules_6", result.getVersion());
         assertEquals(text, IOUtils.toStringAndClose(repo.read("folder/file4").getStream()));
 
         assertEquals(2, changesCounter.getChanges());
 
         // Clone remote repository to temp folder and check that changes we made before exist there
         File root = tempFolder.getRoot();
-        File remote = new File (root, "remote");
+        File remote = new File(root, "remote");
         File temp = new File(root, "temp");
         try (GitRepository secondRepo = new GitRepository()) {
             secondRepo.setUri(remote.toURI().toString());
@@ -244,6 +249,45 @@ public class GitRepositoryTest {
     }
 
     @Test
+    public void listHistory() throws IOException {
+        List<FileData> file2History = repo.listHistory("file2");
+        assertEquals(2, file2History.size());
+        assertEquals("Rules_2", file2History.get(0).getVersion());
+        assertEquals("Rules_3", file2History.get(1).getVersion());
+    }
+
+    @Test
+    public void checkHistory() throws IOException {
+        assertEquals("Rules_2", repo.checkHistory("file2", "Rules_2").getVersion());
+        assertEquals("Rules_3", repo.checkHistory("file2", "Rules_3").getVersion());
+        assertNull(repo.checkHistory("file2", "Rules_1"));
+    }
+
+    @Test
+    public void readHistory() throws IOException {
+        assertEquals("Hello!", IOUtils.toStringAndClose(repo.readHistory("file2", "Rules_2").getStream()));
+        assertEquals("Hello World!", IOUtils.toStringAndClose(repo.readHistory("file2", "Rules_3").getStream()));
+        assertNull(repo.readHistory("file2", "Rules_1"));
+    }
+
+    @Test
+    public void copyHistory() throws IOException {
+        FileData dest = new FileData();
+        dest.setName("file2-copy");
+        dest.setComment("Copy file 2");
+        dest.setAuthor("John Smith");
+
+        FileData copy = repo.copyHistory("file2", dest, "Rules_2");
+        assertNotNull(copy);
+        assertEquals("file2-copy", copy.getName());
+        assertEquals("John Smith", copy.getAuthor());
+        assertEquals("Copy file 2", copy.getComment());
+        assertEquals(6, copy.getSize());
+        assertEquals("Rules_5", copy.getVersion());
+        assertEquals("Hello!", IOUtils.toStringAndClose(repo.read("file2-copy").getStream()));
+    }
+
+    @Test
     public void changesShouldBeRolledBackOnError() throws Exception {
         try {
             FileData data = new FileData();
@@ -297,6 +341,10 @@ public class GitRepositoryTest {
         try (PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8.displayName())) {
             writer.append(text);
         }
+    }
+
+    private void addTag(Git git, RevCommit commit, int version) throws GitAPIException {
+        git.tag().setObjectId(commit).setName(TAG_PREFIX + version).call();
     }
 
     private static class ChangesCounter implements Listener {
