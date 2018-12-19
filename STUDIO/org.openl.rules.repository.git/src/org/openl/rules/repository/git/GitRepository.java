@@ -189,32 +189,47 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
 
     @Override
     public List<FileData> listHistory(String name) throws IOException {
-        // TODO: Implement
-        return null;
+        return iterateHistory(name, new ListHistoryVisitor());
     }
 
     @Override
     public FileData checkHistory(String name, String version) throws IOException {
-        // TODO: Implement
-        return null;
+        return iterateHistory(name, new CheckHistoryVisitor(version));
     }
 
     @Override
     public FileItem readHistory(String name, String version) throws IOException {
-        // TODO: Implement
-        return null;
+        return iterateHistory(name, new ReadHistoryVisitor(version));
     }
 
     @Override
     public boolean deleteHistory(String name, String version) {
-        // TODO: Implement
+        // Undelete and erase operations for this repository aren't supported. Just do nothing.
         return false;
     }
 
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
-        // TODO: Implement
-        return null;
+        if (version == null) {
+            return copy(srcName, destData);
+        }
+
+        FileItem fileItem = null;
+        try {
+            fileItem = readHistory(srcName, version);
+
+            FileData copy = new FileData();
+            copy.setName(destData.getName());
+            copy.setComment(destData.getComment());
+            copy.setAuthor(destData.getAuthor());
+            copy.setSize(fileItem.getData().getSize());
+
+            return save(copy, fileItem.getStream());
+        } finally {
+            if (fileItem != null) {
+                IOUtils.closeQuietly(fileItem.getStream());
+            }
+        }
     }
 
     @Override
@@ -244,7 +259,7 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         if (git != null) {
             git.close();
         }
@@ -286,7 +301,7 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
         this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
-    private TreeWalk buildTreeWalk(org.eclipse.jgit.lib.Repository repository, String path, RevTree tree) throws
+    private static TreeWalk buildTreeWalk(org.eclipse.jgit.lib.Repository repository, String path, RevTree tree) throws
                                                                                                           IOException {
         TreeWalk treeWalk = TreeWalk.forPath(repository, path, tree);
 
@@ -304,7 +319,11 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
             throw new IllegalArgumentException("Incorrect base folder " + baseFolder);
         }
 
-        Iterator<RevCommit> iterator = git.log().addPath(fullPath).call().iterator();
+        Iterator<RevCommit> iterator = git.log()
+                .add(git.getRepository().resolve(branch))
+                .addPath(fullPath)
+                .call()
+                .iterator();
         if (!iterator.hasNext()) {
             throw new IllegalStateException("Can't find revision for a file " + dirWalk.getPathString());
         }
@@ -408,6 +427,42 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
         }
     }
 
+    private <T> T iterateHistory(String name, HistoryVisitor<T> historyVisitor) throws IOException {
+        Lock readLock = repositoryLock.readLock();
+        try {
+            readLock.lock();
+            org.eclipse.jgit.lib.Repository repository = git.getRepository();
+            Iterator<RevCommit> iterator = git.log()
+                    .add(repository.resolve(branch))
+                    .addPath(folderInRepository + name)
+                    .call()
+                    .iterator();
+
+            List<Ref> call = git.tagList().call();
+
+            while (iterator.hasNext()) {
+                RevCommit commit = iterator.next();
+
+                Ref tagRefForCommit = getTagRefForCommit(call, commit.getId());
+                if (tagRefForCommit == null) {
+                    // Skip commits without tags
+                    continue;
+                }
+
+                boolean stop = historyVisitor.visit(folderInRepository + name, commit, tagRefForCommit);
+                if (stop) {
+                    break;
+                }
+            }
+
+            return historyVisitor.getResult();
+        } catch (Exception e) {
+            throw new IOException(e);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
     private void reset() {
         try {
             git.reset().setMode(ResetCommand.ResetType.HARD).call();
@@ -438,8 +493,15 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
         return String.valueOf(maxId + 1);
     }
 
-    private String getVersionName(ObjectId commitId) throws GitAPIException, IOException {
+    private String getVersionName(ObjectId commitId) throws GitAPIException {
         List<Ref> call = git.tagList().call();
+        Ref tagRef = getTagRefForCommit(call, commitId);
+
+        return tagRef != null ? getLocalTagName(tagRef) : commitId.getName();
+    }
+
+    private Ref getTagRefForCommit(List<Ref> call, ObjectId commitId) {
+        Ref tagRefForCommit = null;
         for (Ref tagRef : call) {
             ObjectId objectId = git.getRepository().peel(tagRef).getPeeledObjectId();
             if (objectId == null) {
@@ -447,12 +509,11 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
             }
 
             if (objectId.equals(commitId)) {
-                return getLocalTagName(tagRef);
+                tagRefForCommit = tagRef;
+                break;
             }
         }
-
-        // Fallback to commit hash
-        return commitId.getName();
+        return tagRefForCommit;
     }
 
     private String getLocalTagName(Ref tagRef) {
@@ -460,8 +521,8 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
         return name.startsWith(Constants.R_TAGS) ? name.substring(Constants.R_TAGS.length()) : name;
     }
 
-    private Ref addTagToCommit(RevCommit commit) throws GitAPIException {
-        return git.tag().setObjectId(commit).setName(tagPrefix + getNextTagId()).call();
+    private void addTagToCommit(RevCommit commit) throws GitAPIException {
+        git.tag().setObjectId(commit).setName(tagPrefix + getNextTagId()).call();
     }
 
     private class GitRevisionGetter implements RevisionGetter {
@@ -480,6 +541,24 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
         T apply(org.eclipse.jgit.lib.Repository repository, TreeWalk rootWalk, String baseFolder) throws
                                                                                                   IOException,
                                                                                                   GitAPIException;
+    }
+
+    public interface HistoryVisitor<T> {
+        /**
+         * Visit commit for a file with a path {@code fullPath}
+         *
+         * @param fullPath full path to the file
+         * @param commit visiting commit
+         * @param tagRefForCommit tag reference for commit
+         * @return true if we should stop iterating history (we found needed information) and false if not found or
+         * should iterate all commits
+         */
+        boolean visit(String fullPath, RevCommit commit, Ref tagRefForCommit) throws IOException, GitAPIException;
+
+        /**
+         * Get accumulated result
+         */
+        T getResult();
     }
 
     private class ListCommand implements WalkCommand<List<FileData>> {
@@ -531,6 +610,94 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
             } else {
                 return null;
             }
+        }
+    }
+
+    private class ListHistoryVisitor implements HistoryVisitor<List<FileData>> {
+        private final org.eclipse.jgit.lib.Repository repository;
+        private final List<FileData> history = new ArrayList<>();
+
+        private ListHistoryVisitor() {
+            repository = git.getRepository();
+        }
+
+        @Override
+        public boolean visit(String fullPath, RevCommit commit, Ref tagRefForCommit) throws IOException, GitAPIException {
+            RevTree tree = commit.getTree();
+
+            try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
+                history.add(createFileData(repository, rootWalk, "", commit));
+            }
+
+            return false;
+        }
+
+        @Override
+        public List<FileData> getResult() {
+            Collections.reverse(history);
+            return history;
+        }
+    }
+
+    private class CheckHistoryVisitor implements HistoryVisitor<FileData> {
+        private final String version;
+        private final org.eclipse.jgit.lib.Repository repository;
+        private FileData result;
+
+        private CheckHistoryVisitor(String version) {
+            this.version = version;
+            repository = git.getRepository();
+        }
+
+        @Override
+        public boolean visit(String fullPath, RevCommit commit, Ref tagRefForCommit) throws IOException, GitAPIException {
+            if (getLocalTagName(tagRefForCommit).equals(version)) {
+                RevTree tree = commit.getTree();
+
+                try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
+                    result = createFileData(repository, rootWalk, "", commit);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        @Override
+        public FileData getResult() {
+            return result;
+        }
+    }
+
+    private class ReadHistoryVisitor implements HistoryVisitor<FileItem> {
+        private final String version;
+        private final org.eclipse.jgit.lib.Repository repository;
+        private FileItem result;
+
+        private ReadHistoryVisitor(String version) {
+            this.version = version;
+            repository = git.getRepository();
+        }
+
+        @Override
+        public boolean visit(String fullPath, RevCommit commit, Ref tagRefForCommit) throws IOException, GitAPIException {
+            if (getLocalTagName(tagRefForCommit).equals(version)) {
+                RevTree tree = commit.getTree();
+
+                try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
+                    FileData fileData = createFileData(repository, rootWalk, "", commit);
+                    ObjectLoader loader = repository.open(rootWalk.getObjectId(0));
+                    result = new FileItem(fileData, loader.openStream());
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        @Override
+        public FileItem getResult() {
+            return result;
         }
     }
 }
