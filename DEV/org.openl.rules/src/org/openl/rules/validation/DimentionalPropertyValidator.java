@@ -21,7 +21,7 @@ import org.openl.validation.IOpenLValidator;
 import org.openl.validation.ValidationResult;
 
 public class DimentionalPropertyValidator implements IOpenLValidator {
-    private enum OverlapState {
+    enum OverlapState {
         OVERLAP,
         INCLUDE_TO_A,
         INCLUDE_TO_B,
@@ -113,7 +113,7 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
         return ValidationUtils.withMessages(messages);
     }
 
-    private OverlapState loopInternal(OverlapState overlapState,
+    OverlapState loopInternal(OverlapState overlapState,
             String[] vResult,
             String propKey,
             Object prop,
@@ -150,18 +150,13 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
             int length2 = Array.getLength(p);
             boolean f1 = false;
             boolean f2 = false;
-            int d = 0;
-            int k = 0;
-            int q = 0;
-            while (k < length1 && q < length2) {
-                if ((Array.get(prop, k).equals(Array.get(p, q)))) {
-                    d++;
-                    k++;
-                    q++;
-                }
-                k++;
-            }
-            
+
+            Set<Object> propSet = arrayToSet(prop, length1);
+            Set<Object> pSet = arrayToSet(p, length2);
+
+            propSet.retainAll(pSet);
+            int d = propSet.size();
+
             if (OverlapState.OVERLAP != overlapState) {
                 if (length1 < length2) {
                     f2 = (d == length1);
@@ -215,6 +210,14 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
             }
         }
         return overlapState;
+    }
+
+    private Set<Object> arrayToSet(Object array, int length) {
+        Set<Object> set = new HashSet<>();
+        for (int k = 0; k < length; k++) {
+            set.add(Array.get(array, k));
+        }
+        return set;
     }
 
     private void writeMessageforProperty(StringBuilder sb, String pKey, Object value) {
