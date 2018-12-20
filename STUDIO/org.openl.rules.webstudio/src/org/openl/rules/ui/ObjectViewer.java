@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.EmptyMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -65,7 +67,8 @@ public final class ObjectViewer {
         IGridTable gridtable = table.getSource();
 
         ProjectModel model = WebStudioUtils.getWebStudio().getModel();
-        MetaInfoReader metaInfoReader = model.getNode(gridtable.getUri()).getMetaInfoReader();
+        TableSyntaxNode syntaxNode = model.getNode(gridtable.getUri());
+        MetaInfoReader metaInfoReader = syntaxNode == null ? EmptyMetaInfoReader.getInstance() : syntaxNode.getMetaInfoReader();
 
         TableModel tableModel = TableModel.initializeTableModel(gridtable, filters.toArray(new IGridFilter[0]),
                 metaInfoReader);
