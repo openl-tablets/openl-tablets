@@ -18,6 +18,7 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -40,12 +41,6 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
     private String password;
     private String localRepositoryPath;
     private String branch = Constants.MASTER;
-    // TODO: There should be 3 paths:
-    //  1) for projects in design repository
-    //  2) deployment configuration in design repository
-    //  3) deployments path in production repository
-    //  These paths should be configured outside of GitRepository class and the field folderInRepository should be removed
-    private String folderInRepository = "";
     private String tagPrefix = "";
     private int listenerTimerPeriod = 10;
 
@@ -74,7 +69,7 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
         Lock writeLock = repositoryLock.writeLock();
         try {
             writeLock.lock();
-            String fileInRepository = folderInRepository + data.getName();
+            String fileInRepository = data.getName();
             File file = new File(localRepositoryPath, fileInRepository);
             IOUtils.copyAndClose(stream, new FileOutputStream(file));
 
@@ -104,7 +99,7 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
         try {
             writeLock.lock();
 
-            String fileInRepository = folderInRepository + data.getName();
+            String fileInRepository = data.getName();
             File file = new File(localRepositoryPath, fileInRepository);
             if (!file.exists()) {
                 return false;
@@ -131,11 +126,11 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
         Lock writeLock = repositoryLock.writeLock();
         try {
             writeLock.lock();
-            File src = new File(localRepositoryPath, folderInRepository + srcName);
-            File dest = new File(localRepositoryPath, folderInRepository + destData.getName());
+            File src = new File(localRepositoryPath, srcName);
+            File dest = new File(localRepositoryPath, destData.getName());
             IOUtils.copyAndClose(new FileInputStream(src), new FileOutputStream(dest));
 
-            git.add().addFilepattern(folderInRepository + destData.getName()).call();
+            git.add().addFilepattern(destData.getName()).call();
             RevCommit commit = git.commit()
                     .setMessage(destData.getComment())
                     .setCommitter(destData.getAuthor(), "")
@@ -158,16 +153,16 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
         Lock writeLock = repositoryLock.writeLock();
         try {
             writeLock.lock();
-            File src = new File(localRepositoryPath, folderInRepository + srcName);
-            File dest = new File(localRepositoryPath, folderInRepository + destData.getName());
+            File src = new File(localRepositoryPath, srcName);
+            File dest = new File(localRepositoryPath, destData.getName());
             FileUtils.move(src, dest);
 
             git.rm().addFilepattern(srcName).call();
-            git.add().addFilepattern(folderInRepository + destData.getName()).call();
+            git.add().addFilepattern(destData.getName()).call();
             RevCommit commit = git.commit().setMessage(destData.getComment())
                     .setCommitter(destData.getAuthor(), "")
-                    .setOnly(folderInRepository + srcName)
-                    .setOnly(folderInRepository + destData.getName())
+                    .setOnly(srcName)
+                    .setOnly(destData.getName())
                     .call();
             addTagToCommit(commit);
 
@@ -289,10 +284,6 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
         this.branch = StringUtils.isBlank(branch) ? Constants.MASTER : branch;
     }
 
-    public void setFolderInRepository(String folderInRepository) {
-        this.folderInRepository = folderInRepository == null ? "" : folderInRepository;
-    }
-
     public void setTagPrefix(String tagPrefix) {
         this.tagPrefix = tagPrefix;
     }
@@ -303,7 +294,15 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
 
     private static TreeWalk buildTreeWalk(org.eclipse.jgit.lib.Repository repository, String path, RevTree tree) throws
                                                                                                           IOException {
-        TreeWalk treeWalk = TreeWalk.forPath(repository, path, tree);
+        TreeWalk treeWalk;
+        if (StringUtils.isEmpty(path)) {
+            treeWalk = new TreeWalk(repository);
+            treeWalk.addTree(tree);
+            treeWalk.setRecursive(true);
+            treeWalk.setPostOrderTraversal(false);
+        } else {
+            treeWalk = TreeWalk.forPath(repository, path, tree);
+        }
 
         if (treeWalk == null) {
             throw new FileNotFoundException("Did not find expected path '" + path + "' in tree '" + tree.getName() + "'");
@@ -315,9 +314,6 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
             TreeWalk dirWalk,
             String baseFolder) throws GitAPIException, IOException {
         String fullPath = baseFolder + dirWalk.getPathString();
-        if (!fullPath.startsWith(folderInRepository)) {
-            throw new IllegalArgumentException("Incorrect base folder " + baseFolder);
-        }
 
         Iterator<RevCommit> iterator = git.log()
                 .add(git.getRepository().resolve(branch))
@@ -336,12 +332,9 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
             String baseFolder,
             RevCommit fileCommit) throws GitAPIException, IOException {
         String fullPath = baseFolder + dirWalk.getPathString();
-        if (!fullPath.startsWith(folderInRepository)) {
-            throw new IllegalArgumentException("Incorrect base folder " + baseFolder);
-        }
 
         FileData fileData = new FileData();
-        fileData.setName(fullPath.substring(folderInRepository.length()));
+        fileData.setName(fullPath);
 
         PersonIdent committerIdent = fileCommit.getCommitterIdent();
 
@@ -412,12 +405,11 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
                 RevCommit commit = walk.parseCommit(head.getObjectId());
                 RevTree tree = commit.getTree();
 
-                String baseFolder = folderInRepository + path;
                 // Create TreeWalk for root folder
-                try (TreeWalk rootWalk = buildTreeWalk(repository, baseFolder, tree)) {
-                    return command.apply(repository, rootWalk, baseFolder);
+                try (TreeWalk rootWalk = buildTreeWalk(repository, path, tree)) {
+                    return command.apply(repository, rootWalk, path);
                 } catch (FileNotFoundException e) {
-                    return command.apply(repository, null, baseFolder);
+                    return command.apply(repository, null, path);
                 }
             }
         } catch (Exception e) {
@@ -434,7 +426,7 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
             org.eclipse.jgit.lib.Repository repository = git.getRepository();
             Iterator<RevCommit> iterator = git.log()
                     .add(repository.resolve(branch))
-                    .addPath(folderInRepository + name)
+                    .addPath(name)
                     .call()
                     .iterator();
 
@@ -449,7 +441,7 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
                     continue;
                 }
 
-                boolean stop = historyVisitor.visit(folderInRepository + name, commit, tagRefForCommit);
+                boolean stop = historyVisitor.visit(name, commit, tagRefForCommit);
                 if (stop) {
                     break;
                 }
@@ -569,12 +561,20 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
             if (rootWalk != null) {
                 // Iterate files in folder
                 List<FileData> files = new ArrayList<>();
-                try (TreeWalk dirWalk = new TreeWalk(repository)) {
-                    dirWalk.addTree(rootWalk.getObjectId(0));
-                    dirWalk.setRecursive(true);
+                if (rootWalk.getFilter() == TreeFilter.ALL) {
+                    while (rootWalk.next()) {
+                        files.add(createFileData(repository, rootWalk, baseFolder));
+                    }
+                } else {
+                    if (rootWalk.getTreeCount() > 0) {
+                        try (TreeWalk dirWalk = new TreeWalk(repository)) {
+                            dirWalk.addTree(rootWalk.getObjectId(0));
+                            dirWalk.setRecursive(true);
 
-                    while (dirWalk.next()) {
-                        files.add(createFileData(repository, dirWalk, baseFolder));
+                            while (dirWalk.next()) {
+                                files.add(createFileData(repository, dirWalk, baseFolder));
+                            }
+                        }
                     }
                 }
 
