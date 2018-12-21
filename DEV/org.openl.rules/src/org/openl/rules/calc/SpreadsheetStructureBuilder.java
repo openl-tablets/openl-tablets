@@ -584,7 +584,11 @@ public class SpreadsheetStructureBuilder {
     private SpreadsheetCellField createSpreadsheetCellField(IOpenClass rowOpenClass,
             SpreadsheetCell cell,
             String fieldName) {
-        return SpreadsheetCellField
-            .createSpreadsheetCellField(getSpreadsheetStructureBuilderHolder(), rowOpenClass, fieldName, cell);
+        SpreadsheetStructureBuilderHolder structureBuilderContainer = getSpreadsheetStructureBuilderHolder();
+        if (cell.getSpreadsheetCellType() == SpreadsheetCellType.METHOD) {
+            return new SpreadsheetCellField(structureBuilderContainer, rowOpenClass, fieldName, cell);
+        } else {
+            return new SpreadsheetCellField.ConstSpreadsheetCellField(structureBuilderContainer, rowOpenClass, fieldName, cell);
+        }
     }
 }
