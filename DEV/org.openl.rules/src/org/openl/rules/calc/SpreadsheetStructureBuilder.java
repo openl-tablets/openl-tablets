@@ -396,11 +396,8 @@ public class SpreadsheetStructureBuilder {
         }
 
         SpreadsheetCell spreadsheetCell;
-        if (spreadsheetBindingContext.isExecutionMode()) {
-            spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, null, spreadsheetCellType);
-        } else {
-            spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, sourceCell, spreadsheetCellType);
-        }
+        ICell sourceCellForExecutionMode = spreadsheetBindingContext.isExecutionMode() ? null : sourceCell;
+        spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, sourceCellForExecutionMode, spreadsheetCellType);
 
         IOpenClass cellType = deriveCellType(columnHeaders.get(columnIndex),
             rowHeaders.get(rowIndex),
