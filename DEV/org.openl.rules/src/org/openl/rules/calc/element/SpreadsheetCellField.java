@@ -4,7 +4,6 @@ import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeDescriptionHolder;
 import org.openl.rules.calc.ASpreadsheetField;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
-import org.openl.rules.table.Point;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -55,14 +54,6 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         throw new UnsupportedOperationException("Can not write to spreadsheet cell result");
-    }
-
-    public Point getRelativeCoordinates() {
-        return new Point(getCell().getColumnIndex(), getCell().getRowIndex());
-    }
-
-    public Point getAbsoluteCoordinates() {
-        return new Point(getCell().getSourceCell().getAbsoluteColumn(), getCell().getSourceCell().getAbsoluteRow());
     }
 
     @Override

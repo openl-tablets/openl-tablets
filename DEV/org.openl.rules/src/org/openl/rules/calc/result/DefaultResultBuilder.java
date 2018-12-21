@@ -48,25 +48,6 @@ public class DefaultResultBuilder implements IResultBuilder {
         return table;
     }
 
-    public static Map<String, Point> getFieldsCoordinates(Map<String, IOpenField> spreadsheetfields) {
-        Map<String, Point> fieldsCoordinates = new HashMap<String, Point>();
-        for (Map.Entry<String, IOpenField> fieldEntry : spreadsheetfields.entrySet()) {
-            Point fieldCoordinates = getRelativeSpreadsheetFieldCoordinates(fieldEntry.getValue());
-            if (fieldCoordinates != null) {
-                fieldsCoordinates.put(fieldEntry.getKey(), fieldCoordinates);
-            }
-        }
-        return fieldsCoordinates;
-    }
-    
-    public static Point getRelativeSpreadsheetFieldCoordinates(IOpenField field) {        
-        if (field instanceof SpreadsheetCellField) {
-            SpreadsheetCellField cellField = (SpreadsheetCellField) field;
-            return cellField.getRelativeCoordinates();
-        }
-        return null;
-    }
-
     private Object[][] getResultArray(SpreadsheetResultCalculator result) {
         int height = result.height();
         int width = result.width();
