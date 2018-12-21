@@ -3,6 +3,7 @@ package org.openl.rules.calc.result;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
@@ -23,16 +24,16 @@ public class DefaultResultBuilder implements IResultBuilder {
     public Object makeResult(SpreadsheetResultCalculator result) {    
         
         Object resultArray[][] = getResultArray(result);
-        
-        String[] rowNames = getRowNames(result);
-         
-        String[] columnNames = getColumnNames(result);
 
-        String[] rowTitles = getRowTitles(result);
-        
-        String[] columnTitles = getColumnTitles(result);
+        Spreadsheet spreadsheet = result.getSpreadsheet();
 
-        SpreadsheetResult spreadsheetBean = new SpreadsheetResult(resultArray, rowNames, columnNames, rowTitles, columnTitles, result.getSpreadsheet().getFieldsCoordinates());
+        String[] rowNames = spreadsheet.getRowNames();
+        String[] columnNames = spreadsheet.getColumnNames();
+        String[] rowTitles = spreadsheet.getRowTitles();
+        String[] columnTitles = spreadsheet.getColumnTitles();
+        Map<String, Point> fieldsCoordinates = spreadsheet.getFieldsCoordinates();
+
+        SpreadsheetResult spreadsheetBean = new SpreadsheetResult(resultArray, rowNames, columnNames, rowTitles, columnTitles, fieldsCoordinates);
 
         ILogicalTable table = getSpreadsheetTable(result);        
         spreadsheetBean.setLogicalTable(table);
@@ -50,46 +51,6 @@ public class DefaultResultBuilder implements IResultBuilder {
         return table;
     }
 
-    private String[] getColumnNames(SpreadsheetResultCalculator result) {
-        int width = result.width();
-        
-        String[] columnNames = new String[width];        
-        for (int col = 0; col < width; col++) {
-            columnNames[col] = result.getColumnName(col);
-        }
-        return columnNames;
-    }
-
-    private String[] getRowNames(SpreadsheetResultCalculator result) {
-        int height = result.height();
-        
-        String[] rowNames = new String[height];        
-        for (int row = 0; row < height; row++) {
-            rowNames[row] = result.getRowName(row);
-        }
-        return rowNames;
-    }
-    
-    private String[] getColumnTitles(SpreadsheetResultCalculator result) {
-        int width = result.width();
-        
-        String[] columnTitles = new String[width];        
-        for (int col = 0; col < width; col++) {
-            columnTitles[col] = result.getColumnTitle(col);
-        }
-        return columnTitles;
-    }
-
-    private String[] getRowTitles(SpreadsheetResultCalculator result) {
-        int height = result.height();
-        
-        String[] rowTitles = new String[height];        
-        for (int row = 0; row < height; row++) {
-            rowTitles[row] = result.getRowTitle(row);
-        }
-        return rowTitles;
-    }
-    
     public static Map<String, Point> getFieldsCoordinates(Map<String, IOpenField> spreadsheetfields) {
         Map<String, Point> fieldsCoordinates = new HashMap<String, Point>();
         for (Map.Entry<String, IOpenField> fieldEntry : spreadsheetfields.entrySet()) {
@@ -105,14 +66,6 @@ public class DefaultResultBuilder implements IResultBuilder {
         if (field instanceof SpreadsheetCellField) {
             SpreadsheetCellField cellField = (SpreadsheetCellField) field;
             return cellField.getRelativeCoordinates();
-        }
-        return null;
-    }
-    
-    public static Point getAbsoluteSpreadsheetFieldCoordinates(IOpenField field) {        
-        if (field instanceof SpreadsheetCellField) {
-            SpreadsheetCellField cellField = (SpreadsheetCellField) field;
-            return cellField.getAbsoluteCoordinates();
         }
         return null;
     }

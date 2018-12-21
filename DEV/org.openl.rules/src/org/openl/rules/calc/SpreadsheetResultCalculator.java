@@ -57,14 +57,6 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         return res;
     }
 
-    public String getColumnName(int column) {
-        return spreadsheet.getColumnNames()[column];
-    }
-    
-    public String getColumnTitle(int column) {
-        return spreadsheet.getColumnTitles()[column];
-    }
-
     public Object getFieldValue(String name) {
 
         IOpenField field = spreadsheet.getSpreadsheetType().getField(name);
@@ -87,14 +79,6 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
 
     public Object getRow(int row, IRuntimeEnv env) {
         return null;
-    }
-
-    public String getRowName(int row) {
-        return spreadsheet.getRowNames()[row];
-    }
-    
-    public String getRowTitle(int row) {
-        return spreadsheet.getRowTitles()[row];
     }
 
     public Spreadsheet getSpreadsheet() {
