@@ -7,14 +7,10 @@ import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLSystemProperties;
-import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.SpreadsheetMetaInfoReader;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
@@ -29,7 +25,9 @@ import org.openl.types.impl.CompositeMethod;
 // Extract all the binding and build code to the SpreadsheetBinder
 public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBoundNode {
 
-    private SpreadsheetBuilder builder;
+    private SpreadsheetStructureBuilder structureBuilder;
+    private SpreadsheetOpenClass spreadsheetOpenClass;
+
     IBindingContext bindingContext;
 
     public SpreadsheetBoundNode(TableSyntaxNode tableSyntaxNode,
@@ -39,13 +37,6 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
         super(tableSyntaxNode, openl, header, module);
     }
-
-    /**
-     * {@link Spreadsheet} is being created after
-     * {@link #preBind(IBindingContext)} phase. See
-     * {@link XlsBinder#bindInternal(XlsModuleSyntaxNode, XlsModuleOpenClass, TableSyntaxNode[], OpenL, RulesModuleBindingContext)}
-     * method
-     */
 
     protected Spreadsheet createSpreadsheet() {
         /*
@@ -62,13 +53,17 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
     @Override
     protected ExecutableRulesMethod createMethodShell() {
         Spreadsheet spreadsheet = createSpreadsheet();
-        spreadsheet.setSpreadsheetType(builder.getPopulatedSpreadsheetOpenClass());
+        spreadsheet.setSpreadsheetType(spreadsheetOpenClass);
         // As custom spreadsheet result is being generated at runtime,
         // call this method to ensure that CSR will be generated during the
         // compilation.
         // Add generated type to be accessible through binding context.
         //
-        builder.populateRowAndColumnNames(spreadsheet);
+        spreadsheet.setRowNames(structureBuilder.getRowNames());
+        spreadsheet.setColumnNames(structureBuilder.getColumnNames());
+
+        spreadsheet.setRowTitles(structureBuilder.getRowTitles());
+        spreadsheet.setColumnTitles(structureBuilder.getColumnTitles());
         if (spreadsheet.isCustomSpreadsheetType()) {
             
             IOpenClass type = null;
@@ -97,8 +92,12 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         IOpenMethodHeader header = getHeader();
 
         this.bindingContext = bindingContext;
-        this.builder = new SpreadsheetBuilder(tableSyntaxNode, bindingContext, header);
-        builder.populateSpreadsheetOpenClass();
+        Boolean autoType = tableSyntaxNode.getTableProperties().getAutoType();
+        structureBuilder = new SpreadsheetStructureBuilder(tableSyntaxNode, bindingContext, header, autoType);
+        String headerType = header.getName() + "Type";
+        OpenL openL = bindingContext.getOpenL();
+        spreadsheetOpenClass = new SpreadsheetOpenClass(headerType, openL);
+        structureBuilder.addCellFields(spreadsheetOpenClass);
     }
 
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
@@ -108,7 +107,10 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
 
-        builder.finalizeBuild(getSpreadsheet());
+        Spreadsheet spreadsheet = getSpreadsheet();
+        spreadsheet.setCells(structureBuilder.getCells());
+
+        spreadsheet.setResultBuilder(structureBuilder.getResultBuilder(spreadsheet));
     }
 
     private void validateTableBody(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) throws SyntaxNodeException {
@@ -127,7 +129,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         }
     }
 
-    public Spreadsheet getSpreadsheet() {
+    private Spreadsheet getSpreadsheet() {
         return (Spreadsheet) getMethod();
     }
 
@@ -155,8 +157,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
             super.removeDebugInformation(cxt);
             // clean the builder, that was used for creating spreadsheet
             //
-            this.builder.removeDebugInformation();
-            this.builder = null;
+            this.structureBuilder.getSpreadsheetStructureBuilderHolder().clear();
             this.bindingContext = null;
         }
     }
