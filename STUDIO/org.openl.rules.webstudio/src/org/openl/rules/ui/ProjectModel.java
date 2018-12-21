@@ -19,18 +19,15 @@ import java.util.Map;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
-import org.openl.classloader.ClassLoaderUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.extension.ExtensionWrapperGrid;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
-import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
 import org.openl.rules.lang.xls.*;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule.ModificationChecker;
@@ -92,7 +89,6 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.util.FileUtils;
 import org.openl.util.ISelector;
 import org.openl.util.Log;
@@ -656,7 +652,7 @@ public class ProjectModel {
     }
 
     public boolean isEditableTable(String uri) {
-        return !isTablePart(uri) && !isExtensionGrid(uri) && isEditable();
+        return !isTablePart(uri) && isEditable();
     }
 
     /**
@@ -670,11 +666,6 @@ public class ProjectModel {
         }
 
         return false;
-    }
-
-    public boolean isExtensionGrid(String uri) {
-        IGridTable grid = getGridTable(uri);
-        return grid != null && grid.getGrid() instanceof ExtensionWrapperGrid;
     }
 
     public boolean isCurrentModuleLoadedByExtension() {

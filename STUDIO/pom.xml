@@ -29,7 +29,6 @@
         <module>org.openl.security.saml</module>
         <module>org.openl.security.cas</module>
         <module>org.openl.rules.diff</module>
-        <module>org.openl.extension.xmlrules</module>
         <module>org.openl.rules.activiti</module>
         <module>org.openl.rules.jackson</module>
         <!-- Tests -->

@@ -116,10 +116,6 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.repository</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.extension.xmlrules</artifactId>
-        </dependency>
         <!-- RulesService -->
         <dependency>
             <groupId>org.openl.rules</groupId>

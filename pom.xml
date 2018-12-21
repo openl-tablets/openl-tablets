@@ -1470,11 +1470,6 @@
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.extension.xmlrules</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.activiti</artifactId>
                 <version>${project.version}</version>
             </dependency>
