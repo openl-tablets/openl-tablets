@@ -214,7 +214,11 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                     continue;
                 }
 
-                IOpenClass type = params[i].getType();
+                IParameterDeclaration param = params[i];
+                if (param == null) {
+                    continue;
+                }
+                IOpenClass type = param.getType();
                 boolean multiValue = false;
                 if (type.isArray()) {
                     multiValue = true;
@@ -243,7 +247,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         ILogicalTable paramsTable = funcRow.getParamsTable();
         // In the case of errors params will be null
         IParameterDeclaration[] params = funcRow.getParams();
-        if (params != null && params.length > 0) {
+        if (params != null && params.length > 0 && params[0] != null) {
             IParameterDeclaration param = params[0];
             ICell paramCell = paramsTable.getCell(0, 0);
             row = paramCell.getAbsoluteRow();
