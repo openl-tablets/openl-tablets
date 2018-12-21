@@ -1,10 +1,7 @@
 package org.openl.rules.repository.git;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -20,10 +17,7 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.openl.rules.repository.RRepositoryFactory;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.Listener;
-import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -33,7 +27,7 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GitRepository implements Repository, Closeable, RRepositoryFactory {
+public class GitRepository implements FolderRepository, Closeable, RRepositoryFactory {
     private final Logger log = LoggerFactory.getLogger(GitRepository.class);
 
     private String uri;
@@ -51,17 +45,17 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
 
     @Override
     public List<FileData> list(String path) throws IOException {
-        return findAndApply(path, new ListCommand());
+        return iterate(path, new ListCommand());
     }
 
     @Override
     public FileData check(String name) throws IOException {
-        return findAndApply(name, new CheckCommand());
+        return iterate(name, new CheckCommand());
     }
 
     @Override
     public FileItem read(String name) throws IOException {
-        return findAndApply(name, new ReadCommand());
+        return iterate(name, new ReadCommand());
     }
 
     @Override
@@ -71,6 +65,7 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
             writeLock.lock();
             String fileInRepository = data.getName();
             File file = new File(localRepositoryPath, fileInRepository);
+            createParent(file);
             IOUtils.copyAndClose(stream, new FileOutputStream(file));
 
             git.add().addFilepattern(fileInRepository).call();
@@ -348,6 +343,37 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
         return fileData;
     }
 
+    private FileData createFolderData(TreeWalk dirWalk, String baseFolder) throws GitAPIException, IOException {
+        String fullPath = baseFolder + dirWalk.getPathString();
+
+        Iterator<RevCommit> iterator = git.log()
+                .add(git.getRepository().resolve(branch))
+                .addPath(fullPath)
+                .call()
+                .iterator();
+        if (!iterator.hasNext()) {
+            throw new IllegalStateException("Can't find revision for a file " + dirWalk.getPathString());
+        }
+
+        return createFolderData(dirWalk, baseFolder, iterator.next());
+    }
+
+    private FileData createFolderData(TreeWalk dirWalk, String baseFolder, RevCommit commit) throws GitAPIException {
+        String fullPath = baseFolder + dirWalk.getPathString();
+
+        FileData fileData = new FileData();
+        fileData.setName(fullPath + "/");
+
+        PersonIdent committerIdent = commit.getCommitterIdent();
+
+        fileData.setAuthor(committerIdent.getName());
+        fileData.setModifiedAt(committerIdent.getWhen());
+        fileData.setComment(commit.getFullMessage());
+        fileData.setVersion(getVersionName(commit.getId()));
+
+        return fileData;
+    }
+
     private ObjectId getLastRevision() throws GitAPIException, IOException {
         pull();
 
@@ -394,7 +420,7 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
         }
     }
 
-    private <T> T findAndApply(String path, WalkCommand<T> command) throws IOException {
+    private <T> T iterate(String path, WalkCommand<T> command) throws IOException {
         Lock readLock = repositoryLock.readLock();
         try {
             readLock.lock();
@@ -517,6 +543,90 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
         git.tag().setObjectId(commit).setName(tagPrefix + getNextTagId()).call();
     }
 
+    @Override
+    public List<FileData> listFolders(String path) throws IOException {
+        return iterate(path, new ListFoldersCommand());
+    }
+
+    @Override
+    public FileData save(FileData folderData, List<FileChange> files) throws IOException {
+        Lock writeLock = repositoryLock.writeLock();
+        try {
+            writeLock.lock();
+            String relativeFolder = folderData.getName();
+
+            // Remove absent files
+            List<File> removed = new ArrayList<>();
+            File folder = new File(localRepositoryPath, relativeFolder);
+            listRemovedFiles(removed, folder, toFiles(files));
+            for (File file : removed) {
+                String basePath = new File(localRepositoryPath).getAbsolutePath();
+                String fileInRepository = file.getAbsolutePath().substring(basePath.length()).replace('\\', '/');
+                if (fileInRepository.startsWith("/")) {
+                    fileInRepository = fileInRepository.substring(1);
+                }
+                git.rm().addFilepattern(fileInRepository).call();
+            }
+
+            // Add new files and update existing ones
+            for (FileChange change : files) {
+                File file = new File(localRepositoryPath, change.getName());
+                createParent(file);
+                
+                IOUtils.copyAndClose(change.getStream(), new FileOutputStream(file));
+                git.add().addFilepattern(change.getName()).call();
+            }
+
+            // TODO: Add possibility to set committer email
+            RevCommit commit = git.commit().setMessage(folderData.getComment())
+                    .setCommitter(folderData.getAuthor(), "")
+                    .setOnly(relativeFolder)
+                    .call();
+
+            addTagToCommit(commit);
+
+            push();
+        } catch (Exception e) {
+            reset();
+            throw new IOException(e);
+        } finally {
+            writeLock.unlock();
+        }
+
+        return check(folderData.getName());
+    }
+
+    private List<File> toFiles(List<FileChange> paths) {
+        List<File> files = new ArrayList<>();
+        for (FileChange change : paths) {
+            files.add(new File(localRepositoryPath, change.getName()));
+        }
+        return files;
+    }
+
+    private void listRemovedFiles(Collection<File> removed, File directory, Collection<File> toSave) {
+        File[] found = directory.listFiles();
+
+        if (found != null) {
+            for (File file : found) {
+                if (file.isDirectory()) {
+                    listRemovedFiles(removed, file, toSave);
+                } else {
+                    if (!toSave.contains(file)) {
+                        removed.add(file);
+                    }
+                }
+            }
+        }
+    }
+
+    private void createParent(File file) throws FileNotFoundException {
+        File parentFile = file.getParentFile();
+        if (!parentFile.mkdirs() && !parentFile.exists()) {
+            throw new FileNotFoundException("Can't create the folder " + parentFile.getAbsolutePath());
+        }
+    }
+
     private class GitRevisionGetter implements RevisionGetter {
         @Override
         public Object getRevision() {
@@ -582,6 +692,40 @@ public class GitRepository implements Repository, Closeable, RRepositoryFactory 
             } else {
                 return Collections.emptyList();
             }
+        }
+    }
+
+    private class ListFoldersCommand implements WalkCommand<List<FileData>> {
+        @Override
+        public List<FileData> apply(org.eclipse.jgit.lib.Repository repository,
+                TreeWalk rootWalk,
+                String baseFolder) throws IOException, GitAPIException {
+            if (rootWalk != null) {
+                if (rootWalk.getFilter() == TreeFilter.ALL) {
+                    return collectFolderData(rootWalk, baseFolder);
+                } else {
+                    if (rootWalk.getTreeCount() > 0) {
+                        try (TreeWalk dirWalk = new TreeWalk(repository)) {
+                            dirWalk.addTree(rootWalk.getObjectId(0));
+                            return collectFolderData(dirWalk, baseFolder);
+                        }
+                    }
+                }
+            }
+
+            return Collections.emptyList();
+        }
+
+        private List<FileData> collectFolderData(TreeWalk rootWalk, String baseFolder) throws IOException, GitAPIException {
+            List<FileData> files = new ArrayList<>();
+            rootWalk.setRecursive(false);
+            while (rootWalk.next()) {
+                if ((rootWalk.getFileMode().getBits() & FileMode.TYPE_TREE) != 0) {
+                    files.add(createFolderData(rootWalk, baseFolder));
+                }
+            }
+
+            return files;
         }
     }
 

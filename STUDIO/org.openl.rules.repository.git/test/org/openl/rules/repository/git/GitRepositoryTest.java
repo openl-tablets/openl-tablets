@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jgit.api.Git;
@@ -16,6 +17,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -23,7 +25,7 @@ import org.openl.util.IOUtils;
 
 public class GitRepositoryTest {
     private static final String BRANCH = "test";
-    private static final String FOLDER_IN_REPOSITORY = "rules/";
+    private static final String FOLDER_IN_REPOSITORY = "rules/project1/";
     private static final String TAG_PREFIX = "Rules_";
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
@@ -108,23 +110,23 @@ public class GitRepositoryTest {
     public void list() throws IOException {
         assertEquals(5, repo.list("").size());
 
-        List<FileData> files = repo.list("rules/");
+        List<FileData> files = repo.list("rules/project1/");
         assertNotNull(files);
         assertEquals(3, files.size());
 
-        FileData file1 = getFileData(files, "rules/file1");
+        FileData file1 = getFileData(files, "rules/project1/file1");
         assertNotNull(file1);
         assertEquals("user1", file1.getAuthor());
         assertEquals("Initial commit in test branch", file1.getComment());
         assertEquals(3, file1.getSize());
 
-        FileData file2 = getFileData(files, "rules/file2");
+        FileData file2 = getFileData(files, "rules/project1/file2");
         assertNotNull(file2);
         assertEquals("user2", file2.getAuthor());
         assertEquals("Second modification", file2.getComment());
         assertEquals(12, file2.getSize());
 
-        FileData file3 = getFileData(files, "rules/folder/file3");
+        FileData file3 = getFileData(files, "rules/project1/folder/file3");
         assertNotNull(file3);
         assertEquals("user2", file3.getAuthor());
         assertEquals("Second modification", file3.getComment());
@@ -132,20 +134,32 @@ public class GitRepositoryTest {
     }
 
     @Test
+    public void listFolders() throws IOException {
+        assertEquals(1, repo.listFolders("").size());
+
+        List<FileData> folders = repo.listFolders("rules/");
+        assertNotNull(folders);
+        assertEquals(1, folders.size());
+
+        FileData folderData = folders.get(0);
+        assertEquals("rules/project1/", folderData.getName());
+    }
+
+    @Test
     public void check() throws IOException {
-        FileData file1 = repo.check("rules/file1");
+        FileData file1 = repo.check("rules/project1/file1");
         assertNotNull(file1);
         assertEquals("user1", file1.getAuthor());
         assertEquals("Initial commit in test branch", file1.getComment());
         assertEquals(3, file1.getSize());
 
-        FileData file2 = repo.check("rules/file2");
+        FileData file2 = repo.check("rules/project1/file2");
         assertNotNull(file2);
         assertEquals("user2", file2.getAuthor());
         assertEquals("Second modification", file2.getComment());
         assertEquals(12, file2.getSize());
 
-        FileData file3 = repo.check("rules/folder/file3");
+        FileData file3 = repo.check("rules/project1/folder/file3");
         assertNotNull(file3);
         assertEquals("user2", file3.getAuthor());
         assertEquals("Second modification", file3.getComment());
@@ -154,9 +168,9 @@ public class GitRepositoryTest {
 
     @Test
     public void read() throws IOException {
-        assertEquals("Hi!", IOUtils.toStringAndClose(repo.read("rules/file1").getStream()));
-        assertEquals("Hello World!", IOUtils.toStringAndClose(repo.read("rules/file2").getStream()));
-        assertEquals("In folder", IOUtils.toStringAndClose(repo.read("rules/folder/file3").getStream()));
+        assertEquals("Hi!", IOUtils.toStringAndClose(repo.read("rules/project1/file1").getStream()));
+        assertEquals("Hello World!", IOUtils.toStringAndClose(repo.read("rules/project1/file2").getStream()));
+        assertEquals("In folder", IOUtils.toStringAndClose(repo.read("rules/project1/folder/file3").getStream()));
 
         assertEquals(0, changesCounter.getChanges());
     }
@@ -164,19 +178,19 @@ public class GitRepositoryTest {
     @Test
     public void save() throws IOException, RRepositoryException {
         // Create a new file
-        String path = "rules/folder/file4";
+        String path = "rules/project1/folder/file4";
         String text = "File located in " + path;
         FileData result = repo.save(createFileData(path, text), IOUtils.toInputStream(text));
 
         assertNotNull(result);
         assertEquals(path, result.getName());
         assertEquals("John Smith", result.getAuthor());
-        assertEquals("Comment for rules/folder/file4", result.getComment());
+        assertEquals("Comment for rules/project1/folder/file4", result.getComment());
         assertEquals(text.length(), result.getSize());
         assertEquals("Rules_5", result.getVersion());
         assertNotNull(result.getModifiedAt());
 
-        assertEquals(text, IOUtils.toStringAndClose(repo.read("rules/folder/file4").getStream()));
+        assertEquals(text, IOUtils.toStringAndClose(repo.read("rules/project1/folder/file4").getStream()));
 
         // Modify existing file
         text = "Modified";
@@ -184,7 +198,7 @@ public class GitRepositoryTest {
         assertNotNull(result);
         assertEquals(text.length(), result.getSize());
         assertEquals("Rules_6", result.getVersion());
-        assertEquals(text, IOUtils.toStringAndClose(repo.read("rules/folder/file4").getStream()));
+        assertEquals(text, IOUtils.toStringAndClose(repo.read("rules/project1/folder/file4").getStream()));
 
         assertEquals(2, changesCounter.getChanges());
 
@@ -198,59 +212,84 @@ public class GitRepositoryTest {
             secondRepo.setBranch(BRANCH);
             secondRepo.setTagPrefix(TAG_PREFIX);
             secondRepo.initialize();
-            assertEquals(text, IOUtils.toStringAndClose(secondRepo.read("rules/folder/file4").getStream()));
+            assertEquals(text, IOUtils.toStringAndClose(secondRepo.read("rules/project1/folder/file4").getStream()));
         }
+
+        // Check that creating new folders works correctly
+        path = "rules/project1/new-folder/file5";
+        text = "File located in " + path;
+        assertNotNull(repo.save(createFileData(path, text), IOUtils.toInputStream(text)));
+    }
+
+    @Test
+    public void saveFolder() throws IOException {
+        List<FileChange> changes = Arrays.asList(
+                new FileChange("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
+                new FileChange("rules/project1/file2", IOUtils.toInputStream("Modified"))
+        );
+
+        FileData folderData = new FileData();
+        folderData.setName("rules/project1/");
+        folderData.setAuthor("John Smith");
+        folderData.setComment("Bulk change");
+
+        FileData savedData = repo.save(folderData, changes);
+        assertNotNull(savedData);
+        List<FileData> files = repo.list("rules/project1/");
+        assertContains(files, "rules/project1/new-path/file4");
+        assertContains(files, "rules/project1/file2");
+        assertEquals(2, files.size());
     }
 
     @Test
     public void delete() throws IOException {
         FileData fileData = new FileData();
-        fileData.setName("rules/file2");
+        fileData.setName("rules/project1/file2");
         fileData.setComment("Delete file 2");
         fileData.setAuthor("John Smith");
         boolean deleted = repo.delete(fileData);
         assertTrue("'file2' wasn't deleted", deleted);
 
-        assertNull("'file2' still exists", repo.check("rules/file2"));
+        assertNull("'file2' still exists", repo.check("rules/project1/file2"));
     }
 
     @Test
     public void copy() throws IOException {
         FileData dest = new FileData();
-        dest.setName("rules/file2-copy");
+        dest.setName("rules/project1/file2-copy");
         dest.setComment("Copy file 2");
         dest.setAuthor("John Smith");
-        FileData copy = repo.copy("rules/file2", dest);
+        FileData copy = repo.copy("rules/project1/file2", dest);
         assertNotNull(copy);
-        assertEquals("rules/file2-copy", copy.getName());
+        assertEquals("rules/project1/file2-copy", copy.getName());
         assertEquals("John Smith", copy.getAuthor());
         assertEquals("Copy file 2", copy.getComment());
         assertEquals(12, copy.getSize());
 
-        assertNotNull(repo.check("rules/file2"));
-        assertNotNull(repo.check("rules/file2-copy"));
+        assertNotNull(repo.check("rules/project1/file2"));
+        assertNotNull(repo.check("rules/project1/file2-copy"));
     }
 
     @Test
     public void rename() throws IOException {
         FileData dest = new FileData();
-        dest.setName("rules/file2-copy");
+        dest.setName("rules/project1/file2-copy");
         dest.setComment("Copy file 2");
         dest.setAuthor("John Smith");
-        FileData renamed = repo.rename("rules/file2", dest);
+        FileData renamed = repo.rename("rules/project1/file2", dest);
         assertNotNull(renamed);
-        assertEquals("rules/file2-copy", renamed.getName());
+        assertEquals("rules/project1/file2-copy", renamed.getName());
         assertEquals("John Smith", renamed.getAuthor());
         assertEquals("Copy file 2", renamed.getComment());
         assertEquals(12, renamed.getSize());
 
-        assertNull("'file2' wasn't deleted", repo.check("rules/file2"));
-        assertNotNull("'file2-copy' doesn't exist", repo.check("rules/file2-copy"));
+        assertNull("'file2' wasn't deleted", repo.check("rules/project1/file2"));
+        assertNotNull("'file2-copy' doesn't exist", repo.check("rules/project1/file2-copy"));
     }
 
     @Test
     public void listHistory() throws IOException {
-        List<FileData> file2History = repo.listHistory("rules/file2");
+        List<FileData> file2History = repo.listHistory("rules/project1/file2");
         assertEquals(2, file2History.size());
         assertEquals("Rules_2", file2History.get(0).getVersion());
         assertEquals("Rules_3", file2History.get(1).getVersion());
@@ -258,40 +297,40 @@ public class GitRepositoryTest {
 
     @Test
     public void checkHistory() throws IOException {
-        assertEquals("Rules_2", repo.checkHistory("rules/file2", "Rules_2").getVersion());
-        assertEquals("Rules_3", repo.checkHistory("rules/file2", "Rules_3").getVersion());
-        assertNull(repo.checkHistory("rules/file2", "Rules_1"));
+        assertEquals("Rules_2", repo.checkHistory("rules/project1/file2", "Rules_2").getVersion());
+        assertEquals("Rules_3", repo.checkHistory("rules/project1/file2", "Rules_3").getVersion());
+        assertNull(repo.checkHistory("rules/project1/file2", "Rules_1"));
     }
 
     @Test
     public void readHistory() throws IOException {
-        assertEquals("Hello!", IOUtils.toStringAndClose(repo.readHistory("rules/file2", "Rules_2").getStream()));
-        assertEquals("Hello World!", IOUtils.toStringAndClose(repo.readHistory("rules/file2", "Rules_3").getStream()));
-        assertNull(repo.readHistory("rules/file2", "Rules_1"));
+        assertEquals("Hello!", IOUtils.toStringAndClose(repo.readHistory("rules/project1/file2", "Rules_2").getStream()));
+        assertEquals("Hello World!", IOUtils.toStringAndClose(repo.readHistory("rules/project1/file2", "Rules_3").getStream()));
+        assertNull(repo.readHistory("rules/project1/file2", "Rules_1"));
     }
 
     @Test
     public void copyHistory() throws IOException {
         FileData dest = new FileData();
-        dest.setName("rules/file2-copy");
+        dest.setName("rules/project1/file2-copy");
         dest.setComment("Copy file 2");
         dest.setAuthor("John Smith");
 
-        FileData copy = repo.copyHistory("rules/file2", dest, "Rules_2");
+        FileData copy = repo.copyHistory("rules/project1/file2", dest, "Rules_2");
         assertNotNull(copy);
-        assertEquals("rules/file2-copy", copy.getName());
+        assertEquals("rules/project1/file2-copy", copy.getName());
         assertEquals("John Smith", copy.getAuthor());
         assertEquals("Copy file 2", copy.getComment());
         assertEquals(6, copy.getSize());
         assertEquals("Rules_5", copy.getVersion());
-        assertEquals("Hello!", IOUtils.toStringAndClose(repo.read("rules/file2-copy").getStream()));
+        assertEquals("Hello!", IOUtils.toStringAndClose(repo.read("rules/project1/file2-copy").getStream()));
     }
 
     @Test
     public void changesShouldBeRolledBackOnError() throws Exception {
         try {
             FileData data = new FileData();
-            data.setName("rules/file2");
+            data.setName("rules/project1/file2");
             data.setAuthor(null);
             data.setComment(null);
             repo.save(data, IOUtils.toInputStream("error"));
@@ -345,6 +384,18 @@ public class GitRepositoryTest {
 
     private void addTag(Git git, RevCommit commit, int version) throws GitAPIException {
         git.tag().setObjectId(commit).setName(TAG_PREFIX + version).call();
+    }
+
+    private void assertContains(List<FileData> files, String fileName) {
+        boolean contains = false;
+        for (FileData file : files) {
+            if (fileName.equals(file.getName())) {
+                contains = true;
+                break;
+            }
+        }
+
+        assertTrue("Files list doesn't contain the file '" + fileName + "'", contains);
     }
 
     private static class ChangesCounter implements Listener {
