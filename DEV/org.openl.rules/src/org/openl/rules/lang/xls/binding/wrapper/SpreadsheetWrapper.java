@@ -203,16 +203,6 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
     }
 
     @Override
-    public int height() {
-        return delegate.height();
-    }
-
-    @Override
-    public int width() {
-        return delegate.width();
-    }
-
-    @Override
     public void setInvoker(SpreadsheetInvoker invoker) {
         delegate.setInvoker(invoker);
     }
