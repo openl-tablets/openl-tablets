@@ -1,5 +1,6 @@
 package org.openl.rules.calc;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
@@ -7,7 +8,7 @@ import org.openl.meta.TableMetaInfo;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.calc.result.DefaultResultBuilder;
+import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -226,9 +227,24 @@ public class Spreadsheet extends ExecutableRulesMethod {
                     if (isCustomSpreadsheetType()) {
                         fieldsCoordinates = getCustomSpreadsheetResultType().getFieldsCoordinates();
                     } else {
-                        fieldsCoordinates = DefaultResultBuilder.getFieldsCoordinates(this.getSpreadsheetType().getFields());
+                        fieldsCoordinates = getFieldsCoordinates(getSpreadsheetType());
                     }
                 }
+            }
+        }
+        return fieldsCoordinates;
+    }
+
+    private static Map<String, Point> getFieldsCoordinates(SpreadsheetOpenClass spreadsheetType) {
+        Map<String, IOpenField> spreadsheetfields = spreadsheetType.getFields();
+        Map<String, Point> fieldsCoordinates = new HashMap<>();
+        for (Map.Entry<String, IOpenField> fieldEntry : spreadsheetfields.entrySet()) {
+            IOpenField field = fieldEntry.getValue();
+            Point fieldCoordinates;
+            if (field instanceof SpreadsheetCellField) {
+                SpreadsheetCell cell = ((SpreadsheetCellField) field).getCell();
+                fieldCoordinates = new Point(cell.getColumnIndex(), cell.getRowIndex());
+                fieldsCoordinates.put(fieldEntry.getKey(), fieldCoordinates);
             }
         }
         return fieldsCoordinates;
