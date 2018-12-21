@@ -13,16 +13,7 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
     protected SpreadsheetCell cell;
     private SpreadsheetStructureBuilderHolder structureBuilderContainer;
 
-    public static SpreadsheetCellField createSpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
-            IOpenClass declaringClass,
-            String name,
-            SpreadsheetCell cell) {
-        if (cell.getSpreadsheetCellType() == SpreadsheetCellType.METHOD)
-            return new SpreadsheetCellField(structureBuilderContainer, declaringClass, name, cell);
-        return new ConstSpreadsheetCellField(structureBuilderContainer, declaringClass, name, cell);
-    }
-
-    SpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
+    public SpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
             IOpenClass declaringClass,
             String name,
             SpreadsheetCell cell) {
@@ -80,9 +71,9 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
         return getType().getDisplayName(INamedThing.SHORT) + " " + getName();
     }
 
-    static class ConstSpreadsheetCellField extends SpreadsheetCellField {
+    public static class ConstSpreadsheetCellField extends SpreadsheetCellField {
 
-        ConstSpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
+        public ConstSpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
                 IOpenClass declaringClass,
                 String name,
                 SpreadsheetCell cell) {
