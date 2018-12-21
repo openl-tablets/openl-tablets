@@ -26,6 +26,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
     private SpreadsheetStructureBuilder structureBuilder;
     private SpreadsheetOpenClass spreadsheetOpenClass;
+    private SpreadsheetCell[][] cells;
 
     IBindingContext bindingContext;
 
@@ -102,10 +103,15 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
 
-        Spreadsheet spreadsheet = getSpreadsheet();
-        spreadsheet.setCells(structureBuilder.getCells());
+        cells = structureBuilder.getCells();
+        Spreadsheet spreadsheet = (Spreadsheet) getMethod();
+        spreadsheet.setCells(cells);
 
         spreadsheet.setResultBuilder(structureBuilder.getResultBuilder(spreadsheet));
+    }
+
+    public SpreadsheetCell[][] getCells() {
+        return cells;
     }
 
     private void validateTableBody(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) throws SyntaxNodeException {
@@ -124,14 +130,14 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         }
     }
 
-    private Spreadsheet getSpreadsheet() {
+    public Spreadsheet getSpreadsheet() {
         return (Spreadsheet) getMethod();
     }
 
     @Override
     public void updateDependency(BindingDependencies dependencies) {
-        if (getSpreadsheet().getCells() != null) {
-            for (SpreadsheetCell[] cellArray : getSpreadsheet().getCells()) {
+        if (cells != null) {
+            for (SpreadsheetCell[] cellArray : cells) {
                 if (cellArray != null) {
                     for (SpreadsheetCell cell : cellArray) {
                         if (cell != null) {
