@@ -1,0 +1,10 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>rules-tests-and-run-tables</serviceName>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+        <publisher>WEBSERVICE</publisher>
+    </publishers>
+    <url>rules-tests-and-run-tables</url>
+</rules-deploy>
