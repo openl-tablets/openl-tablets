@@ -1,7 +1,5 @@
 package org.openl.rules.calc;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
@@ -213,30 +211,6 @@ public class Spreadsheet extends ExecutableRulesMethod {
         }
         return invoker;
 
-    }
-
-    public List<SpreadsheetCell> listNonEmptyCells(SpreadsheetHeaderDefinition definition) {
-
-        List<SpreadsheetCell> list = new ArrayList<SpreadsheetCell>();
-
-        int row = definition.getRow();
-        int col = definition.getColumn();
-
-        if (row >= 0) {
-            for (int i = 0; i < getWidth(); ++i) {
-                if (!cells[row][i].isEmpty()) {
-                    list.add(cells[row][i]);
-                }
-            }
-        } else {
-            for (int i = 0; i < getHeight(); ++i) {
-                if (!cells[i][col].isEmpty()) {
-                    list.add(cells[i][col]);
-                }
-            }
-        }
-
-        return list;
     }
 
     @Deprecated

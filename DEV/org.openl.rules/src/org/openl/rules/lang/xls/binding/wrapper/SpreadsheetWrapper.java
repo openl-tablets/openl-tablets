@@ -203,11 +203,6 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
     }
 
     @Override
-    public List<SpreadsheetCell> listNonEmptyCells(SpreadsheetHeaderDefinition definition) {
-        return delegate.listNonEmptyCells(definition);
-    }
-
-    @Override
     public int height() {
         return delegate.height();
     }
