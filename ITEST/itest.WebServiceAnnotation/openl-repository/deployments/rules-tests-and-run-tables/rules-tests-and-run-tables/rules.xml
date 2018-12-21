@@ -1,0 +1,20 @@
+<project>
+    <name>rules-tests-and-run-tables</name>
+    <modules>
+        <module>
+            <name>rules-tests-and-run-tables</name>
+            <rules-root path="rules-tests-and-run-tables.xlsx"/>
+            <method-filter>
+                <includes>
+                    <value>.*calculatePremium.*</value>
+                    <value>.*calculatePremiumTest.*</value>
+                    <value>.*calculatePremiumRun.*</value>
+                </includes>
+                <excludes>
+                    <value>.* getFactor(.*)</value>
+                    <value>.* getDiscount(.*)</value>
+                </excludes>
+            </method-filter>
+        </module>
+    </modules>
+</project>
