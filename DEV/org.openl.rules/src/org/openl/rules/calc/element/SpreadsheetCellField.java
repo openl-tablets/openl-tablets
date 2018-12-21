@@ -82,9 +82,6 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
 
         @Override
         public Object get(Object target, IRuntimeEnv env) {
-            // if (cell.getKind() == SpreadsheetCellType.METHOD)
-            // return super.get(target, env);
-
             return cell.getValue();
         }
 

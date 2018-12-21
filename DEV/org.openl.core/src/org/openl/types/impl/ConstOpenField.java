@@ -22,10 +22,6 @@ public class ConstOpenField implements IOpenField {
     Object value;
     IOpenClass type;
 
-    public ConstOpenField(String name, Object value) {
-        this(name, value, JavaOpenClass.getOpenClass(value.getClass()));
-    }
-
     public ConstOpenField(String name, Object value, IOpenClass type) {
         this.name = name;
         this.value = value;
