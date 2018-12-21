@@ -1,5 +1,6 @@
 package org.openl.rules.calc;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.StringValue;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.rules.calc.element.SpreadsheetCellType;
 import org.openl.rules.calc.result.ArrayResultBuilder;
 import org.openl.rules.calc.result.DefaultResultBuilder;
 import org.openl.rules.calc.result.IResultBuilder;
@@ -453,7 +455,7 @@ public class SpreadsheetComponentsBuilder {
                 throw SyntaxNodeExceptionUtils.createError("There should be RETURN row or column for this return type",
                     tableSyntaxNode);
             }            
-            List<SpreadsheetCell> notEmptyReturnDefinitions = spreadsheet.listNonEmptyCells(returnHeaderDefinition);
+            List<SpreadsheetCell> notEmptyReturnDefinitions = listNonEmptyCells(spreadsheet.getCells(), returnHeaderDefinition);
 
             switch (notEmptyReturnDefinitions.size()) {
                 case 0:
@@ -467,6 +469,30 @@ public class SpreadsheetComponentsBuilder {
             }
         }
         return resultBuilder;
+    }
+
+    private static List<SpreadsheetCell> listNonEmptyCells(SpreadsheetCell[][] cells, SpreadsheetHeaderDefinition definition) {
+
+        List<SpreadsheetCell> list = new ArrayList<SpreadsheetCell>();
+
+        int row = definition.getRow();
+        int col = definition.getColumn();
+
+        if (row >= 0) {
+            for (int i = 0; i < cells[0].length; ++i) {
+                if (!(cells[row][i].isEmpty())) {
+                    list.add(cells[row][i]);
+                }
+            }
+        } else {
+            for (int i = 0; i < cells.length; ++i) {
+                if (!(cells[i][col].isEmpty())) {
+                    list.add(cells[i][col]);
+                }
+            }
+        }
+
+        return list;
     }
 
     private String getSignature(TableSyntaxNode table) {
