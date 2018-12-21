@@ -1,16 +1,13 @@
 package org.openl.rules.calc.result;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
-import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
-import org.openl.types.IOpenField;
 
 /**
  * Builder is used when return type of the spreadsheet table is {@link SpreadsheetResult}. 
@@ -20,7 +17,7 @@ public class DefaultResultBuilder implements IResultBuilder {
     
     public Object makeResult(SpreadsheetResultCalculator result) {    
         
-        Object resultArray[][] = getResultArray(result);
+        Object resultArray[][] = result.getValues();
 
         Spreadsheet spreadsheet = result.getSpreadsheet();
 
@@ -46,19 +43,5 @@ public class DefaultResultBuilder implements IResultBuilder {
             table = tsn.getTableBody();
         }        
         return table;
-    }
-
-    private Object[][] getResultArray(SpreadsheetResultCalculator result) {
-        int height = result.height();
-        int width = result.width();
-        
-        Object resultArray[][] = new Object[height][width];
-        
-        for (int row = 0; row < height; row++) {
-            for (int col = 0; col < width; col++) {
-                resultArray[row][col] = result.getValue(row, col);
-            }
-        }
-        return resultArray;
     }
 }

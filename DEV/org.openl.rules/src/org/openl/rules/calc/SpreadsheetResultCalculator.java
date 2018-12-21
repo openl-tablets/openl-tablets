@@ -112,7 +112,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         results[row][column] = res;
     }
 
-    public final int height() {
+    private int height() {
         return spreadsheet.getHeight();
     }
 
@@ -125,7 +125,21 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         return "Spreadsheet[" + width() + " x " + height() + "]";
     }
 
-    public final int width() {
+    private int width() {
         return spreadsheet.getWidth();
+    }
+
+    public Object[][] getValues() {
+        int height = height();
+        int width = width();
+
+        Object[][] resultArray = new Object[height][width];
+
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                resultArray[row][col] = getValue(row, col);
+            }
+        }
+        return resultArray;
     }
 }
