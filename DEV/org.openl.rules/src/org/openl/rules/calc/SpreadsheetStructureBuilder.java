@@ -399,10 +399,7 @@ public class SpreadsheetStructureBuilder {
         ICell sourceCellForExecutionMode = spreadsheetBindingContext.isExecutionMode() ? null : sourceCell;
         spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, sourceCellForExecutionMode, spreadsheetCellType);
 
-        IOpenClass cellType = deriveCellType(columnHeaders.get(columnIndex),
-            rowHeaders.get(rowIndex),
-            cellCode,
-            openField);
+        IOpenClass cellType = deriveCellType(columnHeaders.get(columnIndex), rowHeaders.get(rowIndex), cellCode, openField);
         spreadsheetCell.setType(cellType);
 
         return spreadsheetCell;
@@ -412,40 +409,44 @@ public class SpreadsheetStructureBuilder {
             SpreadsheetHeaderDefinition rowHeader,
             String cellValue,
             IOpenField constantField) {
+        IOpenClass cellType;
         if (constantField != null) {
-            return constantField.getType();
+            cellType = constantField.getType();
         } else if (columnHeader != null && columnHeader.getType() != null) {
-            return columnHeader.getType();
+            cellType = columnHeader.getType();
         } else if (rowHeader != null && rowHeader.getType() != null) {
-            return rowHeader.getType();
+            cellType = rowHeader.getType();
         } else {
 
             // Try to derive cell type as double.
             //
             try {
-                if (SpreadsheetExpressionMarker.isFormula(cellValue)) {
-                    return autoType ? null : JavaOpenClass.getOpenClass(DoubleValue.class);
-                }
-
                 // Try to parse cell value.
                 // If parse process will be finished with success then return
                 // double type else string type.
                 //
                 if (autoType) {
-                    String2DataConvertorFactory.getConvertor(Double.class).parse(cellValue, null);
-                    return JavaOpenClass.getOpenClass(Double.class);
+                    if (SpreadsheetExpressionMarker.isFormula(cellValue)) {
+                        cellType = null;
+                    } else {
+                        String2DataConvertorFactory.getConvertor(Double.class).parse(cellValue, null);
+                        cellType = JavaOpenClass.getOpenClass(Double.class);
+                    }
                 } else {
-                    String2DataConvertorFactory.getConvertor(DoubleValue.class).parse(cellValue, null);
-                    return JavaOpenClass.getOpenClass(DoubleValue.class);
+                    if (SpreadsheetExpressionMarker.isFormula(cellValue)) {
+                        String2DataConvertorFactory.getConvertor(DoubleValue.class).parse(cellValue, null);
+                    }
+                    cellType = JavaOpenClass.getOpenClass(DoubleValue.class);
                 }
             } catch (Exception t) {
                 if (autoType) {
-                    return JavaOpenClass.getOpenClass(String.class);
+                    cellType = JavaOpenClass.getOpenClass(String.class);
                 } else {
-                    return JavaOpenClass.getOpenClass(StringValue.class);
+                    cellType = JavaOpenClass.getOpenClass(StringValue.class);
                 }
             }
         }
+        return cellType;
     }
 
     private IBindingContext getRowContext(int rowIndex) {
