@@ -39,21 +39,18 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         super(tableSyntaxNode, openl, header, module);
     }
 
-    protected Spreadsheet createSpreadsheet() {
+    @Override
+    protected ExecutableRulesMethod createMethodShell() {
         /*
          * We need to generate a customSpreadsheet class only if return type of
          * the spreadsheet is SpreadsheetResult and the customspreadsheet
          * property is true
          */
-        boolean isCustomSpreadsheetType = SpreadsheetResult.class.equals(getType().getInstanceClass()) && (!(getType() instanceof CustomSpreadsheetResultOpenClass)) && OpenLSystemProperties.isCustomSpreadsheetType(bindingContext
-            .getExternalParams());
+        boolean isCustomSpreadsheetType = SpreadsheetResult.class.equals(getType()
+            .getInstanceClass()) && (!(getType() instanceof CustomSpreadsheetResultOpenClass)) && OpenLSystemProperties
+                .isCustomSpreadsheetType(bindingContext.getExternalParams());
 
-        return new Spreadsheet(getHeader(), this, isCustomSpreadsheetType);
-    }
-
-    @Override
-    protected ExecutableRulesMethod createMethodShell() {
-        Spreadsheet spreadsheet = createSpreadsheet();
+        Spreadsheet spreadsheet = new Spreadsheet(getHeader(), this, isCustomSpreadsheetType);
         spreadsheet.setSpreadsheetType(spreadsheetOpenClass);
         // As custom spreadsheet result is being generated at runtime,
         // call this method to ensure that CSR will be generated during the
