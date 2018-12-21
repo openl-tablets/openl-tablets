@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.openl.commons.web.util.WebTool;
-import org.openl.extension.ExtensionWrapperGrid;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
@@ -75,16 +74,6 @@ public class LaunchFileServlet extends HttpServlet {
             return;
         }
 
-        ExtensionWrapperGrid wrapperGrid = null;
-        if (table.getGridTable().getGrid() instanceof ExtensionWrapperGrid) {
-            wrapperGrid = (ExtensionWrapperGrid) table.getGridTable().getGrid();
-            if (wrapperGrid.isLaunchSupported()) {
-                wrapperGrid.getFileLauncher().launch();
-                return;
-            }
-            file = wrapperGrid.getSourceFileName();
-        }
-
         if (!FileTypeHelper.isExcelFile(file)) { // Excel
             log.error("Unsupported file format [{}]", file);
             return;
@@ -104,7 +93,7 @@ public class LaunchFileServlet extends HttpServlet {
             XlsUrlParser parser = new XlsUrlParser();
             parser.parse(decodedUriParameter);
             wbPath = parser.getWbPath();
-            wbName = wrapperGrid != null ? wrapperGrid.getSourceFileName() : parser.getWbName();
+            wbName = parser.getWbName();
             wsName = parser.getWsName();
             range = parser.getRange();
 
