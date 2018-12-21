@@ -213,16 +213,6 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
     }
 
-    @Deprecated
-    public int height() {
-        return getHeight();
-    }
-
-    @Deprecated
-    public int width() {
-        return getWidth();
-    }
-
     public void setInvoker(SpreadsheetInvoker invoker) {
         this.invoker = invoker;
     }
