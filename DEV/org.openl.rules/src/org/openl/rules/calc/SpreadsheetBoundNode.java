@@ -25,6 +25,7 @@ import org.openl.types.impl.CompositeMethod;
 public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBoundNode {
 
     private SpreadsheetStructureBuilder structureBuilder;
+    private SpreadsheetComponentsBuilder componentsBuilder;
     private SpreadsheetOpenClass spreadsheetOpenClass;
     private SpreadsheetCell[][] cells;
 
@@ -56,11 +57,11 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         // compilation.
         // Add generated type to be accessible through binding context.
         //
-        spreadsheet.setRowNames(structureBuilder.getRowNames());
-        spreadsheet.setColumnNames(structureBuilder.getColumnNames());
+        spreadsheet.setRowNames(componentsBuilder.getRowNames());
+        spreadsheet.setColumnNames(componentsBuilder.getColumnNames());
 
-        spreadsheet.setRowTitles(structureBuilder.getRowTitles());
-        spreadsheet.setColumnTitles(structureBuilder.getColumnTitles());
+        spreadsheet.setRowTitles(componentsBuilder.getCellsHeadersExtractor().getRowNames());
+        spreadsheet.setColumnTitles(componentsBuilder.getCellsHeadersExtractor().getColumnNames());
         if (spreadsheet.isCustomSpreadsheetType()) {
             
             IOpenClass type = null;
@@ -86,7 +87,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
         this.bindingContext = bindingContext;
         Boolean autoType = tableSyntaxNode.getTableProperties().getAutoType();
-        structureBuilder = new SpreadsheetStructureBuilder(tableSyntaxNode, bindingContext, header, autoType);
+        componentsBuilder = new SpreadsheetComponentsBuilder(tableSyntaxNode, bindingContext);
+        structureBuilder = new SpreadsheetStructureBuilder(componentsBuilder, header, autoType);
         String headerType = header.getName() + "Type";
         OpenL openL = bindingContext.getOpenL();
         spreadsheetOpenClass = new SpreadsheetOpenClass(headerType, openL);
@@ -104,7 +106,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         Spreadsheet spreadsheet = (Spreadsheet) getMethod();
         spreadsheet.setCells(cells);
 
-        spreadsheet.setResultBuilder(structureBuilder.getResultBuilder(spreadsheet));
+        spreadsheet.setResultBuilder(componentsBuilder.buildResultBuilder(spreadsheet));
     }
 
     public SpreadsheetCell[][] getCells() {
