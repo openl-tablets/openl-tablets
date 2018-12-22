@@ -386,7 +386,7 @@ public class SpreadsheetStructureBuilder {
                         cellType = JavaOpenClass.getOpenClass(Double.class);
                     }
                 } else {
-                    if (SpreadsheetExpressionMarker.isFormula(cellCode)) {
+                    if (!SpreadsheetExpressionMarker.isFormula(cellCode)) {
                         String2DataConvertorFactory.getConvertor(DoubleValue.class).parse(cellCode, null);
                     }
                     cellType = JavaOpenClass.getOpenClass(DoubleValue.class);
