@@ -23,7 +23,6 @@ import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.rules.calc.element.SpreadsheetCellType;
 import org.openl.rules.calc.element.SpreadsheetExpressionMarker;
 import org.openl.rules.calc.element.SpreadsheetStructureBuilderHolder;
-import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.table.ICell;
@@ -41,7 +40,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.types.impl.ConstOpenField;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
@@ -49,14 +47,7 @@ import org.openl.util.text.LocationUtils;
 
 public class SpreadsheetStructureBuilder {
 
-    private static final String EMPTY_ROW_NAME = "$rowName";
-
-    private static final String EMPTY_COLUMN_NAME = "$columnName";
-
     public static final String DOLLAR_SIGN = "$";
-
-    private static final String COLUMN_FIELD = "$column";
-    private static final String ROW_FIELD = "$row";
 
     private SpreadsheetComponentsBuilder componentsBuilder;
 
@@ -514,17 +505,6 @@ public class SpreadsheetStructureBuilder {
                 columnOpenClass.addField(field);
             }
         }
-        String nameOpenField = COLUMN_FIELD;
-        IOpenField columnField = new ConstOpenField(nameOpenField, columnIndex, JavaOpenClass.INT);
-        columnOpenClass.addField(columnField);
-        SpreadsheetHeaderDefinition shd = componentsBuilder.getRowHeaders().get(columnIndex);
-        if (shd != null) {
-            String columnName = shd.getFirstname();
-            if (columnName != null) {
-                IOpenField columnNameField = new ConstOpenField(EMPTY_COLUMN_NAME, columnName, JavaOpenClass.STRING);
-                columnOpenClass.addField(columnNameField);
-            }
-        }
         return columnOpenClass;
     }
 
@@ -554,19 +534,6 @@ public class SpreadsheetStructureBuilder {
                 SpreadsheetCellField field = createSpreadsheetCellField(rowOpenClass, cell, fieldName);
 
                 rowOpenClass.addField(field);
-            }
-        }
-
-        String nameOpenField = ROW_FIELD;
-        IOpenField rowField = new ConstOpenField(nameOpenField, rowIndex, JavaOpenClass.INT);
-        rowOpenClass.addField(rowField);
-
-        SpreadsheetHeaderDefinition shd = componentsBuilder.getRowHeaders().get(rowIndex);
-        if (shd != null) {
-            String rowName = shd.getFirstname();
-            if (rowName != null) {
-                IOpenField rowNameField = new ConstOpenField(EMPTY_ROW_NAME, rowName, JavaOpenClass.STRING);
-                rowOpenClass.addField(rowNameField);
             }
         }
         return rowOpenClass;
