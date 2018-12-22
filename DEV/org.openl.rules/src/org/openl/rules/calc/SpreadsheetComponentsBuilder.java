@@ -111,12 +111,16 @@ public class SpreadsheetComponentsBuilder {
         
         try {            
             buildReturnCells(spreadsheetHeaderType);
-        } catch (SyntaxNodeException e) {            
-            getTableSyntaxNode().addError(e);
-            getBindingContext().addError(e);
+        } catch (SyntaxNodeException e) {
+            addError(e);
         }
     }
-    
+
+    void addError(SyntaxNodeException e) {
+        getTableSyntaxNode().addError(e);
+        getBindingContext().addError(e);
+    }
+
     public IBindingContext getBindingContext() {
         return bindingContext;
     }
@@ -130,8 +134,7 @@ public class SpreadsheetComponentsBuilder {
         try {
             resultBuilder = getResultBuilderInternal(spreadsheet);
         } catch (SyntaxNodeException e) {
-            tableSyntaxNode.addError(e);
-            bindingContext.addError(e);
+            addError(e);
         }
         return resultBuilder;
     }
@@ -190,8 +193,7 @@ public class SpreadsheetComponentsBuilder {
             }
             header.addVarHeader(parsed);
         } catch (SyntaxNodeException error) {
-            tableSyntaxNode.addError(error);
-            bindingContext.addError(error);
+            addError(error);
         } catch (Exception t) {
             SyntaxNodeException error;
             try {
@@ -200,8 +202,7 @@ public class SpreadsheetComponentsBuilder {
                 error = SyntaxNodeExceptionUtils.createError("Cannot parse spreadsheet header definition", t, null, value.asSourceCodeModule());
             }
 
-            tableSyntaxNode.addError(error);
-            bindingContext.addError(error);
+            addError(error);
         }
     }
     
@@ -276,8 +277,7 @@ public class SpreadsheetComponentsBuilder {
                         error = SyntaxNodeExceptionUtils.createError("Type redefinition", typeIdentifierNode);
                     }
                     if (error != null) {
-                        tableSyntaxNode.addError(error);
-                        bindingContext.addError(error);
+                        addError(error);
                     }
                 }
             }
@@ -337,8 +337,7 @@ public class SpreadsheetComponentsBuilder {
         } catch (OpenLCompilationException e) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Cannot parse header",
                     typeIdentifierNode);
-            getTableSyntaxNode().addError(error);
-            getBindingContext().addError(error);
+            addError(error);
         }
 
         return null;
@@ -440,20 +439,20 @@ public class SpreadsheetComponentsBuilder {
     private boolean isExistsReturnHeader() {
         return returnHeaderDefinition != null;
     }
-    
+
     private IResultBuilder getResultBuilderInternal(Spreadsheet spreadsheet) throws SyntaxNodeException {
         IResultBuilder resultBuilder;
-        
+
         SymbolicTypeDefinition symbolicTypeDefinition = null;
-        
+
         if (isExistsReturnHeader()) {
             symbolicTypeDefinition = returnHeaderDefinition.findVarDef(SpreadsheetSymbols.RETURN_NAME.toString());
         }
-        
+
         if (spreadsheet.getHeader().getType() == JavaOpenClass.VOID) {
             throw SyntaxNodeExceptionUtils.createError("Spreadsheet can not return 'void' type", tableSyntaxNode);
         }
-        
+
         if (spreadsheet.getHeader().getType() == JavaOpenClass.getOpenClass(SpreadsheetResult.class)) {
             if (isExistsReturnHeader()) {
                 throw SyntaxNodeExceptionUtils.createError(
@@ -468,7 +467,7 @@ public class SpreadsheetComponentsBuilder {
             if (!isExistsReturnHeader()) {
                 throw SyntaxNodeExceptionUtils.createError("There should be RETURN row or column for this return type",
                     tableSyntaxNode);
-            }            
+            }
             List<SpreadsheetCell> notEmptyReturnDefinitions = listNonEmptyCells(spreadsheet.getCells(), returnHeaderDefinition);
 
             switch (notEmptyReturnDefinitions.size()) {
