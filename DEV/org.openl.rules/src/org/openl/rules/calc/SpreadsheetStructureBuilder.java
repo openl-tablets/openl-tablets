@@ -15,7 +15,6 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.*;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.calc.element.*;
-import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.table.ICell;
@@ -29,7 +28,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.*;
-import org.openl.types.impl.ConstOpenField;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
@@ -37,14 +35,7 @@ import org.openl.util.text.LocationUtils;
 
 public class SpreadsheetStructureBuilder {
 
-    private static final String EMPTY_ROW_NAME = "$rowName";
-
-    private static final String EMPTY_COLUMN_NAME = "$columnName";
-
     public static final String DOLLAR_SIGN = "$";
-
-    private static final String COLUMN_FIELD = "$column";
-    private static final String ROW_FIELD = "$row";
 
     private SpreadsheetComponentsBuilder componentsBuilder;
 
@@ -496,10 +487,6 @@ public class SpreadsheetStructureBuilder {
                 columnOpenClass.addField(field);
             }
         }
-        IOpenField columnField = new ConstOpenField(COLUMN_FIELD, columnIndex, JavaOpenClass.INT);
-        columnOpenClass.addField(columnField);
-        SpreadsheetHeaderDefinition shd = componentsBuilder.getRowHeaders().get(columnIndex);
-        addEmptyConstField(columnOpenClass, shd, EMPTY_COLUMN_NAME);
         return columnOpenClass;
     }
 
@@ -531,24 +518,7 @@ public class SpreadsheetStructureBuilder {
                 rowOpenClass.addField(field);
             }
         }
-
-        IOpenField rowField = new ConstOpenField(ROW_FIELD, rowIndex, JavaOpenClass.INT);
-        rowOpenClass.addField(rowField);
-
-        SpreadsheetHeaderDefinition shd = componentsBuilder.getRowHeaders().get(rowIndex);
-        addEmptyConstField(rowOpenClass, shd, EMPTY_ROW_NAME);
         return rowOpenClass;
-    }
-
-    private void addEmptyConstField(ComponentOpenClass headerOpenClass,
-            SpreadsheetHeaderDefinition headerDefinition,
-            String emptyFieldName) {
-        if (headerDefinition != null) {
-            String firstName = headerDefinition.getFirstname();
-            if (firstName != null) {
-                headerOpenClass.addField(new ConstOpenField(emptyFieldName, firstName, JavaOpenClass.STRING));
-            }
-        }
     }
 
     private SpreadsheetCellField createSpreadsheetCellField(IOpenClass rowOpenClass,
