@@ -49,7 +49,6 @@ public class SpreadsheetTableSyntaxNodeRelationsDeterminer implements TableSynta
                 extractor = new CellsHeaderExtractor(TableSyntaxNodeHelper.getSignature(tableSyntaxNode),
                         body.getRow(0).getColumns(1),
                         body.getColumn(0).getRows(1));
-                extractor.extract();
 
                 // set cells header extractor to the table syntax node, to avoid
                 // extracting several times
