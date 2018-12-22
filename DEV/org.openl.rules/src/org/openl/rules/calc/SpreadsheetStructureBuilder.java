@@ -169,27 +169,19 @@ public class SpreadsheetStructureBuilder {
             int columnIndex = cell.getColumnIndex();
 
             IBindingContext rowContext = getRowContext(rowIndex);
-            checkAndAddProcessingLoop(cell);
+            if (processingCells.contains(cell)) {
+                throw new OpenlNotCheckedException("Spreadsheet Expression Loop:" + processingCells.toString());
+            }
+            processingCells.add(cell);
 
             extractCellValue(rowContext, rowIndex, columnIndex);
             extractedCellValues.add(cell);
-            cleanProcessingLoop(cell);
+            processingCells.remove(cell);
             if (cell.getType() == null) {
                 cell.setType(JavaOpenClass.OBJECT);
             }
         }
         return cell.getType();
-    }
-
-    private void cleanProcessingLoop(SpreadsheetCell cell) {
-        processingCells.remove(cell);
-    }
-
-    private void checkAndAddProcessingLoop(SpreadsheetCell cell) {
-        if (processingCells.contains(cell)) {
-            throw new OpenlNotCheckedException("Spreadsheet Expression Loop:" + processingCells.toString());
-        }
-        processingCells.add(cell);
     }
 
     private void extractCellValue(IBindingContext rowBindingContext, int rowIndex, int columnIndex) {
@@ -459,13 +451,20 @@ public class SpreadsheetStructureBuilder {
         /** create name for the column open class */
         String columnOpenClassName = String.format("%sColType%d", spreadsheetHeader.getName(), columnIndex);
 
-        ComponentOpenClass columnOpenClass = createAndPopulateColumnOpenClass(columnIndex, columnOpenClassName);
+        IBindingContext generalBindingContext = componentsBuilder.getBindingContext();
+        Map<Integer, SpreadsheetHeaderDefinition> headers = componentsBuilder.getRowHeaders();
 
+        ComponentOpenClass columnOpenClass = new ComponentOpenClass(columnOpenClassName, generalBindingContext.getOpenL());
+
+        int height = cells.length;
+
+        for (int rowIndex = 0; rowIndex < height; rowIndex++) {
+
+            SpreadsheetHeaderDefinition headerDefinition = headers.get(rowIndex);
+
+            proc(rowIndex, columnOpenClass, columnIndex, headerDefinition);
+        }
         return new SpreadsheetContext(rowBindingContext, columnOpenClass);
-    }
-
-    private ComponentOpenClass createRowOrColumnOpenClass(String openClassName, OpenL openl) {
-        return new ComponentOpenClass(openClassName, openl);
     }
 
     private IBindingContext makeRowContext(int rowIndex) {
@@ -474,46 +473,11 @@ public class SpreadsheetStructureBuilder {
         String rowOpenClassName = String.format("%sRowType%d", spreadsheetHeader.getName(), rowIndex);
 
         /** create row open class and populate it with fields **/
-        ComponentOpenClass rowOpenClass = createAndPopulateRowOpenClass(rowIndex, rowOpenClassName);
-
-        /** create row binding context **/
-        return new SpreadsheetContext(spreadsheetBindingContext, rowOpenClass);
-    }
-
-    private ComponentOpenClass createAndPopulateColumnOpenClass(int columnIndex, String columnOpenClassName) {
         IBindingContext generalBindingContext = componentsBuilder.getBindingContext();
-
-        ComponentOpenClass columnOpenClass = createRowOrColumnOpenClass(columnOpenClassName,
-            generalBindingContext.getOpenL());
-
-        int height = cells.length;
-
-        for (int rowIndex = 0; rowIndex < height; rowIndex++) {
-
-            SpreadsheetHeaderDefinition headerDefinition = componentsBuilder.getRowHeaders().get(rowIndex);
-
-            if (headerDefinition == null) {
-                continue;
-            }
-
-            SpreadsheetCell cell = cells[rowIndex][columnIndex];
-
-            for (SymbolicTypeDefinition typeDefinition : headerDefinition.getVars()) {
-                String fieldName = (DOLLAR_SIGN + typeDefinition.getName().getIdentifier()).intern();
-                SpreadsheetCellField field = createSpreadsheetCellField(columnOpenClass, cell, fieldName);
-
-                columnOpenClass.addField(field);
-            }
-        }
-        return columnOpenClass;
-    }
-
-    private ComponentOpenClass createAndPopulateRowOpenClass(int rowIndex, String rowOpenClassName) {
-        IBindingContext generalBindingContext = componentsBuilder.getBindingContext();
+        Map<Integer, SpreadsheetHeaderDefinition> headers = componentsBuilder.getColumnHeaders();
 
         /** create row open class for current row **/
-        ComponentOpenClass rowOpenClass = createRowOrColumnOpenClass(rowOpenClassName,
-            generalBindingContext.getOpenL());
+        ComponentOpenClass rowOpenClass = new ComponentOpenClass(rowOpenClassName, generalBindingContext.getOpenL());
 
         /** get the width of the whole spreadsheet **/
         int width = cells[0].length;
@@ -521,22 +485,28 @@ public class SpreadsheetStructureBuilder {
         /** create for each column in row its field */
         for (int columnIndex = 0; columnIndex < width; columnIndex++) {
 
-            SpreadsheetHeaderDefinition columnHeader = componentsBuilder.getColumnHeaders().get(columnIndex);
+            SpreadsheetHeaderDefinition columnHeader = headers.get(columnIndex);
 
-            if (columnHeader == null) {
-                continue;
-            }
-
-            SpreadsheetCell cell = cells[rowIndex][columnIndex];
-
-            for (SymbolicTypeDefinition typeDefinition : columnHeader.getVars()) {
-                String fieldName = (DOLLAR_SIGN + typeDefinition.getName().getIdentifier()).intern();
-                SpreadsheetCellField field = createSpreadsheetCellField(rowOpenClass, cell, fieldName);
-
-                rowOpenClass.addField(field);
-            }
+            proc(rowIndex, rowOpenClass, columnIndex, columnHeader);
         }
-        return rowOpenClass;
+
+        /** create row binding context **/
+        return new SpreadsheetContext(spreadsheetBindingContext, rowOpenClass);
+    }
+
+    private void proc(int rowIndex, ComponentOpenClass rowOpenClass, int columnIndex, SpreadsheetHeaderDefinition columnHeader) {
+        if (columnHeader == null) {
+            return;
+        }
+
+        SpreadsheetCell cell = cells[rowIndex][columnIndex];
+
+        for (SymbolicTypeDefinition typeDefinition : columnHeader.getVars()) {
+            String fieldName = (DOLLAR_SIGN + typeDefinition.getName().getIdentifier()).intern();
+            SpreadsheetCellField field = createSpreadsheetCellField(rowOpenClass, cell, fieldName);
+
+            rowOpenClass.addField(field);
+        }
     }
 
     private SpreadsheetCellField createSpreadsheetCellField(IOpenClass rowOpenClass,
