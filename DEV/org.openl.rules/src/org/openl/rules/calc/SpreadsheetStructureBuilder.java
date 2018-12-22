@@ -18,7 +18,6 @@ import org.openl.rules.calc.element.*;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.String2DataConvertorFactory;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -62,11 +61,10 @@ public class SpreadsheetStructureBuilder {
         return spreadsheetStructureBuilderHolder;
     }
 
-    public SpreadsheetStructureBuilder(TableSyntaxNode tableSyntaxNode,
-            IBindingContext bindingContext,
+    public SpreadsheetStructureBuilder(SpreadsheetComponentsBuilder componentsBuilder,
             IOpenMethodHeader spreadsheetHeader,
             Boolean autoType) {
-        this.componentsBuilder = new SpreadsheetComponentsBuilder(tableSyntaxNode, bindingContext);
+        this.componentsBuilder = componentsBuilder;
         this.spreadsheetHeader = spreadsheetHeader;
         this.autoType = autoType;
     }
@@ -99,26 +97,6 @@ public class SpreadsheetStructureBuilder {
     public SpreadsheetCell[][] getCells() {
         extractCellValues();
         return cells.clone();
-    }
-
-    public IResultBuilder getResultBuilder(Spreadsheet spreadsheet) {
-        return componentsBuilder.buildResultBuilder(spreadsheet);
-    }
-
-    public String[] getRowNames() {
-        return componentsBuilder.getRowNames();
-    }
-
-    public String[] getColumnNames() {
-        return componentsBuilder.getColumnNames();
-    }
-
-    public String[] getRowTitles() {
-        return componentsBuilder.getCellsHeadersExtractor().getRowNames();
-    }
-
-    public String[] getColumnTitles() {
-        return componentsBuilder.getCellsHeadersExtractor().getColumnNames();
     }
 
     private void buildCellsInternal(SpreadsheetOpenClass spreadsheetType) {
