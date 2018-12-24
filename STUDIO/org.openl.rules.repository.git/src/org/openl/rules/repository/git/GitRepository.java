@@ -28,6 +28,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GitRepository implements FolderRepository, Closeable, RRepositoryFactory {
+    private static final String DELETED_MARKER_FILE = ".deleted";
+    private static final String DELETED_TAG_SUFFIX = "_DELETED";
+    /**
+     * TODO: Probably we should change API for deleteHistory() to know who undeletes or erases a project
+     */
+    private static final String SYSTEM_USER = "system";
     private final Logger log = LoggerFactory.getLogger(GitRepository.class);
 
     private String uri;
@@ -94,15 +100,35 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         try {
             writeLock.lock();
 
-            String fileInRepository = data.getName();
-            File file = new File(localRepositoryPath, fileInRepository);
-            if (!file.exists()) {
-                return false;
-            }
+            if (data.getName().endsWith("/")) {
+                String folderName = data.getName();
+                File folder = new File(localRepositoryPath, folderName);
+                if (!folder.exists()) {
+                    return false;
+                }
 
-            git.rm().addFilepattern(fileInRepository).call();
-            RevCommit commit = git.commit().setMessage(data.getComment()).setCommitter(data.getAuthor(), "").call();
-            addTagToCommit(commit);
+                // "touch" marker file
+                new FileOutputStream(new File(folder, DELETED_MARKER_FILE)).close();
+
+                String markerFile = folderName + DELETED_MARKER_FILE;
+                git.add().addFilepattern(markerFile).call();
+                RevCommit commit = git.commit().setMessage(data.getComment())
+                        .setCommitter(data.getAuthor(), "")
+                        .setOnly(markerFile)
+                        .call();
+
+                addTagToCommit(commit, true);
+            } else {
+                String fileInRepository = data.getName();
+                File file = new File(localRepositoryPath, fileInRepository);
+                if (!file.exists()) {
+                    return false;
+                }
+
+                git.rm().addFilepattern(fileInRepository).call();
+                RevCommit commit = git.commit().setMessage(data.getComment()).setCommitter(data.getAuthor(), "").call();
+                addTagToCommit(commit);
+            }
 
             push();
 
@@ -183,6 +209,11 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     }
 
     @Override
+    public List<FileData> listFiles(String path, String version) throws IOException {
+        return iterateHistory(path, new ListFilesHistoryVisitor(version));
+    }
+
+    @Override
     public FileData checkHistory(String name, String version) throws IOException {
         return iterateHistory(name, new CheckHistoryVisitor(version));
     }
@@ -194,8 +225,48 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
 
     @Override
     public boolean deleteHistory(String name, String version) {
-        // Undelete and erase operations for this repository aren't supported. Just do nothing.
-        return false;
+        if (name.endsWith("/")) {
+            Lock writeLock = repositoryLock.writeLock();
+            try {
+                writeLock.lock();
+
+                RevCommit commit;
+                if (version == null) {
+                    git.rm().addFilepattern(name).call();
+                    commit = git.commit()
+                            .setCommitter(SYSTEM_USER, "")
+                            .setMessage("Erase")
+                            .setOnly(name)
+                            .call();
+                } else {
+                    FileData fileData = checkHistory(name, version);
+                    if (fileData == null) {
+                        return false;
+                    }
+
+                    String markerFile = name + DELETED_MARKER_FILE;
+                    git.rm().addFilepattern(markerFile).call();
+                    commit = git.commit()
+                            .setCommitter(SYSTEM_USER, "")
+                            .setMessage("Restore")
+                            .setOnly(markerFile)
+                            .call();
+                }
+
+                addTagToCommit(commit);
+
+                push();
+                return true;
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+                return false;
+            } finally {
+                writeLock.unlock();
+            }
+        } else {
+            // Undelete and erase operations for this repository aren't supported. Just do nothing.
+            return false;
+        }
     }
 
     @Override
@@ -204,20 +275,28 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             return copy(srcName, destData);
         }
 
-        FileItem fileItem = null;
-        try {
-            fileItem = readHistory(srcName, version);
+        if (srcName.endsWith("/")) {
+            List<FileChange> files = new ArrayList<>();
+            List<FileData> fileData = listFiles(srcName, version);
+            for (FileData data : fileData) {
+                String fileFrom = data.getName();
+                FileItem fileItem = readHistory(fileFrom, version);
+                String fileTo = destData.getName() + fileFrom.substring(srcName.length());
+                files.add(new FileChange(fileTo, fileItem.getStream()));
+            }
+            return save(destData, files);
+        } else {
+            FileItem fileItem = null;
+            try {
+                fileItem = readHistory(srcName, version);
 
-            FileData copy = new FileData();
-            copy.setName(destData.getName());
-            copy.setComment(destData.getComment());
-            copy.setAuthor(destData.getAuthor());
-            copy.setSize(fileItem.getData().getSize());
+                destData.setSize(fileItem.getData().getSize());
 
-            return save(copy, fileItem.getStream());
-        } finally {
-            if (fileItem != null) {
-                IOUtils.closeQuietly(fileItem.getStream());
+                return save(destData, fileItem.getStream());
+            } finally {
+                if (fileItem != null) {
+                    IOUtils.closeQuietly(fileItem.getStream());
+                }
             }
         }
     }
@@ -328,6 +407,11 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             RevCommit fileCommit) throws GitAPIException, IOException {
         String fullPath = baseFolder + dirWalk.getPathString();
 
+        int fileModeBits = dirWalk.getFileMode().getBits();
+        if ((fileModeBits & FileMode.TYPE_TREE) != 0) {
+            fullPath += "/";
+        }
+
         FileData fileData = new FileData();
         fileData.setName(fullPath);
 
@@ -336,10 +420,18 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         fileData.setAuthor(committerIdent.getName());
         fileData.setModifiedAt(committerIdent.getWhen());
         fileData.setComment(fileCommit.getFullMessage());
-        fileData.setVersion(getVersionName(fileCommit.getId()));
 
-        ObjectLoader loader = repository.open(dirWalk.getObjectId(0));
-        fileData.setSize(loader.getSize());
+        String version = getVersionName(fileCommit.getId());
+        fileData.setVersion(version);
+        if (version.endsWith(DELETED_TAG_SUFFIX)) {
+            fileData.setDeleted(true);
+        }
+
+        if ((fileModeBits & FileMode.TYPE_FILE) != 0) {
+            ObjectLoader loader = repository.open(dirWalk.getObjectId(0));
+            fileData.setSize(loader.getSize());
+        }
+
         return fileData;
     }
 
@@ -369,7 +461,13 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         fileData.setAuthor(committerIdent.getName());
         fileData.setModifiedAt(committerIdent.getWhen());
         fileData.setComment(commit.getFullMessage());
-        fileData.setVersion(getVersionName(commit.getId()));
+
+        String version = getVersionName(commit.getId());
+        fileData.setVersion(version);
+        if (version.endsWith(DELETED_TAG_SUFFIX)) {
+            fileData.setDeleted(true);
+        }
+
 
         return fileData;
     }
@@ -540,7 +638,15 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     }
 
     private void addTagToCommit(RevCommit commit) throws GitAPIException {
-        git.tag().setObjectId(commit).setName(tagPrefix + getNextTagId()).call();
+        addTagToCommit(commit, false);
+    }
+
+    private void addTagToCommit(RevCommit commit, boolean deleted) throws GitAPIException {
+        String tagName = tagPrefix + getNextTagId();
+        if (deleted) {
+            tagName += DELETED_TAG_SUFFIX;
+        }
+        git.tag().setObjectId(commit).setName(tagName).call();
     }
 
     @Override
@@ -771,6 +877,38 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
 
             try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
                 history.add(createFileData(repository, rootWalk, "", commit));
+            }
+
+            return false;
+        }
+
+        @Override
+        public List<FileData> getResult() {
+            Collections.reverse(history);
+            return history;
+        }
+    }
+
+    private class ListFilesHistoryVisitor implements HistoryVisitor<List<FileData>> {
+        private final String version;
+        private final org.eclipse.jgit.lib.Repository repository;
+        private final List<FileData> history = new ArrayList<>();
+
+        private ListFilesHistoryVisitor(String version) {
+            this.version = version;
+            repository = git.getRepository();
+        }
+
+        @Override
+        public boolean visit(String fullPath, RevCommit commit, Ref tagRefForCommit) throws IOException, GitAPIException {
+            if (getLocalTagName(tagRefForCommit).equals(version)) {
+                RevTree tree = commit.getTree();
+
+                try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
+                    history.addAll(new ListCommand().apply(repository, rootWalk, fullPath));
+                }
+
+                return true;
             }
 
             return false;
