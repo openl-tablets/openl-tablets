@@ -435,43 +435,6 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         return fileData;
     }
 
-    private FileData createFolderData(TreeWalk dirWalk, String baseFolder) throws GitAPIException, IOException {
-        String fullPath = baseFolder + dirWalk.getPathString();
-
-        Iterator<RevCommit> iterator = git.log()
-                .add(git.getRepository().resolve(branch))
-                .addPath(fullPath)
-                .call()
-                .iterator();
-        if (!iterator.hasNext()) {
-            throw new IllegalStateException("Can't find revision for a file " + dirWalk.getPathString());
-        }
-
-        return createFolderData(dirWalk, baseFolder, iterator.next());
-    }
-
-    private FileData createFolderData(TreeWalk dirWalk, String baseFolder, RevCommit commit) throws GitAPIException {
-        String fullPath = baseFolder + dirWalk.getPathString();
-
-        FileData fileData = new FileData();
-        fileData.setName(fullPath + "/");
-
-        PersonIdent committerIdent = commit.getCommitterIdent();
-
-        fileData.setAuthor(committerIdent.getName());
-        fileData.setModifiedAt(committerIdent.getWhen());
-        fileData.setComment(commit.getFullMessage());
-
-        String version = getVersionName(commit.getId());
-        fileData.setVersion(version);
-        if (version.endsWith(DELETED_TAG_SUFFIX)) {
-            fileData.setDeleted(true);
-        }
-
-
-        return fileData;
-    }
-
     private ObjectId getLastRevision() throws GitAPIException, IOException {
         pull();
 
@@ -827,7 +790,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             rootWalk.setRecursive(false);
             while (rootWalk.next()) {
                 if ((rootWalk.getFileMode().getBits() & FileMode.TYPE_TREE) != 0) {
-                    files.add(createFolderData(rootWalk, baseFolder));
+                    files.add(createFileData(git.getRepository(), rootWalk, baseFolder));
                 }
             }
 
