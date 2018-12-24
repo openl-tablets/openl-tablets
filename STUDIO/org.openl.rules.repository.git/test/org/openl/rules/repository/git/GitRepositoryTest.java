@@ -146,6 +146,22 @@ public class GitRepositoryTest {
     }
 
     @Test
+    public void listFiles() throws IOException {
+        List<FileData> files = repo.listFiles("rules/project1/", "Rules_2");
+        assertNotNull(files);
+        assertEquals(2, files.size());
+        assertContains(files, "rules/project1/file1");
+        assertContains(files, "rules/project1/file2");
+
+        files = repo.listFiles("rules/project1/", "Rules_3");
+        assertNotNull(files);
+        assertEquals(3, files.size());
+        assertContains(files, "rules/project1/file1");
+        assertContains(files, "rules/project1/file2");
+        assertContains(files, "rules/project1/folder/file3");
+    }
+
+    @Test
     public void check() throws IOException {
         FileData file1 = repo.check("rules/project1/file1");
         assertNotNull(file1);
@@ -164,6 +180,13 @@ public class GitRepositoryTest {
         assertEquals("user2", file3.getAuthor());
         assertEquals("Second modification", file3.getComment());
         assertEquals(9, file3.getSize());
+
+        FileData project1 = repo.check("rules/project1/");
+        assertNotNull(project1);
+        assertEquals("rules/project1/", project1.getName());
+        assertEquals("user2", project1.getAuthor());
+        assertEquals("Second modification", project1.getComment());
+        assertEquals(FileData.UNDEFINED_SIZE, project1.getSize());
     }
 
     @Test
@@ -251,6 +274,26 @@ public class GitRepositoryTest {
         assertTrue("'file2' wasn't deleted", deleted);
 
         assertNull("'file2' still exists", repo.check("rules/project1/file2"));
+
+        // Delete the project
+        FileData projectData = new FileData();
+        projectData.setName("rules/project1/");
+        projectData.setComment("Delete project1");
+        projectData.setAuthor("John Smith");
+        assertTrue("'project1' wasn't deleted", repo.delete(projectData));
+
+        FileData deletedProject = repo.check("rules/project1/");
+        assertTrue("'project1' isn't deleted", deletedProject.isDeleted());
+
+        // Undelete the project
+        repo.deleteHistory("rules/project1/", deletedProject.getVersion());
+        deletedProject = repo.check("rules/project1/");
+        assertFalse("'project1' isn't restored", deletedProject.isDeleted());
+
+        // Erase the project
+        repo.deleteHistory("rules/project1/", null);
+        deletedProject = repo.check("rules/project1/");
+        assertNull("'project1' isn't erased", deletedProject);
     }
 
     @Test
@@ -293,6 +336,11 @@ public class GitRepositoryTest {
         assertEquals(2, file2History.size());
         assertEquals("Rules_2", file2History.get(0).getVersion());
         assertEquals("Rules_3", file2History.get(1).getVersion());
+
+        List<FileData> project1History = repo.listHistory("rules/project1/");
+        assertEquals(2, project1History.size());
+        assertEquals("Rules_2", project1History.get(0).getVersion());
+        assertEquals("Rules_3", project1History.get(1).getVersion());
     }
 
     @Test
@@ -300,6 +348,16 @@ public class GitRepositoryTest {
         assertEquals("Rules_2", repo.checkHistory("rules/project1/file2", "Rules_2").getVersion());
         assertEquals("Rules_3", repo.checkHistory("rules/project1/file2", "Rules_3").getVersion());
         assertNull(repo.checkHistory("rules/project1/file2", "Rules_1"));
+
+        FileData v3 = repo.checkHistory("rules/project1/", "Rules_3");
+        assertEquals("Rules_3", v3.getVersion());
+        assertEquals("user2", v3.getAuthor());
+
+        FileData v2 = repo.checkHistory("rules/project1/", "Rules_2");
+        assertEquals("Rules_2", v2.getVersion());
+        assertEquals("user1", v2.getAuthor());
+
+        assertNull(repo.checkHistory("rules/project1/", "Rules_1"));
     }
 
     @Test
@@ -324,6 +382,22 @@ public class GitRepositoryTest {
         assertEquals(6, copy.getSize());
         assertEquals("Rules_5", copy.getVersion());
         assertEquals("Hello!", IOUtils.toStringAndClose(repo.read("rules/project1/file2-copy").getStream()));
+
+        FileData destProject = new FileData();
+        destProject.setName("rules/project2/");
+        destProject.setComment("Copy of project1");
+        destProject.setAuthor("John Smith");
+        FileData project2 = repo.copyHistory("rules/project1/", destProject, "Rules_2");
+        assertNotNull(project2);
+        assertEquals("rules/project2/", project2.getName());
+        assertEquals("John Smith", project2.getAuthor());
+        assertEquals("Copy of project1", project2.getComment());
+        assertEquals(FileData.UNDEFINED_SIZE, project2.getSize());
+        assertEquals("Rules_6", project2.getVersion());
+        List<FileData> project2Files = repo.list("rules/project2/");
+        assertEquals(2, project2Files.size());
+        assertContains(project2Files, "rules/project2/file1");
+        assertContains(project2Files, "rules/project2/file2");
     }
 
     @Test
