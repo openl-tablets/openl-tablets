@@ -207,14 +207,10 @@ public class SpreadsheetResult implements Serializable {
         };
     }
 
-    public String printAsTable() {
-        return new TablePrinter(makeTableAdaptor(), null, " | ").print();
-    }
-
     @Override
     public String toString() {
         try {
-            return printAsTable();
+            return new TablePrinter(makeTableAdaptor(), null, " | ").print();
         } catch (Exception e) {
             // If it's impossible to print the table, fallback to default
             // toString() implementation
