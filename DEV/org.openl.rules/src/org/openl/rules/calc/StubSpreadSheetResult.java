@@ -80,26 +80,6 @@ public class StubSpreadSheetResult extends SpreadsheetResult {
     }
 
     @Override
-    public String[] getColumnTitles() {
-        throw new UnsupportedOperationException();
-    }
-    
-    @Override
-    public void setColumnTitles(String[] columnTitles) {
-        throw new UnsupportedOperationException();
-    }
-    
-    @Override
-    public String[] getRowTitles() {
-        throw new UnsupportedOperationException();
-    }
-    
-    @Override
-    public void setRowTitles(String[] rowTitles) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public Object getValue(int row, int column) {
         throw new UnsupportedOperationException();
     }

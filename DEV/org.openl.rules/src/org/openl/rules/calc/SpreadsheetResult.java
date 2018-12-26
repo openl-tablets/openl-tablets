@@ -28,8 +28,6 @@ public class SpreadsheetResult implements Serializable {
     private transient int width;
     private String[] columnNames;
     private String[] rowNames;
-    private transient String[] columnTitles;
-    private transient String[] rowTitles;
     private transient Map<String, Point> fieldsCoordinates = null;
 
     /**
@@ -52,30 +50,17 @@ public class SpreadsheetResult implements Serializable {
 
     public SpreadsheetResult(Object[][] results,
             String[] rowNames,
-            String[] columnNames,
-            String[] rowTitles,
-            String[] columnTitles) {
-        this(results, rowNames, columnNames, rowTitles, columnTitles, null);
-        initFieldsCoordinates();
-    }
-    
-    public SpreadsheetResult(Object[][] results,
-            String[] rowNames,
             String[] columnNames) {
-        this(results, rowNames, columnNames, rowNames, columnNames, null);
+        this(results, rowNames, columnNames, null);
         initFieldsCoordinates();
     }
 
     public SpreadsheetResult(Object[][] results,
             String[] rowNames,
             String[] columnNames,
-            String[] rowTitles,
-            String[] columnTitles,
             Map<String, Point> fieldsCoordinates) {
         this.columnNames = columnNames.clone();
         this.rowNames = rowNames.clone();
-        this.columnTitles = columnTitles.clone();
-        this.rowTitles = rowTitles.clone();
         this.height = rowNames.length;
         this.width = columnNames.length;
         this.results = results;
@@ -163,24 +148,6 @@ public class SpreadsheetResult implements Serializable {
 
     public Object getValue(int row, int column) {
         return results[row][column];
-    }
-
-    @XmlTransient
-    public String[] getRowTitles() {
-        return rowTitles;
-    }
-
-    public void setRowTitles(String[] rowTitles) {
-        this.rowTitles = rowTitles;
-    }
-
-    @XmlTransient
-    public String[] getColumnTitles() {
-        return columnTitles;
-    }
-
-    public void setColumnTitles(String[] columnTitles) {
-        this.columnTitles = columnTitles;
     }
 
     public void setFieldValue(String name, Object value) {

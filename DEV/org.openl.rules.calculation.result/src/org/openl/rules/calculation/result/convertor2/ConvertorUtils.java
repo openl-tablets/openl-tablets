@@ -64,8 +64,6 @@ public class ConvertorUtils {
                 spreadsheetResult = new SpreadsheetResult(spr.getHeight(), spr.getWidth());
                 spreadsheetResult.setColumnNames(spr.getColumnNames());
                 spreadsheetResult.setRowNames(spr.getRowNames());
-                spreadsheetResult.setColumnTitles(spr.getColumnTitles());
-                spreadsheetResult.setRowTitles(spr.getRowTitles());
                 result = new Object[spr.getHeight()][spr.getWidth()];
             }
             if (calculationStep instanceof CompoundStep && calculationStepWithСonvertationMetadata instanceof CompoundStep) {

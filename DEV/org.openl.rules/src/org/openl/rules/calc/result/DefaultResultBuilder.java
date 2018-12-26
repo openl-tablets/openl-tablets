@@ -22,11 +22,9 @@ public class DefaultResultBuilder implements IResultBuilder {
 
         String[] rowNames = spreadsheet.getRowNames();
         String[] columnNames = spreadsheet.getColumnNames();
-        String[] rowTitles = spreadsheet.getRowTitles();
-        String[] columnTitles = spreadsheet.getColumnTitles();
         Map<String, Point> fieldsCoordinates = spreadsheet.getFieldsCoordinates();
 
-        SpreadsheetResult spreadsheetBean = new SpreadsheetResult(resultArray, rowNames, columnNames, rowTitles, columnTitles, fieldsCoordinates);
+        SpreadsheetResult spreadsheetBean = new SpreadsheetResult(resultArray, rowNames, columnNames, fieldsCoordinates);
 
         TableSyntaxNode tsn = spreadsheet.getSyntaxNode();
 

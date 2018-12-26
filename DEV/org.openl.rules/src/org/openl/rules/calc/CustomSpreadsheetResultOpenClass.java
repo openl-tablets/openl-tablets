@@ -235,8 +235,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
         return new SpreadsheetResult(result,
             rowNames.clone(),
             columnNames.clone(),
-            rowTitles.clone(),
-            columnTitles.clone(),
             fieldsCoordinates);
     }
 
