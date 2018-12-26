@@ -65,19 +65,7 @@ public class ColumnToExtract {
      * @param expectedType expected type
      */
     public ColumnToExtract(String columnName, String propertyName, Class<?> expectedType) {
-        if (columnName == null || columnName.isEmpty()) {
-            throw new IllegalArgumentException("columnName can't be null or empty!");
-        }
-        if (propertyName == null || propertyName.isEmpty()) {
-            throw new IllegalArgumentException("propertyName can't be null or empty!");
-        }
-        if (expectedType == null) {
-            throw new IllegalArgumentException("expectedType can't be null!");
-        }
-        this.columnName = columnName;
-        
-        this.propertyNames = new String[]{propertyName};
-        this.propertyTypes = new Class<?>[]{expectedType};
+        this(columnName, new String[]{propertyName}, new Class<?>[]{expectedType});
     }
 
     public ColumnToExtract(String columnName, String[] propertyNames, Class<?>[] expectedTypes, int nestedPriority) {
