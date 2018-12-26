@@ -104,7 +104,7 @@ public class NestedSpreadsheetResultConverter<Simple extends CodeStep, Compound 
     	
     	for (ColumnToExtract column : compoundColumns) {
     		int columnIndex = SpreadsheetResultHelper.getColumnIndexByName(column.getColumnName(), 
-    	            spreadsheetResult.getColumnTitles());
+    	            spreadsheetResult.getColumnNames());
     		Object valueInColumn = spreadsheetResult.getValue(row, columnIndex); 
     		if (containsNested(valueInColumn)) {
     			return true;

@@ -80,7 +80,7 @@ public abstract class RowExtractor<T extends CalculationStep> {
         for (SpreadsheetColumnExtractor<T> extractor : columnExtractors) {
             String columnName = extractor.getColumn().getColumnName();
             int columnIndex = SpreadsheetResultHelper.getColumnIndexByName(columnName,
-                spreadsheetResult.getColumnTitles());
+                spreadsheetResult.getColumnNames());
             Object columnValue = spreadsheetResult.getValue(rowIndex, columnIndex);
             Object v = extractor.convertAndStoreData(columnValue, rowInstance);
             if (convertationMetadata != null && v != null) {

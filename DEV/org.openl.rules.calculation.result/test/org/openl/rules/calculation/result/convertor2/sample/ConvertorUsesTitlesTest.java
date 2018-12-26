@@ -34,7 +34,7 @@ public class ConvertorUsesTitlesTest {
         CompoundStep compoundStep = resultConvertor.process(result);
         List<CalculationStep> steps = compoundStep.getSteps();
         assertEquals(2, steps.size());
-        assertEquals("Row1 : DoubleValue", steps.get(0).getStepName());
+        assertEquals("Row1", steps.get(0).getStepName());
         assertEquals("Row2", steps.get(1).getStepName());
     }
     
@@ -52,7 +52,7 @@ public class ConvertorUsesTitlesTest {
         CompoundStep compoundStep = resultConvertor.process(result);
         List<CalculationStep> steps = compoundStep.getSteps();
         assertEquals(1, steps.size());
-        assertEquals("Row1 : DoubleValue", steps.get(0).getStepName());
+        assertEquals("Row1", steps.get(0).getStepName());
     }
     
     @Test
@@ -69,6 +69,6 @@ public class ConvertorUsesTitlesTest {
         CompoundStep compoundStep = resultConvertor.process(result);
         List<CalculationStep> steps = compoundStep.getSteps();
         assertEquals(1, steps.size());
-        assertEquals("Row1 : DoubleValue", steps.get(0).getStepName());
+        assertEquals("Row1", steps.get(0).getStepName());
     }
 }
