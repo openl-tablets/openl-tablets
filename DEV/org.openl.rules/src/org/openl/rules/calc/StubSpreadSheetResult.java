@@ -78,17 +78,7 @@ public class StubSpreadSheetResult extends SpreadsheetResult {
     public void setRowNames(String[] rowNames) {
         throw new UnsupportedOperationException();
     }
-    
-    @Override
-    public String getColumnTitle(int column) {
-        throw new UnsupportedOperationException();
-    }
-    
-    @Override
-    public String getRowTitle(int row) {
-        throw new UnsupportedOperationException();
-    }
-    
+
     @Override
     public String[] getColumnTitles() {
         throw new UnsupportedOperationException();

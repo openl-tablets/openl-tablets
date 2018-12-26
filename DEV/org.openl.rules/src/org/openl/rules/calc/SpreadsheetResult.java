@@ -207,14 +207,6 @@ public class SpreadsheetResult implements Serializable {
         return rowNames[row];
     }
 
-    public String getColumnTitle(int column) {
-        return columnTitles[column];
-    }
-
-    public String getRowTitle(int row) {
-        return rowTitles[row];
-    }
-
     /**
      * 
      * @return logical representation of calculated spreadsheet table it is
