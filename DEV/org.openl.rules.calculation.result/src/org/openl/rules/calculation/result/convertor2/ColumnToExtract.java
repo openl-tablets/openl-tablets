@@ -94,7 +94,7 @@ public class ColumnToExtract {
         if (expectedTypes.length != propertyNames.length) {
             throw new IllegalArgumentException("expectedTypes and propertyNames should be the same length!");
         }
-        this.columnName = columnName;
+        this.columnName = columnName.split(":")[0].trim(); // Get the first part in case ColName:ColType is used
         int i = 0;
         for (String propertyName : propertyNames) {
             if (propertyName == null) {

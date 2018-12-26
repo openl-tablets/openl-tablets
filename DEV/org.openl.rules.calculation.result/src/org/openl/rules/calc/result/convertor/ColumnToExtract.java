@@ -33,7 +33,7 @@ public class ColumnToExtract {
      * For information which values considered to be nested see {@link NestedDataRowExtractorsFactory} 
      */
     public ColumnToExtract(String columnName, Class<?> expectedType, boolean containNested) {
-        this.columnName = columnName;
+        this.columnName = columnName.split(":")[0].trim(); // Get the first part in case ColName:ColType is used
         this.expectedType = expectedType;
         this.containNested = containNested;
     }
