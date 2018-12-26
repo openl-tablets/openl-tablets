@@ -39,16 +39,6 @@ public class SpreadsheetResultHelper {
     }
 
     public static int getColumnIndexByName(String columnName, String[] colNames) {
-        if (columnName == null) {
-            throw new IllegalArgumentException("columnName arg can't be null");
-        }
-        if (colNames == null) {
-            throw new IllegalArgumentException("colNames arg can't be null");
-        }
-        if (!columnName.trim().equals(columnName)) {
-            throw new IllegalArgumentException("Invalid columnName format");
-        }
-
         int columnIndex = getColumnIndex(columnName, colNames);
         if (columnIndex < 0) {
             throw new IndexOutOfBoundsException("Spreadsheet does not have a mandatory column: " + columnName);
