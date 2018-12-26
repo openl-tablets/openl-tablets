@@ -24,8 +24,6 @@ public class SpreadsheetResult implements Serializable {
     private static final long serialVersionUID = 8704762477153429384L;
 
     private Object[][] results;
-    private transient int height;
-    private transient int width;
     private String[] columnNames;
     private String[] rowNames;
     private transient Map<String, Point> fieldsCoordinates = null;
@@ -37,15 +35,6 @@ public class SpreadsheetResult implements Serializable {
     private transient ILogicalTable logicalTable;
 
     public SpreadsheetResult() {
-    }
-
-    public SpreadsheetResult(int height, int width) {
-        this.height = height;
-        this.width = width;
-        this.columnNames = new String[height];
-        this.rowNames = new String[width];
-        this.results = new Object[height][width];
-        initFieldsCoordinates();
     }
 
     public SpreadsheetResult(Object[][] results,
@@ -61,8 +50,6 @@ public class SpreadsheetResult implements Serializable {
             Map<String, Point> fieldsCoordinates) {
         this.columnNames = columnNames.clone();
         this.rowNames = rowNames.clone();
-        this.height = rowNames.length;
-        this.width = columnNames.length;
         this.results = results;
         this.fieldsCoordinates = fieldsCoordinates;
     }
@@ -86,22 +73,9 @@ public class SpreadsheetResult implements Serializable {
         this.fieldsCoordinates = buildFieldsCoordinates(columnNames, rowNames);
     }
 
-    /**
-     * @deprecated use {@link SpreadsheetResult#getHeight()} instead.
-     * 
-     */
-    @Deprecated
-    public int height() {
-        return getHeight();
-    }
-
     @XmlTransient
     public int getHeight() {
-        return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
+        return rowNames.length;
     }
 
     public Object[][] getResults() {
@@ -112,22 +86,9 @@ public class SpreadsheetResult implements Serializable {
         this.results = results.clone();
     }
 
-    /**
-     * @deprecated use {@link SpreadsheetResult#getWidth()} instead.
-     * 
-     */
-    @Deprecated
-    public int width() {
-        return getWidth();
-    }
-
     @XmlTransient
     public int getWidth() {
-        return width;
-    }
-
-    public void setWidth(int width) {
-        this.width = width;
+        return columnNames.length;
     }
 
     public String[] getColumnNames() {

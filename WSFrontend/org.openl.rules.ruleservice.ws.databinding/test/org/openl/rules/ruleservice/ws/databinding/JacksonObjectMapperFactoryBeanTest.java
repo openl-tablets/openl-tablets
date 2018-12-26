@@ -216,7 +216,8 @@ public class JacksonObjectMapperFactoryBeanTest {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setSupportVariations(true);
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
-        String text = objectMapper.writeValueAsString(new SpreadsheetResult(3, 3));
+        SpreadsheetResult value = new SpreadsheetResult(new Object[3][3], new String[3], new String[3]);
+        String text = objectMapper.writeValueAsString(value);
         SpreadsheetResult result = objectMapper.readValue(text, SpreadsheetResult.class);
         Assert.assertTrue(result instanceof SpreadsheetResult);
         

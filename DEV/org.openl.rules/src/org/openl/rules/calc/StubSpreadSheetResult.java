@@ -15,22 +15,8 @@ public class StubSpreadSheetResult extends SpreadsheetResult {
 
     private int lastRow = 0;
 
-    public StubSpreadSheetResult() {
-        super(0, 0);
-    }
-
-    @Override
-    public int height() {
-        throw new UnsupportedOperationException();
-    }
-
     @Override
     public int getHeight() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setHeight(int height) {
         throw new UnsupportedOperationException();
     }
 
@@ -45,17 +31,7 @@ public class StubSpreadSheetResult extends SpreadsheetResult {
     }
 
     @Override
-    public int width() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public int getWidth() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setWidth(int width) {
         throw new UnsupportedOperationException();
     }
 
