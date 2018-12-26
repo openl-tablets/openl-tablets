@@ -98,7 +98,7 @@ public class NestedSpreadsheetResultConverter<T extends CodeStep, Q extends Comp
                 .getRowExtractor(anyNestedValueInRow(spreadsheetResult, row));
         step = rowExtractor.extract(spreadsheetResult, row);
 
-        step.setStepName(spreadsheetResult.getRowTitle(row));
+        step.setStepName(spreadsheetResult.getRowName(row));
         return step;
     }
 

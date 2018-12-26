@@ -95,7 +95,7 @@ public abstract class RowExtractor<T extends CalculationStep> {
             }
         }
 
-        rowInstance.setStepName(spreadsheetResult.getRowTitle(rowIndex));
+        rowInstance.setStepName(spreadsheetResult.getRowName(rowIndex));
 
         // additional processing for the extracted row
         //
