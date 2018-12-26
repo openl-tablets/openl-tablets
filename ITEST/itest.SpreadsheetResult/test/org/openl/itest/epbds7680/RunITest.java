@@ -29,7 +29,6 @@ import org.xml.sax.InputSource;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.PathNotFoundException;
 
 public class RunITest {
 
@@ -80,12 +79,6 @@ public class RunITest {
         assertEquals("INT", documentContext.read("$.rowNames[0]"));
         assertEquals("String", documentContext.read("$.rowNames[1]"));
 
-        assertDoesNotExist(documentContext, "$.height");
-        assertDoesNotExist(documentContext, "$.width");
-        assertDoesNotExist(documentContext, "$.rowTitles");
-        assertDoesNotExist(documentContext, "$.columnTitles");
-        assertDoesNotExist(documentContext, "$.logicalTable");
-
         assertEquals((Integer)3, documentContext.read("$.length()"));
     }
 
@@ -121,24 +114,8 @@ public class RunITest {
         assertEquals("xsd:element", element.getNodeName());
         assertEndsWith(":ArrayOfString", element.getAttributes().getNamedItem("type").getTextContent());
 
-        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='height']", root, XPathConstants.NODE);
-        assertNull(element);
-
-        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='width']", root, XPathConstants.NODE);
-        assertNull(element);
-
-        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='rowTitles']", root, XPathConstants.NODE);
-        assertNull(element);
-
-        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='columnTitles']", root, XPathConstants.NODE);
-        assertNotNull(element);//TODO: must be null. Fix it when EPBDS-7958 will be fixed
-
-        element = (Node) xpath.evaluate(pathToSequence + "/*[@name='logicalTable']", root, XPathConstants.NODE);
-        assertNull(element);
-
         element = (Node) xpath.evaluate(pathToSequence, root, XPathConstants.NODE);
-        //TODO: must contains 3 elements! Fix it when EPBDS-7958 will be fixed
-        assertEquals(4, element.getChildNodes().getLength());
+        assertEquals(3, element.getChildNodes().getLength());
     }
 
     @Test
@@ -168,33 +145,8 @@ public class RunITest {
         element = (Node) xpath.evaluate(spreadsheetResultTypePath + "/*[local-name()='rowNames']", root, XPathConstants.NODE);
         assertNotNull(element);
 
-        element = (Node) xpath.evaluate(spreadsheetResultTypePath + "/*[local-name()='columnTitles']", root, XPathConstants.NODE);
-        assertNotNull(element); //TODO: must be null. Fix it when EPBDS-7958 will be fixed
-
-        element = (Node) xpath.evaluate(spreadsheetResultTypePath + "/*[local-name()='logicalTable']", root, XPathConstants.NODE);
-        assertNull(element);
-
-        element = (Node) xpath.evaluate(spreadsheetResultTypePath + "/*[local-name()='rowTitles']", root, XPathConstants.NODE);
-        assertNull(element);
-
-        element = (Node) xpath.evaluate(spreadsheetResultTypePath + "/*[local-name()='width']", root, XPathConstants.NODE);
-        assertNull(element);
-
-        element = (Node) xpath.evaluate(spreadsheetResultTypePath + "/*[local-name()='height']", root, XPathConstants.NODE);
-        assertNull(element);
-
         element = (Node) xpath.evaluate(spreadsheetResultTypePath, root, XPathConstants.NODE);
-        //TODO: must contains 3 elements! Fix it when EPBDS-7958 will be fixed
-        assertEquals(4, element.getChildNodes().getLength());
-    }
-
-    private static void assertDoesNotExist(DocumentContext documentContext, String expression) {
-        try {
-            documentContext.read(expression);
-            fail("The result for path '" + expression + "' must not be present!");
-        } catch (PathNotFoundException unused) {
-            //OK
-        }
+        assertEquals(3, element.getChildNodes().getLength());
     }
 
     private static void assertEndsWith(String expected, String actual) {
