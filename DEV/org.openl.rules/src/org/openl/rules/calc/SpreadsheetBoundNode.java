@@ -93,6 +93,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         this.bindingContext = bindingContext;
         Boolean autoType = tableSyntaxNode.getTableProperties().getAutoType();
         componentsBuilder = new SpreadsheetComponentsBuilder(tableSyntaxNode, bindingContext);
+        componentsBuilder.buildHeaders(header.getType());
         structureBuilder = new SpreadsheetStructureBuilder(componentsBuilder, header, autoType);
         String headerType = header.getName() + "Type";
         OpenL openL = bindingContext.getOpenL();
