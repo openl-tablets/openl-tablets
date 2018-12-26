@@ -3,17 +3,12 @@ package org.openl.rules.calc;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.rules.helpers.ITableAdaptor;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.Point;
 
 public class StubSpreadSheetResult extends SpreadsheetResult {
     private static final long serialVersionUID = 1L;
 
-    private Map<String, Object> values = new HashMap<String, Object>();
-    private Map<String, Point> fieldsCoordinates = new HashMap<String, Point>();
-
-    private int lastRow = 0;
+    private Map<String, Object> values = new HashMap<>();
 
     @Override
     public int getHeight() {
@@ -62,23 +57,7 @@ public class StubSpreadSheetResult extends SpreadsheetResult {
 
     @Override
     protected void setValue(int row, int column, Object value) {
-        for (java.util.Map.Entry<String, Point> entry : fieldsCoordinates.entrySet()) {
-            Point p = entry.getValue();
-            if (p.getRow() == row && p.getColumn() == column) {
-                String name = entry.getKey();
-                values.put(name, value);
-                return;
-            }
-        }
-    }
-    
-    @Override
-    public void setFieldValue(String name, Object value) {
-        Point fieldCoordinates = fieldsCoordinates.get(name);
-
-        if (fieldCoordinates != null) {
-            setValue(fieldCoordinates.getRow(), fieldCoordinates.getColumn(), value);
-        }
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -102,49 +81,22 @@ public class StubSpreadSheetResult extends SpreadsheetResult {
     }
 
     @Override
+    public void setFieldValue(String name, Object value) {
+        values.put(name, value);
+    }
+
+    @Override
     public Object getFieldValue(String name) {
         return values.get(name);
     }
 
     @Override
     public boolean hasField(String name) {
-        if (!fieldsCoordinates.containsKey(name)) {
-            fieldsCoordinates.put(name, new Point(0, lastRow));
-            lastRow++;
-        }
         return true;
     }
 
     @Override
-    public ITableAdaptor makeTableAdaptor() {
-        return new ITableAdaptor() {
-            public int width(int row) {
-                return 2;
-            }
-
-            public int maxWidth() {
-                return 2;
-            }
-
-            public int height() {
-                return lastRow;
-            }
-
-            public Object get(int col, int row) {
-                for (java.util.Map.Entry<String, Point> entry : fieldsCoordinates.entrySet()) {
-                    Point p = entry.getValue();
-                    if (p.getRow() == row) {
-                        if (col == 0) {
-                            return entry.getKey();
-                        } else if (col == 1) {
-                            return values.get(entry.getKey());
-                        } else {
-                            throw new IllegalArgumentException("Can't find column " + col);
-                        }
-                    }
-                }
-                throw new IllegalArgumentException("Can't find row " + row);
-            }
-        };
+    public String toString() {
+        return "Stub SpreadsheetResult:\n" + values.toString();
     }
 }
