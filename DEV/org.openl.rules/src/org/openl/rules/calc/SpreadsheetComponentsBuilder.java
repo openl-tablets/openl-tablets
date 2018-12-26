@@ -66,11 +66,11 @@ public class SpreadsheetComponentsBuilder {
     }
     
     public Map<Integer, SpreadsheetHeaderDefinition> getRowHeaders() {        
-        return new HashMap<Integer, SpreadsheetHeaderDefinition>(rowHeaders);
+        return rowHeaders;
     }
     
     public Map<Integer, SpreadsheetHeaderDefinition> getColumnHeaders() {        
-        return new HashMap<Integer, SpreadsheetHeaderDefinition>(columnHeaders);
+        return columnHeaders;
     }
     
     public String[] getRowNames() {
