@@ -80,21 +80,6 @@ public class SpreadsheetStructureBuilder {
     private SpreadsheetCell[][] cells;
 
     /**
-     * Add to {@link SpreadsheetOpenClass} fields that are represented by spreadsheet cells.
-     * 
-     * @param spreadsheetType open class of the spreadsheet
-     */
-    public void addCellFields(SpreadsheetOpenClass spreadsheetType) {
-        /**
-         * at first appropriate data should be extracted from the source table
-         **/
-        componentsBuilder.buildHeaders(spreadsheetHeader.getType());
-
-        /** build cells representations of the spreadsheet */
-        buildCellsInternal(spreadsheetType);
-    }
-
-    /**
      * Extract cell values from the source spreadsheet table.
      * 
      * @return cells of spreadsheet with its values
@@ -104,7 +89,12 @@ public class SpreadsheetStructureBuilder {
         return cells.clone();
     }
 
-    private void buildCellsInternal(SpreadsheetOpenClass spreadsheetType) {
+    /**
+     * Add to {@link SpreadsheetOpenClass} fields that are represented by spreadsheet cells.
+     *
+     * @param spreadsheetType open class of the spreadsheet
+     */
+    public void addCellFields(SpreadsheetOpenClass spreadsheetType) {
         IBindingContext generalBindingContext = componentsBuilder.getBindingContext();
 
         CellsHeaderExtractor cellsHeadersExtractor = componentsBuilder.getCellsHeadersExtractor();
