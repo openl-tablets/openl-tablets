@@ -9,7 +9,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.repository.file.FileRepository;
+import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.slf4j.Logger;
@@ -46,7 +46,7 @@ public class LocalTemporaryDeploymentsStorage {
             log.info("Local temporary folder for downloading deployments has been cleared.");
         }
         log.info("Local temporary folder location is: {}", directoryToLoadDeploymentsIn);
-        FileRepository localRepository = new FileRepository();
+        FileSystemRepository localRepository = new FileSystemRepository();
         localRepository.setRoot(folderToLoadDeploymentsIn);
         try {
             localRepository.initialize();

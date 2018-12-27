@@ -12,7 +12,7 @@ import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.repository.api.*;
-import org.openl.rules.repository.file.FileRepository;
+import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -116,7 +116,7 @@ public class AProject extends AProjectFolder {
         if (historyFileDatas == null) {
             try {
                 String folderPath = getFolderPath();
-                if (folderPath != null && !(getRepository() instanceof FileRepository)) {
+                if (folderPath != null && !(getRepository() instanceof FileSystemRepository)) {
                     historyFileDatas = getRepository().listHistory(folderPath);
                 } else {
                     // File repository doesn't have versions
@@ -307,7 +307,7 @@ public class AProject extends AProjectFolder {
                     try {
                         // Unpack to temp folder
                         tempFolder = Files.createTempDirectory("openl").toFile();
-                        FileRepository tempRepository = new FileRepository();
+                        FileSystemRepository tempRepository = new FileSystemRepository();
                         tempRepository.setRoot(tempFolder);
                         tempRepository.initialize();
                         unpack(projectFrom, tempRepository, projectFrom.getName());
@@ -421,7 +421,7 @@ public class AProject extends AProjectFolder {
 
     /**
      * Override folder structure.
-     * For example FileRepository by default contains projects as folders. But sometimes it can contain
+     * For example FileSystemRepository by default contains projects as folders. But sometimes it can contain
      * projects as zips (See an example in FileSystemDataSource).
      */
     public void overrideFolderStructure(Boolean folderStructure) {

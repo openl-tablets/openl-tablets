@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Yury Molchan
  */
-public class FileRepository implements FolderRepository, RRepositoryFactory, Closeable {
-    private final Logger log = LoggerFactory.getLogger(FileRepository.class);
+public class FileSystemRepository implements FolderRepository, RRepositoryFactory, Closeable {
+    private final Logger log = LoggerFactory.getLogger(FileSystemRepository.class);
 
     private File root;
     private int rootPathLength;

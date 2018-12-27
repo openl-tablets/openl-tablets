@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Properties;
 
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.file.FileRepository;
+import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.IOUtils;
 
-public class LocalRepository extends FileRepository {
+public class LocalRepository extends FileSystemRepository {
     private final PropertiesEngine propertiesEngine;
 
     public LocalRepository(File location) {

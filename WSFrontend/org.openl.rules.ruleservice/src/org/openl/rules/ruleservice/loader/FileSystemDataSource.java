@@ -12,7 +12,7 @@ import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.repository.file.FileRepository;
+import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -173,7 +173,7 @@ public class FileSystemDataSource implements DataSource {
                         deploymentFolder.getParentFile(),
                         localWorkspaceFolderFilter,
                         localWorkspaceFileFilter));
-        FileRepository repository = new FileRepository();
+        FileSystemRepository repository = new FileSystemRepository();
         repository.setRoot(deploymentFolder.getParentFile());
         try {
             repository.initialize();
