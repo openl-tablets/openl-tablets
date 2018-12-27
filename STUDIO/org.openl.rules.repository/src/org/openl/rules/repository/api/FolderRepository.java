@@ -8,5 +8,5 @@ public interface FolderRepository extends Repository {
 
     List<FileData> listFiles(String path, String version) throws IOException;
 
-    FileData save(FileData folderData, List<FileChange> files) throws IOException;
+    FileData save(FileData folderData, Iterable<FileChange> files) throws IOException;
 }

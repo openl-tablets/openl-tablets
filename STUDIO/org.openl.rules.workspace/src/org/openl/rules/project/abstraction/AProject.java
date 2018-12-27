@@ -11,35 +11,33 @@ import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.file.FileRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AProject extends AProjectFolder {
     /**
      * true if the project has a folder structure and false if the project is stored as a zip
      */
-    private boolean folderStructure;
+    private Boolean folderStructure;
     protected List<FileData> historyFileDatas;
     private String lastHistoryVersion;
 
-    public AProject(Repository repository, String folderPath, boolean folderStructure) {
-        this(repository, folderPath, null, folderStructure);
+    public AProject(Repository repository, String folderPath) {
+        this(repository, folderPath, null);
     }
 
-    public AProject(Repository repository, String folderPath, String historyVersion, boolean folderStructure) {
+    public AProject(Repository repository, String folderPath, String historyVersion) {
         super(null, repository, folderPath, historyVersion);
-        this.folderStructure = folderStructure;
     }
 
-    public AProject(Repository repository, FileData fileData, boolean folderStructure) {
+    public AProject(Repository repository, FileData fileData) {
         super(null, repository, fileData.getName(), fileData.getVersion());
-        this.folderStructure = folderStructure;
         setFileData(fileData);
     }
 
@@ -47,28 +45,26 @@ public class AProject extends AProjectFolder {
     public FileData getFileData() {
         FileData fileData = super.getFileData();
         if (fileData == null) {
-            if (!isFolder()) {
-                try {
-                    if (!isHistoric() || isLastVersion()) {
-                        fileData = getRepository().check(getFolderPath());
-                        if (fileData == null) {
-                            fileData = new LazyFileData(getFolderPath(), getHistoryVersion(), this);
-                        }
-                    } else {
-                        fileData = getRepository().checkHistory(getFolderPath(), getHistoryVersion());
+            Repository repository = getRepository();
+            // In the case of FolderRepository we can retrieve FileData using check()/checkHistory() for a folder.
+            try {
+                if (!isHistoric() || isLastVersion()) {
+                    fileData = repository.check(getFolderPath());
+                    if (fileData == null) {
+                        fileData = new LazyFileData(getFolderPath(), getHistoryVersion(), this);
                     }
-                } catch (IOException ex) {
-                    throw new IllegalStateException(ex);
+                } else {
+                    fileData = repository.checkHistory(getFolderPath(), getHistoryVersion());
                 }
-            } else {
-                fileData = new LazyFileData(getFolderPath(), getHistoryVersion(), this);
+            } catch (IOException ex) {
+                throw new IllegalStateException(ex);
             }
             setFileData(fileData);
         }
         return fileData;
     }
 
-    protected String getLastHistoryVersion() {
+    private String getLastHistoryVersion() {
         if (lastHistoryVersion == null) {
             List<FileData> fileDatas = getHistoryFileDatas();
             lastHistoryVersion = fileDatas.isEmpty() ? null : fileDatas.get(fileDatas.size() - 1).getVersion();
@@ -120,10 +116,10 @@ public class AProject extends AProjectFolder {
         if (historyFileDatas == null) {
             try {
                 String folderPath = getFolderPath();
-                if (folderPath != null && !isFolder()) {
+                if (folderPath != null && !(getRepository() instanceof FileRepository)) {
                     historyFileDatas = getRepository().listHistory(folderPath);
                 } else {
-                    // Local repository doesn't have versions
+                    // File repository doesn't have versions
                     historyFileDatas = Collections.emptyList();
                 }
             } catch (IOException ex) {
@@ -162,17 +158,11 @@ public class AProject extends AProjectFolder {
 
     @Override
     public void delete() throws ProjectException {
-        if (isFolder()) {
-            for (AProjectArtefact artefact : getArtefacts()) {
-                artefact.delete();
-            }
-        } else {
-            unlock();
-            close(null);
-            FileData fileData = getFileData();
-            if (!getRepository().delete(fileData)) {
-                throw new ProjectException("Project is absent or can't be deleted");
-            }
+        unlock();
+        close(null);
+        FileData fileData = getFileData();
+        if (!getRepository().delete(fileData)) {
+            throw new ProjectException("Project is absent or can't be deleted");
         }
         setFileData(null);
     }
@@ -191,68 +181,18 @@ public class AProject extends AProjectFolder {
         setFileData(null);
     }
 
-    public void save(CommonUser user) throws ProjectException {
-        if (!isFolder()) {
-            FileData fileData = getFileData();
-            FileItem read;
-            InputStream stream = null;
-            try {
-                if (isHistoric()) {
-                    read = getRepository().readHistory(fileData.getName(), fileData.getVersion());
-                } else {
-                    read = getRepository().read(fileData.getName());
-                }
-                stream = read.getStream();
-                fileData.setSize(read.getData().getSize());
-                setFileData(getRepository().save(fileData, stream));
-            } catch (IOException ex) {
-                throw new ProjectException("Project cannot be saved", ex);
-            } finally {
-                IOUtils.closeQuietly(stream);
-            }
-        }
-        refresh();
-    }
-
     public void close(CommonUser user) throws ProjectException {
         refresh();
     }
 
     public void erase() throws ProjectException {
-        if (isFolder()) {
-            for (AProjectArtefact artefact : getArtefacts()) {
-                if (artefact instanceof AProjectResource) {
-                    if (!getRepository().deleteHistory(artefact.getFileData().getName(), null)) {
-                        throw new ProjectException("Can't erase project because it is absent or can't be deleted");
-                    }
-                }
-            }
-        } else {
-            if (!getRepository().deleteHistory(getFileData().getName(), null)) {
-                throw new ProjectException("Can't erase project because it is absent or can't be deleted");
-            }
+        if (!getRepository().deleteHistory(getFileData().getName(), null)) {
+            throw new ProjectException("Can't erase project because it is absent or can't be deleted");
         }
     }
 
     public boolean isDeleted() {
-        if (isFolder()) {
-            Collection<AProjectArtefact> artefacts = getArtefacts();
-            if (artefacts.isEmpty()) {
-                // Projects can be empty but not deleted. For example revision #0.
-                return false;
-            }
-            for (AProjectArtefact artefact : artefacts) {
-                if (artefact instanceof AProjectResource) {
-                    if (!artefact.getFileData().isDeleted()) {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
-        } else {
-            return getFileData().isDeleted();
-        }
+        return getFileData().isDeleted();
     }
 
     public void undelete() throws ProjectException {
@@ -262,27 +202,14 @@ public class AProject extends AProjectFolder {
             }
 
             Repository repository = getRepository();
-            if (isFolder()) {
-                for (AProjectArtefact artefact : getArtefacts()) {
-                    if (artefact instanceof AProjectResource) {
-                        FileData fileData = repository.check(artefact.getFileData().getName());
-                        if (fileData != null && fileData.isDeleted()) {
-                            repository.deleteHistory(fileData.getName(), fileData.getVersion());
-                            FileData actual = repository.check(fileData.getName());
-                            artefact.setFileData(actual);
-                        }
-                    }
-                }
-            } else {
-                FileData fileData = repository.check(getFileData().getName());
-                if (fileData != null && fileData.isDeleted()) {
-                    repository.deleteHistory(fileData.getName(), fileData.getVersion());
-                    FileData actual = repository.check(fileData.getName());
-                    setFileData(actual);
-                    String version = actual.getVersion();
-                    setLastHistoryVersion(version);
-                    setHistoryVersion(version);
-                }
+            FileData fileData = repository.check(getFileData().getName());
+            if (fileData != null && fileData.isDeleted()) {
+                repository.deleteHistory(fileData.getName(), fileData.getVersion());
+                FileData actual = repository.check(fileData.getName());
+                setFileData(actual);
+                String version = actual.getVersion();
+                setLastHistoryVersion(version);
+                setHistoryVersion(version);
             }
         } catch (IOException ex) {
             throw new ProjectException("Cannot undelete a project", ex);
@@ -384,7 +311,7 @@ public class AProject extends AProjectFolder {
                         tempRepository.setRoot(tempFolder);
                         tempRepository.initialize();
                         unpack(projectFrom, tempRepository, projectFrom.getName());
-                        AProject tempProject = new AProject(tempRepository, projectFrom.getName(), true);
+                        AProject tempProject = new AProject(tempRepository, projectFrom.getName());
 
                         transformAndArchive(tempProject, user);
                     } catch (IOException e) {
@@ -458,18 +385,7 @@ public class AProject extends AProjectFolder {
                 return;
             }
             stream = new ZipInputStream(fileItem.getStream());
-
-            ZipEntry entry;
-            while ((entry = stream.getNextEntry()) != null) {
-                if (entry.isDirectory()) {
-                    continue;
-                }
-                FileData fileData = new FileData();
-                fileData.setName(folderTo + "/" + entry.getName());
-                fileData.setSize(entry.getSize());
-                fileData.setModifiedAt(new Date(entry.getTime()));
-                repositoryTo.save(fileData, stream);
-            }
+            ((FolderRepository) repositoryTo).save(getFileData(), new FileChangeIterable(stream, folderTo));
         } catch (IOException e) {
             throw new ProjectException("Can't update: " + e.getMessage(), e);
         } finally {
@@ -500,10 +416,15 @@ public class AProject extends AProjectFolder {
 
     @Override
     public boolean isFolder() {
-        return folderStructure;
+        return folderStructure != null ? folderStructure : getRepository() instanceof FolderRepository;
     }
 
-    protected void setFolderStructure(boolean folderStructure) {
+    /**
+     * Override folder structure.
+     * For example FileRepository by default contains projects as folders. But sometimes it can contain
+     * projects as zips (See an example in FileSystemDataSource).
+     */
+    public void overrideFolderStructure(Boolean folderStructure) {
         this.folderStructure = folderStructure;
     }
 
@@ -616,5 +537,49 @@ public class AProject extends AProjectFolder {
                 project = null;
             }
         }
+    }
+
+    private static class FileChangeIterable implements Iterable<FileChange> {
+        private final Logger log = LoggerFactory.getLogger(FileChangeIterable.class);
+        private final ZipInputStream stream;
+        private final String folderTo;
+
+        private FileChangeIterable(ZipInputStream stream, String folderTo) {
+            this.stream = stream;
+            this.folderTo = folderTo;
+        }
+
+        @SuppressWarnings("NullableProblems")
+        @Override
+        public Iterator<FileChange> iterator() {
+            return new Iterator<FileChange>() {
+                private ZipEntry entry;
+
+                @Override
+                public boolean hasNext() {
+                    try {
+                        do {
+                            entry = stream.getNextEntry();
+                        } while (entry != null && entry.isDirectory());
+                    } catch (IOException e) {
+                        log.error(e.getMessage(), e);
+                        entry = null;
+                    }
+
+                    return entry != null;
+                }
+
+                @Override
+                public FileChange next() {
+                    return new FileChange(folderTo + "/" + entry.getName(), stream);
+                }
+
+                @Override
+                public void remove() {
+                    throw new UnsupportedOperationException("Remove not supported");
+                }
+            };
+        }
+
     }
 }

@@ -42,10 +42,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     /**
      * Project Cache
      */
-    private final HashMap<String, AProject> projects = new HashMap<String, AProject>();
-    private final HashMap<String, AProject> projectsVersions = new HashMap<String, AProject>();
+    private final HashMap<String, AProject> projects = new HashMap<>();
+    private final HashMap<String, AProject> projectsVersions = new HashMap<>();
 
-    private final List<DesignTimeRepositoryListener> listeners = new ArrayList<DesignTimeRepositoryListener>();
+    private final List<DesignTimeRepositoryListener> listeners = new ArrayList<>();
 
     private Map<String, Object> config;
 
@@ -106,7 +106,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
 
         try {
-            AProject newProject = new AProject(getRepository(), rulesLocation + "/" + name, false);
+            AProject newProject = new AProject(getRepository(), rulesLocation + "/" + name);
 
             newProject.setResourceTransformer(resourceTransformer);
             newProject.update(project, user);
@@ -125,7 +125,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     public AProject createProject(String name) throws RepositoryException {
-        return new AProject(getRepository(), rulesLocation + "/" + name, false);
+        return new AProject(getRepository(), rulesLocation + "/" + name);
     }
 
     public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
@@ -141,7 +141,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     public List<ADeploymentProject> getDDProjects() throws RepositoryException {
-        LinkedList<ADeploymentProject> result = new LinkedList<ADeploymentProject>();
+        LinkedList<ADeploymentProject> result = new LinkedList<>();
 
         Collection<FileData> fileDatas;
         try {
@@ -168,7 +168,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             }
 
             // TODO: Seems we never reach here. Is the code below really needed?
-            project = new AProject(getRepository(), rulesLocation + "/" + name, false);
+            project = new AProject(getRepository(), rulesLocation + "/" + name);
             projects.put(project.getName(), project);
         }
         return project;
@@ -178,18 +178,24 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         String key = String.format("%s:%s", name, version.getVersionName());
         AProject project = projectsVersions.get(key);
         if (project == null) {
-            project = new AProject(getRepository(), rulesLocation + "/" + name, version.getVersionName(), false);
+            project = new AProject(getRepository(), rulesLocation + "/" + name, version.getVersionName());
             projectsVersions.put(key, project);
         }
         return project;
     }
 
     public Collection<AProject> getProjects() {
-        List<AProject> result = new LinkedList<AProject>();
+        List<AProject> result = new LinkedList<>();
 
         Collection<FileData> fileDatas;
+        Repository repository = getRepository();
         try {
-            fileDatas = getRepository().list(rulesLocation);
+            String path = rulesLocation + "/";
+            if (repository instanceof FolderRepository) {
+                fileDatas = ((FolderRepository) repository).listFolders(path);
+            } else {
+                fileDatas = repository.list(path);
+            }
         } catch (IOException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
@@ -197,7 +203,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             projects.clear();
             projectsVersions.clear();
             for (FileData fileData : fileDatas) {
-                AProject project = new AProject(getRepository(), fileData, false);
+                AProject project = new AProject(repository, fileData);
                 // get from the repository
                 result.add(project);
                 projects.put(project.getName(), project);
