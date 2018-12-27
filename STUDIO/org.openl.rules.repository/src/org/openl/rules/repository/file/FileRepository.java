@@ -4,10 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import org.openl.rules.repository.RRepositoryFactory;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.Listener;
-import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.FileUtils;
@@ -21,7 +18,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Yury Molchan
  */
-public class FileRepository implements Repository, RRepositoryFactory, Closeable {
+public class FileRepository implements FolderRepository, RRepositoryFactory, Closeable {
     private final Logger log = LoggerFactory.getLogger(FileRepository.class);
 
     private File root;
@@ -57,7 +54,7 @@ public class FileRepository implements Repository, RRepositoryFactory, Closeable
 
     @Override
     public List<FileData> list(String path) throws IOException {
-        LinkedList<FileData> files = new LinkedList<FileData>();
+        LinkedList<FileData> files = new LinkedList<>();
         File directory = new File(root, path);
         listFiles(files, directory);
         return files;
@@ -103,7 +100,13 @@ public class FileRepository implements Repository, RRepositoryFactory, Closeable
     @Override
     public boolean delete(FileData data) {
         File file = new File(root, data.getName());
-        boolean deleted = file.delete();
+        boolean deleted;
+        try {
+            FileUtils.delete(file);
+            deleted = true;
+        } catch (IOException e) {
+            deleted = false;
+        }
         // Delete empty parent folders
         while (!(file = file.getParentFile()).equals(root) && file.delete());
         return deleted;
@@ -179,7 +182,7 @@ public class FileRepository implements Repository, RRepositoryFactory, Closeable
         if (version == null) {
             return copy(srcName, destData);
         }
-        throw new FileNotFoundException("File versions is not supported.");
+        throw new FileNotFoundException("File versions are not supported.");
     }
 
     private void listFiles(Collection<FileData> files, File directory) {
@@ -205,9 +208,6 @@ public class FileRepository implements Repository, RRepositoryFactory, Closeable
         if (!file.exists()) {
             throw new FileNotFoundException("File [" + file + "] does not exist.");
         }
-        if (!file.isFile()) {
-            throw new FileNotFoundException("File [" + file + "] is not a file.");
-        }
         if (rootPathLength == 0) {
             init();
         }
@@ -219,8 +219,10 @@ public class FileRepository implements Repository, RRepositoryFactory, Closeable
         long timestamp = file.lastModified();
         Date date = new Date(timestamp);
         data.setModifiedAt(date);
-        long size = file.length();
-        data.setSize(size);
+        if (file.isFile()) {
+            long size = file.length();
+            data.setSize(size);
+        }
         return data;
     }
 
@@ -241,6 +243,91 @@ public class FileRepository implements Repository, RRepositoryFactory, Closeable
             // Workaround
             // Can be null because in some cases LocalRepository can be not initialized
             monitor.fireOnChange();
+        }
+    }
+
+    @Override
+    public List<FileData> listFolders(String path) {
+        LinkedList<FileData> files = new LinkedList<>();
+        File directory = new File(root, path);
+        File[] found = directory.listFiles();
+
+        if (found != null) {
+            for (File file : found) {
+                if (file.isDirectory()) {
+                    try {
+                        if (rootPathLength == 0) {
+                            init();
+                        }
+                        FileData data = new FileData();
+                        String relativePath = file.getCanonicalPath().substring(rootPathLength);
+                        data.setName(relativePath.replace('\\', '/'));
+                        data.setModifiedAt(new Date(file.lastModified()));
+                        files.add(data);
+                    } catch (Exception ex) {
+                        log.warn("Folder cannot be resolved in the directory {}.", directory, ex);
+                    }
+                }
+            }
+        }
+        return files;
+    }
+
+    @Override
+    public List<FileData> listFiles(String path, String version) throws IOException {
+        if (version == null) {
+            return list(path);
+        }
+
+        return Collections.emptyList();
+    }
+
+    @Override
+    public FileData save(FileData folderData, Iterable<FileChange> files) throws IOException {
+        // Add new files and update existing ones
+        List<File> savedFiles = new ArrayList<>();
+        for (FileChange change : files) {
+            File file = new File(root, change.getName());
+            savedFiles.add(file);
+            createParent(file);
+
+            FileOutputStream output = null;
+            try {
+                output = new FileOutputStream(file);
+                IOUtils.copy(change.getStream(), output);
+            } finally {
+                // Close only output stream. This class isn't responsible for input stream: stream must be closed in the
+                // place where it was created.
+                IOUtils.closeQuietly(output);
+            }
+        }
+
+        File folder = new File(root, folderData.getName());
+        removeAbsentFiles(folder, savedFiles);
+
+        return folder.exists() ? getFileData(folder) : null;
+    }
+
+    private void removeAbsentFiles(File directory, Collection<File> toSave) {
+        File[] found = directory.listFiles();
+
+        if (found != null) {
+            for (File file : found) {
+                if (file.isDirectory()) {
+                    removeAbsentFiles(file, toSave);
+                } else {
+                    if (!toSave.contains(file)) {
+                        FileUtils.deleteQuietly(file);
+                    }
+                }
+            }
+        }
+    }
+
+    private void createParent(File file) throws FileNotFoundException {
+        File parentFile = file.getParentFile();
+        if (!parentFile.mkdirs() && !parentFile.exists()) {
+            throw new FileNotFoundException("Can't create the folder " + parentFile.getAbsolutePath());
         }
     }
 }

@@ -15,9 +15,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
@@ -43,7 +41,7 @@ public class DeploymentManager implements InitializingBean {
     private DesignTimeRepository designRepository;
     private IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
 
-    private Set<String> deployers = new HashSet<String>();
+    private Set<String> deployers = new HashSet<>();
 
     public void addRepository(String repositoryConfigName) {
         deployers.add(repositoryConfigName);
@@ -89,28 +87,54 @@ public class DeploymentManager implements InitializingBean {
 
             String deploymentPath = DeployUtils.DEPLOY_PATH + id.getName();
 
-            List<FileData> existingProjects = deployRepo.list(deploymentPath + "/");
-            List<FileData> projectsToDelete = findProjectsToDelete(existingProjects, projectDescriptors);
-            for (FileData fileData : projectsToDelete) {
-                deployRepo.delete(fileData);
-            }
+            if (deployRepo instanceof FolderRepository) {
+                FolderRepository folderRepo = (FolderRepository) deployRepo;
 
-            Repository designRepo = designRepository.getRepository();
-            for (ProjectDescriptor<?> pd : projectDescriptors) {
-                InputStream stream = null;
+                Repository designRepo = designRepository.getRepository();
+                List<FileChange> changes = new ArrayList<>();
                 try {
-                    String version = pd.getProjectVersion().getVersionName();
-                    String projectName = pd.getProjectName();
-                    FileItem srcPrj = designRepo.readHistory("DESIGN/rules/" + projectName, version);
-                    stream = srcPrj.getStream();
-                    FileData dest = new FileData();
-                    dest.setName(deploymentPath + "/" + projectName);
-                    dest.setAuthor(userName);
-                    dest.setComment(srcPrj.getData().getComment());
-                    dest.setSize(srcPrj.getData().getSize());
-                    deployRepo.save(dest, stream);
+                    for (ProjectDescriptor<?> pd : projectDescriptors) {
+                        String version = pd.getProjectVersion().getVersionName();
+                        String projectName = pd.getProjectName();
+                        FileItem srcPrj = designRepo.readHistory("DESIGN/rules/" + projectName, version);
+
+                        changes.add(new FileChange(srcPrj.getData().getName(), srcPrj.getStream()));
+                    }
+
+                    FileData deploymentData = new FileData();
+                    deploymentData.setName(deploymentPath);
+                    deploymentData.setAuthor(userName);
+                    deploymentData.setComment(project.getFileData().getComment());
+                    folderRepo.save(deploymentData, changes);
                 } finally {
-                    IOUtils.closeQuietly(stream);
+                    for (FileChange change : changes) {
+                        IOUtils.closeQuietly(change.getStream());
+                    }
+                }
+            } else {
+                List<FileData> existingProjects = deployRepo.list(deploymentPath + "/");
+                List<FileData> projectsToDelete = findProjectsToDelete(existingProjects, projectDescriptors);
+                for (FileData fileData : projectsToDelete) {
+                    deployRepo.delete(fileData);
+                }
+
+                Repository designRepo = designRepository.getRepository();
+                for (ProjectDescriptor<?> pd : projectDescriptors) {
+                    InputStream stream = null;
+                    try {
+                        String version = pd.getProjectVersion().getVersionName();
+                        String projectName = pd.getProjectName();
+                        FileItem srcPrj = designRepo.readHistory("DESIGN/rules/" + projectName, version);
+                        stream = srcPrj.getStream();
+                        FileData dest = new FileData();
+                        dest.setName(deploymentPath + "/" + projectName);
+                        dest.setAuthor(userName);
+                        dest.setComment(srcPrj.getData().getComment());
+                        dest.setSize(srcPrj.getData().getSize());
+                        deployRepo.save(dest, stream);
+                    } finally {
+                        IOUtils.closeQuietly(stream);
+                    }
                 }
             }
 
@@ -148,7 +172,7 @@ public class DeploymentManager implements InitializingBean {
                 try {
                     String projectVersion = pd.getProjectVersion().getVersionName();
                     String projectName = pd.getProjectName();
-                    AProject project = new AProject(designRepo, "DESIGN/rules/" + projectName, projectVersion, false);
+                    AProject project = new AProject(designRepo, "DESIGN/rules/" + projectName, projectVersion);
 
                     AProjectArtefact artifact = project.getArtefact(DeployUtils.RULES_DEPLOY_XML);
                     if (artifact instanceof AProjectResource) {

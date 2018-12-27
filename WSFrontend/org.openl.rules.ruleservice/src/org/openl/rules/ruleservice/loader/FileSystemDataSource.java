@@ -11,8 +11,8 @@ import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
-import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.repository.file.FileRepository;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +33,6 @@ public class FileSystemDataSource implements DataSource {
     private FileFilter localWorkspaceFolderFilter;
 
     private FileFilter localWorkspaceFileFilter;
-
-    DataSourceListener listener;
 
     private boolean supportDeployments = false;
 
@@ -101,30 +99,12 @@ public class FileSystemDataSource implements DataSource {
 
         String deploymentFolderName = deploymentName;
         if (supportVersion && supportDeployments) {
-            deploymentFolderName = new StringBuilder(deploymentName).append("_v")
-                .append(deploymentVersion.getVersionName())
-                .toString();
+            deploymentFolderName = deploymentName + "_v" + deploymentVersion.getVersionName();
         }
 
         for (File deploymentFolder : listOfDeploymentFolders) {
             if (deploymentFolder.getName().equals(deploymentFolderName)) {
-                LocalFolderAPI localFolderAPI = new LocalFolderAPI(deploymentFolder,
-                    new ArtefactPathImpl(deploymentFolder.getName()),
-                    new LocalWorkspaceImpl(null,
-                        deploymentFolder.getParentFile(),
-                        localWorkspaceFolderFilter,
-                        localWorkspaceFileFilter));
-                LocalRepository repository = new LocalRepository(deploymentFolder.getParentFile());
-                try {
-                    repository.initialize();
-                } catch (RRepositoryException e) {
-                    log.error("Failed to initialize local repository: {}", e.getMessage(), e);
-                }
-                Deployment deployment = new Deployment(repository,
-                    localFolderAPI.getArtefactPath().getStringValue(),
-                    deploymentName,
-                    deploymentVersion);
-                return deployment;
+                return getDeployment(deploymentFolder, deploymentName, deploymentVersion);
             }
         }
         return null;
@@ -132,7 +112,7 @@ public class FileSystemDataSource implements DataSource {
 
     private File[] getDeploymentFolderList() {
         File folder = loadDeploymentsFromDirectory;
-        File[] listOfFiles = null;
+        File[] listOfFiles;
         if (!supportDeployments) {
             listOfFiles = new File[1];
             listOfFiles[0] = folder;
@@ -151,7 +131,7 @@ public class FileSystemDataSource implements DataSource {
      * {@inheritDoc}
      */
     public Collection<Deployment> getDeployments() {
-        Collection<Deployment> deployments = new ArrayList<Deployment>();
+        Collection<Deployment> deployments = new ArrayList<>();
 
         File[] listOfDeploymentFolders = getDeploymentFolderList();
 
@@ -173,22 +153,7 @@ public class FileSystemDataSource implements DataSource {
                     continue;
                 }
             }
-            LocalFolderAPI localFolderAPI = new LocalFolderAPI(deploymentFolder,
-                new ArtefactPathImpl(deploymentFolder.getName()),
-                new LocalWorkspaceImpl(null,
-                    deploymentFolder.getParentFile(),
-                    localWorkspaceFolderFilter,
-                    localWorkspaceFileFilter));
-            LocalRepository repository = new LocalRepository(deploymentFolder.getParentFile());
-            try {
-                repository.initialize();
-            } catch (RRepositoryException e) {
-                log.error("Failed to initialize local repository: {}", e.getMessage(), e);
-            }
-            Deployment deployment = new Deployment(repository,
-                localFolderAPI.getArtefactPath().getStringValue(),
-                deploymentName,
-                commonVersion);
+            Deployment deployment = getDeployment(deploymentFolder, deploymentName, commonVersion);
             if (deployment.getProjects().isEmpty()) {
                 log.warn(
                     "Deployment of the file system data source '{}' does not contain projects. Make sure that you have specified correct folder!",
@@ -199,10 +164,33 @@ public class FileSystemDataSource implements DataSource {
         return Collections.unmodifiableCollection(deployments);
     }
 
+    private Deployment getDeployment(File deploymentFolder,
+            String deploymentName,
+            CommonVersion deploymentVersion) {
+        LocalFolderAPI localFolderAPI = new LocalFolderAPI(deploymentFolder,
+                new ArtefactPathImpl(deploymentFolder.getName()),
+                new LocalWorkspaceImpl(null,
+                        deploymentFolder.getParentFile(),
+                        localWorkspaceFolderFilter,
+                        localWorkspaceFileFilter));
+        FileRepository repository = new FileRepository();
+        repository.setRoot(deploymentFolder.getParentFile());
+        try {
+            repository.initialize();
+        } catch (RRepositoryException e) {
+            log.error("Failed to initialize local repository: {}", e.getMessage(), e);
+        }
+        String folderPath = localFolderAPI.getArtefactPath().getStringValue();
+
+        // FileSystemDataSource can contain projects stored either as zip or as a folder. Depending on it we construct Deployment object accordingly
+        boolean folderStructure = !repository.listFolders(folderPath).isEmpty();
+
+        return new Deployment(repository, folderPath, deploymentName, deploymentVersion, folderStructure);
+    }
+
     /**
      * {@inheritDoc}
      */
     public void setListener(DataSourceListener dataSourceListener) {
-        listener = dataSourceListener;
     }
 }

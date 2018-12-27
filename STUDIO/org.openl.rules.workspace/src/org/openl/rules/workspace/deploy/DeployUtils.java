@@ -8,6 +8,7 @@ import java.util.Map;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
@@ -23,12 +24,18 @@ public final class DeployUtils {
 
     public static Collection<Deployment> getLastDeploymentProjects(Repository repository) throws RRepositoryException {
 
-        Map<String, Deployment> latestDeployments = new HashMap<String, Deployment>();
-        Map<String, Integer> versionsList = new HashMap<String, Integer>();
+        Map<String, Deployment> latestDeployments = new HashMap<>();
+        Map<String, Integer> versionsList = new HashMap<>();
 
         Collection<FileData> fileDatas;
         try {
-            fileDatas = repository.list(DEPLOY_PATH);
+            if (repository instanceof FolderRepository) {
+                // All deployments
+                fileDatas = ((FolderRepository) repository).listFolders(DEPLOY_PATH);
+            } else {
+                // Projects inside all deployments
+                fileDatas = repository.list(DEPLOY_PATH);
+            }
         } catch (IOException ex) {
             throw new RRepositoryException("Cannot read the deploy repository", ex);
         }

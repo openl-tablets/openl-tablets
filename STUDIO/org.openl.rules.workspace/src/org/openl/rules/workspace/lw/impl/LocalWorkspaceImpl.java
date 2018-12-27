@@ -106,9 +106,9 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                 FileData fileData = localRepository.getProjectState(name).getFileData();
                 if (fileData == null) {
                     String version = localRepository.getProjectState(name).getProjectVersion();
-                    lpi = new AProject(getRepository(), name, version, true);
+                    lpi = new AProject(getRepository(), name, version);
                 } else {
-                    lpi = new AProject(getRepository(), fileData, true);
+                    lpi = new AProject(getRepository(), fileData);
                 }
                 synchronized (localProjects) {
                     localProjects.put(name, lpi);

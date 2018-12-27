@@ -77,7 +77,7 @@ public class LocalTemporaryDeploymentsStorageTest {
         Deployment deployment1 = storage.getDeployment(deployment.getDeploymentName(), deployment.getCommonVersion());
         assertNotNull(deployment1);
         Deployment deployment2 = storage.getDeployment(deployment.getDeploymentName(), deployment.getCommonVersion());
-        assertTrue(deployment1 == deployment2);
+        assertSame(deployment1, deployment2);
     }
 
     @Test
@@ -104,8 +104,7 @@ public class LocalTemporaryDeploymentsStorageTest {
             Deployment remoteDeployment = new Deployment(repository,
                     DeployUtils.DEPLOY_PATH + deploymentName,
                     deploymentName,
-                    version,
-                    false);
+                    version);
             assertTrue(containsProject(remoteDeployment, "project2"));
             assertFalse(containsProject(remoteDeployment, "project1"));
 

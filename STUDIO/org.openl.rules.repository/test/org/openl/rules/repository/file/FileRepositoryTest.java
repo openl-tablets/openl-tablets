@@ -56,8 +56,8 @@ public class FileRepositoryTest {
         assertDelete(repo, "deep/deep/deep/deep/folder/exist", true);
         assertNoRead(repo, "deep/deep/deep/deep/folder/exist");
         assertSave(repo, "deep/deep/deep", "Should be able to save after deleting empty folders");
-        assertDelete(repo, "deep/deep", false);
-        assertList(repo, "", 11);
+        assertDelete(repo, "deep/deep", true);
+        assertList(repo, "", 10);
         assertNoRead(repo, "absent");
         assertRead(repo, ".override", "This new content");
 
@@ -86,7 +86,7 @@ public class FileRepositoryTest {
         FileData fileData = new FileData();
         fileData.setName(name);
         boolean result = repo.delete(fileData);
-        assertEquals("The deleting of the file has been filed", expected, result);
+        assertEquals("The deleting of the file has been failed", expected, result);
     }
 
     private void assertList(Repository repo, String path, int size) throws IOException {
