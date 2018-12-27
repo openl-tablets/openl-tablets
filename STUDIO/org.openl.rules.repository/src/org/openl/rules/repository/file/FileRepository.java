@@ -141,7 +141,7 @@ public class FileRepository implements FolderRepository, RRepositoryFactory, Clo
     }
 
     @Override
-    public List<FileData> listHistory(String name) throws IOException {
+    public List<FileData> listHistory(String name) {
         File file = new File(root, name);
         try {
             if (file.exists()) {
@@ -231,7 +231,7 @@ public class FileRepository implements FolderRepository, RRepositoryFactory, Clo
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         if (monitor != null) {
             monitor.release();
             monitor = null;

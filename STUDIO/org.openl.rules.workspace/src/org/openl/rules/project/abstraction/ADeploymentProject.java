@@ -61,14 +61,14 @@ public class ADeploymentProject extends UserWorkspaceProject {
         return false;
     }
 
-    public void addProjectDescriptor(String name, CommonVersion version) throws ProjectException {
+    public void addProjectDescriptor(String name, CommonVersion version) {
         if (hasProjectDescriptor(name)) {
             removeProjectDescriptor(name);
         }
         getDescriptors().add(new ProjectDescriptorImpl(name, version));
     }
 
-    public boolean hasProjectDescriptor(String name) throws ProjectException {
+    public boolean hasProjectDescriptor(String name) {
         Collection<ProjectDescriptor> pgl = getProjectDescriptors();
 
         if (pgl != null) {
@@ -91,7 +91,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
         throw new ProjectException(String.format("Project descriptor '%s' is not found", name));
     }
 
-    public void openVersion(String version) throws ProjectException {
+    public void openVersion(String version) {
         modifiedDescriptors = false;
         openedVersion = new ADeploymentProject(getUser(), getRepository(), getFolderPath(), version, lockEngine);
         openedVersion.setHistoryVersion(version);
@@ -162,7 +162,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
         unlock();
     }
 
-    private void removeProjectDescriptor(String name) throws ProjectException {
+    private void removeProjectDescriptor(String name) {
         Collection<ProjectDescriptor> projectDescriptors = getDescriptors();
         for (ProjectDescriptor descriptor : projectDescriptors) {
             if (descriptor.getProjectName().equals(name)) {

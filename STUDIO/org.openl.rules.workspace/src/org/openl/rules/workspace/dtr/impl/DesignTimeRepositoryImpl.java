@@ -124,7 +124,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
     }
 
-    public AProject createProject(String name) throws RepositoryException {
+    public AProject createProject(String name) {
         return new AProject(getRepository(), rulesLocation + "/" + name);
     }
 
@@ -174,7 +174,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return project;
     }
 
-    public AProject getProject(String name, CommonVersion version) throws RepositoryException {
+    public AProject getProject(String name, CommonVersion version) {
         String key = String.format("%s:%s", name, version.getVersionName());
         AProject project = projectsVersions.get(key);
         if (project == null) {
