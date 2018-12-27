@@ -183,5 +183,4 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
     Collection<IOpenClass> getTypes();
     
     IOpenClass getArrayType(int dim);
-    IOpenClass getOpenClass();
 }

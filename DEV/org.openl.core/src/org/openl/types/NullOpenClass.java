@@ -89,10 +89,6 @@ public class NullOpenClass implements IOpenClass {
         return getName();
     }
 
-    public IOpenClass getOpenClass() {
-        return this;
-    }
-
     public IOpenField getVar(String fname, boolean strictMatch) {
         return null;
     }

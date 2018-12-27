@@ -110,10 +110,6 @@ public class DomainOpenClass implements IOpenClass {
         return baseClass.getPackageName();
     }
 
-    public IOpenClass getOpenClass() {
-        return this;
-    }
-
     public IOpenField getVar(String vname, boolean strictMatch) {
         return baseClass.getVar(vname, strictMatch);
     }
