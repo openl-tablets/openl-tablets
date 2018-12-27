@@ -725,7 +725,6 @@ public class DataTableBindHelper {
 
             if (fieldIndex > 0 && (fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementField || fieldAccessorChain[fieldIndex - 1] instanceof SpreadsheetResultField) && fieldAccessorChain[fieldIndex - 1]
                 .getType()
-                .getOpenClass()
                 .equals(JavaOpenClass.OBJECT)) {
                 if (fieldNameNode.getIdentifier().matches(SPREADSHEETRESULTFIELD_PATTERN)) {
                     AOpenField aOpenField = (AOpenField) fieldAccessorChain[fieldIndex - 1];
@@ -895,7 +894,7 @@ public class DataTableBindHelper {
 
         if (!Map.class.isAssignableFrom(field.getType().getInstanceClass()) && !List.class
             .isAssignableFrom(field.getType().getInstanceClass()) && !field.getType()
-                .isArray() && !field.getType().getOpenClass().getInstanceClass().equals(Object.class)) {
+                .isArray() && !field.getType().getInstanceClass().equals(Object.class)) {
             String message = String
                 .format("Field '%s' isn't a collection! The field type is '%s'", name, field.getType().toString());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
@@ -912,7 +911,7 @@ public class DataTableBindHelper {
                     elementType,
                     CollectionType.LIST);
             } else {
-                if (!field.getType().isArray() && field.getType().getOpenClass().getInstanceClass().equals(
+                if (!field.getType().isArray() && field.getType().getInstanceClass().equals(
                     Object.class)) {
                     collectionAccessField = new CollectionElementWithMultiRowField(field,
                         buildRootPathForDatatypeArrayMultiRowElementField(partPathFromRoot, field.getName()),
@@ -957,7 +956,7 @@ public class DataTableBindHelper {
                         elementType,
                         CollectionType.LIST);
                 } else {
-                    if (!field.getType().isArray() && field.getType().getOpenClass().getInstanceClass().equals(
+                    if (!field.getType().isArray() && field.getType().getInstanceClass().equals(
                         Object.class)) {
                         collectionAccessField = new CollectionElementField(field,
                             index,
