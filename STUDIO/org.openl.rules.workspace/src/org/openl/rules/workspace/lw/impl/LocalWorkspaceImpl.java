@@ -136,11 +136,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             localProjects.clear();
         }
 
-        try {
-            localRepository.close();
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
+        localRepository.close();
 
         for (LocalWorkspaceListener lwl : new ArrayList<>(listeners)) {
             lwl.workspaceReleased(this);

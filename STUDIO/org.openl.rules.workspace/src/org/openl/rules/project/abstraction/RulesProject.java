@@ -165,7 +165,7 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     @Override
-    public void unlock() throws ProjectException {
+    public void unlock() {
         synchronized (lockEngine) {
             lockEngine.unlock(getName());
         }
