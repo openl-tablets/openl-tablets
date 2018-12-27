@@ -12,7 +12,7 @@ import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.file.FileRepository;
+import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.IOUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -254,7 +254,7 @@ public class AProjectFolder extends AProjectArtefact {
 
     @Override
     public boolean isHistoric() {
-        return historyVersion != null && !(getRepository() instanceof FileRepository);
+        return historyVersion != null && !(getRepository() instanceof FileSystemRepository);
     }
 
     public String getHistoryVersion() {

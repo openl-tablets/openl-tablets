@@ -38,7 +38,7 @@ import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.file.FileRepository;
+import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
@@ -792,7 +792,7 @@ public class RepositoryTreeController {
                     // Check for reserved folder name
                     if (!LockEngineImpl.LOCKS_FOLDER_NAME.equals(userName)) {
                         try {
-                            FileRepository repository = new FileRepository();
+                            FileSystemRepository repository = new FileSystemRepository();
                             repository.setRoot(file);
                             repository.initialize();
                             FileData fileData = new FileData();

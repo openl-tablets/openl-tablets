@@ -15,12 +15,12 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
-public class FileRepositoryTest {
+public class FileSystemRepositoryTest {
     @Test
     public void test() throws Exception {
         File root = new File("target/test-file-repository/");
         FileUtils.deleteQuietly(root);
-        FileRepository repo = new FileRepository();
+        FileSystemRepository repo = new FileSystemRepository();
         repo.setRoot(root);
         repo.initialize();
         testRepo(repo);
