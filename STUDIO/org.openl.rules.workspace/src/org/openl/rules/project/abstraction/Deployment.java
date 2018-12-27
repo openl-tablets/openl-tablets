@@ -29,10 +29,6 @@ public class Deployment extends AProjectFolder {
     private CommonVersion commonVersion;
     private final boolean folderStructure;
 
-    public Deployment(Repository repository, String folderName, String deploymentName, CommonVersion commonVersion) {
-        this(repository, folderName, deploymentName, commonVersion, repository instanceof FolderRepository);
-    }
-
     public Deployment(Repository repository,
             String folderName,
             String deploymentName,
