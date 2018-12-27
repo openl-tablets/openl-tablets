@@ -59,10 +59,23 @@ public final class DeployUtils {
                 versionsList.put(deploymentName, previous);
             } else {
                 // put the latest deployment
+
+                String folderPath = DEPLOY_PATH + deploymentFolderName;
+                boolean folderStructure;
+                try {
+                    if (repository instanceof FolderRepository) {
+                        folderStructure = !((FolderRepository) repository).listFolders(folderPath).isEmpty();
+                    } else {
+                        folderStructure = false;
+                    }
+                } catch (IOException e) {
+                    throw new RRepositoryException(e.getMessage(), e);
+                }
                 Deployment deployment = new Deployment(repository,
-                    DEPLOY_PATH + deploymentFolderName,
-                    deploymentName,
-                    commonVersion, false);
+                        folderPath,
+                        deploymentName,
+                        commonVersion,
+                        folderStructure);
                 latestDeployments.put(deploymentName, deployment);
             }
         }

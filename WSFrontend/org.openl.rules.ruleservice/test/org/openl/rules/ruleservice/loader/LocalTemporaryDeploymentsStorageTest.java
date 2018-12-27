@@ -104,7 +104,8 @@ public class LocalTemporaryDeploymentsStorageTest {
             Deployment remoteDeployment = new Deployment(repository,
                     DeployUtils.DEPLOY_PATH + deploymentName,
                     deploymentName,
-                    version);
+                    version,
+                    false);
             assertTrue(containsProject(remoteDeployment, "project2"));
             assertFalse(containsProject(remoteDeployment, "project1"));
 

@@ -72,10 +72,16 @@ public class ProductionRepositoryDataSource implements DataSource {
                     commonVersion = new CommonVersionImpl(version);
                 }
             }
+
+            String folderPath = DeployUtils.DEPLOY_PATH + deploymentFolderName;
+
+            boolean folderStructure = isFolderStructure(folderPath);
+
             Deployment deployment = new Deployment(repository,
-                DeployUtils.DEPLOY_PATH + deploymentFolderName,
-                deploymentName,
-                commonVersion, false);
+                    folderPath,
+                    deploymentName,
+                    commonVersion,
+                    folderStructure);
             deployments.putIfAbsent(deploymentFolderName, deployment);
         }
 
@@ -103,7 +109,9 @@ public class ProductionRepositoryDataSource implements DataSource {
         } else {
             name = deploymentName;
         }
-        return new Deployment(repository, DeployUtils.DEPLOY_PATH + name, deploymentName, deploymentVersion, false);
+        String folderPath = DeployUtils.DEPLOY_PATH + name;
+        boolean folderStructure = isFolderStructure(folderPath);
+        return new Deployment(repository, folderPath, deploymentName, deploymentVersion, folderStructure);
     }
 
     /**
@@ -139,5 +147,19 @@ public class ProductionRepositoryDataSource implements DataSource {
 
     public void setIncludeVersionInDeploymentName(boolean includeVersionInDeploymentName) {
         this.includeVersionInDeploymentName = includeVersionInDeploymentName;
+    }
+
+    private boolean isFolderStructure(String deploymentFolderPath) {
+        boolean folderStructure;
+        try {
+            if (repository instanceof FolderRepository) {
+                folderStructure = !((FolderRepository) repository).listFolders(deploymentFolderPath).isEmpty();
+            } else {
+                folderStructure = false;
+            }
+        } catch (IOException e) {
+            throw RuntimeExceptionWrapper.wrap(e);
+        }
+        return folderStructure;
     }
 }
