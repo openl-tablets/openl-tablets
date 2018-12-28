@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio.web.admin;
 
-public enum RepositoryType {
+public enum RepositoryMode {
     DESIGN,
     PRODUCTION;
 

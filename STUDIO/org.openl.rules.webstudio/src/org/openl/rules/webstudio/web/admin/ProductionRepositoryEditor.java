@@ -44,7 +44,7 @@ public class ProductionRepositoryEditor {
             ConfigurationManager productionConfig = getProductionConfigManager(configName);
             RepositoryConfiguration config = new RepositoryConfiguration(configName,
                     productionConfig,
-                    RepositoryType.PRODUCTION);
+                    RepositoryMode.PRODUCTION);
             productionRepositoryConfigurations.add(config);
         }
     }
@@ -132,7 +132,7 @@ public class ProductionRepositoryEditor {
         // Move config to a new file
         String newConfigName = getConfigName(prodConfig.getName());
         RepositoryConfiguration newConfig = new RepositoryConfiguration(newConfigName,
-                getProductionConfigManager(newConfigName), RepositoryType.PRODUCTION);
+                getProductionConfigManager(newConfigName), RepositoryMode.PRODUCTION);
         newConfig.copyContent(prodConfig);
         newConfig.save();
 

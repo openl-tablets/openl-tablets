@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.admin;
 import java.io.File;
 
 import org.openl.config.ConfigurationManager;
-import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.util.StringUtils;
 
 public class CommonRepositorySettings extends RepositorySettings {
@@ -12,7 +11,7 @@ public class CommonRepositorySettings extends RepositorySettings {
     private String uri;
     private boolean secure = false;
     private String defaultLocalUri = null;
-    private final RepositoryType repositoryType;
+    private final RepositoryMode repositoryMode;
     private final JcrType jcrType;
     private final ConfigurationManager configManager;
     final String REPOSITORY_URI;
@@ -21,11 +20,11 @@ public class CommonRepositorySettings extends RepositorySettings {
 
     public CommonRepositorySettings(ConfigurationManager configManager,
             String configPrefix,
-            RepositoryType repositoryType,
+            RepositoryMode repositoryMode,
             JcrType jcrType) {
         super(configManager, configPrefix);
         this.configManager = configManager;
-        this.repositoryType = repositoryType;
+        this.repositoryMode = repositoryMode;
         this.jcrType = jcrType;
         REPOSITORY_URI = configPrefix + "uri";
         REPOSITORY_LOGIN = configPrefix + "login";
@@ -85,7 +84,7 @@ public class CommonRepositorySettings extends RepositorySettings {
     }
 
     String getDefaultPath(JcrType jcrType) {
-        String type = repositoryType == RepositoryType.DESIGN ? "design" : "deployment";
+        String type = repositoryMode == RepositoryMode.DESIGN ? "design" : "deployment";
         switch (jcrType) {
             case LOCAL:
                 return defaultLocalUri != null ?
