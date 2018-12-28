@@ -9,8 +9,8 @@
 
     <configuration>
         <entry>
-            <string>jacksondatabinding.enableSmartTyping</string>
-            <string>false</string>
+            <string>jacksondatabinding.defaultTypingType</string>
+            <string>DISABLE</string>
         </entry>
     </configuration>
 

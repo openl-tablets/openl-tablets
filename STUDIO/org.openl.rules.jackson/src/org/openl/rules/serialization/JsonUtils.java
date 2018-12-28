@@ -26,15 +26,23 @@ public final class JsonUtils {
         private static final ObjectMapper INSTANCE;
         static {
             JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
-            jacksonObjectMapperFactoryBean.setEnableDefaultTyping(false);
+            jacksonObjectMapperFactoryBean.setDefaultTypingType(DefaultTypingType.SMART);
             jacksonObjectMapperFactoryBean.setSupportVariations(true);
             INSTANCE = jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
         }
     }
-
+    
     public static ObjectMapper createJacksonObjectMapper(Class<?>[] types, boolean enableDefaultTyping) {
+        if (enableDefaultTyping) {
+            return createJacksonObjectMapper(types, DefaultTypingType.ENABLE);
+        } else {
+            return createJacksonObjectMapper(types, DefaultTypingType.SMART);
+        }
+    }
+
+    public static ObjectMapper createJacksonObjectMapper(Class<?>[] types, DefaultTypingType defaultTypingType) {
         JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
-        jacksonObjectMapperFactoryBean.setEnableDefaultTyping(enableDefaultTyping);
+        jacksonObjectMapperFactoryBean.setDefaultTypingType(defaultTypingType);
         jacksonObjectMapperFactoryBean.setSupportVariations(true);
         Set<String> overideTypes = new HashSet<String>();
         for (Class<?> type : types) {
