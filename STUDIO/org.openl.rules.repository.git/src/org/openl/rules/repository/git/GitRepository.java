@@ -76,7 +76,8 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
 
             git.add().addFilepattern(fileInRepository).call();
             // TODO: Add possibility to set committer email
-            RevCommit commit = git.commit().setMessage(data.getComment())
+            RevCommit commit = git.commit()
+                    .setMessage(StringUtils.trimToEmpty(data.getComment()))
                     .setCommitter(data.getAuthor(), "")
                     .setOnly(fileInRepository)
                     .call();
@@ -112,7 +113,8 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
 
                 String markerFile = name + "/" + DELETED_MARKER_FILE;
                 git.add().addFilepattern(markerFile).call();
-                RevCommit commit = git.commit().setMessage(data.getComment())
+                RevCommit commit = git.commit()
+                        .setMessage(StringUtils.trimToEmpty(data.getComment()))
                         .setCommitter(data.getAuthor(), "")
                         .setOnly(markerFile)
                         .call();
@@ -121,7 +123,10 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             } else {
                 // Files can't be archived. Only folders.
                 git.rm().addFilepattern(name).call();
-                RevCommit commit = git.commit().setMessage(data.getComment()).setCommitter(data.getAuthor(), "").call();
+                RevCommit commit = git.commit()
+                        .setMessage(StringUtils.trimToEmpty(data.getComment()))
+                        .setCommitter(data.getAuthor(), "")
+                        .call();
                 addTagToCommit(commit);
             }
 
@@ -148,7 +153,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
 
             git.add().addFilepattern(destData.getName()).call();
             RevCommit commit = git.commit()
-                    .setMessage(destData.getComment())
+                    .setMessage(StringUtils.trimToEmpty(destData.getComment()))
                     .setCommitter(destData.getAuthor(), "")
                     .call();
             addTagToCommit(commit);
@@ -175,7 +180,8 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
 
             git.rm().addFilepattern(srcName).call();
             git.add().addFilepattern(destData.getName()).call();
-            RevCommit commit = git.commit().setMessage(destData.getComment())
+            RevCommit commit = git.commit()
+                    .setMessage(StringUtils.trimToEmpty(destData.getComment()))
                     .setCommitter(destData.getAuthor(), "")
                     .setOnly(srcName)
                     .setOnly(destData.getName())
@@ -331,12 +337,12 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
 
     @Override
     public void close() {
-        if (git != null) {
-            git.close();
-        }
         if (monitor != null) {
             monitor.release();
             monitor = null;
+        }
+        if (git != null) {
+            git.close();
         }
     }
 
@@ -361,7 +367,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     }
 
     public void setTagPrefix(String tagPrefix) {
-        this.tagPrefix = tagPrefix;
+        this.tagPrefix = StringUtils.trimToEmpty(tagPrefix);
     }
 
     public void setListenerTimerPeriod(int listenerTimerPeriod) {
@@ -452,7 +458,12 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             writeLock.lock();
 
             // TODO: Consider changing merge strategy
-            PullResult pullResult = git.pull().setStrategy(MergeStrategy.OURS).call();
+            PullCommand pullCommand = git.pull().setStrategy(MergeStrategy.OURS);
+            if (StringUtils.isNotBlank(login)) {
+                pullCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
+            }
+
+            PullResult pullResult = pullCommand.call();
             if (!pullResult.isSuccessful()) {
                 throw new IllegalStateException("Can't pull: " + pullResult.toString());
             }
@@ -649,7 +660,8 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             removeAbsentFiles(basePath, folder, savedFiles);
 
             // TODO: Add possibility to set committer email
-            RevCommit commit = git.commit().setMessage(folderData.getComment())
+            RevCommit commit = git.commit()
+                    .setMessage(StringUtils.trimToEmpty(folderData.getComment()))
                     .setCommitter(folderData.getAuthor(), "")
                     .setOnly(relativeFolder)
                     .call();
