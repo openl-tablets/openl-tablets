@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio.web.admin;
 
-public enum JcrType {
+public enum RepositoryType {
     LOCAL(org.openl.rules.repository.factories.LocalJackrabbitRepositoryFactory.class),
     RMI(org.openl.rules.repository.factories.RmiJackrabbitRepositoryFactory.class),
     WEBDAV(org.openl.rules.repository.factories.WebDavRepositoryFactory.class),
@@ -8,20 +8,20 @@ public enum JcrType {
     JNDI(org.openl.rules.repository.db.DatasourceDBRepositoryFactory.class),
     AWS_S3(org.openl.rules.repository.aws.S3Repository.class);
 
-    public static JcrType findByAccessType(String accessType) {
-        for (JcrType jcrType : values()) {
-            if (jcrType.accessType.equals(accessType)) {
-                return jcrType;
+    public static RepositoryType findByAccessType(String accessType) {
+        for (RepositoryType repositoryType : values()) {
+            if (repositoryType.accessType.equals(accessType)) {
+                return repositoryType;
             }
         }
 
         return null;
     }
 
-    public static JcrType findByFactory(String className) {
-        for (JcrType jcrType : values()) {
-            if (jcrType.factoryClassName.equals(className)) {
-                return jcrType;
+    public static RepositoryType findByFactory(String className) {
+        for (RepositoryType repositoryType : values()) {
+            if (repositoryType.factoryClassName.equals(className)) {
+                return repositoryType;
             }
         }
 
@@ -31,7 +31,7 @@ public enum JcrType {
     private final String accessType;
     private final String factoryClassName;
 
-    JcrType(Class factoryClass) {
+    RepositoryType(Class factoryClass) {
         this.factoryClassName = factoryClass.getName();
         this.accessType = name().toLowerCase();
     }

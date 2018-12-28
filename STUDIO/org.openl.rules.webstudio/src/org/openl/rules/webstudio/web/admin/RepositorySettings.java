@@ -26,7 +26,7 @@ public abstract class RepositorySettings {
         configurationManager.setProperty(VERSION_IN_DEPLOYMENT_NAME, includeVersionInDeploymentName);
     }
 
-    protected void onTypeChanged(JcrType newJcrType) {
+    protected void onTypeChanged(RepositoryType newRepositoryType) {
     }
 
     public void copyContent(RepositorySettings other) {
