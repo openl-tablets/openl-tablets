@@ -690,7 +690,7 @@ public class InstallWizard {
      * @param studioFolder   folder were studio will be installed
      */
     private void deleteFolder(File existingFolder, File studioFolder) {
-        if (!studioFolder.delete()) {
+        if (studioFolder.exists() && !studioFolder.delete()) {
             log.warn("Can't delete the folder {}", studioFolder.getName());
         }
 
@@ -699,7 +699,7 @@ public class InstallWizard {
         }
 
         while (!studioFolder.getAbsolutePath().equalsIgnoreCase(existingFolder.getAbsolutePath())) {
-            if (!studioFolder.delete()) {
+            if (studioFolder.exists() && !studioFolder.delete()) {
                 log.warn("Can't delete the folder {}", studioFolder.getName());
             }
             studioFolder = studioFolder.getAbsoluteFile().getParentFile();
@@ -895,9 +895,7 @@ public class InstallWizard {
     }
 
     private void migrateDatabase(final Map<String, Object> dbProperties) {
-        XmlWebApplicationContext ctx = null;
-        try {
-            ctx = new XmlWebApplicationContext();
+        try (XmlWebApplicationContext ctx = new XmlWebApplicationContext()) {
             ctx.setServletContext(FacesUtils.getServletContext());
             ctx.setConfigLocations("classpath:META-INF/standalone/spring/security-hibernate-beans.xml");
             ctx.addBeanFactoryPostProcessor(new BeanFactoryPostProcessor() {
@@ -909,10 +907,6 @@ public class InstallWizard {
             });
             ctx.refresh();
             ctx.getBean("dbMigration");
-        } finally {
-            if (ctx != null) {
-                ctx.close();
-            }
         }
     }
 
