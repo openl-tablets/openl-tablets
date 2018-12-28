@@ -14,6 +14,7 @@ import org.objectweb.asm.Type;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 import org.springframework.beans.BeansException;
@@ -37,7 +38,7 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
     }
 
     @Test
-    public void publishWithDynamicInterface() {
+    public void publishWithDynamicInterface() throws RuleServiceInstantiationException {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
@@ -72,7 +73,7 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
     }
 
     @Test
-    public void publishWithDynamicInterfaceMethodFilter() {
+    public void publishWithDynamicInterfaceMethodFilter() throws RuleServiceInstantiationException {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);

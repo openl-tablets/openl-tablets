@@ -34,78 +34,15 @@ public final class OpenLService {
     private Collection<Module> modules;
     private Set<String> publishers;
     private ClassLoader classLoader;
-
-    /**
-     * Not full constructor, by default variations is not supported.
-     * 
-     * @param name service name
-     * @param url url
-     * @param serviceClassName class name for service
-     * @param provideRuntimeContext define is runtime context should be used
-     * @param modules a list of modules for load
-     */
-    OpenLService(String name,
-            String url,
-            String serviceClassName,
-            String rmiServiceClassName,
-            boolean provideRuntimeContext,
-            Set<String> publishers,
-            Collection<Module> modules,
-            ClassLoader classLoader) {
-        this(name,
-            url,
-            serviceClassName,
-            rmiServiceClassName,
-            provideRuntimeContext,
-            false,
-            publishers,
-            modules,
-            classLoader);
-    }
-
-    OpenLService(String name,
-            String url,
-            String serviceClassName,
-            String rmiServiceClassName,
-            boolean provideRuntimeContext,
-            Collection<Module> modules,
-            ClassLoader classLoader) {
-        this(name,
-            url,
-            serviceClassName,
-            rmiServiceClassName,
-            provideRuntimeContext,
-            false,
-            null,
-            modules,
-            classLoader);
-    }
-
-    OpenLService(String name,
-            String url,
-            String serviceClassName,
-            String rmiServiceClassName,
-            boolean provideRuntimeContext,
-            boolean provideVariations,
-            Collection<Module> modules,
-            ClassLoader classLoader) {
-        this(name,
-            url,
-            serviceClassName,
-            rmiServiceClassName,
-            provideRuntimeContext,
-            provideVariations,
-            null,
-            modules,
-            classLoader);
-    }
+    private OpenLServiceInitializer initializer;
 
     /**
      * Returns service classloader
      * 
      * @return classLoader
      */
-    public ClassLoader getClassLoader() {
+    public ClassLoader getClassLoader() throws RuleServiceInstantiationException {
+        ensureInitialization();
         return classLoader;
     }
 
@@ -127,7 +64,8 @@ public final class OpenLService {
             boolean provideVariations,
             Set<String> publishers,
             Collection<Module> modules,
-            ClassLoader classLoader) {
+            ClassLoader classLoader,
+            Class<?> serviceClass) {
         if (name == null) {
             throw new IllegalArgumentException("name arg must not be null.");
         }
@@ -148,9 +86,10 @@ public final class OpenLService {
             this.publishers = Collections.emptySet();
         }
         this.classLoader = classLoader;
+        this.serviceClass = serviceClass;
     }
 
-    private OpenLService(OpenLServiceBuilder builder) {
+    private OpenLService(OpenLServiceBuilder builder, OpenLServiceInitializer initializer) {
         this(builder.name,
             builder.url,
             builder.serviceClassName,
@@ -159,7 +98,12 @@ public final class OpenLService {
             builder.provideVariations,
             builder.publishers,
             builder.modules,
-            builder.classLoader);
+            builder.classLoader,
+            builder.serviceClass);
+        if (initializer == null) {
+            throw new NullPointerException("initializer can't be null!");
+        }
+        this.initializer = initializer;
     }
 
     /**
@@ -202,12 +146,17 @@ public final class OpenLService {
         return modules;
     }
 
+    private void ensureInitialization() throws RuleServiceInstantiationException {
+        initializer.ensureInitialization(this);
+    }
+
     /**
      * Returns a class name for service.
      * 
      * @return
      */
-    public String getServiceClassName() {
+    public String getServiceClassName() throws RuleServiceInstantiationException {
+        ensureInitialization();
         return serviceClassName;
     }
 
@@ -220,7 +169,8 @@ public final class OpenLService {
      * 
      * @return
      */
-    public String getRmiServiceClassName() {
+    public String getRmiServiceClassName() throws RuleServiceInstantiationException {
+        ensureInitialization();
         return rmiServiceClassName;
     }
 
@@ -252,7 +202,8 @@ public final class OpenLService {
      * 
      * @return
      */
-    public Class<?> getServiceClass() {
+    public Class<?> getServiceClass() throws RuleServiceInstantiationException {
+        ensureInitialization();
         return serviceClass;
     }
 
@@ -261,7 +212,8 @@ public final class OpenLService {
      * 
      * @return
      */
-    public Class<?> getRmiServiceClass() {
+    public Class<?> getRmiServiceClass() throws RuleServiceInstantiationException {
+        ensureInitialization();
         return rmiServiceClass;
     }
 
@@ -277,7 +229,8 @@ public final class OpenLService {
         this.rmiServiceClass = rmiServiceClass;
     }
 
-    public Object getServiceBean() {
+    public Object getServiceBean() throws RuleServiceInstantiationException {
+        ensureInitialization();
         return serviceBean;
     }
 
@@ -285,11 +238,12 @@ public final class OpenLService {
         this.serviceBean = serviceBean;
     }
 
-    public void setOpenClass(IOpenClass openClass) {
+    void setOpenClass(IOpenClass openClass) {
         this.openClass = openClass;
     }
 
-    public IOpenClass getOpenClass() {
+    public IOpenClass getOpenClass() throws RuleServiceInstantiationException {
+        ensureInitialization();
         return openClass;
     }
 
@@ -327,8 +281,11 @@ public final class OpenLService {
      * Unregister ClassLoaders of this service.
      */
     public void destroy() {
-        ClassLoader classloader = getClassLoader();
-        OpenClassUtil.releaseClassLoader(classloader);
+        try {
+            ClassLoader classloader = getClassLoader();
+            OpenClassUtil.releaseClassLoader(classloader);
+        } catch (RuleServiceInstantiationException e) {
+        }
     }
 
     /**
@@ -507,13 +464,11 @@ public final class OpenLService {
          * 
          * @return
          */
-        public OpenLService build() {
+        public OpenLService build(OpenLServiceInitializer initializer) {
             if (name == null) {
                 throw new IllegalStateException("Field 'name' is required for building ServiceDescription.");
             }
-            OpenLService openLService = new OpenLService(this);
-            openLService.setServiceClass(serviceClass);
-            return openLService;
+            return new OpenLService(this, initializer);
         }
     }
 }

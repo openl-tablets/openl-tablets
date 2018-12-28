@@ -34,7 +34,6 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfte
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallInterceptorGroup;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
-import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 
 public class ServiceInterfaceMethodInterceptingTest {
     public static class ResultConvertor extends AbstractServiceMethodAfterReturningAdvice<Double> {
@@ -113,7 +112,6 @@ public class ServiceInterfaceMethodInterceptingTest {
             .setDeployment(deploymentDescription)
             .setModules(modules)
             .build();
-        ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
 
         ruleServiceLoader = mock(RuleServiceLoader.class);
 
@@ -223,7 +221,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
         Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper
             .getInterfaceForInstantiationStrategy(
-                instantiationFactory.getInstantiationStrategyFactory().getStrategy(modules, null),
+                instantiationFactory.getInstantiationStrategyFactory().getStrategy(serviceDescription, null),
                 OverloadInterface.class);
         for (Method method : OverloadInterface.class.getMethods()) {
             if (!method.isAnnotationPresent(ServiceExtraMethod.class)) {

@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.junit.Before;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.openl.rules.ruleservice.simple.JavaClassRuleServicePublisher;
 import org.openl.rules.ruleservice.simple.MethodInvocationException;
@@ -127,7 +128,7 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
      * @param serviceName service name
      * @return service
      */
-    protected Object getService(String serviceName) {
+    protected Object getService(String serviceName) throws RuleServiceInstantiationException {
         OpenLService service = getJavaClassRuleServicePublisher().getServiceByName(serviceName);
         if (service == null) {
             return null;
@@ -143,7 +144,7 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
      * @return service
      */
     @SuppressWarnings("unchecked")
-    protected <T> T getService(String serviceName, Class<T> serviceClass) {
+    protected <T> T getService(String serviceName, Class<T> serviceClass) throws RuleServiceInstantiationException {
         OpenLService service = getJavaClassRuleServicePublisher().getServiceByName(serviceName);
         if (service == null) {
             return null;
@@ -158,7 +159,7 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
      * @param serviceName service namee
      * @return service type
      */
-    protected Class<?> getServiceClassByServiceName(String serviceName) {
+    protected Class<?> getServiceClassByServiceName(String serviceName) throws RuleServiceInstantiationException {
         OpenLService service = getJavaClassRuleServicePublisher().getServiceByName(serviceName);
         if (service == null) {
             return null;

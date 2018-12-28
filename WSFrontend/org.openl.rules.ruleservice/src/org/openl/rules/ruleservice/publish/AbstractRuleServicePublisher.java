@@ -9,7 +9,6 @@ import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 
 public abstract class AbstractRuleServicePublisher implements RuleServicePublisher {
-
     protected Collection<RuleServicePublisherListener> listeners = new ArrayList<RuleServicePublisherListener>();
 
     private PublisherType publisherType;

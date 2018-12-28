@@ -8,6 +8,7 @@ import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.cxf.jaxws.endpoint.dynamic.JaxWsDynamicClientFactory;
 import org.junit.Before;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.openl.rules.ruleservice.publish.JAXWSRuleServicePublisher;
 import org.springframework.beans.BeansException;
@@ -166,7 +167,11 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
         Class<?> clazzForClient = null;
         String addressForClient = null;
         if (clazz == null) {
-            clazzForClient = service.getServiceClass();
+            try {
+                clazzForClient = service.getServiceClass();
+            } catch (RuleServiceInstantiationException e) {
+                throw new ServiceNotFoundException(String.format("Service '%' is not found", serviceName));
+            }
         } else {
             clazzForClient = clazz;
         }

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.annotations.Name;
 import org.openl.types.IOpenClass;
 import org.openl.util.generation.GenUtils;
@@ -65,36 +66,39 @@ public final class MethodUtil {
     }
 
     public static String[] getParameterNames(Method method, OpenLService service) {
-        if (service != null && service.getOpenClass() != null) {
-            IOpenClass openClass = service.getOpenClass();
-            boolean provideRuntimeContext = service.isProvideRuntimeContext();
-            boolean provideVariations = service.isProvideVariations();
-            String[] parameterNames = GenUtils
-                .getParameterNames(method, openClass, provideRuntimeContext, provideVariations);
-
-            int i = 0;
-            for (Annotation[] annotations : method.getParameterAnnotations()) {
-                for (Annotation annotation : annotations) {
-                    if (annotation instanceof Name) {
-                        Name name = (Name) annotation;
-                        if (!name.value().isEmpty()) {
-                            parameterNames[i] = name.value();
-                        } else {
-                            Logger log = LoggerFactory.getLogger(MethodUtil.class);
-                            if (log.isWarnEnabled()) {
-                                log.warn("Invalid parameter name '" + name.value() + "'. Parameter name for '" + method
-                                    .getClass()
-                                    .getCanonicalName() + "#" + method.getName() + "' was skipped!");
+        try {
+            if (service != null && service.getOpenClass() != null) {
+                IOpenClass openClass = service.getOpenClass();
+                boolean provideRuntimeContext = service.isProvideRuntimeContext();
+                boolean provideVariations = service.isProvideVariations();
+                String[] parameterNames = GenUtils
+                    .getParameterNames(method, openClass, provideRuntimeContext, provideVariations);
+    
+                int i = 0;
+                for (Annotation[] annotations : method.getParameterAnnotations()) {
+                    for (Annotation annotation : annotations) {
+                        if (annotation instanceof Name) {
+                            Name name = (Name) annotation;
+                            if (!name.value().isEmpty()) {
+                                parameterNames[i] = name.value();
+                            } else {
+                                Logger log = LoggerFactory.getLogger(MethodUtil.class);
+                                if (log.isWarnEnabled()) {
+                                    log.warn("Invalid parameter name '" + name.value() + "'. Parameter name for '" + method
+                                        .getClass()
+                                        .getCanonicalName() + "#" + method.getName() + "' was skipped!");
+                                }
                             }
                         }
                     }
+                    i++;
                 }
-                i++;
+    
+                validateAndUpdateParameterNames(parameterNames);
+    
+                return parameterNames;
             }
-
-            validateAndUpdateParameterNames(parameterNames);
-
-            return parameterNames;
+        }catch (RuleServiceInstantiationException e) {
         }
         return GenUtils.getParameterNames(method);
     }

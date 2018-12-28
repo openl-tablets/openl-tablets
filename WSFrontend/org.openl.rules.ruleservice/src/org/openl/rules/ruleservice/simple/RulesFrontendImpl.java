@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.beanutils.MethodUtils;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.util.ClassUtils;
 import org.slf4j.Logger;
@@ -81,33 +82,36 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
 
         OpenLService service = runningServices.get(serviceName);
         if (service != null) {
-            Method serviceMethod = null;
-            serviceMethod = MethodUtils.getMatchingAccessibleMethod(service.getServiceBean().getClass(),
-                ruleName,
-                inputParamsTypes);
-            if (serviceMethod == null) {
-                StringBuilder sb = new StringBuilder();
-                boolean f = true;
-                for (Class<?> param : inputParamsTypes) {
-                    if (!f) {
-                        sb.append(",");
-                    } else {
-                        f = false;
-                    }
-                    sb.append(param.getCanonicalName());
-                }
-
-                throw new MethodInvocationException("Method '" + ruleName + "(" + sb
-                    .toString() + ")' hasn't been found in service '" + serviceName + "'!");
-            }
             try {
-                return serviceMethod.invoke(service.getServiceBean(), params);
-            } catch (IllegalAccessException e) {
-                throw new InternalError(e.toString());
-            } catch (InvocationTargetException e) {
-                Throwable t = e.getCause();
-                throw new MethodInvocationException(t.toString(), t);
-            } 
+                Method serviceMethod = null;
+                serviceMethod = MethodUtils
+                    .getMatchingAccessibleMethod(service.getServiceBean().getClass(), ruleName, inputParamsTypes);
+                if (serviceMethod == null) {
+                    StringBuilder sb = new StringBuilder();
+                    boolean f = true;
+                    for (Class<?> param : inputParamsTypes) {
+                        if (!f) {
+                            sb.append(",");
+                        } else {
+                            f = false;
+                        }
+                        sb.append(param.getCanonicalName());
+                    }
+
+                    throw new MethodInvocationException("Method '" + ruleName + "(" + sb
+                        .toString() + ")' hasn't been found in service '" + serviceName + "'!");
+                }
+                try {
+                    return serviceMethod.invoke(service.getServiceBean(), params);
+                } catch (IllegalAccessException e) {
+                    throw new InternalError(e.toString());
+                } catch (InvocationTargetException e) {
+                    Throwable t = e.getCause();
+                    throw new MethodInvocationException(t.toString(), t);
+                }
+            } catch (RuleServiceInstantiationException e) {
+                throw new MethodInvocationException("Service '" + serviceName + "' hasn't been found.", e);
+            }
         } else {
             throw new MethodInvocationException("Service '" + serviceName + "' hasn't been found.");
         }
