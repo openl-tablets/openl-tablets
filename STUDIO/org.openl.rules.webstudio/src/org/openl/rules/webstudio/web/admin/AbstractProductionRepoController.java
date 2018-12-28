@@ -70,7 +70,7 @@ public abstract class AbstractProductionRepoController {
     protected RepositoryConfiguration createRepositoryConfiguration() {
         String name = repositoryConfiguration.getName();
         RepositoryConfiguration repoConfig = new RepositoryConfiguration(getConfigurationName(name), getProductionConfigManager(name),
-                RepositoryType.PRODUCTION);
+                RepositoryMode.PRODUCTION);
 
         repoConfig.copyContent(repositoryConfiguration);
         repoConfig.commit();
@@ -80,7 +80,7 @@ public abstract class AbstractProductionRepoController {
     protected RepositoryConfiguration createAdminRepositoryConfiguration() {
         String name = repositoryConfiguration.getName();
         RepositoryConfiguration repoConfig = new RepositoryConfiguration(name, getProductionConfigManager(name),
-                RepositoryType.PRODUCTION);
+                RepositoryMode.PRODUCTION);
 
         repoConfig.copyContent(repositoryConfiguration);
 
@@ -105,7 +105,7 @@ public abstract class AbstractProductionRepoController {
 
     private RepositoryConfiguration createDummyRepositoryConfiguration() {
         RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration("def", getProductionConfigManager("def"),
-                RepositoryType.PRODUCTION);
+                RepositoryMode.PRODUCTION);
         repositoryConfiguration.setType(JcrType.LOCAL.name().toLowerCase());
         return repositoryConfiguration;
     }

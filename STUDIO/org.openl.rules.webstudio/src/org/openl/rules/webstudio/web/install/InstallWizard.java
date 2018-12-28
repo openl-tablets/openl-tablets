@@ -42,7 +42,7 @@ import org.openl.rules.webstudio.web.admin.ConnectionProductionRepoController;
 import org.openl.rules.webstudio.web.admin.NewProductionRepoController;
 import org.openl.rules.webstudio.web.admin.ProductionRepositoryEditor;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
-import org.openl.rules.webstudio.web.admin.RepositoryType;
+import org.openl.rules.webstudio.web.admin.RepositoryMode;
 import org.openl.rules.webstudio.web.admin.RepositoryValidationException;
 import org.openl.rules.webstudio.web.admin.RepositoryValidators;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
@@ -166,7 +166,7 @@ public class InstallWizard {
                     // Make it globally available. It will not be changed during application execution.
                     System.setProperty(ConfigurationManager.REPO_PASS_KEY, repoPassKey);
 
-                    designRepositoryConfiguration = new RepositoryConfiguration("", systemConfig, RepositoryType.DESIGN);
+                    designRepositoryConfiguration = new RepositoryConfiguration("", systemConfig, RepositoryMode.DESIGN);
 
                     initProductionRepositoryEditor();
 

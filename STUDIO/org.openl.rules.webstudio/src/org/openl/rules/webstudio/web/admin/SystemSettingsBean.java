@@ -60,7 +60,7 @@ public class SystemSettingsBean {
     public void afterPropertiesSet() {
         configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
 
-        designRepositoryConfiguration = new RepositoryConfiguration("", configManager, RepositoryType.DESIGN);
+        designRepositoryConfiguration = new RepositoryConfiguration("", configManager, RepositoryMode.DESIGN);
 
         productionRepositoryEditor = new ProductionRepositoryEditor(configManager,
                 productionConfigManagerFactory,

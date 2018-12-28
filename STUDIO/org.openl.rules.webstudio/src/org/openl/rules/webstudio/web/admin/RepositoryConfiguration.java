@@ -20,7 +20,7 @@ public class RepositoryConfiguration {
 
     private String configName;
     private final ConfigurationManager configManager;
-    private final RepositoryType repositoryType;
+    private final RepositoryMode repositoryMode;
 
     private final String REPOSITORY_FACTORY;
     private final String REPOSITORY_NAME;
@@ -31,12 +31,12 @@ public class RepositoryConfiguration {
 
     public RepositoryConfiguration(String configName,
             ConfigurationManager configManager,
-            RepositoryType repositoryType) {
+            RepositoryMode repositoryMode) {
         this.configName = configName.toLowerCase();
         this.configManager = configManager;
-        this.repositoryType = repositoryType;
+        this.repositoryMode = repositoryMode;
 
-        CONFIG_PREFIX = repositoryType == RepositoryType.DESIGN ? RepositoryFactoryInstatiator.DESIGN_REPOSITORY
+        CONFIG_PREFIX = repositoryMode == RepositoryMode.DESIGN ? RepositoryFactoryInstatiator.DESIGN_REPOSITORY
                                                                 : RepositoryFactoryInstatiator.PRODUCTION_REPOSITORY;
         REPOSITORY_FACTORY = CONFIG_PREFIX + "factory";
         REPOSITORY_NAME = CONFIG_PREFIX + "name";
@@ -63,7 +63,7 @@ public class RepositoryConfiguration {
                 newSettings = new AWSS3RepositorySettings(configManager, CONFIG_PREFIX);
                 break;
             default:
-                newSettings = new CommonRepositorySettings(configManager, CONFIG_PREFIX, repositoryType, jcrType);
+                newSettings = new CommonRepositorySettings(configManager, CONFIG_PREFIX, repositoryMode, jcrType);
                 break;
         }
 
