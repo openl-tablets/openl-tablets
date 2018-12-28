@@ -17,16 +17,30 @@
 		<property name="propertyName" value="jacksondatabinding.enableDefaultTyping" />
 		<property name="defaultValue" value="false" />
 	</bean>
+    
+    <bean id="JAXRSserviceDescriptionConfigurationDefaultDateFormatFactoryBean"
+          class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationDefaultDateFormatFactoryBean"
+          scope="prototype"/>
+    
+    <bean
+        id="JAXRSserviceDescriptionConfigurationEnableSmartTypingFactoryBean"
+        class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationBooleanFactoryBean"
+        scope="prototype">
+        <property name="propertyName" value="jacksondatabinding.enableSmartTyping" />
+        <property name="defaultValue" value="true" />
+    </bean>
 
 	<bean id="JAXRSJacksonDatabindingFactoryBean"
 		class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
 		scope="prototype">
 		<property name="enableDefaultTyping"
 			ref="JAXRSserviceDescriptionConfigurationEnableDefaultTypingFactoryBean" />
+        <property name="enableSmartTyping" ref="JAXRSserviceDescriptionConfigurationEnableSmartTypingFactoryBean"/>
 		<property name="overrideTypes"
 			ref="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean" />
 		<property name="supportVariations"
 			ref="serviceDescriptionConfigurationSupportVariationsFactoryBean" />
+        <property name="defaultDateFormat" ref="JAXRSserviceDescriptionConfigurationDefaultDateFormatFactoryBean"/>
 	</bean>
 
 	<bean id="JAXRSJacksonObjectMapper"

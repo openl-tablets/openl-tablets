@@ -1,0 +1,17 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>rules-disabledefaulttyping</serviceName>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <url>rules-disabledefaulttyping</url>
+
+    <configuration>
+        <entry>
+            <string>jacksondatabinding.enableSmartTyping</string>
+            <string>false</string>
+        </entry>
+    </configuration>
+
+</rules-deploy>

@@ -61,7 +61,7 @@ public class ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean ext
                 }else{
                     if (value != null){
                         if (log.isErrorEnabled()) {
-                            log.error("Error in service '{}' error. Unsupported value is used for " + ROOT_CLASS_NAMES_BINDING + " configuration! Default value has been used!", serviceDescription.getName());
+                            log.error("Error in service '{}' configuration. Unsupported value is used in '" + ROOT_CLASS_NAMES_BINDING + "'! Default value is used!", serviceDescription.getName());
                         }
                     }
                 }
