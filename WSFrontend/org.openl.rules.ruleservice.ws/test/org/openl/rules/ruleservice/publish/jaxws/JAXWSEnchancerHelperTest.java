@@ -9,8 +9,8 @@ import javax.ws.rs.PathParam;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openl.rules.ruleservice.core.AbstractOpenLServiceInitializer;
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.publish.jaxws.JAXWSEnhancerHelper;
 
 public class JAXWSEnchancerHelperTest {
     public static interface TestInterface {
@@ -49,7 +49,11 @@ public class JAXWSEnchancerHelperTest {
         OpenLService service = new OpenLService.OpenLServiceBuilder().setClassLoader(classLoader)
             .setName("test")
             .setServiceClass(TestInterface.class)
-            .build();
+            .build(new AbstractOpenLServiceInitializer() {
+                @Override
+                protected void init(OpenLService openLService) {
+                }
+            });
 
         Class<?> enchancedClass = JAXWSEnhancerHelper.decorateServiceInterface(service);
 
@@ -74,7 +78,11 @@ public class JAXWSEnchancerHelperTest {
         OpenLService service = new OpenLService.OpenLServiceBuilder().setClassLoader(classLoader)
             .setName("test")
             .setServiceClass(TestAnnotatedInterface.class)
-            .build();
+            .build(new AbstractOpenLServiceInitializer() {
+                @Override
+                protected void init(OpenLService openLService) {
+                }
+            });
         Class<?> enchancedClass = JAXWSEnhancerHelper.decorateServiceInterface(service);
 
         Annotation webServiceAnnotation = enchancedClass.getAnnotation(WebService.class);
@@ -103,7 +111,11 @@ public class JAXWSEnchancerHelperTest {
         OpenLService service = new OpenLService.OpenLServiceBuilder().setClassLoader(classLoader)
             .setName("test")
             .setServiceClass(TestMethodNamesAndOperationNames.class)
-            .build();
+            .build(new AbstractOpenLServiceInitializer() {
+                @Override
+                protected void init(OpenLService openLService) {
+                }
+            });
         Class<?> enchancedClass = JAXWSEnhancerHelper.decorateServiceInterface(service);
         int i = 0;
         for (Method method : enchancedClass.getMethods()) {

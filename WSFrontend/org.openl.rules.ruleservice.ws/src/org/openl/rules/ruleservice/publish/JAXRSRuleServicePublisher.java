@@ -18,6 +18,7 @@ import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.logging.CollectObjectSerializerInterceptor;
 import org.openl.rules.ruleservice.logging.CollectOpenLServiceInterceptor;
@@ -107,12 +108,14 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     public boolean isSwaggerPrettyPrint() {
         return swaggerPrettyPrint;
     }
+    
+    
 
     @Override
     protected void deployService(final OpenLService service) throws RuleServiceDeployException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(service.getClassLoader());
         try {
+            Thread.currentThread().setContextClassLoader(service.getClassLoader());
             JAXRSServerFactoryBean svrFactory = getServerFactoryBean();
             String url = processURL(service.getUrl());
             if (service.getPublishers().size() != 1) {
@@ -152,7 +155,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
             } finally {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getName()), t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -228,7 +231,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
         return services;
     }
 
-    private ServiceInfo createServiceInfo(OpenLService service) {
+    private ServiceInfo createServiceInfo(OpenLService service) throws RuleServiceInstantiationException {
         List<String> methodNames = new ArrayList<String>();
         for (Method method : service.getServiceClass().getMethods()) {
             methodNames.add(method.getName());

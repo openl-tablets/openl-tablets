@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.ruleservice.core.ServiceDescription;
 
 /**
  * Resolve strategy for creating service bean.
@@ -20,5 +21,5 @@ public interface RuleServiceInstantiationStrategyFactory {
      * @param dependencyManager
      * @return 
      */
-    RulesInstantiationStrategy getStrategy(Collection<Module> modules, IDependencyManager dependencyManager);
+    RulesInstantiationStrategy getStrategy(ServiceDescription serviceDescription, IDependencyManager dependencyManager);
 }

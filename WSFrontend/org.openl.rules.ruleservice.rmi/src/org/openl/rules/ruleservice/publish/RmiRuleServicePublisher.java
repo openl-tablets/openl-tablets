@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.publish.rmi.RmiEnhancerHelper;
 import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
@@ -82,9 +83,8 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
     @Override
     protected void deployService(OpenLService service) throws RuleServiceDeployException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(service.getClassLoader());
-
         try {
+            Thread.currentThread().setContextClassLoader(service.getClassLoader());
             Registry registry = getRegistry();
             String url = URLHelper.processURL(service.getUrl());
             
@@ -152,7 +152,7 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
         return services;
     }
 
-    private ServiceInfo createServiceInfo(OpenLService service) {
+    private ServiceInfo createServiceInfo(OpenLService service) throws RuleServiceInstantiationException {
         List<String> methodNames = new ArrayList<String>();
         for (Method method : service.getServiceClass().getMethods()) {
             methodNames.add(method.getName());
