@@ -254,7 +254,11 @@ public class AProjectFolder extends AProjectArtefact {
 
     @Override
     public boolean isHistoric() {
-        return historyVersion != null && !(getRepository() instanceof FileSystemRepository);
+        return historyVersion != null && isRepositoryVersionable();
+    }
+
+    protected boolean isRepositoryVersionable() {
+        return !(getRepository() instanceof FileSystemRepository);
     }
 
     public String getHistoryVersion() {
