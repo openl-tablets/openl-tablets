@@ -70,11 +70,11 @@ public class SpreadsheetComponentsBuilder {
     }
     
     public Map<Integer, SpreadsheetHeaderDefinition> getRowHeaders() {        
-        return new HashMap<>(rowHeaders);
+        return rowHeaders;
     }
     
     public Map<Integer, SpreadsheetHeaderDefinition> getColumnHeaders() {        
-        return new HashMap<>(columnHeaders);
+        return columnHeaders;
     }
     
     public String[] getRowNames() {

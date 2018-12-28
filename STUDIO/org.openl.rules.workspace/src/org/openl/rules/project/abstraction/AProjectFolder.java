@@ -2,17 +2,17 @@ package org.openl.rules.project.abstraction;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.IOUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -151,38 +151,33 @@ public class AProjectFolder extends AProjectArtefact {
     public void update(AProjectArtefact newFolder, CommonUser user) throws ProjectException {
         super.update(newFolder, user);
         if (this.isFolder()) {
+            AProjectFolder from = (AProjectFolder) newFolder;
 
-            AProjectFolder folder = (AProjectFolder) newFolder;
-            // remove absent
-            for (AProjectArtefact artefact : getArtefacts()) {
-                String name = artefact.getInternalPath();
-
-                if (!folder.hasArtefact(name)) {
-                    // was deleted
-                    artefact.delete();
-                } else {
-                    AProjectArtefact newArtefact = folder.getArtefact(name);
-
-                    if (newArtefact.isFolder() == artefact.isFolder()) {
-                        // update existing
-                        artefact.update(newArtefact, user);
-                    } else {
-                        // the same name but other type
-                        artefact.delete();
-                    }
+            List<FileChange> changes = new ArrayList<>();
+            try {
+                findChanges(from, changes);
+                ((FolderRepository) getRepository()).save(getFileData(), changes);
+            } catch (IOException e) {
+                throw new ProjectException("Can't update: " + e.getMessage(), e);
+            } finally {
+                for (FileChange change : changes) {
+                    IOUtils.closeQuietly(change.getStream());
                 }
             }
+        }
+    }
 
-            // add new
-            for (AProjectArtefact artefact : folder.getArtefacts()) {
-                String name = artefact.getInternalPath();
-                if (!hasArtefact(name)) {
-                    if (artefact.isFolder()) {
-                        addFolder(name).update(artefact, user);
-                    } else {
-                        addResource(name, (AProjectResource) artefact);
-                    }
-                }
+    private void findChanges(AProjectFolder from, List<FileChange> files) throws ProjectException {
+        ResourceTransformer transformer = getResourceTransformer();
+        String folderPath = getFolderPath();
+
+        for (AProjectArtefact artefact : from.getArtefacts()) {
+            if (artefact instanceof AProjectResource) {
+                AProjectResource resource = (AProjectResource) artefact;
+                InputStream content = transformer != null ? transformer.transform(resource) : resource.getContent();
+                files.add(new FileChange(folderPath + "/" + artefact.getInternalPath(), content));
+            } else {
+                findChanges((AProjectFolder) artefact, files);
             }
         }
     }
@@ -199,16 +194,20 @@ public class AProjectFolder extends AProjectArtefact {
     }
 
     protected Map<String, AProjectArtefact> createInternalArtefacts() {
-        HashMap<String, AProjectArtefact> internalArtefacts = new HashMap<String, AProjectArtefact>();
+        HashMap<String, AProjectArtefact> internalArtefacts = new HashMap<>();
         Collection<FileData> fileDatas;
         try {
             String folderPath = getFolderPath();
+            if (!folderPath.isEmpty() && !folderPath.endsWith("/")) {
+                folderPath += "/";
+            }
             if (isHistoric()) {
-                fileDatas = getRepository().listHistory(folderPath);
-            } else {
-                if (!folderPath.isEmpty() && !folderPath.endsWith("/")) {
-                    folderPath += "/";
+                if (getRepository() instanceof FolderRepository) {
+                    fileDatas = ((FolderRepository) getRepository()).listFiles(folderPath, getFileData().getVersion());
+                } else {
+                    throw new UnsupportedOperationException("Can't get internal artifacts for historic project version");
                 }
+            } else {
                 fileDatas = getRepository().list(folderPath);
             }
         } catch (IOException ex) {
@@ -255,7 +254,11 @@ public class AProjectFolder extends AProjectArtefact {
 
     @Override
     public boolean isHistoric() {
-        return historyVersion != null && !(getRepository() instanceof LocalRepository);
+        return historyVersion != null && isRepositoryVersionable();
+    }
+
+    protected boolean isRepositoryVersionable() {
+        return !(getRepository() instanceof FileSystemRepository);
     }
 
     public String getHistoryVersion() {

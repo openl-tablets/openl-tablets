@@ -133,7 +133,6 @@ public class RunITest {
         assertNotNull(result);
         assertEquals(100, result.getFieldValue("$calc$INT"));
         assertEquals("foo", result.getFieldValue("$calc$String"));
-        assertNull(result.getRowTitles());
         assertNull(result.getLogicalTable());
     }
 

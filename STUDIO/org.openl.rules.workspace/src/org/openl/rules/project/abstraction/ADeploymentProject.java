@@ -39,7 +39,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
             String folderPath,
             String version,
             LockEngine lockEngine) {
-        super(user, repository, folderPath, version, false);
+        super(user, repository, folderPath, version);
         this.lockEngine = lockEngine;
     }
 
@@ -47,12 +47,12 @@ public class ADeploymentProject extends UserWorkspaceProject {
             Repository repository,
             FileData fileData,
             LockEngine lockEngine) {
-        super(user, repository, fileData, false);
+        super(user, repository, fileData);
         this.lockEngine = lockEngine;
     }
 
     public ADeploymentProject(Repository repository, FileData fileData) {
-        super(null, repository, fileData, false);
+        super(null, repository, fileData);
         lockEngine = null;
     }
 
@@ -61,14 +61,14 @@ public class ADeploymentProject extends UserWorkspaceProject {
         return false;
     }
 
-    public void addProjectDescriptor(String name, CommonVersion version) throws ProjectException {
+    public void addProjectDescriptor(String name, CommonVersion version) {
         if (hasProjectDescriptor(name)) {
             removeProjectDescriptor(name);
         }
         getDescriptors().add(new ProjectDescriptorImpl(name, version));
     }
 
-    public boolean hasProjectDescriptor(String name) throws ProjectException {
+    public boolean hasProjectDescriptor(String name) {
         Collection<ProjectDescriptor> pgl = getProjectDescriptors();
 
         if (pgl != null) {
@@ -91,7 +91,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
         throw new ProjectException(String.format("Project descriptor '%s' is not found", name));
     }
 
-    public void openVersion(String version) throws ProjectException {
+    public void openVersion(String version) {
         modifiedDescriptors = false;
         openedVersion = new ADeploymentProject(getUser(), getRepository(), getFolderPath(), version, lockEngine);
         openedVersion.setHistoryVersion(version);
@@ -162,7 +162,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
         unlock();
     }
 
-    private void removeProjectDescriptor(String name) throws ProjectException {
+    private void removeProjectDescriptor(String name) {
         Collection<ProjectDescriptor> projectDescriptors = getDescriptors();
         for (ProjectDescriptor descriptor : projectDescriptors) {
             if (descriptor.getProjectName().equals(name)) {
@@ -224,7 +224,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
     private List<ProjectDescriptor> getDescriptors() {
         if (descriptors == null) {
-            descriptors = new ArrayList<ProjectDescriptor>();
+            descriptors = new ArrayList<>();
             ADeploymentProject source = openedVersion == null ? this : openedVersion;
             if (source.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
                 InputStream content = null;
@@ -232,7 +232,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
                     content = ((AProjectResource) source.getArtefact(ArtefactProperties.DESCRIPTORS_FILE)).getContent();
                     descriptors = ProjectDescriptorHelper.deserialize(content);
                     if (descriptors == null) {
-                        descriptors = new ArrayList<ProjectDescriptor>();
+                        descriptors = new ArrayList<>();
                     }
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);

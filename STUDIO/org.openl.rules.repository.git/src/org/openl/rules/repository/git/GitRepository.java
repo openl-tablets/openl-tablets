@@ -100,17 +100,17 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         try {
             writeLock.lock();
 
-            if (data.getName().endsWith("/")) {
-                String folderName = data.getName();
-                File folder = new File(localRepositoryPath, folderName);
-                if (!folder.exists()) {
-                    return false;
-                }
+            String name = data.getName();
+            File file = new File(localRepositoryPath, name);
+            if (!file.exists()) {
+                return false;
+            }
 
+            if (file.isDirectory()) {
                 // "touch" marker file
-                new FileOutputStream(new File(folder, DELETED_MARKER_FILE)).close();
+                new FileOutputStream(new File(file, DELETED_MARKER_FILE)).close();
 
-                String markerFile = folderName + DELETED_MARKER_FILE;
+                String markerFile = name + "/" + DELETED_MARKER_FILE;
                 git.add().addFilepattern(markerFile).call();
                 RevCommit commit = git.commit().setMessage(data.getComment())
                         .setCommitter(data.getAuthor(), "")
@@ -119,13 +119,8 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
 
                 addTagToCommit(commit, true);
             } else {
-                String fileInRepository = data.getName();
-                File file = new File(localRepositoryPath, fileInRepository);
-                if (!file.exists()) {
-                    return false;
-                }
-
-                git.rm().addFilepattern(fileInRepository).call();
+                // Files can't be archived. Only folders.
+                git.rm().addFilepattern(name).call();
                 RevCommit commit = git.commit().setMessage(data.getComment()).setCommitter(data.getAuthor(), "").call();
                 addTagToCommit(commit);
             }
@@ -225,47 +220,47 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
 
     @Override
     public boolean deleteHistory(String name, String version) {
-        if (name.endsWith("/")) {
-            Lock writeLock = repositoryLock.writeLock();
-            try {
-                writeLock.lock();
+        Lock writeLock = repositoryLock.writeLock();
+        try {
+            writeLock.lock();
 
-                RevCommit commit;
-                if (version == null) {
-                    git.rm().addFilepattern(name).call();
-                    commit = git.commit()
-                            .setCommitter(SYSTEM_USER, "")
-                            .setMessage("Erase")
-                            .setOnly(name)
-                            .call();
-                } else {
-                    FileData fileData = checkHistory(name, version);
-                    if (fileData == null) {
-                        return false;
-                    }
-
-                    String markerFile = name + DELETED_MARKER_FILE;
-                    git.rm().addFilepattern(markerFile).call();
-                    commit = git.commit()
-                            .setCommitter(SYSTEM_USER, "")
-                            .setMessage("Restore")
-                            .setOnly(markerFile)
-                            .call();
+            RevCommit commit;
+            if (version == null) {
+                git.rm().addFilepattern(name).call();
+                commit = git.commit()
+                        .setCommitter(SYSTEM_USER, "")
+                        .setMessage("Erase")
+                        .setOnly(name)
+                        .call();
+            } else {
+                FileData fileData = checkHistory(name, version);
+                if (fileData == null) {
+                    return false;
                 }
 
-                addTagToCommit(commit);
+                if (!fileData.isDeleted()) {
+                    // We can "delete" only archived versions. Other version can't be deleted.
+                    return false;
+                }
 
-                push();
-                return true;
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-                return false;
-            } finally {
-                writeLock.unlock();
+                String markerFile = name + "/" + DELETED_MARKER_FILE;
+                git.rm().addFilepattern(markerFile).call();
+                commit = git.commit()
+                        .setCommitter(SYSTEM_USER, "")
+                        .setMessage("Restore")
+                        .setOnly(markerFile)
+                        .call();
             }
-        } else {
-            // Undelete and erase operations for this repository aren't supported. Just do nothing.
+
+            addTagToCommit(commit);
+
+            push();
+            return true;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
             return false;
+        } finally {
+            writeLock.unlock();
         }
     }
 
@@ -275,16 +270,23 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             return copy(srcName, destData);
         }
 
-        if (srcName.endsWith("/")) {
+        File src = new File(localRepositoryPath, srcName);
+        if (src.isDirectory()) {
             List<FileChange> files = new ArrayList<>();
-            List<FileData> fileData = listFiles(srcName, version);
-            for (FileData data : fileData) {
-                String fileFrom = data.getName();
-                FileItem fileItem = readHistory(fileFrom, version);
-                String fileTo = destData.getName() + fileFrom.substring(srcName.length());
-                files.add(new FileChange(fileTo, fileItem.getStream()));
+            try {
+                List<FileData> fileData = listFiles(srcName + "/", version);
+                for (FileData data : fileData) {
+                    String fileFrom = data.getName();
+                    FileItem fileItem = readHistory(fileFrom, version);
+                    String fileTo = destData.getName() + fileFrom.substring(srcName.length());
+                    files.add(new FileChange(fileTo, fileItem.getStream()));
+                }
+                return save(destData, files);
+            } finally {
+                for (FileChange file : files) {
+                    IOUtils.closeQuietly(file.getStream());
+                }
             }
-            return save(destData, files);
         } else {
             FileItem fileItem = null;
             try {
@@ -408,9 +410,6 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         String fullPath = baseFolder + dirWalk.getPathString();
 
         int fileModeBits = dirWalk.getFileMode().getBits();
-        if ((fileModeBits & FileMode.TYPE_TREE) != 0) {
-            fullPath += "/";
-        }
 
         FileData fileData = new FileData();
         fileData.setName(fullPath);
@@ -618,33 +617,36 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     }
 
     @Override
-    public FileData save(FileData folderData, List<FileChange> files) throws IOException {
+    public FileData save(FileData folderData, Iterable<FileChange> files) throws IOException {
         Lock writeLock = repositoryLock.writeLock();
         try {
             writeLock.lock();
             String relativeFolder = folderData.getName();
 
-            // Remove absent files
-            List<File> removed = new ArrayList<>();
-            File folder = new File(localRepositoryPath, relativeFolder);
-            listRemovedFiles(removed, folder, toFiles(files));
-            for (File file : removed) {
-                String basePath = new File(localRepositoryPath).getAbsolutePath();
-                String fileInRepository = file.getAbsolutePath().substring(basePath.length()).replace('\\', '/');
-                if (fileInRepository.startsWith("/")) {
-                    fileInRepository = fileInRepository.substring(1);
-                }
-                git.rm().addFilepattern(fileInRepository).call();
-            }
-
             // Add new files and update existing ones
+            List<File> savedFiles = new ArrayList<>();
             for (FileChange change : files) {
                 File file = new File(localRepositoryPath, change.getName());
+                savedFiles.add(file);
                 createParent(file);
-                
-                IOUtils.copyAndClose(change.getStream(), new FileOutputStream(file));
+
+                FileOutputStream output = null;
+                try {
+                    output = new FileOutputStream(file);
+                    IOUtils.copy(change.getStream(), output);
+                } finally {
+                    // Close only output stream. This class isn't responsible for input stream: stream must be closed in the
+                    // place where it was created.
+                    IOUtils.closeQuietly(output);
+                }
+
                 git.add().addFilepattern(change.getName()).call();
             }
+
+            // Remove absent files
+            String basePath = new File(localRepositoryPath).getAbsolutePath();
+            File folder = new File(localRepositoryPath, relativeFolder);
+            removeAbsentFiles(basePath, folder, savedFiles);
 
             // TODO: Add possibility to set committer email
             RevCommit commit = git.commit().setMessage(folderData.getComment())
@@ -665,24 +667,20 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         return check(folderData.getName());
     }
 
-    private List<File> toFiles(List<FileChange> paths) {
-        List<File> files = new ArrayList<>();
-        for (FileChange change : paths) {
-            files.add(new File(localRepositoryPath, change.getName()));
-        }
-        return files;
-    }
-
-    private void listRemovedFiles(Collection<File> removed, File directory, Collection<File> toSave) {
+    private void removeAbsentFiles(String baseAbsolutePath, File directory, Collection<File> toSave) throws GitAPIException {
         File[] found = directory.listFiles();
 
         if (found != null) {
             for (File file : found) {
                 if (file.isDirectory()) {
-                    listRemovedFiles(removed, file, toSave);
+                    removeAbsentFiles(baseAbsolutePath, file, toSave);
                 } else {
                     if (!toSave.contains(file)) {
-                        removed.add(file);
+                        String relativePath = file.getAbsolutePath().substring(baseAbsolutePath.length()).replace('\\', '/');
+                        if (relativePath.startsWith("/")) {
+                            relativePath = relativePath.substring(1);
+                        }
+                        git.rm().addFilepattern(relativePath).call();
                     }
                 }
             }

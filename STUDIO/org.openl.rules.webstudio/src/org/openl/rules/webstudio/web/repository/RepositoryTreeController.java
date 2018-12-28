@@ -1,62 +1,15 @@
 package org.openl.rules.webstudio.web.repository;
 
-import com.thoughtworks.xstream.XStreamException;
-import com.thoughtworks.xstream.io.StreamException;
-import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.common.ArtefactPath;
-import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.project.IProjectDescriptorSerializer;
-import org.openl.rules.project.abstraction.ADeploymentProject;
-import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.AProjectFolder;
-import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.project.impl.local.LockEngineImpl;
-import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.PathEntry;
-import org.openl.rules.project.model.ProjectDependencyDescriptor;
-import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromProjectFile;
-import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
-import org.openl.rules.webstudio.util.ExportFile;
-import org.openl.rules.webstudio.util.NameChecker;
-import org.openl.rules.webstudio.web.ProjectDescriptorTransformer;
-import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
-import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
-import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResolver;
-import org.openl.rules.webstudio.web.repository.project.ProjectFile;
-import org.openl.rules.webstudio.web.repository.project.TemplatesResolver;
-import org.openl.rules.webstudio.web.repository.tree.TreeNode;
-import org.openl.rules.webstudio.web.repository.tree.TreeProject;
-import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
-import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
-import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
-import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
-import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
-import org.openl.rules.webstudio.web.util.Constants;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.filter.PathFilter;
-import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
-import org.openl.util.FileTypeHelper;
-import org.openl.util.FileUtils;
-import org.openl.util.IOUtils;
-import org.openl.util.StringUtils;
-import org.openl.rules.webstudio.filter.IFilter;
-import org.richfaces.event.FileUploadEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.*;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -66,21 +19,53 @@ import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.DELETE_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.DELETE_PROJECTS;
-import static org.openl.rules.security.Privileges.UNLOCK_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.UNLOCK_PROJECTS;
+import com.thoughtworks.xstream.XStreamException;
+import com.thoughtworks.xstream.io.StreamException;
+import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.common.ArtefactPath;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.common.impl.ArtefactPathImpl;
+import org.openl.rules.common.impl.CommonVersionImpl;
+import org.openl.rules.project.IProjectDescriptorSerializer;
+import org.openl.rules.project.abstraction.*;
+import org.openl.rules.project.impl.local.LockEngineImpl;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.PathEntry;
+import org.openl.rules.project.model.ProjectDependencyDescriptor;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
+import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.file.FileSystemRepository;
+import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.filter.IFilter;
+import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
+import org.openl.rules.webstudio.util.ExportFile;
+import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.ProjectDescriptorTransformer;
+import org.openl.rules.webstudio.web.repository.project.*;
+import org.openl.rules.webstudio.web.repository.tree.TreeNode;
+import org.openl.rules.webstudio.web.repository.tree.TreeProject;
+import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
+import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
+import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
+import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
+import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
+import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromProjectFile;
+import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.filter.PathFilter;
+import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
+import org.openl.util.FileTypeHelper;
+import org.openl.util.FileUtils;
+import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
+import org.richfaces.event.FileUploadEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Repository tree controller. Used for retrieving data for repository tree and
@@ -807,17 +792,16 @@ public class RepositoryTreeController {
                     // Check for reserved folder name
                     if (!LockEngineImpl.LOCKS_FOLDER_NAME.equals(userName)) {
                         try {
-                            LocalRepository repository = new LocalRepository(file);
+                            FileSystemRepository repository = new FileSystemRepository();
+                            repository.setRoot(file);
                             repository.initialize();
-                            for (FileData fileData : repository.list(projectName)) {
-                                if (!repository.delete(fileData)) {
-                                    if (repository.check(fileData.getName()) == null) {
-                                        log.warn("Can't close project because resource '" + fileData.getName() + "' is used");
-                                    }
+                            FileData fileData = new FileData();
+                            fileData.setName(projectName);
+                            if (!repository.delete(fileData)) {
+                                if (repository.check(fileData.getName()) == null) {
+                                    log.warn("Can't close project because resource '" + fileData.getName() + "' is used");
                                 }
                             }
-                            // Delete properties folder. Workaround for broken empty projects that failed to delete properties folder last time
-                            repository.getProjectState(projectName).notifyModified();
                         } catch (Exception e) {
                             // Log exception and skip current user
                             log.error(e.getMessage(), e);
@@ -1137,7 +1121,7 @@ public class RepositoryTreeController {
         for (ProjectVersion version : versions) {
             selectItems.add(new SelectItem(version.getVersionName()));
         }
-        return selectItems.toArray(new SelectItem[selectItems.size()]);
+        return selectItems.toArray(new SelectItem[0]);
     }
 
     public String getUploadFrom() {

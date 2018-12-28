@@ -91,13 +91,15 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         IOpenMethodHeader header = getHeader();
 
         this.bindingContext = bindingContext;
-        Boolean autoType = tableSyntaxNode.getTableProperties().getAutoType();
         componentsBuilder = new SpreadsheetComponentsBuilder(tableSyntaxNode, bindingContext);
-        structureBuilder = new SpreadsheetStructureBuilder(componentsBuilder, header, autoType);
+        componentsBuilder.buildHeaders(header.getType());
+        structureBuilder = new SpreadsheetStructureBuilder(componentsBuilder, header);
         String headerType = header.getName() + "Type";
         OpenL openL = bindingContext.getOpenL();
         spreadsheetOpenClass = new SpreadsheetOpenClass(headerType, openL);
-        structureBuilder.addCellFields(spreadsheetOpenClass);
+
+        Boolean autoType = tableSyntaxNode.getTableProperties().getAutoType();
+        structureBuilder.addCellFields(spreadsheetOpenClass, autoType);
     }
 
     public void finalizeBind(IBindingContext bindingContext) throws Exception {

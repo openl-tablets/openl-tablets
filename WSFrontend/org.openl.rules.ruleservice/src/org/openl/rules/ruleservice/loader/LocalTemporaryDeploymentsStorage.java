@@ -7,9 +7,9 @@ import java.util.Map;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ public class LocalTemporaryDeploymentsStorage {
 
     private String directoryToLoadDeploymentsIn;
 
-    private Map<String, Deployment> cacheForGetDeployment = new HashMap<String, Deployment>();
+    private Map<String, Deployment> cacheForGetDeployment = new HashMap<>();
     private Repository repository;
 
     /**
@@ -46,7 +46,8 @@ public class LocalTemporaryDeploymentsStorage {
             log.info("Local temporary folder for downloading deployments has been cleared.");
         }
         log.info("Local temporary folder location is: {}", directoryToLoadDeploymentsIn);
-        LocalRepository localRepository = new LocalRepository(folderToLoadDeploymentsIn);
+        FileSystemRepository localRepository = new FileSystemRepository();
+        localRepository.setRoot(folderToLoadDeploymentsIn);
         try {
             localRepository.initialize();
         } catch (RRepositoryException e) {
@@ -68,19 +69,13 @@ public class LocalTemporaryDeploymentsStorage {
     }
 
     /**
-     * Sets a path to local temporary storage. Spring bean configuration
-     * property.
-     *
-     * @param directoryToLoadDeploymentsIn
-     */
-    /**
      * Generates folder name for deployment by given deployment name and common
      * version.
      *
      * @return folder name
      */
     private String getDeploymentFolderName(String deploymentName, CommonVersion version) {
-        return new StringBuilder(deploymentName).append("_v").append(version.getVersionName()).toString();
+        return deploymentName + "_v" + version.getVersionName();
     }
 
     /**
@@ -92,8 +87,7 @@ public class LocalTemporaryDeploymentsStorage {
     Deployment getDeployment(String deploymentName, CommonVersion version) {
         log.debug("Getting deployment with name='{}' and version='{}'", deploymentName, version.getVersionName());
         String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
-        Deployment deployment = cacheForGetDeployment.get(deploymentFolderName);
-        return deployment;
+        return cacheForGetDeployment.get(deploymentFolderName);
     }
 
     /**
@@ -112,7 +106,7 @@ public class LocalTemporaryDeploymentsStorage {
         log.debug("Loading deployement with name='{}' and version='{}'", deploymentName, versionName);
 
         String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
-        Deployment loadedDeployment = new Deployment(repository, deploymentFolderName, deploymentName, version);
+        Deployment loadedDeployment = new Deployment(repository, deploymentFolderName, deploymentName, version, true);
         try {
             loadedDeployment.update(deployment, null);
             loadedDeployment.refresh();

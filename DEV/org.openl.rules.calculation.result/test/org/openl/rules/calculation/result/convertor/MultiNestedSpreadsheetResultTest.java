@@ -194,7 +194,6 @@ public class MultiNestedSpreadsheetResultTest {
         Mockito.when(spreadsheet.getWidth()).thenReturn(width);
         Mockito.when(spreadsheet.getHeight()).thenReturn(height);
         Mockito.when(spreadsheet.getColumnNames()).thenReturn(columns);
-        Mockito.when(spreadsheet.getColumnTitles()).thenReturn(columns);
         return spreadsheet;
     }
 }

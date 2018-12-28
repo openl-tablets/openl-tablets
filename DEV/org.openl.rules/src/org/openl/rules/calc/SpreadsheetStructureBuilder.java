@@ -43,8 +43,6 @@ public class SpreadsheetStructureBuilder {
 
     private IOpenMethodHeader spreadsheetHeader;
 
-    private Boolean autoType;
-
     private SpreadsheetStructureBuilderHolder spreadsheetStructureBuilderHolder = new SpreadsheetStructureBuilderHolder(
         this);
 
@@ -53,32 +51,15 @@ public class SpreadsheetStructureBuilder {
     }
 
     public SpreadsheetStructureBuilder(SpreadsheetComponentsBuilder componentsBuilder,
-            IOpenMethodHeader spreadsheetHeader,
-            Boolean autoType) {
+            IOpenMethodHeader spreadsheetHeader) {
         this.componentsBuilder = componentsBuilder;
         this.spreadsheetHeader = spreadsheetHeader;
-        this.autoType = autoType;
     }
 
     private Map<Integer, IBindingContext> rowContexts = new HashMap<>();
     private Map<Integer, Map<Integer, IBindingContext>> colContexts = new HashMap<>();
 
     private SpreadsheetCell[][] cells;
-
-    /**
-     * Add to {@link SpreadsheetOpenClass} fields that are represented by spreadsheet cells.
-     * 
-     * @param spreadsheetType open class of the spreadsheet
-     */
-    public void addCellFields(SpreadsheetOpenClass spreadsheetType) {
-        /*
-         * at first appropriate data should be extracted from the source table
-         */
-        componentsBuilder.buildHeaders(spreadsheetHeader.getType());
-
-        // build cells representations of the spreadsheet
-        buildCellsInternal(spreadsheetType);
-    }
 
     /**
      * Extract cell values from the source spreadsheet table.
@@ -90,7 +71,12 @@ public class SpreadsheetStructureBuilder {
         return cells.clone();
     }
 
-    private void buildCellsInternal(SpreadsheetOpenClass spreadsheetType) {
+    /**
+     * Add to {@link SpreadsheetOpenClass} fields that are represented by spreadsheet cells.
+     *
+     * @param spreadsheetType open class of the spreadsheet
+     */
+    public void addCellFields(SpreadsheetOpenClass spreadsheetType, boolean autoType) {
         IBindingContext generalBindingContext = componentsBuilder.getBindingContext();
 
         CellsHeaderExtractor cellsHeadersExtractor = componentsBuilder.getCellsHeadersExtractor();
@@ -101,12 +87,12 @@ public class SpreadsheetStructureBuilder {
         cells = new SpreadsheetCell[rowsCount][columnsCount];
 
         // create the binding context for the spreadsheet level
-        spreadsheetBindingContext = initSpreadsheetBindingContext(spreadsheetType, generalBindingContext);
+        spreadsheetBindingContext = new SpreadsheetContext(generalBindingContext, spreadsheetType);
 
         for (int rowIndex = 0; rowIndex < rowsCount; rowIndex++) {
             for (int columnIndex = 0; columnIndex < columnsCount; columnIndex++) {
                 // build spreadsheet cell
-                SpreadsheetCell spreadsheetCell = buildCell(rowIndex, columnIndex);
+                SpreadsheetCell spreadsheetCell = buildCell(rowIndex, columnIndex, autoType);
 
                 // init cells array with appropriate cell
                 cells[rowIndex][columnIndex] = spreadsheetCell;
@@ -115,11 +101,6 @@ public class SpreadsheetStructureBuilder {
                 addSpreadsheetFields(spreadsheetType, spreadsheetCell, rowIndex, columnIndex);
             }
         }
-    }
-
-    private IBindingContext initSpreadsheetBindingContext(SpreadsheetOpenClass spreadsheetType,
-            IBindingContext generalBindingContext) {
-        return new SpreadsheetContext(generalBindingContext, spreadsheetType);
     }
 
     private void extractCellValues() {
@@ -329,7 +310,7 @@ public class SpreadsheetStructureBuilder {
         return (DOLLAR_SIGN + columnName + DOLLAR_SIGN + rowName).intern();
     }
 
-    private SpreadsheetCell buildCell(int rowIndex, int columnIndex) {
+    private SpreadsheetCell buildCell(int rowIndex, int columnIndex, boolean autoType) {
         Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = componentsBuilder.getColumnHeaders();
         Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = componentsBuilder.getRowHeaders();
 

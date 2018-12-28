@@ -98,7 +98,7 @@ public class NestedSpreadsheetResultConverter<T extends CodeStep, Q extends Comp
                 .getRowExtractor(anyNestedValueInRow(spreadsheetResult, row));
         step = rowExtractor.extract(spreadsheetResult, row);
 
-        step.setStepName(spreadsheetResult.getRowTitle(row));
+        step.setStepName(spreadsheetResult.getRowName(row));
         return step;
     }
 
@@ -107,7 +107,7 @@ public class NestedSpreadsheetResultConverter<T extends CodeStep, Q extends Comp
 
         for (ColumnToExtract column : compoundColumns) {
             int columnIndex = SpreadsheetResultHelper.getColumnIndexByName(column.getColumnName(),
-                    spreadsheetResult.getColumnTitles());
+                    spreadsheetResult.getColumnNames());
             Object valueInColumn = spreadsheetResult.getValue(row, columnIndex);
             if (containsNested(valueInColumn)) {
                 return true;

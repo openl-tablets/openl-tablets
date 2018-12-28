@@ -12,9 +12,9 @@ import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
@@ -39,11 +39,17 @@ public class ProductionRepositoryDataSource implements DataSource {
     public Collection<Deployment> getDeployments() {
         Collection<FileData> fileDatas;
         try {
-            fileDatas = repository.list(DeployUtils.DEPLOY_PATH);
+            if (repository instanceof FolderRepository) {
+                // All deployments
+                fileDatas = ((FolderRepository) repository).listFolders(DeployUtils.DEPLOY_PATH);
+            } else {
+                // Projects inside all deployments
+                fileDatas = repository.list(DeployUtils.DEPLOY_PATH);
+            }
         } catch (IOException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
-        ConcurrentMap<String, Deployment> deployments = new ConcurrentHashMap<String, Deployment>();
+        ConcurrentMap<String, Deployment> deployments = new ConcurrentHashMap<>();
         for (FileData fileData : fileDatas) {
             String deploymentFolderName = fileData.getName().substring(DeployUtils.DEPLOY_PATH.length()).split("/")[0];
             String deploymentName = deploymentFolderName;
@@ -66,10 +72,16 @@ public class ProductionRepositoryDataSource implements DataSource {
                     commonVersion = new CommonVersionImpl(version);
                 }
             }
+
+            String folderPath = DeployUtils.DEPLOY_PATH + deploymentFolderName;
+
+            boolean folderStructure = isFolderStructure(folderPath);
+
             Deployment deployment = new Deployment(repository,
-                DeployUtils.DEPLOY_PATH + deploymentFolderName,
-                deploymentName,
-                commonVersion, false);
+                    folderPath,
+                    deploymentName,
+                    commonVersion,
+                    folderStructure);
             deployments.putIfAbsent(deploymentFolderName, deployment);
         }
 
@@ -97,7 +109,9 @@ public class ProductionRepositoryDataSource implements DataSource {
         } else {
             name = deploymentName;
         }
-        return new Deployment(repository, DeployUtils.DEPLOY_PATH + name, deploymentName, deploymentVersion, false);
+        String folderPath = DeployUtils.DEPLOY_PATH + name;
+        boolean folderStructure = isFolderStructure(folderPath);
+        return new Deployment(repository, folderPath, deploymentName, deploymentVersion, folderStructure);
     }
 
     /**
@@ -127,11 +141,25 @@ public class ProductionRepositoryDataSource implements DataSource {
         }
     }
 
-    public void setRepository(Repository repository) throws RRepositoryException {
+    public void setRepository(Repository repository) {
         this.repository = repository;
     }
 
     public void setIncludeVersionInDeploymentName(boolean includeVersionInDeploymentName) {
         this.includeVersionInDeploymentName = includeVersionInDeploymentName;
+    }
+
+    private boolean isFolderStructure(String deploymentFolderPath) {
+        boolean folderStructure;
+        try {
+            if (repository instanceof FolderRepository) {
+                folderStructure = !((FolderRepository) repository).listFolders(deploymentFolderPath).isEmpty();
+            } else {
+                folderStructure = false;
+            }
+        } catch (IOException e) {
+            throw RuntimeExceptionWrapper.wrap(e);
+        }
+        return folderStructure;
     }
 }

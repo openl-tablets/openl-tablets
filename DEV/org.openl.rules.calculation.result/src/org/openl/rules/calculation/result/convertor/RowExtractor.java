@@ -64,7 +64,7 @@ public abstract class RowExtractor<T extends CodeStep> {
         for (SpreadsheetColumnExtractor<T> extractor : columnExtractors) {
             String columnName = extractor.getColumn().getColumnName();
             int columnIndex = SpreadsheetResultHelper.getColumnIndexByName(columnName,
-                    spreadsheetResult.getColumnTitles());
+                    spreadsheetResult.getColumnNames());
             Object columnValue = spreadsheetResult.getValue(rowIndex, columnIndex);
             if (isSuitableValue(columnValue)) {
                 extractor.convertAndStoreData(columnValue, rowInstance);

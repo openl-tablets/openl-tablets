@@ -5,12 +5,12 @@ import java.io.*;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.xml.v5_11.XmlProjectDescriptorSerializer_v5_11;
 import org.openl.rules.project.xml.v5_12.XmlProjectDescriptorSerializer_v5_12;
 import org.openl.rules.project.xml.v5_13.XmlProjectDescriptorSerializer_v5_13;
 import org.openl.rules.project.xml.v5_16.XmlProjectDescriptorSerializer_v5_16;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.file.FileSystemRepository;
 
 public class ProjectDescriptorSerializerFactory {
     private final SupportedVersionSerializer supportedVersionSerializer;
@@ -36,8 +36,8 @@ public class ProjectDescriptorSerializerFactory {
     public IProjectDescriptorSerializer getSerializer(AProjectArtefact artefact) {
         AProject project = artefact.getProject();
         Repository repository = project.getRepository();
-        if (repository instanceof LocalRepository) {
-            File root = ((LocalRepository) repository).getRoot();
+        if (repository instanceof FileSystemRepository) {
+            File root = ((FileSystemRepository) repository).getRoot();
             return getSerializer(new File(root, project.getFolderPath()));
         } else {
             return getDefaultSerializer();
