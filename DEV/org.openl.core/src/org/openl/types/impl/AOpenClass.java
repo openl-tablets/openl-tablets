@@ -199,10 +199,6 @@ public abstract class AOpenClass implements IOpenClass {
         return nonUniqueLowerCaseFieldMap;
     }
 
-    public IOpenClass getOpenClass() {
-        return this;
-    }
-
     private synchronized Map<String, IOpenField> getUniqueLowerCaseFieldMap() {
         if (uniqueLowerCaseFieldMap == null) {
             makeLowerCaseMaps();
