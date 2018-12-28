@@ -62,6 +62,9 @@ public class RepositoryConfiguration {
             case AWS_S3:
                 newSettings = new AWSS3RepositorySettings(configManager, CONFIG_PREFIX);
                 break;
+            case GIT:
+                newSettings = new GitRepositorySettings(configManager, CONFIG_PREFIX, repositoryMode);
+                break;
             default:
                 newSettings = new CommonRepositorySettings(configManager, CONFIG_PREFIX, repositoryMode, repositoryType);
                 break;
@@ -114,6 +117,9 @@ public class RepositoryConfiguration {
     public void setType(String accessType) {
         RepositoryType newRepositoryType = RepositoryType.findByAccessType(accessType);
         if (repositoryType != newRepositoryType) {
+            if (newRepositoryType == null) {
+                throw new IllegalArgumentException("Access type " + accessType + " isn't supported");
+            }
             repositoryType = newRepositoryType;
             RepositorySettings newSettings = createSettings(newRepositoryType);
             newSettings.copyContent(settings);

@@ -6,7 +6,8 @@ public enum RepositoryType {
     WEBDAV(org.openl.rules.repository.factories.WebDavRepositoryFactory.class),
     DB(org.openl.rules.repository.db.JdbcDBRepositoryFactory.class),
     JNDI(org.openl.rules.repository.db.DatasourceDBRepositoryFactory.class),
-    AWS_S3(org.openl.rules.repository.aws.S3Repository.class);
+    AWS_S3(org.openl.rules.repository.aws.S3Repository.class),
+    GIT(org.openl.rules.repository.git.GitRepository.class);
 
     public static RepositoryType findByAccessType(String accessType) {
         for (RepositoryType repositoryType : values()) {
