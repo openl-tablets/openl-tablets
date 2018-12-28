@@ -43,10 +43,8 @@ public class JacksonObjectMapperFactoryBean {
 
     private boolean supportVariations = false;
 
-    private boolean enableDefaultTyping = false;
-    
-    private boolean enableSmartTyping = true;
-    
+    private DefaultTypingType defaultTypingType = DefaultTypingType.SMART;
+
     private DateFormat defaultDateFormat = getISO8601Format();
 
     private Set<String> overrideTypes;
@@ -57,14 +55,15 @@ public class JacksonObjectMapperFactoryBean {
         AnnotationIntrospector secondaryIntropsector = new JacksonAnnotationIntrospector();
         AnnotationIntrospector primaryIntrospector = new JaxbAnnotationIntrospector(TypeFactory.defaultInstance());
 
-        AnnotationIntrospector introspector = new AnnotationIntrospectorPair(primaryIntrospector, secondaryIntropsector);
+        AnnotationIntrospector introspector = new AnnotationIntrospectorPair(primaryIntrospector,
+            secondaryIntropsector);
 
         mapper.setAnnotationIntrospector(introspector);
 
-        if (isEnableDefaultTyping()) {
+        if (DefaultTypingType.ENABLE.equals(getDefaultTypingType())) {
             mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
         } else {
-            if (isEnableSmartTyping()) {
+            if (DefaultTypingType.SMART.equals(getDefaultTypingType())) {
                 mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.PROPERTY);
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 if (getOverrideTypes() != null) {
@@ -77,7 +76,7 @@ public class JacksonObjectMapperFactoryBean {
                             log.warn("Class '{}' hasn't been found!", className, e);
                         }
                     }
-    
+
                     Iterator<Class<?>> itr = clazzes.iterator();
                     while (itr.hasNext()) {
                         Class<?> clazz = itr.next();
@@ -112,30 +111,40 @@ public class JacksonObjectMapperFactoryBean {
             addMixInAnnotations(mapper, "org.openl.rules.variation.VariationsResult", VariationsResultType.class);
         }
 
-        /*mapper.addMixInAnnotations(SpreadsheetResult.class, SpreadSheetResultType.class);
-        mapper.addMixInAnnotations(Point.class, PointType.class);
-        mapper.addMixInAnnotations(DoubleRange.class, DoubleRangeType.class);
-        mapper.addMixInAnnotations(IntRange.class, IntRangeType.class);*/
+        /*
+         * mapper.addMixInAnnotations(SpreadsheetResult.class,
+         * SpreadSheetResultType.class); mapper.addMixInAnnotations(Point.class,
+         * PointType.class); mapper.addMixInAnnotations(DoubleRange.class,
+         * DoubleRangeType.class); mapper.addMixInAnnotations(IntRange.class,
+         * IntRangeType.class);
+         */
 
-        /*mapper.addMixInAnnotations(IRulesRuntimeContext.class, IRulesRuntimeContextType.class);
-        mapper.addMixInAnnotations(org.openl.rules.ruleservice.context.IRulesRuntimeContext.class,
-            org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.ruleservice.context.IRulesRuntimeContextType.class);*/
+        /*
+         * mapper.addMixInAnnotations(IRulesRuntimeContext.class,
+         * IRulesRuntimeContextType.class);
+         * mapper.addMixInAnnotations(org.openl.rules.ruleservice.context.
+         * IRulesRuntimeContext.class,
+         * org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.
+         * ruleservice.context.IRulesRuntimeContextType.class);
+         */
 
         if (getDefaultDateFormat() == null) {
             mapper.setDateFormat(getISO8601Format());
         } else {
             mapper.setDateFormat(getDefaultDateFormat());
         }
-        
+
         return mapper;
     }
 
     /**
-     * Create instance of ISO-8601 date time format using following pattern: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-     * Time zones in ISO-8601 are represented as local time (with the location unspecified),
-     * as UTC, or as an offset from UTC.
-     * If no UTC relation information is given with a time representation, the time is assumed to be in local time.
-     * Examples, when local Time Zone is +2:
+     * Create instance of ISO-8601 date time format using following pattern:
+     * "yyyy-MM-dd'T'HH:mm:ss.SSSZ" Time zones in ISO-8601 are represented as
+     * local time (with the location unspecified), as UTC, or as an offset from
+     * UTC. If no UTC relation information is given with a time representation,
+     * the time is assumed to be in local time. Examples, when local Time Zone
+     * is +2:
+     * 
      * <pre>
      *     2016-12-31T22:00:00 corresponds to 2016-12-31T22:00:00+0200 in local Time Zone
      *     2016-12-31T22:00:00Z corresponds to 2017-01-01T00:00:00+0200 in local Time Zone
@@ -143,7 +152,9 @@ public class JacksonObjectMapperFactoryBean {
      *     2016-12-31T22:00:00+0300 corresponds to 2016-12-31T21:00:00+0200 in local Time Zone
      * </pre>
      *
-     * @see <a href="https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators">ISO-8601 Time zone designators</a>
+     * @see <a href=
+     *      "https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators">ISO-8601
+     *      Time zone designators</a>
      * @return
      */
     private static DateFormat getISO8601Format() {
@@ -172,12 +183,30 @@ public class JacksonObjectMapperFactoryBean {
         this.supportVariations = supportVariations;
     }
 
-    public boolean isEnableDefaultTyping() {
-        return enableDefaultTyping;
+    public DefaultTypingType getDefaultTypingType() {
+        return defaultTypingType;
     }
 
+    public void setDefaultTypingType(DefaultTypingType defaultTypingType) {
+        if (defaultTypingType == null) {
+            this.defaultTypingType = DefaultTypingType.SMART;
+        } else {
+            this.defaultTypingType = defaultTypingType;
+        }
+    }
+
+    @Deprecated
+    public boolean getEnableDefaultTyping() {
+        return DefaultTypingType.ENABLE.equals(getDefaultTypingType());
+    }
+
+    @Deprecated
     public void setEnableDefaultTyping(boolean enableDefaultTyping) {
-        this.enableDefaultTyping = enableDefaultTyping;
+        if (enableDefaultTyping) {
+            setDefaultTypingType(DefaultTypingType.ENABLE);
+        } else {
+            setDefaultTypingType(DefaultTypingType.SMART);
+        }
     }
 
     public Set<String> getOverrideTypes() {
@@ -187,19 +216,11 @@ public class JacksonObjectMapperFactoryBean {
     public void setOverrideTypes(Set<String> overrideTypes) {
         this.overrideTypes = overrideTypes;
     }
-    
-    public boolean isEnableSmartTyping() {
-        return enableSmartTyping;
-    }
-    
-    public void setEnableSmartTyping(boolean enableSmartTyping) {
-        this.enableSmartTyping = enableSmartTyping;
-    }
-    
+
     public DateFormat getDefaultDateFormat() {
         return defaultDateFormat;
     }
-    
+
     public void setDefaultDateFormat(DateFormat defaultDateFormat) {
         this.defaultDateFormat = defaultDateFormat;
     }

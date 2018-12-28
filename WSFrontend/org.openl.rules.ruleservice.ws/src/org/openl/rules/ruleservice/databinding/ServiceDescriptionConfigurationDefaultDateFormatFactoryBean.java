@@ -55,7 +55,7 @@ public class ServiceDescriptionConfigurationDefaultDateFormatFactoryBean extends
 
     @Override
     public Class<?> getObjectType() {
-        return Set.class;
+        return DateFormat.class;
     }
 
 }
