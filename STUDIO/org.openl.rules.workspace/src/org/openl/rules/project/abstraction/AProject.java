@@ -338,7 +338,7 @@ public class AProject extends AProjectFolder {
                         }
                         fileData.setSize(fileItem.getData().getSize());
                         stream = fileItem.getStream();
-                        fileData.setAuthor(user.getUserName());
+                        fileData.setAuthor(user == null ? null : user.getUserName());
                         setFileData(repositoryTo.save(fileData, stream));
                     } catch (IOException ex) {
                         throw new ProjectException("Can't update: " + ex.getMessage(), ex);
@@ -365,7 +365,7 @@ public class AProject extends AProjectFolder {
             }
             zipOutputStream.finish();
 
-            fileData.setAuthor(user.getUserName());
+            fileData.setAuthor(user == null ? null : user.getUserName());
             fileData.setSize(out.size());
             setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
         } catch (IOException e) {
@@ -393,7 +393,7 @@ public class AProject extends AProjectFolder {
             }
             stream = new ZipInputStream(fileItem.getStream());
             FileData fileData = getFileData();
-            fileData.setAuthor(user.getUserName());
+            fileData.setAuthor(user == null ? null : user.getUserName());
             ((FolderRepository) repositoryTo).save(fileData, new FileChangeIterable(stream, folderTo));
         } catch (IOException e) {
             throw new ProjectException("Can't update: " + e.getMessage(), e);
