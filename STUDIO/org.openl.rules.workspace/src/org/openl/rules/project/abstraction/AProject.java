@@ -46,18 +46,22 @@ public class AProject extends AProjectFolder {
         FileData fileData = super.getFileData();
         if (fileData == null) {
             Repository repository = getRepository();
-            // In the case of FolderRepository we can retrieve FileData using check()/checkHistory() for a folder.
-            try {
-                if (!isHistoric() || isLastVersion()) {
-                    fileData = repository.check(getFolderPath());
-                    if (fileData == null) {
-                        fileData = new LazyFileData(getFolderPath(), getHistoryVersion(), this);
+            if (isRepositoryVersionable()) {
+                // In the case of FolderRepository we can retrieve FileData using check()/checkHistory() for a folder.
+                try {
+                    if (!isHistoric() || isLastVersion()) {
+                        fileData = repository.check(getFolderPath());
+                        if (fileData == null) {
+                            fileData = new LazyFileData(getFolderPath(), getHistoryVersion(), this);
+                        }
+                    } else {
+                        fileData = repository.checkHistory(getFolderPath(), getHistoryVersion());
                     }
-                } else {
-                    fileData = repository.checkHistory(getFolderPath(), getHistoryVersion());
+                } catch (IOException ex) {
+                    throw new IllegalStateException(ex);
                 }
-            } catch (IOException ex) {
-                throw new IllegalStateException(ex);
+            } else {
+                fileData = new LazyFileData(getFolderPath(), getHistoryVersion(), this);
             }
             setFileData(fileData);
         }
@@ -116,7 +120,7 @@ public class AProject extends AProjectFolder {
         if (historyFileDatas == null) {
             try {
                 String folderPath = getFolderPath();
-                if (folderPath != null && !(getRepository() instanceof FileSystemRepository)) {
+                if (folderPath != null && isRepositoryVersionable()) {
                     historyFileDatas = getRepository().listHistory(folderPath);
                 } else {
                     // File repository doesn't have versions
