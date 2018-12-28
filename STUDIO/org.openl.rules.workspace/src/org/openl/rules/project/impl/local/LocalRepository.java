@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.IOUtils;
@@ -38,6 +39,13 @@ public class LocalRepository extends FileSystemRepository {
     public FileData save(FileData data, InputStream stream) throws IOException {
         FileData fileData = super.save(data, stream);
         notifyModified(data.getName());
+        return fileData;
+    }
+
+    @Override
+    public FileData save(FileData folderData, Iterable<FileChange> files) throws IOException {
+        FileData fileData = super.save(folderData, files);
+        notifyModified(folderData.getName());
         return fileData;
     }
 
