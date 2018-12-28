@@ -1,6 +1,3 @@
-/**
- * Created Feb 27, 2007
- */
 package org.openl.rules.table;
 
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -9,7 +6,6 @@ import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.filters.IGridFilter;
-import org.openl.rules.table.xls.IncorrectFormulaException;
 import org.openl.util.formatters.IFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,12 +36,7 @@ public class FormattedCell implements ICell {
 
     public FormattedCell(ICell delegate) {
         this.delegate = delegate;
-        try {
-            this.objectValue = this.delegate.getObjectValue();
-        } catch (IncorrectFormulaException e) {
-            //logged in XlsCell.getObjectValue() method.
-            this.objectValue = ERROR_VALUE;
-        }
+        this.objectValue = this.delegate.getObjectValue();
         this.formattedValue = this.delegate.getFormattedValue();
 
         this.font = new CellFont(delegate.getFont());

@@ -5,12 +5,9 @@ import java.util.Date;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.xls.IncorrectFormulaException;
 import org.openl.util.formatters.IFormatter;
 
 public interface ICell {
-
-    String ERROR_VALUE = "#ERROR";
 
     int getRow();
 
@@ -37,10 +34,6 @@ public interface ICell {
 
     ICellStyle getStyle();
     
-    /**
-     * @throws IncorrectFormulaException  <br> Be careful!! When trying to evaluate
-     *  an incorrect formula, throws exception.
-     */
     Object getObjectValue();
 
     String getStringValue();

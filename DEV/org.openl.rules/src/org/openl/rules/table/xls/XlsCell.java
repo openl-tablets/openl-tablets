@@ -103,11 +103,14 @@ public class XlsCell implements ICell {
     }
 
     public Object getObjectValue() {
-        if (region == null) {
+        if (region == null || isCurrentCellATopLeftCellInRegion()) {
+            // If cell belongs to some merged region, we try to get merged value from it.
+            // If the top left cell is the current cell instance, we just extract it`s value.
+            // In other case get string value of top left cell of the region.
             return extractCellValue();
         } else {
-            // If cell belongs to some merged region, we try to get merged value from it.
-            return extractValueFromRegion();
+            ICell topLeftCell = getTopLeftCellFromRegion();
+            return topLeftCell.getObjectValue();
         }
     }
 
@@ -139,12 +142,7 @@ public class XlsCell implements ICell {
     }
 
     public String getStringValue() {
-        Object res = null;
-        try {
-            res = getObjectValue();
-        } catch (IncorrectFormulaException ex) {
-            //logged in getObjectValue() method.
-        }
+        Object res = getObjectValue();
         return res == null ? null : String.valueOf(res);
     }
 
@@ -199,17 +197,6 @@ public class XlsCell implements ICell {
     private boolean isCurrentCellATopLeftCellInRegion() {
         ICell topLeftCell = getTopLeftCellFromRegion();
         return topLeftCell.getColumn() == this.column && topLeftCell.getRow() == this.row;
-    }
-
-    private Object extractValueFromRegion() {
-        // If the top left cell is the current cell instance, we just extract it`s value.
-        // In other case get string value of top left cell of the region.
-        if (isCurrentCellATopLeftCellInRegion()) {
-            return extractCellValue();
-        } else {
-            ICell topLeftCell = getTopLeftCellFromRegion();
-            return topLeftCell.getObjectValue();
-        }
     }
 
     private Object extractCellValue() {
