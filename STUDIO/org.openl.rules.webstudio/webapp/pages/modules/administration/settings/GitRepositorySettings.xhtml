@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+>
+
+    <ui:param name="settings" value="#{repository.settings}" />
+
+    <h:panelGrid columns="2" columnClasses="titleColumn">
+        <h:outputText value="URL:" styleClass="required"/>
+        <h:inputText value="#{settings.uri}" styleClass="pathInput"/>
+        <h:outputText value="Login:"/>
+        <h:inputText value="#{settings.login}"/>
+        <h:outputText value="Password:"/>
+        <h:inputSecret value="#{settings.password}" redisplay="true"/>
+        <h:outputText value="Local path:" title="Local path for Git repository." styleClass="required"/>
+        <h:inputText value="#{settings.localRepositoryPath}"/>
+        <h:outputText value="Branch:" title="The branch where the changes will be comitted." styleClass="required"/>
+        <h:inputText value="#{settings.branch}"/>
+        <h:outputText value="Tag prefix:" title="Prefix for automatically generated tag which will be added to every commit." styleClass="required"/>
+        <h:inputText value="#{settings.tagPrefix}"/>
+        <h:outputText value="Listener period (sec):"/>
+        <h:inputText value="#{settings.listenerTimerPeriod}" id="gitListenerTimerPeriod"
+                     title="Repository changes check interval. Must be greater than 0."
+                     validatorMessage="Please enter a value greater than 0">
+            <f:validateLongRange minimum="1"/>
+        </h:inputText>
+        <h:outputText value=""/>
+        <h:message for="gitListenerTimerPeriod" styleClass="error"/>
+
+        <h:outputText value="Version in deployment name" rendered="#{isProduction}" />
+        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}"/>
+        <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction and isEditing}"/>
+    </h:panelGrid>
+
+</ui:composition>
