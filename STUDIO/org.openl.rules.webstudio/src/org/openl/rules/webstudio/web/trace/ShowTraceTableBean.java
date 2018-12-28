@@ -172,7 +172,7 @@ public class ShowTraceTableBean {
     }
 
     public static boolean isSpreadsheetResult(Object value) {
-        return value != null && value instanceof SpreadsheetResult && ((SpreadsheetResult) value).getLogicalTable() != null;
+        return value instanceof SpreadsheetResult && ((SpreadsheetResult) value).getLogicalTable() != null;
     }
 
     public String getFormattedSpreadsheetResult(Object value) {

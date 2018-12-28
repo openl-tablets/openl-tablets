@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
 import org.openl.types.java.CustomJavaOpenClass;
+import org.openl.util.CollectionUtils;
 
 /**
  * Serializable bean that handles result of spreadsheet calculation.
@@ -168,7 +169,11 @@ public class SpreadsheetResult implements Serializable {
     @Override
     public String toString() {
         try {
-            return printTable();
+            if (CollectionUtils.isEmpty(rowNames) || CollectionUtils.isEmpty(columnNames)) {
+                return "[EMPTY]";
+            } else {
+                return printTable();
+            }
         } catch (Exception e) {
             // If it's impossible to print the table, fallback to default
             // toString() implementation
