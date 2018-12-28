@@ -156,7 +156,9 @@ public class AProjectFolder extends AProjectArtefact {
             List<FileChange> changes = new ArrayList<>();
             try {
                 findChanges(from, changes);
-                ((FolderRepository) getRepository()).save(getFileData(), changes);
+                FileData fileData = getFileData();
+                fileData.setAuthor(user.getUserName());
+                ((FolderRepository) getRepository()).save(fileData, changes);
             } catch (IOException e) {
                 throw new ProjectException("Can't update: " + e.getMessage(), e);
             } finally {
