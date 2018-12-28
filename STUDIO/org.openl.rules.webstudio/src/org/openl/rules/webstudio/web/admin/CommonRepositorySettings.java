@@ -12,7 +12,7 @@ public class CommonRepositorySettings extends RepositorySettings {
     private boolean secure = false;
     private String defaultLocalUri = null;
     private final RepositoryMode repositoryMode;
-    private final JcrType jcrType;
+    private final RepositoryType repositoryType;
     private final ConfigurationManager configManager;
     final String REPOSITORY_URI;
     final String REPOSITORY_LOGIN;
@@ -21,17 +21,17 @@ public class CommonRepositorySettings extends RepositorySettings {
     public CommonRepositorySettings(ConfigurationManager configManager,
             String configPrefix,
             RepositoryMode repositoryMode,
-            JcrType jcrType) {
+            RepositoryType repositoryType) {
         super(configManager, configPrefix);
         this.configManager = configManager;
         this.repositoryMode = repositoryMode;
-        this.jcrType = jcrType;
+        this.repositoryType = repositoryType;
         REPOSITORY_URI = configPrefix + "uri";
         REPOSITORY_LOGIN = configPrefix + "login";
         REPOSITORY_PASS = configPrefix + "password";
 
 
-        if (jcrType == JcrType.LOCAL) {
+        if (repositoryType == RepositoryType.LOCAL) {
             defaultLocalUri = configManager.getStringProperty(REPOSITORY_URI);
         }
 
@@ -43,7 +43,7 @@ public class CommonRepositorySettings extends RepositorySettings {
     public String getPath() {
         // Default values
         if (StringUtils.isEmpty(uri)) {
-            String defaultPath = getDefaultPath(jcrType);
+            String defaultPath = getDefaultPath(repositoryType);
             if (defaultPath != null) {
                 return defaultPath;
             }
@@ -83,9 +83,9 @@ public class CommonRepositorySettings extends RepositorySettings {
         this.secure = secure;
     }
 
-    String getDefaultPath(JcrType jcrType) {
+    String getDefaultPath(RepositoryType repositoryType) {
         String type = repositoryMode == RepositoryMode.DESIGN ? "design" : "deployment";
-        switch (jcrType) {
+        switch (repositoryType) {
             case LOCAL:
                 return defaultLocalUri != null ?
                        defaultLocalUri :
@@ -125,10 +125,10 @@ public class CommonRepositorySettings extends RepositorySettings {
     }
 
     @Override
-    protected void onTypeChanged(JcrType newJcrType) {
-        super.onTypeChanged(newJcrType);
-        uri = getDefaultPath(newJcrType);
-        if (JcrType.LOCAL == newJcrType) {
+    protected void onTypeChanged(RepositoryType newRepositoryType) {
+        super.onTypeChanged(newRepositoryType);
+        uri = getDefaultPath(newRepositoryType);
+        if (RepositoryType.LOCAL == newRepositoryType) {
             setSecure(false);
         }
     }

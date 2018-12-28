@@ -106,7 +106,7 @@ public abstract class AbstractProductionRepoController {
     private RepositoryConfiguration createDummyRepositoryConfiguration() {
         RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration("def", getProductionConfigManager("def"),
                 RepositoryMode.PRODUCTION);
-        repositoryConfiguration.setType(JcrType.LOCAL.name().toLowerCase());
+        repositoryConfiguration.setType(RepositoryType.LOCAL.name().toLowerCase());
         return repositoryConfiguration;
     }
 
