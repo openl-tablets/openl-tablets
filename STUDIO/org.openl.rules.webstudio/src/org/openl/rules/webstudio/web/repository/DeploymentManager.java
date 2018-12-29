@@ -107,7 +107,8 @@ public class DeploymentManager implements InitializingBean {
                                 changes.add(new FileChange(fileTo, fileItem.getStream()));
                             }
                         } else {
-                            // TODO: Implement. Use the same idea as in FileChangeIterable. But in this case it will be combined from several zips.
+                            // TODO: Implement. Use the same idea as in FileChangeIterable. But in this case
+                            //  it will be combined from several zips.
                             throw new UnsupportedOperationException("Not implemented functionality");
                         }
                     }

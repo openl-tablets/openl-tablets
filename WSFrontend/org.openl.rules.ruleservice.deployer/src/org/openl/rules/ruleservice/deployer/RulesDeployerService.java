@@ -149,6 +149,7 @@ public class RulesDeployerService implements Closeable {
         dest.setName(name);
         dest.setAuthor(DEFAULT_AUTHOR_NAME);
         dest.setSize(contentSize);
+        // TODO: Add FolderRepository support
         deployRepo.save(dest, inputStream);
     }
 
