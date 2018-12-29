@@ -9,7 +9,7 @@
 
     <configuration>
         <entry>
-            <string>jacksondatabinding.defaultTypingType</string>
+            <string>jacksondatabinding.defaultTypingMode</string>
             <string>DISABLE</string>
         </entry>
     </configuration>

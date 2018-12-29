@@ -26,7 +26,7 @@ public final class JsonUtils {
         private static final ObjectMapper INSTANCE;
         static {
             JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
-            jacksonObjectMapperFactoryBean.setDefaultTypingType(DefaultTypingType.SMART);
+            jacksonObjectMapperFactoryBean.setDefaultTypingMode(DefaultTypingMode.SMART);
             jacksonObjectMapperFactoryBean.setSupportVariations(true);
             INSTANCE = jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
         }
@@ -34,15 +34,15 @@ public final class JsonUtils {
     
     public static ObjectMapper createJacksonObjectMapper(Class<?>[] types, boolean enableDefaultTyping) {
         if (enableDefaultTyping) {
-            return createJacksonObjectMapper(types, DefaultTypingType.ENABLE);
+            return createJacksonObjectMapper(types, DefaultTypingMode.ENABLE);
         } else {
-            return createJacksonObjectMapper(types, DefaultTypingType.SMART);
+            return createJacksonObjectMapper(types, DefaultTypingMode.SMART);
         }
     }
 
-    public static ObjectMapper createJacksonObjectMapper(Class<?>[] types, DefaultTypingType defaultTypingType) {
+    public static ObjectMapper createJacksonObjectMapper(Class<?>[] types, DefaultTypingMode defaultTypingMode) {
         JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
-        jacksonObjectMapperFactoryBean.setDefaultTypingType(defaultTypingType);
+        jacksonObjectMapperFactoryBean.setDefaultTypingMode(defaultTypingMode);
         jacksonObjectMapperFactoryBean.setSupportVariations(true);
         Set<String> overideTypes = new HashSet<String>();
         for (Class<?> type : types) {

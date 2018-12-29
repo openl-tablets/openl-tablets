@@ -43,7 +43,7 @@ public class JacksonObjectMapperFactoryBean {
 
     private boolean supportVariations = false;
 
-    private DefaultTypingType defaultTypingType = DefaultTypingType.SMART;
+    private DefaultTypingMode defaultTypingMode = DefaultTypingMode.SMART;
 
     private DateFormat defaultDateFormat = getISO8601Format();
 
@@ -60,10 +60,10 @@ public class JacksonObjectMapperFactoryBean {
 
         mapper.setAnnotationIntrospector(introspector);
 
-        if (DefaultTypingType.ENABLE.equals(getDefaultTypingType())) {
+        if (DefaultTypingMode.ENABLE.equals(getDefaultTypingMode())) {
             mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
         } else {
-            if (DefaultTypingType.SMART.equals(getDefaultTypingType())) {
+            if (DefaultTypingMode.SMART.equals(getDefaultTypingMode())) {
                 mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.PROPERTY);
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 if (getOverrideTypes() != null) {
@@ -183,29 +183,29 @@ public class JacksonObjectMapperFactoryBean {
         this.supportVariations = supportVariations;
     }
 
-    public DefaultTypingType getDefaultTypingType() {
-        return defaultTypingType;
+    public DefaultTypingMode getDefaultTypingMode() {
+        return defaultTypingMode;
     }
 
-    public void setDefaultTypingType(DefaultTypingType defaultTypingType) {
-        if (defaultTypingType == null) {
-            this.defaultTypingType = DefaultTypingType.SMART;
+    public void setDefaultTypingMode(DefaultTypingMode defaultTypingMode) {
+        if (defaultTypingMode == null) {
+            this.defaultTypingMode = DefaultTypingMode.SMART;
         } else {
-            this.defaultTypingType = defaultTypingType;
+            this.defaultTypingMode = defaultTypingMode;
         }
     }
 
     @Deprecated
     public boolean getEnableDefaultTyping() {
-        return DefaultTypingType.ENABLE.equals(getDefaultTypingType());
+        return DefaultTypingMode.ENABLE.equals(getDefaultTypingMode());
     }
 
     @Deprecated
     public void setEnableDefaultTyping(boolean enableDefaultTyping) {
         if (enableDefaultTyping) {
-            setDefaultTypingType(DefaultTypingType.ENABLE);
+            setDefaultTypingMode(DefaultTypingMode.ENABLE);
         } else {
-            setDefaultTypingType(DefaultTypingType.SMART);
+            setDefaultTypingMode(DefaultTypingMode.SMART);
         }
     }
 
