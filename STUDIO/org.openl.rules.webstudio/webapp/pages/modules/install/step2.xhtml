@@ -89,6 +89,7 @@
                                                 <f:selectItem itemValue="db" itemLabel="Database (JDBC)" />
                                                 <f:selectItem itemValue="jndi" itemLabel="Database (JNDI)" />
                                                 <f:selectItem itemValue="aws_s3" itemLabel="AWS S3" />
+                                                <f:selectItem itemValue="git" itemLabel="Git" />
                                             </h:selectOneMenu>
                                         </h:panelGrid>
                                         <h:panelGroup id="designParameters">
@@ -100,6 +101,12 @@
                                             </h:panelGroup>
                                             <h:panelGroup rendered="#{designRepository.formType == 'aws_s3'}">
                                                 <ui:include src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
+                                                    <ui:param name="repository" value="#{designRepository}" />
+                                                    <ui:param name="isProduction" value="false" />
+                                                </ui:include>
+                                            </h:panelGroup>
+                                            <h:panelGroup rendered="#{designRepository.formType == 'git'}">
+                                                <ui:include src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
                                                     <ui:param name="repository" value="#{designRepository}" />
                                                     <ui:param name="isProduction" value="false" />
                                                 </ui:include>
@@ -137,6 +144,7 @@
                                                             <f:selectItem itemValue="db" itemLabel="Database (JDBC)" />
                                                             <f:selectItem itemValue="jndi" itemLabel="Database (JNDI)" />
                                                             <f:selectItem itemValue="aws_s3" itemLabel="AWS S3" />
+                                                            <f:selectItem itemValue="git" itemLabel="Git" />
                                                         </h:selectOneMenu>
                                                     </h:panelGrid>
                                                     <h:panelGroup id="productionParameters">
@@ -148,6 +156,12 @@
                                                         </h:panelGroup>
                                                         <h:panelGroup rendered="#{repository.formType == 'aws_s3'}">
                                                             <ui:include src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
+                                                                <ui:param name="repository" value="#{repository}" />
+                                                                <ui:param name="isProduction" value="true" />
+                                                            </ui:include>
+                                                        </h:panelGroup>
+                                                        <h:panelGroup rendered="#{repository.formType == 'git'}">
+                                                            <ui:include src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
                                                                 <ui:param name="repository" value="#{repository}" />
                                                                 <ui:param name="isProduction" value="true" />
                                                             </ui:include>

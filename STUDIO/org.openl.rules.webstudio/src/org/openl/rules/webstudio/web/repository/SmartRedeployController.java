@@ -14,10 +14,9 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
-import org.openl.rules.webstudio.web.admin.RepositoryType;
+import org.openl.rules.webstudio.web.admin.RepositoryMode;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.workspace.deploy.DeployID;
-import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -302,7 +301,7 @@ public class SmartRedeployController {
     protected String getRepositoryName(String repositoryConfigName) {
         ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(repositoryConfigName);
         RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, productionConfig,
-                RepositoryType.PRODUCTION);
+                RepositoryMode.PRODUCTION);
         return repo.getName();
     }
 
@@ -405,7 +404,7 @@ public class SmartRedeployController {
         for (String configName : repositoryConfigNames) {
             ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(configName);
             RepositoryConfiguration config = new RepositoryConfiguration(configName, productionConfig,
-                    RepositoryType.PRODUCTION);
+                    RepositoryMode.PRODUCTION);
             repos.add(config);
         }
 

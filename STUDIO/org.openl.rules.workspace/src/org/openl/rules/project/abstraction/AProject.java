@@ -300,7 +300,7 @@ public class AProject extends AProjectFolder {
             if (projectFrom.isFolder()) {
                 super.update(projectFrom, user);
             } else {
-                unpack(projectFrom, repositoryTo, getFolderPath());
+                unpack(projectFrom, repositoryTo, getFolderPath(), user);
             }
         } else {
             if (!projectFrom.isFolder()) {
@@ -314,7 +314,7 @@ public class AProject extends AProjectFolder {
                         FileSystemRepository tempRepository = new FileSystemRepository();
                         tempRepository.setRoot(tempFolder);
                         tempRepository.initialize();
-                        unpack(projectFrom, tempRepository, projectFrom.getName());
+                        unpack(projectFrom, tempRepository, projectFrom.getName(), user);
                         AProject tempProject = new AProject(tempRepository, projectFrom.getName());
 
                         transformAndArchive(tempProject, user);
@@ -338,7 +338,7 @@ public class AProject extends AProjectFolder {
                         }
                         fileData.setSize(fileItem.getData().getSize());
                         stream = fileItem.getStream();
-                        fileData.setAuthor(user.getUserName());
+                        fileData.setAuthor(user == null ? null : user.getUserName());
                         setFileData(repositoryTo.save(fileData, stream));
                     } catch (IOException ex) {
                         throw new ProjectException("Can't update: " + ex.getMessage(), ex);
@@ -365,7 +365,7 @@ public class AProject extends AProjectFolder {
             }
             zipOutputStream.finish();
 
-            fileData.setAuthor(user.getUserName());
+            fileData.setAuthor(user == null ? null : user.getUserName());
             fileData.setSize(out.size());
             setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
         } catch (IOException e) {
@@ -375,7 +375,10 @@ public class AProject extends AProjectFolder {
         }
     }
 
-    private void unpack(AProject projectFrom, Repository repositoryTo, String folderTo) throws ProjectException {
+    private void unpack(AProject projectFrom,
+            Repository repositoryTo,
+            String folderTo,
+            CommonUser user) throws ProjectException {
         ZipInputStream stream = null;
         try {
             FileItem fileItem;
@@ -389,7 +392,9 @@ public class AProject extends AProjectFolder {
                 return;
             }
             stream = new ZipInputStream(fileItem.getStream());
-            ((FolderRepository) repositoryTo).save(getFileData(), new FileChangeIterable(stream, folderTo));
+            FileData fileData = getFileData();
+            fileData.setAuthor(user == null ? null : user.getUserName());
+            ((FolderRepository) repositoryTo).save(fileData, new FileChangeIterable(stream, folderTo));
         } catch (IOException e) {
             throw new ProjectException("Can't update: " + e.getMessage(), e);
         } finally {
