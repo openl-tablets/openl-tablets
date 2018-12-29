@@ -153,7 +153,7 @@ public class ProductionRepositoryDataSource implements DataSource {
         boolean folderStructure;
         try {
             if (repository instanceof FolderRepository) {
-                folderStructure = !((FolderRepository) repository).listFolders(deploymentFolderPath).isEmpty();
+                folderStructure = !((FolderRepository) repository).listFolders(deploymentFolderPath + "/").isEmpty();
             } else {
                 folderStructure = false;
             }

@@ -90,10 +90,14 @@ public class Deployment extends AProjectFolder {
             FolderRepository repository = (FolderRepository) getRepository();
             List<FileData> fileDataList;
             try {
+                String folderPath = getFolderPath();
+                if (!folderPath.isEmpty() && !folderPath.endsWith("/")) {
+                    folderPath += "/";
+                }
                 if (folderStructure) {
-                    fileDataList = repository.listFolders(getFolderPath());
+                    fileDataList = repository.listFolders(folderPath);
                 } else {
-                    fileDataList = repository.list(getFolderPath());
+                    fileDataList = repository.list(folderPath);
                 }
             } catch (IOException e) {
                 log.error(e.getMessage(), e);

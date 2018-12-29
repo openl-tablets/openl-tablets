@@ -41,7 +41,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     private String password;
     private String localRepositoryPath;
     private String branch = Constants.MASTER;
-    private String tagPrefix = "";
+    private String tagPrefix = "Rules_";
     private int listenerTimerPeriod = 10;
 
     private ChangesMonitor monitor;
@@ -283,7 +283,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
                 List<FileData> fileData = listFiles(srcName + "/", version);
                 for (FileData data : fileData) {
                     String fileFrom = data.getName();
-                    FileItem fileItem = readHistory(fileFrom, version);
+                    FileItem fileItem = readHistory(fileFrom, data.getVersion());
                     String fileTo = destData.getName() + fileFrom.substring(srcName.length());
                     files.add(new FileChange(fileTo, fileItem.getStream()));
                 }
