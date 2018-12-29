@@ -11,6 +11,6 @@ package org.openl.rules.serialization;
  */
 
 
-public enum DefaultTypingType {
+public enum DefaultTypingMode {
     ENABLE, SMART, DISABLE;
 }

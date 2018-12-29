@@ -10,8 +10,8 @@
 		<property name="loggingEnabled" value="${ruleservice.logging.enabled}" />
 	</bean>
 
-    <bean id="JAXRSserviceDescriptionConfigurationDefaultTypingTypeFactoryBean" 
-        class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationDefaultTypingTypeFactoryBean"
+    <bean id="JAXRSserviceDescriptionConfigurationDefaultTypingModeFactoryBean" 
+        class="org.openl.rules.ruleservice.databinding.ServiceDescriptionConfigurationDefaultTypingModeFactoryBean"
         scope="prototype">
         <property name="defaultValue" value="SMART"/>
     </bean>
@@ -23,8 +23,8 @@
 	<bean id="JAXRSJacksonDatabindingFactoryBean"
 		class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
 		scope="prototype">
-		<property name="defaultTypingType"
-			ref="JAXRSserviceDescriptionConfigurationDefaultTypingTypeFactoryBean" />
+		<property name="defaultTypingMode"
+			ref="JAXRSserviceDescriptionConfigurationDefaultTypingModeFactoryBean" />
 		<property name="overrideTypes"
 			ref="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean" />
 		<property name="supportVariations"
