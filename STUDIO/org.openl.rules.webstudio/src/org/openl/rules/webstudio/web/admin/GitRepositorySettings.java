@@ -31,9 +31,9 @@ public class GitRepositorySettings extends RepositorySettings {
         URI = configPrefix + "uri";
         LOGIN = configPrefix + "login";
         PASSWORD = configPrefix + "password";
-        LOCAL_REPOSITORY_PATH = configPrefix + "localRepositoryPath";
+        LOCAL_REPOSITORY_PATH = configPrefix + "local-repository-path";
         BRANCH = configPrefix + "branch";
-        TAG_PREFIX = configPrefix + "tagPrefix";
+        TAG_PREFIX = configPrefix + "tag-prefix";
         LISTENER_TIMER_PERIOD = configPrefix + "listener-timer-period";
 
         String type = repositoryMode == RepositoryMode.DESIGN ? "design" : "deployment";

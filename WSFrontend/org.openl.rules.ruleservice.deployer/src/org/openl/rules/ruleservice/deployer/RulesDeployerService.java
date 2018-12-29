@@ -46,10 +46,16 @@ public class RulesDeployerService implements Closeable {
         params.put("uri", properties.getProperty("production-repository.uri"));
         params.put("login", properties.getProperty("production-repository.login"));
         params.put("password", properties.getProperty("production-repository.password"));
+        // AWS S3 specific
         params.put("bucketName",properties.getProperty("production-repository.bucket-name"));
         params.put("regionName",properties.getProperty("production-repository.region-name"));
         params.put("accessKey",properties.getProperty("production-repository.access-key"));
         params.put("secretKey",properties.getProperty("production-repository.secret-key"));
+        // Git specific
+        params.put("localRepositoryPath",properties.getProperty("production-repository.local-repository-path"));
+        params.put("branch",properties.getProperty("production-repository.branch"));
+        params.put("tagPrefix",properties.getProperty("production-repository.tag-prefix"));
+        // AWS S3 and Git specific
         params.put("listener-timer-period",properties.getProperty("production-repository.listener-timer-period"));
 
         this.deployRepo = RepositoryInstatiator
