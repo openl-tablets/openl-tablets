@@ -276,6 +276,7 @@ public class RepositoryService {
             data.setComment("[REST] " + StringUtils.trimToEmpty(comment));
             data.setAuthor(getUserName());
             data.setSize(zipSize);
+            // TODO: Add FolderRepository support
             FileData save = getRepository().save(data, zipFile);
             userWorkspace.getProject(name).unlock();
             return Response.created(new URI(uri + "/" + StringTool.encodeURL(save.getVersion()))).build();

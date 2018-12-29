@@ -146,6 +146,7 @@ public class ProductionRepositoryDeployer {
             dest.setAuthor("OpenL_Deployer");
             dest.setSize(zipFile.length());
             stream = new FileInputStream(zipFile);
+            // TODO: Add FolderRepository support
             deployRepo.save(dest, stream);
         } finally {
             IOUtils.closeQuietly(stream);
