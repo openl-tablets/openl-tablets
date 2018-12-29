@@ -64,7 +64,7 @@ public final class DeployUtils {
                 boolean folderStructure;
                 try {
                     if (repository instanceof FolderRepository) {
-                        folderStructure = !((FolderRepository) repository).listFolders(folderPath).isEmpty();
+                        folderStructure = !((FolderRepository) repository).listFolders(folderPath + "/").isEmpty();
                     } else {
                         folderStructure = false;
                     }

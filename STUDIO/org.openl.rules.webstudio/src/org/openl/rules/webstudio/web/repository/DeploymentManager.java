@@ -18,7 +18,6 @@ import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.rules.workspace.deploy.DeploymentException;
@@ -86,6 +85,7 @@ public class DeploymentManager implements InitializingBean {
 
             String deploymentPath = DeployUtils.DEPLOY_PATH + id.getName();
 
+            String rulesPath = "DESIGN/rules/";
             if (deployRepo instanceof FolderRepository) {
                 FolderRepository folderRepo = (FolderRepository) deployRepo;
 
@@ -95,9 +95,21 @@ public class DeploymentManager implements InitializingBean {
                     for (ProjectDescriptor<?> pd : projectDescriptors) {
                         String version = pd.getProjectVersion().getVersionName();
                         String projectName = pd.getProjectName();
-                        FileItem srcPrj = designRepo.readHistory("DESIGN/rules/" + projectName, version);
+                        String srcProjectPath = rulesPath + projectName + "/";
 
-                        changes.add(new FileChange(srcPrj.getData().getName(), srcPrj.getStream()));
+                        if (designRepo instanceof FolderRepository) {
+                            List<FileData> files = ((FolderRepository) designRepo).listFiles(srcProjectPath, version);
+                            for (FileData file : files) {
+                                String srcFileName = file.getName();
+                                String fileTo = deploymentPath + "/" + srcFileName.substring(rulesPath.length());
+                                FileItem fileItem = designRepo.readHistory(file.getName(), file.getVersion());
+
+                                changes.add(new FileChange(fileTo, fileItem.getStream()));
+                            }
+                        } else {
+                            // TODO: Implement. Use the same idea as in FileChangeIterable. But in this case it will be combined from several zips.
+                            throw new UnsupportedOperationException("Not implemented functionality");
+                        }
                     }
 
                     FileData deploymentData = new FileData();
@@ -123,7 +135,7 @@ public class DeploymentManager implements InitializingBean {
                     try {
                         String version = pd.getProjectVersion().getVersionName();
                         String projectName = pd.getProjectName();
-                        FileItem srcPrj = designRepo.readHistory("DESIGN/rules/" + projectName, version);
+                        FileItem srcPrj = designRepo.readHistory(rulesPath + projectName, version);
                         stream = srcPrj.getStream();
                         FileData dest = new FileData();
                         dest.setName(deploymentPath + "/" + projectName);

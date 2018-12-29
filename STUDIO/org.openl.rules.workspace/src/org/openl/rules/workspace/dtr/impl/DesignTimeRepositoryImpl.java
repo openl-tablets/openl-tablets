@@ -145,7 +145,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
         Collection<FileData> fileDatas;
         try {
-            fileDatas = getRepository().list(deploymentConfigurationLocation);
+            String path = deploymentConfigurationLocation + "/";
+            if (repository instanceof FolderRepository) {
+                fileDatas = ((FolderRepository) repository).listFolders(path);
+            } else {
+                fileDatas = repository.list(path);
+            }
         } catch (IOException e) {
             throw new RepositoryException("Cannot read the deploy repository", e);
         }

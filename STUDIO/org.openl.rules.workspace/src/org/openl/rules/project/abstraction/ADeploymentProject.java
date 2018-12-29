@@ -4,16 +4,17 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.openl.rules.common.*;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
-import org.openl.rules.repository.api.ArtefactProperties;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.impl.LockInfoImpl;
 import org.openl.util.IOUtils;
@@ -54,11 +55,6 @@ public class ADeploymentProject extends UserWorkspaceProject {
     public ADeploymentProject(Repository repository, FileData fileData) {
         super(null, repository, fileData);
         lockEngine = null;
-    }
-
-    @Override
-    public boolean isFolder() {
-        return false;
     }
 
     public void addProjectDescriptor(String name, CommonVersion version) {
@@ -131,30 +127,46 @@ public class ADeploymentProject extends UserWorkspaceProject {
     @Override
     public void save(CommonUser user) throws ProjectException {
         InputStream inputStream = ProjectDescriptorHelper.serialize(descriptors);
+        if (getRepository() instanceof FolderRepository) {
+            FileData fileData = getFileData();
+            try {
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                IOUtils.copyAndClose(inputStream, out);
 
-        // Archive the folder using zip
-        FileData fileData = getFileData();
-        ZipOutputStream zipOutputStream = null;
-        try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            zipOutputStream = new ZipOutputStream(out);
+                fileData.setAuthor(user == null ? null : user.getUserName());
+                fileData.setSize(out.size());
 
-            ZipEntry entry = new ZipEntry(ArtefactProperties.DESCRIPTORS_FILE);
-            zipOutputStream.putNextEntry(entry);
+                FileChange change = new FileChange(fileData.getName() + "/" + ArtefactProperties.DESCRIPTORS_FILE,
+                        new ByteArrayInputStream(out.toByteArray()));
+                setFileData(((FolderRepository) getRepository()).save(fileData, Collections.singletonList(change)));
+            } catch (IOException e) {
+                throw new ProjectException(e.getMessage(), e);
+            }
+        } else {
+            // Archive the folder using zip
+            FileData fileData = getFileData();
+            ZipOutputStream zipOutputStream = null;
+            try {
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                zipOutputStream = new ZipOutputStream(out);
 
-            IOUtils.copy(inputStream, zipOutputStream);
+                ZipEntry entry = new ZipEntry(ArtefactProperties.DESCRIPTORS_FILE);
+                zipOutputStream.putNextEntry(entry);
 
-            inputStream.close();
-            zipOutputStream.closeEntry();
+                IOUtils.copy(inputStream, zipOutputStream);
 
-            zipOutputStream.close();
-            fileData.setAuthor(user == null ? null : user.getUserName());
-            fileData.setSize(out.size());
-            setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
-        } catch (IOException e) {
-            throw new ProjectException(e.getMessage(), e);
-        } finally {
-            IOUtils.closeQuietly(zipOutputStream);
+                inputStream.close();
+                zipOutputStream.closeEntry();
+
+                zipOutputStream.close();
+                fileData.setAuthor(user == null ? null : user.getUserName());
+                fileData.setSize(out.size());
+                setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
+            } catch (IOException e) {
+                throw new ProjectException(e.getMessage(), e);
+            } finally {
+                IOUtils.closeQuietly(zipOutputStream);
+            }
         }
 
         modifiedDescriptors = false;
