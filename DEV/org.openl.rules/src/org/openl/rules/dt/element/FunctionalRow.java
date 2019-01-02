@@ -551,7 +551,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     @Override
     public int getNumberOfRules() {
-        return storage[0].size();
+        return storage == null || storage.length == 0 ? 0 : storage[0].size();
     }
 
     @Override
