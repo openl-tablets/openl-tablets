@@ -4,7 +4,9 @@ import java.io.File;
 import java.net.URL;
 import java.util.*;
 
+import org.openl.OpenClassUtil;
 import org.openl.binding.IBoundCode;
+import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.conf.UserContext;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls.XlsProjectionDiffer;
@@ -52,23 +54,31 @@ public class XlsDiff2 {
     }
 
     private List<XlsTable> load(IOpenSourceCodeModule src) {
+        final ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+        SimpleBundleClassLoader bundleCl = null;
+        try {
+            bundleCl = new SimpleBundleClassLoader(oldCl);
+            Thread.currentThread().setContextClassLoader(bundleCl);
+            UserContext ucxt = new UserContext(bundleCl, ".");
 
-        UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
+            IParsedCode pc = new SequentialParser(ucxt).parseAsModule(src);
+            IBoundCode bc = new XlsBinder(ucxt).bind(pc);
+            IOpenClass ioc = bc.getTopNode().getType();
 
-        IParsedCode pc = new SequentialParser(ucxt).parseAsModule(src);
-        IBoundCode bc = new XlsBinder(ucxt).bind(pc);
-        IOpenClass ioc = bc.getTopNode().getType();
+            XlsMetaInfo xmi = (XlsMetaInfo) ioc.getMetaInfo();
+            XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
 
-        XlsMetaInfo xmi = (XlsMetaInfo) ioc.getMetaInfo();
-        XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
+            TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
+            List<XlsTable> tables = new ArrayList<>(nodes.length);
+            for (TableSyntaxNode node : nodes) {
+                tables.add(new XlsTable(node));
+            }
 
-        TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
-        List<XlsTable> tables = new ArrayList<>(nodes.length);
-        for (TableSyntaxNode node : nodes) {
-            tables.add(new XlsTable(node));
+            return tables;
+        } finally {
+            OpenClassUtil.releaseClassLoader(bundleCl);
+            Thread.currentThread().setContextClassLoader(oldCl);
         }
-
-        return tables;
     }
 
     public DiffTreeNode diffFiles(File xlsFile1, File xlsFile2) {
@@ -82,6 +92,7 @@ public class XlsDiff2 {
         URL url2 = URLSourceCodeModule.toUrl(xlsFile2);
         IOpenSourceCodeModule src1 = new URLSourceCodeModule(url1);
         IOpenSourceCodeModule src2 = new URLSourceCodeModule(url2);
+
 
         tables1 = load(src1);
         tables2 = load(src2);
