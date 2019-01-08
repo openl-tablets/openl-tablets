@@ -4,11 +4,13 @@ import static org.junit.Assert.*;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.StringValue;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 
 public class JavaOpenClassTest {
@@ -138,6 +140,35 @@ public class JavaOpenClassTest {
         }
     }
 
+    @Test
+    public void superClassBeanFieldsTest() {
+        //when
+        JavaOpenClass beanAOpenClass = JavaOpenClass.getOpenClass(BeanX.class);
+        IOpenField openField = beanAOpenClass.getField("B");
+        assertNotNull(openField);
+        //then
+        Map<String, IOpenField> fieldMap = beanAOpenClass.getFields();
+        assertNotNull(fieldMap);
+        assertEquals(4, fieldMap.size());
+        assertNotNull(fieldMap.get("B"));
+        assertNotNull(fieldMap.get("Ba"));
+        assertNotNull(fieldMap.get("BB"));
+    }
+
+    @Test
+    public void interfaceBeanFieldsTest() {
+        JavaOpenClass beanAOpenClass = JavaOpenClass.getOpenClass(BeanXInterface.class);
+        IOpenField openField = beanAOpenClass.getField("ba");
+        assertNotNull(openField);
+        Map<String, IOpenField> fieldMap = beanAOpenClass.getFields();
+        assertNotNull(fieldMap);
+        assertEquals(5, fieldMap.size());
+        assertNotNull(fieldMap.get("b"));
+        assertNotNull(fieldMap.get("ba"));
+        assertNotNull(fieldMap.get("BB"));
+        assertNotNull(fieldMap.get("x"));
+    }
+
     public static class MyType {
         public void method1(int i, double j) {
         }
@@ -159,5 +190,57 @@ public class JavaOpenClassTest {
 
     public static interface MyInterface {
         void method1(int i, double j);
+    }
+
+    public static class BeanA {
+        private int B;
+        private int Ba;
+        private int BB;
+
+        public BeanA() {
+        }
+
+        public int getB() {
+            return this.B;
+        }
+
+        public void setB(int b) {
+            this.B = b;
+        }
+
+        public int getBa() {
+            return this.Ba;
+        }
+
+        public void setBa(int ba) {
+            this.Ba = ba;
+        }
+
+        public int getBB() {
+            return this.BB;
+        }
+
+        public void setBB(int BB) {
+            this.BB = BB;
+        }
+    }
+
+    public static class BeanX extends BeanA {
+        public BeanX() {
+        }
+    }
+
+    public interface BeanAInterface {
+        int getB();
+        void setB(int b);
+        int getBa();
+        void setBa(int ba);
+        int getBB();
+        void setBB(int BB);
+    }
+
+    public interface BeanXInterface extends BeanAInterface {
+        int getX();
+        void setX(int x);
     }
 }
