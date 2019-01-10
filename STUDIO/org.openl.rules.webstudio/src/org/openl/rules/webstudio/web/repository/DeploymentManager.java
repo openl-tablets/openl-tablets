@@ -19,7 +19,6 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeployUtils;
@@ -49,7 +48,7 @@ public class DeploymentManager implements InitializingBean {
         deployers.add(repositoryConfigName);
     }
 
-    public void removeRepository(String repositoryConfigName) throws RRepositoryException {
+    public void removeRepository(String repositoryConfigName) {
         deployers.remove(repositoryConfigName);
         repositoryFactoryProxy.releaseRepository(repositoryConfigName);
     }

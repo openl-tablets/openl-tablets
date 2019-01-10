@@ -9,7 +9,6 @@ import java.util.List;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.StringUtils;
 
 public class ProductionRepositoryEditor {
@@ -17,8 +16,8 @@ public class ProductionRepositoryEditor {
     private final ConfigurationManagerFactory productionConfigManagerFactory;
     private final ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
-    private List<RepositoryConfiguration> productionRepositoryConfigurations = new ArrayList<RepositoryConfiguration>();
-    private List<RepositoryConfiguration> deletedConfigurations = new ArrayList<RepositoryConfiguration>();
+    private List<RepositoryConfiguration> productionRepositoryConfigurations = new ArrayList<>();
+    private List<RepositoryConfiguration> deletedConfigurations = new ArrayList<>();
 
     public ProductionRepositoryEditor(ConfigurationManager configManager,
             ConfigurationManagerFactory productionConfigManagerFactory,
@@ -49,10 +48,10 @@ public class ProductionRepositoryEditor {
         }
     }
 
-    public void deleteProductionRepository(String configName) throws RRepositoryException {
+    public void deleteProductionRepository(String configName) {
         deleteProductionRepository(configName, null);
     }
-    public void deleteProductionRepository(String configName, Callback callback) throws RRepositoryException {
+    public void deleteProductionRepository(String configName, Callback callback) {
         Iterator<RepositoryConfiguration> it = productionRepositoryConfigurations.iterator();
         while (it.hasNext()) {
             RepositoryConfiguration prodConfig = it.next();
@@ -76,11 +75,11 @@ public class ProductionRepositoryEditor {
         }
     }
 
-    public void save() throws RRepositoryException {
+    public void save() {
         save(null);
     }
 
-    public void save(Callback callback) throws RRepositoryException {
+    public void save(Callback callback) {
         for (RepositoryConfiguration prodConfig : deletedConfigurations) {
             if (callback != null) {
                 callback.onDelete(prodConfig.getConfigName());
@@ -90,7 +89,7 @@ public class ProductionRepositoryEditor {
 
         deletedConfigurations.clear();
 
-        String configNames[] = new String[productionRepositoryConfigurations.size()];
+        String[] configNames = new String[productionRepositoryConfigurations.size()];
         for (int i = 0; i < productionRepositoryConfigurations.size(); i++) {
             RepositoryConfiguration prodConfig = productionRepositoryConfigurations.get(i);
             RepositoryConfiguration newProdConfig = saveProductionRepository(prodConfig, callback);
@@ -172,12 +171,12 @@ public class ProductionRepositoryEditor {
         return StringUtils.split(s, ',');
     }
 
-    private String join(String arr[]) {
+    private String join(String[] arr) {
         return StringUtils.join(arr, ",");
     }
 
     public abstract static class Callback {
-        public void onDelete(String configName) throws RRepositoryException {
+        public void onDelete(String configName) {
             // Do nothing
         }
 
