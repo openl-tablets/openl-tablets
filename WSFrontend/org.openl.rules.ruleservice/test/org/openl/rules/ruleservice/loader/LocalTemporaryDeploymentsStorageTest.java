@@ -36,6 +36,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration({ "classpath:openl-ruleservice-property-placeholder.xml",
         "classpath:openl-ruleservice-datasource-beans.xml" })
 public class LocalTemporaryDeploymentsStorageTest {
+    private static final String DEPLOY_PATH = "deploy/";
 
     @Autowired
     @Qualifier("productionRepositoryDataSource")
@@ -102,7 +103,7 @@ public class LocalTemporaryDeploymentsStorageTest {
             updateProject(repository, deploymentName, "project2",false);
 
             Deployment remoteDeployment = new Deployment(repository,
-                    DeployUtils.DEPLOY_PATH + deploymentName,
+                    DEPLOY_PATH + deploymentName,
                     deploymentName,
                     version,
                     false);
@@ -129,7 +130,7 @@ public class LocalTemporaryDeploymentsStorageTest {
     }
 
     private void updateProject(DBRepository repository, String deploymentName, String projectName, boolean delete) throws IOException {
-        String deploymentPath = DeployUtils.DEPLOY_PATH + deploymentName;
+        String deploymentPath = DEPLOY_PATH + deploymentName;
         byte[] zip = createZip();
         ByteArrayInputStream inputStream = new ByteArrayInputStream(zip);
         FileData fileData = new FileData();

@@ -32,6 +32,7 @@ public class ProductionRepositoryDataSource implements DataSource {
 
     private Repository repository;
     private boolean includeVersionInDeploymentName = false;
+    private String deployPath;
 
     /**
      * {@inheritDoc}
@@ -41,17 +42,17 @@ public class ProductionRepositoryDataSource implements DataSource {
         try {
             if (repository instanceof FolderRepository) {
                 // All deployments
-                fileDatas = ((FolderRepository) repository).listFolders(DeployUtils.DEPLOY_PATH);
+                fileDatas = ((FolderRepository) repository).listFolders(deployPath);
             } else {
                 // Projects inside all deployments
-                fileDatas = repository.list(DeployUtils.DEPLOY_PATH);
+                fileDatas = repository.list(deployPath);
             }
         } catch (IOException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
         ConcurrentMap<String, Deployment> deployments = new ConcurrentHashMap<>();
         for (FileData fileData : fileDatas) {
-            String deploymentFolderName = fileData.getName().substring(DeployUtils.DEPLOY_PATH.length()).split("/")[0];
+            String deploymentFolderName = fileData.getName().substring(deployPath.length()).split("/")[0];
             String deploymentName = deploymentFolderName;
             CommonVersionImpl commonVersion = null;
 
@@ -73,7 +74,7 @@ public class ProductionRepositoryDataSource implements DataSource {
                 }
             }
 
-            String folderPath = DeployUtils.DEPLOY_PATH + deploymentFolderName;
+            String folderPath = deployPath + deploymentFolderName;
 
             boolean folderStructure = isFolderStructure(folderPath);
 
@@ -109,7 +110,7 @@ public class ProductionRepositoryDataSource implements DataSource {
         } else {
             name = deploymentName;
         }
-        String folderPath = DeployUtils.DEPLOY_PATH + name;
+        String folderPath = deployPath + name;
         boolean folderStructure = isFolderStructure(folderPath);
         return new Deployment(repository, folderPath, deploymentName, deploymentVersion, folderStructure);
     }
@@ -147,6 +148,10 @@ public class ProductionRepositoryDataSource implements DataSource {
 
     public void setIncludeVersionInDeploymentName(boolean includeVersionInDeploymentName) {
         this.includeVersionInDeploymentName = includeVersionInDeploymentName;
+    }
+
+    public void setDeployPath(String deployPath) {
+        this.deployPath = deployPath;
     }
 
     private boolean isFolderStructure(String deploymentFolderPath) {
