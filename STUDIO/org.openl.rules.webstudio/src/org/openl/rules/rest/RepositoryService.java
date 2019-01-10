@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.zip.ZipInputStream;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -29,7 +30,9 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
@@ -73,7 +76,7 @@ public class RepositoryService {
             return Response.status(Status.FORBIDDEN).entity("Doesn't have VIEW privilege").build();
         }
         Collection<? extends AProject> projects = getDesignTimeRepository().getProjects();
-        List<ProjectDescription> result = new ArrayList<ProjectDescription>(projects.size());
+        List<ProjectDescription> result = new ArrayList<>(projects.size());
         for (AProject prj : projects) {
             ProjectDescription projectDescription = getProjectDescription(prj);
             result.add(projectDescription);
@@ -265,19 +268,27 @@ public class RepositoryService {
 
             String fileName = getFileName(name);
 
-            FileData existing = getRepository().check(fileName);
+            Repository repository = getRepository();
+            FileData existing = repository.check(fileName);
             if (existing != null && existing.isDeleted()) {
                 // Remove "deleted" marker
-                getRepository().deleteHistory(existing.getName(), existing.getVersion());
+                repository.deleteHistory(existing.getName(), existing.getVersion());
             }
 
             FileData data = new FileData();
             data.setName(fileName);
             data.setComment("[REST] " + StringUtils.trimToEmpty(comment));
             data.setAuthor(getUserName());
-            data.setSize(zipSize);
-            // TODO: Add FolderRepository support
-            FileData save = getRepository().save(data, zipFile);
+
+            FileData save;
+            if (repository instanceof FolderRepository) {
+                try (ZipInputStream stream = new ZipInputStream(zipFile)) {
+                    save = ((FolderRepository) repository).save(data, new FileChangesFromZip(stream, fileName));
+                }
+            } else {
+                data.setSize(zipSize);
+                save = repository.save(data, zipFile);
+            }
             userWorkspace.getProject(name).unlock();
             return Response.created(new URI(uri + "/" + StringTool.encodeURL(save.getVersion()))).build();
         } catch (IOException ex) {
@@ -298,9 +309,7 @@ public class RepositoryService {
             XPath xPath = factory.newXPath();
             XPathExpression xPathExpression = xPath.compile("/project/name");
             return StringUtils.trimToNull(xPathExpression.evaluate(inputSource));
-        } catch (FileNotFoundException e) {
-            return null;
-        } catch (XPathExpressionException e) {
+        } catch (FileNotFoundException | XPathExpressionException e) {
             return null;
         }
     }
