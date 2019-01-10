@@ -25,6 +25,7 @@ import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.fuzzy.OpenLFuzzySearch;
 import org.openl.rules.fuzzy.Token;
 import org.openl.rules.helpers.CharRange;
+import org.openl.rules.helpers.CharRangeParser;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.DoubleRangeParser;
 import org.openl.rules.helpers.IntRange;
@@ -1324,7 +1325,7 @@ public class DecisionTableHelper {
                 try {
                     boolean f = true;
                     try {
-                        CharRange.parseRange(value);
+                        CharRangeParser.getInstance().parse(value);
                     } catch (Exception e) {
                         f = false;
                     }
