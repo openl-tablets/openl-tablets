@@ -36,7 +36,7 @@ public class ProductionRepositoryFactoryProxy {
         return factories.get(propertiesFileName);
     }
 
-    public void releaseRepository(String propertiesFileName) throws RRepositoryException {
+    public void releaseRepository(String propertiesFileName) {
         synchronized (this) {
             Repository repository = factories.get(propertiesFileName);
             if (repository != null) {
@@ -49,7 +49,7 @@ public class ProductionRepositoryFactoryProxy {
         }
     }
 
-    public void destroy() throws RRepositoryException {
+    public void destroy() {
         synchronized (this) {
             for (Repository repository : factories.values()) {
                 if (repository instanceof Closeable) {
