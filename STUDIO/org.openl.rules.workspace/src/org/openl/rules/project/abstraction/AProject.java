@@ -13,12 +13,11 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.file.FileSystemRepository;
+import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AProject extends AProjectFolder {
     /**
@@ -394,7 +393,7 @@ public class AProject extends AProjectFolder {
             stream = new ZipInputStream(fileItem.getStream());
             FileData fileData = getFileData();
             fileData.setAuthor(user == null ? null : user.getUserName());
-            ((FolderRepository) repositoryTo).save(fileData, new FileChangeIterable(stream, folderTo));
+            ((FolderRepository) repositoryTo).save(fileData, new FileChangesFromZip(stream, folderTo));
         } catch (IOException e) {
             throw new ProjectException("Can't update: " + e.getMessage(), e);
         } finally {
@@ -548,47 +547,4 @@ public class AProject extends AProjectFolder {
         }
     }
 
-    private static class FileChangeIterable implements Iterable<FileChange> {
-        private final Logger log = LoggerFactory.getLogger(FileChangeIterable.class);
-        private final ZipInputStream stream;
-        private final String folderTo;
-
-        private FileChangeIterable(ZipInputStream stream, String folderTo) {
-            this.stream = stream;
-            this.folderTo = folderTo;
-        }
-
-        @SuppressWarnings("NullableProblems")
-        @Override
-        public Iterator<FileChange> iterator() {
-            return new Iterator<FileChange>() {
-                private ZipEntry entry;
-
-                @Override
-                public boolean hasNext() {
-                    try {
-                        do {
-                            entry = stream.getNextEntry();
-                        } while (entry != null && entry.isDirectory());
-                    } catch (IOException e) {
-                        log.error(e.getMessage(), e);
-                        entry = null;
-                    }
-
-                    return entry != null;
-                }
-
-                @Override
-                public FileChange next() {
-                    return new FileChange(folderTo + "/" + entry.getName(), stream);
-                }
-
-                @Override
-                public void remove() {
-                    throw new UnsupportedOperationException("Remove not supported");
-                }
-            };
-        }
-
-    }
 }

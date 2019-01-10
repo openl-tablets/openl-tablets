@@ -14,7 +14,9 @@ import java.util.zip.ZipInputStream;
 
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +41,7 @@ public class RulesDeployerService implements Closeable {
 
     /**
      * Initializes repository using target properties
-     * @param properties
+     * @param properties repository settings
      */
     public RulesDeployerService(Properties properties) {
         Map<String, String> params = new HashMap<>();
@@ -67,8 +69,7 @@ public class RulesDeployerService implements Closeable {
      *
      * @param name original ZIP file name
      * @param in zip input stream
-     * @param overridable
-     * @throws Exception
+     * @param overridable if deployment was exist before and overridable is false, it will not be deployed, if true, it will be overridden.
      */
     public void deploy(String name, InputStream in, boolean overridable) throws Exception {
         deployInternal(name, in, overridable);
@@ -148,9 +149,13 @@ public class RulesDeployerService implements Closeable {
         FileData dest = new FileData();
         dest.setName(name);
         dest.setAuthor(DEFAULT_AUTHOR_NAME);
-        dest.setSize(contentSize);
-        // TODO: Add FolderRepository support
-        deployRepo.save(dest, inputStream);
+
+        if (deployRepo instanceof FolderRepository) {
+            ((FolderRepository) deployRepo).save(dest, new FileChangesFromZip(new ZipInputStream(inputStream), name));
+        } else {
+            dest.setSize(contentSize);
+            deployRepo.save(dest, inputStream);
+        }
     }
 
     private boolean isRulesDeployed(String deploymentName) throws IOException {

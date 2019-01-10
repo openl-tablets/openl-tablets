@@ -1,11 +1,9 @@
 package org.openl.rules.workspace.deploy;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.Map;
+import java.util.zip.ZipInputStream;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
@@ -15,7 +13,9 @@ import javax.xml.xpath.XPathFactory;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.ZipUtils;
@@ -92,7 +92,7 @@ public class ProductionRepositoryDeployer {
         // Temp folders
         File zipFolder = Files.createTempDirectory("openl").toFile();
 
-        FileInputStream stream = null;
+        InputStream stream = null;
         try {
             String name = FileUtils.getBaseName(zipFile.getName());
 
@@ -137,17 +137,19 @@ public class ProductionRepositoryDeployer {
             }
 
             // Do deploy
-            String target = new StringBuilder(DeployUtils.DEPLOY_PATH).append(deploymentName)
-                .append('/')
-                .append(name)
-                .toString();
+            String target = DeployUtils.DEPLOY_PATH + deploymentName + '/' + name;
             FileData dest = new FileData();
             dest.setName(target);
             dest.setAuthor("OpenL_Deployer");
-            dest.setSize(zipFile.length());
-            stream = new FileInputStream(zipFile);
-            // TODO: Add FolderRepository support
-            deployRepo.save(dest, stream);
+
+            if (deployRepo instanceof FolderRepository) {
+                stream = new ZipInputStream(new FileInputStream(zipFile));
+                ((FolderRepository) deployRepo).save(dest, new FileChangesFromZip((ZipInputStream) stream, target));
+            } else {
+                stream = new FileInputStream(zipFile);
+                dest.setSize(zipFile.length());
+                deployRepo.save(dest, stream);
+            }
         } finally {
             IOUtils.closeQuietly(stream);
             /* Clean up */
@@ -162,9 +164,7 @@ public class ProductionRepositoryDeployer {
             XPath xPath = factory.newXPath();
             XPathExpression xPathExpression = xPath.compile("/project/name");
             return xPathExpression.evaluate(inputSource);
-        } catch (FileNotFoundException e) {
-            return null;
-        } catch (XPathExpressionException e) {
+        } catch (FileNotFoundException | XPathExpressionException e) {
             return null;
         }
     }
@@ -176,9 +176,7 @@ public class ProductionRepositoryDeployer {
             XPath xPath = factory.newXPath();
             XPathExpression xPathExpression = xPath.compile("/version");
             return xPathExpression.evaluate(inputSource);
-        } catch (FileNotFoundException e) {
-            return null;
-        } catch (XPathExpressionException e) {
+        } catch (FileNotFoundException | XPathExpressionException e) {
             return null;
         }
     }

@@ -15,7 +15,10 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
@@ -83,48 +86,26 @@ public class DeploymentManager implements InitializingBean {
             }
             DeployID id = new DeployID(sb.toString());
 
-            String deploymentPath = DeployUtils.DEPLOY_PATH + id.getName();
+            String deploymentName = DeployUtils.DEPLOY_PATH + id.getName();
+            String deploymentPath = deploymentName + "/";
 
             String rulesPath = "DESIGN/rules/";
             if (deployRepo instanceof FolderRepository) {
                 FolderRepository folderRepo = (FolderRepository) deployRepo;
 
                 Repository designRepo = designRepository.getRepository();
-                List<FileChange> changes = new ArrayList<>();
-                try {
-                    for (ProjectDescriptor<?> pd : projectDescriptors) {
-                        String version = pd.getProjectVersion().getVersionName();
-                        String projectName = pd.getProjectName();
-                        String srcProjectPath = rulesPath + projectName + "/";
-
-                        if (designRepo instanceof FolderRepository) {
-                            List<FileData> files = ((FolderRepository) designRepo).listFiles(srcProjectPath, version);
-                            for (FileData file : files) {
-                                String srcFileName = file.getName();
-                                String fileTo = deploymentPath + "/" + srcFileName.substring(rulesPath.length());
-                                FileItem fileItem = designRepo.readHistory(file.getName(), file.getVersion());
-
-                                changes.add(new FileChange(fileTo, fileItem.getStream()));
-                            }
-                        } else {
-                            // TODO: Implement. Use the same idea as in FileChangeIterable. But in this case
-                            //  it will be combined from several zips.
-                            throw new UnsupportedOperationException("Not implemented functionality");
-                        }
-                    }
-
+                try (FileChangesToDeploy changes = new FileChangesToDeploy(projectDescriptors,
+                        designRepo,
+                        rulesPath,
+                        deploymentPath)) {
                     FileData deploymentData = new FileData();
-                    deploymentData.setName(deploymentPath);
+                    deploymentData.setName(deploymentName);
                     deploymentData.setAuthor(userName);
                     deploymentData.setComment(project.getFileData().getComment());
                     folderRepo.save(deploymentData, changes);
-                } finally {
-                    for (FileChange change : changes) {
-                        IOUtils.closeQuietly(change.getStream());
-                    }
                 }
             } else {
-                List<FileData> existingProjects = deployRepo.list(deploymentPath + "/");
+                List<FileData> existingProjects = deployRepo.list(deploymentPath);
                 List<FileData> projectsToDelete = findProjectsToDelete(existingProjects, projectDescriptors);
                 for (FileData fileData : projectsToDelete) {
                     deployRepo.delete(fileData);
@@ -139,7 +120,7 @@ public class DeploymentManager implements InitializingBean {
                         FileItem srcPrj = designRepo.readHistory(rulesPath + projectName, version);
                         stream = srcPrj.getStream();
                         FileData dest = new FileData();
-                        dest.setName(deploymentPath + "/" + projectName);
+                        dest.setName(deploymentPath + projectName);
                         dest.setAuthor(userName);
                         dest.setComment(srcPrj.getData().getComment());
                         dest.setSize(srcPrj.getData().getSize());
