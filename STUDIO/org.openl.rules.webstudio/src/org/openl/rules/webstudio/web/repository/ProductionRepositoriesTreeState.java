@@ -48,7 +48,7 @@ public class ProductionRepositoriesTreeState {
      */
     private TreeRepository root;
 
-    private IFilter<AProjectArtefact> filter = new AllFilter<AProjectArtefact>();
+    private IFilter<AProjectArtefact> filter = new AllFilter<>();
 
     private void buildTree() {
         if (root != null) {
@@ -92,15 +92,16 @@ public class ProductionRepositoriesTreeState {
     private List<AProjectFolder> getPRepositoryProjects(RepositoryConfiguration repoConfig) {
         try {
             Repository repository = productionRepositoryFactoryProxy.getRepositoryInstance(repoConfig.getConfigName());
-            return new ArrayList<AProjectFolder>(DeployUtils.getLastDeploymentProjects(repository));
+            String deploymentsPath = productionRepositoryFactoryProxy.getDeploymentsPath(repoConfig.getConfigName());
+            return new ArrayList<AProjectFolder>(DeployUtils.getLastDeploymentProjects(repository, deploymentsPath));
         } catch (RRepositoryException e) {
-            return new ArrayList<AProjectFolder>();
+            return new ArrayList<>();
         }
 
     }
 
-    public Collection<RepositoryConfiguration> getRepositories() {
-        List<RepositoryConfiguration> repos = new ArrayList<RepositoryConfiguration>();
+    private Collection<RepositoryConfiguration> getRepositories() {
+        List<RepositoryConfiguration> repos = new ArrayList<>();
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
         for (String configName : repositoryConfigNames) {
             ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(configName);
@@ -119,14 +120,12 @@ public class ProductionRepositoriesTreeState {
         return root;
     }
 
-    public String initTree() {
+    public void initTree() {
         buildTree();
-
-        return null;
     }
 
     public void processSelection(TreeSelectionChangeEvent event) {
-        List<Object> selection = new ArrayList<Object>(event.getNewSelection());
+        List<Object> selection = new ArrayList<>(event.getNewSelection());
 
         /*If there are no selected nodes*/
         if (selection.isEmpty()) {
@@ -145,8 +144,7 @@ public class ProductionRepositoriesTreeState {
     public TreeNode getFirstProductionRepo() {
         try {
             String repoName = getRepositories().iterator().next().getName();
-            TreeNode node = root.getElements().get(repoName);
-            return node;
+            return root.getElements().get(repoName);
         } catch (Exception e) {
             return null;
         }

@@ -22,7 +22,7 @@ public class ProductionRepositoryFactoryProxy {
 
     private ConfigurationManagerFactory configManagerFactory;
 
-    private Map<String, Repository> factories = new HashMap<String, Repository>();
+    private Map<String, Repository> factories = new HashMap<>();
 
     public Repository getRepositoryInstance(String propertiesFileName) throws RRepositoryException {
         if (!factories.containsKey(propertiesFileName)) {
@@ -75,5 +75,10 @@ public class ProductionRepositoryFactoryProxy {
     public boolean isIncludeVersionInDeploymentName(String propertiesFileName) {
         ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
         return Boolean.valueOf(configurationManager.getStringProperty(RepositorySettings.VERSION_IN_DEPLOYMENT_NAME));
+    }
+
+    public String getDeploymentsPath(String propertiesFileName) {
+        ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
+        return configurationManager.getStringProperty("production-repository.deployments.path");
     }
 }
