@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 
 public final class OpenLFuzzySearch {
@@ -56,7 +57,13 @@ public final class OpenLFuzzySearch {
                 for (IOpenMethod method : openClass.getMethods()) {
                     if (!method.isStatic() && method.getSignature().getNumberOfParameters() == 1 && method.getName()
                         .startsWith("set")) {
-                        String t = OpenLFuzzySearch.toTokenString(method.getName().substring(3));
+                        String fieldName = method.getName().substring(3);
+                        IOpenField openField = openClass.getField(fieldName, false); //Support only Java Beans
+                        if (openField == null) {
+                            continue;
+                        }
+                        
+                        String t = OpenLFuzzySearch.toTokenString(fieldName);
 
                         LinkedList<IOpenMethod> m = null;
                         for (Entry<Token, LinkedList<IOpenMethod>> entry : map.entrySet()) {
@@ -179,7 +186,12 @@ public final class OpenLFuzzySearch {
                     g = isGetterMethod(method);
                 }
                 if (g) {
-                    String t = OpenLFuzzySearch.toTokenString(method.getName().substring(3));
+                    String fieldName = method.getName().substring(3);
+                    IOpenField openField = openClass.getField(fieldName, false); //Support only Java Beans
+                    if (openField == null) {
+                        continue;
+                    }
+                    String t = OpenLFuzzySearch.toTokenString(fieldName);
                     LinkedList<IOpenMethod> methods = new LinkedList<IOpenMethod>();
                     methods.add(method);
                     LinkedList<LinkedList<IOpenMethod>> x = null;
