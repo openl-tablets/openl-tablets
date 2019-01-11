@@ -1069,7 +1069,7 @@ public class DecisionTableHelper {
             }
             String description = originalTable.getCell(column, 0).getStringValue();
 
-            column += originalTable.getColumnWidth(column);
+            column += 1;
 
             if (column >= originalTable.getWidth()) {
                 break;
