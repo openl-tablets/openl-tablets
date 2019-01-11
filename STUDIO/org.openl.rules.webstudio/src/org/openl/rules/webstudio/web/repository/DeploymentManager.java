@@ -19,7 +19,6 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeployUtils;
@@ -49,7 +48,7 @@ public class DeploymentManager implements InitializingBean {
         deployers.add(repositoryConfigName);
     }
 
-    public void removeRepository(String repositoryConfigName) throws RRepositoryException {
+    public void removeRepository(String repositoryConfigName) {
         deployers.remove(repositoryConfigName);
         repositoryFactoryProxy.releaseRepository(repositoryConfigName);
     }
@@ -73,9 +72,10 @@ public class DeploymentManager implements InitializingBean {
             StringBuilder sb = new StringBuilder(project.getName());
             ProjectVersion projectVersion = project.getVersion();
             boolean includeVersionInDeploymentName = repositoryFactoryProxy.isIncludeVersionInDeploymentName( repositoryConfigName);
+            String deploymentsPath = repositoryFactoryProxy.getDeploymentsPath(repositoryConfigName);
             if (projectVersion != null) {
                 if (includeVersionInDeploymentName) {
-                    int version = DeployUtils.getNextDeploymentVersion(deployRepo, project.getName());
+                    int version = DeployUtils.getNextDeploymentVersion(deployRepo, project.getName(), deploymentsPath);
                     sb.append(DeployUtils.SEPARATOR).append(version);
                 } else {
                     String apiVersion = getApiVersion(project);
@@ -86,10 +86,10 @@ public class DeploymentManager implements InitializingBean {
             }
             DeployID id = new DeployID(sb.toString());
 
-            String deploymentName = DeployUtils.DEPLOY_PATH + id.getName();
+            String deploymentName = deploymentsPath + id.getName();
             String deploymentPath = deploymentName + "/";
 
-            String rulesPath = "DESIGN/rules/";
+            String rulesPath = designRepository.getRulesLocation();
             if (deployRepo instanceof FolderRepository) {
                 FolderRepository folderRepo = (FolderRepository) deployRepo;
 
@@ -165,7 +165,7 @@ public class DeploymentManager implements InitializingBean {
                 try {
                     String projectVersion = pd.getProjectVersion().getVersionName();
                     String projectName = pd.getProjectName();
-                    AProject project = new AProject(designRepo, "DESIGN/rules/" + projectName, projectVersion);
+                    AProject project = new AProject(designRepo, designRepository.getRulesLocation() + projectName, projectVersion);
 
                     AProjectArtefact artifact = project.getArtefact(DeployUtils.RULES_DEPLOY_XML);
                     if (artifact instanceof AProjectResource) {

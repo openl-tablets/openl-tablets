@@ -83,4 +83,6 @@ public interface DesignTimeRepository extends ProjectsContainer {
     List<DesignTimeRepositoryListener> getListeners();
 
     Repository getRepository();
+
+    String getRulesLocation();
 }

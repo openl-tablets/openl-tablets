@@ -314,8 +314,8 @@ public class RepositoryService {
         }
     }
 
-    private String getFileName(String name) {
-        return "DESIGN/rules/" + name;
+    private String getFileName(String name) throws WorkspaceException {
+        return getDesignTimeRepository().getRulesLocation() + name;
     }
 
     /**

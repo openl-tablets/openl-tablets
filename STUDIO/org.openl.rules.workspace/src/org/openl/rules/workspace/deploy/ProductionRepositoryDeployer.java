@@ -33,6 +33,7 @@ import org.xml.sax.InputSource;
 public class ProductionRepositoryDeployer {
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoryDeployer.class);
     public static final String VERSION_IN_DEPLOYMENT_NAME = "version-in-deployment-name";
+    public static final String DEPLOY_PATH_PROPERTY = "production-repository.deployments.path";
 
     /**
      * Deploys a new project to the production repository. If the project exists
@@ -74,8 +75,9 @@ public class ProductionRepositoryDeployer {
             // Initialize repo
             deployRepo = RepositoryFactoryInstatiator.newFactory(properties, false);
             String includeVersion = (String) properties.get(VERSION_IN_DEPLOYMENT_NAME);
+            String deployPath = (String) properties.get(DEPLOY_PATH_PROPERTY);
 
-            deployInternal(zipFile, deployRepo, skipExist, Boolean.valueOf(includeVersion));
+            deployInternal(zipFile, deployRepo, skipExist, Boolean.valueOf(includeVersion), deployPath);
         } finally {
             // Close repo
             if (deployRepo != null) {
@@ -87,7 +89,11 @@ public class ProductionRepositoryDeployer {
         }
 
     }
-    public void deployInternal(File zipFile, Repository deployRepo, boolean skipExist, boolean includeVersionInDeploymentName) throws Exception {
+    public void deployInternal(File zipFile,
+            Repository deployRepo,
+            boolean skipExist,
+            boolean includeVersionInDeploymentName,
+            String deployPath) throws Exception {
 
         // Temp folders
         File zipFolder = Files.createTempDirectory("openl").toFile();
@@ -111,7 +117,7 @@ public class ProductionRepositoryDeployer {
 
             int version = 0;
             if (includeVersionInDeploymentName) {
-                version = DeployUtils.getNextDeploymentVersion(deployRepo, name);
+                version = DeployUtils.getNextDeploymentVersion(deployRepo, name, deployPath);
                 deploymentName = name + DeployUtils.SEPARATOR + version;
             } else {
                 deploymentName = name;
@@ -130,14 +136,14 @@ public class ProductionRepositoryDeployer {
                         return;
                     }
                 } else {
-                    if (!deployRepo.list(DeployUtils.DEPLOY_PATH + deploymentName + "/").isEmpty()) {
+                    if (!deployRepo.list(deployPath + deploymentName + "/").isEmpty()) {
                         return;
                     }
                 }
             }
 
             // Do deploy
-            String target = DeployUtils.DEPLOY_PATH + deploymentName + '/' + name;
+            String target = deployPath + deploymentName + '/' + name;
             FileData dest = new FileData();
             dest.setName(target);
             dest.setAuthor("OpenL_Deployer");

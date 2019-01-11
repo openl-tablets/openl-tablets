@@ -12,7 +12,6 @@ import java.io.InputStream;
 class DeploymentUtils {
 
     public static final String API_VERSION_SEPARATOR = "_V";
-    public static final String DEPLOY_PATH = "deploy/";
 
     public static String getProjectName(InputStream stream) {
         return evaluateXPath(stream, "/project/name");
@@ -36,10 +35,5 @@ class DeploymentUtils {
     public static String getFileName(String filePath) {
         String[] pathTokens = filePath.split(File.pathSeparator);
         return pathTokens[pathTokens.length - 1];
-    }
-
-    public static String createDeploymentName(String moduleName, String projectName) {
-        return new StringBuilder(DeploymentUtils.DEPLOY_PATH).append(moduleName)
-                .append('/').append(projectName).toString();
     }
 }

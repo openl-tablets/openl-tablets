@@ -34,9 +34,11 @@ public class RulesDeployerService implements Closeable {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final Repository deployRepo;
+    private final String deployPath;
 
-    public RulesDeployerService(Repository repository) {
+    public RulesDeployerService(Repository repository, String deployPath) {
         this.deployRepo = repository;
+        this.deployPath = deployPath;
     }
 
     /**
@@ -44,6 +46,8 @@ public class RulesDeployerService implements Closeable {
      * @param properties repository settings
      */
     public RulesDeployerService(Properties properties) {
+        this.deployPath = properties.getProperty("production-repository.deployments.path");
+
         Map<String, String> params = new HashMap<>();
         params.put("uri", properties.getProperty("production-repository.uri"));
         params.put("login", properties.getProperty("production-repository.login"));
@@ -137,7 +141,7 @@ public class RulesDeployerService implements Closeable {
 
             InputStream inputStream = deployment.getInputStream();
             inputStream.reset();
-            doDeploy(DeploymentUtils.createDeploymentName(deploymentName, projectName),
+            doDeploy(deployPath + deploymentName + '/' + projectName,
                 deployment.getContentSize(),
                 inputStream);
         } finally {
@@ -159,7 +163,7 @@ public class RulesDeployerService implements Closeable {
     }
 
     private boolean isRulesDeployed(String deploymentName) throws IOException {
-        List<FileData> deployments = deployRepo.list(DeploymentUtils.DEPLOY_PATH + deploymentName + "/");
+        List<FileData> deployments = deployRepo.list(deployPath + deploymentName + "/");
         return !deployments.isEmpty();
     }
 
