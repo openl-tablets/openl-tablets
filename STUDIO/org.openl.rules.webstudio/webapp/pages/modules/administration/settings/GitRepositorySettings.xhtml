@@ -28,6 +28,27 @@
         <h:outputText value=""/>
         <h:message for="gitListenerTimerPeriod" styleClass="error"/>
 
+        <h:outputText value="Projects path:"
+                      title="The path in repository where projects will be saved. Must end with '/'."
+                      styleClass="required"
+                      required="true"
+                      rendered="#{not isProduction}"/>
+        <h:inputText value="#{settings.designRulesPath}" rendered="#{not isProduction}"/>
+
+        <h:outputText value="Deployment Configs path:"
+                      title="The path in repository where deployment configurations will be saved. Must end with '/'."
+                      styleClass="required"
+                      required="true"
+                      rendered="#{not isProduction}"/>
+        <h:inputText value="#{settings.designDeployConfigPath}" rendered="#{not isProduction}"/>
+
+        <h:outputText value="Deployments path:"
+                      title="The path in repository where deployments will be saved. Must end with '/'."
+                      styleClass="required"
+                      required="true"
+                      rendered="#{isProduction}"/>
+        <h:inputText value="#{settings.productionDeployPath}" rendered="#{isProduction}"/>
+
         <h:outputText value="Version in deployment name" rendered="#{isProduction}" />
         <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}"/>
         <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction and isEditing}"/>
