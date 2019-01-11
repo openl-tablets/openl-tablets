@@ -1373,6 +1373,16 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+
+            <!-- httpclient is required for aws-java-sdk-core and jgit, so we must synchronize it's version for both libraries.
+                    But jgit since version 5.1.0 doesn't have dependency on httpclient. Remove explicit dependency
+                    on httpclient when upgrade jgit to the latest version. -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.5.6</version>
+            </dependency>
+
             <!-- Microsoft JDBC Driver for SQL Server -->
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>

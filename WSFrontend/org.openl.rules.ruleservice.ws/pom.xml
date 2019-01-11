@@ -64,6 +64,7 @@
                         <ignoredResourcePattern>openl-ruleservice-property-placeholder.xml</ignoredResourcePattern>
                         <ignoredResourcePattern>openl-ruleservice-publisher-beans.xml</ignoredResourcePattern>
                         <ignoredResourcePattern>openl-default.properties</ignoredResourcePattern>
+                        <ignoredResourcePattern>mozilla/public-suffix-list.txt</ignoredResourcePattern>
                     </ignoredResourcePatterns>
                 </configuration>
             </plugin>
