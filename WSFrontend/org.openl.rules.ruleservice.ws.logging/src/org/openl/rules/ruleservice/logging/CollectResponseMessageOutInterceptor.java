@@ -182,23 +182,24 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
         }
     }
 
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    ExecutorService executorService = Executors.newSingleThreadExecutor(); 
 
-    private class StoreTask implements Runnable{
+    private class StoreTask implements Runnable {
         private RuleServiceLogging ruleserviceLoggingInfo;
+
         public StoreTask(RuleServiceLogging ruleserviceLoggingInfo) {
             this.ruleserviceLoggingInfo = ruleserviceLoggingInfo;
         }
-        
+
         public RuleServiceLogging getRuleserviceLoggingInfo() {
             return ruleserviceLoggingInfo;
         }
-        
+
         @Override
         public void run() {
             try {
                 getLoggingInfoStoringService().store(new LoggingInfo(getRuleserviceLoggingInfo()));
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 log.error("Logging info storing failure!", e);
             }
         }
