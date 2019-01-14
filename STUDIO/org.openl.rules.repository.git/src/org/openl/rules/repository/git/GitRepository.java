@@ -16,6 +16,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
+import org.eclipse.jgit.util.FS;
 import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.common.ChangesMonitor;
@@ -313,7 +314,28 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     public void initialize() throws RRepositoryException {
         try {
             File local = new File(localRepositoryPath);
+
+            boolean shouldClone;
             if (!local.exists()) {
+                shouldClone = true;
+            } else if (RepositoryCache.FileKey.resolve(local, FS.DETECTED) != null) {
+                log.info("Reuse existing local repository " + local);
+                shouldClone = false;
+            } else {
+                File[] files = local.listFiles();
+                if (files == null) {
+                    throw new IOException("Folder " + local + " is not directory");
+                }
+
+                if (files.length > 0) {
+                    // Can't overwrite existing files that is definitely not git repository
+                    throw new IOException("Folder " + local + " already exists and is not empty");
+                }
+
+                shouldClone = true;
+            }
+
+            if (shouldClone) {
                 CloneCommand cloneCommand = Git.cloneRepository()
                         .setURI(uri)
                         .setDirectory(local)
@@ -329,6 +351,22 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             }
 
             git = Git.open(local);
+
+            if (!shouldClone) {
+                git.fetch().call();
+
+                boolean branchExists = git.getRepository().findRef(branch) != null;
+                if (!branchExists) {
+                    git.branchCreate()
+                            .setName(branch)
+                            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                            .setStartPoint(Constants.DEFAULT_REMOTE_NAME + "/" + branch)
+                            .call();
+                }
+
+                git.checkout().setName(branch).call();
+            }
+
             monitor = new ChangesMonitor(new GitRevisionGetter(), listenerTimerPeriod);
         } catch (Exception e) {
             throw new RRepositoryException(e.getMessage(), e);
@@ -398,7 +436,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         String fullPath = baseFolder + dirWalk.getPathString();
 
         Iterator<RevCommit> iterator = git.log()
-                .add(git.getRepository().resolve(branch))
+                .add(resolveBranchId())
                 .addPath(fullPath)
                 .call()
                 .iterator();
@@ -407,6 +445,14 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         }
 
         return createFileData(repository, dirWalk, baseFolder, iterator.next());
+    }
+
+    private ObjectId resolveBranchId() throws IOException {
+        ObjectId branchId = git.getRepository().resolve(branch);
+        if (branchId == null) {
+            throw new IOException("Can't find branch '" + branch + "'");
+        }
+        return branchId;
     }
 
     private FileData createFileData(org.eclipse.jgit.lib.Repository repository,
@@ -458,7 +504,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             writeLock.lock();
 
             // TODO: Consider changing merge strategy
-            PullCommand pullCommand = git.pull().setStrategy(MergeStrategy.OURS);
+            PullCommand pullCommand = git.pull().setStrategy(MergeStrategy.RECURSIVE);
             if (StringUtils.isNotBlank(login)) {
                 pullCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
             }
@@ -520,9 +566,8 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         Lock readLock = repositoryLock.readLock();
         try {
             readLock.lock();
-            org.eclipse.jgit.lib.Repository repository = git.getRepository();
             Iterator<RevCommit> iterator = git.log()
-                    .add(repository.resolve(branch))
+                    .add(resolveBranchId())
                     .addPath(name)
                     .call()
                     .iterator();
@@ -615,6 +660,8 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     }
 
     private void addTagToCommit(RevCommit commit, boolean deleted) throws GitAPIException {
+        pull();
+
         String tagName = tagPrefix + getNextTagId();
         if (deleted) {
             tagName += DELETED_TAG_SUFFIX;
