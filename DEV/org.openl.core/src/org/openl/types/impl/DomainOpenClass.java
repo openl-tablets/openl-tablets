@@ -223,4 +223,8 @@ public class DomainOpenClass implements IOpenClass {
         return AOpenClass.getArrayType(this, dim);
     }
 
+    @Override
+    public boolean isInterface() {
+        return false;
+    }
 }

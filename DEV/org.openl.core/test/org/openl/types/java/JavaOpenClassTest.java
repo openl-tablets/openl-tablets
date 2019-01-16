@@ -149,10 +149,19 @@ public class JavaOpenClassTest {
         //then
         Map<String, IOpenField> fieldMap = beanAOpenClass.getFields();
         assertNotNull(fieldMap);
-        assertEquals(4, fieldMap.size());
+        assertEquals(6, fieldMap.size());
         assertNotNull(fieldMap.get("B"));
         assertNotNull(fieldMap.get("Ba"));
         assertNotNull(fieldMap.get("BB"));
+        assertNotNull(fieldMap.get("cc"));
+        assertNotNull(fieldMap.get("gg"));
+        for (IOpenField it : fieldMap.values()) {
+            if ("class".equals(it.getName())) {
+                continue;
+            }
+            assertTrue(it.isWritable());
+            assertTrue(it.isReadable());
+        }
     }
 
     @Test
@@ -192,10 +201,16 @@ public class JavaOpenClassTest {
         void method1(int i, double j);
     }
 
-    public static class BeanA {
+    public interface IBeanA {
+        int getGg();
+    }
+
+    public static abstract class BeanA implements IBeanA {
         private int B;
         private int Ba;
         private int BB;
+        private int cc;
+        private int gg;
 
         public BeanA() {
         }
@@ -223,11 +238,32 @@ public class JavaOpenClassTest {
         public void setBB(int BB) {
             this.BB = BB;
         }
+
+        public int getCc() {
+            return cc;
+        }
+
+        public void setCc(int cc) {
+            this.cc = cc;
+        }
+
+        public void setGg(int gg) {
+            this.gg = gg;
+        }
     }
 
-    public static class BeanX extends BeanA {
+    public static class BeanX extends BeanA implements BeanCInterface {
         public BeanX() {
         }
+
+        @Override
+        public int getGg() {
+            return 0;
+        }
+    }
+
+    public interface BeanCInterface {
+        int getCc();
     }
 
     public interface BeanAInterface {
