@@ -56,6 +56,8 @@ public class JavaOpenClass extends AOpenClass {
 
     protected volatile Map<String, IOpenField> fields;
 
+    private volatile List<IOpenClass> superClasses;
+
     public JavaOpenClass(Class<?> instanceClass) {
         this(instanceClass, false);
     }
@@ -335,8 +337,6 @@ public class JavaOpenClass extends AOpenClass {
         return getAggregateInfo().getComponentType(this);
     }
 
-    private volatile List<IOpenClass> superClasses;
-
     public Iterable<IOpenClass> superClasses() {
         if (superClasses == null) {
             synchronized (this) {
@@ -356,6 +356,39 @@ public class JavaOpenClass extends AOpenClass {
         }
 
         return superClasses;
+    }
+
+    @Override
+    public Map<String, IOpenField> getFields() {
+        Map<String, IOpenField> fields = new HashMap<>(fieldMap());
+        for (IOpenClass superClass : superClasses()) {
+            if (superClass.isInterface() && !isAbstract()) {
+                //no need to add fields from interface if current instance is not abstract class
+                continue;
+            }
+            Map<String, IOpenField> superClassFields = superClass.getFields();
+            for (Map.Entry<String, IOpenField> entry : superClassFields.entrySet()) {
+                final IOpenField candidateField = entry.getValue();
+                if (candidateField.getType() == JavaOpenClass.CLASS) {
+                    continue;
+                }
+                final String name = entry.getKey();
+                final IOpenField origField = fields.get(name);
+                if (origField == null) {
+                    fields.put(name, candidateField);
+                } else {
+                    if (origField.getType().equals(candidateField.getType())) {
+                        //we assume that IOpenField always have read or write method
+                        if (!origField.isWritable() && candidateField.isWritable()) {
+                            fields.put(name, new OpenFieldCombiner(origField, candidateField));
+                        } else if (!origField.isReadable() && candidateField.isReadable()) {
+                            fields.put(name, new OpenFieldCombiner(candidateField, origField));
+                        }
+                    }
+                }
+            }
+        }
+        return fields;
     }
 
     private static class JavaArrayLengthField extends ArrayLengthOpenField {
@@ -601,6 +634,11 @@ public class JavaOpenClass extends AOpenClass {
                         .getName() + "::" + method.getName() + ". Only bean access is supported");
             }
 
+        }
+
+        @Override
+        public boolean isInterface() {
+            return true;
         }
 
     }

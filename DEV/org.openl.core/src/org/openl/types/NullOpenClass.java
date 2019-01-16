@@ -198,4 +198,9 @@ public class NullOpenClass implements IOpenClass {
     public IOpenClass getArrayType(int dim) {
         return this;
     }
+
+    @Override
+    public boolean isInterface() {
+        return false;
+    }
 }

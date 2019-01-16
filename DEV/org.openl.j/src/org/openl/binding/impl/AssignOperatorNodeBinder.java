@@ -33,8 +33,7 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
         IBoundNode[] children = bindChildren(node, bindingContext);
 
         if (!children[0].isLvalue()) {
-            String message = String.format("The node '%s' is not an Lvalue", children[0].getClass().getName());
-            return makeErrorNode(message, node, bindingContext);
+            return makeErrorNode("Impossible to assign value", node, bindingContext);
         }
 
         IOpenClass[] types = getTypes(children);
