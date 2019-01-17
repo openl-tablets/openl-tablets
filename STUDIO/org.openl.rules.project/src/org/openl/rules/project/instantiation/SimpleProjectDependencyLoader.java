@@ -62,10 +62,6 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
         this.isProject = isProject;
     }
 
-    public SimpleProjectDependencyLoader(String dependencyName, Collection<Module> modules, boolean singleModuleMode, boolean isProject) {
-        this(dependencyName, modules, singleModuleMode, false, isProject);
-    }
-
     @Override
     public CompiledDependency load(String dependencyName, IDependencyManager dm) throws OpenLCompilationException {
         AbstractProjectDependencyManager dependencyManager;

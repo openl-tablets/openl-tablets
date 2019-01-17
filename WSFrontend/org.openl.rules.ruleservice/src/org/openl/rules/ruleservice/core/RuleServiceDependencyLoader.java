@@ -10,7 +10,7 @@ import org.openl.rules.project.model.Module;
 
 final class RuleServiceDependencyLoader extends SimpleProjectDependencyLoader {
 	RuleServiceDependencyLoader(String dependencyName, Collection<Module> modules, boolean isProject) {
-		super(dependencyName, modules, false, isProject);
+		super(dependencyName, modules, false, true, isProject);
 	}
 
 	@Override
