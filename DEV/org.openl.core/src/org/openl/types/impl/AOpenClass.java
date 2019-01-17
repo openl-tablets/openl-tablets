@@ -508,4 +508,9 @@ public abstract class AOpenClass implements IOpenClass {
 
         return res;
     }
+
+    @Override
+    public boolean isInterface() {
+        return false;
+    }
 }

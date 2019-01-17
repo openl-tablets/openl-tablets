@@ -14,6 +14,9 @@ public class GitRepositorySettings extends RepositorySettings {
     private String branch;
     private String tagPrefix;
     private int listenerTimerPeriod;
+    private String designRulesPath;
+    private String designDeployConfigPath;
+    private String productionDeployPath;
 
     private final String URI;
     private final String LOGIN;
@@ -22,6 +25,9 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String BRANCH;
     private final String TAG_PREFIX;
     private final String LISTENER_TIMER_PERIOD;
+    private final String DESIGN_RULES_PATH;
+    private final String DESIGN_DEPLOY_CONFIG_PATH;
+    private final String PRODUCTION_DEPLOY_PATH;
 
     public GitRepositorySettings(ConfigurationManager configManager,
             String configPrefix,
@@ -35,6 +41,9 @@ public class GitRepositorySettings extends RepositorySettings {
         BRANCH = configPrefix + "branch";
         TAG_PREFIX = configPrefix + "tag-prefix";
         LISTENER_TIMER_PERIOD = configPrefix + "listener-timer-period";
+        DESIGN_RULES_PATH = "design-repository.rules.path";
+        DESIGN_DEPLOY_CONFIG_PATH = "design-repository.deployment-configs.path";
+        PRODUCTION_DEPLOY_PATH = "production-repository.deployments.path";
 
         String type = repositoryMode == RepositoryMode.DESIGN ? "design" : "deployment";
         String localPath = configManager.getStringProperty(LOCAL_REPOSITORY_PATH);
@@ -49,6 +58,9 @@ public class GitRepositorySettings extends RepositorySettings {
         branch = configManager.getStringProperty(BRANCH, Constants.MASTER);
         tagPrefix = configManager.getStringProperty(TAG_PREFIX, "Rules_");
         listenerTimerPeriod = configManager.getLongProperty(LISTENER_TIMER_PERIOD, 10L).intValue();
+        designRulesPath = configManager.getStringProperty(DESIGN_RULES_PATH);
+        designDeployConfigPath = configManager.getStringProperty(DESIGN_DEPLOY_CONFIG_PATH);
+        productionDeployPath = configManager.getStringProperty(PRODUCTION_DEPLOY_PATH);
     }
 
     public String getUri() {
@@ -109,6 +121,30 @@ public class GitRepositorySettings extends RepositorySettings {
         this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
+    public String getDesignRulesPath() {
+        return designRulesPath;
+    }
+
+    public void setDesignRulesPath(String designRulesPath) {
+        this.designRulesPath = designRulesPath;
+    }
+
+    public String getDesignDeployConfigPath() {
+        return designDeployConfigPath;
+    }
+
+    public void setDesignDeployConfigPath(String designDeployConfigPath) {
+        this.designDeployConfigPath = designDeployConfigPath;
+    }
+
+    public String getProductionDeployPath() {
+        return productionDeployPath;
+    }
+
+    public void setProductionDeployPath(String productionDeployPath) {
+        this.productionDeployPath = productionDeployPath;
+    }
+
     @Override
     protected void store(ConfigurationManager configurationManager) {
         super.store(configurationManager);
@@ -128,6 +164,9 @@ public class GitRepositorySettings extends RepositorySettings {
         configurationManager.setProperty(BRANCH, branch);
         configurationManager.setProperty(TAG_PREFIX, tagPrefix);
         configurationManager.setProperty(LISTENER_TIMER_PERIOD, listenerTimerPeriod);
+        configurationManager.setProperty(DESIGN_RULES_PATH, designRulesPath);
+        configurationManager.setProperty(DESIGN_DEPLOY_CONFIG_PATH, designDeployConfigPath);
+        configurationManager.setProperty(PRODUCTION_DEPLOY_PATH, productionDeployPath);
     }
 
     @Override
@@ -143,6 +182,9 @@ public class GitRepositorySettings extends RepositorySettings {
             setBranch(otherSettings.getBranch());
             setTagPrefix(otherSettings.getTagPrefix());
             setListenerTimerPeriod(otherSettings.getListenerTimerPeriod());
+            setDesignRulesPath(otherSettings.getDesignRulesPath());
+            setDesignDeployConfigPath(otherSettings.getDesignDeployConfigPath());
+            setProductionDeployPath(otherSettings.getProductionDeployPath());
         }
     }
 }

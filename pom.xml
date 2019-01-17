@@ -85,9 +85,9 @@
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
         <org.apache.cxf.version>3.1.17</org.apache.cxf.version>
         <org.slf4j.version>1.7.25</org.slf4j.version>
-        <org.apache.poi.version>4.0.0</org.apache.poi.version>
+        <org.apache.poi.version>4.0.1</org.apache.poi.version>
         <org.apache.jackrabbit.version>2.8.0</org.apache.jackrabbit.version>
-        <com.fasterxml.jackson.version>2.9.7</com.fasterxml.jackson.version>
+        <com.fasterxml.jackson.version>2.9.8</com.fasterxml.jackson.version>
         <jaxb.version>2.3.1</jaxb.version>
         <maven.api.version>3.2.5</maven.api.version>
         <maven.plugin.version>3.5</maven.plugin.version>
@@ -1355,6 +1355,16 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+
+            <!-- httpclient is required for aws-java-sdk-core and jgit, so we must synchronize it's version for both libraries.
+                    But jgit since version 5.1.0 doesn't have dependency on httpclient. Remove explicit dependency
+                    on httpclient when upgrade jgit to the latest version. -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.5.6</version>
+            </dependency>
+
             <!-- Microsoft JDBC Driver for SQL Server -->
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>

@@ -113,23 +113,26 @@ public class SheetHandler extends DefaultHandler {
             }
         } else if ("mergeCell".equals(localName)) {
             String[] cellsRefs = attributes.getValue("ref").split(":");
-            CellAddress from = new CellAddress(cellsRefs[0]);
-            CellAddress to = new CellAddress(cellsRefs[1]);
+            // No need to mark the cell as merged if it's merged with itself.
+            if (cellsRefs.length > 1) {
+                CellAddress from = new CellAddress(cellsRefs[0]);
+                CellAddress to = new CellAddress(cellsRefs[1]);
 
-            int firstMergeRow = from.getRow();
-            int firstMergeCol = from.getColumn();
-            int lastMergeRow = to.getRow();
-            int lastMergeCol = to.getColumn();
-            // Mark cells merged with Left. Don't include first column.
-            for (int row = firstMergeRow; row <= lastMergeRow; row++) {
-                for (int col = firstMergeCol + 1; col <= lastMergeCol; col++) {
-                    setCell(row - start.getRow(), col - start.getColumn(), MergedCell.MERGE_WITH_LEFT);
+                int firstMergeRow = from.getRow();
+                int firstMergeCol = from.getColumn();
+                int lastMergeRow = to.getRow();
+                int lastMergeCol = to.getColumn();
+                // Mark cells merged with Left. Don't include first column.
+                for (int row = firstMergeRow; row <= lastMergeRow; row++) {
+                    for (int col = firstMergeCol + 1; col <= lastMergeCol; col++) {
+                        setCell(row - start.getRow(), col - start.getColumn(), MergedCell.MERGE_WITH_LEFT);
+                    }
                 }
-            }
 
-            // Mark cells merged with Up. Only first column starting from second row.
-            for (int row = firstMergeRow + 1; row <= lastMergeRow; row++) {
-                setCell(row - start.getRow(), firstMergeCol - start.getColumn(), MergedCell.MERGE_WITH_UP);
+                // Mark cells merged with Up. Only first column starting from second row.
+                for (int row = firstMergeRow + 1; row <= lastMergeRow; row++) {
+                    setCell(row - start.getRow(), firstMergeCol - start.getColumn(), MergedCell.MERGE_WITH_UP);
+                }
             }
         }
     }

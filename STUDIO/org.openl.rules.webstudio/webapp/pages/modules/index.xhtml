@@ -360,7 +360,7 @@
                         api.nav.unloadPage();
                         requestId = newRequestId;
                     },
-                    unloadPage() {
+                    unloadPage: function() {
                         if (requestId !== null && requestId !== '') {
                             onPageUnload(requestId);
                             requestId = null;

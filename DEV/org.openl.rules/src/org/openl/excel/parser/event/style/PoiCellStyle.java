@@ -72,7 +72,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public boolean getHidden() {
-        return false;
+        return format.isHidden();
     }
 
     @Override
@@ -82,7 +82,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public boolean getLocked() {
-        return false;
+        return format.isLocked();
     }
 
     @Override
@@ -92,7 +92,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public boolean getQuotePrefixed() {
-        return false;
+        return format.get123Prefix();
     }
 
     @Override
@@ -271,7 +271,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public FillPatternType getFillPattern() {
-        return FillPatternType.NO_FILL;
+        return FillPatternType.forInt(format.getAdtlFillPattern());
     }
 
     @Override
@@ -327,6 +327,6 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public boolean getShrinkToFit() {
-        return false;
+        return format.getShrinkToFit();
     }
 }

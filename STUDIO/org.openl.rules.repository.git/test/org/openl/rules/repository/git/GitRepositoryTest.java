@@ -10,6 +10,7 @@ import java.util.List;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.After;
@@ -21,6 +22,7 @@ import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
 public class GitRepositoryTest {
@@ -80,7 +82,7 @@ public class GitRepositoryTest {
             addTag(git, commit, 3);
 
             // create commit in master
-            git.checkout().setName("master").call();
+            git.checkout().setName(Constants.MASTER).call();
             createNewFile(rulesFolder, "file1master", "root");
             git.add().addFilepattern(".").call();
             commit = git.commit()
@@ -90,12 +92,7 @@ public class GitRepositoryTest {
             addTag(git, commit, 4);
         }
 
-        repo = new GitRepository();
-        repo.setUri(remote.toURI().toString());
-        repo.setLocalRepositoryPath(local.getAbsolutePath());
-        repo.setBranch(BRANCH);
-        repo.setTagPrefix(TAG_PREFIX);
-        repo.initialize();
+        repo = createRepository(remote, local);
 
         changesCounter = new ChangesCounter();
         repo.setListener(changesCounter);
@@ -229,12 +226,7 @@ public class GitRepositoryTest {
         File root = tempFolder.getRoot();
         File remote = new File(root, "remote");
         File temp = new File(root, "temp");
-        try (GitRepository secondRepo = new GitRepository()) {
-            secondRepo.setUri(remote.toURI().toString());
-            secondRepo.setLocalRepositoryPath(temp.getAbsolutePath());
-            secondRepo.setBranch(BRANCH);
-            secondRepo.setTagPrefix(TAG_PREFIX);
-            secondRepo.initialize();
+        try (GitRepository secondRepo = createRepository(remote, temp)) {
             assertEquals(text, IOUtils.toStringAndClose(secondRepo.read("rules/project1/folder/file4").getStream()));
         }
 
@@ -422,6 +414,94 @@ public class GitRepositoryTest {
             Status status = git.status().call();
             assertTrue(status.getUncommittedChanges().isEmpty());
         }
+    }
+
+    @Test
+    public void repoFolderExistsButEmpty() throws RRepositoryException, IOException {
+        // Prepare the test: the folder with local repository name exists but it's empty
+        repo.close();
+
+        File root = tempFolder.getRoot();
+        File remote = new File(root, "remote");
+        File local = new File(root, "local");
+        FileUtils.deleteQuietly(local);
+        assertFalse("Can't delete repository. It shouldn't be locked.", local.exists());
+
+        if (!local.mkdirs() && !local.exists()) {
+            fail("Can't create the folder for test");
+        }
+
+        // Check that repo is cloned successfully
+        try (GitRepository repository = createRepository(remote, local)) {
+            assertEquals(5, repository.list("").size());
+        }
+        // Reuse cloned before repository. Must not fail.
+        try (GitRepository repository = createRepository(remote, local)) {
+            assertEquals(5, repository.list("").size());
+        }
+    }
+
+    @Test
+    public void neededBranchWasNotClonedBefore() throws RRepositoryException, IOException {
+        // Prepare the test: clone master branch
+        File root = tempFolder.getRoot();
+        File remote = new File(root, "remote");
+        File local = new File(root, "temp");
+        try (GitRepository repository = createRepository(remote, local, Constants.MASTER)) {
+            assertEquals(2, repository.list("").size());
+        }
+
+        // Check: second time initialize the repo. At this time use the branch "test". It must be pulled
+        // successfully and repository must be switched to that branch.
+        try (GitRepository repository = createRepository(remote, local)) {
+            assertEquals(5, repository.list("").size());
+        }
+    }
+
+    @Test
+    public void twoUsersAddFileSimultaneously() throws RRepositoryException, IOException {
+        // Prepare the test: clone master branch
+        File root = tempFolder.getRoot();
+        File remote = new File(root, "remote");
+        File local1 = new File(root, "temp1");
+        File local2 = new File(root, "temp2");
+
+        // First user starts to save it's changes
+        try (GitRepository repository1 = createRepository(remote, local1)) {
+            String text = "New file";
+
+            // Second user is quicker than first
+            FileData saved2;
+            try (GitRepository repository2 = createRepository(remote, local2)) {
+                saved2 = repository2.save(createFileData("rules/project-second/file2", text),
+                        IOUtils.toInputStream(text));
+            }
+
+            // First user doesn't suspect that second user already committed his changes
+            FileData saved1 = repository1.save(createFileData("rules/project-first/file1", text),
+                    IOUtils.toInputStream(text));
+
+            // Check that the changes of both users are persist and merged
+            assertNotEquals("Versions of two changes must be different.", saved1.getVersion(), saved2.getVersion());
+            assertEquals("5 files existed and 2 files must be added (must be 7 files in total).", 7, repository1.list("").size());
+            assertEquals("Rules_6", saved1.getVersion());
+            assertEquals("Rules_5", saved2.getVersion());
+        }
+    }
+
+    private GitRepository createRepository(File remote, File local) throws RRepositoryException {
+        return createRepository(remote, local, BRANCH);
+    }
+
+    private GitRepository createRepository(File remote, File local, String branch) throws RRepositoryException {
+        GitRepository repo = new GitRepository();
+        repo.setUri(remote.toURI().toString());
+        repo.setLocalRepositoryPath(local.getAbsolutePath());
+        repo.setBranch(branch);
+        repo.setTagPrefix(TAG_PREFIX);
+        repo.initialize();
+
+        return repo;
     }
 
     private FileData createFileData(String path, String text) {
