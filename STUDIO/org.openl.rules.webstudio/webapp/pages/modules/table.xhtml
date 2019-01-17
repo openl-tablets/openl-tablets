@@ -234,7 +234,7 @@
                                         rendered="#{tableBean.canEdit}"  >
                                         <f:param name="id" value="#{tableBean.id}" />
                                         <f:param name="mode" value="edit" />
-                                        <img src="webresource/images/editTable.gif" />
+                                        <img src="#{contextPath}/webresource/images/editTable.gif" />
                                         <span>Edit</span>
                                     </h:outputLink>
                                 </td>
@@ -244,7 +244,7 @@
                                         rendered="#{tableBean.canOpenInExcel}"
                                         title="Open the table in Excel" target="hidden">
                                         <f:param name="id" value="#{tableBean.id}" />
-                                        <img src="webresource/images/excel.png" />
+                                        <img src="#{contextPath}/webresource/images/excel.png" />
                                         <span>Open</span>
                                     </h:outputLink>
                                 </td>
@@ -253,7 +253,7 @@
                                         onclick="return onBeforeEdit();"
                                         oncomplete="ws.nav.go('#{studio.url('copyTable')}?id=#{tableBean.id}')" title="Create a new table based on the existing one"
                                         styleClass="toolbarButton">
-                                        <img src="webresource/images/copyTable.gif" />
+                                        <img src="#{contextPath}/webresource/images/copyTable.gif" />
                                         <span>Copy</span>
                                     </a4j:commandLink>
                                 </td>
@@ -263,7 +263,7 @@
                                         onclick="if (!onBeforeEdit()) return false; if (!confirm('Do you really want to remove this table?'))return false;"
                                         oncomplete="ws.changes.revertChanges();ws.nav.go('#' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'), true)"
                                         styleClass="toolbarButton">
-                                        <img src="webresource/images/delete.png" />
+                                        <img src="#{contextPath}/webresource/images/delete.png" />
                                         <span>Remove</span>
                                     </a4j:commandLink>
                                 </td>
@@ -290,7 +290,7 @@
                                         <table>
                                             <tr>
                                                 <td>
-                                                    <img src="webresource/images/run.gif" />
+                                                    <img src="#{contextPath}/webresource/images/run.gif" />
                                                 </td>
                                                 <td rowspan="2" class="arrow"
                                                     onclick="showUnitsMenu(event, 'b-run');return false;"
@@ -317,7 +317,7 @@
                                         <table>
                                             <tr>
                                                 <td>
-                                                    <img src="webresource/images/trace.gif" />
+                                                    <img src="#{contextPath}/webresource/images/trace.gif" />
                                                 </td>
                                                 <td rowspan="2" class="arrow"
                                                     onclick="showUnitsMenu(event, 'b-trace');return false;"
@@ -345,7 +345,7 @@
                                         <table>
                                             <tr>
                                                 <td>
-                                                    <img src="webresource/images/clock-icon.png" />
+                                                    <img src="#{contextPath}/webresource/images/clock-icon.png" />
                                                 </td>
                                                 <td rowspan="2" class="arrow"
                                                     onclick="showUnitsMenu(event, 'b-benchmark');return false;"
@@ -378,14 +378,14 @@
                                 <c:if test="#{tableBean.canRun}">
                                     <a class="toolbarButton" title="Launch the table" href="javascript:void(0)"
                                         onclick="showButtonMenu(event, 'inputArgsMenu', 'a');$j('.manual-run').show();$j('.manual-trace').hide();">
-                                        <img src="webresource/images/run.gif" />
+                                        <img src="#{contextPath}/webresource/images/run.gif" />
                                         <span>Run</span>
                                     </a>
                                 </c:if>
                                 <c:if test="#{tableBean.canTrace}">
                                     <a class="toolbarButton" title="Launch the table and trace steps" href="javascript:void(0)"
                                         onclick=" showButtonMenu(event, 'inputArgsMenu', 'a');$j('.manual-trace').show();$j('.manual-run').hide();">
-                                        <img src="webresource/images/trace.gif" />
+                                        <img src="#{contextPath}/webresource/images/trace.gif" />
                                         <span>Trace</span>
                                     </a>
                                 </c:if>
@@ -414,14 +414,14 @@
                                 <a4j:commandLink styleClass="toolbarButton" title="Run"
                                     rendered="#{tableBean.canRun}"
                                     oncomplete="ws.nav.go('#{runLink}')">
-                                    <img src="webresource/images/run.gif" />
+                                    <img src="#{contextPath}/webresource/images/run.gif" />
                                     <span>Run</span>
                                     <a4j:param name="id" value="#{tableBean.id}"/>
                                 </a4j:commandLink>
                                 <a4j:commandLink action="#{runTestHelper.initTrace}" styleClass="toolbarButton changes-listener"
                                                  rendered="#{tableBean.canTrace}"
                                                  oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();" title="Trace">
-                                    <img src="webresource/images/trace.gif" />
+                                    <img src="#{contextPath}/webresource/images/trace.gif" />
                                     <span>Trace</span>
                                     <a4j:param name="id" value="#{tableBean.id}"/>
                                 </a4j:commandLink>
@@ -441,7 +441,7 @@
                             <table>
                                 <tr>
                                     <td>
-                                        <img src="webresource/images/test_ok.gif" />
+                                        <img src="#{contextPath}/webresource/images/test_ok.gif" />
                                     </td>
                                     <td rowspan="2" class="arrow"
                                         onclick="showUnitsMenu(event, 'b-test');return false;"
@@ -467,7 +467,7 @@
                             onclick="return onBeforeEdit();"
                             oncomplete="ws.nav.go('#{studio.url('create/index')}?initStep=test/step2.xhtml')" >
                             <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />
-                            <img src="webresource/images/test_new.gif" />
+                            <img src="#{contextPath}/webresource/images/test_new.gif" />
                             <span>Create Test</span>
                         </a4j:commandLink>
                     </h:form>
@@ -559,7 +559,7 @@
             <h:panelGroup rendered="#{tableBean.hasProblems or editableTablePart}" layout="block" styleClass="table-problems">
                 <header>
                     <span style="margin-right:2px">Problems</span>
-                    <img src="webresource/images/arrow_down.gif" title="Hide Problems" style="vertical-align:-2px"
+                    <img src="#{contextPath}/webresource/images/arrow_down.gif" title="Hide Problems" style="vertical-align:-2px"
                         onclick="$j('#problemsPanel').toggle('fast');this.src=(this.title == 'Hide Problems' ? 'webresource/images/arrow_right.gif' : 'webresource/images/arrow_down.gif');this.title=(this.title == 'Hide Problems' ? 'Show Problems' : 'Hide Problems');" />
                 </header>
                 <div id="problemsPanel">

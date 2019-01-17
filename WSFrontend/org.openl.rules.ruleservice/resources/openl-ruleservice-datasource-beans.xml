@@ -17,10 +17,16 @@
                         <constructor-arg name="privateKey" value="${repository.encode.decode.key}"/>
                     </bean>
                 </entry>
+                <!-- AWS S3 specific -->
                 <entry key="bucketName" value="${production-repository.bucket-name}"/>
                 <entry key="regionName" value="${production-repository.region-name}"/>
                 <entry key="accessKey" value="${production-repository.access-key}"/>
                 <entry key="secretKey" value="${production-repository.secret-key}"/>
+                <!-- Git specific -->
+                <entry key="localRepositoryPath" value="${production-repository.local-repository-path}"/>
+                <entry key="branch" value="${production-repository.branch}"/>
+                <entry key="tagPrefix" value="${production-repository.tag-prefix}"/>
+                <!-- AWS S3 and Git specific -->
                 <entry key="listenerTimerPeriod" value="${production-repository.listener-timer-period}"/>
             </map>
         </constructor-arg>
@@ -28,6 +34,7 @@
 
     <bean id="rulesDeployerService" class="org.openl.rules.ruleservice.deployer.RulesDeployerService">
         <constructor-arg name="repository" ref="repository"/>
+        <constructor-arg name="deployPath" value="${production-repository.deployments.path}"/>
     </bean>
 
     <!-- Data source storage that provides information about deployments, projects and their properties and version -->
@@ -57,6 +64,7 @@
           depends-on="deployClasspathJarsBean">
         <property name="repository" ref="repository"/>
         <property name="includeVersionInDeploymentName" value="${version-in-deployment-name}"/>
+        <property name="deployPath" value="${production-repository.deployments.path}"/>
     </bean>
 
     <bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean">

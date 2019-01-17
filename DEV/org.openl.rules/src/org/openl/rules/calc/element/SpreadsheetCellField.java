@@ -4,7 +4,6 @@ import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeDescriptionHolder;
 import org.openl.rules.calc.ASpreadsheetField;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
-import org.openl.rules.table.Point;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -13,16 +12,7 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
     protected SpreadsheetCell cell;
     private SpreadsheetStructureBuilderHolder structureBuilderContainer;
 
-    public static SpreadsheetCellField createSpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
-            IOpenClass declaringClass,
-            String name,
-            SpreadsheetCell cell) {
-        if (cell.getSpreadsheetCellType() == SpreadsheetCellType.METHOD)
-            return new SpreadsheetCellField(structureBuilderContainer, declaringClass, name, cell);
-        return new ConstSpreadsheetCellField(structureBuilderContainer, declaringClass, name, cell);
-    }
-
-    SpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
+    public SpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
             IOpenClass declaringClass,
             String name,
             SpreadsheetCell cell) {
@@ -66,23 +56,15 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
         throw new UnsupportedOperationException("Can not write to spreadsheet cell result");
     }
 
-    public Point getRelativeCoordinates() {
-        return new Point(getCell().getColumnIndex(), getCell().getRowIndex());
-    }
-
-    public Point getAbsoluteCoordinates() {
-        return new Point(getCell().getSourceCell().getAbsoluteColumn(), getCell().getSourceCell().getAbsoluteRow());
-    }
-
     @Override
     public String getDescription() {
         // This class is always used for internal spreadsheet cell references, so no need to show Spreadsheet name
         return getType().getDisplayName(INamedThing.SHORT) + " " + getName();
     }
 
-    static class ConstSpreadsheetCellField extends SpreadsheetCellField {
+    public static class ConstSpreadsheetCellField extends SpreadsheetCellField {
 
-        ConstSpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
+        public ConstSpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
                 IOpenClass declaringClass,
                 String name,
                 SpreadsheetCell cell) {
@@ -91,9 +73,6 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
 
         @Override
         public Object get(Object target, IRuntimeEnv env) {
-            // if (cell.getKind() == SpreadsheetCellType.METHOD)
-            // return super.get(target, env);
-
             return cell.getValue();
         }
 

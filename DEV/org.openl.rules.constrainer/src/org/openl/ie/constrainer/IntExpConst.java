@@ -1,11 +1,6 @@
 package org.openl.ie.constrainer;
 
-import java.util.Map;
-
 import org.openl.ie.constrainer.impl.ConstraintExpEqualsValue;
-import org.openl.ie.constrainer.impl.ConstraintExpLessValue;
-import org.openl.ie.constrainer.impl.ConstraintExpMoreValue;
-import org.openl.ie.constrainer.impl.IntExpBitAndExp;
 import org.openl.ie.constrainer.impl.IntExpImpl;
 
 
@@ -48,32 +43,11 @@ public class IntExpConst extends IntExpImpl {
     }
 
     /**
-     * Casts the IntExpConst to FloatExpConst
-     *
-     * @return FloatExpConst
-     */
-    @Override
-    final public FloatExp asFloat() {
-        // return new FloatExpConst(constrainer(),_const);
-        return getFloatExp(FloatExpConst.class, _const);
-    }
-
-    @Override
-    public IntExp bitAnd(IntExp exp) {
-        return getIntExp(IntExpBitAndExp.class, this, exp);
-    }
-
-    /**
      * @return true
      */
     @Override
     final public boolean bound() {
         return true;
-    }
-
-    @Override
-    public double calcCoeffs(Map map, double factor) throws NonLinearExpression {
-        return _const * factor;
     }
 
     /**
@@ -83,19 +57,6 @@ public class IntExpConst extends IntExpImpl {
     @Override
     final public boolean contains(int value) {
         return (value == _const);
-    }
-
-    /**
-     * @param c the denominator
-     * @return IntExp(const/c)
-     */
-    @Override
-    final public IntExp div(int c) {
-        if (c == 0) {
-            throw new IllegalArgumentException("Division by zero");
-        }
-        // return new IntExpConst(constrainer(),_const / c);
-        return getIntExp(IntExpConst.class, _const / c);
     }
 
     /**
@@ -118,16 +79,6 @@ public class IntExpConst extends IntExpImpl {
         return new ConstraintExpEqualsValue(exp, _const);
     }
 
-    /**
-     * @return <code> ConstraintConst(exp == const - value)</code>
-     */
-    @Override
-    final public Constraint equals(IntExp exp, int value) // _const == exp +
-                                                            // value
-    {
-        return new ConstraintExpEqualsValue(exp, _const - value);
-    }
-
     public boolean isInteger() {
         return true;
     }
@@ -135,44 +86,6 @@ public class IntExpConst extends IntExpImpl {
     @Override
     public boolean isLinear() {
         return true;
-    }
-
-    /**
-     * @param value The value the IntExpConst must be less to.
-     * @return <code> ConstraintConst(const - value)</code>
-     */
-    @Override
-    final public Constraint less(int value) {
-        return new ConstraintConst(constrainer(), _const < value);
-    }
-
-    /**
-     * @param exp The IntExp that must be greater then "const"
-     * @return <code> ConstraintConst(const - value)</code>
-     */
-
-    @Override
-    final public Constraint less(IntExp exp) {
-        return new ConstraintExpMoreValue(exp, _const);
-    }
-
-    /**
-     * @param value The value the IntExpConst must be less or equal to.
-     * @return <code> ConstraintConst(const <= value)</code>
-     */
-    @Override
-    final public Constraint lessOrEqual(int value) {
-        return new ConstraintConst(constrainer(), _const <= value);
-    }
-
-    /**
-     *
-     * @param exp The IntExp that must be greater or equal to "const"
-     * @return (Constraint)(exp > const -1)
-     */
-    @Override
-    final public Constraint lessOrEqual(IntExp exp) {
-        return new ConstraintExpMoreValue(exp, _const - 1);
     }
 
     /**
@@ -191,76 +104,6 @@ public class IntExpConst extends IntExpImpl {
      */
     final public int min() {
         return _const;
-    }
-
-    /**
-     *
-     * @param value The value the "const" must be greater then.
-     * @return (Constraint)(const > value)
-     */
-    @Override
-    final public Constraint more(int value) {
-        return new ConstraintConst(constrainer(), _const > value);
-    }
-
-    /**
-     *
-     * @param exp The IntExp that must be less then "const"
-     * @return (COnstraint)(exp < const)
-     */
-    @Override
-    final public Constraint more(IntExp exp) {
-        return new ConstraintExpLessValue(exp, _const);
-    }
-
-    /**
-     *
-     * @param value The value the "const" must be greater then or equal to
-     * @return Constraint(const > value-1)
-     */
-    @Override
-    final public Constraint moreOrEqual(int value) {
-        return more(value - 1);
-    }
-
-    /**
-     * @param exp The IntExp that must be less then or equal to "const"
-     * @return (Constraint)(exp < const+1)
-     */
-    @Override
-    final public Constraint moreOrEqual(IntExp exp) {
-        return new ConstraintExpLessValue(exp, _const + 1);
-    }
-
-    /**
-     *
-     * @param c the factor
-     * @return (IntExp)(const*c)
-     */
-    @Override
-    final public IntExp mul(int c) {
-        // return new IntExpConst(constrainer(),_const * c );
-        return getIntExp(IntExpConst.class, _const * c);
-    }
-
-    /**
-     *
-     * @param exp the factor
-     * @return (IntExp)(exp*const)
-     */
-    @Override
-    final public IntExp mul(IntExp exp) {
-        return exp.mul(_const);
-    }
-
-    /**
-     *
-     * @return -const
-     */
-    @Override
-    final public IntExp neg() {
-        // return new IntExpConst(constrainer(), -_const);
-        return getIntExp(IntExpConst.class, -_const);
     }
 
     /**
@@ -330,20 +173,11 @@ public class IntExpConst extends IntExpImpl {
     }
 
     /**
-     * @param exp the term
-     * @return (IntExp)(const - exp)
-     */
-    @Override
-    final public IntExp sub(IntExp exp) {
-        return exp.neg().add(_const);
-    }
-
-    /**
      *
      * @return "const"
      */
     @Override
-    final public int value() throws Failure {
+    final public int value() {
         return _const;
     }
 

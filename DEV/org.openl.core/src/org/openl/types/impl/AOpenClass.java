@@ -22,7 +22,6 @@ import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -193,19 +192,11 @@ public abstract class AOpenClass implements IOpenClass {
         return method;
     }
 
-    public String getNameSpace() {
-        return ISyntaxConstants.THIS_NAMESPACE;
-    }
-
     private synchronized Map<String, List<IOpenField>> getNonUniqueLowerCaseFieldMap() {
         if (nonUniqueLowerCaseFieldMap == null) {
             makeLowerCaseMaps();
         }
         return nonUniqueLowerCaseFieldMap;
-    }
-
-    public IOpenClass getOpenClass() {
-        return this;
     }
 
     private synchronized Map<String, IOpenField> getUniqueLowerCaseFieldMap() {

@@ -98,10 +98,6 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
             return true;
         }
 
-        static boolean equalNumbers(Number arg1, Number arg2) {
-            return arg1.equals(arg2);
-        }
-
         /**
          *
          */

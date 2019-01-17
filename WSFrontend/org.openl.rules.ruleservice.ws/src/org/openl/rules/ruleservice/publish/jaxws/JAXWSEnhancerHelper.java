@@ -21,6 +21,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.publish.common.MethodUtil;
 import org.openl.util.ClassUtils;
@@ -68,6 +69,7 @@ public class JAXWSEnhancerHelper {
             if (requiredWebServiceAnnotation) {
                 AnnotationVisitor annotationVisitor = this.visitAnnotation(Type.getDescriptor(WebService.class), true);
                 if (service != null) {
+                    try {
                     if (service.getServiceClassName() != null) {
                         annotationVisitor.visit("serviceName", originalClass.getSimpleName());
                         annotationVisitor.visit("name", originalClass.getSimpleName() + "PortType");
@@ -77,6 +79,9 @@ public class JAXWSEnhancerHelper {
                         annotationVisitor.visit("name", service.getName() + "PortType");
                         annotationVisitor.visit("portName", service.getName() + "PortType");
                         annotationVisitor.visit("targetNamespace", "http://DefaultNamespace");
+                    }
+                    } catch (RuleServiceInstantiationException e) {
+                        // Skip
                     }
                 }
                 annotationVisitor.visitEnd();
@@ -103,30 +108,33 @@ public class JAXWSEnhancerHelper {
                 av.visit("operationName", operationName);
                 av.visitEnd();
             }
-
-            if (service != null && service.getServiceClassName() == null) { // Set
-                                                                            // parameter
-                                                                            // names
-                                                                            // only
-                                                                            // for
-                                                                            // generated
-                                                                            // interfaces
-                String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
-                int i = 0;
-                for (String paramName : parameterNames) {
-                    Annotation[] annotations = originalMethod.getParameterAnnotations()[i];
-                    boolean found = false;
-                    for (Annotation ann : annotations) {
-                        if (ann.annotationType().equals(WebParam.class)) {
-                            found = true;
-                            break;
+            try {
+                if (service != null && service.getServiceClassName() == null) { // Set
+                                                                                // parameter
+                                                                                // names
+                                                                                // only
+                                                                                // for
+                                                                                // generated
+                                                                                // interfaces
+                    String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
+                    int i = 0;
+                    for (String paramName : parameterNames) {
+                        Annotation[] annotations = originalMethod.getParameterAnnotations()[i];
+                        boolean found = false;
+                        for (Annotation ann : annotations) {
+                            if (ann.annotationType().equals(WebParam.class)) {
+                                found = true;
+                                break;
+                            }
                         }
+                        if (!found) {
+                            addWebParamAnnotation(mv, i, paramName);
+                        }
+                        i++;
                     }
-                    if (!found) {
-                        addWebParamAnnotation(mv, i, paramName);
-                    }
-                    i++;
                 }
+            } catch (RuleServiceInstantiationException e) { 
+                //Skip
             }
             return mv;
         }
@@ -169,7 +177,7 @@ public class JAXWSEnhancerHelper {
         }
     }
 
-    private static ClassLoader getClassLoader(OpenLService service) {
+    private static ClassLoader getClassLoader(OpenLService service) throws RuleServiceInstantiationException {
         ClassLoader classLoader = null;
         if (service != null) {
             classLoader = service.getClassLoader();

@@ -205,6 +205,19 @@ public class CollectionUtils {
         return false;
     }
 
+    public static Object toArray(Collection<?> list, Class<?> instanceClass) {
+        if (list == null) {
+            return null;
+        }
+        Object result = Array.newInstance(instanceClass, list.size());
+        int i = 0;
+        for (Object el : list) {
+            Array.set(result, i, el);
+            i++;
+        }
+        return result;
+    }
+
     /**
      * Defines a functor interface implemented by classes that map one object
      * into another.

@@ -1,13 +1,7 @@
 package org.openl.rules.project.abstraction;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.zip.ZipInputStream;
+import java.util.*;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
@@ -15,9 +9,11 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.file.FileRepository;
-import org.openl.util.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class representing deployment from ProductionRepository. Deployment is set of
@@ -26,16 +22,12 @@ import org.openl.util.IOUtils;
  * @author PUdalau
  */
 public class Deployment extends AProjectFolder {
+    private final Logger log = LoggerFactory.getLogger(Deployment.class);
     private Map<String, AProject> projects;
 
     private String deploymentName;
     private CommonVersion commonVersion;
     private final boolean folderStructure;
-
-    @Deprecated
-    public Deployment(Repository repository, String folderName, String deploymentName, CommonVersion commonVersion) {
-        this(repository, folderName, deploymentName, commonVersion, true);
-    }
 
     public Deployment(Repository repository,
             String folderName,
@@ -68,11 +60,13 @@ public class Deployment extends AProjectFolder {
 
     private void init() {
         super.refresh();
-        projects = new HashMap<String, AProject>();
+        projects = new HashMap<>();
 
         for (AProjectArtefact artefact : getArtefactsInternal().values()) {
             String projectPath = artefact.getArtefactPath().getStringValue();
-            projects.put(artefact.getName(), new AProject(getRepository(), projectPath, folderStructure));
+            AProject project = new AProject(getRepository(), projectPath);
+            project.overrideFolderStructure(folderStructure);
+            projects.put(artefact.getName(), project);
         }
     }
 
@@ -92,33 +86,33 @@ public class Deployment extends AProjectFolder {
 
     @Override
     protected Map<String, AProjectArtefact> createInternalArtefacts() {
-        if (getRepository() instanceof FileRepository) {
-            FileRepository repository = (FileRepository) getRepository();
-            File[] files = new File(repository.getRoot(), getFolderPath()).listFiles();
-            Map<String, AProjectArtefact> result = new HashMap<String, AProjectArtefact>();
-            if (files != null) {
-                for (File file : files) {
-                    String projectPath = getFolderPath() + "/" + file.getName();
-                    if (file.isDirectory()) {
-                        result.put(file.getName(), new AProject(repository, projectPath, true));
-                    } else {
-                        InputStream is = null;
-                        try {
-                            is = new FileInputStream(file);
-                            // Check that the file is zip
-                            if (new ZipInputStream(is).getNextEntry() != null) {
-                                result.put(file.getName(), new AProject(repository, projectPath, false));
-                            }
-                        } catch (IOException ignored) {
-                            // Not a zip. Such a file isn't a project, skip it
-                        } finally {
-                            IOUtils.closeQuietly(is);
-                        }
-                    }
+        if (getRepository() instanceof FolderRepository) {
+            FolderRepository repository = (FolderRepository) getRepository();
+            List<FileData> fileDataList;
+            try {
+                String folderPath = getFolderPath();
+                if (!folderPath.isEmpty() && !folderPath.endsWith("/")) {
+                    folderPath += "/";
                 }
+                if (folderStructure) {
+                    fileDataList = repository.listFolders(folderPath);
+                } else {
+                    fileDataList = repository.list(folderPath);
+                }
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+                return Collections.emptyMap();
+            }
+
+            Map<String, AProjectArtefact> result = new HashMap<>();
+            for (FileData file : fileDataList) {
+                AProject project = new AProject(repository, file);
+                project.overrideFolderStructure(folderStructure);
+                result.put(file.getName(), project);
             }
             return result;
         } else {
+            // In this case unpacked projects aren't supported. Projects should be archived to zip.
             return super.createInternalArtefacts();
         }
     }
@@ -135,7 +129,8 @@ public class Deployment extends AProjectFolder {
         for (AProject otherProject : other.getProjects()) {
             String name = otherProject.getName();
             if (!hasArtefact(name)) {
-                AProject newProject = new AProject(getRepository(), getFolderPath() + "/" + name, folderStructure);
+                AProject newProject = new AProject(getRepository(), getFolderPath() + "/" + name);
+                newProject.overrideFolderStructure(folderStructure);
                 newProject.update(otherProject, user);
                 projects.put(newProject.getName(), newProject);
             }

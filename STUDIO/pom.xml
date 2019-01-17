@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>5.21.10-SNAPSHOT</version>
+        <version>5.21.13-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>org.openl.rules.studio-pom</artifactId>
@@ -16,8 +16,8 @@
         <module>org.openl.rules.repository</module>
         <module>org.openl.rules.repository.jcr</module>
         <module>org.openl.rules.repository.jcr.jackrabbit</module>
-        <module>org.openl.rules.repository.jcr.modeshape</module>
         <module>org.openl.rules.repository.aws</module>
+        <module>org.openl.rules.repository.git</module>
         <module>org.openl.rules.workspace</module>
         <module>org.openl.commons.web</module>
         <module>org.openl.rules.webstudio</module>
@@ -29,7 +29,6 @@
         <module>org.openl.security.saml</module>
         <module>org.openl.security.cas</module>
         <module>org.openl.rules.diff</module>
-        <module>org.openl.extension.xmlrules</module>
         <module>org.openl.rules.activiti</module>
         <module>org.openl.rules.jackson</module>
         <!-- Tests -->

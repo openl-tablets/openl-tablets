@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 
 public final class OpenLFuzzySearch {
@@ -56,8 +57,14 @@ public final class OpenLFuzzySearch {
                 for (IOpenMethod method : openClass.getMethods()) {
                     if (!method.isStatic() && method.getSignature().getNumberOfParameters() == 1 && method.getName()
                         .startsWith("set")) {
-                        String t = OpenLFuzzySearch.toTokenString(method.getName().substring(3));
+                        String fieldName = method.getName().substring(3);
+                        IOpenField openField = openClass.getField(fieldName, false); //Support only Java Beans
+                        if (openField == null) {
+                            continue;
+                        }
                         
+                        String t = OpenLFuzzySearch.toTokenString(fieldName);
+
                         LinkedList<IOpenMethod> m = null;
                         for (Entry<Token, LinkedList<IOpenMethod>> entry : map.entrySet()) {
                             Token token = entry.getKey();
@@ -66,7 +73,7 @@ public final class OpenLFuzzySearch {
                                 break;
                             }
                         }
-                        
+
                         if (m == null) {
                             m = new LinkedList<IOpenMethod>();
                             m.add(method);
@@ -102,10 +109,11 @@ public final class OpenLFuzzySearch {
             String tokenPrefix) {
         return tokensMapToOpenClassMethodsRecursively(openClass, tokenPrefix, false);
     }
-    
+
     @SuppressWarnings("unchecked")
     private static Map<Token, IOpenMethod[][]> tokensMapToOpenClassMethodsRecursively(IOpenClass openClass,
-            String tokenPrefix, boolean setterMethods) {
+            String tokenPrefix,
+            boolean setterMethods) {
         Map<IOpenClass, Map<Token, IOpenMethod[][]>> cache = null;
         if (setterMethods) {
             cache = openlClassRecursivelyCacheForSetterMethods.get();
@@ -154,7 +162,7 @@ public final class OpenLFuzzySearch {
         return !method.isStatic() && method.getSignature().getNumberOfParameters() == 1 && method.getName()
             .startsWith("set");
     }
-    
+
     public static boolean isGetterMethod(IOpenMethod method) {
         return !method.isStatic() && method.getSignature().getNumberOfParameters() == 0 && method.getName()
             .startsWith("get");
@@ -178,7 +186,12 @@ public final class OpenLFuzzySearch {
                     g = isGetterMethod(method);
                 }
                 if (g) {
-                    String t = OpenLFuzzySearch.toTokenString(method.getName().substring(3));
+                    String fieldName = method.getName().substring(3);
+                    IOpenField openField = openClass.getField(fieldName, false); //Support only Java Beans
+                    if (openField == null) {
+                        continue;
+                    }
+                    String t = OpenLFuzzySearch.toTokenString(fieldName);
                     LinkedList<IOpenMethod> methods = new LinkedList<IOpenMethod>();
                     methods.add(method);
                     LinkedList<LinkedList<IOpenMethod>> x = null;
@@ -206,7 +219,7 @@ public final class OpenLFuzzySearch {
                             }
                         }
                     }
-                    
+
                     IOpenClass type = null;
                     if (setterMethods) {
                         type = method.getSignature().getParameterType(0);
@@ -230,7 +243,7 @@ public final class OpenLFuzzySearch {
                                     break;
                                 }
                             }
-                            
+
                             for (LinkedList<IOpenMethod> y : entry.getValue()) {
                                 y.addFirst(method);
                                 if (x1 == null) {
@@ -296,14 +309,14 @@ public final class OpenLFuzzySearch {
                 }
             }
             if (sb.toString().length() > 0) {
-                t.add(sb.toString());    
+                t.add(sb.toString());
             }
         }
         return t.toArray(new String[] {});
     }
 
     public static String toTokenString(String source) {
-        if (source == null) { 
+        if (source == null) {
             return StringUtils.EMPTY;
         }
         String[] tokens = source.split("(?<=.)(?=\\p{Lu}|\\d|\\s|[_])");
@@ -327,7 +340,7 @@ public final class OpenLFuzzySearch {
 
     public static Token[] openlFuzzyExtract(String source, Token[] tokens) {
         source = toTokenString(source);
-        
+
         String[] sourceTokens = source.split(" ");
 
         String[][] tokensList = new String[tokens.length][];
@@ -402,20 +415,32 @@ public final class OpenLFuzzySearch {
         } else {
             List<Token> ret = new ArrayList<Token>();
             int best = 0;
+            int bestL = Integer.MAX_VALUE;
             for (int i = 0; i < tokensList.length; i++) {
                 if (f[i] == max && tokensList[i].length - f[i] == min) {
                     int d = StringUtils.getFuzzyDistance(tokens[i].getValue(), source, Locale.ENGLISH);
                     if (d > best) {
                         best = d;
+                        bestL = StringUtils.getLevenshteinDistance(tokens[i].getValue(), source);
                         ret.clear();
                         ret.add(tokens[i]);
                     } else {
                         if (d == best) {
-                            ret.add(tokens[i]);
+                            int l = StringUtils.getLevenshteinDistance(tokens[i].getValue(), source);
+                            if (l < bestL) {
+                                bestL = l;
+                                ret.clear();
+                                ret.add(tokens[i]);
+                            } else {
+                                if (l == bestL) {
+                                    ret.add(tokens[i]);
+                                }
+                            }
                         }
                     }
                 }
             }
+
             return ret.toArray(new Token[] {});
         }
         return new Token[] {};

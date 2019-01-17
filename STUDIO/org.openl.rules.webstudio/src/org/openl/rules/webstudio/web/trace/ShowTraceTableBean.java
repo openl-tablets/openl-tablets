@@ -26,7 +26,6 @@ import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.trace.node.*;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
 
 /**
@@ -54,9 +53,26 @@ public class ShowTraceTableBean {
     }
 
     public IOpenLTable getTraceTable() {
-        String uri = tto.getUri();
-        TableSyntaxNode tsn = WebStudioUtils.getProjectModel().findNode(uri);
+        TableSyntaxNode tsn = getTableSyntaxNode(tto);
         return new TableSyntaxNodeAdapter(tsn);
+    }
+
+    private TableSyntaxNode getTableSyntaxNode(ITracerObject tto) {
+        TableSyntaxNode syntaxNode = null;
+
+        if (tto instanceof ATableTracerNode) {
+            syntaxNode = ((ATableTracerNode) tto).getTraceObject().getSyntaxNode();
+        } else if (tto instanceof RefToTracerNodeObject) {
+            return getTableSyntaxNode(((RefToTracerNodeObject) tto).getOriginalTracerNode());
+        }
+
+        if (syntaxNode == null) {
+            //Default approach for TBasic nodes or if traced object doesn't have syntax node
+            String uri = tto.getUri();
+            return WebStudioUtils.getProjectModel().findNode(uri);
+        } else {
+            return syntaxNode;
+        }
     }
 
     public IGridFilter[] getTraceFilters() {
@@ -84,7 +100,7 @@ public class ShowTraceTableBean {
     }
 
     public ParameterWithValueDeclaration[] getInputParameters() {
-        ATableTracerNode tracerNode = getTableTracerNode();
+        ATableTracerNode tracerNode = getTableTracerNode(this.tto);
         if (tracerNode == null || tracerNode.getTraceObject() == null) {
             return null;
         }
@@ -100,7 +116,7 @@ public class ShowTraceTableBean {
     }
 
     public ParameterWithValueDeclaration getContext() {
-        ATableTracerNode tracerNode = getTableTracerNode();
+        ATableTracerNode tracerNode = getTableTracerNode(this.tto);
         if (tracerNode == null) {
             return null;
         }
@@ -108,9 +124,11 @@ public class ShowTraceTableBean {
         return new ParameterWithValueDeclaration("context", tracerNode.getContext());
     }
 
-    private ATableTracerNode getTableTracerNode() {
+    private ATableTracerNode getTableTracerNode(ITracerObject tto) {
         ATableTracerNode tracerNode = null;
-        if (tto instanceof ATableTracerNode) {
+        if (tto instanceof RefToTracerNodeObject) {
+            tracerNode = getTableTracerNode(((RefToTracerNodeObject) tto).getOriginalTracerNode());
+        } else if (tto instanceof ATableTracerNode) {
             tracerNode = (ATableTracerNode) tto;
         } else if (tto != null && tto.getParent() instanceof ATableTracerNode) {
             tracerNode = (ATableTracerNode) tto.getParent();
@@ -128,6 +146,10 @@ public class ShowTraceTableBean {
     }
 
     public List<OpenLMessage> getErrors() {
+        return getErrors(tto);
+    }
+
+    private List<OpenLMessage> getErrors(ITracerObject tto) {
         if (tto instanceof ATableTracerNode) {
             Throwable error = ((ATableTracerNode) tto).getError();
 
@@ -138,13 +160,15 @@ public class ShowTraceTableBean {
                 }
                 return OpenLMessagesUtils.newErrorMessages(error);
             }
+        } else if (tto instanceof RefToTracerNodeObject) {
+            return getErrors(((RefToTracerNodeObject) tto).getOriginalTracerNode());
         }
 
         return Collections.emptyList();
     }
 
     public static boolean isSpreadsheetResult(Object value) {
-        return value != null && value instanceof SpreadsheetResult && ((SpreadsheetResult) value).getLogicalTable() != null;
+        return value instanceof SpreadsheetResult && ((SpreadsheetResult) value).getLogicalTable() != null;
     }
 
     public String getFormattedSpreadsheetResult(Object value) {

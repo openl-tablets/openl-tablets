@@ -5,7 +5,6 @@ import java.util.Iterator;
 import org.openl.rules.dt.algorithm2.ISearchTreeNode;
 import org.openl.rules.dt.algorithm2.NodeBuilder;
 import org.openl.rules.dt.element.ICondition;
-import org.openl.util.trie.IARTNode;
 
 public abstract class NodeBuilderN extends NodeBuilder {
 

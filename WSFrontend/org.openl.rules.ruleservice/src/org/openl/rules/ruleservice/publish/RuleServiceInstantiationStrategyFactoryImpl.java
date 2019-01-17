@@ -8,7 +8,6 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.ServiceDescription;
-import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.openl.rules.ruleservice.publish.lazy.LazyInstantiationStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,11 +36,8 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
     }
 
     /** {@inheritDoc} */
-    public RulesInstantiationStrategy getStrategy(Collection<Module> modules, IDependencyManager dependencyManager) {
-        ServiceDescription serviceDescription = ServiceDescriptionHolder.getInstance().getServiceDescription();
-        if (serviceDescription == null) {
-            throw new IllegalStateException("ServiceDescription is not found.");
-        }
+    public RulesInstantiationStrategy getStrategy(ServiceDescription serviceDescription, IDependencyManager dependencyManager) {
+        Collection<Module> modules = serviceDescription.getModules();
         int moduleSize = modules.size();
         if (moduleSize == 0) {
             throw new IllegalStateException("There are no modules to instantiate.");

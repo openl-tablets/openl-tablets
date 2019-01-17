@@ -274,7 +274,11 @@ public class JAXRSEnhancerHelperTest {
         OpenLService service = new OpenLService.OpenLServiceBuilder().setClassLoader(classLoader)
             .setName("test")
             .setServiceClass(clazz)
-            .build();
+            .build(new AbstractOpenLServiceInitializer() {
+                @Override
+                protected void init(OpenLService openLService) {
+                }
+            });
         service.setServiceBean(new Object());
         Object proxy = JAXRSEnhancerHelper.decorateServiceBean(service);
         Class<?> decoratedInterface = proxy.getClass().getInterfaces()[0];

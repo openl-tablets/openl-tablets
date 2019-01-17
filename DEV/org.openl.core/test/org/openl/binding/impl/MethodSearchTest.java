@@ -39,6 +39,11 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
         assertInvoke("Integer", ClassWithGenerics.class, "method2", short.class, int.class);
         assertInvoke("Long", ClassWithGenerics.class, "method2", Byte.class, Long.class);
         assertInvoke("Double", ClassWithGenerics.class, "method2", Double.class, short.class);
+
+        Object t = new Object();
+        assertInvoke(t, ClassWithGenerics.class, "copy", new Class<?>[] { Object.class }, new Object[] { t });
+        Double[] d = new Double[] {};
+        assertInvoke(d, ClassWithGenerics.class, "copy", new Class<?>[] { Double[].class }, new Object[] { d });
     }
 
     @Test
@@ -84,6 +89,14 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
         public <T> String method2(T arg1, T arg2) {
             return arg1.getClass().getSimpleName();
         };
+
+        public <T> T copy(T t) {
+            return t;
+        }
+
+        public <T extends Serializable> T copy(T t) {
+            return t;
+        }
     }
 
     public static class ThirdClassWithMethods extends SecondClassWithMethods {

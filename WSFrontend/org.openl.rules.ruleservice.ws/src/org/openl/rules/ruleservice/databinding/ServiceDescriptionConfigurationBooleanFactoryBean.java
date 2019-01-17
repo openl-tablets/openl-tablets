@@ -45,6 +45,9 @@ public class ServiceDescriptionConfigurationBooleanFactoryBean extends AbstractF
             boolean ret = getDefaultValue();
             if (serviceDescription.getConfiguration() != null) {
                 Object value = serviceDescription.getConfiguration().get(getPropertyName().trim());
+                if (value instanceof Boolean) {
+                    return (Boolean) value;
+                }
                 if (value instanceof String) {
                     if ("true".equals(((String) value).trim().toLowerCase())) {
                         log.info("Service \"{}\" uses " + getPropertyName().trim() + "=TRUE.",

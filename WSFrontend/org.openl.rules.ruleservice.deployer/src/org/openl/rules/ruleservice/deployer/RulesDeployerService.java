@@ -14,7 +14,9 @@ import java.util.zip.ZipInputStream;
 
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,24 +34,34 @@ public class RulesDeployerService implements Closeable {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final Repository deployRepo;
+    private final String deployPath;
 
-    public RulesDeployerService(Repository repository) {
+    public RulesDeployerService(Repository repository, String deployPath) {
         this.deployRepo = repository;
+        this.deployPath = deployPath;
     }
 
     /**
      * Initializes repository using target properties
-     * @param properties
+     * @param properties repository settings
      */
     public RulesDeployerService(Properties properties) {
+        this.deployPath = properties.getProperty("production-repository.deployments.path");
+
         Map<String, String> params = new HashMap<>();
         params.put("uri", properties.getProperty("production-repository.uri"));
         params.put("login", properties.getProperty("production-repository.login"));
         params.put("password", properties.getProperty("production-repository.password"));
+        // AWS S3 specific
         params.put("bucketName",properties.getProperty("production-repository.bucket-name"));
         params.put("regionName",properties.getProperty("production-repository.region-name"));
         params.put("accessKey",properties.getProperty("production-repository.access-key"));
         params.put("secretKey",properties.getProperty("production-repository.secret-key"));
+        // Git specific
+        params.put("localRepositoryPath",properties.getProperty("production-repository.local-repository-path"));
+        params.put("branch",properties.getProperty("production-repository.branch"));
+        params.put("tagPrefix",properties.getProperty("production-repository.tag-prefix"));
+        // AWS S3 and Git specific
         params.put("listener-timer-period",properties.getProperty("production-repository.listener-timer-period"));
 
         this.deployRepo = RepositoryInstatiator
@@ -61,8 +73,7 @@ public class RulesDeployerService implements Closeable {
      *
      * @param name original ZIP file name
      * @param in zip input stream
-     * @param overridable
-     * @throws Exception
+     * @param overridable if deployment was exist before and overridable is false, it will not be deployed, if true, it will be overridden.
      */
     public void deploy(String name, InputStream in, boolean overridable) throws Exception {
         deployInternal(name, in, overridable);
@@ -130,7 +141,7 @@ public class RulesDeployerService implements Closeable {
 
             InputStream inputStream = deployment.getInputStream();
             inputStream.reset();
-            doDeploy(DeploymentUtils.createDeploymentName(deploymentName, projectName),
+            doDeploy(deployPath + deploymentName + '/' + projectName,
                 deployment.getContentSize(),
                 inputStream);
         } finally {
@@ -142,12 +153,17 @@ public class RulesDeployerService implements Closeable {
         FileData dest = new FileData();
         dest.setName(name);
         dest.setAuthor(DEFAULT_AUTHOR_NAME);
-        dest.setSize(contentSize);
-        deployRepo.save(dest, inputStream);
+
+        if (deployRepo instanceof FolderRepository) {
+            ((FolderRepository) deployRepo).save(dest, new FileChangesFromZip(new ZipInputStream(inputStream), name));
+        } else {
+            dest.setSize(contentSize);
+            deployRepo.save(dest, inputStream);
+        }
     }
 
     private boolean isRulesDeployed(String deploymentName) throws IOException {
-        List<FileData> deployments = deployRepo.list(DeploymentUtils.DEPLOY_PATH + deploymentName + "/");
+        List<FileData> deployments = deployRepo.list(deployPath + deploymentName + "/");
         return !deployments.isEmpty();
     }
 

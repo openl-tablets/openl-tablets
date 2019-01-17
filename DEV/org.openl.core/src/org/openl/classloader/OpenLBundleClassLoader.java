@@ -1,6 +1,5 @@
 package org.openl.classloader;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -8,7 +7,7 @@ import java.util.Set;
 
 public abstract class OpenLBundleClassLoader extends OpenLClassLoader {
 
-    private Set<ClassLoader> bundleClassLoaders = new LinkedHashSet<ClassLoader>();
+    protected Set<ClassLoader> bundleClassLoaders = new LinkedHashSet<ClassLoader>();
     
     OpenLBundleClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
@@ -51,11 +50,4 @@ public abstract class OpenLBundleClassLoader extends OpenLClassLoader {
         return false;
     }
 
-    @Override
-    public void close() throws IOException {
-        super.close();
-        for (ClassLoader classLoader : bundleClassLoaders) {
-            ClassLoaderUtils.close(classLoader);
-        }
-    }
 }

@@ -2,6 +2,7 @@ package org.openl.rules.ui.tree.richfaces;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.table.formatters.FormattersManager;
+import org.openl.rules.ui.IProjectTypes;
 import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
@@ -42,6 +43,13 @@ abstract class TreeBuilder {
                 continue;
             }
             TreeNode rfChild = buildNode(child);
+            if (IProjectTypes.PT_WORKSHEET.equals(rfChild.getType()) ||
+                    IProjectTypes.PT_WORKBOOK.equals(rfChild.getType())) {
+                //skip workbook or worksheet node if it has no children nodes
+                if (!rfChild.getChildrenKeysIterator().hasNext()) {
+                    continue;
+                }
+            }
             node.addChild(rfChild, rfChild);
         }
         return node;

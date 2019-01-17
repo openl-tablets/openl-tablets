@@ -2,7 +2,7 @@ package org.openl.rules.webstudio.web.test;
 
 import javax.servlet.http.HttpSession;
 
-import org.openl.base.INameSpacedThing;
+import org.openl.base.INamedThing;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.table.IOpenLTable;
@@ -30,7 +30,7 @@ public final class Utils {
             builder.append("Empty ");
         }
         builder.append("Collection of ");
-        builder.append(collectionType.getComponentClass().getDisplayName(INameSpacedThing.SHORT));
+        builder.append(collectionType.getComponentClass().getDisplayName(INamedThing.SHORT));
         return builder.toString();
     }
 

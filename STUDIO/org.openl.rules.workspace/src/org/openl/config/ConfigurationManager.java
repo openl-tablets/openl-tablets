@@ -126,6 +126,10 @@ public class ConfigurationManager {
         return compositeConfiguration.getString(key);
     }
 
+    public String getStringProperty(String key, String defaultValue) {
+        return compositeConfiguration.getString(key, defaultValue);
+    }
+
     public String[] getStringArrayProperty(String key) {
         return compositeConfiguration.getStringArray(key);
     }
@@ -176,7 +180,7 @@ public class ConfigurationManager {
                     if (value instanceof Collection) {
                         @SuppressWarnings("unchecked")
                         Collection<String> v = (Collection<String>) value;
-                        value = v.toArray(new String[v.size()]);
+                        value = v.toArray(new String[0]);
                     }
                     if (!defaultValue.equals(value)) {
                         getConfigurationToSave().setProperty(key, value);

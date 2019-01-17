@@ -17,7 +17,6 @@ import javax.xml.xpath.XPathFactory;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.RestClientFactory;
@@ -26,6 +25,7 @@ import org.openl.itest.responsedto.ErrorResponse;
 import org.openl.itest.service.internal.MyType;
 import org.openl.itest.serviceclass.MyService;
 import org.openl.itest.serviceclass.internal.Response;
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.ruleservice.core.ExceptionType;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -43,6 +43,7 @@ public class RunAnnotationsITest {
     private RestTemplate serviceClassRest;
     private RestTemplate serviceClassNegativeRest;
     private MyService soapClient;
+    private RestTemplate runTestServiceRest;
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -61,54 +62,37 @@ public class RunAnnotationsITest {
         serviceClassRest = new RestClientFactory(baseURI + "/REST/ws-serviceclass-positive").create();
         serviceClassNegativeRest = new RestClientFactory(baseURI + "/REST/ws-serviceclass-negative").create();
         soapClient = new SoapClientFactory<>(baseURI + "/ws-serviceclass-positive", MyService.class).createProxy();
+        runTestServiceRest = new RestClientFactory(baseURI + "/REST/rules-tests-and-run-tables").create();
     }
 
     @Test
-    @Ignore //FIXME: when EPBDS-7975 will be fixed
     public void call_parse_interfaceMethod_shouldBeCalledSuccessfully_OK() {
+        //parse method was bound to the "/parse1" endpoint
         ResponseEntity<Integer> response = annotationClassRest
-            .exchange("/parse", HttpMethod.POST, RestClientFactory.request("1001"), Integer.class);
+            .exchange("/parse1", HttpMethod.POST, RestClientFactory.request("1001"), Integer.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals((Integer) 1001, response.getBody());
     }
 
     @Test
-    @Ignore //FIXME: when EPBDS-7975 will be fixed
     public void call_parse_interfaceMethod_shouldReturn_UNPROCESSABLE_ENTITY() {
-        ResponseEntity<Parse2Dto> response = annotationClassRest
-                .exchange("/parse", HttpMethod.POST, RestClientFactory.request("B"), Parse2Dto.class);
+        ResponseEntity<ErrorResponse> response = annotationClassRest
+                .exchange("/parse1", HttpMethod.POST, RestClientFactory.request("B"), ErrorResponse.class);
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
-        Parse2Dto body = response.getBody();
+        ErrorResponse body = response.getBody();
         assertNotNull(body);
-        assertContains(body.getBody(), "not acceptable");
+        assertEquals("not acceptable", body.getMessage());
+        assertEquals(ExceptionType.USER_ERROR.name(), body.getType());
     }
 
     @Test
-    @Ignore //FIXME: when EPBDS-7975 will be fixed
-    public void call_parse1_interfaceMethod_thenInvokeBeforeInterceptorAndThrowAnException_thenInvokeAfterInterceptorAndWrapException_OK() {
-        ResponseEntity<MyType> response = annotationClassRest
-            .exchange("/parse1", HttpMethod.POST, RestClientFactory.request("throwBeforeCall"), MyType.class);
+    public void call_parse1_interfaceMethod_shouldReturn_NOT_FOUND() {
+        ResponseEntity<String> response = annotationClassRest
+                .exchange("/parse11", HttpMethod.POST, RestClientFactory.request("B"), String.class);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        MyType body = response.getBody();
-        assertNotNull(body);
-        assertEquals("ERROR", body.getStatus());
-        assertEquals(-1, body.getCode());
-    }
-
-    @Test
-    @Ignore //FIXME: when EPBDS-7975 will be fixed
-    public void call_parse1_interfaceMethod_thenInvokeAfterInterceptorAndWrapResponse_OK() {
-        ResponseEntity<MyType> response = annotationClassRest
-            .exchange("/parse1", HttpMethod.POST, RestClientFactory.request("11"), MyType.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        MyType body = response.getBody();
-        assertNotNull(body);
-        assertEquals("PARSED", body.getStatus());
-        assertEquals(11, body.getCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
@@ -400,6 +384,61 @@ public class RunAnnotationsITest {
     public void test_doSomething_negative_REST() {
         ResponseEntity<String> response = serviceClassNegativeRest.exchange("/doSomething", HttpMethod.POST, RestClientFactory.request("1001"), String.class);
 
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    public void test_runTestTables_calculatePremium_REST() {
+        ResponseEntity<SpreadsheetResult> response = runTestServiceRest.exchange("/calculatePremium", HttpMethod.POST,
+                RestClientFactory.request("{\"covName\": \"Cov1\", \"amount\": 1000}"), SpreadsheetResult.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        SpreadsheetResult body = response.getBody();
+        assertNotNull(body);
+        assertEquals((Double) 0.1, body.getFieldValue("$Formula$Factor"));
+        assertEquals((Double) 100., body.getFieldValue("$Formula$Premium"));
+        assertEquals((Double) 0., body.getFieldValue("$Formula$Discount"));
+        assertEquals((Double) 0., body.getFieldValue("$Formula$DiscountAmt"));
+        assertEquals((Double) 100., body.getFieldValue("$Formula$FinalPremium"));
+
+
+    }
+
+    @Test
+    public void test_runTestTables_calculatePremium_ValidationError_REST() {
+        ResponseEntity<ErrorResponse> response = runTestServiceRest.exchange("/calculatePremium", HttpMethod.POST,
+                RestClientFactory.request("{\"covName\": \"Cov100\", \"amount\": 1000}"), ErrorResponse.class);
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
+
+        ErrorResponse body = response.getBody();
+        assertNotNull(body);
+        assertEquals("Object 'Cov100' is outside of valid domain 'CoverageName'. Valid values: [Cov1, Cov2, Cov3, Cov4]", body.getMessage());
+        assertEquals(ExceptionType.VALIDATION.name(), body.getType());
+    }
+
+    @Test
+    public void test_runTestTables_calculatePremiumTest_REST() {
+        ResponseEntity<Void> response = runTestServiceRest.getForEntity("/calculatePremiumTest", Void.class);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    public void test_runTestTables_getFactor_REST() {
+        ResponseEntity<String> response = runTestServiceRest.exchange("/getFactor", HttpMethod.POST,
+                RestClientFactory.request("Cov1"), String.class);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    public void test_runTestTables_getDiscount_REST() {
+        ResponseEntity<String> response = runTestServiceRest.exchange("/getDiscount", HttpMethod.POST,
+                RestClientFactory.request("100"), String.class);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    public void test_runTestTables_calculatePremiumRun_REST() {
+        ResponseEntity<Void> response = runTestServiceRest.getForEntity("/calculatePremiumRun", Void.class);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 

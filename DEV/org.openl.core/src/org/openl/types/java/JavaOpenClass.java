@@ -15,20 +15,9 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 import org.openl.base.INamedThing;
-import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -39,7 +28,6 @@ import org.openl.types.impl.ArrayIndex;
 import org.openl.types.impl.ArrayLengthOpenField;
 import org.openl.types.impl.MethodKey;
 import org.openl.util.RuntimeExceptionWrapper;
-import org.openl.util.StringTool;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -64,7 +52,7 @@ public class JavaOpenClass extends AOpenClass {
 
     private final boolean simple;
 
-    private IAggregateInfo aggregateInfo;
+    private volatile IAggregateInfo aggregateInfo;
 
     protected volatile Map<String, IOpenField> fields;
 
@@ -145,28 +133,6 @@ public class JavaOpenClass extends AOpenClass {
         return new ArrayIndex(getOpenClass(arrayType.getInstanceClass().getComponentType()));
     }
 
-    public static synchronized void resetClassloader(ClassLoader cl) {
-        List<Class<?>> toRemove = new ArrayList<Class<?>>();
-
-        Collection<Class<?>> nonJavaClasses = JavaOpenClassCache.getInstance().getNonJavaClasses();
-
-        for (Class<?> c : nonJavaClasses) {
-            ClassLoader classLoader = c.getClassLoader();
-            if (classLoader == cl) {
-                toRemove.add(c);
-            }
-            if (cl instanceof OpenLBundleClassLoader) {
-                if (((OpenLBundleClassLoader) cl).containsClassLoader(classLoader)) {
-                    toRemove.add(c);
-                }
-            }
-        }
-
-        for (Class<?> c : toRemove) {
-            JavaOpenClassCache.getInstance().remove(c);
-        }
-    }
-
     public static boolean isVoid(IOpenClass clazz) {
         return JavaOpenClass.VOID.equals(clazz);
     }
@@ -219,19 +185,24 @@ public class JavaOpenClass extends AOpenClass {
         return null;
     }
 
-    public synchronized IAggregateInfo getAggregateInfo() {
-        if (aggregateInfo != null)
+    public IAggregateInfo getAggregateInfo() {
+        if (aggregateInfo != null) {
             return aggregateInfo;
+        }
 
-        Class<?> instanceClass = getInstanceClass();
-        if (List.class.isAssignableFrom(instanceClass)) {
-            aggregateInfo = JavaListAggregateInfo.LIST_AGGREGATE;
-        } else if (Map.class.isAssignableFrom(instanceClass)) {
-            aggregateInfo = JavaMapAggregateInfo.MAP_AGGREGATE;
-        } else if (Collection.class.isAssignableFrom(instanceClass)) {
-            aggregateInfo = JavaCollectionAggregateInfo.COLLECTION_AGGREGATE;
-        } else {
-            aggregateInfo = JavaArrayAggregateInfo.ARRAY_AGGREGATE;
+        synchronized (this) {
+            if (aggregateInfo == null) {
+                Class<?> instanceClass = getInstanceClass();
+                if (List.class.isAssignableFrom(instanceClass)) {
+                    aggregateInfo = JavaListAggregateInfo.LIST_AGGREGATE;
+                } else if (Map.class.isAssignableFrom(instanceClass)) {
+                    aggregateInfo = JavaMapAggregateInfo.MAP_AGGREGATE;
+                } else if (Collection.class.isAssignableFrom(instanceClass)) {
+                    aggregateInfo = JavaCollectionAggregateInfo.COLLECTION_AGGREGATE;
+                } else {
+                    aggregateInfo = JavaArrayAggregateInfo.ARRAY_AGGREGATE;
+                }
+            }
         }
         return aggregateInfo;
     }
@@ -242,7 +213,7 @@ public class JavaOpenClass extends AOpenClass {
             case INamedThing.SHORT:
             case INamedThing.REGULAR:
             default:
-                return StringTool.lastToken(name, ".");
+                return name.substring(name.lastIndexOf('.') + 1);
             case INamedThing.LONG:
                 return name;
         }

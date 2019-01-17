@@ -10,16 +10,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.SimpleNodeUsage;
@@ -29,6 +29,7 @@ import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.fuzzy.OpenLFuzzySearch;
 import org.openl.rules.fuzzy.Token;
 import org.openl.rules.helpers.CharRange;
+import org.openl.rules.helpers.CharRangeParser;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.DoubleRangeParser;
 import org.openl.rules.helpers.IntRange;
@@ -450,7 +451,8 @@ public class DecisionTableHelper {
 
             if (!bindingContext.isExecutionMode()) {
                 String stringValue = originalTable.getSource().getCell(column, numberOfMergedRows - 1).getStringValue();
-                String description = "Return: " + type.getDisplayName(0) + " " + fieldChainSb.toString();
+                String description = "Return for " + fieldChainSb.toString() + ": " + type
+                    .getDisplayName(INamedThing.SHORT);
                 ICell cell = originalTable.getSource().getCell(column, previoush);
                 SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
                     stringValue.length() - 1,
@@ -470,9 +472,10 @@ public class DecisionTableHelper {
 
         sb.append("ret;");
         grid.setCellValue(firstReturnColumn, 1, sb.toString());
-
-        for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1; row++) {
-            grid.addMergedRegion(new GridRegion(row, firstReturnColumn, row, column - 1));
+        if (firstReturnColumn < column - 1) {
+            for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1; row++) {
+                grid.addMergedRegion(new GridRegion(row, firstReturnColumn, row, column - 1));
+            }
         }
     }
     
@@ -519,7 +522,15 @@ public class DecisionTableHelper {
     private static int calculateCompoundReturnColumnsCount(ILogicalTable originalTable,
             int numberOfConditions,
             int numberOfMergedRows) {
-        return originalTable.getRow(numberOfMergedRows).getWidth() - numberOfConditions;
+        IGridTable gt = originalTable.getSource().getRow(numberOfMergedRows);
+        int w = gt.getWidth();
+        int w0 = 0;
+        int i = 0;
+        while (i < w) {
+            i = i + gt.getCell(i, 0).getWidth();
+            w0++;
+        }
+        return w0 - numberOfConditions;
     }
 
     private static IOpenMethod findBestMatchOpenMethod(String description,
@@ -717,6 +728,26 @@ public class DecisionTableHelper {
                             throw e;
                         }
                     }
+                } else {
+                    if (!bindingContext.isExecutionMode()) {
+                        String stringValue = originalTable.getSource().getCell(firstReturnColumn, 0).getStringValue();
+                        if (!StringUtils.isEmpty(stringValue)) {
+                            String description = "Return: " + decisionTable.getHeader().getType().getDisplayName(
+                                INamedThing.SHORT);
+                            ICell cell = originalTable.getSource().getCell(firstReturnColumn, 0);
+                            SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
+                                stringValue.length() - 1,
+                                description,
+                                null,
+                                NodeType.OTHER);
+                            CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
+                                null,
+                                JavaOpenClass.STRING,
+                                false,
+                                Collections.singletonList(simpleNodeUsage));
+                            cell.setMetaInfo(meta);
+                        }
+                    }
                 }
 
                 if (f) {
@@ -808,14 +839,12 @@ public class DecisionTableHelper {
 
             String conditionStatement = decisionTable.getSignature()
                 .getParameterName(conditions[i].getParameterIndex());
-            IOpenClass conditionType = decisionTable.getSignature().getParameterType(conditions[i].getParameterIndex());
 
             if (conditions[i].getMethodsChain() != null) {
                 Pair<String, IOpenClass> c = buildStatementByMethodsChain(
                     decisionTable.getSignature().getParameterType(conditions[i].getParameterIndex()),
                     conditions[i].getMethodsChain());
                 String chainStatement = c.getLeft();
-                conditionType = c.getRight();
                 conditionStatement = conditionStatement + "." + chainStatement;
             }
 
@@ -827,7 +856,7 @@ public class DecisionTableHelper {
             }
             
             // Set type of condition values(for Ranges and Array)
-            Pair<String, String> typeOfValue = checkTypeOfValues(bindingContext,
+            Pair<String, IOpenClass> typeOfValue = checkTypeOfValues(bindingContext,
                 originalTable,
                 i,
                 typeOfCondition,
@@ -837,12 +866,10 @@ public class DecisionTableHelper {
             grid.setCellValue(column, 2, typeOfValue.getLeft());
 
             if (!bindingContext.isExecutionMode()) {
-                if (!bindingContext.isExecutionMode()) {
-                    writeMetaInfoForCondition(originalTable,
-                        column,
-                        decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()),
-                        typeOfValue.getRight());
-                }
+                writeMetaInfoForCondition(originalTable,
+                    column,
+                    conditionStatement,
+                    typeOfValue.getRight().getDisplayName(INamedThing.SHORT));
             }
 
             // merge columns
@@ -893,7 +920,7 @@ public class DecisionTableHelper {
                     text,
                     null,
                     NodeType.OTHER);
-                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
+                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, 
                     null,
                     JavaOpenClass.STRING,
                     false,
@@ -949,7 +976,7 @@ public class DecisionTableHelper {
         public IOpenMethod[] getMethodsChain() {
             return methodsChain;
         }
-        
+
         public int getColumn() {
             return column;
         }
@@ -1042,7 +1069,7 @@ public class DecisionTableHelper {
             }
             String description = originalTable.getCell(column, 0).getStringValue();
 
-            column += originalTable.getColumnWidth(column);
+            column += 1;
 
             if (column >= originalTable.getWidth()) {
                 break;
@@ -1080,12 +1107,13 @@ public class DecisionTableHelper {
             for (int i = 0; i < bestMatchedTokens.length; i++) {
                 conditions.add(new Condition(parameterTokensMap.get(bestMatchedTokens[i].getValue()),
                     description,
-                    parameterTokenMethodsChainMap.get(bestMatchedTokens[i].getValue()), column));
+                    parameterTokenMethodsChainMap.get(bestMatchedTokens[i].getValue()),
+                    column));
             }
 
             vConditions.add(conditions);
         }
-        
+
         List<Condition> fitConditions = new ArrayList<>();
         while (!vConditions.isEmpty()) { // Greedy algorithm. Bipartite graph
                                          // maximum matching algorithm is
@@ -1136,7 +1164,7 @@ public class DecisionTableHelper {
             throw new CompositeSyntaxNodeException(null, errors.toArray(new SyntaxNodeException[] {}));
         }
 
-        boolean[] parameterIsUsed = new boolean[numberOfParameters];        
+        boolean[] parameterIsUsed = new boolean[numberOfParameters];
         Arrays.fill(parameterIsUsed, false);
         for (Condition condition : fitConditions) {
             parameterIsUsed[condition.getParameterIndex()] = true;
@@ -1150,11 +1178,12 @@ public class DecisionTableHelper {
             }
             i--;
         }
-        
-        while (k < numberOfHcondition) { //i<>0
+
+        while (k < numberOfHcondition) { // i<>0
             Condition maxColumnCondition = null;
             for (Condition condition : fitConditions) {
-                if ((maxColumnCondition == null || condition.getColumn() > maxColumnCondition.getColumn()) && parameterIsUsed[condition.parameterIndex]) {
+                if ((maxColumnCondition == null || condition.getColumn() > maxColumnCondition
+                    .getColumn()) && parameterIsUsed[condition.parameterIndex]) {
                     maxColumnCondition = condition;
                 }
             }
@@ -1166,14 +1195,14 @@ public class DecisionTableHelper {
         if (k < numberOfHcondition) {
             throw new OpenLCompilationException("No input parameter found for horizontal condition!");
         }
-        
+
         Condition[] conditions = new Condition[fitConditions.size() + numberOfHcondition];
         int j = 0;
         for (Condition condition : fitConditions) {
             conditions[j] = condition;
             j++;
         }
-        
+
         j = 0;
         for (int w = i + 1; w < numberOfParameters; w++) {
             if (!parameterIsUsed[w] && j < numberOfHcondition) {
@@ -1208,7 +1237,7 @@ public class DecisionTableHelper {
         "org.openl.meta.BigDecimalValue");
 
     private static final List<String> CHAR_TYPES = Arrays.asList("char", "java.lang.Character");
-    
+
     private static final Pattern MAYBE_INT_ARRAY_PATTERN = Pattern.compile("\\s*(\\d+,)*\\d+\\s*");
 
     /**
@@ -1223,7 +1252,8 @@ public class DecisionTableHelper {
      *            calculating position of horizontal condition
      * @return type of condition values
      */
-    private static Pair<String, String> checkTypeOfValues(IBindingContext bindingContext, ILogicalTable originalTable,
+    private static Pair<String, IOpenClass> checkTypeOfValues(IBindingContext bindingContext,
+            ILogicalTable originalTable,
             int column,
             IOpenClass type,
             boolean isThatVCondition,
@@ -1250,13 +1280,13 @@ public class DecisionTableHelper {
             // if the name row is merged then we have Array
             if (isMerged) {
                 if (!type.isArray()) {
-                    return new ImmutablePair<String, String>(type.getName() + "[]", type.getDisplayName(0) + "[]");
+                    return Pair.of(type.getName() + "[]", (IOpenClass) JavaOpenClass.getArrayType(type, 1));
                 } else {
-                    return new ImmutablePair<String, String>(type.getName(), type.getDisplayName(0));
+                    return Pair.of(type.getName(), type);
                 }
             }
         }
-        
+
         String typeName = type instanceof DomainOpenClass ? type.getInstanceClass().getCanonicalName() : type.getName();
 
         for (int valueNum = 1; valueNum < width; valueNum++) {
@@ -1273,21 +1303,25 @@ public class DecisionTableHelper {
             if (value == null) {
                 continue;
             }
-            
+
             ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, value);
-            if (constantOpenField != null && (IntRange.class.equals(constantOpenField.getType().getInstanceClass()) || DoubleRange.class.equals(constantOpenField.getType().getInstanceClass()))) {
-                return new ImmutablePair<String, String>(constantOpenField.getType().getInstanceClass().getSimpleName(),
-                        constantOpenField.getType().getInstanceClass().getSimpleName());
+            if (constantOpenField != null && (IntRange.class
+                .equals(constantOpenField.getType().getInstanceClass()) || DoubleRange.class
+                    .equals(constantOpenField.getType().getInstanceClass()) || CharRange.class
+                        .equals(constantOpenField.getType().getInstanceClass()))) {
+                return Pair.of(constantOpenField.getType().getInstanceClass().getSimpleName(),
+                    constantOpenField.getType());
             }
 
+            /* try to create range by values **/
             if (INT_TYPES.contains(typeName)) {
                 try {
                     boolean f = false;
-                    if (MAYBE_INT_ARRAY_PATTERN.matcher(value).matches()) { 
+                    if (MAYBE_INT_ARRAY_PATTERN.matcher(value).matches()) {
                         f = true;
                     }
                     if (IntRangeParser.getInstance().parse(value) != null && !f) {
-                        return Pair.of(IntRange.class.getSimpleName(), IntRange.class.getSimpleName());
+                        return Pair.of(IntRange.class.getSimpleName(), (IOpenClass) JavaOpenClass.getOpenClass(IntRange.class));
                     }
                 } catch (Exception e) {
                     continue;
@@ -1301,7 +1335,7 @@ public class DecisionTableHelper {
                         f = false;
                     }
                     if (DoubleRangeParser.getInstance().parse(value) != null && !f) {
-                        return Pair.of(DoubleRange.class.getSimpleName(), DoubleRange.class.getSimpleName());
+                        return Pair.of(DoubleRange.class.getSimpleName(), (IOpenClass) JavaOpenClass.getOpenClass(DoubleRange.class));
                     }
                 } catch (Exception e) {
                     continue;
@@ -1310,12 +1344,12 @@ public class DecisionTableHelper {
                 try {
                     boolean f = true;
                     try {
-                        CharRange.parseRange(value);
+                        CharRangeParser.getInstance().parse(value);
                     } catch (Exception e) {
                         f = false;
                     }
                     if (f && value.length() != 1) {
-                        return Pair.of(CharRange.class.getSimpleName(), CharRange.class.getSimpleName());
+                        return Pair.of(CharRange.class.getSimpleName(), (IOpenClass) JavaOpenClass.getOpenClass(CharRange.class));
                     }
                 } catch (Exception e) {
                     continue;
@@ -1323,9 +1357,9 @@ public class DecisionTableHelper {
             }
         }
         if (!type.isArray()) {
-            return new ImmutablePair<String, String>(type.getName() + "[]", type.getDisplayName(0) + "[]");
+            return Pair.of(type.getName() + "[]", (IOpenClass) JavaOpenClass.getArrayType(type, 1));
         } else {
-            return new ImmutablePair<String, String>(type.getName(), type.getDisplayName(0));
+            return Pair.of(type.getName(), type);
         }
     }
 

@@ -110,14 +110,6 @@ public class DomainOpenClass implements IOpenClass {
         return baseClass.getPackageName();
     }
 
-    public String getNameSpace() {
-        return null;
-    }
-
-    public IOpenClass getOpenClass() {
-        return this;
-    }
-
     public IOpenField getVar(String vname, boolean strictMatch) {
         return baseClass.getVar(vname, strictMatch);
     }
@@ -172,7 +164,7 @@ public class DomainOpenClass implements IOpenClass {
 
     @Override
     public String toString() {
-        return (getNameSpace() == null ? "" : getNameSpace() + ":") + getName();
+        return getName();
     }
 
     public void addType(IOpenClass type) throws Exception {

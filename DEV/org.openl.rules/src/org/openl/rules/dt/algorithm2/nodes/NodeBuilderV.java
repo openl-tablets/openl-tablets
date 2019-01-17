@@ -43,13 +43,6 @@ public abstract class NodeBuilderV extends NodeBuilder {
 
 	abstract protected int calculateNodeIndex(int ruleN);
 
-	// protected int calculateNodeIndex(int ruleN) {
-	// Object paramValue = condition.getParamValue(0, ruleN);
-	// int index = map.get(paramValue);
-	//
-	// return index;
-	// }
-
 	static abstract public class SingleV extends NodeBuilderV {
 
 		public SingleV(ICondition condition, boolean isFirst,

@@ -215,4 +215,13 @@ public class CollectionUtilsTest {
         fail("NullPointerException is expected but not appeared");
     }
 
+    @Test
+    public void testToArray() {
+        assertNull(CollectionUtils.toArray(null, Object.class));
+        assertArrayEquals((int[]) CollectionUtils.toArray(Arrays.asList(3, 1, 2), int.class), new int[] { 3, 1, 2 });
+        assertArrayEquals((Double[]) CollectionUtils.toArray(Arrays.asList(3.1, 1.2, 2.3), Double.class),
+            new Double[] { 3.1, 1.2, 2.3 });
+        assertArrayEquals((String[]) CollectionUtils.toArray(Collections.emptyList(), String.class), new String[0]);
+        assertArrayEquals((byte[]) CollectionUtils.toArray(Collections.emptyList(), byte.class), new byte[0]);
+    }
 }

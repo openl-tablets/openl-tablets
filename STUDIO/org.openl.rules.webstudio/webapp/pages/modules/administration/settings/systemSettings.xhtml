@@ -280,9 +280,10 @@
                                             <f:selectItem itemValue="local" itemLabel="Local" />
                                             <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
                                             <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
-                                            <f:selectItem itemValue="plain_db" itemLabel="Database (Plain JDBC)" />
-                                            <f:selectItem itemValue="plain_jndi" itemLabel="Database (Plain JNDI)" />
+                                            <f:selectItem itemValue="db" itemLabel="Database (JDBC)" />
+                                            <f:selectItem itemValue="jndi" itemLabel="Database (JNDI)" />
                                             <f:selectItem itemValue="aws_s3" itemLabel="AWS S3" />
+                                            <f:selectItem itemValue="git" itemLabel="Git" />
                                         </h:selectOneMenu>
                                     </h:panelGrid>
                                     <h:panelGroup id="designParameters">
@@ -294,6 +295,12 @@
                                         </h:panelGroup>
                                         <h:panelGroup rendered="#{designRepository.formType == 'aws_s3'}">
                                             <ui:include src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
+                                                <ui:param name="repository" value="#{designRepository}" />
+                                                <ui:param name="isProduction" value="false" />
+                                            </ui:include>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{designRepository.formType == 'git'}">
+                                            <ui:include src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
                                                 <ui:param name="repository" value="#{designRepository}" />
                                                 <ui:param name="isProduction" value="false" />
                                             </ui:include>
@@ -320,11 +327,10 @@
                                                 <f:selectItem itemValue="local" itemLabel="Local" />
                                                 <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
                                                 <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
-                                                <f:selectItem itemValue="plain_db" itemLabel="Database (Plain JDBC)" />
-                                                <f:selectItem itemValue="plain_jndi" itemLabel="Database (Plain JNDI)" />
-                                                <f:selectItem itemValue="db" itemLabel="Database (JCR over JDBC)" />
-                                                <f:selectItem itemValue="jndi" itemLabel="Database (JCR over JNDI)" />
+                                                <f:selectItem itemValue="db" itemLabel="Database (JDBC)" />
+                                                <f:selectItem itemValue="jndi" itemLabel="Database (JNDI)" />
                                                 <f:selectItem itemValue="aws_s3" itemLabel="AWS S3" />
+                                                <f:selectItem itemValue="git" itemLabel="Git" />
                                             </h:selectOneMenu>
                                         </h:panelGrid>
                                         <h:panelGroup id="productionParameters">
@@ -342,6 +348,13 @@
                                                     <ui:param name="isEditing" value="true" />
                                                 </ui:include>
                                             </h:panelGroup>
+                                            <h:panelGroup rendered="#{repository.formType == 'git'}">
+                                                <ui:include src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
+                                                    <ui:param name="repository" value="#{repository}" />
+                                                    <ui:param name="isProduction" value="true" />
+                                                    <ui:param name="isEditing" value="true" />
+                                                </ui:include>
+                                            </h:panelGroup>
                                         </h:panelGroup>
                                         </td>
                                         <td class="repositoryConfigButton">
@@ -351,7 +364,7 @@
                                                 onclick="if(!window.confirm('Do you really want to delete repository connection?')) {return false;}"
                                                 onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                                 onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})" >
-                                                <img src="webresource/images/delete.png" alt="Delete Repository" />
+                                                <img src="#{request.contextPath}/webresource/images/delete.png" alt="Delete Repository" />
                                             </a4j:commandLink>
                                         </td>
                                         </tr>

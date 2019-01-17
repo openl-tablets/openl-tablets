@@ -30,22 +30,6 @@ public class Enum<T> {
         return indexMap.containsKey(obj);
     }
 
-    // public Enum(Collection<T> objc)
-    // {
-    // int size = objc.size();
-    //
-    // this.allObjects = new Object[size];
-    // this.indexMap = new HashMap(size);
-    //
-    // int i = 0;
-    //
-    // for (Iterator iter = objc.iterator(); iter.hasNext(); ++i)
-    // {
-    // Object element = (Object) iter.next();
-    // indexMap.put(element, new Integer(i));
-    // }
-    // }
-
     public T[] getAllObjects() {
         return allObjects;
     }

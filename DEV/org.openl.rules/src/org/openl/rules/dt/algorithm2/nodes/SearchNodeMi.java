@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.openl.rules.dt.algorithm2.DecisionTableSearchTree.SearchContext;
 import org.openl.rules.dt.algorithm2.ISearchTreeNode;
-import org.openl.util.trie.IARTNode;
 
 public class SearchNodeMi extends IARTNode.EmptyARTNode implements ISearchTreeNode {
 

@@ -5,6 +5,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
+import java.lang.reflect.Array;
+
 import org.junit.BeforeClass;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -17,8 +19,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
-
-import java.lang.reflect.Array;
 
 public abstract class AbstractMethodSearchTest {
     static final String AMB = "AMBIGUOUS";
@@ -54,9 +54,12 @@ public abstract class AbstractMethodSearchTest {
     }
 
     final void assertInvoke(Object expected, Class<?> target, String methodName, Class<?>... classes) {
-        JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
-
         Object[] args = toArgs(classes);
+        assertInvoke(expected, target, methodName, classes, args);
+    }
+    
+    final void assertInvoke(Object expected, Class<?> target, String methodName, Class<?>[] classes, Object[] args) {
+        JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
 
         IOpenClass[] openClasses = toOpenClasses(classes);
 

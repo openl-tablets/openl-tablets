@@ -14,13 +14,13 @@ public class RepositoryConfiguration {
     public static final Comparator<RepositoryConfiguration> COMPARATOR = new NameWithNumbersComparator();
 
     private String name;
-    private JcrType jcrType;
+    private RepositoryType repositoryType;
 
     private String oldName = null;
 
     private String configName;
     private final ConfigurationManager configManager;
-    private final RepositoryType repositoryType;
+    private final RepositoryMode repositoryMode;
 
     private final String REPOSITORY_FACTORY;
     private final String REPOSITORY_NAME;
@@ -31,12 +31,12 @@ public class RepositoryConfiguration {
 
     public RepositoryConfiguration(String configName,
             ConfigurationManager configManager,
-            RepositoryType repositoryType) {
+            RepositoryMode repositoryMode) {
         this.configName = configName.toLowerCase();
         this.configManager = configManager;
-        this.repositoryType = repositoryType;
+        this.repositoryMode = repositoryMode;
 
-        CONFIG_PREFIX = repositoryType == RepositoryType.DESIGN ? RepositoryFactoryInstatiator.DESIGN_REPOSITORY
+        CONFIG_PREFIX = repositoryMode == RepositoryMode.DESIGN ? RepositoryFactoryInstatiator.DESIGN_REPOSITORY
                                                                 : RepositoryFactoryInstatiator.PRODUCTION_REPOSITORY;
         REPOSITORY_FACTORY = CONFIG_PREFIX + "factory";
         REPOSITORY_NAME = CONFIG_PREFIX + "name";
@@ -47,23 +47,26 @@ public class RepositoryConfiguration {
 
     private void load() {
         String factoryClassName = configManager.getStringProperty(REPOSITORY_FACTORY);
-        jcrType = JcrType.findByFactory(factoryClassName);
+        repositoryType = RepositoryType.findByFactory(factoryClassName);
         name = configManager.getStringProperty(REPOSITORY_NAME);
 
-        settings = createSettings(jcrType);
+        settings = createSettings(repositoryType);
 
         fixState();
     }
 
-    private RepositorySettings createSettings(JcrType jcrType) {
+    private RepositorySettings createSettings(RepositoryType repositoryType) {
         String factoryClassName = configManager.getStringProperty(REPOSITORY_FACTORY);
         RepositorySettings newSettings;
-        switch (jcrType) {
+        switch (repositoryType) {
             case AWS_S3:
                 newSettings = new AWSS3RepositorySettings(configManager, CONFIG_PREFIX);
                 break;
+            case GIT:
+                newSettings = new GitRepositorySettings(configManager, CONFIG_PREFIX, repositoryMode);
+                break;
             default:
-                newSettings = new CommonRepositorySettings(configManager, CONFIG_PREFIX, factoryClassName, repositoryType, jcrType);
+                newSettings = new CommonRepositorySettings(configManager, CONFIG_PREFIX, repositoryMode, repositoryType);
                 break;
         }
 
@@ -77,7 +80,7 @@ public class RepositoryConfiguration {
 
     private void store() {
         configManager.setProperty(REPOSITORY_NAME, StringUtils.trimToEmpty(name));
-        configManager.setProperty(REPOSITORY_FACTORY, jcrType.getFactoryClassName());
+        configManager.setProperty(REPOSITORY_FACTORY, repositoryType.getFactoryClassName());
         settings.store(configManager);
     }
 
@@ -95,14 +98,12 @@ public class RepositoryConfiguration {
     }
 
     public String getFormType() {
-        switch (jcrType) {
+        switch (repositoryType) {
             case LOCAL:
             case RMI:
             case WEBDAV:
             case DB:
             case JNDI:
-            case PLAIN_DB:
-            case PLAIN_JNDI:
                 return "common";
             default:
                 return getType();
@@ -110,17 +111,20 @@ public class RepositoryConfiguration {
     }
 
     public String getType() {
-        return jcrType.name().toLowerCase();
+        return repositoryType.name().toLowerCase();
     }
 
     public void setType(String accessType) {
-        JcrType newJcrType = JcrType.findByAccessType(accessType);
-        if (jcrType != newJcrType) {
-            jcrType = newJcrType;
-            RepositorySettings newSettings = createSettings(newJcrType);
+        RepositoryType newRepositoryType = RepositoryType.findByAccessType(accessType);
+        if (repositoryType != newRepositoryType) {
+            if (newRepositoryType == null) {
+                throw new IllegalArgumentException("Access type " + accessType + " isn't supported");
+            }
+            repositoryType = newRepositoryType;
+            RepositorySettings newSettings = createSettings(newRepositoryType);
             newSettings.copyContent(settings);
             settings = newSettings;
-            settings.onTypeChanged(newJcrType);
+            settings.onTypeChanged(newRepositoryType);
         }
     }
 

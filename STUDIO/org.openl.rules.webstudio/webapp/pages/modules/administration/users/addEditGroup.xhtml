@@ -89,7 +89,7 @@
                     </td>
                     <ui:repeat value="#{groupsBean.groups}" var="group">
                     <td style="text-align: center">
-                        <h:graphicImage value="webresource/images/ok.png"
+                        <h:graphicImage value="/images/ok.png"
                             rendered="#{group.hasPrivilege(privilege.name) or group.hasPrivilege('ADMIN')}" />
                      </td>
                     </ui:repeat>

@@ -1,8 +1,5 @@
 package org.openl.rules.calc;
 
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
@@ -10,7 +7,6 @@ import org.openl.meta.TableMetaInfo;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.calc.result.DefaultResultBuilder;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -61,7 +57,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
      * Custom return type of the spreadsheet method. Is a public type of the
      * spreadsheet
      */
-    private CustomSpreadsheetResultOpenClass spreadsheetCustomType;
+    private volatile CustomSpreadsheetResultOpenClass spreadsheetCustomType;
 
     /**
      * Whether <code>spreadsheetCustomType</code> should be generated or not.
@@ -82,15 +78,6 @@ public class Spreadsheet extends ExecutableRulesMethod {
         this(header, boundNode, false);
     }
 
-    Constructor<?> constructor;
-
-    public synchronized Constructor<?> getResultConstructor() throws SecurityException, NoSuchMethodException {
-        if (constructor == null)
-            constructor = this.getType().getInstanceClass()
-                    .getConstructor(Object[][].class, String[].class, String[].class, String[].class, String[].class, Map.class);
-        return constructor;
-    }
-
     @Override
     public IOpenClass getType() {
         if (isCustomSpreadsheetType()) {
@@ -104,24 +91,29 @@ public class Spreadsheet extends ExecutableRulesMethod {
         return customSpreadsheetType;
     }
 
-    private synchronized CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultType() {
+    private CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultType() {
         if (spreadsheetCustomType == null) {
-            initCustomSpreadsheetResultType();
+            synchronized (this) {
+                if (spreadsheetCustomType == null) {
+                    CustomSpreadsheetResultOpenClass type = initCustomSpreadsheetResultType();
+                    spreadsheetCustomType = type;
+                }
+            }
         }
         return spreadsheetCustomType;
     }
     
-    private void initCustomSpreadsheetResultType() {
+    private CustomSpreadsheetResultOpenClass initCustomSpreadsheetResultType() {
         Map<String, IOpenField> spreadsheetOpenClassFields = getSpreadsheetType().getFields();
         spreadsheetOpenClassFields.remove("this");
         String typeName = SPREADSHEETRESULT_TYPE_PREFIX + getName();
         CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(typeName, getRowNames(), getColumnNames(), getRowTitles(), getColumnTitles());
         customSpreadsheetResultOpenClass.setMetaInfo(new TableMetaInfo("Spreadsheet", getName(), getSourceUrl()));
         for (IOpenField field : spreadsheetOpenClassFields.values()) {
-            CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(spreadsheetCustomType, field.getName(), field.getType());
+            CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(customSpreadsheetResultOpenClass, field.getName(), field.getType());
             customSpreadsheetResultOpenClass.addField(customSpreadsheetResultField);
         }
-        spreadsheetCustomType = customSpreadsheetResultOpenClass;
+        return customSpreadsheetResultOpenClass;
     }
 
     public SpreadsheetCell[][] getCells() {
@@ -220,52 +212,18 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
     }
 
-    public List<SpreadsheetCell> listNonEmptyCells(SpreadsheetHeaderDefinition definition) {
-
-        List<SpreadsheetCell> list = new ArrayList<SpreadsheetCell>();
-
-        int row = definition.getRow();
-        int col = definition.getColumn();
-
-        if (row >= 0) {
-            for (int i = 0; i < getWidth(); ++i) {
-                if (!cells[row][i].isEmpty()) {
-                    list.add(cells[row][i]);
-                }
-            }
-        } else {
-            for (int i = 0; i < getHeight(); ++i) {
-                if (!cells[i][col].isEmpty()) {
-                    list.add(cells[i][col]);
-                }
-            }
-        }
-
-        return list;
-    }
-
-    @Deprecated
-    public int height() {
-        return getHeight();
-    }
-
-    @Deprecated
-    public int width() {
-        return getWidth();
-    }
-
     public void setInvoker(SpreadsheetInvoker invoker) {
         this.invoker = invoker;
     }
     
-    Map<String, Point> fieldsCoordinates = null;
+    volatile Map<String, Point> fieldsCoordinates = null;
 
-    public synchronized Map<String, Point> getFieldsCoordinates() {
+    public Map<String, Point> getFieldsCoordinates() {
         if (fieldsCoordinates == null) {
-            if (isCustomSpreadsheetType()) {
-                fieldsCoordinates = getCustomSpreadsheetResultType().getFieldsCoordinates();
-            } else {
-                fieldsCoordinates = DefaultResultBuilder.getFieldsCoordinates(this.getSpreadsheetType().getFields());
+            synchronized (this) {
+                if (fieldsCoordinates == null) {
+                    fieldsCoordinates = SpreadsheetResult.buildFieldsCoordinates(columnNames, rowNames);
+                }
             }
         }
         return fieldsCoordinates;

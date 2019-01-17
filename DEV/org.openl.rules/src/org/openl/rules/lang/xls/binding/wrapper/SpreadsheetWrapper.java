@@ -93,11 +93,6 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
     }
 
     @Override
-    public Constructor<?> getResultConstructor() throws SecurityException, NoSuchMethodException {
-        return delegate.getResultConstructor();
-    }
-
-    @Override
     public IOpenClass getType() {
         return delegate.getType();
     }
@@ -205,21 +200,6 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
     @Override
     public TableSyntaxNode getSyntaxNode() {
         return delegate.getSyntaxNode();
-    }
-
-    @Override
-    public List<SpreadsheetCell> listNonEmptyCells(SpreadsheetHeaderDefinition definition) {
-        return delegate.listNonEmptyCells(definition);
-    }
-
-    @Override
-    public int height() {
-        return delegate.height();
-    }
-
-    @Override
-    public int width() {
-        return delegate.width();
     }
 
     @Override

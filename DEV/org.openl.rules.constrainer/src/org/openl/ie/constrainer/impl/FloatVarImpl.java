@@ -1,14 +1,11 @@
 package org.openl.ie.constrainer.impl;
 
-import java.util.Map;
-
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.FloatDomain;
 import org.openl.ie.constrainer.FloatVar;
 import org.openl.ie.constrainer.Goal;
 import org.openl.ie.constrainer.GoalFloatInstantiate;
-import org.openl.ie.constrainer.NonLinearExpression;
 import org.openl.ie.constrainer.Undo;
 import org.openl.ie.constrainer.Undoable;
 import org.openl.ie.tools.Reusable;
@@ -80,17 +77,6 @@ public class FloatVarImpl extends FloatExpImpl implements FloatVar {
         super(constrainer, name);
         _domain = new FloatDomainImpl(this, min, max);
         _history = new FloatDomainHistory(this);
-    }
-
-    @Override
-    public double calcCoeffs(Map map, double factor) throws NonLinearExpression {
-        Double coef = (Double) map.get(this);
-        if (coef == null) {
-            map.put(this, new Double(factor));
-        } else {
-            map.put(this, new Double(factor + coef.doubleValue()));
-        }
-        return 0;
     }
 
     @Override

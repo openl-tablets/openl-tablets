@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
@@ -19,6 +18,7 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
+import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenMethod;
@@ -186,10 +186,8 @@ public class MethodSearch {
     }
 
     private static IOpenClass unwrapPrimitiveClassIfNeeded(IOpenClass clazz) {
-        if (clazz != null && clazz.getInstanceClass() != null && clazz.getInstanceClass()
-            .isPrimitive()) {
-            return JavaOpenClass
-                .getOpenClass(ClassUtils.primitiveToWrapper(clazz.getInstanceClass()));
+        if (clazz != null && clazz.getInstanceClass() != null && clazz.getInstanceClass().isPrimitive()) {
+            return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(clazz.getInstanceClass()));
         }
         return clazz;
     }
@@ -406,7 +404,13 @@ public class MethodSearch {
                 if (matchedMethod != null) {
                     if (NullOpenClass.isAnyNull(varArgType)) {
                         int lastParameterIndex = matchedMethod.getMethod().getSignature().getNumberOfParameters() - 1;
-                        return new VarArgsOpenMethod(matchedMethod, matchedMethod.getMethod().getSignature().getParameterType(lastParameterIndex).getComponentClass().getInstanceClass(), i);
+                        return new VarArgsOpenMethod(matchedMethod,
+                            matchedMethod.getMethod()
+                                .getSignature()
+                                .getParameterType(lastParameterIndex)
+                                .getComponentClass()
+                                .getInstanceClass(),
+                            i);
                     } else {
                         return new VarArgsOpenMethod(matchedMethod, varArgType.getInstanceClass(), i);
                     }
@@ -440,7 +444,14 @@ public class MethodSearch {
                     }
                     if (NullOpenClass.isAnyNull(varArgType)) {
                         int lastParameterIndex = matchedMethod.getMethod().getSignature().getNumberOfParameters() - 1;
-                        return new VarArgsOpenMethod(matchedMethod, matchedMethod.getMethod().getSignature().getParameterType(lastParameterIndex).getComponentClass().getInstanceClass(), i, parameterCasts);
+                        return new VarArgsOpenMethod(matchedMethod,
+                            matchedMethod.getMethod()
+                                .getSignature()
+                                .getParameterType(lastParameterIndex)
+                                .getComponentClass()
+                                .getInstanceClass(),
+                            i,
+                            parameterCasts);
                     } else {
                         return new VarArgsOpenMethod(matchedMethod, varArgType.getInstanceClass(), i, parameterCasts);
                     }
@@ -589,8 +600,8 @@ public class MethodSearch {
     }
 
     public static IMethodCaller findConstructor(IOpenClass[] params,
-                                                ICastFactory casts,
-                                                IMethodFactory factory) throws AmbiguousMethodException {
+            ICastFactory casts,
+            IMethodFactory factory) throws AmbiguousMethodException {
         IMethodCaller caller = factory.getConstructor(params);
         if (caller != null) {
             return caller;
@@ -606,7 +617,13 @@ public class MethodSearch {
             ICastFactory casts,
             IMethodFactory factory,
             boolean strictMatch) throws AmbiguousMethodException {
-        IMethodCaller caller = factory.getMethod(name, params);
+        IMethodCaller caller = null;
+        if (factory instanceof ADynamicClass) {
+            ADynamicClass aDynamicClass = (ADynamicClass) factory;
+            caller = aDynamicClass.getMethod(name, params, true);
+        } else {
+            caller = factory.getMethod(name, params);
+        }
         if (caller != null) {
             return caller;
         }

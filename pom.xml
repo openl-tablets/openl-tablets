@@ -4,7 +4,7 @@
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
     <packaging>pom</packaging>
-    <version>5.21.10-SNAPSHOT</version>
+    <version>5.21.13-SNAPSHOT</version>
     <name>OpenL Tablets - General POM</name>
     <url>//openl-tablets.org</url>
     <description>OpenL Tablets rules engine and related frameworks</description>
@@ -1346,21 +1346,6 @@
                 <version>4.2.0</version>
             </dependency>
             <dependency>
-                <groupId>org.modeshape</groupId>
-                <artifactId>modeshape-jcr-api</artifactId>
-                <version>3.8.1.Final</version>
-            </dependency>
-            <dependency>
-                <groupId>org.modeshape</groupId>
-                <artifactId>modeshape-jcr</artifactId>
-                <version>3.8.1.Final</version>
-            </dependency>
-            <dependency>
-                <groupId>org.modeshape</groupId>
-                <artifactId>modeshape-common</artifactId>
-                <version>3.8.1.Final</version>
-            </dependency>
-            <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-s3</artifactId>
                 <version>1.11.86</version>
@@ -1376,16 +1361,17 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <!--This examples uses Infinispan's JDBC cache store, which requires C3P0 and a JDBC database driver -->
+            <!-- Since version 4.6 jgit requires Java 8 -->
             <dependency>
-                <groupId>org.infinispan</groupId>
-                <artifactId>infinispan-cachestore-jdbc</artifactId>
-                <version>5.2.10.Final</version>
-            </dependency>
-            <dependency>
-                <groupId>c3p0</groupId>
-                <artifactId>c3p0</artifactId>
-                <version>0.9.1.2</version>
+                <groupId>org.eclipse.jgit</groupId>
+                <artifactId>org.eclipse.jgit</artifactId>
+                <version>4.5.4.201711221230-r</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- Microsoft JDBC Driver for SQL Server -->
             <dependency>
@@ -1508,11 +1494,6 @@
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.extension.xmlrules</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.activiti</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -1548,12 +1529,12 @@
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.repository.jcr.modeshape</artifactId>
+                <artifactId>org.openl.rules.repository.aws</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.repository.aws</artifactId>
+                <artifactId>org.openl.rules.repository.git</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

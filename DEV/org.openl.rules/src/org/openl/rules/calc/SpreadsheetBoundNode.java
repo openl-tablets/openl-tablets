@@ -7,14 +7,10 @@ import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLSystemProperties;
-import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -28,7 +24,11 @@ import org.openl.types.impl.CompositeMethod;
 // Extract all the binding and build code to the SpreadsheetBinder
 public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBoundNode {
 
-    private SpreadsheetBuilder builder;
+    private SpreadsheetStructureBuilder structureBuilder;
+    private SpreadsheetComponentsBuilder componentsBuilder;
+    private SpreadsheetOpenClass spreadsheetOpenClass;
+    private SpreadsheetCell[][] cells;
+
     IBindingContext bindingContext;
 
     public SpreadsheetBoundNode(TableSyntaxNode tableSyntaxNode,
@@ -39,35 +39,29 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         super(tableSyntaxNode, openl, header, module);
     }
 
-    /**
-     * {@link Spreadsheet} is being created after
-     * {@link #preBind(IBindingContext)} phase. See
-     * {@link XlsBinder#bindInternal(XlsModuleSyntaxNode, XlsModuleOpenClass, TableSyntaxNode[], OpenL, RulesModuleBindingContext)}
-     * method
-     */
-
-    protected Spreadsheet createSpreadsheet() {
+    @Override
+    protected ExecutableRulesMethod createMethodShell() {
         /*
          * We need to generate a customSpreadsheet class only if return type of
          * the spreadsheet is SpreadsheetResult and the customspreadsheet
          * property is true
          */
-        boolean isCustomSpreadsheetType = SpreadsheetResult.class.equals(getType().getInstanceClass()) && (!(getType() instanceof CustomSpreadsheetResultOpenClass)) && OpenLSystemProperties.isCustomSpreadsheetType(bindingContext
-            .getExternalParams());
+        boolean isCustomSpreadsheetType = SpreadsheetResult.class.equals(getType()
+            .getInstanceClass()) && (!(getType() instanceof CustomSpreadsheetResultOpenClass)) && OpenLSystemProperties
+                .isCustomSpreadsheetType(bindingContext.getExternalParams());
 
-        return new Spreadsheet(getHeader(), this, isCustomSpreadsheetType);
-    }
-
-    @Override
-    protected ExecutableRulesMethod createMethodShell() {
-        Spreadsheet spreadsheet = createSpreadsheet();
-        spreadsheet.setSpreadsheetType(builder.getPopulatedSpreadsheetOpenClass());
+        Spreadsheet spreadsheet = new Spreadsheet(getHeader(), this, isCustomSpreadsheetType);
+        spreadsheet.setSpreadsheetType(spreadsheetOpenClass);
         // As custom spreadsheet result is being generated at runtime,
         // call this method to ensure that CSR will be generated during the
         // compilation.
         // Add generated type to be accessible through binding context.
         //
-        builder.populateRowAndColumnNames(spreadsheet);
+        spreadsheet.setRowNames(componentsBuilder.getRowNames());
+        spreadsheet.setColumnNames(componentsBuilder.getColumnNames());
+
+        spreadsheet.setRowTitles(componentsBuilder.getCellsHeadersExtractor().getRowNames());
+        spreadsheet.setColumnTitles(componentsBuilder.getCellsHeadersExtractor().getColumnNames());
         if (spreadsheet.isCustomSpreadsheetType()) {
             
             IOpenClass type = null;
@@ -92,8 +86,15 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         IOpenMethodHeader header = getHeader();
 
         this.bindingContext = bindingContext;
-        this.builder = new SpreadsheetBuilder(tableSyntaxNode, bindingContext, header);
-        builder.populateSpreadsheetOpenClass();
+        componentsBuilder = new SpreadsheetComponentsBuilder(tableSyntaxNode, bindingContext);
+        componentsBuilder.buildHeaders(header.getType());
+        structureBuilder = new SpreadsheetStructureBuilder(componentsBuilder, header);
+        String headerType = header.getName() + "Type";
+        OpenL openL = bindingContext.getOpenL();
+        spreadsheetOpenClass = new SpreadsheetOpenClass(headerType, openL);
+
+        Boolean autoType = tableSyntaxNode.getTableProperties().getAutoType();
+        structureBuilder.addCellFields(spreadsheetOpenClass, autoType);
     }
 
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
@@ -103,7 +104,15 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
 
-        builder.finalizeBuild(getSpreadsheet());
+        cells = structureBuilder.getCells();
+        Spreadsheet spreadsheet = (Spreadsheet) getMethod();
+        spreadsheet.setCells(cells);
+
+        spreadsheet.setResultBuilder(componentsBuilder.buildResultBuilder(spreadsheet));
+    }
+
+    public SpreadsheetCell[][] getCells() {
+        return cells;
     }
 
     private void validateTableBody(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) throws SyntaxNodeException {
@@ -128,8 +137,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
     @Override
     public void updateDependency(BindingDependencies dependencies) {
-        if (getSpreadsheet().getCells() != null) {
-            for (SpreadsheetCell[] cellArray : getSpreadsheet().getCells()) {
+        if (cells != null) {
+            for (SpreadsheetCell[] cellArray : cells) {
                 if (cellArray != null) {
                     for (SpreadsheetCell cell : cellArray) {
                         if (cell != null) {
@@ -150,8 +159,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
             super.removeDebugInformation(cxt);
             // clean the builder, that was used for creating spreadsheet
             //
-            this.builder.removeDebugInformation();
-            this.builder = null;
+            this.structureBuilder.getSpreadsheetStructureBuilderHolder().clear();
             this.bindingContext = null;
         }
     }

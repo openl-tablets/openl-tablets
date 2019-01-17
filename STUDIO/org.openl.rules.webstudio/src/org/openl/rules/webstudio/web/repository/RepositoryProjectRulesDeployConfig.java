@@ -1,20 +1,8 @@
 package org.openl.rules.webstudio.web.repository;
 
-import com.thoughtworks.xstream.XStreamException;
-import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.xml.RulesDeploySerializerFactory;
-import org.openl.rules.project.xml.SupportedVersion;
-import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.IOUtils;
-import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -22,9 +10,21 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import com.thoughtworks.xstream.XStreamException;
+import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.xml.RulesDeploySerializerFactory;
+import org.openl.rules.project.xml.SupportedVersion;
+import org.openl.rules.repository.file.FileSystemRepository;
+import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ManagedBean
 @ViewScoped
@@ -121,8 +121,8 @@ public class RepositoryProjectRulesDeployConfig {
     }
 
     private SupportedVersion getSupportedVersion(UserWorkspaceProject project) {
-        if (project.getRepository() instanceof LocalRepository) {
-            File projectFolder = new File(((LocalRepository) project.getRepository()).getRoot(), project.getFolderPath());
+        if (project.getRepository() instanceof FileSystemRepository) {
+            File projectFolder = new File(((FileSystemRepository) project.getRepository()).getRoot(), project.getFolderPath());
             return rulesDeploySerializerFactory.getSupportedVersion(projectFolder);
         }
         return SupportedVersion.getLastVersion();

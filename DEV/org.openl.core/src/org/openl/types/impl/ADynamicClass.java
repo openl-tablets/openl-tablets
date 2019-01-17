@@ -36,7 +36,7 @@ public abstract class ADynamicClass extends AOpenClass {
 
     protected Map<String, IOpenField> fieldMap;
 
-    private Class<?> instanceClass;
+    protected Class<?> instanceClass;
 
     private IOpenClass[] arrayTypes = new IOpenClass[MAX_DIM];
 
@@ -83,6 +83,22 @@ public abstract class ADynamicClass extends AOpenClass {
         }
         
         return methodMap;
+    }
+    
+    public IOpenMethod getMethod(String name, IOpenClass[] classes) {
+        return getMethod(name, classes, false);
+    }
+    
+    public IOpenMethod getMethod(String name, IOpenClass[] classes, boolean strict) {
+        IOpenMethod method = super.getMethod(name, classes);
+        if (method != null && strict) {
+            for (int i = 0; i < method.getSignature().getNumberOfParameters(); i++) {
+                if (!classes[i].equals(method.getSignature().getParameterType(i))) {
+                    return null;
+                }
+            }
+        }
+        return method;
     }
     
     @Override

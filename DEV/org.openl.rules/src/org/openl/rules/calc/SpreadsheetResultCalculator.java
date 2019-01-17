@@ -57,14 +57,6 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         return res;
     }
 
-    public String getColumnName(int column) {
-        return spreadsheet.getColumnNames()[column];
-    }
-    
-    public String getColumnTitle(int column) {
-        return spreadsheet.getColumnTitles()[column];
-    }
-
     public Object getFieldValue(String name) {
 
         IOpenField field = spreadsheet.getSpreadsheetType().getField(name);
@@ -87,14 +79,6 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
 
     public Object getRow(int row, IRuntimeEnv env) {
         return null;
-    }
-
-    public String getRowName(int row) {
-        return spreadsheet.getRowNames()[row];
-    }
-    
-    public String getRowTitle(int row) {
-        return spreadsheet.getRowTitles()[row];
     }
 
     public Spreadsheet getSpreadsheet() {
@@ -128,7 +112,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         results[row][column] = res;
     }
 
-    public final int height() {
+    private int height() {
         return spreadsheet.getHeight();
     }
 
@@ -141,7 +125,21 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         return "Spreadsheet[" + width() + " x " + height() + "]";
     }
 
-    public final int width() {
+    private int width() {
         return spreadsheet.getWidth();
+    }
+
+    public Object[][] getValues() {
+        int height = height();
+        int width = width();
+
+        Object[][] resultArray = new Object[height][width];
+
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                resultArray[row][col] = getValue(row, col);
+            }
+        }
+        return resultArray;
     }
 }

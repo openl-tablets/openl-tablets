@@ -1,11 +1,9 @@
 package org.openl.rules.workspace.deploy;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.Map;
+import java.util.zip.ZipInputStream;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
@@ -15,7 +13,9 @@ import javax.xml.xpath.XPathFactory;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.ZipUtils;
@@ -33,6 +33,7 @@ import org.xml.sax.InputSource;
 public class ProductionRepositoryDeployer {
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoryDeployer.class);
     public static final String VERSION_IN_DEPLOYMENT_NAME = "version-in-deployment-name";
+    public static final String DEPLOY_PATH_PROPERTY = "production-repository.deployments.path";
 
     /**
      * Deploys a new project to the production repository. If the project exists
@@ -74,8 +75,9 @@ public class ProductionRepositoryDeployer {
             // Initialize repo
             deployRepo = RepositoryFactoryInstatiator.newFactory(properties, false);
             String includeVersion = (String) properties.get(VERSION_IN_DEPLOYMENT_NAME);
+            String deployPath = (String) properties.get(DEPLOY_PATH_PROPERTY);
 
-            deployInternal(zipFile, deployRepo, skipExist, Boolean.valueOf(includeVersion));
+            deployInternal(zipFile, deployRepo, skipExist, Boolean.valueOf(includeVersion), deployPath);
         } finally {
             // Close repo
             if (deployRepo != null) {
@@ -87,12 +89,16 @@ public class ProductionRepositoryDeployer {
         }
 
     }
-    public void deployInternal(File zipFile, Repository deployRepo, boolean skipExist, boolean includeVersionInDeploymentName) throws Exception {
+    public void deployInternal(File zipFile,
+            Repository deployRepo,
+            boolean skipExist,
+            boolean includeVersionInDeploymentName,
+            String deployPath) throws Exception {
 
         // Temp folders
         File zipFolder = Files.createTempDirectory("openl").toFile();
 
-        FileInputStream stream = null;
+        InputStream stream = null;
         try {
             String name = FileUtils.getBaseName(zipFile.getName());
 
@@ -111,7 +117,7 @@ public class ProductionRepositoryDeployer {
 
             int version = 0;
             if (includeVersionInDeploymentName) {
-                version = DeployUtils.getNextDeploymentVersion(deployRepo, name);
+                version = DeployUtils.getNextDeploymentVersion(deployRepo, name, deployPath);
                 deploymentName = name + DeployUtils.SEPARATOR + version;
             } else {
                 deploymentName = name;
@@ -130,23 +136,26 @@ public class ProductionRepositoryDeployer {
                         return;
                     }
                 } else {
-                    if (!deployRepo.list(DeployUtils.DEPLOY_PATH + deploymentName + "/").isEmpty()) {
+                    if (!deployRepo.list(deployPath + deploymentName + "/").isEmpty()) {
                         return;
                     }
                 }
             }
 
             // Do deploy
-            String target = new StringBuilder(DeployUtils.DEPLOY_PATH).append(deploymentName)
-                .append('/')
-                .append(name)
-                .toString();
+            String target = deployPath + deploymentName + '/' + name;
             FileData dest = new FileData();
             dest.setName(target);
             dest.setAuthor("OpenL_Deployer");
-            dest.setSize(zipFile.length());
-            stream = new FileInputStream(zipFile);
-            deployRepo.save(dest, stream);
+
+            if (deployRepo instanceof FolderRepository) {
+                stream = new ZipInputStream(new FileInputStream(zipFile));
+                ((FolderRepository) deployRepo).save(dest, new FileChangesFromZip((ZipInputStream) stream, target));
+            } else {
+                stream = new FileInputStream(zipFile);
+                dest.setSize(zipFile.length());
+                deployRepo.save(dest, stream);
+            }
         } finally {
             IOUtils.closeQuietly(stream);
             /* Clean up */
@@ -161,9 +170,7 @@ public class ProductionRepositoryDeployer {
             XPath xPath = factory.newXPath();
             XPathExpression xPathExpression = xPath.compile("/project/name");
             return xPathExpression.evaluate(inputSource);
-        } catch (FileNotFoundException e) {
-            return null;
-        } catch (XPathExpressionException e) {
+        } catch (FileNotFoundException | XPathExpressionException e) {
             return null;
         }
     }
@@ -175,9 +182,7 @@ public class ProductionRepositoryDeployer {
             XPath xPath = factory.newXPath();
             XPathExpression xPathExpression = xPath.compile("/version");
             return xPathExpression.evaluate(inputSource);
-        } catch (FileNotFoundException e) {
-            return null;
-        } catch (XPathExpressionException e) {
+        } catch (FileNotFoundException | XPathExpressionException e) {
             return null;
         }
     }

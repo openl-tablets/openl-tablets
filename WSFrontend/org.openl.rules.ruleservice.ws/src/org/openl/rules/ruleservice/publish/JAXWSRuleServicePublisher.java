@@ -19,6 +19,7 @@ import org.apache.cxf.feature.Feature;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.logging.CollectObjectSerializerInterceptor;
 import org.openl.rules.ruleservice.logging.CollectOpenLServiceInterceptor;
@@ -104,9 +105,8 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
     @Override
     protected void deployService(OpenLService service) throws RuleServiceDeployException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(service.getClassLoader());
-
         try {
+            Thread.currentThread().setContextClassLoader(service.getClassLoader());
             ServerFactoryBean svrFactory = getServerFactoryBean();
             ClassLoader origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
             try {
@@ -196,7 +196,7 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
         return services;
     }
 
-    private ServiceInfo createServiceInfo(OpenLService service) {
+    private ServiceInfo createServiceInfo(OpenLService service) throws RuleServiceInstantiationException {
         List<String> methodNames = new ArrayList<String>();
         for (Method method : service.getServiceClass().getMethods()) {
             methodNames.add(method.getName());

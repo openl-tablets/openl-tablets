@@ -1,5 +1,6 @@
 package org.openl.rules.calc;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.NodeType;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.meta.StringValue;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.result.ArrayResultBuilder;
@@ -18,8 +18,10 @@ import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.calc.result.ScalarResultBuilder;
 import org.openl.rules.lang.xls.syntax.SpreadsheetHeaderNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -29,8 +31,6 @@ import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.text.LocationUtils;
-import org.openl.util.text.TextInterval;
 
 /**
  * 
@@ -66,11 +66,11 @@ public class SpreadsheetComponentsBuilder {
     }
     
     public Map<Integer, SpreadsheetHeaderDefinition> getRowHeaders() {        
-        return new HashMap<Integer, SpreadsheetHeaderDefinition>(rowHeaders);
+        return rowHeaders;
     }
     
     public Map<Integer, SpreadsheetHeaderDefinition> getColumnHeaders() {        
-        return new HashMap<Integer, SpreadsheetHeaderDefinition>(columnHeaders);
+        return columnHeaders;
     }
     
     public String[] getRowNames() {
@@ -105,12 +105,16 @@ public class SpreadsheetComponentsBuilder {
         
         try {            
             buildReturnCells(spreadsheetHeaderType);
-        } catch (SyntaxNodeException e) {            
-            getTableSyntaxNode().addError(e);
-            getBindingContext().addError(e);
+        } catch (SyntaxNodeException e) {
+            addError(e);
         }
     }
-    
+
+    void addError(SyntaxNodeException e) {
+        getTableSyntaxNode().addError(e);
+        getBindingContext().addError(e);
+    }
+
     public IBindingContext getBindingContext() {
         return bindingContext;
     }
@@ -124,8 +128,7 @@ public class SpreadsheetComponentsBuilder {
         try {
             resultBuilder = getResultBuilderInternal(spreadsheet);
         } catch (SyntaxNodeException e) {
-            tableSyntaxNode.addError(e);
-            bindingContext.addError(e);
+            addError(e);
         }
         return resultBuilder;
     }
@@ -133,9 +136,16 @@ public class SpreadsheetComponentsBuilder {
     private void addRowHeaders() {
         String[] rowNames = cellsHeaderExtractor.getRowNames();
         for (int i = 0; i < rowNames.length; i++) {
-            StringValue rowName = cellsHeaderExtractor.getRowNameForHeader(rowNames[i], i, bindingContext);
-            if (rowName != null) {                
-                addRowHeader(i, rowName);
+            if (rowNames[i] != null) {
+                IGridTable rowNameForHeader = cellsHeaderExtractor.getRowNamesTable().getRow(i).getColumn(0).getSource();
+                IOpenSourceCodeModule source = new GridCellSourceCodeModule(rowNameForHeader, bindingContext);
+                SpreadsheetHeaderDefinition header = rowHeaders.get(i);
+
+                if (header == null) {
+                    header = new SpreadsheetHeaderDefinition(i, -1);
+                    rowHeaders.put(i, header);
+                }
+                parseHeader(header, source);
             }
         }
     }
@@ -143,64 +153,45 @@ public class SpreadsheetComponentsBuilder {
     private void addColumnHeaders() {
         String[] columnNames = cellsHeaderExtractor.getColumnNames();
         for (int i = 0; i < columnNames.length; i++) {
-            StringValue columnName = cellsHeaderExtractor.getColumnNameForHeader(columnNames[i], i, bindingContext);
-            if (columnName != null) {                
-                addColumnHeader(i, columnName);
+            if (columnNames[i] != null) {
+                IGridTable columnNameForHeader = cellsHeaderExtractor.getColumnNamesTable().getColumn(i).getRow(0).getSource();
+                GridCellSourceCodeModule source = new GridCellSourceCodeModule(columnNameForHeader, bindingContext);
+                SpreadsheetHeaderDefinition header = columnHeaders.get(i);
+
+                if (header == null) {
+                    header = new SpreadsheetHeaderDefinition(-1, i);
+                    columnHeaders.put(i, header);
+                }
+                parseHeader(header, source);
             }
         }
     }
-    
-    private void addColumnHeader(int column, StringValue value) {
-        SpreadsheetHeaderDefinition header = columnHeaders.get(column);
 
-        if (header == null) {
-            header = new SpreadsheetHeaderDefinition(-1, column);
-            columnHeaders.put(column, header);
-        }
-        parseHeader(header, value);
-    }
-
-    private void addRowHeader(int row, StringValue value) {
-        SpreadsheetHeaderDefinition header = rowHeaders.get(row);
-
-        if (header == null) {
-            header = new SpreadsheetHeaderDefinition(row, -1);
-            rowHeaders.put(row, header);
-        }
-        parseHeader(header, value);
-    }
-    
-    private void parseHeader(SpreadsheetHeaderDefinition header, StringValue value) {
+    private void parseHeader(SpreadsheetHeaderDefinition header, IOpenSourceCodeModule source) {
+        SymbolicTypeDefinition parsed = null;
         try {
-            SymbolicTypeDefinition parsed = parseHeaderElement(value);
-            String headerName = parsed.getName().getIdentifier();
+            parsed = parseHeaderElement(source);
+            IdentifierNode name = parsed.getName();
+            String headerName = name.getIdentifier();
 
             SpreadsheetHeaderDefinition h1 = headerDefinitions.get(headerName);
 
             if (h1 != null) {
+                SyntaxNodeException error;
+                error = SyntaxNodeExceptionUtils.createError("The header definition is duplicated", name);
+
+                addError(error);
                 throw new DuplicatedVarException(null, headerName);
             } else {
                 headerDefinitions.put(headerName, header);
             }
             header.addVarHeader(parsed);
         } catch (SyntaxNodeException error) {
-            tableSyntaxNode.addError(error);
-            bindingContext.addError(error);
-        } catch (Exception t) {
-            SyntaxNodeException error;
-            try {
-                error = SyntaxNodeExceptionUtils.createError("Cannot parse spreadsheet header definition", t, parseHeaderElement(value).getName());
-            } catch (SyntaxNodeException e) {
-                error = SyntaxNodeExceptionUtils.createError("Cannot parse spreadsheet header definition", t, null, value.asSourceCodeModule());
-            }
-
-            tableSyntaxNode.addError(error);
-            bindingContext.addError(error);
+            addError(error);
         }
     }
     
-    private SymbolicTypeDefinition parseHeaderElement(StringValue value) throws SyntaxNodeException {
-        IOpenSourceCodeModule source = value.asSourceCodeModule();
+    private SymbolicTypeDefinition parseHeaderElement(IOpenSourceCodeModule source) throws SyntaxNodeException {
         IdentifierNode[] nodes;
 
         try {
@@ -219,8 +210,7 @@ public class SpreadsheetComponentsBuilder {
                 if (nodes.length > 2) {
                     throw SyntaxNodeExceptionUtils.createError(message, nodes[2]);
                 } else {
-                    TextInterval location = LocationUtils.createTextInterval(value);
-                    throw SyntaxNodeExceptionUtils.createError(message, null, location, source);
+                    throw SyntaxNodeExceptionUtils.createError(message, source);
                 }
         }
     }
@@ -270,8 +260,7 @@ public class SpreadsheetComponentsBuilder {
                         error = SyntaxNodeExceptionUtils.createError("Type redefinition", typeIdentifierNode);
                     }
                     if (error != null) {
-                        tableSyntaxNode.addError(error);
-                        bindingContext.addError(error);
+                        addError(error);
                     }
                 }
             }
@@ -321,8 +310,7 @@ public class SpreadsheetComponentsBuilder {
         } catch (OpenLCompilationException e) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Cannot parse header",
                     typeIdentifierNode);
-            getTableSyntaxNode().addError(error);
-            getBindingContext().addError(error);
+            addError(error);
         }
 
         return null;
@@ -424,20 +412,20 @@ public class SpreadsheetComponentsBuilder {
     private boolean isExistsReturnHeader() {
         return returnHeaderDefinition != null;
     }
-    
+
     private IResultBuilder getResultBuilderInternal(Spreadsheet spreadsheet) throws SyntaxNodeException {
         IResultBuilder resultBuilder;
-        
+
         SymbolicTypeDefinition symbolicTypeDefinition = null;
-        
+
         if (isExistsReturnHeader()) {
             symbolicTypeDefinition = returnHeaderDefinition.findVarDef(SpreadsheetSymbols.RETURN_NAME.toString());
         }
-        
+
         if (spreadsheet.getHeader().getType() == JavaOpenClass.VOID) {
             throw SyntaxNodeExceptionUtils.createError("Spreadsheet can not return 'void' type", tableSyntaxNode);
         }
-        
+
         if (spreadsheet.getHeader().getType() == JavaOpenClass.getOpenClass(SpreadsheetResult.class)) {
             if (isExistsReturnHeader()) {
                 throw SyntaxNodeExceptionUtils.createError(
@@ -452,8 +440,8 @@ public class SpreadsheetComponentsBuilder {
             if (!isExistsReturnHeader()) {
                 throw SyntaxNodeExceptionUtils.createError("There should be RETURN row or column for this return type",
                     tableSyntaxNode);
-            }            
-            List<SpreadsheetCell> notEmptyReturnDefinitions = spreadsheet.listNonEmptyCells(returnHeaderDefinition);
+            }
+            List<SpreadsheetCell> notEmptyReturnDefinitions = listNonEmptyCells(spreadsheet.getCells(), returnHeaderDefinition);
 
             switch (notEmptyReturnDefinitions.size()) {
                 case 0:
@@ -467,6 +455,30 @@ public class SpreadsheetComponentsBuilder {
             }
         }
         return resultBuilder;
+    }
+
+    private static List<SpreadsheetCell> listNonEmptyCells(SpreadsheetCell[][] cells, SpreadsheetHeaderDefinition definition) {
+
+        List<SpreadsheetCell> list = new ArrayList<SpreadsheetCell>();
+
+        int row = definition.getRow();
+        int col = definition.getColumn();
+
+        if (row >= 0) {
+            for (int i = 0; i < cells[0].length; ++i) {
+                if (!(cells[row][i].isEmpty())) {
+                    list.add(cells[row][i]);
+                }
+            }
+        } else {
+            for (int i = 0; i < cells.length; ++i) {
+                if (!(cells[i][col].isEmpty())) {
+                    list.add(cells[i][col]);
+                }
+            }
+        }
+
+        return list;
     }
 
     private String getSignature(TableSyntaxNode table) {

@@ -13,7 +13,7 @@ import org.openl.util.AOpenIterator;
 /**
  * @author snshor
  */
-public class EnumDomain<T> extends FixedSizeDomain<T> {
+public class EnumDomain<T> implements IDomain<T> {
 
     class EnumDomainIterator extends AOpenIterator<T> {
 
@@ -141,11 +141,6 @@ public class EnumDomain<T> extends FixedSizeDomain<T> {
 
     public boolean selectObject(T obj) {
         return contains(obj);
-    }
-
-    public boolean selectType(IType type) {
-        // TODO Auto-generated method stub
-        return false;
     }
 
     public int size() {

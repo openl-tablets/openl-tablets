@@ -1,5 +1,6 @@
 package org.openl.rules.project.abstraction;
 
+import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.repository.api.FileData;
@@ -9,13 +10,13 @@ import org.openl.rules.workspace.WorkspaceUser;
 public abstract class UserWorkspaceProject extends AProject {
     private final WorkspaceUser user;
 
-    public UserWorkspaceProject(WorkspaceUser user, Repository repository, String folderPath, String version, boolean folderStructure) {
-        super(repository, folderPath, version, folderStructure);
+    public UserWorkspaceProject(WorkspaceUser user, Repository repository, String folderPath, String version) {
+        super(repository, folderPath, version);
         this.user = user;
     }
 
-    public UserWorkspaceProject(WorkspaceUser user, Repository repository, FileData fileData, boolean folderStructure) {
-        super(repository, fileData, folderStructure);
+    public UserWorkspaceProject(WorkspaceUser user, Repository repository, FileData fileData) {
+        super(repository, fileData);
         this.user = user;
     }
 
@@ -56,6 +57,8 @@ public abstract class UserWorkspaceProject extends AProject {
     public void save() throws ProjectException {
         save(getUser());
     }
+
+    public abstract void save(CommonUser user) throws ProjectException;
 
     public void close() throws ProjectException {
         close(user);

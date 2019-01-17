@@ -1,24 +1,19 @@
 package org.openl.rules.helpers;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Before;
@@ -36,6 +31,9 @@ import org.openl.meta.ShortValue;
 import org.openl.meta.StringValue;
 import org.openl.rules.TestHelper;
 import org.openl.util.ArrayTool;
+
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Test to check that methods from {@link RulesUtils} and children of
@@ -4664,6 +4662,190 @@ public class RulesUtilsTest {
         assertEquals(copy.obj.num, 4);
         assertEquals(s.num, 10);
         assertEquals(s.obj.num, 10);
+    }
+
+    @Test
+    public void testCopyObject() {
+        MyClass expected = createNew();
+        MyClass actual = RulesUtils.copy(expected);
+
+        assertNotSame(expected, actual);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testCopyListObjects() {
+        ArrayList<MyClass> expected = new ArrayList<>(Arrays.asList(createNew(), createNew()));
+        List<MyClass> actual = RulesUtils.copy(expected);
+
+        assertNotSame(expected, actual);
+        assertListEquals(expected, actual);
+    }
+
+    @Test
+    public void testCopyArrayObject() {
+        MyClass[] expected = Arrays.asList(createNew(), createNew()).toArray(new MyClass[0]);
+        MyClass[] actual = RulesUtils.copy(expected);
+
+        assertNotSame(expected, actual);
+        assertArraysEquals(expected, actual);
+    }
+
+    @Test
+    public void testCopyNotSerializedObj() {
+        NotSerial[] expected = Arrays.asList(new NotSerial(), new NotSerial()).toArray(new NotSerial[0]);
+        NotSerial[] actual = RulesUtils.copy(expected);
+
+        assertNotSame(expected, actual);
+        assertArraysEquals(expected, actual);
+    }
+
+    private <T> void assertListEquals(List<T> expected, List<T> actual) {
+        assertNotNull(expected);
+        assertNotNull(actual);
+        assertEquals(expected.size(), actual.size());
+        for (int i = 0; i < expected.size(); i++) {
+            assertNotSame(expected.get(i), actual.get(i));
+            assertEquals(expected.get(i), actual.get(i));
+        }
+    }
+
+    private <T> void assertArraysEquals(T[] expected, T[] actual) {
+        assertNotNull(expected);
+        assertNotNull(actual);
+        assertEquals(expected.length, actual.length);
+        for (int i = 0; i < expected.length; i++) {
+            assertNotSame(expected[i], actual[i]);
+            assertEquals(expected[i], actual[i]);
+        }
+    }
+
+    private MyClass createNew() {
+        MyClass myClass = new MyClass();
+        myClass.setMyDate(new Date());
+        myClass.setMyString(UUID.randomUUID().toString());
+
+        Point[] points = new Point[5];
+        for (int i = 0; i < points.length; i++) {
+            Point point = new Point();
+            point.setX(i);
+            point.setX(i * 2);
+            points[i] = point;
+        }
+
+        myClass.setPoints(points);
+        return myClass;
+    }
+
+    public static class NotSerial {
+        private String myString = UUID.randomUUID().toString();
+
+        public String getMyString() {
+            return myString;
+        }
+
+        public void setMyString(String myString) {
+            this.myString = myString;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            NotSerial notSerial = (NotSerial) o;
+            return Objects.equals(myString, notSerial.myString);
+        }
+
+        @Override
+        public int hashCode() {
+
+            return Objects.hash(myString);
+        }
+    }
+
+    public static class MyClass implements Serializable {
+
+        private String myString;
+        private Date myDate;
+        private Point[] points;
+
+        public String getMyString() {
+            return myString;
+        }
+
+        public void setMyString(String myString) {
+            this.myString = myString;
+        }
+
+        public Date getMyDate() {
+            return myDate;
+        }
+
+        public void setMyDate(Date myDate) {
+            this.myDate = myDate;
+        }
+
+        public Point[] getPoints() {
+            return points;
+        }
+
+        public void setPoints(Point[] points) {
+            this.points = points;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+            MyClass myClass = (MyClass) o;
+            return Objects.equals(myString, myClass.myString) && Objects.equals(myDate, myClass.myDate) && Arrays
+                    .equals(points, myClass.points);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Objects.hash(myString, myDate);
+            result = 31 * result + Arrays.hashCode(points);
+            return result;
+        }
+    }
+
+    public static class Point implements Serializable {
+        private int x;
+        private int y;
+
+        public int getX() {
+            return x;
+        }
+
+        public void setX(int x) {
+            this.x = x;
+        }
+
+        public int getY() {
+            return y;
+        }
+
+        public void setY(int y) {
+            this.y = y;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+            Point point = (Point) o;
+            return x == point.x && y == point.y;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(x, y);
+        }
     }
 
     private static class Some {

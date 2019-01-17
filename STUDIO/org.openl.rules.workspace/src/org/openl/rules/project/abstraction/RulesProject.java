@@ -25,7 +25,7 @@ public class RulesProject extends UserWorkspaceProject {
             LocalRepository localRepository, FileData localFileData,
             Repository designRepository, FileData designFileData, LockEngine lockEngine) {
         super(userWorkspace.getUser(), localFileData != null ? localRepository : designRepository,
-                localFileData != null ? localFileData : designFileData, localFileData != null);
+                localFileData != null ? localFileData : designFileData);
         this.localRepository = localRepository;
         this.localFolderName = localFileData == null ? null : localFileData.getName();
         this.designRepository = designRepository;
@@ -63,8 +63,8 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public void save(CommonUser user) throws ProjectException {
-        AProject designProject = new AProject(designRepository, designFolderName, false);
-        AProject localProject = new AProject(localRepository, localFolderName, true);
+        AProject designProject = new AProject(designRepository, designFolderName);
+        AProject localProject = new AProject(localRepository, localFolderName);
         designProject.getFileData().setComment(getFileData().getComment());
         designProject.update(localProject, user);
         String version = designProject.getFileData().getVersion();
@@ -104,7 +104,6 @@ public class RulesProject extends UserWorkspaceProject {
                 if (!isRepositoryOnly()) {
                     localRepository.getProjectState(localFolderName).setProjectVersion(null);
                 }
-                setFolderStructure(false);
             }
         } finally {
             refresh();
@@ -166,7 +165,7 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     @Override
-    public void unlock() throws ProjectException {
+    public void unlock() {
         synchronized (lockEngine) {
             lockEngine.unlock(getName());
         }
@@ -241,7 +240,7 @@ public class RulesProject extends UserWorkspaceProject {
         } catch (IOException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
-        List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
+        List<ProjectVersion> versions = new ArrayList<>();
         for (FileData data : fileDatas) {
             versions.add(createProjectVersion(data));
         }
@@ -261,15 +260,14 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     public void openVersion(String version) throws ProjectException {
-        AProject designProject = new AProject(designRepository, designFolderName, version, false);
+        AProject designProject = new AProject(designRepository, designFolderName, version);
 
         if (localFolderName == null) {
             localFolderName = designProject.getName();
         }
-        new AProject(localRepository, localFolderName, true).update(designProject, getUser());
+        new AProject(localRepository, localFolderName).update(designProject, getUser());
         setRepository(localRepository);
         setFolderPath(localFolderName);
-        setFolderStructure(true);
 
         setHistoryVersion(version);
 

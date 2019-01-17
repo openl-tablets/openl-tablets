@@ -24,11 +24,6 @@ public class JavaMapAggregateInfo implements IAggregateInfo {
             return JavaOpenClass.OBJECT;
         }
 
-        @Override
-        public Collection getIndexes(Object container) {
-            return ((Map) container).keySet();
-        }
-
         @SuppressWarnings("unchecked")
         public Object getValue(Object container, Object index) {
             return container == null ? null : ((Map<Object, Object>) container).get(index);

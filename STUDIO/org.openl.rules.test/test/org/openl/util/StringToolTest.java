@@ -468,14 +468,4 @@ public class StringToolTest extends TestCase {
         assertTrue(escapedTokens7.length == 1);
         assertTrue("  Trucks  , Tractors  , And Trailers Zone Rated".equals(escapedTokens7[0]));
     }
-    
-    @Test
-    public void testInsertStringToString() {
-        String insertion = "\\";
-        String strToInsertAfter = COMMA;
-        String baseString = "Spencer,Sara`s son";
-        
-        String result = StringTool.insertStringToString(baseString, strToInsertAfter, insertion);
-        assertEquals("Spencer\\,Sara`s son", result);
-    }
 }

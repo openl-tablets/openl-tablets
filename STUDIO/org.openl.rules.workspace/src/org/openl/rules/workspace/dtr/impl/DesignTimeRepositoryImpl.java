@@ -34,7 +34,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private final Logger log = LoggerFactory.getLogger(DesignTimeRepositoryImpl.class);
 
     private static final String RULES_LOCATION_CONFIG_NAME = "design-repository.rules.path";
-    private static final String DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME = "design-repository.deployments.path";
+    private static final String DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME = "design-repository.deployment-configs.path";
 
     private Repository repository;
     private String rulesLocation;
@@ -42,10 +42,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     /**
      * Project Cache
      */
-    private final HashMap<String, AProject> projects = new HashMap<String, AProject>();
-    private final HashMap<String, AProject> projectsVersions = new HashMap<String, AProject>();
+    private final HashMap<String, AProject> projects = new HashMap<>();
+    private final HashMap<String, AProject> projectsVersions = new HashMap<>();
 
-    private final List<DesignTimeRepositoryListener> listeners = new ArrayList<DesignTimeRepositoryListener>();
+    private final List<DesignTimeRepositoryListener> listeners = new ArrayList<>();
 
     private Map<String, Object> config;
 
@@ -62,12 +62,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         try {
             repository = createConnection(config);
 
-            Object path;
-            path = config.get(RULES_LOCATION_CONFIG_NAME);
-            rulesLocation = preparePathPrefix(path == null ? "DESIGN/rules" : path.toString());
+            rulesLocation = config.get(RULES_LOCATION_CONFIG_NAME).toString();
 
-            path = config.get(DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME);
-            deploymentConfigurationLocation = preparePathPrefix(path == null ? "DESIGN/deployments" : path.toString());
+            deploymentConfigurationLocation = config.get(DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME).toString();
 
             addListener(new DesignTimeRepositoryListener() {
                 @Override
@@ -86,16 +83,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         repository.setListener(new RepositoryListener(listeners));
     }
 
-    private String preparePathPrefix(String path) {
-        if (path.startsWith("/")) {
-            path = path.substring(1);
-        }
-        if (path.endsWith("/")) {
-            path = path.substring(0, path.length() - 1);
-        }
-        return path;
-    }
-
     public Repository createConnection(Map<String, Object> properties) throws RRepositoryException {
         return RepositoryFactoryInstatiator.newFactory(properties, true);
     }
@@ -106,7 +93,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
 
         try {
-            AProject newProject = new AProject(getRepository(), rulesLocation + "/" + name, false);
+            AProject newProject = new AProject(getRepository(), rulesLocation + name);
 
             newProject.setResourceTransformer(resourceTransformer);
             newProject.update(project, user);
@@ -124,8 +111,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
     }
 
-    public AProject createProject(String name) throws RepositoryException {
-        return new AProject(getRepository(), rulesLocation + "/" + name, false);
+    public AProject createProject(String name) {
+        return new AProject(getRepository(), rulesLocation + name);
     }
 
     public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
@@ -137,15 +124,20 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     public ADeploymentProject.Builder createDeploymentConfigurationBuilder(String name) {
-        return new ADeploymentProject.Builder(getRepository(), deploymentConfigurationLocation + "/" + name);
+        return new ADeploymentProject.Builder(getRepository(), deploymentConfigurationLocation + name);
     }
 
     public List<ADeploymentProject> getDDProjects() throws RepositoryException {
-        LinkedList<ADeploymentProject> result = new LinkedList<ADeploymentProject>();
+        LinkedList<ADeploymentProject> result = new LinkedList<>();
 
         Collection<FileData> fileDatas;
         try {
-            fileDatas = getRepository().list(deploymentConfigurationLocation);
+            String path = deploymentConfigurationLocation;
+            if (repository instanceof FolderRepository) {
+                fileDatas = ((FolderRepository) repository).listFolders(path);
+            } else {
+                fileDatas = repository.list(path);
+            }
         } catch (IOException e) {
             throw new RepositoryException("Cannot read the deploy repository", e);
         }
@@ -168,28 +160,34 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             }
 
             // TODO: Seems we never reach here. Is the code below really needed?
-            project = new AProject(getRepository(), rulesLocation + "/" + name, false);
+            project = new AProject(getRepository(), rulesLocation + name);
             projects.put(project.getName(), project);
         }
         return project;
     }
 
-    public AProject getProject(String name, CommonVersion version) throws RepositoryException {
+    public AProject getProject(String name, CommonVersion version) {
         String key = String.format("%s:%s", name, version.getVersionName());
         AProject project = projectsVersions.get(key);
         if (project == null) {
-            project = new AProject(getRepository(), rulesLocation + "/" + name, version.getVersionName(), false);
+            project = new AProject(getRepository(), rulesLocation + name, version.getVersionName());
             projectsVersions.put(key, project);
         }
         return project;
     }
 
     public Collection<AProject> getProjects() {
-        List<AProject> result = new LinkedList<AProject>();
+        List<AProject> result = new LinkedList<>();
 
         Collection<FileData> fileDatas;
+        Repository repository = getRepository();
         try {
-            fileDatas = getRepository().list(rulesLocation);
+            String path = rulesLocation;
+            if (repository instanceof FolderRepository) {
+                fileDatas = ((FolderRepository) repository).listFolders(path);
+            } else {
+                fileDatas = repository.list(path);
+            }
         } catch (IOException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
@@ -197,7 +195,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             projects.clear();
             projectsVersions.clear();
             for (FileData fileData : fileDatas) {
-                AProject project = new AProject(getRepository(), fileData, false);
+                AProject project = new AProject(repository, fileData);
                 // get from the repository
                 result.add(project);
                 projects.put(project.getName(), project);
@@ -208,7 +206,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     public boolean hasDDProject(String name) {
         try {
-            return getRepository().check(deploymentConfigurationLocation + "/" + name) != null;
+            return getRepository().check(deploymentConfigurationLocation + name) != null;
         } catch (IOException ex) {
             return false;
         }
@@ -257,6 +255,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             init();
         }
         return repository;
+    }
+
+    @Override
+    public String getRulesLocation() {
+        return rulesLocation;
     }
 
     private static class RepositoryListener implements Listener {

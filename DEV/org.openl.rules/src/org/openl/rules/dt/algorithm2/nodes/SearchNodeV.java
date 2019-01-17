@@ -2,12 +2,35 @@ package org.openl.rules.dt.algorithm2.nodes;
 
 import org.openl.rules.dt.algorithm2.DecisionTableSearchTree.SearchContext;
 import org.openl.rules.dt.algorithm2.ISearchTreeNode;
-import org.openl.util.trie.cnodes.ARTNode0Vi;
 
-public class SearchNodeV extends ARTNode0Vi implements ISearchTreeNode{
+public class SearchNodeV implements ISearchTreeNode{
 
-	public SearchNodeV(int[] values) {
-		super(0, values);
+	SearchNodeV(int[] values) {
+		this.values = values;
+	}
+
+	private static final int MAGIC_VALUE = 0xffffffff;
+
+	int[] values;
+
+	@Override
+	public Object getValue(int index) {
+		return values[index] == 0 ? null : MAGIC_VALUE - values[index];
+	}
+
+	@Override
+	public void setValue(int index, Object value) {
+		values[index] = MAGIC_VALUE - (Integer)value;
+	}
+
+	@Override
+	public void setNode(int index, IARTNode node) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public IARTNode findNode(int index) {
+		return null;
 	}
 
 	@Override
@@ -26,5 +49,4 @@ public class SearchNodeV extends ARTNode0Vi implements ISearchTreeNode{
 	public ISearchTreeNode compactSearchNode() {
 		return this;
 	}
-
 }

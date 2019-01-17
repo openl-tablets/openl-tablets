@@ -106,9 +106,9 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                 FileData fileData = localRepository.getProjectState(name).getFileData();
                 if (fileData == null) {
                     String version = localRepository.getProjectState(name).getProjectVersion();
-                    lpi = new AProject(getRepository(), name, version, true);
+                    lpi = new AProject(getRepository(), name, version);
                 } else {
-                    lpi = new AProject(getRepository(), fileData, true);
+                    lpi = new AProject(getRepository(), fileData);
                 }
                 synchronized (localProjects) {
                     localProjects.put(name, lpi);
@@ -136,11 +136,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             localProjects.clear();
         }
 
-        try {
-            localRepository.close();
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
+        localRepository.close();
 
         for (LocalWorkspaceListener lwl : new ArrayList<>(listeners)) {
             lwl.workspaceReleased(this);

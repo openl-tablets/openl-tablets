@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.studio-pom</artifactId>
-        <version>5.21.10-SNAPSHOT</version>
+        <version>5.21.13-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>org.openl.rules.webstudio</artifactId>
@@ -163,17 +163,11 @@
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.repository.jcr.modeshape</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.jboss.spec.javax.transaction</groupId>
-                    <artifactId>jboss-transaction-api_1.1_spec</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>org.openl.rules.repository.aws</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.repository.aws</artifactId>
+            <artifactId>org.openl.rules.repository.git</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
@@ -190,10 +184,6 @@
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.calculation.result</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.extension.xmlrules</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>

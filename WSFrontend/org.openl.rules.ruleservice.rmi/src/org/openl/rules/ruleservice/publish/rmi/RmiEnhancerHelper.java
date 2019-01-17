@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
 
@@ -20,7 +21,7 @@ import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
  */
 public class RmiEnhancerHelper {
 
-    private static ClassLoader getClassLoader(OpenLService service) {
+    private static ClassLoader getClassLoader(OpenLService service) throws RuleServiceInstantiationException{
         ClassLoader classLoader = null;
         if (service != null) {
             classLoader = service.getClassLoader();

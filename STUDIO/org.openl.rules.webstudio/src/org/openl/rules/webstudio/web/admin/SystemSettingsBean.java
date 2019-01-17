@@ -8,14 +8,12 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
-import javax.servlet.ServletException;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
@@ -60,7 +58,7 @@ public class SystemSettingsBean {
     public void afterPropertiesSet() {
         configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
 
-        designRepositoryConfiguration = new RepositoryConfiguration("", configManager, RepositoryType.DESIGN);
+        designRepositoryConfiguration = new RepositoryConfiguration("", configManager, RepositoryMode.DESIGN);
 
         productionRepositoryEditor = new ProductionRepositoryEditor(configManager,
                 productionConfigManagerFactory,
@@ -168,17 +166,12 @@ public class SystemSettingsBean {
 
             productionRepositoryEditor.validate();
             productionRepositoryEditor.save(new ProductionRepositoryEditor.Callback() {
-                @Override public void onDelete(String configName) throws RRepositoryException {
+                @Override public void onDelete(String configName) {
                     deploymentManager.removeRepository(configName);
                 }
 
                 @Override public void onRename(String oldConfigName, String newConfigName) {
-                    try {
-                        deploymentManager.removeRepository(oldConfigName);
-                    } catch (RRepositoryException e) {
-                        log.error(e.getMessage(), e);
-                    }
-
+                    deploymentManager.removeRepository(oldConfigName);
                     deploymentManager.addRepository(newConfigName);
                 }
             });
@@ -190,7 +183,7 @@ public class SystemSettingsBean {
         }
     }
 
-    private void saveSystemConfig() throws ServletException {
+    private void saveSystemConfig() {
         // TODO: This line also do configManager.save() implicitly
         boolean saved = designRepositoryConfiguration.save();
         if (saved) {
@@ -198,7 +191,7 @@ public class SystemSettingsBean {
         }
     }
 
-    public void restoreDefaults() throws ServletException {
+    public void restoreDefaults() {
         productionRepositoryEditor.revertChanges();
 
         // We cannot invoke configManager.restoreDefaults(): in this case some 
@@ -227,7 +220,7 @@ public class SystemSettingsBean {
     public void deleteProductionRepository(String configName) {
         try {
             productionRepositoryEditor.deleteProductionRepository(configName, new ProductionRepositoryEditor.Callback() {
-                @Override public void onDelete(String configName) throws RRepositoryException {
+                @Override public void onDelete(String configName) {
                     /* Delete Production repo from tree */
                     productionRepositoriesTreeController.deleteProdRepo(configName);
                 }
@@ -251,7 +244,7 @@ public class SystemSettingsBean {
         this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
     }
 
-    private void refreshConfig() throws ServletException {
+    private void refreshConfig() {
         WebStudioUtils.getWebStudio().setNeedRestart(true);
         ReloadableDelegatingFilter.reloadApplicationContext(FacesUtils.getServletContext());
     }

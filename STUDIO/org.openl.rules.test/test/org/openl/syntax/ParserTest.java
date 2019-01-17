@@ -10,8 +10,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.junit.Assert;
-import junit.framework.TestCase;
-
 import org.openl.OpenL;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.impl.DoubleNodeBinder;
@@ -22,14 +20,12 @@ import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.impl.ASyntaxNode;
 import org.openl.syntax.impl.BinaryNode;
 import org.openl.syntax.impl.NaryNode;
-import org.openl.util.ASelector;
-import org.openl.util.ISelector;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
-import org.openl.util.tree.TreeIterator;
+
+import junit.framework.TestCase;
 
 /**
  * @author snshor
@@ -37,12 +33,21 @@ import org.openl.util.tree.TreeIterator;
  */
 public class ParserTest extends TestCase {
 
-    public static void main(String[] args) {
 
-        String src = " x < y + 10";
-        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
-        IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
-        System.out.println(pc.getTopNode());
+    private static ISyntaxNode search(ISyntaxNode topNode, String type) {
+        Class<?> c = null;
+        if (topNode.getType().equals(type)) {
+            return topNode;
+        }
+        int children = topNode.getNumberOfChildren();
+        for (int i = 0; i < children; i++) {
+            ISyntaxNode child = search(topNode.getChild(i), type);
+            if (child != null) {
+                return child;
+            }
+
+        }
+        return null;
 
     }
 
@@ -56,14 +61,12 @@ public class ParserTest extends TestCase {
     }
 
     @SuppressWarnings("unchecked")
-    public void _testLiteral(String src, String res, String type) throws OpenConfigurationException {
+    public void _testLiteral(String src, String res, final String type) throws OpenConfigurationException {
 
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
 
-        TreeIterator it = new TreeIterator<ISyntaxNode>(pc.getTopNode(), ASyntaxNode.TREE_ADAPTOR, TreeIterator.DEFAULT);
-
-        ILiteralNode ln = (ILiteralNode) it.select(ASelector.selectClass(ILiteralNode.class)).next();
+        ILiteralNode ln = (ILiteralNode) search(pc.getTopNode(), type);
 
         Assert.assertEquals(res, ln.getImage());
         Assert.assertEquals(type, ln.getType());
@@ -92,29 +95,19 @@ public class ParserTest extends TestCase {
             throw new CompositeSyntaxNodeException("Parsing Error:", error);
         }
 
-        TreeIterator it = new TreeIterator(pc.getTopNode(), ASyntaxNode.TREE_ADAPTOR, TreeIterator.DEFAULT);
+        ISyntaxNode bn = search(pc.getTopNode(), type);
 
-        ISelector sel = new ASelector() {
-            public boolean select(Object obj) {
-                return ((ISyntaxNode) obj).getType().equals(type);
-            }
-        };
-
-        ISyntaxNode bn = (ISyntaxNode) it.select(sel).next();
         Assert.assertNotNull(bn);
 
         Assert.assertEquals(type, bn.getType());
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends ISyntaxNode> T  _testOperator(String src, Class<T> nodeType) throws OpenConfigurationException {
+    public <T extends ISyntaxNode> T  _testOperator(String src, final String type) throws OpenConfigurationException {
  
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
-
-        TreeIterator it = new TreeIterator(pc.getTopNode(), ASyntaxNode.TREE_ADAPTOR, TreeIterator.DEFAULT);
-
-        return (T) it.select(ASelector.selectClass(nodeType)).next();
+        return (T) search(pc.getTopNode(), type);
     }
 
 
@@ -147,32 +140,22 @@ public class ParserTest extends TestCase {
             throw new CompositeSyntaxNodeException("Parsing Error:", error);
         }
 
-        TreeIterator it = new TreeIterator(pc.getTopNode(), ASyntaxNode.TREE_ADAPTOR, TreeIterator.DEFAULT);
-
-        ISelector sel = new ASelector() {
-            public boolean select(Object obj) {
-                return ((ISyntaxNode) obj).getType().equals(type);
-            }
-        };
-
-        ISyntaxNode bn = (ISyntaxNode) it.select(sel).next();
+        ISyntaxNode bn = search(pc.getTopNode(), type);
         Assert.assertNotNull(bn);
 
         Assert.assertEquals(type, bn.getType());
     }
 
     @SuppressWarnings("unchecked")
-    public void _testNumberParseAndBind(INodeBinder binder, String src, Object res, Class<?> type) throws Exception {
+    public void _testNumberParseAndBind(INodeBinder binder, String src, Object res, Class<?> clazz, final String type) throws Exception {
 
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
 
-        TreeIterator it = new TreeIterator<ISyntaxNode>(pc.getTopNode(), ASyntaxNode.TREE_ADAPTOR, TreeIterator.DEFAULT);
-
-        ILiteralNode ln = (ILiteralNode) it.select(ASelector.selectClass(ILiteralNode.class)).next();
+        ILiteralNode ln = (ILiteralNode) search(pc.getTopNode(), type);
 
         LiteralBoundNode literalBoundNode = (LiteralBoundNode) binder.bind(ln, null);
-        Assert.assertEquals(type, literalBoundNode.getType().getInstanceClass());
+        Assert.assertEquals(clazz, literalBoundNode.getType().getInstanceClass());
         Assert.assertEquals(res, literalBoundNode.getValue());
     }
 
@@ -264,27 +247,26 @@ public class ParserTest extends TestCase {
     }
 
     public void testOperator() throws OpenConfigurationException {
-        BinaryNode binaryNode = _testOperator("x+y", BinaryNode.class);
-        Assert.assertEquals("op.binary.add", binaryNode.getType());
+        BinaryNode binaryNode = _testOperator("x+y", "op.binary.add");
+        Assert.assertNotNull(binaryNode);
         
-        binaryNode = _testOperator("x-3", BinaryNode.class);
-        Assert.assertEquals("op.binary.subtract", binaryNode.getType());
+        binaryNode = _testOperator("x-3", "op.binary.subtract");
+        Assert.assertNotNull(binaryNode);
 
-        binaryNode = _testOperator("x%3", BinaryNode.class);
-        Assert.assertEquals("op.binary.rem", binaryNode.getType());
+        binaryNode = _testOperator("x%3", "op.binary.rem");
+        Assert.assertNotNull(binaryNode);
 
-        binaryNode = _testOperator("x is less than 3", BinaryNode.class);
-        Assert.assertEquals("op.binary.lt", binaryNode.getType());
+        binaryNode = _testOperator("x is less than 3", "op.binary.lt");
+        Assert.assertNotNull(binaryNode);
 
-        binaryNode = _testOperator("x or y", BinaryNode.class);
-        Assert.assertEquals("op.binary.or", binaryNode.getType());
+        binaryNode = _testOperator("x or y", "op.binary.or");
+        Assert.assertNotNull(binaryNode);
 
-        binaryNode = _testOperator("x and y", BinaryNode.class);
-        Assert.assertEquals("op.binary.and", binaryNode.getType());
+        binaryNode = _testOperator("x and y", "op.binary.and");
+        Assert.assertNotNull(binaryNode);
 
-        NaryNode naryNode = _testOperator("x?y: z", NaryNode.class);
-        Assert.assertEquals("op.ternary.qmark", naryNode.getChild(0).getType());
-
+        NaryNode naryNode = _testOperator("x?y: z", "op.ternary.qmark");
+        Assert.assertNotNull(naryNode);
     }
 
     public void testParse() {
@@ -294,12 +276,12 @@ public class ParserTest extends TestCase {
     }
 
     public void testNumberParseAndBind() throws Exception {
-        _testNumberParseAndBind(new IntNodeBinder(), "1000000", 1000000, int.class);
-        _testNumberParseAndBind(new IntNodeBinder(), "1000000000000", 1000000000000L, long.class);
-        _testNumberParseAndBind(new IntNodeBinder(), "10000000000000000000", new BigInteger("10000000000000000000"), BigInteger.class);
+        _testNumberParseAndBind(new IntNodeBinder(), "1000000", 1000000, int.class, "literal.integer");
+        _testNumberParseAndBind(new IntNodeBinder(), "1000000000000", 1000000000000L, long.class, "literal.integer");
+        _testNumberParseAndBind(new IntNodeBinder(), "10000000000000000000", new BigInteger("10000000000000000000"), BigInteger.class, "literal.integer");
         
-        _testNumberParseAndBind(new DoubleNodeBinder(), "1e+308", Double.valueOf("1e+308"), double.class);
-        _testNumberParseAndBind(new DoubleNodeBinder(), "2e+308", new BigDecimal("2e+308"), BigDecimal.class);
+        _testNumberParseAndBind(new DoubleNodeBinder(), "1e+308", Double.valueOf("1e+308"), double.class, "literal.real");
+        _testNumberParseAndBind(new DoubleNodeBinder(), "2e+308", new BigDecimal("2e+308"), BigDecimal.class, "literal.real");
     }
 
 }

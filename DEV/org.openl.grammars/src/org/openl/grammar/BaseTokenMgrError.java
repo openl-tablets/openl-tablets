@@ -1,7 +1,7 @@
 package org.openl.grammar;
 
 @SuppressWarnings("serial")
-public class BaseTokenMgrError extends Error{
+public class BaseTokenMgrError extends RuntimeException {
 
 	boolean eOFSeen; 
 	int lexState; 
@@ -10,8 +10,6 @@ public class BaseTokenMgrError extends Error{
 	String errorAfter; 
 	char curChar; 
 	int reason;
-	
-	
 	
 	public BaseTokenMgrError(String message) {
 		super(message);
@@ -58,36 +56,24 @@ public class BaseTokenMgrError extends Error{
 		return errorColumn > 0 ? errorColumn - Math.min(len, errorColumn-1) : 0;
 		
 	}
-	
-	
-	
 
-	@Override
-	public String getMessage() {
-		if (errorAfter == null || errorAfter.length() == 0)
-			return super.getMessage();
-		
-		char c = errorAfter.charAt(0);
-		if (!eOFSeen)
-		{
-			return ParserErrorMessage.printUnexpectedSymbolAfter(errorAfter, curChar);
-		}	
-		
-		
-		switch(c)
-		{
-			case '\'':
-			case '\"':
-				return ParserErrorMessage.printNeedToClose(errorAfter, c);
-		}
-			
-			
-		
-		
-		return super.getMessage();
-	}
+    @Override
+    public String getMessage() {
+        if (errorAfter == null || errorAfter.length() == 0)
+            return super.getMessage();
 
-	
-	
+        char c = errorAfter.charAt(0);
+        if (!eOFSeen) {
+            return ParserErrorMessage.printUnexpectedSymbolAfter(errorAfter, curChar);
+        }
+
+        switch (c) {
+            case '\'':
+            case '\"':
+                return ParserErrorMessage.printNeedToClose(errorAfter, c);
+        }
+
+        return super.getMessage();
+    }
 	
 }

@@ -9,7 +9,7 @@ import org.openl.util.Log;
  * Write a try-catch block and wrap throwed exception in this Wrapper
  */
 
-public class RTExceptionWrapper extends RuntimeException implements ExceptionWrapper {
+public class RTExceptionWrapper extends RuntimeException {
 
     Throwable _t;
 
@@ -43,10 +43,6 @@ public class RTExceptionWrapper extends RuntimeException implements ExceptionWra
             }
         }
         return errMsg;
-    }
-
-    public Throwable getTargetException() {
-        return _t;
     }
 
     @Override

@@ -12,7 +12,6 @@ import org.openl.binding.INameSpacedTypeFactory;
 import org.openl.binding.INameSpacedVarFactory;
 import org.openl.binding.INodeBinderFactory;
 import org.openl.syntax.grammar.IGrammarFactory;
-import org.openl.types.IOpenFactory;
 
 /**
  * @author snshor
@@ -24,7 +23,5 @@ public interface IOpenLConfiguration extends IGrammarFactory, INodeBinderFactory
     void addOpenFactory(IOpenFactoryConfiguration opfc) throws OpenConfigurationException;
 
     IConfigurableResourceContext getConfigurationContext();
-
-    IOpenFactory getOpenFactory(String name);
 
 }

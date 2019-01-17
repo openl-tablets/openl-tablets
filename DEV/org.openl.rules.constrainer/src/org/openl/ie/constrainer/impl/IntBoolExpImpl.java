@@ -45,29 +45,12 @@ abstract public class IntBoolExpImpl extends IntExpImpl implements IntBoolExp {
         return this.equals(1);
     }
 
-    public IntBoolExp eq(boolean b) {
-        return this.eq(b ? 1 : 0);
-    }
-
-    public IntBoolExp implies(boolean value) {
-        return not().or(value);
-    }
-
-    public IntBoolExp implies(IntBoolExp exp) {
-        return not().or(exp);
-    }
-
     public boolean isFalse() {
         return max() == 0;
     }
 
     public boolean isTrue() {
         return min() == 1;
-    }
-
-    public IntBoolExp not() {
-        // return new IntBoolExpNot(this);
-        return getIntBoolExp(IntBoolExpNot.class, this);
     }
 
     public IntBoolExp or(boolean value) {

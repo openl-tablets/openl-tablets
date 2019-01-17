@@ -129,7 +129,7 @@
         <span id="searchInput">
             <input type="text" id="searchQuery" placeholder="#{msg['ws.search.input']}" />
             <a href="javascript:void(0)" onclick="ws.ui.showPopupMenu(event, 'advancedSearch', $j(this).parent(), {'offsetTop': 6, 'closeIcon': true})">
-                <img src="webresource/images/arrow_down.png" title="#{msg['ws.search.advanced']}" style="opacity: 0.7" />
+                <img src="#{request.contextPath}/webresource/images/arrow_down.png" title="#{msg['ws.search.advanced']}" style="opacity: 0.7" />
             </a>
         </span>
         <div id="advancedSearch">
@@ -168,7 +168,7 @@
                             <td style="padding-left: 5px">
                                 <a href="javascript:void(0)" id="removePropBtn1" title="#{msg['ws.common.icon.remove']}" class="removeBtn"
                                     onclick="removeProperty($j(this).parent().prev().find('input:first').val());"><img
-                                    src="webresource/images/close.gif" /></a>
+                                    src="#{request.contextPath}/webresource/images/close.gif" /></a>
                             </td>
                         </tr>
                         </a4j:repeat>

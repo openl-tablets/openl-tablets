@@ -4,7 +4,7 @@
   xmlns:a4j="http://richfaces.org/a4j"
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:c="http://java.sun.com/jsp/jstl/core">
+>
 
   <style>
       #modalAddRepoConnectionForm .titleColumn {
@@ -37,11 +37,10 @@
                 <f:selectItem itemValue="local" itemLabel="Local" />
                 <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
                 <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
-                <f:selectItem itemValue="plain_db" itemLabel="Database (Plain JDBC)" />
-                <f:selectItem itemValue="plain_jndi" itemLabel="Database (Plain JNDI)" />
-                <f:selectItem itemValue="db" itemLabel="Database (JCR over JDBC)" />
-                <f:selectItem itemValue="jndi" itemLabel="Database (JCR over JNDI)" />
+                <f:selectItem itemValue="db" itemLabel="Database (JDBC)" />
+                <f:selectItem itemValue="jndi" itemLabel="Database (JNDI)" />
                 <f:selectItem itemValue="aws_s3" itemLabel="AWS S3" />
+                <f:selectItem itemValue="git" itemLabel="Git" />
             </h:selectOneMenu>
         </h:panelGrid>
         <h:panelGroup id="productionParameters">
@@ -53,6 +52,12 @@
             </h:panelGroup>
             <h:panelGroup rendered="#{connectionProductionRepoController.repositoryConfiguration.formType == 'aws_s3'}">
                 <ui:include src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
+                    <ui:param name="repository" value="#{connectionProductionRepoController.repositoryConfiguration}" />
+                    <ui:param name="isProduction" value="true" />
+                </ui:include>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{connectionProductionRepoController.repositoryConfiguration.formType == 'git'}">
+                <ui:include src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
                     <ui:param name="repository" value="#{connectionProductionRepoController.repositoryConfiguration}" />
                     <ui:param name="isProduction" value="true" />
                 </ui:include>

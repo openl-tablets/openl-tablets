@@ -125,7 +125,7 @@
 <body>
 <div id="header">OpenL Tablets Web Services</div>
 <div id="main"></div>
-<div id="footer">&#169; 2018 <a href="http://openl-tablets.org" target="_blank">OpenL Tablets</a></div>
+<div id="footer">&#169; 2019 <a href="http://openl-tablets.org" target="_blank">OpenL Tablets</a></div>
 <script>
     // Get JSON of available services
     var services = <%= services %>;

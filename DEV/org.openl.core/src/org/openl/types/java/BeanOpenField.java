@@ -37,7 +37,7 @@ public class BeanOpenField implements IOpenField {
         }
 
         try {
-            BeanInfo info = Introspector.getBeanInfo(c);
+            BeanInfo info = Introspector.getBeanInfo(c, c.getSuperclass());
             PropertyDescriptor[] pds = info.getPropertyDescriptors();
             for (PropertyDescriptor pd : pds) {
                 if (pd.getPropertyType() == null) {

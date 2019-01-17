@@ -51,20 +51,6 @@ public class Overlapping {
             return bit;
         }
 
-        public boolean isInCombinedStatus(int status)
-        {
-            return (bit & status) != 0;
-        }
-        
-        static int combine(OverlappingStatus s1, OverlappingStatus s2, OverlappingStatus s3)
-        {
-            return s1.bit | s2.bit | s3.bit;
-        }
-
-        static int combine(OverlappingStatus s1, OverlappingStatus s2)
-        {
-            return s1.bit | s2.bit;
-        }
     }
     
     

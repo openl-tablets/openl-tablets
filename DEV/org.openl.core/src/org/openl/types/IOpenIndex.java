@@ -6,8 +6,6 @@
 
 package org.openl.types;
 
-import java.util.Collection;
-
 /**
  * @author snshor
  *
@@ -17,8 +15,6 @@ public interface IOpenIndex {
     IOpenClass getElementType();
 
     IOpenClass getIndexType();
-
-    Collection getIndexes(Object container);
 
     Object getValue(Object container, Object index);
 

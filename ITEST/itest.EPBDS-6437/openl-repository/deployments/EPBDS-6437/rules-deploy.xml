@@ -10,4 +10,8 @@
     <serviceClass>org.openl.rules.itest.rules.Service</serviceClass>
     <!-- //STATIC INTERFACE -->
     <url>EPBDS-6437</url>
+    <lazy-modules-for-compilation>
+        <!-- Compile of the rules on startup rather than on demand -->
+        <module name="*"/>
+    </lazy-modules-for-compilation>
 </rules-deploy>

@@ -37,13 +37,13 @@
             <td>
                 <a href="javascript:void(0)"
                     onclick="editGroup('#{jsffn:toJSText(group.name)}', '#{jsffn:toJSText(group.description)}', #{groupsBean.isOnlyAdmin(group)})"
-                    title="Edit"><img src="webresource/images/edit2.gif" /></a>
+                    title="Edit"><img src="#{request.contextPath}/images/edit2.gif" /></a>
                 <a4j:commandLink execute="@this" render=":userList :addGroupPrivilegeList :addUserGroups :editUserGroups @form"
                     rendered="#{!groupsBean.isOnlyAdmin(group)}"
                     action="#{groupsBean.deleteGroup(group.name)}"
                     onclick="if(!window.confirm('Are you sure you want to delete the group?')) {return false;}"
                     title="Delete">
-                    <h:graphicImage url="webresource/images/delete.png" />
+                    <h:graphicImage url="/images/delete.png" />
                 </a4j:commandLink>
             </td>
         </tr>

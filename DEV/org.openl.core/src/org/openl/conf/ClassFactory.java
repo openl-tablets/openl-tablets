@@ -62,14 +62,6 @@ public class ClassFactory extends AConfigurationElement {
         }
     }
 
-    public static Object newInstanceForName(String className, ClassLoader cl) {
-        try {
-            return forName(className, cl).newInstance();
-        } catch (Exception ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
-        }
-    }
-
     static public Class<?> validateClassExistsAndPublic(String className, ClassLoader cl, String uri)
             throws OpenConfigurationException {
         Class<?> c;

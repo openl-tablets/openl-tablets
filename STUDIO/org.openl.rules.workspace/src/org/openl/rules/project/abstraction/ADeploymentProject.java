@@ -4,16 +4,17 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.openl.rules.common.*;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
-import org.openl.rules.repository.api.ArtefactProperties;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.impl.LockInfoImpl;
 import org.openl.util.IOUtils;
@@ -39,7 +40,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
             String folderPath,
             String version,
             LockEngine lockEngine) {
-        super(user, repository, folderPath, version, false);
+        super(user, repository, folderPath, version);
         this.lockEngine = lockEngine;
     }
 
@@ -47,28 +48,23 @@ public class ADeploymentProject extends UserWorkspaceProject {
             Repository repository,
             FileData fileData,
             LockEngine lockEngine) {
-        super(user, repository, fileData, false);
+        super(user, repository, fileData);
         this.lockEngine = lockEngine;
     }
 
     public ADeploymentProject(Repository repository, FileData fileData) {
-        super(null, repository, fileData, false);
+        super(null, repository, fileData);
         lockEngine = null;
     }
 
-    @Override
-    public boolean isFolder() {
-        return false;
-    }
-
-    public void addProjectDescriptor(String name, CommonVersion version) throws ProjectException {
+    public void addProjectDescriptor(String name, CommonVersion version) {
         if (hasProjectDescriptor(name)) {
             removeProjectDescriptor(name);
         }
         getDescriptors().add(new ProjectDescriptorImpl(name, version));
     }
 
-    public boolean hasProjectDescriptor(String name) throws ProjectException {
+    public boolean hasProjectDescriptor(String name) {
         Collection<ProjectDescriptor> pgl = getProjectDescriptors();
 
         if (pgl != null) {
@@ -91,7 +87,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
         throw new ProjectException(String.format("Project descriptor '%s' is not found", name));
     }
 
-    public void openVersion(String version) throws ProjectException {
+    public void openVersion(String version) {
         modifiedDescriptors = false;
         openedVersion = new ADeploymentProject(getUser(), getRepository(), getFolderPath(), version, lockEngine);
         openedVersion.setHistoryVersion(version);
@@ -131,30 +127,46 @@ public class ADeploymentProject extends UserWorkspaceProject {
     @Override
     public void save(CommonUser user) throws ProjectException {
         InputStream inputStream = ProjectDescriptorHelper.serialize(descriptors);
+        if (getRepository() instanceof FolderRepository) {
+            FileData fileData = getFileData();
+            try {
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                IOUtils.copyAndClose(inputStream, out);
 
-        // Archive the folder using zip
-        FileData fileData = getFileData();
-        ZipOutputStream zipOutputStream = null;
-        try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            zipOutputStream = new ZipOutputStream(out);
+                fileData.setAuthor(user == null ? null : user.getUserName());
+                fileData.setSize(out.size());
 
-            ZipEntry entry = new ZipEntry(ArtefactProperties.DESCRIPTORS_FILE);
-            zipOutputStream.putNextEntry(entry);
+                FileChange change = new FileChange(fileData.getName() + "/" + ArtefactProperties.DESCRIPTORS_FILE,
+                        new ByteArrayInputStream(out.toByteArray()));
+                setFileData(((FolderRepository) getRepository()).save(fileData, Collections.singletonList(change)));
+            } catch (IOException e) {
+                throw new ProjectException(e.getMessage(), e);
+            }
+        } else {
+            // Archive the folder using zip
+            FileData fileData = getFileData();
+            ZipOutputStream zipOutputStream = null;
+            try {
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                zipOutputStream = new ZipOutputStream(out);
 
-            IOUtils.copy(inputStream, zipOutputStream);
+                ZipEntry entry = new ZipEntry(ArtefactProperties.DESCRIPTORS_FILE);
+                zipOutputStream.putNextEntry(entry);
 
-            inputStream.close();
-            zipOutputStream.closeEntry();
+                IOUtils.copy(inputStream, zipOutputStream);
 
-            zipOutputStream.close();
-            fileData.setAuthor(user == null ? null : user.getUserName());
-            fileData.setSize(out.size());
-            setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
-        } catch (IOException e) {
-            throw new ProjectException(e.getMessage(), e);
-        } finally {
-            IOUtils.closeQuietly(zipOutputStream);
+                inputStream.close();
+                zipOutputStream.closeEntry();
+
+                zipOutputStream.close();
+                fileData.setAuthor(user == null ? null : user.getUserName());
+                fileData.setSize(out.size());
+                setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
+            } catch (IOException e) {
+                throw new ProjectException(e.getMessage(), e);
+            } finally {
+                IOUtils.closeQuietly(zipOutputStream);
+            }
         }
 
         modifiedDescriptors = false;
@@ -162,7 +174,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
         unlock();
     }
 
-    private void removeProjectDescriptor(String name) throws ProjectException {
+    private void removeProjectDescriptor(String name) {
         Collection<ProjectDescriptor> projectDescriptors = getDescriptors();
         for (ProjectDescriptor descriptor : projectDescriptors) {
             if (descriptor.getProjectName().equals(name)) {
@@ -224,7 +236,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
     private List<ProjectDescriptor> getDescriptors() {
         if (descriptors == null) {
-            descriptors = new ArrayList<ProjectDescriptor>();
+            descriptors = new ArrayList<>();
             ADeploymentProject source = openedVersion == null ? this : openedVersion;
             if (source.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
                 InputStream content = null;
@@ -232,7 +244,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
                     content = ((AProjectResource) source.getArtefact(ArtefactProperties.DESCRIPTORS_FILE)).getContent();
                     descriptors = ProjectDescriptorHelper.deserialize(content);
                     if (descriptors == null) {
-                        descriptors = new ArrayList<ProjectDescriptor>();
+                        descriptors = new ArrayList<>();
                     }
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);

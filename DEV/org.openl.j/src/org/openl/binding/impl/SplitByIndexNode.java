@@ -41,6 +41,9 @@ class SplitByIndexNode extends ABoundNode {
 
         while (elementsIterator.hasNext()) {
             Object element = elementsIterator.next();
+            if (element == null) {
+                continue;
+            }
             tempVar.set(null, element, env);
             Object key = splitBy.evaluate(env);
 

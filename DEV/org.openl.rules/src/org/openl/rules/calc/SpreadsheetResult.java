@@ -7,82 +7,51 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.openl.rules.helpers.ITableAdaptor;
-import org.openl.rules.helpers.TablePrinter;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
 import org.openl.types.java.CustomJavaOpenClass;
+import org.openl.util.CollectionUtils;
 
 /**
  * Serializable bean that handles result of spreadsheet calculation.
- *
  */
 @XmlRootElement
 @CustomJavaOpenClass(type = SpreadsheetResultOpenClass.class, variableInContextFinder = SpreadsheetResultRootDictionaryContext.class)
 public class SpreadsheetResult implements Serializable {
 
     private static final long serialVersionUID = 8704762477153429384L;
+    private static final int MAX_WIDTH = 4;
+    private static final int MAX_HEIGHT = 10;
 
     private Object[][] results;
-    private transient int height;
-    private transient int width;
     private String[] columnNames;
     private String[] rowNames;
-    private transient String[] columnTitles;
-    private transient String[] rowTitles;
     private transient Map<String, Point> fieldsCoordinates = null;
 
     /**
-     * logical representation of calculated spreadsheet table it is needed for
-     * web studio to display results
+     * logical representation of calculated spreadsheet table it is needed for web studio to display results
      */
     private transient ILogicalTable logicalTable;
 
     public SpreadsheetResult() {
     }
 
-    public SpreadsheetResult(int height, int width) {
-        this.height = height;
-        this.width = width;
-        this.columnNames = new String[height];
-        this.rowNames = new String[width];
-        this.results = new Object[height][width];
+    public SpreadsheetResult(Object[][] results, String[] rowNames, String[] columnNames) {
+        this(results, rowNames, columnNames, null);
         initFieldsCoordinates();
     }
 
     public SpreadsheetResult(Object[][] results,
             String[] rowNames,
             String[] columnNames,
-            String[] rowTitles,
-            String[] columnTitles) {
-        this(results, rowNames, columnNames, rowTitles, columnTitles, null);
-        initFieldsCoordinates();
-    }
-    
-    public SpreadsheetResult(Object[][] results,
-            String[] rowNames,
-            String[] columnNames) {
-        this(results, rowNames, columnNames, rowNames, columnNames, null);
-        initFieldsCoordinates();
-    }
-
-    public SpreadsheetResult(Object[][] results,
-            String[] rowNames,
-            String[] columnNames,
-            String[] rowTitles,
-            String[] columnTitles,
             Map<String, Point> fieldsCoordinates) {
         this.columnNames = columnNames.clone();
         this.rowNames = rowNames.clone();
-        this.columnTitles = columnTitles.clone();
-        this.rowTitles = rowTitles.clone();
-        this.height = rowNames.length;
-        this.width = columnNames.length;
         this.results = results;
         this.fieldsCoordinates = fieldsCoordinates;
     }
 
-    public static final Map<String, Point> buildFieldsCoordinates(String[] columnNames, String[] rowNames) {
+    static Map<String, Point> buildFieldsCoordinates(String[] columnNames, String[] rowNames) {
         Map<String, Point> fieldsCoordinates = new HashMap<String, Point>();
         for (int i = 0; i < rowNames.length; i++) {
             for (int j = 0; j < columnNames.length; j++) {
@@ -101,22 +70,9 @@ public class SpreadsheetResult implements Serializable {
         this.fieldsCoordinates = buildFieldsCoordinates(columnNames, rowNames);
     }
 
-    /**
-     * @deprecated use {@link SpreadsheetResult#getHeight()} instead.
-     * 
-     */
-    @Deprecated
-    public int height() {
-        return getHeight();
-    }
-
     @XmlTransient
     public int getHeight() {
-        return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
+        return rowNames.length;
     }
 
     public Object[][] getResults() {
@@ -127,22 +83,9 @@ public class SpreadsheetResult implements Serializable {
         this.results = results.clone();
     }
 
-    /**
-     * @deprecated use {@link SpreadsheetResult#getWidth()} instead.
-     * 
-     */
-    @Deprecated
-    public int width() {
-        return getWidth();
-    }
-
     @XmlTransient
     public int getWidth() {
-        return width;
-    }
-
-    public void setWidth(int width) {
-        this.width = width;
+        return columnNames.length;
     }
 
     public String[] getColumnNames() {
@@ -163,24 +106,6 @@ public class SpreadsheetResult implements Serializable {
 
     public Object getValue(int row, int column) {
         return results[row][column];
-    }
-
-    @XmlTransient
-    public String[] getRowTitles() {
-        return rowTitles;
-    }
-
-    public void setRowTitles(String[] rowTitles) {
-        this.rowTitles = rowTitles;
-    }
-
-    @XmlTransient
-    public String[] getColumnTitles() {
-        return columnTitles;
-    }
-
-    public void setColumnTitles(String[] columnTitles) {
-        this.columnTitles = columnTitles;
     }
 
     public void setFieldValue(String name, Object value) {
@@ -207,18 +132,9 @@ public class SpreadsheetResult implements Serializable {
         return rowNames[row];
     }
 
-    public String getColumnTitle(int column) {
-        return columnTitles[column];
-    }
-
-    public String getRowTitle(int row) {
-        return rowTitles[row];
-    }
-
     /**
      * 
-     * @return logical representation of calculated spreadsheet table it is
-     *         needed for web studio to display results
+     * @return logical representation of calculated spreadsheet table it is needed for web studio to display results
      */
     @XmlTransient
     public ILogicalTable getLogicalTable() {
@@ -250,55 +166,63 @@ public class SpreadsheetResult implements Serializable {
         return fieldsCoordinates.get(name) != null;
     }
 
-    public ITableAdaptor makeTableAdaptor() {
-        return new ITableAdaptor() {
-            // Huge SpreadSheetResult in text format is not human readable, can
-            // crash browser,
-            // slows down and consumes too many memory in IDE while debugging,
-            // so we must truncate such tables.
-            private static final int MAX_WIDTH = 10;
-            private static final int MAX_HEIGHT = 10;
-
-            public int width(int row) {
-                return Math.min(MAX_WIDTH, getWidth() + 1);
-            }
-
-            public int maxWidth() {
-                return Math.min(MAX_WIDTH, getWidth() + 1);
-            }
-
-            public int height() {
-                return Math.min(MAX_HEIGHT, getHeight() + 1);
-            }
-
-            public Object get(int col, int row) {
-                if (col == 0 && row == 0)
-                    return "-X-";
-                if (col == MAX_WIDTH - 1 && MAX_WIDTH <= getWidth() || row == MAX_HEIGHT - 1 && MAX_HEIGHT <= getHeight()) {
-                    return "... TRUNCATED ...";
-                }
-                if (col == 0)
-                    return getRowName(row - 1);
-                if (row == 0)
-                    return getColumnName(col - 1);
-
-                return getValue(row - 1, col - 1);
-            }
-        };
-    }
-
-    public String printAsTable() {
-        return new TablePrinter(makeTableAdaptor(), null, " | ").print();
-    }
-
     @Override
     public String toString() {
         try {
-            return printAsTable();
+            if (CollectionUtils.isEmpty(rowNames) || CollectionUtils.isEmpty(columnNames)) {
+                return "[EMPTY]";
+            } else {
+                return printTable();
+            }
         } catch (Exception e) {
             // If it's impossible to print the table, fallback to default
             // toString() implementation
             return super.toString();
         }
+    }
+
+    private String printTable() {
+        StringBuilder sb = new StringBuilder();
+        int maxWidth = Math.min(MAX_WIDTH, getWidth());
+        int maxHeight = Math.min(MAX_HEIGHT, getHeight());
+
+        int[] width = new int[maxWidth + 1];
+
+        for (int i1 = 0; i1 <= maxHeight; i1++) {
+            for (int j1 = 0; j1 <= maxWidth; j1++) {
+                width[j1] = Math.max(width[j1], getStringValue(j1, i1).length());
+            }
+        }
+
+        for (int i = 0; i <= maxHeight; i++) {
+            for (int j = 0; j <= maxWidth; j++) {
+                if (j != 0) {
+                    sb.append(" | ");
+                }
+                String cell = getStringValue(j, i);
+                sb.append(cell);
+                for (int k = 0; k < width[j] - cell.length(); k++) {
+                    sb.append(' ');
+                }
+            }
+            sb.append('\n');
+        }
+        if (getWidth() > MAX_WIDTH || getHeight() > MAX_HEIGHT) {
+            sb.append("... TRUNCATED TABLE ...");
+        }
+
+        return sb.toString();
+    }
+
+    private String getStringValue(int col, int row) {
+        if (col == 0 && row == 0)
+            return "-X-";
+        if (col == 0)
+            return getRowName(row - 1);
+        if (row == 0)
+            return getColumnName(col - 1);
+
+        Object value = getValue(row - 1, col - 1);
+        return value == null ? "" : String.valueOf(value);
     }
 }

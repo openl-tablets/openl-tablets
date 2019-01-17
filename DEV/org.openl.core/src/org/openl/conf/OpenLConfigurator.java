@@ -6,10 +6,10 @@
 
 package org.openl.conf;
 
+import org.openl.OpenL;
+
 import java.io.File;
 import java.util.Properties;
-
-import org.openl.util.Log;
 
 /**
  *
@@ -38,11 +38,15 @@ public class OpenLConfigurator extends Configurator {
     public static final String OPENL_BUILDER = "OpenLBuilder";
 
     public synchronized IOpenLBuilder getBuilder(String openlName, IUserContext ucxt) throws OpenConfigurationException {
-
         String userHome = ucxt.getUserHome();
-        String altHome = makeAlternativeHome(userHome);
 
-        String[] homes = altHome == null ? new String[] { userHome } : new String[] { userHome, altHome };
+        String[] homes;
+        try {
+            String altHome = new File(userHome + "/../" + OPENL_ALT_CONFIG_ROOT).getCanonicalPath();
+            homes = new String[] { userHome, altHome };
+        } catch (Exception t) {
+            homes = new String[] { userHome };
+        }
 
         ConfigurableResourceContext cxt = new ConfigurableResourceContext(ucxt.getUserClassLoader(), homes);
 
@@ -63,59 +67,32 @@ public class OpenLConfigurator extends Configurator {
         }
     }
 
-    String getBuilderClassName(String openl, IConfigurableResourceContext cxt) {
+    private IOpenLBuilder makeBuilder(String openl, IConfigurableResourceContext cxt, IUserContext ucxt) throws Exception {
+        String builderClassPath = cxt.findProperty(openl + BUILDER_CLASS_PATH);
+        if (builderClassPath == null) {
+            builderClassPath = cxt.findProperty(DEFAULT_BUILDER_CLASS_PATH_PROPERTY);
+        }
+        ClassLoader ucl = ucxt.getUserClassLoader();
+        ClassLoader cl = OpenL.class.getClassLoader();
+        try {
+            Class<?> c = ucl.loadClass(OpenL.class.getName());
+            if (c != null) {
+                cl = ucl;
+            }
+        } catch (Exception ignored) {
+            // Ignore
+        }
+        if (builderClassPath != null) {
+            cl = ClassLoaderFactory.createClassLoader(builderClassPath, cl, ucxt.getUserHome());
+        }
 
         String builderClassName = cxt.findProperty(openl + BUILDER_CLASS);
         if (builderClassName == null) {
             builderClassName = cxt.findProperty(DEFAULT_BUILDER_CLASS_PROPERTY);
         }
-
-        return builderClassName;
-    }
-
-    String getBuilderClassPath(String openl, IConfigurableResourceContext cxt) {
-
-        String builderClassPath = cxt.findProperty(openl + BUILDER_CLASS_PATH);
-        if (builderClassPath == null) {
-            builderClassPath = cxt.findProperty(DEFAULT_BUILDER_CLASS_PATH_PROPERTY);
-        }
-
-        return builderClassPath;
-    }
-
-    public String makeAlternativeHome(String userHome) {
-        try {
-            return new File(userHome + "/../" + OPENL_ALT_CONFIG_ROOT).getCanonicalPath();
-        } catch (Throwable t) {
-            return null;
-        }
-    }
-
-    IOpenLBuilder makeBuilder(String openl, IConfigurableResourceContext cxt, IUserContext ucxt) throws Exception {
-        String builderClassName = getBuilderClassName(openl, cxt);
-        String builderClassPath = getBuilderClassPath(openl, cxt);
-        if (builderClassName != null) {
-            return makeBuilderInstance(builderClassName, builderClassPath, ucxt);
-        }
-
-        try {
+        if (builderClassName == null) {
             builderClassName = openl + "." + OPENL_BUILDER;
-            IOpenLBuilder bb = makeBuilderInstance(builderClassName, builderClassPath, ucxt);
-            return bb;
-        } catch (Exception e) {
-            Log.error("Can not build " + openl + " using cp: " + builderClassPath + " UCXT: " + ucxt, e);
-            throw e;
         }
-    }
-
-    IOpenLBuilder makeBuilderInstance(String builderClassName, String builderClassPath, IUserContext ucxt)
-            throws Exception {
-
-        ClassLoader cl = ClassLoaderFactory.getOpenlCoreClassLoader(ucxt.getUserClassLoader());
-        if (builderClassPath != null) {
-            cl = ClassLoaderFactory.createClassLoader(builderClassPath, cl, ucxt);
-        }
-
-        return (IOpenLBuilder) ClassFactory.newInstanceForName(builderClassName, cl);
+        return (IOpenLBuilder)ClassFactory.forName(builderClassName, cl).newInstance();
     }
 }

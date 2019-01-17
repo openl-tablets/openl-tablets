@@ -1,6 +1,5 @@
 package org.openl.binding.impl;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -12,6 +11,7 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaArrayAggregateInfo;
 import org.openl.util.BooleanUtils;
+import org.openl.util.CollectionUtils;
 import org.openl.vm.IRuntimeEnv;
 
 class SelectAllIndexNode extends ABoundNode {
@@ -33,16 +33,16 @@ class SelectAllIndexNode extends ABoundNode {
         List<Object> firedElements = new ArrayList<>();
         while (elementsIterator.hasNext()) {
             Object element = elementsIterator.next();
+            if (element == null) {
+                continue;
+            }
             tempVar.set(null, element, env);
             if (BooleanUtils.toBoolean(condition.evaluate(env))) {
                 firedElements.add(element);
             }
         }
-        Object result = Array.newInstance(tempVar.getType().getInstanceClass(), firedElements.size());
-        for (int i = 0; i < firedElements.size(); i++) {
-            Array.set(result, i, firedElements.get(i));
-        }
-        return result;
+        Class<?> instanceClass = tempVar.getType().getInstanceClass();
+        return CollectionUtils.toArray(firedElements, instanceClass);
     }
 
     public IOpenClass getType() {
