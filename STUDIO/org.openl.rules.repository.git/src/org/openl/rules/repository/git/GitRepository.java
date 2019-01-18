@@ -576,18 +576,12 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
                     .call()
                     .iterator();
 
-            List<Ref> call = git.tagList().call();
+            List<Ref> tags = git.tagList().call();
 
             while (iterator.hasNext()) {
                 RevCommit commit = iterator.next();
 
-                Ref tagRefForCommit = getTagRefForCommit(call, commit.getId());
-                if (tagRefForCommit == null) {
-                    // Skip commits without tags
-                    continue;
-                }
-
-                boolean stop = historyVisitor.visit(name, commit, tagRefForCommit);
+                boolean stop = historyVisitor.visit(name, commit, getVersionName(tags, commit));
                 if (stop) {
                     break;
                 }
@@ -632,15 +626,18 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     }
 
     private String getVersionName(ObjectId commitId) throws GitAPIException {
-        List<Ref> call = git.tagList().call();
-        Ref tagRef = getTagRefForCommit(call, commitId);
+        return getVersionName(git.tagList().call(), commitId);
+    }
+
+    private String getVersionName(List<Ref> tags, ObjectId commitId) {
+        Ref tagRef = getTagRefForCommit(tags, commitId);
 
         return tagRef != null ? getLocalTagName(tagRef) : commitId.getName();
     }
 
-    private Ref getTagRefForCommit(List<Ref> call, ObjectId commitId) {
+    private Ref getTagRefForCommit(List<Ref> tags, ObjectId commitId) {
         Ref tagRefForCommit = null;
-        for (Ref tagRef : call) {
+        for (Ref tagRef : tags) {
             ObjectId objectId = git.getRepository().peel(tagRef).getPeeledObjectId();
             if (objectId == null) {
                 objectId = tagRef.getObjectId();
@@ -781,11 +778,11 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
          *
          * @param fullPath full path to the file
          * @param commit visiting commit
-         * @param tagRefForCommit tag reference for commit
+         * @param commitVersion commit version. Either tag name or commit hash.
          * @return true if we should stop iterating history (we found needed information) and false if not found or
          * should iterate all commits
          */
-        boolean visit(String fullPath, RevCommit commit, Ref tagRefForCommit) throws IOException, GitAPIException;
+        boolean visit(String fullPath, RevCommit commit, String commitVersion) throws IOException, GitAPIException;
 
         /**
          * Get accumulated result
@@ -896,7 +893,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         }
 
         @Override
-        public boolean visit(String fullPath, RevCommit commit, Ref tagRefForCommit) throws IOException, GitAPIException {
+        public boolean visit(String fullPath, RevCommit commit, String commitVersion) throws IOException, GitAPIException {
             RevTree tree = commit.getTree();
 
             try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
@@ -924,8 +921,8 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         }
 
         @Override
-        public boolean visit(String fullPath, RevCommit commit, Ref tagRefForCommit) throws IOException, GitAPIException {
-            if (getLocalTagName(tagRefForCommit).equals(version)) {
+        public boolean visit(String fullPath, RevCommit commit, String commitVersion) throws IOException, GitAPIException {
+            if (commitVersion.equals(version)) {
                 RevTree tree = commit.getTree();
 
                 try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
@@ -956,8 +953,8 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         }
 
         @Override
-        public boolean visit(String fullPath, RevCommit commit, Ref tagRefForCommit) throws IOException, GitAPIException {
-            if (getLocalTagName(tagRefForCommit).equals(version)) {
+        public boolean visit(String fullPath, RevCommit commit, String commitVersion) throws IOException, GitAPIException {
+            if (commitVersion.equals(version)) {
                 RevTree tree = commit.getTree();
 
                 try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
@@ -986,8 +983,8 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         }
 
         @Override
-        public boolean visit(String fullPath, RevCommit commit, Ref tagRefForCommit) throws IOException, GitAPIException {
-            if (getLocalTagName(tagRefForCommit).equals(version)) {
+        public boolean visit(String fullPath, RevCommit commit, String commitVersion) throws IOException, GitAPIException {
+            if (commitVersion.equals(version)) {
                 RevTree tree = commit.getTree();
 
                 try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
