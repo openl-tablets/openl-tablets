@@ -56,7 +56,7 @@ public class GitRepositorySettings extends RepositorySettings {
         password = configManager.getStringProperty(PASSWORD);
         localRepositoryPath = defaultLocalPath;
         branch = configManager.getStringProperty(BRANCH, Constants.MASTER);
-        tagPrefix = configManager.getStringProperty(TAG_PREFIX, "Rules_");
+        tagPrefix = configManager.getStringProperty(TAG_PREFIX);
         listenerTimerPeriod = configManager.getLongProperty(LISTENER_TIMER_PERIOD, 10L).intValue();
         designRulesPath = configManager.getStringProperty(DESIGN_RULES_PATH);
         designDeployConfigPath = configManager.getStringProperty(DESIGN_DEPLOY_CONFIG_PATH);
