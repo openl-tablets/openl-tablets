@@ -90,7 +90,7 @@
         <com.fasterxml.jackson.version>2.9.8</com.fasterxml.jackson.version>
         <jaxb.version>2.3.1</jaxb.version>
         <maven.api.version>3.2.5</maven.api.version>
-        <maven.plugin.version>3.5</maven.plugin.version>
+        <maven.plugin.version>3.6.0</maven.plugin.version>
         <jetty.http.port>9999</jetty.http.port>
         <jetty.server.version>9.2.26.v20180806</jetty.server.version>
         <!-- Empty for building without JaCoCo agent -->
