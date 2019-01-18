@@ -102,7 +102,7 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
                     }
                 }
             }
-            throw new RuleServiceDeployException("Failed to undeploy service!", e1);
+            throw new RuleServiceDeployException("Failed to deploy service!", e1);
         }
     }
 
