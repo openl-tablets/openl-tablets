@@ -29,6 +29,8 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class that defines OpenL engine manager implementation for source processing operations.
@@ -94,7 +96,11 @@ public class OpenLSourceManager extends OpenLHolder {
                 return result;
             }
         } catch (Exception e) {
-            return Arrays.asList(dependencies);
+            Logger log = LoggerFactory.getLogger(OpenLSourceManager.class);
+            log.warn(e.getMessage(), e);
+            // It's expected that returned collection is modifiable.
+            result.addAll(Arrays.asList(dependencies));
+            return result;
         }
         for (IDependency dependency : dependencies) {
             String value = dependency.getNode().getIdentifier();
