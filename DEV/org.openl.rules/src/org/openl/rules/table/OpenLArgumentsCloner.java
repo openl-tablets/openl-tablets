@@ -1,5 +1,7 @@
 package org.openl.rules.table;
 
+import java.lang.reflect.InvocationHandler;
+
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 import org.openl.meta.BigDecimalValue;
@@ -12,6 +14,8 @@ import org.openl.meta.ShortValue;
 import org.openl.meta.StringValue;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMember;
 import org.slf4j.Logger;
 
 import com.rits.cloning.Cloner;
@@ -55,6 +59,9 @@ public class OpenLArgumentsCloner extends Cloner {
          */
         dontCloneInstanceOf(SpreadsheetResult.class);
         dontCloneInstanceOf(Logger.class);
+        dontCloneInstanceOf(IOpenClass.class);
+        dontCloneInstanceOf(IOpenMember.class);
+        dontCloneInstanceOf(InvocationHandler.class);
     }
 
     /* Required for correct working with classloaders. */

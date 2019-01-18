@@ -492,7 +492,7 @@ public class JavaOpenClass extends AOpenClass {
         @SuppressWarnings("unused")
         private Class<?> proxyClass;
 
-        private InvocationHandler beanInterfaceHandler;
+        private volatile InvocationHandler beanInterfaceHandler;
 
         @Override
         protected Map<MethodKey, IOpenMethod> initMethodMap() {
@@ -532,59 +532,46 @@ public class JavaOpenClass extends AOpenClass {
             return setters;
         }
 
-        private synchronized InvocationHandler getInvocationHandler(Class<?> instClass) {
-
-            if (List.class.isAssignableFrom(instClass)) {
-                return new JavaInstanceBasedInvocationhandler(new ArrayList<Object>());
-            }
-
-            if (Set.class.isAssignableFrom(instClass)) {
-                return new JavaInstanceBasedInvocationhandler(new HashSet<Object>());
-            }
-
-            if (SortedMap.class.isAssignableFrom(instClass)) {
-                return new JavaInstanceBasedInvocationhandler(new TreeMap<Object, Object>());
-            }
-
-            if (Map.class.isAssignableFrom(instClass)) {
-                return new JavaInstanceBasedInvocationhandler(new HashMap<Object, Object>());
-            }
-
-            if (Collection.class.isAssignableFrom(instClass)) {
-                return new JavaInstanceBasedInvocationhandler(new ArrayList<Object>());
-            }
-
-            if (beanInterfaceHandler == null) {
-                beanInterfaceHandler = new BeanInterfaceInvocationHandler();
-            }
-
-            return beanInterfaceHandler;
-        }
-
         @Override
         public Object newInstance(IRuntimeEnv env) {
             try {
+                Object res = createCollectionInstance();
+                if (res != null) {
+                    return res;
+                }
+
+                if (beanInterfaceHandler == null) {
+                    synchronized (this) {
+                        if (beanInterfaceHandler == null) {
+                            beanInterfaceHandler = new BeanInterfaceInvocationHandler();
+                        }
+                    }
+                }
                 return Proxy.newProxyInstance(instanceClass.getClassLoader(),
-                    new Class[] { instanceClass },
-                    getInvocationHandler(instanceClass));
+                        new Class[]{instanceClass},
+                        beanInterfaceHandler);
             } catch (Exception e) {
                 throw RuntimeExceptionWrapper.wrap(e);
             }
-
         }
 
-        private class JavaInstanceBasedInvocationhandler implements InvocationHandler {
-
-            Object instance;
-
-            public JavaInstanceBasedInvocationhandler(Object instance) {
-                this.instance = instance;
+        private Object createCollectionInstance() {
+            if (List.class.isAssignableFrom(instanceClass)) {
+                return new ArrayList<>();
             }
-
-            @Override
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                return method.invoke(instance, args);
+            if (Set.class.isAssignableFrom(instanceClass)) {
+                return new HashSet<>();
             }
+            if (SortedMap.class.isAssignableFrom(instanceClass)) {
+                return new TreeMap<>();
+            }
+            if (Map.class.isAssignableFrom(instanceClass)) {
+                return new HashMap<>();
+            }
+            if (Collection.class.isAssignableFrom(instanceClass)) {
+                return new ArrayList<>();
+            }
+            return null;
         }
 
         private class BeanInterfaceInvocationHandler implements InvocationHandler {
@@ -594,7 +581,7 @@ public class JavaOpenClass extends AOpenClass {
             public synchronized Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 HashMap<BeanOpenField, Object> values = map.get(proxy);
                 if (values == null) {
-                    values = new HashMap<BeanOpenField, Object>();
+                    values = new HashMap<>();
                     map.put(proxy, values);
                 }
 
