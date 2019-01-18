@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GitRepository implements FolderRepository, Closeable, RRepositoryFactory {
-    private static final String DELETED_MARKER_FILE = ".deleted";
+    private static final String DELETED_MARKER_FILE = ".archived";
     private static final String DELETED_TAG_SUFFIX = "_DELETED";
     /**
      * TODO: Probably we should change API for deleteHistory() to know who undeletes or erases a project
