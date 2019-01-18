@@ -353,7 +353,11 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             git = Git.open(local);
 
             if (!shouldClone) {
-                git.fetch().call();
+                FetchCommand fetchCommand = git.fetch();
+                if (StringUtils.isNotBlank(login)) {
+                    fetchCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
+                }
+                fetchCommand.call();
 
                 boolean branchExists = git.getRepository().findRef(branch) != null;
                 if (!branchExists) {
