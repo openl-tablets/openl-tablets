@@ -609,6 +609,9 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         for (Ref tagRef : call) {
             String name = getLocalTagName(tagRef);
             if (name.startsWith(tagPrefix)) {
+                if (name.endsWith(DELETED_TAG_SUFFIX)) {
+                    name = name.substring(0, name.length() - DELETED_TAG_SUFFIX.length());
+                }
                 int num;
                 try {
                     num = Integer.parseInt(name.substring(tagPrefix.length()));
@@ -663,11 +666,13 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     private void addTagToCommit(RevCommit commit, boolean deleted) throws GitAPIException {
         pull();
 
-        String tagName = tagPrefix + getNextTagId();
-        if (deleted) {
-            tagName += DELETED_TAG_SUFFIX;
+        if (!tagPrefix.isEmpty() || deleted) {
+            String tagName = tagPrefix + getNextTagId();
+            if (deleted) {
+                tagName += DELETED_TAG_SUFFIX;
+            }
+            git.tag().setObjectId(commit).setName(tagName).call();
         }
-        git.tag().setObjectId(commit).setName(tagName).call();
     }
 
     @Override
