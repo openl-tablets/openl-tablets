@@ -53,7 +53,6 @@ grant {
         permission java.io.FilePermission "${catalina.base}/logs/-", ",write";
         permission java.io.FilePermission "${catalina.base}/conf/Catalina", "write";
         permission java.io.FilePermission "${catalina.base}/conf/Catalina/-", "write";
-        permission java.io.FilePermission "${catalina.base}/webapps/-", "write,delete";
         permission java.io.FilePermission "${catalina.base}/work", "write,delete";
         permission java.io.FilePermission "${catalina.base}/work/-", "write,delete";
 
