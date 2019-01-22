@@ -42,7 +42,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     private String password;
     private String localRepositoryPath;
     private String branch = Constants.MASTER;
-    private String tagPrefix = "Rules_";
+    private String tagPrefix = "";
     private int listenerTimerPeriod = 10;
 
     private ChangesMonitor monitor;
