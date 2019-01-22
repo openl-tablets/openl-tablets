@@ -76,6 +76,9 @@ public class ProductionRepositoryDeployer {
             deployRepo = RepositoryFactoryInstatiator.newFactory(properties, false);
             String includeVersion = (String) properties.get(VERSION_IN_DEPLOYMENT_NAME);
             String deployPath = (String) properties.get(DEPLOY_PATH_PROPERTY);
+            if (deployPath == null) {
+                deployPath = "deploy/"; // Workaround for backward compatibility.
+            }
 
             deployInternal(zipFile, deployRepo, skipExist, Boolean.valueOf(includeVersion), deployPath);
         } finally {
