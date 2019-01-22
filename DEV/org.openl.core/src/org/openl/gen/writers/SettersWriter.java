@@ -1,11 +1,11 @@
-package org.openl.rules.datatype.gen.bean.writers;
+package org.openl.gen.writers;
 
 import java.util.Map;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.openl.rules.datatype.gen.FieldDescription;
+import org.openl.gen.FieldDescription;
 import org.openl.util.ClassUtils;
 
 public class SettersWriter extends MethodWriter {

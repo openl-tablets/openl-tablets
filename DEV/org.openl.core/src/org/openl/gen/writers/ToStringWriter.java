@@ -1,4 +1,4 @@
-package org.openl.rules.datatype.gen.bean.writers;
+package org.openl.gen.writers;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,7 +7,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import org.openl.rules.datatype.gen.FieldDescription;
+import org.openl.gen.FieldDescription;
 
 /**
  * Generates a toString() method. This method uses only JRE classes for building a string, such as

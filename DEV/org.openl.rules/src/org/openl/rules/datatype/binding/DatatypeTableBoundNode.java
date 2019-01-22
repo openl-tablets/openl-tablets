@@ -22,7 +22,8 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.constants.ConstantOpenField;
-import org.openl.rules.datatype.gen.FieldDescription;
+import org.openl.gen.FieldDescription;
+import org.openl.rules.datatype.gen.FieldDescriptionBuilder;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
@@ -344,7 +345,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 throw SyntaxNodeExceptionUtils.createError(message, null, location, cellSource);
             }
 
-            FieldDescription fieldDescription;
+            FieldDescriptionBuilder fieldDescriptionBuilder;
             try {
                 if (fields.containsKey(fieldName)) {
                     throw SyntaxNodeExceptionUtils.createError(String.format("Field '%s' has already been defined!",
@@ -383,34 +384,34 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     dataType.setIndexField(field);
                 }
 
-                fieldDescription = new FieldDescription(field.getType().getJavaName());
-                fields.put(fieldName, fieldDescription);
+                fieldDescriptionBuilder = FieldDescriptionBuilder.create(field.getType().getJavaName());
             } catch (SyntaxNodeException e) {
                 throw e;
             } catch (Exception t) {
                 throw SyntaxNodeExceptionUtils.createError(t.getMessage(), t, null, getCellSource(row, cxt, 1));
             }
 
+            FieldDescription fieldDescription = null;
             if (row.getWidth() > 2) {
                 String defaultValue = getDefaultValue(row, cxt);
 
                 ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(cxt, defaultValue);
                 if (constantOpenField != null) {
-                    fieldDescription.setDefaultValue(constantOpenField.getValue());
-                    fieldDescription.setDefaultValueAsString(constantOpenField.getValueAsString());
+                    fieldDescriptionBuilder.setDefaultValue(constantOpenField.getValue());
+                    fieldDescriptionBuilder.setDefaultValueAsString(constantOpenField.getValueAsString());
                     RuleRowHelper.setMetaInfoWithNodeUsageForConstantCell(getCellSource(row, cxt, 2).getCell(),
                         defaultValue,
                         constantOpenField,
                         cxt);
                 } else {
-                    fieldDescription.setDefaultValueAsString(defaultValue);
+                    fieldDescriptionBuilder.setDefaultValueAsString(defaultValue);
 
                     if (!String.class.equals(fieldType.getInstanceClass())) {
                         ICell theCellValue = row.getColumn(2).getCell(0, 0);
                         if (theCellValue.hasNativeType()) {
                             Object value = RuleRowHelper.loadNativeValue(theCellValue, fieldType, cxt);
                             if (value != null) {
-                                fieldDescription.setDefaultValue(value);
+                                fieldDescriptionBuilder.setDefaultValue(value);
                                 if (Date.class.equals(fieldType.getInstanceClass())) {
                                     RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, fieldType, false);
                                 }
@@ -418,9 +419,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         }
                     }
 
-                    Object value;
                     try {
-                        value = fieldDescription.getDefaultValue();
+                        fieldDescription = fieldDescriptionBuilder.build();
                     } catch (RuntimeException e) {
                         String message = String.format("Can't parse cell value '%s'", defaultValue);
                         IOpenSourceCodeModule cellSourceCodeModule = getCellSource(row, cxt, 2);
@@ -442,6 +442,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                             throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
                         }
                     }
+                    Object value = fieldDescription.getDefaultValue();
                     if (value != null && !(fieldDescription.hasDefaultKeyWord() && fieldDescription.isArray())) {
                         // Validate not null default value
                         // The null value is allowed for alias types
@@ -454,6 +455,10 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     }
                 }
             }
+            if (fieldDescription == null) {
+                fieldDescription = fieldDescriptionBuilder.build();
+            }
+            fields.put(fieldName, fieldDescription);
         }
     }
 

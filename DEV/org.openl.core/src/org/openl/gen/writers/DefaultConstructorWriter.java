@@ -1,4 +1,4 @@
-package org.openl.rules.datatype.gen.bean.writers;
+package org.openl.gen.writers;
 
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
@@ -9,7 +9,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
-import org.openl.rules.datatype.gen.FieldDescription;
+import org.openl.gen.FieldDescription;
 
 public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
 
