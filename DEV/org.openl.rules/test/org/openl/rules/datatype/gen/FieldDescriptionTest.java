@@ -3,7 +3,8 @@ package org.openl.rules.datatype.gen;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.openl.rules.datatype.gen.bean.writers.DefaultValue;
+import org.openl.gen.FieldDescription;
+import org.openl.gen.writers.DefaultValue;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DatatypeOpenField;
@@ -20,37 +21,43 @@ public class FieldDescriptionTest {
 
     @Test
     public void testDefaultValue_String() {
-        FieldDescription field = new FieldDescription(String.class.getName());
-        field.setDefaultValueAsString(DEFAULT_STRING_VALUE);
+        FieldDescription field = FieldDescriptionBuilder.create(String.class.getName())
+            .setDefaultValueAsString(DEFAULT_STRING_VALUE)
+            .build();
         assertEquals(DEFAULT_STRING_VALUE, field.getDefaultValue());
     }
 
     @Test
     public void testDefaultValue_Boolean() {
-        FieldDescription field = new FieldDescription(Boolean.class.getName());
-        field.setDefaultValueAsString(DEFAULT_BOOLEAN_VALUE);
+        FieldDescription field = FieldDescriptionBuilder.create(Boolean.class.getName())
+            .setDefaultValueAsString(DEFAULT_BOOLEAN_VALUE)
+            .build();
         assertEquals(Boolean.TRUE, field.getDefaultValue());
     }
 
     @Test
     public void testDefaultValue_Integer() {
-        FieldDescription field = new FieldDescription(Integer.class.getName());
-        field.setDefaultValueAsString(DEFAULT_INTEGER_VALUE);
+        FieldDescription field = FieldDescriptionBuilder.create(Integer.class.getName())
+            .setDefaultValueAsString(DEFAULT_INTEGER_VALUE)
+            .build();
         assertEquals(Integer.valueOf(25), field.getDefaultValue());
     }
 
     @Test
     public void testDefaultValue_DefaultBean() {
-        FieldDescription field = new FieldDescription(String.class.getName());
-        field.setDefaultValueAsString(DefaultValue.DEFAULT);
+        FieldDescription field = FieldDescriptionBuilder.create(String.class.getName())
+            .setDefaultValueAsString(DefaultValue.DEFAULT)
+            .build();
         assertEquals("Return the default keyword itself", DefaultValue.DEFAULT, field.getDefaultValue());
 
-        FieldDescription field1 = new FieldDescription(Boolean.class.getName());
-        field1.setDefaultValueAsString(DefaultValue.DEFAULT);
+        FieldDescription field1 = FieldDescriptionBuilder.create(Boolean.class.getName())
+            .setDefaultValueAsString(DefaultValue.DEFAULT)
+            .build();
         assertEquals("Return the default keyword itself", DefaultValue.DEFAULT, field1.getDefaultValue());
 
-        FieldDescription field2 = new FieldDescription(Integer.class.getName());
-        field2.setDefaultValueAsString(DefaultValue.DEFAULT);
+        FieldDescription field2 = FieldDescriptionBuilder.create(Integer.class.getName())
+            .setDefaultValueAsString(DefaultValue.DEFAULT)
+            .build();
         assertEquals("Return the default keyword itself", DefaultValue.DEFAULT, field2.getDefaultValue());
     }
 
@@ -58,12 +65,14 @@ public class FieldDescriptionTest {
     public void testArrayOpenClass() {
         // Create the IOpenClass for the policy
         //
-        DatatypeOpenClass policyClass = new DatatypeOpenClass(Policy.class.getSimpleName(), Policy.class.getPackage().getName());
+        DatatypeOpenClass policyClass = new DatatypeOpenClass(Policy.class.getSimpleName(),
+            Policy.class.getPackage().getName());
         policyClass.setInstanceClass(Policy.class);
 
         // Create the IOpenClass for the Driver
         //
-        DatatypeOpenClass driverClass = new DatatypeOpenClass(Driver.class.getSimpleName(), Driver.class.getPackage().getName());
+        DatatypeOpenClass driverClass = new DatatypeOpenClass(Driver.class.getSimpleName(),
+            Driver.class.getPackage().getName());
         driverClass.setInstanceClass(Driver.class);
 
         // Create the IOpenClass for the drivers[]

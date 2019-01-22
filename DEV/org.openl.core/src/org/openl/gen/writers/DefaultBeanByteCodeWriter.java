@@ -1,11 +1,11 @@
-package org.openl.rules.datatype.gen.bean.writers;
+package org.openl.gen.writers;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.openl.rules.datatype.gen.FieldDescription;
+import org.openl.gen.FieldDescription;
 
 public abstract class DefaultBeanByteCodeWriter implements BeanByteCodeWriter {
     

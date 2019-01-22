@@ -9,7 +9,6 @@ package org.openl.types.java;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -18,6 +17,7 @@ import java.lang.reflect.Proxy;
 import java.util.*;
 
 import org.openl.base.INamedThing;
+import org.openl.gen.JavaInterfaceImplBuilder;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -27,6 +27,7 @@ import org.openl.types.impl.AOpenClass;
 import org.openl.types.impl.ArrayIndex;
 import org.openl.types.impl.ArrayLengthOpenField;
 import org.openl.types.impl.MethodKey;
+import org.openl.util.ClassUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
 
@@ -363,7 +364,7 @@ public class JavaOpenClass extends AOpenClass {
         Map<String, IOpenField> fields = new HashMap<>(fieldMap());
         for (IOpenClass superClass : superClasses()) {
             if (superClass.isInterface() && !isAbstract()) {
-                //no need to add fields from interface if current instance is not abstract class
+                // no need to add fields from interface if current instance is not abstract class
                 continue;
             }
             Map<String, IOpenField> superClassFields = superClass.getFields();
@@ -378,7 +379,7 @@ public class JavaOpenClass extends AOpenClass {
                     fields.put(name, candidateField);
                 } else {
                     if (origField.getType().equals(candidateField.getType())) {
-                        //we assume that IOpenField always have read or write method
+                        // we assume that IOpenField always have read or write method
                         if (!origField.isWritable() && candidateField.isWritable()) {
                             fields.put(name, new OpenFieldCombiner(origField, candidateField));
                         } else if (!origField.isReadable() && candidateField.isReadable()) {
@@ -482,38 +483,25 @@ public class JavaOpenClass extends AOpenClass {
 
     private static class JavaOpenInterface extends JavaOpenClass {
 
-        private static Method toString;
-        private static Method equals;
-        private static Method hashCode;
-
         private Map<Method, BeanOpenField> getters = new HashMap<Method, BeanOpenField>();
         private Map<Method, BeanOpenField> setters = new HashMap<Method, BeanOpenField>();
 
         @SuppressWarnings("unused")
         private Class<?> proxyClass;
 
-        private volatile InvocationHandler beanInterfaceHandler;
+        private volatile Class<?> generatedImplClass;
 
         @Override
         protected Map<MethodKey, IOpenMethod> initMethodMap() {
             Map<MethodKey, IOpenMethod> methodMap = new HashMap<>();
             methodMap.putAll(super.initMethodMap());
 
-            for (IOpenMethod om : JavaOpenClass.OBJECT.getMethods()) { //Any interface has Object methods. For example: toString()
+            for (IOpenMethod om : JavaOpenClass.OBJECT.getMethods()) { // Any interface has Object methods. For example:
+                                                                       // toString()
                 methodMap.put(new MethodKey(om), om);
             }
 
             return Collections.unmodifiableMap(methodMap);
-        }
-
-        static {
-            try {
-                toString = Object.class.getMethod("toString");
-                equals = Object.class.getMethod("equals", Object.class);
-                hashCode = Object.class.getMethod("hashCode");
-            } catch (NoSuchMethodException nsme) {
-                throw RuntimeExceptionWrapper.wrap(nsme);
-            }
         }
 
         protected JavaOpenInterface(Class<?> instanceClass) {
@@ -540,16 +528,17 @@ public class JavaOpenClass extends AOpenClass {
                     return res;
                 }
 
-                if (beanInterfaceHandler == null) {
+                if (generatedImplClass == null) {
                     synchronized (this) {
-                        if (beanInterfaceHandler == null) {
-                            beanInterfaceHandler = new BeanInterfaceInvocationHandler();
+                        if (generatedImplClass == null) {
+                            JavaInterfaceImplBuilder builder = new JavaInterfaceImplBuilder(instanceClass);
+                            generatedImplClass = ClassUtils.defineClass(builder.getBeanName(),
+                                builder.byteCode(),
+                                Thread.currentThread().getContextClassLoader());
                         }
                     }
                 }
-                return Proxy.newProxyInstance(instanceClass.getClassLoader(),
-                        new Class[]{instanceClass},
-                        beanInterfaceHandler);
+                return generatedImplClass.newInstance();
             } catch (Exception e) {
                 throw RuntimeExceptionWrapper.wrap(e);
             }
@@ -572,55 +561,6 @@ public class JavaOpenClass extends AOpenClass {
                 return new ArrayList<>();
             }
             return null;
-        }
-
-        private class BeanInterfaceInvocationHandler implements InvocationHandler {
-
-            private IdentityHashMap<Object, HashMap<BeanOpenField, Object>> map = new IdentityHashMap<Object, HashMap<BeanOpenField, Object>>();
-
-            public synchronized Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                HashMap<BeanOpenField, Object> values = map.get(proxy);
-                if (values == null) {
-                    values = new HashMap<>();
-                    map.put(proxy, values);
-                }
-
-                BeanOpenField bf = null;
-                if (getters != null) {
-                    bf = getters.get(method);
-                }
-
-                if (bf != null) {
-                    Object res = values.get(bf);
-                    return res != null ? res : bf.getType().nullObject();
-                }
-
-                if (setters != null) {
-                    bf = setters.get(method);
-                }
-
-                if (bf != null) {
-                    values.put(bf, args[0]);
-                    return null;
-                }
-
-                if (method.getName().equals(toString.getName())) {
-                    return proxy.getClass().getName() + "@" + Integer.toHexString(System.identityHashCode(proxy));
-                }
-
-                if (method.getName().equals(hashCode.getName())) {
-                    return System.identityHashCode(proxy);
-                }
-
-                if (method.getName().equals(equals.getName())) {
-                    return proxy == args[0];
-                }
-
-                throw new RuntimeException(
-                    "Default Interface Proxy Implementation does not support method " + method.getDeclaringClass()
-                        .getName() + "::" + method.getName() + ". Only bean access is supported");
-            }
-
         }
 
         @Override

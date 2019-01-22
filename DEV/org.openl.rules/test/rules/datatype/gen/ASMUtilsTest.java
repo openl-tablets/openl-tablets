@@ -4,8 +4,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openl.rules.datatype.gen.ASMUtils;
 
-import java.lang.reflect.Method;
-
 public class ASMUtilsTest {
     @Test
     public void getMethod() {

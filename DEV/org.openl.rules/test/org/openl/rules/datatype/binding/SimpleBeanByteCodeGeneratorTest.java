@@ -11,7 +11,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.meta.DoubleValue;
-import org.openl.rules.datatype.gen.FieldDescription;
+import org.openl.gen.FieldDescription;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;

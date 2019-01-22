@@ -1,5 +1,7 @@
 package org.openl.rules.datatype.gen;
 
+import org.openl.gen.FieldDescription;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 

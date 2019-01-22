@@ -1,4 +1,4 @@
-package org.openl.rules.datatype.gen.bean.writers;
+package org.openl.gen.writers;
 
 public interface DefaultValue {
     /**
