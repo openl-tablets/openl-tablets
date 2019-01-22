@@ -437,10 +437,18 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     private FileData createFileData(org.eclipse.jgit.lib.Repository repository,
             TreeWalk dirWalk,
             String baseFolder) throws GitAPIException, IOException {
-        String fullPath = baseFolder + dirWalk.getPathString();
+        ObjectId start = resolveBranchId();
 
+        return createFileData(repository, dirWalk, baseFolder, start);
+    }
+
+    private FileData createFileData(org.eclipse.jgit.lib.Repository repository,
+            TreeWalk dirWalk,
+            String baseFolder,
+            ObjectId start) throws GitAPIException, IOException {
+        String fullPath = baseFolder + dirWalk.getPathString();
         Iterator<RevCommit> iterator = git.log()
-                .add(resolveBranchId())
+                .add(start)
                 .addPath(fullPath)
                 .call()
                 .iterator();
@@ -796,6 +804,16 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     }
 
     private class ListCommand implements WalkCommand<List<FileData>> {
+        private final ObjectId start;
+
+        public ListCommand() {
+            start = null;
+        }
+
+        public ListCommand(ObjectId start) {
+            this.start = start;
+        }
+
         @Override
         public List<FileData> apply(org.eclipse.jgit.lib.Repository repository,
                 TreeWalk rootWalk,
@@ -805,7 +823,10 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
                 List<FileData> files = new ArrayList<>();
                 if (rootWalk.getFilter() == TreeFilter.ALL) {
                     while (rootWalk.next()) {
-                        files.add(createFileData(repository, rootWalk, baseFolder));
+                        FileData fileData = start == null ?
+                                            createFileData(repository, rootWalk, baseFolder) :
+                                            createFileData(repository, rootWalk, baseFolder, start);
+                        files.add(fileData);
                     }
                 } else {
                     if (rootWalk.getTreeCount() > 0) {
@@ -814,7 +835,10 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
                             dirWalk.setRecursive(true);
 
                             while (dirWalk.next()) {
-                                files.add(createFileData(repository, dirWalk, baseFolder));
+                                FileData fileData = start == null ?
+                                                    createFileData(repository, dirWalk, baseFolder) :
+                                                    createFileData(repository, dirWalk, baseFolder, start);
+                                files.add(fileData);
                             }
                         }
                     }
@@ -931,7 +955,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
                 RevTree tree = commit.getTree();
 
                 try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
-                    history.addAll(new ListCommand().apply(repository, rootWalk, fullPath));
+                    history.addAll(new ListCommand(commit.getId()).apply(repository, rootWalk, fullPath));
                 }
 
                 return true;
