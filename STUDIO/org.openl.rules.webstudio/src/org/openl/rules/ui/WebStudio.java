@@ -510,6 +510,8 @@ public class WebStudio {
 
         InputStream stream = null;
         try {
+            tryLockProject();
+
             stream = uploadedFile.getInput();
             XlsWorkbookSourceHistoryListener historyListener = new XlsWorkbookSourceHistoryListener(
                 model.getHistoryManager());
@@ -554,6 +556,8 @@ public class WebStudio {
         }
         ProjectDescriptor projectDescriptor;
         try {
+            tryLockProject();
+
             projectDescriptor = getCurrentProjectDescriptor();
             PathFilter filter = getZipFilter();
 
@@ -634,6 +638,13 @@ public class WebStudio {
         clearUploadedFiles();
 
         return null;
+    }
+
+    private void tryLockProject() throws ProjectException {
+        RulesProject currentProject = getCurrentProject();
+        if (!currentProject.tryLock()) {
+            throw new ValidationException("Project is locked by other user");
+        }
     }
 
     public ProjectDescriptor resolveProject(ProjectDescriptor oldProjectDescriptor) {
