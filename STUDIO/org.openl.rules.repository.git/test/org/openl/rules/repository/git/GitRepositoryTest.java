@@ -150,12 +150,33 @@ public class GitRepositoryTest {
         assertContains(files, "rules/project1/file1");
         assertContains(files, "rules/project1/file2");
 
+        FileData file1Rev2 = find(files, "rules/project1/file1");
+        assertEquals("Rules_2", file1Rev2.getVersion());
+
+        FileData file2Rev2 = find(files, "rules/project1/file2");
+        assertEquals("Rules_2", file2Rev2.getVersion());
+        assertEquals("user1", file2Rev2.getAuthor());
+        assertEquals("Initial commit in test branch", file2Rev2.getComment());
+        assertEquals("Expected file content: 'Hello!'",6, file2Rev2.getSize());
+
         files = repo.listFiles("rules/project1/", "Rules_3");
         assertNotNull(files);
         assertEquals(3, files.size());
         assertContains(files, "rules/project1/file1");
         assertContains(files, "rules/project1/file2");
         assertContains(files, "rules/project1/folder/file3");
+
+        FileData file1Rev3 = find(files, "rules/project1/file1");
+        assertEquals("Rules_2", file1Rev3.getVersion()); // The file wasn't modified in second commit
+
+        FileData file2Rev3 = find(files, "rules/project1/file2");
+        assertEquals("Rules_3", file2Rev3.getVersion());
+        assertEquals("user2", file2Rev3.getAuthor());
+        assertEquals("Second modification", file2Rev3.getComment());
+        assertEquals("Expected file content: 'Hello World!'",12, file2Rev3.getSize());
+
+        FileData file3Rev3 = find(files, "rules/project1/folder/file3");
+        assertEquals("Rules_3", file3Rev3.getVersion());
     }
 
     @Test
@@ -554,6 +575,16 @@ public class GitRepositoryTest {
         }
 
         assertTrue("Files list doesn't contain the file '" + fileName + "'", contains);
+    }
+
+    private FileData find(List<FileData> files, String fileName) {
+        for (FileData file : files) {
+            if (fileName.equals(file.getName())) {
+                return file;
+            }
+        }
+
+        throw new IllegalArgumentException("File " + fileName + " not found");
     }
 
     private static class ChangesCounter implements Listener {
