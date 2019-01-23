@@ -19,6 +19,7 @@ import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.ProjectDescriptorManager;
@@ -263,6 +264,8 @@ public class ProjectBean {
     }
 
     public void editName() {
+        tryLockProject();
+
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
@@ -277,6 +280,8 @@ public class ProjectBean {
     }
 
     public void editModule() {
+        tryLockProject();
+
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
@@ -334,6 +339,8 @@ public class ProjectBean {
     }
 
     public void copyModule() {
+        tryLockProject();
+
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
@@ -385,6 +392,8 @@ public class ProjectBean {
     }
 
     public void removeModule() {
+        tryLockProject();
+
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
@@ -436,6 +445,8 @@ public class ProjectBean {
     }
 
     public void removeDependency(String name) {
+        tryLockProject();
+
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
@@ -455,6 +466,8 @@ public class ProjectBean {
     }
 
     public void editDependencies() {
+        tryLockProject();
+
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
@@ -474,6 +487,8 @@ public class ProjectBean {
     }
 
     public void editSources() {
+        tryLockProject();
+
         List<PathEntry> sourceList = new ArrayList<PathEntry>();
         String[] sourceArray = sources.split(StringTool.NEW_LINE);
 
@@ -494,6 +509,18 @@ public class ProjectBean {
         newProjectDescriptor.setClasspath(!sourceList.isEmpty() ? sourceList : null);
 
         save(newProjectDescriptor);
+    }
+
+    private void tryLockProject() {
+        RulesProject currentProject = studio.getCurrentProject();
+        try {
+            if (!currentProject.tryLock()) {
+                throw new Message("Project is locked by other user");
+            }
+        } catch (ProjectException e) {
+            log.error(e.getMessage(), e);
+            throw new Message("Error while project locking");
+        }
     }
 
     private void save(ProjectDescriptor projectDescriptor) {
