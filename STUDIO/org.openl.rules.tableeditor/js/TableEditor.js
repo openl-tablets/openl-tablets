@@ -144,7 +144,10 @@ var TableEditor = Class.create({
     },
 
     handleResponse: function(response, callback) {
-        var data = eval(response.responseText);
+        var data = response && eval(response.responseText);
+        if (!data) {
+            return;
+        }
 
         if (data.message) {
             this.error(data.message);
@@ -520,6 +523,10 @@ var TableEditor = Class.create({
      *  Create and activate new editor.
      */
     editBegin : function(cell, response, typedText) {
+        if (!response) {
+            return;
+        }
+
         var initialValue;
         if (response.initValue) {
             initialValue = response.initValue;
