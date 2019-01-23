@@ -477,7 +477,9 @@ public class TableBean {
         if (currentProject != null) {
             try {
                 if (!currentProject.isModified()) {
-                    currentProject.unlock();
+                    if (currentProject.isLockedByMe()) {
+                        currentProject.unlock();
+                    }
                 }
             } catch (Exception e) {
                 Logger logger = LoggerFactory.getLogger(TableBean.class);
