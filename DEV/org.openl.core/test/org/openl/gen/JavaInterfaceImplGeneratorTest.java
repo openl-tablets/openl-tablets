@@ -40,6 +40,26 @@ public class JavaInterfaceImplGeneratorTest {
         new JavaInterfaceImplBuilder(Date.class);
     }
 
+    @Test
+    public void testEquals() throws IllegalAccessException, InstantiationException {
+        Class<?> clazz = getBeanClass(IBean.class);
+        IBean beanA = (IBean) clazz.newInstance();
+        IBean beanB = (IBean) clazz.newInstance();
+        assertEquals(beanA, beanB);
+        beanA.setField1("foo");
+        beanA.setField2(1);
+        assertNotEquals(beanA, beanB);
+        assertNotEquals(beanB, beanA);
+        beanB.setField2(1);
+        assertNotEquals(beanA, beanB);
+        assertNotEquals(beanB, beanA);
+        beanB.setField1("foo");
+        assertEquals(beanA, beanB);
+        assertEquals(beanB, beanA);
+
+        assertEquals(beanA.hashCode(), beanB.hashCode());
+    }
+
     private Object newInstance(Class<?> clazzInterface) throws IllegalAccessException, InstantiationException {
         Class<?> clazz = getBeanClass(clazzInterface);
         assertNotNull(clazz);
