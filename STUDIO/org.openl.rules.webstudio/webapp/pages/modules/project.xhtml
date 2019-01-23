@@ -190,11 +190,11 @@
                                 </h:panelGroup>
                                 <h:panelGroup rendered="#{editable}">
                                     <a href="javascript:void(0)" title="Edit Module" class="editable-link-inner first-button"
-                                        onclick="editModule({index:'#{i.index}',name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'})"><img
+                                        onclick="editModule({index:'#{i.index}',name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{jsffn:escapeJS(module.methodFilter.includes)}',excludes:'#{jsffn:escapeJS(module.methodFilter.excludes)}'})"><img
                                             src="#{request.contextPath}/webresource/images/edit.png" style="opacity:0.4" /></a>
                                     <h:panelGroup>
                                         <a href="javascript:void(0)" title="Copy Module" class="editable-link-inner second-button"
-                                            onclick="copyModule({isModuleWithWildcard:#{isModuleWithWildcard},index:'#{i.index}',name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{module.methodFilter.includes}',excludes:'#{module.methodFilter.excludes}'})"><img
+                                            onclick="copyModule({isModuleWithWildcard:#{isModuleWithWildcard},index:'#{i.index}',name:'#{module.name}',path:'#{jsffn:escapeJS(projectBean.getModulePath(module))}',includes:'#{jsffn:escapeJS(module.methodFilter.includes)}',excludes:'#{jsffn:escapeJS(module.methodFilter.excludes)}'})"><img
                                                 src="#{request.contextPath}/webresource/images/copy.png" style="opacity:0.4" /></a>
                                     </h:panelGroup>
                                     <h:panelGroup rendered="#{modulesNumber > 1}">
