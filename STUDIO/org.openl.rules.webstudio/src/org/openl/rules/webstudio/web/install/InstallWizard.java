@@ -1,15 +1,12 @@
 package org.openl.rules.webstudio.web.install;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -22,29 +19,23 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.validator.ValidatorException;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flywaydb.core.api.FlywayException;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
-import org.openl.rules.security.Group;
-import org.openl.rules.security.Privilege;
-import org.openl.rules.security.Privileges;
-import org.openl.rules.security.SimpleGroup;
-import org.openl.rules.security.SimpleUser;
-import org.openl.rules.security.User;
+import org.openl.rules.repository.RepositoryFactoryInstatiator;
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.security.*;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.GroupManagementServiceWrapper;
 import org.openl.rules.webstudio.service.UserManagementService;
-import org.openl.rules.webstudio.web.admin.ConnectionProductionRepoController;
-import org.openl.rules.webstudio.web.admin.NewProductionRepoController;
-import org.openl.rules.webstudio.web.admin.ProductionRepositoryEditor;
-import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
-import org.openl.rules.webstudio.web.admin.RepositoryMode;
-import org.openl.rules.webstudio.web.admin.RepositoryValidationException;
-import org.openl.rules.webstudio.web.admin.RepositoryValidators;
+import org.openl.rules.webstudio.web.admin.*;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
+import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.db.JDBCDriverRegister;
 import org.slf4j.Logger;
@@ -145,6 +136,7 @@ public class InstallWizard {
             if (step == 2) {
                 try {
                     RepositoryValidators.validate(designRepositoryConfiguration);
+                    validateConnectionToDesignRepo(designRepositoryConfiguration);
 
                     productionRepositoryEditor.validate();
                 } catch (RepositoryValidationException e) {
@@ -215,6 +207,23 @@ public class InstallWizard {
             }
             step--;
             return null;
+        }
+    }
+
+    private void validateConnectionToDesignRepo(RepositoryConfiguration designRepositoryConfiguration) throws RepositoryValidationException {
+        try {
+            Map<String, Object> config = designRepositoryConfiguration.getProperties();
+            Repository repository = RepositoryFactoryInstatiator.newFactory(config, true);
+            if (repository instanceof Closeable) {
+                // Release resources after validation
+                IOUtils.closeQuietly((Closeable) repository);
+            }
+        } catch (RRepositoryException e) {
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
+            String message = "Incorrect Design Repository configuration: " + (rootCause == null ?
+                                                                              e.getMessage() :
+                                                                              rootCause.getMessage());
+            throw new RepositoryValidationException(message, e);
         }
     }
 
@@ -380,17 +389,19 @@ public class InstallWizard {
 
             if (allowAccessToNewUsers) {
                 if (!groupManagementService.isGroupExist(VIEWERS_GROUP)) {
-                    Group group = new SimpleGroup(VIEWERS_GROUP, null, new ArrayList<Privilege>(Collections.singletonList(Privileges.VIEW_PROJECTS)));
+                    Group group = new SimpleGroup(VIEWERS_GROUP, null,
+                            new ArrayList<>(Collections.singletonList(Privileges.VIEW_PROJECTS)));
                     groupManagementService.addGroup(group);
                 }
             }
 
             if (!groupManagementService.isGroupExist(ADMINISTRATORS_GROUP)) {
-                Group group = new SimpleGroup(ADMINISTRATORS_GROUP, null, new ArrayList<Privilege>(Collections.singletonList(Privileges.ADMIN)));
+                Group group = new SimpleGroup(ADMINISTRATORS_GROUP, null,
+                        new ArrayList<>(Collections.singletonList(Privileges.ADMIN)));
                 groupManagementService.addGroup(group);
             }
             Group administrator = groupManagementService.getGroupByName(ADMINISTRATORS_GROUP);
-            List<Privilege> adminGroups = new ArrayList<Privilege>(Collections.singleton(administrator));
+            List<Privilege> adminGroups = new ArrayList<>(Collections.singleton(administrator));
 
             // Delete example users
             for (User user : userManagementService.getAllUsers()) {
