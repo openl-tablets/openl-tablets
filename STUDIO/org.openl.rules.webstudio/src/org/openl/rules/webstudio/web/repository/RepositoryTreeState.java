@@ -1,32 +1,34 @@
 package org.openl.rules.webstudio.web.repository;
 
-import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.project.abstraction.*;
-import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
-import org.openl.rules.webstudio.web.repository.tree.*;
-import org.openl.rules.webstudio.web.util.Constants;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
-import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.rules.webstudio.filter.AllFilter;
-import org.openl.rules.webstudio.filter.IFilter;
-import org.richfaces.component.UITree;
-import org.richfaces.event.TreeSelectionChangeEvent;
-import org.richfaces.model.SequenceRowKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.*;
+
+import java.util.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
-import java.util.*;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.*;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.project.abstraction.*;
+import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.webstudio.filter.AllFilter;
+import org.openl.rules.webstudio.filter.IFilter;
+import org.openl.rules.webstudio.web.repository.tree.*;
+import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
+import org.openl.rules.workspace.uw.UserWorkspace;
+import org.richfaces.component.UITree;
+import org.richfaces.event.TreeSelectionChangeEvent;
+import org.richfaces.model.SequenceRowKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Used for holding information about rulesRepository tree.
@@ -45,7 +47,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     private static final String DEFAULT_TAB = "Properties";
     private final Logger log = LoggerFactory.getLogger(RepositoryTreeState.class);
-    private static IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<AProjectArtefact>();
+    private static IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<>();
 
     /**
      * Root node for RichFaces's tree. It is not displayed.
@@ -62,60 +64,69 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     private final Object lock = new Object();
 
     private void buildTree() {
-        if (root != null) {
-            return;
-        }
-        log.debug("Starting buildTree()");
-
-        root = new TreeRepository("", "", filter, ROOT_TYPE);
-
-        String projectsTreeId = "1st - Projects";
-        String rpName = "Projects";
-        rulesRepository = new TreeRepository(projectsTreeId, rpName, filter, UiConst.TYPE_REPOSITORY);
-        rulesRepository.setData(null);
-
-        String deploymentsTreeId = "2nd - Deploy Configurations";
-        String dpName = "Deploy Configurations";
-        deploymentRepository = new TreeRepository(deploymentsTreeId, dpName, filter, UiConst.TYPE_DEPLOYMENT_REPOSITORY);
-        deploymentRepository.setData(null);
-
-        //Such keys are used for correct order of repositories.
-        root.add(rulesRepository);
-        root.add(deploymentRepository);
-
-        Collection<RulesProject> rulesProjects = userWorkspace.getProjects();
-
-        IFilter<AProjectArtefact> filter = this.filter;
-        for (AProject project : rulesProjects) {
-            if (!(filter.supports(RulesProject.class) && !filter.select(project))) {
-                addRulesProjectToTree(project);
-            }
-        }
-        if (rulesProjects.isEmpty()) {
-            // Initialize content of empty node
-            rulesRepository.getElements();
-        }
-
         try {
-            List<ADeploymentProject> deployConfigurations = userWorkspace.getDDProjects();
-            for (ADeploymentProject project : deployConfigurations) {
-                addDeploymentProjectToTree(project);
+            if (root != null) {
+                return;
             }
-            if (deployConfigurations.isEmpty()) {
-                // Initialize content of empty node
-                deploymentRepository.getElements();
-            }
-        } catch (ProjectException e) {
-            log.error("Cannot get deployment projects", e);
-        }
-        log.debug("Finishing buildTree()");
+            log.debug("Starting buildTree()");
 
-        if (getSelectedNode() == null || UiConst.TYPE_REPOSITORY.equals(getSelectedNode().getType())) {
-            setSelectedNode(rulesRepository);
-        } else if (UiConst.TYPE_DEPLOYMENT_REPOSITORY.equals(getSelectedNode().getType())) {
-            setSelectedNode(deploymentRepository);
-        } else {
-            updateSelectedNode();
+            root = new TreeRepository("", "", filter, ROOT_TYPE);
+
+            String projectsTreeId = "1st - Projects";
+            String rpName = "Projects";
+            rulesRepository = new TreeRepository(projectsTreeId, rpName, filter, UiConst.TYPE_REPOSITORY);
+            rulesRepository.setData(null);
+
+            String deploymentsTreeId = "2nd - Deploy Configurations";
+            String dpName = "Deploy Configurations";
+            deploymentRepository = new TreeRepository(deploymentsTreeId, dpName, filter, UiConst.TYPE_DEPLOYMENT_REPOSITORY);
+            deploymentRepository.setData(null);
+
+            //Such keys are used for correct order of repositories.
+            root.add(rulesRepository);
+            root.add(deploymentRepository);
+
+            Collection<RulesProject> rulesProjects = userWorkspace.getProjects();
+
+            IFilter<AProjectArtefact> filter = this.filter;
+            for (AProject project : rulesProjects) {
+                if (!(filter.supports(RulesProject.class) && !filter.select(project))) {
+                    addRulesProjectToTree(project);
+                }
+            }
+            if (rulesProjects.isEmpty()) {
+                // Initialize content of empty node
+                rulesRepository.getElements();
+            }
+
+            try {
+                List<ADeploymentProject> deployConfigurations = userWorkspace.getDDProjects();
+                for (ADeploymentProject project : deployConfigurations) {
+                    addDeploymentProjectToTree(project);
+                }
+                if (deployConfigurations.isEmpty()) {
+                    // Initialize content of empty node
+                    deploymentRepository.getElements();
+                }
+            } catch (ProjectException e) {
+                log.error("Cannot get deployment projects", e);
+            }
+            log.debug("Finishing buildTree()");
+
+            if (getSelectedNode() == null || UiConst.TYPE_REPOSITORY.equals(getSelectedNode().getType())) {
+                setSelectedNode(rulesRepository);
+            } else if (UiConst.TYPE_DEPLOYMENT_REPOSITORY.equals(getSelectedNode().getType())) {
+                setSelectedNode(deploymentRepository);
+            } else {
+                updateSelectedNode();
+            }
+        } catch (Exception e) {
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
+            String message = "Can't build repository tree. " + (rootCause == null ?
+                                                                e.getMessage() :
+                                                                rootCause.getMessage());
+            log.error(message, e);
+            FacesUtils.addErrorMessage(message);
         }
     }
 
@@ -150,13 +161,13 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public Collection<SequenceRowKey> getSelection() {
         TreeNode node = getSelectedNode();
 
-        List<String> ids = new ArrayList<String>();
+        List<String> ids = new ArrayList<>();
         while (node != null && !node.getType().equals(ROOT_TYPE)) {
             ids.add(0, node.getId());
             node = node.getParent();
         }
 
-        return new ArrayList<SequenceRowKey>(Collections.singletonList(new SequenceRowKey(ids.toArray())));
+        return new ArrayList<>(Collections.singletonList(new SequenceRowKey(ids.toArray())));
     }
 
     public TreeProject getProjectNodeByPhysicalName(String physicalName) {
@@ -289,7 +300,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public void processSelection(TreeSelectionChangeEvent event) {
-        List<Object> selection = new ArrayList<Object>(event.getNewSelection());
+        List<Object> selection = new ArrayList<>(event.getNewSelection());
         
         /*If there are no selected nodes*/
         if (selection.isEmpty()) {
