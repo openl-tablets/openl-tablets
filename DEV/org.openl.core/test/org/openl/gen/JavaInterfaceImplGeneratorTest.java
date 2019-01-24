@@ -30,9 +30,10 @@ public class JavaInterfaceImplGeneratorTest {
         assertEquals(0, iBean.returnChar());
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testNotPOJOInterfaceImplGeneration() {
-        new JavaInterfaceImplBuilder(IEmpty.class).byteCode();
+    @Test
+    public void testNotPOJOInterfaceImplGeneration() throws InstantiationException, IllegalAccessException {
+        newInstance(IEmpty.class);
+        newInstance(INotPOJO.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
