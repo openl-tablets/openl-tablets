@@ -80,9 +80,6 @@ public class JavaInterfaceImplBuilder {
     }
 
     public byte[] byteCode() {
-        if (beanFields.isEmpty()) {
-            throw new IllegalStateException("Target interface must have at least one field");
-        }
         return new JavaInterfaceImplGenerator(beanName, clazzInterface, beanFields, beanStubMethods).byteCode();
     }
 
