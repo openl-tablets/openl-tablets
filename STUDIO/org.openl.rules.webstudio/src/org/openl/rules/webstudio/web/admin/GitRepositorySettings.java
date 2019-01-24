@@ -53,7 +53,7 @@ public class GitRepositorySettings extends RepositorySettings {
 
         uri = configManager.getStringProperty(URI);
         login = configManager.getStringProperty(LOGIN);
-        password = configManager.getStringProperty(PASSWORD);
+        password = configManager.getPassword(PASSWORD);
         localRepositoryPath = defaultLocalPath;
         branch = configManager.getStringProperty(BRANCH, Constants.MASTER);
         tagPrefix = configManager.getStringProperty(TAG_PREFIX);
