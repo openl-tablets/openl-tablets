@@ -81,6 +81,9 @@ public class RulesProjectBuilder {
 
     public void save() throws ProjectException {
         WorkspaceUser user = workspace.getUser();
+        // Override comment to avoid reusing of comment from previous version (we create a new project but it can contain
+        // unerasable history for example in Git).
+        project.getFileData().setComment("Create project");
         project.save(user);
         workspace.refresh();
     }
