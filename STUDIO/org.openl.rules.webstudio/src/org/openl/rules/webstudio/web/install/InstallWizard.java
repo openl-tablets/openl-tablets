@@ -390,18 +390,18 @@ public class InstallWizard {
             if (allowAccessToNewUsers) {
                 if (!groupManagementService.isGroupExist(VIEWERS_GROUP)) {
                     Group group = new SimpleGroup(VIEWERS_GROUP, null,
-                            new ArrayList<>(Collections.singletonList(Privileges.VIEW_PROJECTS)));
+                            new ArrayList<Privilege>(Collections.singletonList(Privileges.VIEW_PROJECTS)));
                     groupManagementService.addGroup(group);
                 }
             }
 
             if (!groupManagementService.isGroupExist(ADMINISTRATORS_GROUP)) {
                 Group group = new SimpleGroup(ADMINISTRATORS_GROUP, null,
-                        new ArrayList<>(Collections.singletonList(Privileges.ADMIN)));
+                        new ArrayList<Privilege>(Collections.singletonList(Privileges.ADMIN)));
                 groupManagementService.addGroup(group);
             }
             Group administrator = groupManagementService.getGroupByName(ADMINISTRATORS_GROUP);
-            List<Privilege> adminGroups = new ArrayList<>(Collections.singleton(administrator));
+            List<Privilege> adminGroups = new ArrayList<Privilege>(Collections.singleton(administrator));
 
             // Delete example users
             for (User user : userManagementService.getAllUsers()) {
