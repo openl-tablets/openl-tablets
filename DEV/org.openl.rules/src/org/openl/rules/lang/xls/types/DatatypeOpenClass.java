@@ -46,6 +46,7 @@ public class DatatypeOpenClass extends ADynamicClass {
     private final String javaName;
 
     private final String packageName;
+    private byte[] bytecode;
 
     /**
      * User has a possibility to set the package (by table properties mechanism)
@@ -245,6 +246,14 @@ public class DatatypeOpenClass extends ADynamicClass {
         methodMap.put(hashCodeKey, hashCode);
 
         return methodMap;
+    }
+
+    public byte[] getBytecode() {
+        return bytecode;
+    }
+
+    public void setBytecode(byte[] bytecode) {
+        this.bytecode = bytecode;
     }
 
     private static final IOpenMethod toString;

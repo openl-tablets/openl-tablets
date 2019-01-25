@@ -34,6 +34,7 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
+import org.openl.rules.maven.decompiler.BytecodeDecompiler;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.model.Module;
@@ -730,6 +731,7 @@ public class GenerateInterface {
 
     protected void writeDatatypeBeans(Collection<IOpenClass> types) throws Exception {
         if (types != null) {
+            BytecodeDecompiler decompiler = new BytecodeDecompiler(log, targetSrcDir);
             for (IOpenClass datatypeOpenClass : types) {
 
                 // Skip java code generation for types what is defined
@@ -738,10 +740,7 @@ public class GenerateInterface {
                 //
                 if (datatypeOpenClass instanceof DatatypeOpenClass) {
                     Class<?> datatypeClass = datatypeOpenClass.getInstanceClass();
-                    SimpleBeanJavaGenerator beanJavaGenerator = new SimpleBeanJavaGenerator(datatypeClass);
-                    String javaClass = beanJavaGenerator.generateJavaClass();
-                    String fileName = targetSrcDir + "/" + datatypeClass.getName().replace('.', '/') + ".java";
-                    writeContentToFile(javaClass, fileName, true);
+                    decompiler.decompile(datatypeClass.getName(), ((DatatypeOpenClass) datatypeOpenClass).getBytecode());
                 }
             }
         }

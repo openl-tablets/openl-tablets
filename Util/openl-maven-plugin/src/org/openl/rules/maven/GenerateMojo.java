@@ -17,7 +17,6 @@ package org.openl.rules.maven;
  */
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
@@ -43,13 +42,12 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.OpenL;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
+import org.openl.rules.maven.decompiler.BytecodeDecompiler;
 import org.openl.rules.maven.gen.GenerateInterface;
-import org.openl.rules.maven.gen.SimpleBeanJavaGenerator;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
-import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.GenUtils;
 
@@ -226,7 +224,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     /**
      * If true, rules.xml will be generated if it doesn't exist. If false,
      * rules.xml will not be generated. Default value is "true".
-     * 
+     *
      * @see #overwriteProjectDescriptor
      * @deprecated Obsolete. No needs to generate rules.xml from Maven.
      */
@@ -238,7 +236,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
      * If true, rules.xml will be overwritten on each run. If false, rules.xml
      * generation will be skipped if it exists. Makes sense only if
      * {@link #createProjectDescriptor} == true. Default value is "true".
-     * 
+     *
      * @see #createProjectDescriptor
      * @deprecated Obsolete. No needs to generate rules.xml from Maven.
      */
@@ -250,7 +248,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
      * Default project name in rules.xml. If omitted, the name of the first
      * module in the project is used. Used only if createProjectDescriptor ==
      * true.
-     * 
+     *
      * @deprecated Obsolete. No needs to generate rules.xml from Maven.
      */
     @Parameter
@@ -260,7 +258,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     /**
      * Default classpath entries in rules.xml. Default value is {"."} Used only
      * if createProjectDescriptor == true.
-     * 
+     *
      * @deprecated Obsolete. No needs to generate rules.xml from Maven.
      */
     @Parameter
@@ -270,7 +268,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     /**
      * If true, JUnit tests for OpenL Tablets Test tables will be generated.
      * Default value is "false"
-     * 
+     *
      * @deprecated Obsolete. Use openl:test goal to run OpenL tests.
      */
     @Parameter(defaultValue = "false")
@@ -311,7 +309,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
      * <td>Apache commons utility class</td>
      * </tr>
      * </table>
-     * 
+     *
      * @deprecated Obsolete. Use openl:test goal to run OpenL tests.
      */
     @Parameter(defaultValue = "org/openl/rules/maven/JUnitTestTemplate.vm")
@@ -321,7 +319,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     /**
      * If true, existing JUnit tests will be overwritten. If false, only absent
      * tests will be generated, others will be skipped.
-     * 
+     *
      * @deprecated Obsolete. Use openl:test goal to run OpenL tests.
      */
     @Parameter(defaultValue = "false")
@@ -533,6 +531,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
 
     private void writeJavaBeans(Collection<IOpenClass> types) throws Exception {
         if (CollectionUtils.isNotEmpty(types)) {
+            BytecodeDecompiler decompiler = new BytecodeDecompiler(getLog(), outputDirectory);
             for (IOpenClass datatypeOpenClass : types) {
 
                 // Skip java code generation for types what is defined
@@ -543,9 +542,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
                     Class<?> datatypeClass = datatypeOpenClass.getInstanceClass();
                     String dataType = datatypeClass.getName();
                     info("Java Bean: " + dataType);
-                    SimpleBeanJavaGenerator beanJavaGenerator = new SimpleBeanJavaGenerator(datatypeClass);
-                    String generatedSource = beanJavaGenerator.generateJavaClass();
-                    writeClassToFile(dataType, generatedSource);
+                    decompiler.decompile(dataType, ((DatatypeOpenClass) datatypeOpenClass).getBytecode());
                 }
             }
         }
@@ -587,26 +584,6 @@ public final class GenerateMojo extends BaseOpenLMojo {
 
         // Write the generated source code
         model.build(outputDirectory, (PrintStream) null);
-    }
-
-    private void writeClassToFile(String clazz, String source) throws IOException {
-        File file = new File(outputDirectory, clazz.replace('.', '/') + ".java");
-        FileWriter fw = null;
-        try {
-            if (file.exists()) {
-                if (getLog().isInfoEnabled()) {
-                    getLog().info(String.format("File '%s' exists already. It has been overwritten.", file));
-                }
-            }
-            File folder = file.getParentFile();
-            if (folder != null && !folder.mkdirs() && !folder.isDirectory()) {
-                throw new IOException("Failed to create folder " + folder.getAbsolutePath());
-            }
-            fw = new FileWriter(file);
-            fw.write(source);
-        } finally {
-            IOUtils.closeQuietly(fw);
-        }
     }
 
     private static class ClassNaming implements NamingPolicy {
