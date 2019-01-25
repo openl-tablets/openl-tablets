@@ -292,25 +292,41 @@ public class GitRepositoryTest {
 
         assertNull("'file2' still exists", repo.check("rules/project1/file2"));
 
-        // Delete the project
+        // Count actual changes in history
+        String projectPath = "rules/project1";
+        assertEquals(3, repo.listHistory(projectPath).size());
+
+        // Archive the project
         FileData projectData = new FileData();
-        projectData.setName("rules/project1");
+        projectData.setName(projectPath);
         projectData.setComment("Delete project1");
         projectData.setAuthor("John Smith");
         assertTrue("'project1' wasn't deleted", repo.delete(projectData));
 
-        FileData deletedProject = repo.check("rules/project1");
+        FileData deletedProject = repo.check(projectPath);
         assertTrue("'project1' isn't deleted", deletedProject.isDeleted());
 
-        // Undelete the project
-        repo.deleteHistory("rules/project1", deletedProject.getVersion());
-        deletedProject = repo.check("rules/project1");
+        // Restore the project
+        assertTrue(repo.deleteHistory(projectPath, deletedProject.getVersion()));
+        deletedProject = repo.check(projectPath);
         assertFalse("'project1' isn't restored", deletedProject.isDeleted());
 
+        // Count actual changes in history
+        assertEquals("Actual project changes must be 3. Technical commits for Archive/Restore shouldn't be counted",
+                3,
+                repo.listHistory(projectPath).size());
+
         // Erase the project
-        repo.deleteHistory("rules/project1", null);
-        deletedProject = repo.check("rules/project1");
+        assertTrue(repo.deleteHistory(projectPath, null));
+        deletedProject = repo.check(projectPath);
         assertNull("'project1' isn't erased", deletedProject);
+
+        // Life after erase
+        assertEquals(3, repo.listHistory(projectPath).size());
+        // Create new version
+        String text = "Reincarnation";
+        repo.save(createFileData(projectPath, text), IOUtils.toInputStream(text));
+        assertEquals(4, repo.listHistory(projectPath).size());
     }
 
     @Test
