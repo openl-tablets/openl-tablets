@@ -40,7 +40,7 @@ public class CopyBean {
     private String currentProjectName;
     private String newProjectName;
     private String comment;
-    private Boolean copyOldRevisions;
+    private Boolean copyOldRevisions = Boolean.FALSE;
     private Integer revisionsCount;
 
     public boolean getCanCreate() {
@@ -165,7 +165,7 @@ public class CopyBean {
         this.currentProjectName = currentProjectName;
         newProjectName = null;
         comment = null;
-        copyOldRevisions = null;
+        copyOldRevisions = Boolean.FALSE;
         revisionsCount = null;
     }
 

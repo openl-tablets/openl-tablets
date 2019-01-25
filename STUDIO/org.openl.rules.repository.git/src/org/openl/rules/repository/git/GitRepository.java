@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 public class GitRepository implements FolderRepository, Closeable, RRepositoryFactory {
     private static final String DELETED_MARKER_FILE = ".archived";
     private static final String DELETED_TAG_SUFFIX = "_ARCHIVED";
+    private static final String RESTORED_TAG_SUFFIX = "_RESTORED";
     /**
      * TODO: Probably we should change API for deleteHistory() to know who undeletes or erases a project
      */
@@ -120,7 +121,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
                         .setOnly(markerFile)
                         .call();
 
-                addTagToCommit(commit, true);
+                addTagToCommit(commit, CommitType.ARCHIVE);
             } else {
                 // Files can't be archived. Only folders.
                 git.rm().addFilepattern(name).call();
@@ -239,6 +240,8 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
                         .setMessage("Erase")
                         .setOnly(name)
                         .call();
+
+                addTagToCommit(commit);
             } else {
                 FileData fileData = checkHistory(name, version);
                 if (fileData == null) {
@@ -257,9 +260,9 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
                         .setMessage("Restore")
                         .setOnly(markerFile)
                         .call();
-            }
 
-            addTagToCommit(commit);
+                addTagToCommit(commit, CommitType.RESTORE);
+            }
 
             push();
             return true;
@@ -619,6 +622,8 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             if (name.startsWith(tagPrefix)) {
                 if (name.endsWith(DELETED_TAG_SUFFIX)) {
                     name = name.substring(0, name.length() - DELETED_TAG_SUFFIX.length());
+                } else if (name.endsWith(RESTORED_TAG_SUFFIX)) {
+                    name = name.substring(0, name.length() - RESTORED_TAG_SUFFIX.length());
                 }
                 int num;
                 try {
@@ -668,16 +673,24 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     }
 
     private void addTagToCommit(RevCommit commit) throws GitAPIException {
-        addTagToCommit(commit, false);
+        addTagToCommit(commit, CommitType.NORMAL);
     }
 
-    private void addTagToCommit(RevCommit commit, boolean deleted) throws GitAPIException {
+    private void addTagToCommit(RevCommit commit, CommitType commitType) throws GitAPIException {
         pull();
 
-        if (!tagPrefix.isEmpty() || deleted) {
+        if (!tagPrefix.isEmpty() || CommitType.NORMAL != commitType) {
             String tagName = tagPrefix + getNextTagId();
-            if (deleted) {
-                tagName += DELETED_TAG_SUFFIX;
+            switch (commitType) {
+                case ARCHIVE:
+                    tagName += DELETED_TAG_SUFFIX;
+                    break;
+                case RESTORE:
+                    tagName += RESTORED_TAG_SUFFIX;
+                    break;
+                default:
+                    // Do nothing
+                    break;
             }
             git.tag().setObjectId(commit).setName(tagName).call();
         }
@@ -926,7 +939,13 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             RevTree tree = commit.getTree();
 
             try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
-                history.add(createFileData(repository, rootWalk, "", commit));
+                String versionName = getVersionName(commit);
+                // Skip technical commits
+                if (!versionName.endsWith(DELETED_TAG_SUFFIX) && !versionName.endsWith(RESTORED_TAG_SUFFIX)) {
+                    history.add(createFileData(repository, rootWalk, "", commit));
+                }
+            } catch (FileNotFoundException e) {
+                log.debug("File '{}' is absent in the commit {}", fullPath, commitVersion, e);
             }
 
             return false;
@@ -1031,5 +1050,9 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         public FileItem getResult() {
             return result;
         }
+    }
+
+    private enum CommitType {
+        NORMAL, ARCHIVE, RESTORE
     }
 }
