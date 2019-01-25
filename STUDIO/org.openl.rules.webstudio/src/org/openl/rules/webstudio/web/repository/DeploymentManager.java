@@ -1,18 +1,19 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.IRulesDeploySerializer;
-import org.openl.rules.project.abstraction.ADeploymentProject;
-import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.repository.api.FileData;
@@ -117,14 +118,21 @@ public class DeploymentManager implements InitializingBean {
                     try {
                         String version = pd.getProjectVersion().getVersionName();
                         String projectName = pd.getProjectName();
-                        FileItem srcPrj = designRepo.readHistory(rulesPath + projectName, version);
-                        stream = srcPrj.getStream();
+
                         FileData dest = new FileData();
                         dest.setName(deploymentPath + projectName);
                         dest.setAuthor(userName);
-                        dest.setComment(srcPrj.getData().getComment());
-                        dest.setSize(srcPrj.getData().getSize());
-                        deployRepo.save(dest, stream);
+                        dest.setComment(project.getFileData().getComment());
+
+                        if (designRepo instanceof FolderRepository) {
+                            String projectPath = rulesPath + projectName + "/";
+                            archiveAndSave((FolderRepository) designRepo, projectPath, version, deployRepo, dest);
+                        } else {
+                            FileItem srcPrj = designRepo.readHistory(rulesPath + projectName, version);
+                            stream = srcPrj.getStream();
+                            dest.setSize(srcPrj.getData().getSize());
+                            deployRepo.save(dest, stream);
+                        }
                     } finally {
                         IOUtils.closeQuietly(stream);
                     }
@@ -136,6 +144,37 @@ public class DeploymentManager implements InitializingBean {
             return id;
         } catch (Exception e) {
             throw new DeploymentException("Failed to deploy: " + e.getMessage(), e);
+        }
+    }
+
+    private void archiveAndSave(FolderRepository designRepo, String projectPath, String version, Repository deployRepo, FileData dest) throws ProjectException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ZipOutputStream zipOutputStream = null;
+        try {
+            zipOutputStream = new ZipOutputStream(out);
+
+            List<FileData> files = designRepo.listFiles(projectPath, version);
+
+            for (FileData file : files) {
+                String internalPath = file.getName().substring(projectPath.length());
+                zipOutputStream.putNextEntry(new ZipEntry(internalPath));
+
+                FileItem fileItem = designRepo.readHistory(file.getName(), file.getVersion());
+                try (InputStream content = fileItem.getStream()) {
+                    IOUtils.copy(content, zipOutputStream);
+                }
+
+                zipOutputStream.closeEntry();
+            }
+            zipOutputStream.finish();
+
+            dest.setSize(out.size());
+
+            deployRepo.save(dest, new ByteArrayInputStream(out.toByteArray()));
+        } catch (IOException e) {
+            throw new ProjectException(e.getMessage(), e);
+        } finally {
+            IOUtils.closeQuietly(zipOutputStream);
         }
     }
 
