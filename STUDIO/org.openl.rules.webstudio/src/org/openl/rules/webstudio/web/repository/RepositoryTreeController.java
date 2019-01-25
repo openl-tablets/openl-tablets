@@ -197,6 +197,10 @@ public class RepositoryTreeController {
     public String saveProject() {
         try {
             UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+            if (!project.isModified()) {
+                log.warn("Tried to save a project without any changes.");
+                return null;
+            }
             if (project instanceof RulesProject) {
                 studio.saveProject((RulesProject) project);
             } else {
