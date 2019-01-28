@@ -1,6 +1,7 @@
 package org.openl.rules.repository.git;
 
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -8,6 +9,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -321,36 +323,52 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             boolean shouldClone;
             if (!local.exists()) {
                 shouldClone = true;
-            } else if (RepositoryCache.FileKey.resolve(local, FS.DETECTED) != null) {
-                log.info("Reuse existing local repository " + local);
-                shouldClone = false;
             } else {
                 File[] files = local.listFiles();
                 if (files == null) {
-                    throw new IOException("Folder " + local + " is not directory");
+                    throw new IOException("Folder '" + local + "' is not directory");
                 }
 
                 if (files.length > 0) {
-                    // Can't overwrite existing files that is definitely not git repository
-                    throw new IOException("Folder " + local + " already exists and is not empty");
+                    if (RepositoryCache.FileKey.resolve(local, FS.DETECTED) != null) {
+                        log.info("Reuse existing local repository " + local);
+                        try (Repository repository = Git.open(local).getRepository()) {
+                            String remoteUrl = repository.getConfig()
+                                    .getString(ConfigConstants.CONFIG_REMOTE_SECTION,
+                                            Constants.DEFAULT_REMOTE_NAME,
+                                            ConfigConstants.CONFIG_KEY_URL);
+                            if (!new URI(uri).equals(new URI(remoteUrl))) {
+                                throw new IOException("Folder '" + local + "' already contains local git repository but is configured for different URI (" + remoteUrl + ").\nDelete it or choose another local path or set correct URL for repository.");
+                            }
+                        }
+                        shouldClone = false;
+                    } else {
+                        // Can't overwrite existing files that is definitely not git repository
+                        throw new IOException("Folder '" + local + "' already exists and is not empty. Delete it or choose another local path.");
+                    }
+                } else {
+                    shouldClone = true;
                 }
-
-                shouldClone = true;
             }
 
             if (shouldClone) {
-                CloneCommand cloneCommand = Git.cloneRepository()
-                        .setURI(uri)
-                        .setDirectory(local)
-                        .setBranch(branch)
-                        .setBranchesToClone(Collections.singletonList(Constants.R_HEADS + branch));
+                try {
+                    CloneCommand cloneCommand = Git.cloneRepository()
+                            .setURI(uri)
+                            .setDirectory(local)
+                            .setBranch(branch)
+                            .setBranchesToClone(Collections.singletonList(Constants.R_HEADS + branch));
 
-                if (StringUtils.isNotBlank(login)) {
-                    cloneCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
+                    if (StringUtils.isNotBlank(login)) {
+                        cloneCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
+                    }
+
+                    Git cloned = cloneCommand.call();
+                    cloned.close();
+                } catch (Exception e) {
+                    FileUtils.deleteQuietly(local);
+                    throw e;
                 }
-
-                Git cloned = cloneCommand.call();
-                cloned.close();
             }
 
             git = Git.open(local);
