@@ -188,8 +188,12 @@ public class AProject extends AProjectFolder {
         refresh();
     }
 
-    public void erase() throws ProjectException {
-        if (!getRepository().deleteHistory(getFileData().getName(), null)) {
+    public void erase(CommonUser user) throws ProjectException {
+        FileData fileData = getFileData();
+        FileData data = new FileData();
+        data.setName(fileData.getName());
+        data.setAuthor(user.getUserName());
+        if (!getRepository().deleteHistory(data)) {
             throw new ProjectException("Can't erase project because it is absent or can't be deleted");
         }
     }
@@ -198,7 +202,7 @@ public class AProject extends AProjectFolder {
         return getFileData().isDeleted();
     }
 
-    public void undelete() throws ProjectException {
+    public void undelete(CommonUser user) throws ProjectException {
         try {
             if (!isDeleted()) {
                 throw new ProjectException("Cannot undelete non-marked project ''{0}''!", null, getName());
@@ -207,7 +211,11 @@ public class AProject extends AProjectFolder {
             Repository repository = getRepository();
             FileData fileData = repository.check(getFileData().getName());
             if (fileData != null && fileData.isDeleted()) {
-                repository.deleteHistory(fileData.getName(), fileData.getVersion());
+                FileData data = new FileData();
+                data.setName(fileData.getName());
+                data.setVersion(fileData.getVersion());
+                data.setAuthor(user.getUserName());
+                repository.deleteHistory(data);
                 FileData actual = repository.check(fileData.getName());
                 setFileData(actual);
                 String version = actual.getVersion();

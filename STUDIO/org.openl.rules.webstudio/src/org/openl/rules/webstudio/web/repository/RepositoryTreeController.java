@@ -852,7 +852,7 @@ public class RepositoryTreeController {
         try {
             projectDescriptorResolver.deleteRevisionsFromCache(project);
             synchronized (userWorkspace) {
-                project.erase();
+                project.erase(userWorkspace.getUser());
             }
             deleteProjectHistory(project.getName());
             userWorkspace.refresh();
@@ -1311,7 +1311,7 @@ public class RepositoryTreeController {
     }
 
     public String undeleteProject() {
-        AProject project = repositoryTreeState.getSelectedProject();
+        UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
         if (!project.isDeleted()) {
             FacesUtils.addErrorMessage("Cannot undelete project '" + project.getName() + "'.",
                 "Project is not marked for deletion.");
@@ -1319,7 +1319,7 @@ public class RepositoryTreeController {
         }
 
         try {
-            project.undelete();
+            project.undelete(userWorkspace.getUser());
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
         } catch (Exception e) {

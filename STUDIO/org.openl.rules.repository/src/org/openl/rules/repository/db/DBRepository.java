@@ -44,7 +44,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             statement.setString(1, makePathPattern(path));
             rs = statement.executeQuery();
 
-            List<FileData> fileDatas = new ArrayList<FileData>();
+            List<FileData> fileDatas = new ArrayList<>();
             while (rs.next()) {
                 FileData fileData = createFileData(rs);
                 fileDatas.add(fileData);
@@ -171,7 +171,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             statement.setString(1, name);
             rs = statement.executeQuery();
 
-            List<FileData> fileDatas = new ArrayList<FileData>();
+            List<FileData> fileDatas = new ArrayList<>();
             while (rs.next()) {
                 FileData fileData = createFileData(rs);
                 fileDatas.add(fileData);
@@ -226,7 +226,10 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
     }
 
     @Override
-    public boolean deleteHistory(String name, String version) {
+    public boolean deleteHistory(FileData data) {
+        String name = data.getName();
+        String version = data.getVersion();
+
         if (version == null) {
             Connection connection = null;
             PreparedStatement statement = null;

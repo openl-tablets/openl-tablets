@@ -73,7 +73,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
         }
         try {
             Node node = checkFolder(session.getRootNode(), path, false);
-            List<FileData> result = new ArrayList<FileData>();
+            List<FileData> result = new ArrayList<>();
             if (node == null) {
                 return result;
             }
@@ -110,7 +110,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             throw new RRepositoryException("Cannot get children nodes", e);
         }
 
-        LinkedList<FolderAPI> result = new LinkedList<FolderAPI>();
+        LinkedList<FolderAPI> result = new LinkedList<>();
         while (ni.hasNext()) {
             Node n = ni.nextNode();
             try {
@@ -165,11 +165,11 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             projectProps.put(ArtefactProperties.VERSION_COMMENT, comment);
             project.setProps(projectProps);
 
-            List<String> newFiles = new ArrayList<String>();
+            List<String> newFiles = new ArrayList<>();
             ZipInputStream zipInputStream = new ZipInputStream(stream);
             ZipEntry entry = zipInputStream.getNextEntry();
             CommonUser user = data.getAuthor() == null ? getUser() : new CommonUserImpl(data.getAuthor());
-            TreeSet<String> folderPaths = new TreeSet<String>();
+            TreeSet<String> folderPaths = new TreeSet<>();
             while (entry != null) {
                 if (!entry.isDirectory()) {
                     newFiles.add(entry.getName());
@@ -203,7 +203,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
                 entry = zipInputStream.getNextEntry();
             }
 
-            deleteAbsentFiles(newFiles, project, "");
+            deleteAbsentFiles(newFiles, project, "", user);
 
             Iterator<String> foldersIterator = folderPaths.descendingIterator();
             while (foldersIterator.hasNext()) {
@@ -285,7 +285,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             }
 
             FolderAPI project = (FolderAPI) artefact;
-            List<FileData> result = new ArrayList<FileData>();
+            List<FileData> result = new ArrayList<>();
             if (project.getVersionsCount() > 0) {
                 for (ProjectVersion version : project.getVersions()) {
                     FolderAPI history = project.getVersion(version);
@@ -339,14 +339,18 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     }
 
     @Override
-    public boolean deleteHistory(String name, String version) {
+    public boolean deleteHistory(FileData data) {
+        String name = data.getName();
+        String version = data.getVersion();
+
         try {
             ArtefactAPI artefact = getArtefact(name);
             if (artefact == null) {
                 return false;
             }
             if (version == null) {
-                artefact.delete(getUser());
+                CommonUser user = data.getAuthor() == null ? getUser() : new CommonUserImpl(data.getAuthor());
+                artefact.delete(user);
 
                 return true;
             } else {
@@ -427,14 +431,14 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
         }
     }
 
-    private void deleteAbsentFiles(List<String> newFiles, FolderAPI folder, String prefix) throws ProjectException {
+    private void deleteAbsentFiles(List<String> newFiles, FolderAPI folder, String prefix, CommonUser user) throws ProjectException {
         for (ArtefactAPI artefact : folder.getArtefacts()) {
             if (artefact instanceof ResourceAPI) {
                 if (!newFiles.contains(prefix + artefact.getName())) {
-                    artefact.delete(getUser());
+                    artefact.delete(user);
                 }
             } else {
-                deleteAbsentFiles(newFiles, (FolderAPI) artefact, prefix + artefact.getName() + "/");
+                deleteAbsentFiles(newFiles, (FolderAPI) artefact, prefix + artefact.getName() + "/", user);
             }
         }
     }
