@@ -79,6 +79,19 @@ public class RunITest {
 
     }
 
+    @Test
+    public void testSmartDefaultTyping() {
+        RestTemplate rest = new RestClientFactory(baseURI + "/rules-smartdefaulttyping").create();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+        ResponseEntity<String> response = rest.exchange("/myCat", HttpMethod.GET, entity, String.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("{\"@class\":\"org.openl.generated.beans.Cat\",\"name\":null,\"likesCream\":null,\"lives\":0}", response.getBody());
+    }
+
     private static void assertNotBlank(String s) {
         if (s == null || s.trim().isEmpty()) {
             fail("String cannot be blank");
