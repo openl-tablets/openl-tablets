@@ -9,6 +9,7 @@ import org.apache.poi.ss.formula.FormulaParseException;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.service.TableServiceException;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -64,7 +65,11 @@ public class TableEditorController extends BaseTableEditorController {
                     response.setMessage(ERROR_INSERT_ROW);
                 }
             } catch (Exception e) {
-                response.setMessage(SERVER_ERROR);
+                if (e.getCause() instanceof TableServiceException) {
+                    response.setMessage(ERROR_INSERT_ROW);
+                } else {
+                    response.setMessage(SERVER_ERROR);
+                }
                 log.error(SERVER_ERROR, e);
             }
             return pojo2json(response);
@@ -87,7 +92,11 @@ public class TableEditorController extends BaseTableEditorController {
                     response.setMessage(ERROR_INSERT_COLUMN);
                 }
             } catch (Exception e) {
-                response.setMessage(SERVER_ERROR);
+                if (e.getCause() instanceof TableServiceException) {
+                    response.setMessage(ERROR_INSERT_COLUMN);
+                } else {
+                    response.setMessage(SERVER_ERROR);
+                }
                 log.error(SERVER_ERROR, e);
             }
             return pojo2json(response);
