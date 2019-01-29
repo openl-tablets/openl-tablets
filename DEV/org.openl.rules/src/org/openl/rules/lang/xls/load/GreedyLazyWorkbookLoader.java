@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls.load;
 
 import org.apache.poi.ss.usermodel.Workbook;
+import org.openl.rules.lang.xls.SpreadsheetConstants;
 import org.openl.source.IOpenSourceCodeModule;
 
 /**
@@ -11,6 +12,7 @@ public class GreedyLazyWorkbookLoader implements WorkbookLoader {
     private final IOpenSourceCodeModule fileSource;
 
     private Workbook workbook;
+    private SpreadsheetConstants spreadsheetConstants;
 
     public GreedyLazyWorkbookLoader(IOpenSourceCodeModule fileSource) {
         this.fileSource = fileSource;
@@ -44,4 +46,11 @@ public class GreedyLazyWorkbookLoader implements WorkbookLoader {
         return getWorkbook().getNumberOfSheets();
     }
 
+    @Override
+    public SpreadsheetConstants getSpreadsheetConstants() {
+        if (spreadsheetConstants == null) {
+            spreadsheetConstants = new SpreadsheetConstants(getWorkbook().getSpreadsheetVersion());
+        }
+        return spreadsheetConstants;
+    }
 }
