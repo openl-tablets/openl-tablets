@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls.load;
 
 import org.apache.poi.ss.usermodel.Workbook;
+import org.openl.rules.lang.xls.SpreadsheetConstants;
 import org.openl.source.IOpenSourceCodeModule;
 
 import java.lang.ref.WeakReference;
@@ -23,6 +24,7 @@ public class UnloadableLazyWorkbookLoader implements WorkbookLoader {
 
     private WeakReference<Workbook> workbookCache = new WeakReference<>(null);
     private Integer numberOfSheetsCache;
+    private SpreadsheetConstants spreadsheetConstantsCache;
 
     public UnloadableLazyWorkbookLoader(IOpenSourceCodeModule fileSource) {
         this.fileSource = fileSource;
@@ -98,4 +100,15 @@ public class UnloadableLazyWorkbookLoader implements WorkbookLoader {
         return numberOfSheets;
     }
 
+    @Override
+    public SpreadsheetConstants getSpreadsheetConstants() {
+        SpreadsheetConstants spreadsheetConstants = spreadsheetConstantsCache;
+        if (spreadsheetConstants == null) {
+            spreadsheetConstants = new SpreadsheetConstants(getWorkbook().getSpreadsheetVersion());
+            if (canUnload) {
+                spreadsheetConstantsCache = spreadsheetConstants;
+            }
+        }
+        return spreadsheetConstants;
+    }
 }

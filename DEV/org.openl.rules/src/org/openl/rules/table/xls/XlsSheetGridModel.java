@@ -20,6 +20,7 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.*;
+import org.openl.rules.lang.xls.SpreadsheetConstants;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.*;
 import org.openl.rules.table.ui.ICellStyle;
@@ -151,7 +152,11 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         int lastRow = PoiExcelHelper.getLastRowNum(getSheet());
         int top = lastRow + 2, left = 1;
 
-        return new GridRegion(top, left, top + height - 1, left + width - 1);
+        GridRegion newRegion = new GridRegion(top, left, top + height - 1, left + width - 1);
+        if (IGridRegion.Tool.isValidRegion(newRegion, getSpreadsheetConstants())) {
+            return newRegion;
+        }
+        return null;
     }
 
     public ICell getCell(int column, int row) {
@@ -503,4 +508,9 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     private byte[] convertRGB(short[] rgb) {
         return new byte[] { (byte) rgb[0], (byte) rgb[1], (byte) rgb[2] };
     }
+
+    public SpreadsheetConstants getSpreadsheetConstants() {
+        return sheetSource.getWorkbookSource().getWorkbookLoader().getSpreadsheetConstants();
+    }
+
 }

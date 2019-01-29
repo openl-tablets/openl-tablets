@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls.load;
 
 import org.apache.poi.ss.usermodel.Workbook;
+import org.openl.rules.lang.xls.SpreadsheetConstants;
 
 /**
  * Stores the strong reference to previously loaded Workbook instance
@@ -8,9 +9,11 @@ import org.apache.poi.ss.usermodel.Workbook;
  */
 public class SimpleWorkbookLoader implements WorkbookLoader {
     private final Workbook workbook;
+    private final SpreadsheetConstants spreadsheetConstants;
 
     public SimpleWorkbookLoader(Workbook workbook) {
         this.workbook = workbook;
+        this.spreadsheetConstants = new SpreadsheetConstants(workbook.getSpreadsheetVersion());
     }
 
     /**
@@ -59,5 +62,10 @@ public class SimpleWorkbookLoader implements WorkbookLoader {
      */
     @Override
     public void setCanUnload(boolean canUnload) {
+    }
+
+    @Override
+    public SpreadsheetConstants getSpreadsheetConstants() {
+        return spreadsheetConstants;
     }
 }

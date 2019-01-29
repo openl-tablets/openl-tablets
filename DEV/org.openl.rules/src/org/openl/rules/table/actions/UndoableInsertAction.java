@@ -25,21 +25,17 @@ public abstract class UndoableInsertAction extends UndoableEditTableAction {
     public void doAction(IGridTable table) {
         IUndoableGridTableAction moveTableAction = null;
         if (!canPerformAction(table)) {
-            try {
-                moveTableAction = moveTable(table, metaInfoWriter);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            moveTableAction = moveTable(table, metaInfoWriter);
         }
         int numberToInsert = getNumberToInsert(table);
         IGridRegion fullTableRegion = getOriginalRegion(table);
         List<IUndoableGridTableAction> actions = new ArrayList<>();
         IUndoableGridTableAction ua = performAction(numberToInsert, fullTableRegion, table);
         actions.add(ua);
-        
+
         GridRegionAction allTable = getGridRegionAction(fullTableRegion, numberToInsert);
         actions.add(allTable);
-        
+
         if (isDecoratorTable(table)) {
             GridRegionAction displayTable = getGridRegionAction(table.getRegion(), numberToInsert);
             actions.add(displayTable);
