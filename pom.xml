@@ -945,7 +945,6 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
                 <version>${org.slf4j.version}</version>
-                <scope>test</scope>
             </dependency>
             <!-- Jackrabbit content repository implementation -->
             <dependency>
