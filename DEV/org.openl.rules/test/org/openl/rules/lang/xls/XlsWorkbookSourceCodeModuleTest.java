@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 
+import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.After;
 import org.junit.Before;
@@ -49,6 +51,7 @@ public class XlsWorkbookSourceCodeModuleTest {
     public void testFileIsNotCorrupted() throws IOException {
         IOpenSourceCodeModule src = mock(IOpenSourceCodeModule.class);
         Workbook workbook = mock(Workbook.class);
+        when(workbook.getSpreadsheetVersion()).thenReturn(SpreadsheetVersion.EXCEL2007);
         doThrow(new OutOfMemoryError()).when(workbook).write(any(OutputStream.class));
 
         try {

@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls.load;
 
 import org.apache.poi.ss.usermodel.Workbook;
+import org.openl.rules.lang.xls.SpreadsheetConstants;
 
 /**
  * Provides access to the Workbook.
@@ -55,4 +56,6 @@ public interface WorkbookLoader {
      * @see #isCanUnload()
      */
     void setCanUnload(boolean canUnload);
+
+    SpreadsheetConstants getSpreadsheetConstants();
 }

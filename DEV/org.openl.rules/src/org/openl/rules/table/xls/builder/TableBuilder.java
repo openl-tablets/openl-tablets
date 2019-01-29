@@ -92,7 +92,7 @@ public class TableBuilder {
         this.height = height;
         region = gridModel.findEmptyRect(width, height);
         if (region == null) {
-            throw new CreateTableException("could not find appropriate region for writing");
+            throw new CreateTableException("Could not find appropriate region for writing");
         }
 
         currentRow = 0;
@@ -113,8 +113,8 @@ public class TableBuilder {
             throw new IllegalStateException("beginTable() has already been called");
         }
         region = regionToWrite;
-        if (region == null) {
-            throw new CreateTableException("could not find appropriate region for writing");
+        if (region == null || !IGridRegion.Tool.isValidRegion(region, gridModel.getSpreadsheetConstants())) {
+            throw new CreateTableException("Could not find appropriate region for writing");
         }
         currentRow = 0;
         style2style.clear();

@@ -6,6 +6,7 @@
 
 package org.openl.rules.table;
 
+import org.openl.rules.lang.xls.SpreadsheetConstants;
 import org.openl.util.StringTool;
 
 /**
@@ -129,6 +130,13 @@ public interface IGridRegion {
             int row2 = getRow(rr[1]);
 
             return new GridRegion(row1, col1, row2, col2);
+        }
+
+        public static boolean isValidRegion(IGridRegion region, SpreadsheetConstants spreadsheetConstants) {
+            int rowIndex = region.getBottom();
+            int columnIndex = region.getRight();
+            return rowIndex >= 0 && rowIndex <= spreadsheetConstants.getMaxRowIndex()
+                    && columnIndex >= 0 && columnIndex <= spreadsheetConstants.getMaxColumnIndex();
         }
     }
 
