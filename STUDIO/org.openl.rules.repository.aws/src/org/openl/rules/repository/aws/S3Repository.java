@@ -113,7 +113,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     @Override
     public List<FileData> list(String path) throws IOException {
         try {
-            List<FileData> result = new ArrayList<FileData>();
+            List<FileData> result = new ArrayList<>();
 
             VersionListing versionListing = null;
 
@@ -257,7 +257,12 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     @Override
     public FileData rename(String srcName, FileData destData) throws IOException {
         copy(srcName, destData);
-        deleteHistory(srcName, null);
+        FileData srcData = new FileData();
+        srcData.setName(srcName);
+        srcData.setVersion(null);
+        srcData.setAuthor(destData.getAuthor());
+        srcData.setComment(destData.getComment());
+        deleteHistory(srcData);
 
         onModified();
 
@@ -287,7 +292,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     @Override
     public List<FileData> listHistory(String name) throws IOException {
         try {
-            List<FileData> result = new ArrayList<FileData>();
+            List<FileData> result = new ArrayList<>();
             VersionListing versionListing = null;
 
             do {
@@ -364,7 +369,10 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     }
 
     @Override
-    public boolean deleteHistory(String name, String version) {
+    public boolean deleteHistory(FileData data) {
+        String name = data.getName();
+        String version = data.getVersion();
+
         try {
             if (version == null) {
                 deleteAllVersions(name);

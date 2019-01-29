@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,9 +16,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Listener;
@@ -29,14 +28,15 @@ public class GitRepositoryTest {
     private static final String BRANCH = "test";
     private static final String FOLDER_IN_REPOSITORY = "rules/project1/";
     private static final String TAG_PREFIX = "Rules_";
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+
+    private File root;
     private GitRepository repo;
     private ChangesCounter changesCounter;
 
     @Before
     public void setUp() throws GitAPIException, IOException, RRepositoryException {
-        File root = tempFolder.getRoot();
+        root = Files.createTempDirectory(null).toFile();
+
         File remote = new File(root, "remote");
         File local = new File(root, "local");
 
@@ -100,7 +100,10 @@ public class GitRepositoryTest {
 
     @After
     public void tearDown() {
-        repo.close();
+        if (repo != null) {
+            repo.close();
+        }
+        FileUtils.deleteQuietly(root);
     }
 
     @Test
@@ -244,7 +247,6 @@ public class GitRepositoryTest {
         assertEquals(2, changesCounter.getChanges());
 
         // Clone remote repository to temp folder and check that changes we made before exist there
-        File root = tempFolder.getRoot();
         File remote = new File(root, "remote");
         File temp = new File(root, "temp");
         try (GitRepository secondRepo = createRepository(remote, temp)) {
@@ -307,7 +309,10 @@ public class GitRepositoryTest {
         assertTrue("'project1' isn't deleted", deletedProject.isDeleted());
 
         // Restore the project
-        assertTrue(repo.deleteHistory(projectPath, deletedProject.getVersion()));
+        FileData toDelete = new FileData();
+        toDelete.setName(projectPath);
+        toDelete.setVersion(deletedProject.getVersion());
+        assertTrue(repo.deleteHistory(toDelete));
         deletedProject = repo.check(projectPath);
         assertFalse("'project1' isn't restored", deletedProject.isDeleted());
 
@@ -317,7 +322,9 @@ public class GitRepositoryTest {
                 repo.listHistory(projectPath).size());
 
         // Erase the project
-        assertTrue(repo.deleteHistory(projectPath, null));
+        toDelete.setName(projectPath);
+        toDelete.setVersion(null);
+        assertTrue(repo.deleteHistory(toDelete));
         deletedProject = repo.check(projectPath);
         assertNull("'project1' isn't erased", deletedProject);
 
@@ -447,7 +454,7 @@ public class GitRepositoryTest {
         }
 
         // Check that there are no uncommitted changes after error
-        try (Git git = Git.open(new File(tempFolder.getRoot(), "local"))) {
+        try (Git git = Git.open(new File(root, "local"))) {
             Status status = git.status().call();
             assertTrue(status.getUncommittedChanges().isEmpty());
         }
@@ -458,7 +465,6 @@ public class GitRepositoryTest {
         // Prepare the test: the folder with local repository name exists but it's empty
         repo.close();
 
-        File root = tempFolder.getRoot();
         File remote = new File(root, "remote");
         File local = new File(root, "local");
         FileUtils.deleteQuietly(local);
@@ -481,7 +487,6 @@ public class GitRepositoryTest {
     @Test
     public void neededBranchWasNotClonedBefore() throws RRepositoryException, IOException {
         // Prepare the test: clone master branch
-        File root = tempFolder.getRoot();
         File remote = new File(root, "remote");
         File local = new File(root, "temp");
         try (GitRepository repository = createRepository(remote, local, Constants.MASTER)) {
@@ -498,7 +503,6 @@ public class GitRepositoryTest {
     @Test
     public void twoUsersAddFileSimultaneously() throws RRepositoryException, IOException {
         // Prepare the test: clone master branch
-        File root = tempFolder.getRoot();
         File remote = new File(root, "remote");
         File local1 = new File(root, "temp1");
         File local2 = new File(root, "temp2");

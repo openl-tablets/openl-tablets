@@ -272,7 +272,11 @@ public class RepositoryService {
             FileData existing = repository.check(fileName);
             if (existing != null && existing.isDeleted()) {
                 // Remove "deleted" marker
-                repository.deleteHistory(existing.getName(), existing.getVersion());
+                FileData delData = new FileData();
+                delData.setName(existing.getName());
+                delData.setVersion(existing.getVersion());
+                delData.setAuthor(existing.getAuthor());
+                repository.deleteHistory(delData);
             }
 
             FileData data = new FileData();
