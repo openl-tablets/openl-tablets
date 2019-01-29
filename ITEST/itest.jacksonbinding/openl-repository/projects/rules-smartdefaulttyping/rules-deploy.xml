@@ -1,0 +1,19 @@
+<rules-deploy>
+  <isProvideRuntimeContext>false</isProvideRuntimeContext>
+  <isProvideVariations>false</isProvideVariations>
+  <serviceName>rules-smartdefaulttyping</serviceName>
+  <publishers>
+    <publisher>RESTFUL</publisher>
+  </publishers>
+  <url>rules-smartdefaulttyping</url>
+  <configuration>
+    <entry>
+      <string>jacksondatabinding.defaultTypingMode</string>
+      <string>SMART</string>
+    </entry>
+    <entry>
+      <string>rootClassNamesBinding</string>
+      <string>org.openl.generated.beans.Animal, org.openl.generated.beans.Cat, org.openl.generated.beans.Dog, org.openl.generated.beans.Zoo</string>
+    </entry>
+  </configuration>
+</rules-deploy>
