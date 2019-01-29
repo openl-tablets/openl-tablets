@@ -3,9 +3,6 @@ package org.openl.itest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -41,7 +38,7 @@ public class RunITest {
     }
 
     @Test
-    public void testDefaultDateFormatConfiguration() throws IOException {
+    public void testDefaultDateFormatConfiguration() {
 
         RestTemplate rest = new RestClientFactory(baseURI + "/rules-defaultdateformat").create();
 
@@ -51,17 +48,7 @@ public class RunITest {
         ResponseEntity<String> response = rest.exchange("/getDate", HttpMethod.GET, entity, String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        assertNotBlank(response.getBody());
-
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyMMddHHmmssZ");
-        try {
-            String v = response.getBody().trim();
-            v = v.substring(1, v.length() - 1);
-            simpleDateFormat.parse(v);
-        } catch (Exception e) {
-            fail("Failed to parse expected format.");
-        }
+        assertEquals("\"190223000000\"", response.getBody());
     }
 
     @Test
