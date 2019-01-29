@@ -3,6 +3,7 @@ package org.openl.gen.writers;
 import java.util.Map;
 
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.openl.gen.FieldDescription;
@@ -31,23 +32,27 @@ public class SettersWriter extends MethodWriter {
     protected void generateSetter(ClassWriter classWriter, Map.Entry<String, FieldDescription> fieldEntry) {
         String fieldName = fieldEntry.getKey();
         FieldDescription field = fieldEntry.getValue();
-        
-        MethodVisitor methodVisitor;
-        
-        methodVisitor = writeMethodSignature(classWriter, field, fieldName);
+        final String fieldType = field.getTypeDescriptor();
+
+        String setterName = ClassUtils.setter(fieldName);
+        String methodDescriptor = "(" + fieldType + ")V";
+        MethodVisitor methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, setterName, methodDescriptor, null, null);
+
+        Label l0 = new Label();
+        methodVisitor.visitLabel(l0);
+
+        // this.fieldName = arg0
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
         methodVisitor.visitVarInsn(getConstantForVarInsn(field), 1);
-        
         methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), fieldName, field.getTypeDescriptor());
         methodVisitor.visitInsn(Opcodes.RETURN);
-        methodVisitor.visitMaxs(0, 0);
-    }
 
-    protected MethodVisitor writeMethodSignature(ClassWriter classWriter, FieldDescription fieldType, String fieldName) {
-        String setterName = ClassUtils.setter(fieldName);
-        final String javaType = fieldType.getTypeDescriptor();
-        final String format = new StringBuilder(64).append('(').append(javaType).append(")V").toString();
-        return classWriter.visitMethod(Opcodes.ACC_PUBLIC,  setterName, format, null, null);
+        // Add variable name to DEBUG
+        Label l2 = new Label();
+        methodVisitor.visitLabel(l2);
+        methodVisitor.visitLocalVariable(fieldName, fieldType, null, l0, l2, 1);
+
+        methodVisitor.visitMaxs(0, 0);
     }
 
 }
