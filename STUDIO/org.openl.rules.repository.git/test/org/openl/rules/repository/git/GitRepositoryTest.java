@@ -312,9 +312,11 @@ public class GitRepositoryTest {
         FileData toDelete = new FileData();
         toDelete.setName(projectPath);
         toDelete.setVersion(deletedProject.getVersion());
+        toDelete.setComment("Delete project1.");
         assertTrue(repo.deleteHistory(toDelete));
         deletedProject = repo.check(projectPath);
         assertFalse("'project1' isn't restored", deletedProject.isDeleted());
+        assertEquals("Delete project1.", deletedProject.getComment());
 
         // Count actual changes in history
         assertEquals("Actual project changes must be 3. Technical commits for Archive/Restore shouldn't be counted",
@@ -324,6 +326,7 @@ public class GitRepositoryTest {
         // Erase the project
         toDelete.setName(projectPath);
         toDelete.setVersion(null);
+        toDelete.setComment("Erase project1");
         assertTrue(repo.deleteHistory(toDelete));
         deletedProject = repo.check(projectPath);
         assertNull("'project1' isn't erased", deletedProject);
@@ -540,6 +543,7 @@ public class GitRepositoryTest {
         repo.setLocalRepositoryPath(local.getAbsolutePath());
         repo.setBranch(branch);
         repo.setTagPrefix(TAG_PREFIX);
+        repo.setCommentPattern("WebStudio: {0}. {1}");
         repo.initialize();
 
         return repo;
