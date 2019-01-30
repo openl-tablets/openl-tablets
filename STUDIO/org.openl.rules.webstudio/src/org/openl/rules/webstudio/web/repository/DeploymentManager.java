@@ -109,6 +109,7 @@ public class DeploymentManager implements InitializingBean {
                 List<FileData> existingProjects = deployRepo.list(deploymentPath);
                 List<FileData> projectsToDelete = findProjectsToDelete(existingProjects, projectDescriptors);
                 for (FileData fileData : projectsToDelete) {
+                    fileData.setAuthor(userName);
                     deployRepo.delete(fileData);
                 }
 

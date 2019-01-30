@@ -178,7 +178,13 @@ public class AProject extends AProjectFolder {
         unlock();
         close(user);
         FileData fileData = getFileData();
-        if (!getRepository().delete(fileData)) {
+
+        FileData data = new FileData();
+        data.setName(fileData.getName());
+        data.setVersion(fileData.getVersion());
+        data.setAuthor(user.getUserName());
+        data.setComment(Comments.archiveProject(getName()));
+        if (!getRepository().delete(data)) {
             throw new ProjectException("Resource is absent or can't be deleted");
         }
         setFileData(null);
@@ -192,7 +198,9 @@ public class AProject extends AProjectFolder {
         FileData fileData = getFileData();
         FileData data = new FileData();
         data.setName(fileData.getName());
+        data.setVersion(null);
         data.setAuthor(user.getUserName());
+        data.setComment(Comments.eraseProject(getName()));
         if (!getRepository().deleteHistory(data)) {
             throw new ProjectException("Can't erase project because it is absent or can't be deleted");
         }
@@ -215,6 +223,7 @@ public class AProject extends AProjectFolder {
                 data.setName(fileData.getName());
                 data.setVersion(fileData.getVersion());
                 data.setAuthor(user.getUserName());
+                data.setComment(Comments.restoreProject(getName()));
                 repository.deleteHistory(data);
                 FileData actual = repository.check(fileData.getName());
                 setFileData(actual);
