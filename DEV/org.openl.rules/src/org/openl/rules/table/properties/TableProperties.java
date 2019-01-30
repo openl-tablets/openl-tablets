@@ -351,6 +351,14 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("autoType", autoType);
         reset();
     }
+    public java.lang.Boolean getCalculateAllCells() {
+        return (java.lang.Boolean) getPropertyValue("calculateAllCells");
+    }
+
+    public void setCalculateAllCells(java.lang.Boolean calculateAllCells) {
+        setFieldValue("calculateAllCells", calculateAllCells);
+        reset();
+    }
     public java.lang.Boolean getParallel() {
         return (java.lang.Boolean) getPropertyValue("parallel");
     }

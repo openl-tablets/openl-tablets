@@ -454,21 +454,29 @@ public class SpreadsheetComponentsBuilder {
             if (!isExistsReturnHeader()) {
                 throw SyntaxNodeExceptionUtils.createError("There should be RETURN row or column for this return type",
                     tableSyntaxNode);
-            }
-            List<SpreadsheetCell> notEmptyReturnDefinitions = listNonEmptyCells(spreadsheet.getCells(), returnHeaderDefinition);
-
-            switch (notEmptyReturnDefinitions.size()) {
-                case 0:
-                    throw SyntaxNodeExceptionUtils.createError("There is no return expression cell",
-                            symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
-                case 1:
-                    resultBuilder = new ScalarResultBuilder(notEmptyReturnDefinitions);
-                    break;
-                default:
-                    resultBuilder = new ArrayResultBuilder(notEmptyReturnDefinitions, returnHeaderDefinition.getReturnType());
+            } else {
+                List<SpreadsheetCell> notEmptyReturnDefinitions = listNonEmptyCells(spreadsheet.getCells(), returnHeaderDefinition);
+    
+                switch (notEmptyReturnDefinitions.size()) {
+                    case 0:
+                        throw SyntaxNodeExceptionUtils.createError("There is no return expression cell",
+                                symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
+                    case 1:
+                        resultBuilder = new ScalarResultBuilder(notEmptyReturnDefinitions, isComputateAllCellsInSpreadsheet(spreadsheet));
+                        break;
+                    default:
+                        resultBuilder = new ArrayResultBuilder(notEmptyReturnDefinitions, returnHeaderDefinition.getReturnType(), isComputateAllCellsInSpreadsheet(spreadsheet));
+                }
             }
         }
         return resultBuilder;
+    }
+    
+    private boolean isComputateAllCellsInSpreadsheet(Spreadsheet spreadsheet) {
+        if (Boolean.FALSE.equals(spreadsheet.getMethodProperties().getComputateAll())) {
+            return false;
+        }
+        return true;
     }
 
     private static List<SpreadsheetCell> listNonEmptyCells(SpreadsheetCell[][] cells, SpreadsheetHeaderDefinition definition) {

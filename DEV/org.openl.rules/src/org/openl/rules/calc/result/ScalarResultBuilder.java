@@ -9,12 +9,19 @@ public class ScalarResultBuilder implements IResultBuilder {
 
     private SpreadsheetCell cell;
 
-    public ScalarResultBuilder(List<SpreadsheetCell> notEmpty) {
+    private boolean calculateAll;
+
+    public ScalarResultBuilder(List<SpreadsheetCell> notEmpty, boolean calculateAll) {
         cell = notEmpty.get(0);
+        this.calculateAll = calculateAll;
     }
-    
+
     public Object makeResult(SpreadsheetResultCalculator result) {
-        return result.getValue(cell.getRowIndex(), cell.getColumnIndex());
+        if (!calculateAll) {
+            return result.getValue(cell.getRowIndex(), cell.getColumnIndex());
+        } else {
+            return result.getValues()[cell.getRowIndex()][cell.getColumnIndex()];
+        }
     }
 
 }
