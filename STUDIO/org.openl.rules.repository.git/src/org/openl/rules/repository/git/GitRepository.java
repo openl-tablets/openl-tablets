@@ -34,10 +34,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     private static final String DELETED_MARKER_FILE = ".archived";
     private static final String DELETED_TAG_SUFFIX = "_ARCHIVED";
     private static final String RESTORED_TAG_SUFFIX = "_RESTORED";
-    /**
-     * TODO: Probably we should change API for deleteHistory() to know who undeletes or erases a project
-     */
-    private static final String SYSTEM_USER = "system";
+
     private final Logger log = LoggerFactory.getLogger(GitRepository.class);
 
     private String uri;
@@ -229,7 +226,12 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     }
 
     @Override
-    public boolean deleteHistory(String name, String version) {
+    public boolean deleteHistory(FileData data) {
+        String name = data.getName();
+        String version = data.getVersion();
+        String author = StringUtils.trimToEmpty(data.getAuthor());
+        String comment = StringUtils.trimToEmpty(data.getComment());
+
         Lock writeLock = repositoryLock.writeLock();
         try {
             writeLock.lock();
@@ -238,8 +240,8 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             if (version == null) {
                 git.rm().addFilepattern(name).call();
                 commit = git.commit()
-                        .setCommitter(SYSTEM_USER, "")
-                        .setMessage("Erase")
+                        .setCommitter(author, "")
+                        .setMessage(comment)
                         .setOnly(name)
                         .call();
 
@@ -258,8 +260,8 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
                 String markerFile = name + "/" + DELETED_MARKER_FILE;
                 git.rm().addFilepattern(markerFile).call();
                 commit = git.commit()
-                        .setCommitter(SYSTEM_USER, "")
-                        .setMessage("Restore")
+                        .setCommitter(author, "")
+                        .setMessage(comment)
                         .setOnly(markerFile)
                         .call();
 

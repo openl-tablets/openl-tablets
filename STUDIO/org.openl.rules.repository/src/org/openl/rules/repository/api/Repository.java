@@ -150,13 +150,12 @@ public interface Repository {
      * Delete a file from the history. If the version is null, then it will
      * delete all versions of the file from the history.
      *
-     * @param name the file to delete.
-     * @param version the version of the file to delete, can be null.
+     * @param data the file descriptor to delete. The fields "name", "version", "author" and "comment" must be initialized.
      * @return true if file has been deleted successfully or false if the file
      *         is absent or cannot be deleted.
      * @see #delete(FileData)
      */
-    boolean deleteHistory(String name, String version);
+    boolean deleteHistory(FileData data);
 
     /**
      * Copy a file of the given version to the destination file. If the version
