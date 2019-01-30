@@ -32,7 +32,7 @@ class ZipFolderRepository implements Repository {
     public List<FileData> list(String path) throws IOException {
         String artefactPath = path.substring(zipPath.length() + 1);
 
-        List<FileData> result = new ArrayList<FileData>();
+        List<FileData> result = new ArrayList<>();
 
         ZipInputStream zipInputStream = null;
         try {
@@ -109,7 +109,7 @@ class ZipFolderRepository implements Repository {
     }
 
     @Override
-    public boolean deleteHistory(String name, String version) {
+    public boolean deleteHistory(FileData data) {
         throw new UnsupportedOperationException();
     }
 

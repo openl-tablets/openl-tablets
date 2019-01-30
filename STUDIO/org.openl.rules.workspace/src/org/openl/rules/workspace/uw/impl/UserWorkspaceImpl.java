@@ -81,7 +81,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         } catch (ProjectException e) {
             try {
                 if (designTimeRepository.hasProject(name)) {
-                    designTimeRepository.getProject(name).erase();
+                    designTimeRepository.getProject(name).erase(user);
                 }
             } catch (ProjectException e1) {
                 log.error(e1.getMessage(), e1);
@@ -387,7 +387,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         } catch (ProjectException e) {
             try {
                 if (designTimeRepository.hasProject(name)) {
-                    designTimeRepository.getProject(name).erase();
+                    designTimeRepository.getProject(name).erase(user);
                 }
             } catch (ProjectException e1) {
                 log.error(e1.getMessage(), e1);

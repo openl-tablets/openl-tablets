@@ -171,10 +171,8 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
     }
 
     @Override
-    public boolean deleteHistory(String name, String version) {
-        FileData fileData = new FileData();
-        fileData.setName(name);
-        return version == null && delete(fileData);
+    public boolean deleteHistory(FileData data) {
+        return data.getVersion() == null && delete(data);
     }
 
     @Override
