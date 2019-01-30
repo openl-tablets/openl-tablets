@@ -25,6 +25,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
@@ -276,6 +277,7 @@ public class RepositoryService {
                 delData.setName(existing.getName());
                 delData.setVersion(existing.getVersion());
                 delData.setAuthor(existing.getAuthor());
+                delData.setComment(Comments.restoreProject(name));
                 repository.deleteHistory(delData);
             }
 
