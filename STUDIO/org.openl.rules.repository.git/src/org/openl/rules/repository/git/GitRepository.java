@@ -2,6 +2,8 @@ package org.openl.rules.repository.git;
 
 import java.io.*;
 import java.net.URI;
+import java.text.MessageFormat;
+import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -32,8 +34,6 @@ import org.slf4j.LoggerFactory;
 
 public class GitRepository implements FolderRepository, Closeable, RRepositoryFactory {
     private static final String DELETED_MARKER_FILE = ".archived";
-    private static final String DELETED_TAG_SUFFIX = "_ARCHIVED";
-    private static final String RESTORED_TAG_SUFFIX = "_RESTORED";
 
     private final Logger log = LoggerFactory.getLogger(GitRepository.class);
 
@@ -44,6 +44,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     private String branch = Constants.MASTER;
     private String tagPrefix = "";
     private int listenerTimerPeriod = 10;
+    private String commentPattern;
 
     private ChangesMonitor monitor;
     private Git git;
@@ -109,18 +110,21 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             }
 
             if (file.isDirectory()) {
+                String comment = StringUtils.trimToEmpty(data.getComment());
+                String commitMessage = MessageFormat.format(commentPattern, CommitType.ARCHIVE, comment);
+
                 // "touch" marker file
                 new FileOutputStream(new File(file, DELETED_MARKER_FILE)).close();
 
                 String markerFile = name + "/" + DELETED_MARKER_FILE;
                 git.add().addFilepattern(markerFile).call();
                 RevCommit commit = git.commit()
-                        .setMessage(StringUtils.trimToEmpty(data.getComment()))
+                        .setMessage(commitMessage)
                         .setCommitter(data.getAuthor(), "")
                         .setOnly(markerFile)
                         .call();
 
-                addTagToCommit(commit, CommitType.ARCHIVE);
+                addTagToCommit(commit);
             } else {
                 // Files can't be archived. Only folders.
                 git.rm().addFilepattern(name).call();
@@ -239,9 +243,10 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             RevCommit commit;
             if (version == null) {
                 git.rm().addFilepattern(name).call();
+                String commitMessage = MessageFormat.format(commentPattern, CommitType.ERASE, comment);
                 commit = git.commit()
                         .setCommitter(author, "")
-                        .setMessage(comment)
+                        .setMessage(commitMessage)
                         .setOnly(name)
                         .call();
 
@@ -259,13 +264,14 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
 
                 String markerFile = name + "/" + DELETED_MARKER_FILE;
                 git.rm().addFilepattern(markerFile).call();
+                String commitMessage = MessageFormat.format(commentPattern, CommitType.RESTORE, comment);
                 commit = git.commit()
                         .setCommitter(author, "")
-                        .setMessage(comment)
+                        .setMessage(commitMessage)
                         .setOnly(markerFile)
                         .call();
 
-                addTagToCommit(commit, CommitType.RESTORE);
+                addTagToCommit(commit);
             }
 
             push();
@@ -439,6 +445,10 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
+    public void setCommentPattern(String commentPattern) {
+        this.commentPattern = commentPattern;
+    }
+
     private static TreeWalk buildTreeWalk(org.eclipse.jgit.lib.Repository repository, String path, RevTree tree) throws
                                                                                                           IOException {
         TreeWalk treeWalk;
@@ -505,13 +515,22 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
 
         fileData.setAuthor(committerIdent.getName());
         fileData.setModifiedAt(committerIdent.getWhen());
-        fileData.setComment(fileCommit.getFullMessage());
+        String message = fileCommit.getFullMessage();
+        try {
+            Object[] parse = new MessageFormat(commentPattern).parse(message);
+            if (parse.length == 2) {
+                CommitType commitType = CommitType.valueOf(String.valueOf(parse[0]));
+                if (commitType == CommitType.ARCHIVE) {
+                    fileData.setDeleted(true);
+                }
+                message = String.valueOf(parse[1]);
+            }
+        } catch (ParseException | IllegalArgumentException ignored) {
+        }
+        fileData.setComment(message);
 
         String version = getVersionName(fileCommit.getId());
         fileData.setVersion(version);
-        if (version.endsWith(DELETED_TAG_SUFFIX)) {
-            fileData.setDeleted(true);
-        }
 
         if ((fileModeBits & FileMode.TYPE_FILE) != 0) {
             ObjectLoader loader = repository.open(dirWalk.getObjectId(0));
@@ -640,11 +659,6 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         for (Ref tagRef : call) {
             String name = getLocalTagName(tagRef);
             if (name.startsWith(tagPrefix)) {
-                if (name.endsWith(DELETED_TAG_SUFFIX)) {
-                    name = name.substring(0, name.length() - DELETED_TAG_SUFFIX.length());
-                } else if (name.endsWith(RESTORED_TAG_SUFFIX)) {
-                    name = name.substring(0, name.length() - RESTORED_TAG_SUFFIX.length());
-                }
                 int num;
                 try {
                     num = Integer.parseInt(name.substring(tagPrefix.length()));
@@ -693,25 +707,10 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     }
 
     private void addTagToCommit(RevCommit commit) throws GitAPIException {
-        addTagToCommit(commit, CommitType.NORMAL);
-    }
-
-    private void addTagToCommit(RevCommit commit, CommitType commitType) throws GitAPIException {
         pull();
 
-        if (!tagPrefix.isEmpty() || CommitType.NORMAL != commitType) {
+        if (!tagPrefix.isEmpty()) {
             String tagName = tagPrefix + getNextTagId();
-            switch (commitType) {
-                case ARCHIVE:
-                    tagName += DELETED_TAG_SUFFIX;
-                    break;
-                case RESTORE:
-                    tagName += RESTORED_TAG_SUFFIX;
-                    break;
-                default:
-                    // Do nothing
-                    break;
-            }
             git.tag().setObjectId(commit).setName(tagName).call();
         }
     }
@@ -961,7 +960,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
                 String versionName = getVersionName(commit);
                 // Skip technical commits
-                if (!versionName.endsWith(DELETED_TAG_SUFFIX) && !versionName.endsWith(RESTORED_TAG_SUFFIX)) {
+                if (!isTechnicalCommit(commit)) {
                     history.add(createFileData(repository, rootWalk, "", commit));
                 }
             } catch (FileNotFoundException e) {
@@ -969,6 +968,22 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             }
 
             return false;
+        }
+
+        private boolean isTechnicalCommit(RevCommit commit) {
+            boolean technicalCommit = false;
+            try {
+                Object[] parse = new MessageFormat(commentPattern).parse(commit.getFullMessage());
+                if (parse.length == 2) {
+                    CommitType commitType = CommitType.valueOf(String.valueOf(parse[0]));
+                    if (commitType != CommitType.NORMAL) {
+                        technicalCommit = true;
+                    }
+                }
+            } catch (ParseException | IllegalArgumentException ignored) {
+                // If message doesn't conform format then it's typical commit message, not technical
+            }
+            return technicalCommit;
         }
 
         @Override
@@ -1073,6 +1088,6 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     }
 
     private enum CommitType {
-        NORMAL, ARCHIVE, RESTORE
+        NORMAL, ARCHIVE, RESTORE, ERASE
     }
 }
