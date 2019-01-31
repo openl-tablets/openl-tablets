@@ -70,6 +70,8 @@ public class TestSuite implements INamedThing {
                                 testUnitResultsArray[j] = executeTest(openClass, j, ntimes);
                             }
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     } finally {
                         countDownLatch.countDown();
                     }
