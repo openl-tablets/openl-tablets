@@ -1,6 +1,8 @@
 package org.openl.binding.impl;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,8 +19,32 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
 
     private static CustomSpreadsheetResultOpenClass merge(CustomSpreadsheetResultOpenClass type1,
             CustomSpreadsheetResultOpenClass type2) {
+        List<String> rowNames = new ArrayList<>();
+        for (String rowName : type1.getRowNames()) {
+            rowNames.add(rowName);
+        }
+        for (String rowName : type2.getRowNames()) {
+            if (!rowNames.contains(rowName)) {
+                rowNames.add(rowName);
+            }
+        }
+
+        List<String> columnNames = new ArrayList<>();
+        for (String colName : type1.getColumnNames()) {
+            columnNames.add(colName);
+        }
+        for (String colName : type2.getColumnNames()) {
+            if (!columnNames.contains(colName)) {
+                columnNames.add(colName);
+            }
+        }
+
         CustomSpreadsheetResultOpenClass mergedCustomSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
-            "SpreadsheetResult");
+            "SpreadsheetResult",
+            rowNames.toArray(new String[] {}),
+            columnNames.toArray(new String[] {}),
+            rowNames.toArray(new String[] {}),
+            columnNames.toArray(new String[] {}));
         Map<String, IOpenField> fields1 = type1.getFields();
         Map<String, IOpenField> fields2 = type2.getFields();
         Set<String> fieldNames = new HashSet<>();
