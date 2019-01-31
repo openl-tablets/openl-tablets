@@ -13,6 +13,11 @@ class ArrayComparator extends GenericComparator<Object> {
     }
 
     @Override
+    boolean fit(Object expected, Object actual) {
+        return (expected == null || expected.getClass().isArray()) && (actual == null || actual.getClass().isArray());
+    }
+    
+    @Override
     boolean isEmpty(Object object) {
         return Array.getLength(object) == 0;
     }

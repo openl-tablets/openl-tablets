@@ -23,6 +23,6 @@ public class ArrayIndexOnSpreadsheetResultTest {
         
         ITest instance = testHelper.getInstance();
         TestUnitsResults result = instance.findEmployeeClassPremiumTest();
-        assertEquals(0, result.getNumberOfFailures());
+        assertEquals("Number of failures", 0, result.getNumberOfFailures());
     }
 }

@@ -7,7 +7,7 @@ package org.openl.rules.testmethod.result;
  */
 class GenericComparator<T> implements TestResultComparator {
 
-    private static final GenericComparator INSTANCE = new GenericComparator();
+    private static final GenericComparator<Object> INSTANCE = new GenericComparator<>();
 
     /**
      * Use {@link #getInstance()} instead.
@@ -15,21 +15,29 @@ class GenericComparator<T> implements TestResultComparator {
     GenericComparator() {
     }
 
+    boolean fit(Object expected, Object actual){
+        return true;
+    }
+    
     @Override
-    public final boolean isEqual(Object expectedResult, Object actualResult) {
-        if (actualResult == expectedResult) {
+    @SuppressWarnings("unchecked")
+    public final boolean isEqual(Object expected, Object actual) {
+        if (actual == expected) {
             return true;
         }
-        T expected = (T) expectedResult;
-        T actual = (T) actualResult;
-        boolean expectedIsEmpty = expected == null || isEmpty(expected);
-        boolean actualIsEmpty = actual == null || isEmpty(actual);
+        
+        if (!fit(expected, actual)) {
+            return false;
+        }
+        
+        boolean expectedIsEmpty = expected == null || isEmpty((T)expected);
+        boolean actualIsEmpty = actual == null || isEmpty((T)actual);
         if (expectedIsEmpty) {
             return actualIsEmpty;
         } else if (actualIsEmpty) {
             return false;
         }
-        return equals(expected, actual);
+        return equals((T)expected, (T)actual);
     }
 
     boolean isEmpty(T object) {
