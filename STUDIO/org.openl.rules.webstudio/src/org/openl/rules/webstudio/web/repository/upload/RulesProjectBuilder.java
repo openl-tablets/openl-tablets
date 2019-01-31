@@ -4,10 +4,7 @@ import java.io.InputStream;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectFolder;
-import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.abstraction.LockEngine;
+import org.openl.rules.project.abstraction.*;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -83,7 +80,7 @@ public class RulesProjectBuilder {
         WorkspaceUser user = workspace.getUser();
         // Override comment to avoid reusing of comment from previous version (we create a new project but it can contain
         // unerasable history for example in Git).
-        project.getFileData().setComment("Create project");
+        project.getFileData().setComment(Comments.createProject(project.getName()));
         project.save(user);
         workspace.refresh();
     }

@@ -132,7 +132,9 @@ public class RulesProject extends UserWorkspaceProject {
             if (designFolderName != null) {
                 FileData data = new FileData();
                 data.setName(designFolderName);
+                data.setVersion(null);
                 data.setAuthor(getUser().getUserName());
+                data.setComment(Comments.eraseProject(getName()));
                 if (!designRepository.deleteHistory(data)) {
                     throw new ProjectException("Can't erase project because it is absent or can't be deleted");
                 }
