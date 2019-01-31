@@ -80,6 +80,9 @@ public class ColumnDescriptor {
      * @return true if paramType represents array
      */
     protected static boolean isValuesAnArray(IOpenClass paramType) {
+        if (paramType.getAggregateInfo() == null) {
+            return false;
+        }
         return paramType.getAggregateInfo().isAggregate(paramType);
     }
 

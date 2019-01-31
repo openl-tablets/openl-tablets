@@ -19,15 +19,12 @@ public class NumberUtils {
     }
 
     public static boolean isFloatPointType(Class<?> clazz) {
-        if (float.class.equals(clazz)
-                || double.class.equals(clazz)
-                || Float.class.equals(clazz)
-                || FloatValue.class.isAssignableFrom(clazz)
-                || Double.class.equals(clazz)
-                || DoubleValue.class.isAssignableFrom(clazz)
-                || BigDecimal.class.equals(clazz)
-                || BigDecimalValue.class.equals(clazz)) {
-            return true;
+        if (clazz != null) {
+            if (float.class.equals(clazz) || double.class.equals(clazz) || Float.class.equals(clazz) || FloatValue.class
+                .isAssignableFrom(clazz) || Double.class.equals(clazz) || DoubleValue.class
+                    .isAssignableFrom(clazz) || BigDecimal.class.equals(clazz) || BigDecimalValue.class.equals(clazz)) {
+                return true;
+            }
         }
         return false;
     }

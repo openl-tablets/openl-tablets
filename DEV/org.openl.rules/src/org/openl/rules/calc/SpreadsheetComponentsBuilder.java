@@ -6,9 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.NodeType;
+import org.openl.binding.impl.cast.IOneElementArrayCast;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
@@ -19,12 +23,11 @@ import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.calc.result.ScalarResultBuilder;
 import org.openl.rules.lang.xls.syntax.SpreadsheetHeaderNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.SpreadsheetMetaInfoReader;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -52,11 +55,11 @@ public class SpreadsheetComponentsBuilder {
     
     private CellsHeaderExtractor cellsHeaderExtractor;
     
-    private ReturnSpreadsheetHeaderDefinition returnHeaderDefinition;
+    private SpreadsheetHeaderDefinition returnHeaderDefinition;
     
     private Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = new HashMap<>();
     private Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = new HashMap<>();
-    private Map<String, SpreadsheetHeaderDefinition> headerDefinitions = new HashMap<>();
+    private BidiMap<String, SpreadsheetHeaderDefinition> headerDefinitions = new DualHashBidiMap<String, SpreadsheetHeaderDefinition>();
     
     public SpreadsheetComponentsBuilder(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) {        
         this.tableSyntaxNode = tableSyntaxNode;
@@ -331,96 +334,29 @@ public class SpreadsheetComponentsBuilder {
     }
 
     private void buildReturnCells(IOpenClass spreadsheetHeaderType) throws SyntaxNodeException {
-
         SpreadsheetHeaderDefinition headerDefinition = headerDefinitions.get(SpreadsheetSymbols.RETURN_NAME.toString());
-
+        
+        if (spreadsheetHeaderType.equals(JavaOpenClass.getOpenClass(SpreadsheetResult.class)) && headerDefinition == null) {
+           return;
+        }
+        
         if (headerDefinition == null) {
-            return;
-        }
-
-        int nonEmptyCellsCount = calculateNonEmptyCells(headerDefinition);
-
-        IOpenClass cellType = deriveSingleCellReturnType(nonEmptyCellsCount, headerDefinition, spreadsheetHeaderType);
-
-        if (headerDefinition.getType() == null) {
-            headerDefinition.setType(cellType);
-        } else {
-            String message = String
-                    .format(
-                            "RETURN %s derives it's type from the Spreadsheet return type and therefore must not be defined here",
-                            headerDefinition.rowOrColumn());
-
-            throw SyntaxNodeExceptionUtils.createError(message, headerDefinition.getVars().get(0).getName());
-        }
-
-        returnHeaderDefinition = new ReturnSpreadsheetHeaderDefinition(headerDefinition, spreadsheetHeaderType);
-        headerDefinitions.put(SpreadsheetSymbols.RETURN_NAME.toString(), returnHeaderDefinition);
-    }
-    
-    private int calculateNonEmptyCells(SpreadsheetHeaderDefinition headerDefinition) {
-
-        int fromRow = 0;
-        int toRow = cellsHeaderExtractor.getHeight();
-
-        int fromColumn = 0;
-        int toColumn = cellsHeaderExtractor.getWidth();
-
-        if (headerDefinition.isRow()) {
-            fromRow = headerDefinition.getRow();
-            toRow = fromRow + 1;
-        } else {
-            fromColumn = headerDefinition.getColumn();
-            toColumn = fromColumn + 1;
-        }
-
-        int nonEmptyCellsCount = 0;
-
-        for (int columnIndex = fromColumn; columnIndex < toColumn; columnIndex++) {
-            for (int rowIndex = fromRow; rowIndex < toRow; rowIndex++) {
-
-                ILogicalTable cell = LogicalTableHelper.mergeBounds(cellsHeaderExtractor.getRowNamesTable().getRow(rowIndex),
-                    cellsHeaderExtractor.getColumnNamesTable().getColumn(columnIndex));
-
-                String value = cell.getSource().getCell(0, 0).getStringValue();
-
-                if (value != null && value.trim().length() > 0) {
-                    nonEmptyCellsCount += 1;
+            for (SpreadsheetHeaderDefinition spreadsheetHeaderDefinition : headerDefinitions.values()) {
+                if (headerDefinition == null) {
+                    headerDefinition = spreadsheetHeaderDefinition;
+                } else if (headerDefinition.getRow() < spreadsheetHeaderDefinition.getRow()) {
+                    headerDefinition = spreadsheetHeaderDefinition;
                 }
             }
         }
-        return nonEmptyCellsCount;
-    }
-    
-    /**
-     * Derives single cell return type.
-     * 
-     * @param cellsCount spreadsheet cells count
-     * @param headerDefinition spreadsheet header
-     * @return the type that should be in the cell that is located in RETURN row
-     *         or column
-     * 
-     * Right now we allow only to return types = scalars or arrays.
-     */
-    private IOpenClass deriveSingleCellReturnType(int cellsCount, SpreadsheetHeaderDefinition headerDefinition, IOpenClass spreadsheetHeaderType)
-            throws SyntaxNodeException {
-
-        IOpenClass returnType = spreadsheetHeaderType;
-
-        if (cellsCount < 2) {
-            return returnType;
+        
+        if (Boolean.FALSE.equals(tableSyntaxNode.getTableProperties().getAutoType()) && headerDefinition.getType() == null) {
+            headerDefinition.setType(spreadsheetHeaderType);
+        } else if (spreadsheetHeaderType.getAggregateInfo() == null || (spreadsheetHeaderType.getAggregateInfo() != null && spreadsheetHeaderType.getAggregateInfo().getComponentType(spreadsheetHeaderType) == null)) {
+            headerDefinition.setType(spreadsheetHeaderType);
         }
-
-        IAggregateInfo aggregateInfo = returnType.getAggregateInfo();
-
-        if (aggregateInfo != null && aggregateInfo.getComponentType(returnType) != null) {
-            returnType = aggregateInfo.getComponentType(returnType);
-        } else {
-            throw SyntaxNodeExceptionUtils.createError(
-                    "The return type is scalar, but there are more than one return cells", headerDefinition.findVarDef(
-                        SpreadsheetSymbols.RETURN_NAME.toString()).getName());
-        }
-
-        return returnType;
+        
+        returnHeaderDefinition = headerDefinition;
     }
     
     private boolean isExistsReturnHeader() {
@@ -433,74 +369,108 @@ public class SpreadsheetComponentsBuilder {
         SymbolicTypeDefinition symbolicTypeDefinition = null;
 
         if (isExistsReturnHeader()) {
-            symbolicTypeDefinition = returnHeaderDefinition.findVarDef(SpreadsheetSymbols.RETURN_NAME.toString());
+            String key = headerDefinitions.getKey(returnHeaderDefinition);
+            symbolicTypeDefinition = returnHeaderDefinition.findVarDef(key);
         }
 
-        if (spreadsheet.getHeader().getType() == JavaOpenClass.VOID) {
-            throw SyntaxNodeExceptionUtils.createError("Spreadsheet can not return 'void' type", tableSyntaxNode);
-        }
-
-        if (spreadsheet.getHeader().getType() == JavaOpenClass.getOpenClass(SpreadsheetResult.class)) {
+        if (spreadsheet.getHeader().getType().equals(JavaOpenClass.getOpenClass(SpreadsheetResult.class))) {
             if (isExistsReturnHeader()) {
                 throw SyntaxNodeExceptionUtils.createError(
-                        "If Spreadsheet return type is SpreadsheetResult, no return type is allowed",
-                        symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
+                    "If Spreadsheet return type is SpreadsheetResult, no return type is allowed",
+                    symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
             }
 
             resultBuilder = new DefaultResultBuilder();
         } else {
             // real return type
             //
-            if (!isExistsReturnHeader()) {
-                throw SyntaxNodeExceptionUtils.createError("There should be RETURN row or column for this return type",
-                    tableSyntaxNode);
-            } else {
-                List<SpreadsheetCell> notEmptyReturnDefinitions = listNonEmptyCells(spreadsheet.getCells(), returnHeaderDefinition);
-    
-                switch (notEmptyReturnDefinitions.size()) {
-                    case 0:
-                        throw SyntaxNodeExceptionUtils.createError("There is no return expression cell",
-                                symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
-                    case 1:
-                        resultBuilder = new ScalarResultBuilder(notEmptyReturnDefinitions, isComputateAllCellsInSpreadsheet(spreadsheet));
-                        break;
-                    default:
-                        resultBuilder = new ArrayResultBuilder(notEmptyReturnDefinitions, returnHeaderDefinition.getReturnType(), isComputateAllCellsInSpreadsheet(spreadsheet));
+            List<SpreadsheetCell> returnSpreadsheetCells = new ArrayList<>();
+            List<IOpenCast> casts = new ArrayList<>();
+            List<SpreadsheetCell> returnSpreadsheetCellsAsArray = new ArrayList<>();
+            List<IOpenCast> castsAsArray = new ArrayList<>();
+            int n = spreadsheet.getCells().length;
+            SpreadsheetCell nonEmptySpreadsheetCell = null;
+            IOpenClass type = spreadsheet.getType();
+            IAggregateInfo aggregateInfo = type.getAggregateInfo();
+            IOpenClass componentType = aggregateInfo.getComponentType(type);
+            boolean asArray = false;
+            for (int i = 0; i < spreadsheet.getCells()[n - 1].length; i++) {
+                SpreadsheetCell cell = spreadsheet.getCells()[n - 1][i];
+                if (!cell.isEmpty()) {
+                    if (nonEmptySpreadsheetCell == null) {
+                        nonEmptySpreadsheetCell = cell;
+                    }
+                    if (cell.getType() != null) {
+                        IOpenCast cast = bindingContext.getCast(cell.getType(), type);
+                        if (cast != null && cast.isImplicit() && !(cast instanceof IOneElementArrayCast)) {
+                            returnSpreadsheetCells.add(spreadsheet.getCells()[n - 1][i]);
+                            casts.add(cast);
+                        }
+                        
+                        if (returnSpreadsheetCells.isEmpty() && componentType != null) {
+                            cast = bindingContext.getCast(cell.getType(), componentType);
+                            if (cast != null && cast.isImplicit() && !(cast instanceof IOneElementArrayCast)) {
+                                returnSpreadsheetCellsAsArray.add(spreadsheet.getCells()[n - 1][i]);
+                                castsAsArray.add(cast);
+                            }    
+                        }
+                    }
                 }
+            }
+            
+            if (componentType != null && returnSpreadsheetCells.isEmpty()) {
+                returnSpreadsheetCells = returnSpreadsheetCellsAsArray;
+                returnHeaderDefinition.setType(componentType);
+                casts = castsAsArray;
+                asArray = true;
+            } else {
+                returnHeaderDefinition.setType(type);
+            }
+            
+            switch (returnSpreadsheetCells.size()) {
+                case 0:
+                    if (nonEmptySpreadsheetCell != null) {
+                        if (nonEmptySpreadsheetCell.getType() != null) {
+                            throw SyntaxNodeExceptionUtils.createError(
+                                "Can not convert from " + nonEmptySpreadsheetCell.getType()
+                                    .getName() + " to " + spreadsheet.getHeader().getType().getName(),
+                                symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
+                        } else {
+                            return null;
+                        }
+                    } else {
+                        throw SyntaxNodeExceptionUtils.createError("There is no return expression cell",
+                            symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
+
+                    }
+                case 1:
+                    resultBuilder = new ScalarResultBuilder(
+                        returnSpreadsheetCells.get(returnSpreadsheetCells.size() - 1), 
+                        casts.get(casts.size() - 1),
+                        isCalculateAllCellsInSpreadsheet(spreadsheet));
+                    break;
+                default:
+                    if (asArray) {
+                        resultBuilder = new ArrayResultBuilder(returnSpreadsheetCells.toArray(new SpreadsheetCell[] {}),
+                            castsAsArray.toArray(new IOpenCast[] {}),
+                            type,
+                            isCalculateAllCellsInSpreadsheet(spreadsheet));
+                    } else {
+                        resultBuilder = new ScalarResultBuilder(
+                            returnSpreadsheetCells.get(returnSpreadsheetCells.size() - 1),
+                            casts.get(casts.size() - 1),
+                            isCalculateAllCellsInSpreadsheet(spreadsheet));
+                    }
             }
         }
         return resultBuilder;
     }
     
-    private boolean isComputateAllCellsInSpreadsheet(Spreadsheet spreadsheet) {
-        if (Boolean.FALSE.equals(spreadsheet.getMethodProperties().getComputateAll())) {
+    private boolean isCalculateAllCellsInSpreadsheet(Spreadsheet spreadsheet) {
+        if (Boolean.FALSE.equals(spreadsheet.getMethodProperties().getCalculateAllCells())) {
             return false;
         }
         return true;
-    }
-
-    private static List<SpreadsheetCell> listNonEmptyCells(SpreadsheetCell[][] cells, SpreadsheetHeaderDefinition definition) {
-
-        List<SpreadsheetCell> list = new ArrayList<SpreadsheetCell>();
-
-        int row = definition.getRow();
-        int col = definition.getColumn();
-
-        if (row >= 0) {
-            for (int i = 0; i < cells[0].length; ++i) {
-                if (!(cells[row][i].isEmpty())) {
-                    list.add(cells[row][i]);
-                }
-            }
-        } else {
-            for (int i = 0; i < cells.length; ++i) {
-                if (!(cells[i][col].isEmpty())) {
-                    list.add(cells[i][col]);
-                }
-            }
-        }
-
-        return list;
     }
 
     private String getSignature(TableSyntaxNode table) {

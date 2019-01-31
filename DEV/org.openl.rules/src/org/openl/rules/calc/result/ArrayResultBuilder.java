@@ -1,7 +1,6 @@
 package org.openl.rules.calc.result;
 
-import java.util.List;
-
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.types.IAggregateInfo;
@@ -11,30 +10,31 @@ import org.openl.types.IOpenIndex;
 public class ArrayResultBuilder implements IResultBuilder {
 
     private IOpenClass type;
-    private List<SpreadsheetCell> cells;
-    private boolean calculateAll;
+    private SpreadsheetCell[] cells;
+    private IOpenCast[] openCasts;
+    private boolean calculateAllCells;
 
-    public ArrayResultBuilder(List<SpreadsheetCell> notEmpty, IOpenClass type, boolean calculateAll) {
-        this.cells = notEmpty;
+    public ArrayResultBuilder(SpreadsheetCell[] cells, IOpenCast[] openCasts, IOpenClass type, boolean calculateAllCells) {
+        this.cells = cells;
+        this.openCasts = openCasts;
         this.type = type;
-        this.calculateAll = calculateAll;
+        this.calculateAllCells = calculateAllCells;
     }
 
     public Object makeResult(SpreadsheetResultCalculator resultCalculator) {
-
-        int size = cells.size();
+        int size = cells.length;
         IAggregateInfo aggregateInfo = type.getAggregateInfo();
         Object array = aggregateInfo.makeIndexedAggregate(aggregateInfo.getComponentType(type), size);
 
         IOpenIndex index = aggregateInfo.getIndex(type);
         Object[][] result = null;
-        if (calculateAll) {
+        if (calculateAllCells) {
             result = resultCalculator.getValues();
         }
         for (int i = 0; i < size; ++i) {
-            SpreadsheetCell cell = cells.get(i);
+            SpreadsheetCell cell = cells[i];
             Object value;
-            if (calculateAll) {
+            if (calculateAllCells) {
                 value = result[cell.getRowIndex()][cell.getColumnIndex()];
             } else {
                 value = resultCalculator.getValue(cell.getRowIndex(), cell.getColumnIndex());
@@ -42,6 +42,8 @@ public class ArrayResultBuilder implements IResultBuilder {
 
             if (value == null) {
                 value = type.nullObject();
+            } else {
+                value = openCasts[i].convert(value);
             }
 
             index.setValue(array, i, value);

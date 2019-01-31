@@ -4,7 +4,7 @@ import java.lang.reflect.Array;
 
 import org.openl.types.IOpenClass;
 
-final class OneElementArrayCast implements IOpenCast, IgnoredByMethodSearchOpenCast {
+final class OneElementArrayCast implements IOpenCast, IOneElementArrayCast {
 
     private IOpenClass toComponentType;
     private IOpenCast openCast;

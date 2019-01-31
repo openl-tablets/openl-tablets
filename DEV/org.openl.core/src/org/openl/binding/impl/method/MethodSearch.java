@@ -12,8 +12,8 @@ import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.cast.CastsLinkageCast;
+import org.openl.binding.impl.cast.IOneElementArrayCast;
 import org.openl.binding.impl.cast.IOpenCast;
-import org.openl.binding.impl.cast.IgnoredByMethodSearchOpenCast;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -177,7 +177,7 @@ public class MethodSearch {
         }
 
         for (int i = 0; i < castHolder.length; i++) {
-            if (castHolder[i] instanceof IgnoredByMethodSearchOpenCast) {
+            if (castHolder[i] instanceof IOneElementArrayCast) {
                 return NO_MATCH;
             }
         }

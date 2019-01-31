@@ -1,11 +1,9 @@
 package org.openl.rules.testmethod.result;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import org.openl.rules.helpers.NumberUtils;
-import org.openl.types.IOpenField;
 
 public class TestResultComparatorFactory {
 
@@ -13,7 +11,9 @@ public class TestResultComparatorFactory {
     }
 
     public static TestResultComparator getComparator(Class<?> clazz, Double delta) {
-        if (clazz.isArray()) {
+        if (clazz == null) {
+            GenericComparator.getInstance();
+        } else if (clazz.isArray()) {
             return new ArrayComparator(clazz.getComponentType(), delta);
         } else if (String.class.equals(clazz)) {
             return StringComparator.getInstance();
