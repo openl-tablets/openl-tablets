@@ -20,28 +20,6 @@ public class RepositoryFactoryInstatiator {
     public static final String DESIGN_REPOSITORY = "design-repository.";
     public static final String DEPLOY_CONFIG_REPOSITORY = "deploy-config-repository.";
     public static final String PRODUCTION_REPOSITORY = "production-repository.";
-    private static HashMap<String, String> oldClass;
-
-    private static final String OLD_LOCAL_PROD = "org.openl.rules.repository.factories.LocalJackrabbitProductionRepositoryFactory";
-    private static final String OLD_LOCAL_DES = "org.openl.rules.repository.factories.LocalJackrabbitDesignRepositoryFactory";
-    private static final String OLD_RMI_PROD = "org.openl.rules.repository.factories.RmiJackrabbitProductionRepositoryFactory";
-    private static final String OLD_RMI_DES = "org.openl.rules.repository.factories.RmiJackrabbitDesignRepositoryFactory";
-    private static final String OLD_WEBDAV_PROD = "org.openl.rules.repository.factories.WebDavJackrabbitProductionRepositoryFactory";
-    private static final String OLD_WEBDAV_DES = "org.openl.rules.repository.factories.WebDavJackrabbitDesignRepositoryFactory";
-    private static final String NEW_LOCAL = "org.openl.rules.repository.factories.LocalJackrabbitRepositoryFactory";
-    private static final String NEW_RMI = "org.openl.rules.repository.factories.RmiJackrabbitRepositoryFactory";
-    private static final String NEW_WEBDAV = "org.openl.rules.repository.factories.WebDavRepositoryFactory";
-
-    static {
-        HashMap<String, String> map = new HashMap<>();
-        map.put(OLD_LOCAL_PROD, NEW_LOCAL);
-        map.put(OLD_LOCAL_DES, NEW_LOCAL);
-        map.put(OLD_RMI_PROD, NEW_RMI);
-        map.put(OLD_RMI_DES, NEW_RMI);
-        map.put(OLD_WEBDAV_PROD, NEW_WEBDAV);
-        map.put(OLD_WEBDAV_DES, NEW_WEBDAV);
-        oldClass = map;
-    }
 
     private static Logger log() {
         return LoggerFactory.getLogger(RepositoryFactoryInstatiator.class);
