@@ -57,7 +57,7 @@ public class SpreadsheetComponentsBuilder {
     
     private CellsHeaderExtractor cellsHeaderExtractor;
     
-    private SpreadsheetHeaderDefinition returnHeaderDefinition;
+    private ReturnSpreadsheetHeaderDefinition returnHeaderDefinition;
     
     private Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = new HashMap<>();
     private Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = new HashMap<>();
@@ -361,7 +361,9 @@ public class SpreadsheetComponentsBuilder {
             }
         }
         
-        returnHeaderDefinition = headerDefinition;
+        String key = headerDefinitions.getKey(headerDefinition);
+        returnHeaderDefinition = new ReturnSpreadsheetHeaderDefinition(headerDefinition);
+        headerDefinitions.replace(key, returnHeaderDefinition);
     }
     
     private int getNonEmptyCellsCount(SpreadsheetHeaderDefinition headerDefinition) {
@@ -399,6 +401,10 @@ public class SpreadsheetComponentsBuilder {
     public boolean isExistsReturnHeader() {
         return returnHeaderDefinition != null;
     }
+    
+    public ReturnSpreadsheetHeaderDefinition getReturnHeaderDefinition() {
+        return returnHeaderDefinition;
+    }
 
     private IResultBuilder getResultBuilderInternal(Spreadsheet spreadsheet) throws SyntaxNodeException {
         IResultBuilder resultBuilder;
@@ -419,29 +425,30 @@ public class SpreadsheetComponentsBuilder {
             List<IOpenCast> casts = new ArrayList<>();
             List<SpreadsheetCell> returnSpreadsheetCellsAsArray = new ArrayList<>();
             List<IOpenCast> castsAsArray = new ArrayList<>();
-            int n = spreadsheet.getCells().length;
             SpreadsheetCell nonEmptySpreadsheetCell = null;
             IOpenClass type = spreadsheet.getType();
             IAggregateInfo aggregateInfo = type.getAggregateInfo();
             IOpenClass componentType = aggregateInfo.getComponentType(type);
             boolean asArray = false;
-            for (int i = 0; i < spreadsheet.getCells()[n - 1].length; i++) {
-                SpreadsheetCell cell = spreadsheet.getCells()[n - 1][i];
+            int nonEmptyCellsCount = 0;
+            for (int i = 0; i < spreadsheet.getCells()[returnHeaderDefinition.getRow()].length; i++) {
+                SpreadsheetCell cell = spreadsheet.getCells()[returnHeaderDefinition.getRow()][i];
                 if (!cell.isEmpty()) {
+                    nonEmptyCellsCount++;
                     if (nonEmptySpreadsheetCell == null) {
                         nonEmptySpreadsheetCell = cell;
                     }
                     if (cell.getType() != null) {
                         IOpenCast cast = bindingContext.getCast(cell.getType(), type);
                         if (cast != null && cast.isImplicit() && !(cast instanceof IOneElementArrayCast)) {
-                            returnSpreadsheetCells.add(spreadsheet.getCells()[n - 1][i]);
+                            returnSpreadsheetCells.add(spreadsheet.getCells()[returnHeaderDefinition.getRow()][i]);
                             casts.add(cast);
                         }
                         
                         if (returnSpreadsheetCells.isEmpty() && componentType != null) {
                             cast = bindingContext.getCast(cell.getType(), componentType);
                             if (cast != null && cast.isImplicit() && !(cast instanceof IOneElementArrayCast)) {
-                                returnSpreadsheetCellsAsArray.add(spreadsheet.getCells()[n - 1][i]);
+                                returnSpreadsheetCellsAsArray.add(spreadsheet.getCells()[returnHeaderDefinition.getRow()][i]);
                                 castsAsArray.add(cast);
                             }    
                         }
@@ -456,6 +463,11 @@ public class SpreadsheetComponentsBuilder {
                 asArray = true;
             } else {
                 returnHeaderDefinition.setType(type);
+            }
+            
+            SpreadsheetCell[] retCells = returnSpreadsheetCells.toArray(new SpreadsheetCell[] {});
+            if (nonEmptyCellsCount > 1) {
+                returnHeaderDefinition.setReturnCells(retCells);
             }
             
             switch (returnSpreadsheetCells.size()) {
@@ -482,7 +494,7 @@ public class SpreadsheetComponentsBuilder {
                     break;
                 default:
                     if (asArray) {
-                        resultBuilder = new ArrayResultBuilder(returnSpreadsheetCells.toArray(new SpreadsheetCell[] {}),
+                        resultBuilder = new ArrayResultBuilder(retCells,
                             castsAsArray.toArray(new IOpenCast[] {}),
                             type,
                             isCalculateAllCellsInSpreadsheet(spreadsheet));

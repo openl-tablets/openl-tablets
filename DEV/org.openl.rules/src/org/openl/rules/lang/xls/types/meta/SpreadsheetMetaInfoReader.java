@@ -67,8 +67,12 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
                     );
                     nodeUsages.addAll(parsedNodeUsages);
                 }
+                boolean isRet = false;
+                if (getBoundNode().getComponentsBuilder().isExistsReturnHeader()) {
+                    isRet = getBoundNode().getComponentsBuilder().getReturnHeaderDefinition().isReturnCell(spreadsheetCell);
+                }
 
-                return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
+                return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages, isRet);
             }
         }
 

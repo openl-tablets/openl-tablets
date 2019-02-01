@@ -2,6 +2,7 @@ package org.openl.rules.tableeditor.model.ui;
 
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 
+import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
@@ -156,6 +157,7 @@ public class TableViewer {
         try {
             int nextSymbolIndex = 0;
             StringBuilder buff = new StringBuilder();
+            
             for (NodeUsage nodeUsage : metaInfo.getUsedNodes()) {
                 int pstart = nodeUsage.getStart();
                 int pend = nodeUsage.getEnd();
@@ -176,6 +178,13 @@ public class TableViewer {
                 nextSymbolIndex = pend + 1;
             }
             buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex)));
+            
+            if (metaInfo.isReturnHeader()) {
+                buff.append("<span class=\"title title-" + NodeType.OTHER.toString().toLowerCase() + " " + Constants.TABLE_EDITOR_META_INFO_CLASS + "\">");
+                buff.append("  &#9733;");
+                buff.append("<em>RETURN</em></span>");
+            }
+            
             return buff.toString();
         } catch (RuntimeException e) {
             // Fallback to the formula without links

@@ -110,7 +110,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         Boolean autoType = tableSyntaxNode.getTableProperties().getAutoType();
         structureBuilder.addCellFields(spreadsheetOpenClass, autoType);
     }
-
+    
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
         super.finalizeBind(bindingContext);
 
@@ -165,6 +165,10 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                 }
             }
         }
+    }
+    
+    public SpreadsheetComponentsBuilder getComponentsBuilder() {
+        return componentsBuilder;
     }
 
     @Override
