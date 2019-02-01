@@ -48,40 +48,42 @@ import org.openl.types.java.JavaOpenClass;
  * 
  */
 public class SpreadsheetComponentsBuilder {
-    
-    /** tableSyntaxNode of the spreadsheet**/
+
+    /** tableSyntaxNode of the spreadsheet **/
     private TableSyntaxNode tableSyntaxNode;
-    
-    /** binding context for indicating execution mode**/
-    private IBindingContext bindingContext;    
-    
+
+    /** binding context for indicating execution mode **/
+    private IBindingContext bindingContext;
+
     private CellsHeaderExtractor cellsHeaderExtractor;
-    
+
     private ReturnSpreadsheetHeaderDefinition returnHeaderDefinition;
-    
+
     private Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = new HashMap<>();
     private Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = new HashMap<>();
     private BidiMap<String, SpreadsheetHeaderDefinition> headerDefinitions = new DualHashBidiMap<String, SpreadsheetHeaderDefinition>();
-    
-    public SpreadsheetComponentsBuilder(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) {        
+
+    public SpreadsheetComponentsBuilder(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) {
         this.tableSyntaxNode = tableSyntaxNode;
-        CellsHeaderExtractor extractor = ((SpreadsheetHeaderNode)tableSyntaxNode.getHeader()).getCellHeadersExtractor();
+        CellsHeaderExtractor extractor = ((SpreadsheetHeaderNode) tableSyntaxNode.getHeader())
+            .getCellHeadersExtractor();
         if (extractor == null) {
-            extractor = new CellsHeaderExtractor(getSignature(tableSyntaxNode), tableSyntaxNode.getTableBody().getRow(0).getColumns(1), 
+            extractor = new CellsHeaderExtractor(getSignature(tableSyntaxNode),
+                tableSyntaxNode.getTableBody().getRow(0).getColumns(1),
                 tableSyntaxNode.getTableBody().getColumn(0).getRows(1));
         }
-        this.cellsHeaderExtractor = extractor; 
+        this.cellsHeaderExtractor = extractor;
         this.bindingContext = bindingContext;
     }
-    
-    public Map<Integer, SpreadsheetHeaderDefinition> getRowHeaders() {        
+
+    public Map<Integer, SpreadsheetHeaderDefinition> getRowHeaders() {
         return rowHeaders;
     }
-    
-    public Map<Integer, SpreadsheetHeaderDefinition> getColumnHeaders() {        
+
+    public Map<Integer, SpreadsheetHeaderDefinition> getColumnHeaders() {
         return columnHeaders;
     }
-    
+
     public String[] getRowNames() {
         return buildArrayForHeaders(rowHeaders, cellsHeaderExtractor.getHeight());
     }
@@ -90,29 +92,29 @@ public class SpreadsheetComponentsBuilder {
         return buildArrayForHeaders(columnHeaders, cellsHeaderExtractor.getWidth());
     }
 
-    private String[] buildArrayForHeaders(Map<Integer, SpreadsheetHeaderDefinition> headers, int size){
+    private String[] buildArrayForHeaders(Map<Integer, SpreadsheetHeaderDefinition> headers, int size) {
         String[] ret = new String[size];
-        for (Entry<Integer, SpreadsheetHeaderDefinition> x : headers.entrySet()){
+        for (Entry<Integer, SpreadsheetHeaderDefinition> x : headers.entrySet()) {
             int k = x.getKey();
             ret[k] = x.getValue().getFirstname();
         }
         return ret;
     }
-        
+
     public CellsHeaderExtractor getCellsHeadersExtractor() {
         return cellsHeaderExtractor;
     }
-    
+
     /**
-     * Extract following data form the spreadsheet source table:
-     * row names, column names, header definitions, return cell.
+     * Extract following data form the spreadsheet source table: row names, column names, header definitions, return
+     * cell.
      */
     public void buildHeaders(IOpenClass spreadsheetHeaderType) {
         addRowHeaders();
         addColumnHeaders();
         buildHeaderDefinitionsTypes();
-        
-        try {            
+
+        try {
             buildReturnCells(spreadsheetHeaderType);
         } catch (SyntaxNodeException e) {
             addError(e);
@@ -127,11 +129,11 @@ public class SpreadsheetComponentsBuilder {
     public IBindingContext getBindingContext() {
         return bindingContext;
     }
-    
+
     public TableSyntaxNode getTableSyntaxNode() {
         return tableSyntaxNode;
     }
-    
+
     public IResultBuilder buildResultBuilder(Spreadsheet spreadsheet) {
         IResultBuilder resultBuilder = null;
         try {
@@ -141,12 +143,15 @@ public class SpreadsheetComponentsBuilder {
         }
         return resultBuilder;
     }
-    
+
     private void addRowHeaders() {
         String[] rowNames = cellsHeaderExtractor.getRowNames();
         for (int i = 0; i < rowNames.length; i++) {
             if (rowNames[i] != null) {
-                IGridTable rowNameForHeader = cellsHeaderExtractor.getRowNamesTable().getRow(i).getColumn(0).getSource();
+                IGridTable rowNameForHeader = cellsHeaderExtractor.getRowNamesTable()
+                    .getRow(i)
+                    .getColumn(0)
+                    .getSource();
                 IOpenSourceCodeModule source = new GridCellSourceCodeModule(rowNameForHeader, bindingContext);
                 SpreadsheetHeaderDefinition header = rowHeaders.get(i);
 
@@ -158,12 +163,15 @@ public class SpreadsheetComponentsBuilder {
             }
         }
     }
-    
+
     private void addColumnHeaders() {
         String[] columnNames = cellsHeaderExtractor.getColumnNames();
         for (int i = 0; i < columnNames.length; i++) {
             if (columnNames[i] != null) {
-                IGridTable columnNameForHeader = cellsHeaderExtractor.getColumnNamesTable().getColumn(i).getRow(0).getSource();
+                IGridTable columnNameForHeader = cellsHeaderExtractor.getColumnNamesTable()
+                    .getColumn(i)
+                    .getRow(0)
+                    .getSource();
                 GridCellSourceCodeModule source = new GridCellSourceCodeModule(columnNameForHeader, bindingContext);
                 SpreadsheetHeaderDefinition header = columnHeaders.get(i);
 
@@ -199,7 +207,7 @@ public class SpreadsheetComponentsBuilder {
             addError(error);
         }
     }
-    
+
     private SymbolicTypeDefinition parseHeaderElement(IOpenSourceCodeModule source) throws SyntaxNodeException {
         IdentifierNode[] nodes;
 
@@ -215,7 +223,8 @@ public class SpreadsheetComponentsBuilder {
             case 2:
                 return new SymbolicTypeDefinition(nodes[0], nodes[1]);
             default:
-                String message = String.format("Valid header format: name [%s type]", SpreadsheetSymbols.TYPE_DELIMETER.toString());
+                String message = String.format("Valid header format: name [%s type]",
+                    SpreadsheetSymbols.TYPE_DELIMETER.toString());
                 if (nodes.length > 2) {
                     throw SyntaxNodeExceptionUtils.createError(message, nodes[2]);
                 } else {
@@ -244,12 +253,14 @@ public class SpreadsheetComponentsBuilder {
                         //
                         String cleanTypeIdentifier = typeIdentifier.substring(0, typeIdentifier.indexOf("["));
 
-                        IOpenClass componentType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, cleanTypeIdentifier);
+                        IOpenClass componentType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
+                            cleanTypeIdentifier);
 
                         if (componentType != null) {
                             // count of []
                             int typeDimension = typeIdentifier.split("\\[").length - 1;
-                            type = componentType.getAggregateInfo().getIndexedAggregateType(componentType, typeDimension);
+                            type = componentType.getAggregateInfo()
+                                .getIndexedAggregateType(componentType, typeDimension);
                         }
 
                     } else {
@@ -263,7 +274,7 @@ public class SpreadsheetComponentsBuilder {
                         error = SyntaxNodeExceptionUtils.createError(message, typeIdentifierNode);
                     } else if (headerType == null) {
                         // initialize header type
-                        //                        
+                        //
                         headerType = type;
                     } else if (headerType != type) {
                         error = SyntaxNodeExceptionUtils.createError("Type redefinition", typeIdentifierNode);
@@ -296,11 +307,9 @@ public class SpreadsheetComponentsBuilder {
                             IMetaInfo typeMeta = type.getMetaInfo();
                             if (typeMeta != null) {
                                 ICell c = cell.getCell(0, 0);
-                                ((SpreadsheetMetaInfoReader) metaInfoReader).addHeaderMetaInfo(
-                                        c.getAbsoluteRow(),
-                                        c.getAbsoluteColumn(),
-                                        RuleRowHelper.createCellMetaInfo(identifier, typeMeta, NodeType.DATATYPE)
-                                );
+                                ((SpreadsheetMetaInfoReader) metaInfoReader).addHeaderMetaInfo(c.getAbsoluteRow(),
+                                    c.getAbsoluteColumn(),
+                                    RuleRowHelper.createCellMetaInfo(identifier, typeMeta, NodeType.DATATYPE));
                             }
                         }
                     }
@@ -318,17 +327,16 @@ public class SpreadsheetComponentsBuilder {
     private IdentifierNode cutTypeIdentifier(IdentifierNode typeIdentifierNode) {
         try {
             IdentifierNode[] variableAndType = Tokenizer.tokenize(typeIdentifierNode.getModule(),
-                    SpreadsheetSymbols.TYPE_DELIMETER.toString());
+                SpreadsheetSymbols.TYPE_DELIMETER.toString());
             if (variableAndType.length > 1) {
-                IdentifierNode[] nodes = Tokenizer.tokenize(typeIdentifierNode.getModule(),
-                        " []\n\r", variableAndType[1].getLocation());
+                IdentifierNode[] nodes = Tokenizer
+                    .tokenize(typeIdentifierNode.getModule(), " []\n\r", variableAndType[1].getLocation());
                 if (nodes.length > 0) {
                     return nodes[0];
                 }
             }
         } catch (OpenLCompilationException e) {
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Cannot parse header",
-                    typeIdentifierNode);
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Cannot parse header", typeIdentifierNode);
             addError(error);
         }
 
@@ -337,11 +345,12 @@ public class SpreadsheetComponentsBuilder {
 
     private void buildReturnCells(IOpenClass spreadsheetHeaderType) throws SyntaxNodeException {
         SpreadsheetHeaderDefinition headerDefinition = headerDefinitions.get(SpreadsheetSymbols.RETURN_NAME.toString());
-        
-        if (spreadsheetHeaderType.equals(JavaOpenClass.getOpenClass(SpreadsheetResult.class)) && headerDefinition == null) {
-           return;
+
+        if (spreadsheetHeaderType
+            .equals(JavaOpenClass.getOpenClass(SpreadsheetResult.class)) && headerDefinition == null) {
+            return;
         }
-        
+
         if (headerDefinition == null) {
             for (SpreadsheetHeaderDefinition spreadsheetHeaderDefinition : headerDefinitions.values()) {
                 if (headerDefinition == null) {
@@ -351,21 +360,25 @@ public class SpreadsheetComponentsBuilder {
                 }
             }
         }
-        
-        if (Boolean.FALSE.equals(tableSyntaxNode.getTableProperties().getAutoType()) && headerDefinition.getType() == null) {
+
+        if (Boolean.FALSE
+            .equals(tableSyntaxNode.getTableProperties().getAutoType()) && headerDefinition.getType() == null) {
             headerDefinition.setType(spreadsheetHeaderType);
-        } else if (spreadsheetHeaderType.getAggregateInfo() == null || (spreadsheetHeaderType.getAggregateInfo() != null && spreadsheetHeaderType.getAggregateInfo().getComponentType(spreadsheetHeaderType) == null)) {
+        } else if (spreadsheetHeaderType
+            .getAggregateInfo() == null || (spreadsheetHeaderType.getAggregateInfo() != null && spreadsheetHeaderType
+                .getAggregateInfo()
+                .getComponentType(spreadsheetHeaderType) == null)) {
             int nonEmptyCellsCount = getNonEmptyCellsCount(headerDefinition);
             if (nonEmptyCellsCount == 1) {
                 headerDefinition.setType(spreadsheetHeaderType);
             }
         }
-        
+
         String key = headerDefinitions.getKey(headerDefinition);
         returnHeaderDefinition = new ReturnSpreadsheetHeaderDefinition(headerDefinition);
         headerDefinitions.replace(key, returnHeaderDefinition);
     }
-    
+
     private int getNonEmptyCellsCount(SpreadsheetHeaderDefinition headerDefinition) {
         int fromRow = 0;
         int toRow = cellsHeaderExtractor.getHeight();
@@ -397,11 +410,11 @@ public class SpreadsheetComponentsBuilder {
         }
         return nonEmptyCellsCount;
     }
-    
+
     public boolean isExistsReturnHeader() {
         return returnHeaderDefinition != null;
     }
-    
+
     public ReturnSpreadsheetHeaderDefinition getReturnHeaderDefinition() {
         return returnHeaderDefinition;
     }
@@ -416,7 +429,9 @@ public class SpreadsheetComponentsBuilder {
             symbolicTypeDefinition = returnHeaderDefinition.findVarDef(key);
         }
 
-        if (!isExistsReturnHeader() && spreadsheet.getHeader().getType().equals(JavaOpenClass.getOpenClass(SpreadsheetResult.class))) {
+        if (!isExistsReturnHeader() && spreadsheet.getHeader()
+            .getType()
+            .equals(JavaOpenClass.getOpenClass(SpreadsheetResult.class))) {
             resultBuilder = new DefaultResultBuilder();
         } else {
             // real return type
@@ -431,8 +446,23 @@ public class SpreadsheetComponentsBuilder {
             IOpenClass componentType = aggregateInfo.getComponentType(type);
             boolean asArray = false;
             int nonEmptyCellsCount = 0;
-            for (int i = 0; i < spreadsheet.getCells()[returnHeaderDefinition.getRow()].length; i++) {
-                SpreadsheetCell cell = spreadsheet.getCells()[returnHeaderDefinition.getRow()][i];
+
+            List<SpreadsheetCell> sprCells = new ArrayList<>();
+            int n = returnHeaderDefinition.getRow();
+            boolean byColumn = true;
+            if (n < 0) {
+                n = returnHeaderDefinition.getColumn();
+                byColumn = false;
+                for (int i = 0; i < spreadsheet.getCells().length; i++) {
+                    sprCells.add(spreadsheet.getCells()[i][n]);
+                }
+            } else {
+                for (int i = 0; i < spreadsheet.getCells()[n].length; i++) {
+                    sprCells.add(spreadsheet.getCells()[n][i]);
+                }
+            }
+
+            for (SpreadsheetCell cell : sprCells) {
                 if (!cell.isEmpty()) {
                     nonEmptyCellsCount++;
                     if (nonEmptySpreadsheetCell == null) {
@@ -441,21 +471,21 @@ public class SpreadsheetComponentsBuilder {
                     if (cell.getType() != null) {
                         IOpenCast cast = bindingContext.getCast(cell.getType(), type);
                         if (cast != null && cast.isImplicit() && !(cast instanceof IOneElementArrayCast)) {
-                            returnSpreadsheetCells.add(spreadsheet.getCells()[returnHeaderDefinition.getRow()][i]);
+                            returnSpreadsheetCells.add(cell);
                             casts.add(cast);
                         }
-                        
+
                         if (returnSpreadsheetCells.isEmpty() && componentType != null) {
                             cast = bindingContext.getCast(cell.getType(), componentType);
                             if (cast != null && cast.isImplicit() && !(cast instanceof IOneElementArrayCast)) {
-                                returnSpreadsheetCellsAsArray.add(spreadsheet.getCells()[returnHeaderDefinition.getRow()][i]);
+                                returnSpreadsheetCellsAsArray.add(cell);
                                 castsAsArray.add(cast);
-                            }    
+                            }
                         }
                     }
                 }
             }
-            
+
             if (componentType != null && returnSpreadsheetCells.isEmpty()) {
                 returnSpreadsheetCells = returnSpreadsheetCellsAsArray;
                 returnHeaderDefinition.setType(componentType);
@@ -464,12 +494,17 @@ public class SpreadsheetComponentsBuilder {
             } else {
                 returnHeaderDefinition.setType(type);
             }
-            
+
             SpreadsheetCell[] retCells = returnSpreadsheetCells.toArray(new SpreadsheetCell[] {});
             if (nonEmptyCellsCount > 1) {
-                returnHeaderDefinition.setReturnCells(retCells);
+                if (asArray) {
+                    returnHeaderDefinition.setReturnCells(byColumn, retCells);
+                } else {
+                    returnHeaderDefinition.setReturnCells(byColumn,
+                        returnSpreadsheetCells.get(returnSpreadsheetCells.size() - 1));
+                }
             }
-            
+
             switch (returnSpreadsheetCells.size()) {
                 case 0:
                     if (nonEmptySpreadsheetCell != null) {
@@ -488,7 +523,7 @@ public class SpreadsheetComponentsBuilder {
                     }
                 case 1:
                     resultBuilder = new ScalarResultBuilder(
-                        returnSpreadsheetCells.get(returnSpreadsheetCells.size() - 1), 
+                        returnSpreadsheetCells.get(returnSpreadsheetCells.size() - 1),
                         casts.get(casts.size() - 1),
                         isCalculateAllCellsInSpreadsheet(spreadsheet));
                     break;
@@ -508,7 +543,7 @@ public class SpreadsheetComponentsBuilder {
         }
         return resultBuilder;
     }
-    
+
     private boolean isCalculateAllCellsInSpreadsheet(Spreadsheet spreadsheet) {
         if (Boolean.FALSE.equals(spreadsheet.getMethodProperties().getCalculateAllCells())) {
             return false;
