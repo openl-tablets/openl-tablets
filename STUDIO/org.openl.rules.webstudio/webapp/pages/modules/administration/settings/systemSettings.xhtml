@@ -289,21 +289,80 @@
                                     <h:panelGroup id="designParameters">
                                         <h:panelGroup rendered="#{designRepository.formType == 'common'}">
                                             <ui:include src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
+                                                <ui:param name="prependId" value="design"/>
                                                 <ui:param name="repository" value="#{designRepository}" />
                                                 <ui:param name="isProduction" value="false" />
                                             </ui:include>
                                         </h:panelGroup>
                                         <h:panelGroup rendered="#{designRepository.formType == 'aws_s3'}">
                                             <ui:include src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
+                                                <ui:param name="prependId" value="design"/>
                                                 <ui:param name="repository" value="#{designRepository}" />
                                                 <ui:param name="isProduction" value="false" />
                                             </ui:include>
                                         </h:panelGroup>
                                         <h:panelGroup rendered="#{designRepository.formType == 'git'}">
                                             <ui:include src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
+                                                <ui:param name="prependId" value="design"/>
                                                 <ui:param name="repository" value="#{designRepository}" />
                                                 <ui:param name="isProduction" value="false" />
                                             </ui:include>
+                                        </h:panelGroup>
+                                    </h:panelGroup>
+                                </td></tr></table>
+                                </div>
+                            </section>
+                            <section>
+                                <c:set var="deployConfigRepo" value="#{systemSettingsBean.deployConfigRepositoryConfiguration}" />
+
+                                <h3>Deploy Configuration Repository</h3>
+                                <div>
+                                <table><tr><td>
+                                    <h:panelGrid columns="2" columnClasses="titleColumn">
+                                        <h:outputText value="Use Design Repository" />
+                                        <h:selectBooleanCheckbox value="#{systemSettingsBean.useDesignRepo}"
+                                                                 title="Use Design Repository to store Deploy Configurations">
+                                            <f:ajax event="change" render="deployConfigInfoPanel" />
+                                        </h:selectBooleanCheckbox>
+                                    </h:panelGrid>
+                                    <h:panelGroup id="deployConfigInfoPanel">
+                                        <h:panelGrid columns="2" columnClasses="titleColumn">
+                                            <h:outputText value="Name:" rendered="#{not systemSettingsBean.useDesignRepo}"/>
+                                            <h:inputText value="#{deployConfigRepo.name}" disabled="true" rendered="#{not systemSettingsBean.useDesignRepo}"/>
+                                            <h:outputText value="Type:" rendered="#{not systemSettingsBean.useDesignRepo}" />
+                                            <h:selectOneMenu value="#{deployConfigRepo.type}" rendered="#{not systemSettingsBean.useDesignRepo}">
+                                                <f:ajax event="change" render="deployConfigParameters" />
+                                                <f:selectItem itemValue="local" itemLabel="Local" />
+                                                <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
+                                                <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
+                                                <f:selectItem itemValue="db" itemLabel="Database (JDBC)" />
+                                                <f:selectItem itemValue="jndi" itemLabel="Database (JNDI)" />
+                                                <f:selectItem itemValue="aws_s3" itemLabel="AWS S3" />
+                                                <f:selectItem itemValue="git" itemLabel="Git" />
+                                            </h:selectOneMenu>
+                                        </h:panelGrid>
+                                        <h:panelGroup id="deployConfigParameters" rendered="#{not systemSettingsBean.useDesignRepo}">
+                                            <h:panelGroup rendered="#{deployConfigRepo.formType == 'common'}">
+                                                <ui:include src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
+                                                    <ui:param name="prependId" value="deployConfig"/>
+                                                    <ui:param name="repository" value="#{deployConfigRepo}" />
+                                                    <ui:param name="isProduction" value="false" />
+                                                </ui:include>
+                                            </h:panelGroup>
+                                            <h:panelGroup rendered="#{deployConfigRepo.formType == 'aws_s3'}">
+                                                <ui:include src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
+                                                    <ui:param name="prependId" value="deployConfig"/>
+                                                    <ui:param name="repository" value="#{deployConfigRepo}" />
+                                                    <ui:param name="isProduction" value="false" />
+                                                </ui:include>
+                                            </h:panelGroup>
+                                            <h:panelGroup rendered="#{deployConfigRepo.formType == 'git'}">
+                                                <ui:include src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
+                                                    <ui:param name="prependId" value="deployConfig"/>
+                                                    <ui:param name="repository" value="#{deployConfigRepo}" />
+                                                    <ui:param name="isProduction" value="false" />
+                                                </ui:include>
+                                            </h:panelGroup>
                                         </h:panelGroup>
                                     </h:panelGroup>
                                 </td></tr></table>
@@ -336,6 +395,7 @@
                                         <h:panelGroup id="productionParameters">
                                             <h:panelGroup rendered="#{repository.formType == 'common'}">
                                                 <ui:include src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
+                                                    <ui:param name="prependId" value="production"/>
                                                     <ui:param name="repository" value="#{repository}" />
                                                     <ui:param name="isProduction" value="true" />
                                                     <ui:param name="isEditing" value="true" />
@@ -343,6 +403,7 @@
                                             </h:panelGroup>
                                             <h:panelGroup rendered="#{repository.formType == 'aws_s3'}">
                                                 <ui:include src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
+                                                    <ui:param name="prependId" value="production"/>
                                                     <ui:param name="repository" value="#{repository}" />
                                                     <ui:param name="isProduction" value="true" />
                                                     <ui:param name="isEditing" value="true" />
@@ -350,6 +411,7 @@
                                             </h:panelGroup>
                                             <h:panelGroup rendered="#{repository.formType == 'git'}">
                                                 <ui:include src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
+                                                    <ui:param name="prependId" value="production"/>
                                                     <ui:param name="repository" value="#{repository}" />
                                                     <ui:param name="isProduction" value="true" />
                                                     <ui:param name="isEditing" value="true" />

@@ -31,13 +31,13 @@
         <h:outputText value="Secret key:"/>
         <h:inputText value="#{settings.secretKey}" title="Plays the role of a password."/>
         <h:outputText value="Listener period (sec):"/>
-        <h:inputText value="#{settings.listenerTimerPeriod}" id="listenerTimerPeriod"
+        <h:inputText value="#{settings.listenerTimerPeriod}" id="#{prependId}listenerTimerPeriod"
                      title="Repository changes check interval. Must be greater than 0."
                      validatorMessage="Please enter a value greater than 0">
             <f:validateLongRange minimum="1"/>
         </h:inputText>
         <h:outputText value=""/>
-        <h:message for="listenerTimerPeriod" styleClass="error"/>
+        <h:message for="#{prependId}listenerTimerPeriod" styleClass="error"/>
 
         <h:outputText value="Version in deployment name" rendered="#{isProduction}" />
         <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}"/>

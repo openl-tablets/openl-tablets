@@ -14,7 +14,7 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
-import org.openl.rules.webstudio.web.admin.RepositoryMode;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -99,7 +99,7 @@ public class SmartRedeployController {
         String projectName = project.getName();
         UserWorkspace workspace = RepositoryUtils.getWorkspace();
 
-        List<DeploymentProjectItem> result = new LinkedList<DeploymentProjectItem>();
+        List<DeploymentProjectItem> result = new LinkedList<>();
         if (workspace == null) {
             return result; // must never happen
         }
@@ -257,7 +257,7 @@ public class SmartRedeployController {
             return UiConst.OUTCOME_FAILURE;
         }
 
-        List<ADeploymentProject> toDeploy = new LinkedList<ADeploymentProject>();
+        List<ADeploymentProject> toDeploy = new LinkedList<>();
         // update selected deployment projects
         List<DeploymentProjectItem> items = getItems();
         for (DeploymentProjectItem item : items) {
@@ -399,7 +399,7 @@ public class SmartRedeployController {
     }
 
     public Collection<RepositoryConfiguration> getRepositories() {
-        List<RepositoryConfiguration> repos = new ArrayList<RepositoryConfiguration>();
+        List<RepositoryConfiguration> repos = new ArrayList<>();
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
         for (String configName : repositoryConfigNames) {
             ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(configName);

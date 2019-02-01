@@ -7,7 +7,7 @@ import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
-import org.openl.rules.webstudio.web.admin.RepositoryMode;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProductionDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;

@@ -65,7 +65,7 @@ public class DeployMojo extends BaseOpenLMojo {
         properties.put("production-repository.uri", deployUrl);
         properties.put("production-repository.login", server.getUsername());
         properties.put("production-repository.password", server.getPassword());
-        properties.put("production-repository.deployments.path", "deploy/");
+        properties.put("production-repository.base.path", "deploy/");
 
         try (RulesDeployerService deployerService = new RulesDeployerService(properties)) {
             deployerService.deploy(FileUtils.getBaseName(zipFile.getName()), new FileInputStream(zipFile), false);

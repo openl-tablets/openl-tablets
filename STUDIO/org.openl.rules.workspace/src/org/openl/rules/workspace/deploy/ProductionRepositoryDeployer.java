@@ -12,6 +12,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
@@ -33,7 +34,7 @@ import org.xml.sax.InputSource;
 public class ProductionRepositoryDeployer {
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoryDeployer.class);
     public static final String VERSION_IN_DEPLOYMENT_NAME = "version-in-deployment-name";
-    public static final String DEPLOY_PATH_PROPERTY = "production-repository.deployments.path";
+    public static final String DEPLOY_PATH_PROPERTY = "production-repository.base.path";
 
     /**
      * Deploys a new project to the production repository. If the project exists
@@ -73,7 +74,7 @@ public class ProductionRepositoryDeployer {
         Repository deployRepo = null;
         try {
             // Initialize repo
-            deployRepo = RepositoryFactoryInstatiator.newFactory(properties, false);
+            deployRepo = RepositoryFactoryInstatiator.newFactory(properties, RepositoryMode.PRODUCTION);
             String includeVersion = (String) properties.get(VERSION_IN_DEPLOYMENT_NAME);
             String deployPath = (String) properties.get(DEPLOY_PATH_PROPERTY);
             if (deployPath == null) {

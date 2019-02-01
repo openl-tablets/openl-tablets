@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.eclipse.jgit.lib.Constants;
 import org.openl.config.ConfigurationManager;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.util.StringUtils;
 
 public class GitRepositorySettings extends RepositorySettings {
@@ -14,9 +15,7 @@ public class GitRepositorySettings extends RepositorySettings {
     private String branch;
     private String tagPrefix;
     private int listenerTimerPeriod;
-    private String designRulesPath;
-    private String designDeployConfigPath;
-    private String productionDeployPath;
+    private String basePath;
     private String commentPattern;
 
     private final String URI;
@@ -26,9 +25,7 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String BRANCH;
     private final String TAG_PREFIX;
     private final String LISTENER_TIMER_PERIOD;
-    private final String DESIGN_RULES_PATH;
-    private final String DESIGN_DEPLOY_CONFIG_PATH;
-    private final String PRODUCTION_DEPLOY_PATH;
+    private final String BASE_PATH;
     private final String COMMENT_PATTERN;
 
     public GitRepositorySettings(ConfigurationManager configManager,
@@ -43,12 +40,24 @@ public class GitRepositorySettings extends RepositorySettings {
         BRANCH = configPrefix + "branch";
         TAG_PREFIX = configPrefix + "tag-prefix";
         LISTENER_TIMER_PERIOD = configPrefix + "listener-timer-period";
-        DESIGN_RULES_PATH = "design-repository.rules.path";
-        DESIGN_DEPLOY_CONFIG_PATH = "design-repository.deployment-configs.path";
-        PRODUCTION_DEPLOY_PATH = "production-repository.deployments.path";
+        BASE_PATH = configPrefix + "base.path";
         COMMENT_PATTERN = "comment-pattern";
 
-        String type = repositoryMode == RepositoryMode.DESIGN ? "design" : "deployment";
+        String type;
+        switch (repositoryMode) {
+            case DESIGN:
+                type = "design";
+                break;
+            case DEPLOY_CONFIG:
+                type = "deploy-config";
+                break;
+            case PRODUCTION:
+                type = "deployment";
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
+
         String localPath = configManager.getStringProperty(LOCAL_REPOSITORY_PATH);
         String defaultLocalPath = localPath != null ?
                                   localPath :
@@ -61,9 +70,7 @@ public class GitRepositorySettings extends RepositorySettings {
         branch = configManager.getStringProperty(BRANCH, Constants.MASTER);
         tagPrefix = configManager.getStringProperty(TAG_PREFIX);
         listenerTimerPeriod = configManager.getLongProperty(LISTENER_TIMER_PERIOD, 10L).intValue();
-        designRulesPath = configManager.getStringProperty(DESIGN_RULES_PATH);
-        designDeployConfigPath = configManager.getStringProperty(DESIGN_DEPLOY_CONFIG_PATH);
-        productionDeployPath = configManager.getStringProperty(PRODUCTION_DEPLOY_PATH);
+        basePath = configManager.getStringProperty(BASE_PATH);
         commentPattern = configManager.getStringProperty(COMMENT_PATTERN);
     }
 
@@ -125,28 +132,12 @@ public class GitRepositorySettings extends RepositorySettings {
         this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
-    public String getDesignRulesPath() {
-        return designRulesPath;
+    public String getBasePath() {
+        return basePath;
     }
 
-    public void setDesignRulesPath(String designRulesPath) {
-        this.designRulesPath = designRulesPath;
-    }
-
-    public String getDesignDeployConfigPath() {
-        return designDeployConfigPath;
-    }
-
-    public void setDesignDeployConfigPath(String designDeployConfigPath) {
-        this.designDeployConfigPath = designDeployConfigPath;
-    }
-
-    public String getProductionDeployPath() {
-        return productionDeployPath;
-    }
-
-    public void setProductionDeployPath(String productionDeployPath) {
-        this.productionDeployPath = productionDeployPath;
+    public void setBasePath(String basePath) {
+        this.basePath = basePath;
     }
 
     public String getCommentPattern() {
@@ -176,9 +167,7 @@ public class GitRepositorySettings extends RepositorySettings {
         configurationManager.setProperty(BRANCH, branch);
         configurationManager.setProperty(TAG_PREFIX, tagPrefix);
         configurationManager.setProperty(LISTENER_TIMER_PERIOD, listenerTimerPeriod);
-        configurationManager.setProperty(DESIGN_RULES_PATH, designRulesPath);
-        configurationManager.setProperty(DESIGN_DEPLOY_CONFIG_PATH, designDeployConfigPath);
-        configurationManager.setProperty(PRODUCTION_DEPLOY_PATH, productionDeployPath);
+        configurationManager.setProperty(BASE_PATH, basePath);
         configurationManager.setProperty(COMMENT_PATTERN, commentPattern);
     }
 
@@ -195,9 +184,7 @@ public class GitRepositorySettings extends RepositorySettings {
             setBranch(otherSettings.getBranch());
             setTagPrefix(otherSettings.getTagPrefix());
             setListenerTimerPeriod(otherSettings.getListenerTimerPeriod());
-            setDesignRulesPath(otherSettings.getDesignRulesPath());
-            setDesignDeployConfigPath(otherSettings.getDesignDeployConfigPath());
-            setProductionDeployPath(otherSettings.getProductionDeployPath());
+            setBasePath(otherSettings.getBasePath());
             setCommentPattern(otherSettings.getCommentPattern());
         }
     }
