@@ -7,13 +7,13 @@
 
     <ui:param name="settings" value="#{repository.settings}" />
 
-    <h:panelGrid id="repoSettings" columns="2" columnClasses="titleColumn">
+    <h:panelGrid id="#{prependId}repoSettings" columns="2" columnClasses="titleColumn">
         <h:outputText value="#{repository.type == 'local' ? 'Directory' : 'URL'}:" styleClass="required" />
         <h:inputText value="#{settings.path}" styleClass="pathInput" disabled="#{settings.repositoryPathSystem}" />
-        <h:outputLabel value="Secure connection" for="repositorySecureConnection" />
-        <h:selectBooleanCheckbox id="repositorySecureConnection" value="#{settings.secure}"
+        <h:outputLabel value="Secure connection" for="#{prependId}repositorySecureConnection" />
+        <h:selectBooleanCheckbox id="#{prependId}repositorySecureConnection" value="#{settings.secure}"
                                  onmousedown="if($j(this).attr('checked')){if(!window.confirm('Login and password will be deleted. Do you want to continue?')) {return false;}} return this.click()">
-            <f:ajax event="change" execute="@form" render="repoSettings" />
+            <f:ajax event="change" execute="@form" render="#{prependId}repoSettings" />
         </h:selectBooleanCheckbox>
         <h:outputText value="Login:" rendered="#{settings.secure || !empty settings.login}"/>
         <h:inputText value="#{settings.login}" rendered="#{settings.secure || !empty settings.login}"/>
@@ -21,7 +21,7 @@
         <h:inputSecret value="#{settings.password}" rendered="#{settings.secure || !empty settings.login}" redisplay="true"/>
 
         <h:outputText value="Version in deployment name" rendered="#{isProduction}" />
-        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}" id="includeVersionInDeploymentName"/>
+        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}"/>
         <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction and isEditing}"/>
     </h:panelGrid>
 

@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RepositoryFactoryInstatiator {
     public static final String DESIGN_REPOSITORY = "design-repository.";
+    public static final String DEPLOY_CONFIG_REPOSITORY = "deploy-config-repository.";
     public static final String PRODUCTION_REPOSITORY = "production-repository.";
     private static HashMap<String, String> oldClass;
 
@@ -32,7 +33,7 @@ public class RepositoryFactoryInstatiator {
     private static final String NEW_WEBDAV = "org.openl.rules.repository.factories.WebDavRepositoryFactory";
 
     static {
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
         map.put(OLD_LOCAL_PROD, NEW_LOCAL);
         map.put(OLD_LOCAL_DES, NEW_LOCAL);
         map.put(OLD_RMI_PROD, NEW_RMI);
@@ -49,8 +50,21 @@ public class RepositoryFactoryInstatiator {
     /**
      * Create new instance of 'className' repository with defined configuration.
      */
-    public static Repository newFactory(Map<String, Object> cfg, boolean designMode) throws RRepositoryException {
-        String type = designMode ? DESIGN_REPOSITORY : PRODUCTION_REPOSITORY;
+    public static Repository newFactory(Map<String, Object> cfg, RepositoryMode repositoryMode) throws RRepositoryException {
+        String type;
+        switch (repositoryMode) {
+            case DESIGN:
+                type = DESIGN_REPOSITORY;
+                break;
+            case DEPLOY_CONFIG:
+                type = DEPLOY_CONFIG_REPOSITORY;
+                break;
+            case PRODUCTION:
+                type = PRODUCTION_REPOSITORY;
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
 
         String className = get(cfg, type + "factory");
         String login = get(cfg, type + "login");
@@ -68,7 +82,7 @@ public class RepositoryFactoryInstatiator {
 
 
         try {
-            Map<String, String> params = new HashMap<String, String>();
+            Map<String, String> params = new HashMap<>();
             for (Map.Entry<String, Object> entry : cfg.entrySet()) {
                 if (entry.getKey().startsWith(type)) {
                     String key = entry.getKey().substring(type.length());

@@ -26,6 +26,7 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.security.*;
@@ -35,6 +36,7 @@ import org.openl.rules.webstudio.service.GroupManagementServiceWrapper;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.admin.*;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
+import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.db.JDBCDriverRegister;
@@ -98,6 +100,8 @@ public class InstallWizard {
 
 
     private RepositoryConfiguration designRepositoryConfiguration;
+    private RepositoryConfiguration deployConfigRepositoryConfiguration;
+
     private ProductionRepositoryEditor productionRepositoryEditor;
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
@@ -136,7 +140,13 @@ public class InstallWizard {
             if (step == 2) {
                 try {
                     RepositoryValidators.validate(designRepositoryConfiguration);
-                    validateConnectionToDesignRepo(designRepositoryConfiguration);
+                    validateConnectionToDesignRepo(designRepositoryConfiguration, RepositoryMode.DESIGN);
+
+                    if (!isUseDesignRepo()) {
+                        RepositoryValidators.validate(deployConfigRepositoryConfiguration);
+                        validateConnectionToDesignRepo(deployConfigRepositoryConfiguration,
+                                RepositoryMode.DEPLOY_CONFIG);
+                    }
 
                     productionRepositoryEditor.validate();
                 } catch (RepositoryValidationException e) {
@@ -158,6 +168,7 @@ public class InstallWizard {
                     System.setProperty(ConfigurationManager.REPO_PASS_KEY, repoPassKey);
 
                     designRepositoryConfiguration = new RepositoryConfiguration("", systemConfig, RepositoryMode.DESIGN);
+                    deployConfigRepositoryConfiguration = new RepositoryConfiguration("", systemConfig, RepositoryMode.DEPLOY_CONFIG);
 
                     initProductionRepositoryEditor();
 
@@ -210,10 +221,11 @@ public class InstallWizard {
         }
     }
 
-    private void validateConnectionToDesignRepo(RepositoryConfiguration designRepositoryConfiguration) throws RepositoryValidationException {
+    private void validateConnectionToDesignRepo(RepositoryConfiguration designRepositoryConfiguration,
+            RepositoryMode repositoryMode) throws RepositoryValidationException {
         try {
             Map<String, Object> config = designRepositoryConfiguration.getProperties();
-            Repository repository = RepositoryFactoryInstatiator.newFactory(config, true);
+            Repository repository = RepositoryFactoryInstatiator.newFactory(config, repositoryMode);
             if (repository instanceof Closeable) {
                 // Release resources after validation
                 IOUtils.closeQuietly((Closeable) repository);
@@ -350,6 +362,9 @@ public class InstallWizard {
 
             // TODO: This line also do systemConfig.save() implicitly
             designRepositoryConfiguration.save();
+            if (!isUseDesignRepo()) {
+                deployConfigRepositoryConfiguration.save();
+            }
 
             System.clearProperty("webstudio.home"); // Otherwise this property will not be saved to file.
             appConfig.setProperty("webstudio.home", workingDir);
@@ -875,6 +890,18 @@ public class InstallWizard {
 
     public RepositoryConfiguration getDesignRepositoryConfiguration() {
         return designRepositoryConfiguration;
+    }
+
+    public RepositoryConfiguration getDeployConfigRepositoryConfiguration() {
+        return deployConfigRepositoryConfiguration;
+    }
+
+    public boolean isUseDesignRepo() {
+        return !Boolean.parseBoolean(systemConfig.getStringProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO));
+    }
+
+    public void setUseDesignRepo(boolean useDesignRepo) {
+        systemConfig.setProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO, !useDesignRepo);
     }
 
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {

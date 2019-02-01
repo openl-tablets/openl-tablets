@@ -8,6 +8,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.ResourceTransformer;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -31,12 +32,14 @@ import java.util.Map;
  * @author Aleh Bykhavets
  */
 public class DesignTimeRepositoryImpl implements DesignTimeRepository {
+    public static final String USE_SEPARATE_DEPLOY_CONFIG_REPO = "deploy-config-repository.separate-repository";
     private final Logger log = LoggerFactory.getLogger(DesignTimeRepositoryImpl.class);
 
-    private static final String RULES_LOCATION_CONFIG_NAME = "design-repository.rules.path";
-    private static final String DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME = "design-repository.deployment-configs.path";
+    private static final String RULES_LOCATION_CONFIG_NAME = "design-repository.base.path";
+    private static final String DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME = "deploy-config-repository.base.path";
 
     private Repository repository;
+    private Repository deployConfigRepository;
     private String rulesLocation;
     private String deploymentConfigurationLocation;
     /**
@@ -58,9 +61,14 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             return;
         }
 
-
+        boolean separateDeployConfigRepo = Boolean.parseBoolean(config.get(USE_SEPARATE_DEPLOY_CONFIG_REPO).toString());
         try {
-            repository = createConnection(config);
+            repository = RepositoryFactoryInstatiator.newFactory(config, RepositoryMode.DESIGN);
+            if (!separateDeployConfigRepo) {
+                deployConfigRepository = repository;
+            } else {
+                deployConfigRepository = RepositoryFactoryInstatiator.newFactory(config, RepositoryMode.DEPLOY_CONFIG);
+            }
 
             rulesLocation = config.get(RULES_LOCATION_CONFIG_NAME).toString();
 
@@ -80,11 +88,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             throw new IllegalStateException("Can't initialize Design Repository.", e);
         }
 
-        repository.setListener(new RepositoryListener(listeners));
-    }
-
-    public Repository createConnection(Map<String, Object> properties) throws RRepositoryException {
-        return RepositoryFactoryInstatiator.newFactory(properties, true);
+        RepositoryListener callback = new RepositoryListener(listeners);
+        repository.setListener(callback);
+        if (separateDeployConfigRepo) {
+            deployConfigRepository.setListener(callback);
+        }
     }
 
     public void copyProject(AProject project, String name, WorkspaceUser user, ResourceTransformer resourceTransformer) throws ProjectException {
@@ -124,11 +132,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     public ADeploymentProject.Builder createDeploymentConfigurationBuilder(String name) {
-        return new ADeploymentProject.Builder(getRepository(), deploymentConfigurationLocation + name);
+        return new ADeploymentProject.Builder(getDeployConfigRepository(), deploymentConfigurationLocation + name);
     }
 
     public List<ADeploymentProject> getDDProjects() throws RepositoryException {
         LinkedList<ADeploymentProject> result = new LinkedList<>();
+        Repository repository = getDeployConfigRepository();
 
         Collection<FileData> fileDatas;
         try {
@@ -142,7 +151,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             throw new RepositoryException("Cannot read the deploy repository", e);
         }
         for (FileData fileData : fileDatas) {
-            result.add(new ADeploymentProject(getRepository(), fileData));
+            result.add(new ADeploymentProject(repository, fileData));
         }
         return result;
     }
@@ -206,7 +215,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     public boolean hasDDProject(String name) {
         try {
-            return getRepository().check(deploymentConfigurationLocation + name) != null;
+            return getDeployConfigRepository().check(deploymentConfigurationLocation + name) != null;
         } catch (IOException ex) {
             return false;
         }
@@ -243,6 +252,13 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             }
             repository = null;
         }
+        if (deployConfigRepository != null) {
+            deployConfigRepository.setListener(null);
+            if (deployConfigRepository instanceof Closeable) {
+                ((Closeable) deployConfigRepository).close();
+            }
+        }
+
         synchronized (projects) {
             projects.clear();
             projectsVersions.clear();
@@ -255,6 +271,13 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             init();
         }
         return repository;
+    }
+
+    private Repository getDeployConfigRepository() {
+        if (deployConfigRepository == null) {
+            init();
+        }
+        return deployConfigRepository;
     }
 
     @Override

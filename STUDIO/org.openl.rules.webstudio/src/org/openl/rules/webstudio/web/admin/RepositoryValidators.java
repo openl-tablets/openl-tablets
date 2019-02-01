@@ -10,6 +10,7 @@ import javax.jcr.LoginException;
 import javax.security.auth.login.FailedLoginException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.api.Repository;
@@ -107,12 +108,14 @@ public final class RepositoryValidators {
         }
     }
 
-    public static void validateConnectionForDesignRepository(RepositoryConfiguration repoConfig, DesignTimeRepository designTimeRepository) throws RepositoryValidationException {
+    public static void validateConnectionForDesignRepository(RepositoryConfiguration repoConfig,
+            DesignTimeRepository designTimeRepository,
+            RepositoryMode repositoryMode) throws RepositoryValidationException {
         try {
             DesignTimeRepositoryImpl dtr = (DesignTimeRepositoryImpl) designTimeRepository;
             // Close connection to jcr before checking connection
             dtr.destroy();
-            Repository repository = dtr.createConnection(repoConfig.getProperties());
+            Repository repository = RepositoryFactoryInstatiator.newFactory(repoConfig.getProperties(), repositoryMode);
             if (repository instanceof Closeable) {
                 // Close repo connection after validation
                 IOUtils.closeQuietly((Closeable) repository);
@@ -131,7 +134,7 @@ public final class RepositoryValidators {
         try {
             /* Close connection to jcr before checking connection */
             productionRepositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
-            Repository repository = RepositoryFactoryInstatiator.newFactory(repoConfig.getProperties(), false);
+            Repository repository = RepositoryFactoryInstatiator.newFactory(repoConfig.getProperties(), RepositoryMode.PRODUCTION);
             if (repository instanceof Closeable) {
                 // Close repo connection after validation
                 IOUtils.closeQuietly((Closeable) repository);

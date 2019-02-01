@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import org.openl.config.ConfigurationManager;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.util.StringUtils;
 
 public class RepositoryConfiguration {
@@ -36,8 +37,20 @@ public class RepositoryConfiguration {
         this.configManager = configManager;
         this.repositoryMode = repositoryMode;
 
-        CONFIG_PREFIX = repositoryMode == RepositoryMode.DESIGN ? RepositoryFactoryInstatiator.DESIGN_REPOSITORY
-                                                                : RepositoryFactoryInstatiator.PRODUCTION_REPOSITORY;
+        switch (repositoryMode) {
+            case DESIGN:
+                CONFIG_PREFIX = RepositoryFactoryInstatiator.DESIGN_REPOSITORY;
+                break;
+            case DEPLOY_CONFIG:
+                CONFIG_PREFIX = RepositoryFactoryInstatiator.DEPLOY_CONFIG_REPOSITORY;
+                break;
+            case PRODUCTION:
+                CONFIG_PREFIX = RepositoryFactoryInstatiator.PRODUCTION_REPOSITORY;
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
+
         REPOSITORY_FACTORY = CONFIG_PREFIX + "factory";
         REPOSITORY_NAME = CONFIG_PREFIX + "name";
 
@@ -56,7 +69,6 @@ public class RepositoryConfiguration {
     }
 
     private RepositorySettings createSettings(RepositoryType repositoryType) {
-        String factoryClassName = configManager.getStringProperty(REPOSITORY_FACTORY);
         RepositorySettings newSettings;
         switch (repositoryType) {
             case AWS_S3:

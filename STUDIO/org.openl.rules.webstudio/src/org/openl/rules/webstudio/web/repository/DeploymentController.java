@@ -14,7 +14,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
-import org.openl.rules.webstudio.web.admin.RepositoryMode;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
