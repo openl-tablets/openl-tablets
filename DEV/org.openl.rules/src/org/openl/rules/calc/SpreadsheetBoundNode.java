@@ -43,16 +43,21 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
     @Override
     protected ExecutableRulesMethod createMethodShell() {
-        /*
-         * We need to generate a customSpreadsheet class only if return type of
-         * the spreadsheet is SpreadsheetResult and the customspreadsheet
-         * property is true
-         */
-        boolean isCustomSpreadsheetType = SpreadsheetResult.class.equals(getType()
-            .getInstanceClass()) && (!(getType() instanceof CustomSpreadsheetResultOpenClass)) && OpenLSystemProperties
-                .isCustomSpreadsheetType(bindingContext.getExternalParams());
-
-        Spreadsheet spreadsheet = new Spreadsheet(getHeader(), this, isCustomSpreadsheetType);
+        Spreadsheet spreadsheet;
+        if (componentsBuilder.isExistsReturnHeader()) {
+            spreadsheet = new Spreadsheet(getHeader(), this, false);
+        }else {
+            /*
+             * We need to generate a customSpreadsheet class only if return type of
+             * the spreadsheet is SpreadsheetResult and the customspreadsheet
+             * property is true
+             */
+            boolean isCustomSpreadsheetType = SpreadsheetResult.class.equals(getType()
+                .getInstanceClass()) && (!(getType() instanceof CustomSpreadsheetResultOpenClass)) && OpenLSystemProperties
+                    .isCustomSpreadsheetType(bindingContext.getExternalParams());
+            
+            spreadsheet = new Spreadsheet(getHeader(), this, isCustomSpreadsheetType);
+        }
         spreadsheet.setSpreadsheetType(spreadsheetOpenClass);
         // As custom spreadsheet result is being generated at runtime,
         // call this method to ensure that CSR will be generated during the
@@ -64,6 +69,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
         spreadsheet.setRowTitles(componentsBuilder.getCellsHeadersExtractor().getRowNames());
         spreadsheet.setColumnTitles(componentsBuilder.getCellsHeadersExtractor().getColumnNames());
+        
         if (spreadsheet.isCustomSpreadsheetType()) {
             
             IOpenClass type = null;

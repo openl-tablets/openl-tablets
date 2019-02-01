@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.NodeType;
@@ -28,6 +29,7 @@ import org.openl.rules.lang.xls.types.meta.SpreadsheetMetaInfoReader;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -353,13 +355,48 @@ public class SpreadsheetComponentsBuilder {
         if (Boolean.FALSE.equals(tableSyntaxNode.getTableProperties().getAutoType()) && headerDefinition.getType() == null) {
             headerDefinition.setType(spreadsheetHeaderType);
         } else if (spreadsheetHeaderType.getAggregateInfo() == null || (spreadsheetHeaderType.getAggregateInfo() != null && spreadsheetHeaderType.getAggregateInfo().getComponentType(spreadsheetHeaderType) == null)) {
-            headerDefinition.setType(spreadsheetHeaderType);
+            int nonEmptyCellsCount = getNonEmptyCellsCount(headerDefinition);
+            if (nonEmptyCellsCount == 1) {
+                headerDefinition.setType(spreadsheetHeaderType);
+            }
         }
         
         returnHeaderDefinition = headerDefinition;
     }
     
-    private boolean isExistsReturnHeader() {
+    private int getNonEmptyCellsCount(SpreadsheetHeaderDefinition headerDefinition) {
+        int fromRow = 0;
+        int toRow = cellsHeaderExtractor.getHeight();
+
+        int fromColumn = 0;
+        int toColumn = cellsHeaderExtractor.getWidth();
+
+        if (headerDefinition.isRow()) {
+            fromRow = headerDefinition.getRow();
+            toRow = fromRow + 1;
+        } else {
+            fromColumn = headerDefinition.getColumn();
+            toColumn = fromColumn + 1;
+        }
+
+        int nonEmptyCellsCount = 0;
+
+        for (int columnIndex = fromColumn; columnIndex < toColumn; columnIndex++) {
+            for (int rowIndex = fromRow; rowIndex < toRow; rowIndex++) {
+
+                ILogicalTable cell = LogicalTableHelper.mergeBounds(
+                    cellsHeaderExtractor.getRowNamesTable().getRow(rowIndex),
+                    cellsHeaderExtractor.getColumnNamesTable().getColumn(columnIndex));
+                String value = cell.getSource().getCell(0, 0).getStringValue();
+                if (!StringUtils.isBlank(value)) {
+                    nonEmptyCellsCount += 1;
+                }
+            }
+        }
+        return nonEmptyCellsCount;
+    }
+    
+    public boolean isExistsReturnHeader() {
         return returnHeaderDefinition != null;
     }
 
@@ -373,13 +410,7 @@ public class SpreadsheetComponentsBuilder {
             symbolicTypeDefinition = returnHeaderDefinition.findVarDef(key);
         }
 
-        if (spreadsheet.getHeader().getType().equals(JavaOpenClass.getOpenClass(SpreadsheetResult.class))) {
-            if (isExistsReturnHeader()) {
-                throw SyntaxNodeExceptionUtils.createError(
-                    "If Spreadsheet return type is SpreadsheetResult, no return type is allowed",
-                    symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
-            }
-
+        if (!isExistsReturnHeader() && spreadsheet.getHeader().getType().equals(JavaOpenClass.getOpenClass(SpreadsheetResult.class))) {
             resultBuilder = new DefaultResultBuilder();
         } else {
             // real return type
