@@ -39,8 +39,8 @@
         <h:outputText value=""/>
         <h:message for="#{prependId}listenerTimerPeriod" styleClass="error"/>
 
-        <h:outputText value="Version in deployment name" rendered="#{isProduction}" />
-        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}"/>
+        <h:outputLabel value="Version in deployment name:" rendered="#{isProduction}" for="#{prependId}s3IncludeVersionInDeploymentName"/>
+        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}" id="#{prependId}s3IncludeVersionInDeploymentName"/>
         <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction and isEditing}"/>
     </h:panelGrid>
 

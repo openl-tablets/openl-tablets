@@ -29,7 +29,7 @@
             <h:outputText id="productionRepositoryPathTitle" value="Directory:" styleClass="required" />
             <h:inputText id="productionRepositoryPath"
                 value="#{newProductionRepoController.repositoryConfiguration.settings.path}" styleClass="pathInput"/>
-            <h:outputLabel value="Secure connection" for="secureConnection" />
+            <h:outputLabel value="Secure connection:" for="secureConnection"/>
             <h:selectBooleanCheckbox id="secureConnection" value="#{newProductionRepoController.repositoryConfiguration.settings.secure}">
                 <f:ajax event="change" execute="@form" render="modalCreateRepoPanel" />
             </h:selectBooleanCheckbox>
