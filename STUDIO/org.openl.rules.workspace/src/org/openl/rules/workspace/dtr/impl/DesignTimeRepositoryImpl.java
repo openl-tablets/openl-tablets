@@ -250,6 +250,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             if (repository instanceof Closeable) {
                 ((Closeable) repository).close();
             }
+            if (deployConfigRepository == repository) {
+                deployConfigRepository = null;
+            }
             repository = null;
         }
         if (deployConfigRepository != null) {

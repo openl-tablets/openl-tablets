@@ -151,13 +151,15 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
     }
 
     @Override
-    public FileData rename(String path, FileData destData) throws IOException {
+    public FileData rename(String path, FileData destData) throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void setListener(final Listener callback) {
-        monitor.setListener(callback);
+        if (monitor != null) {
+            monitor.setListener(callback);
+        }
     }
 
     @Override
@@ -442,7 +444,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         if (monitor != null) {
             monitor.release();
             monitor = null;

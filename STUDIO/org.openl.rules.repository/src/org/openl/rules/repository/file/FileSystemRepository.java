@@ -137,7 +137,9 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
 
     @Override
     public void setListener(Listener callback) {
-        monitor.setListener(callback);
+        if (monitor != null) {
+            monitor.setListener(callback);
+        }
     }
 
     @Override
