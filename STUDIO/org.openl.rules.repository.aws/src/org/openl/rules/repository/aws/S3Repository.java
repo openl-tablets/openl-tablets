@@ -61,7 +61,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         if (monitor != null) {
             monitor.release();
             monitor = null;
@@ -103,9 +103,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
             s3.listObjectsV2(bucketName);
             list("");
             monitor = new ChangesMonitor( new S3RevisionGetter(), listenerTimerPeriod);
-        } catch (SdkClientException e) {
-            throw new RRepositoryException(e.getMessage(), e);
-        } catch (IOException e) {
+        } catch (SdkClientException | IOException e) {
             throw new RRepositoryException(e.getMessage(), e);
         }
     }
@@ -271,7 +269,9 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
 
     @Override
     public void setListener(final Listener callback) {
-        monitor.setListener(callback);
+        if (monitor != null) {
+            monitor.setListener(callback);
+        }
     }
 
     private class S3RevisionGetter implements RevisionGetter {
