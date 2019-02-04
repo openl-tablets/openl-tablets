@@ -6,7 +6,11 @@ import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
-import org.openl.rules.table.*;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.ICellComment;
+import org.openl.rules.table.IGrid;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.tableeditor.util.Constants;
@@ -123,7 +127,7 @@ public class TableViewer {
             } else if (link(formattedValue)) {
                 // has Explanation link
                 content = formattedValue;
-            } else if (isShowLinks() && CellMetaInfo.isCellContainsNodeUsages(metaInfo)) {
+            } else if (isShowLinks() && (CellMetaInfo.isCellContainsNodeUsages(metaInfo) || (metaInfo != null && metaInfo.isReturnHeader()))) {
                 // has method call
                 content = createCellWithMetaInfo(formattedValue, metaInfo, true);
             } else if (image(formattedValue)) {
@@ -157,25 +161,28 @@ public class TableViewer {
         try {
             int nextSymbolIndex = 0;
             StringBuilder buff = new StringBuilder();
-            
-            for (NodeUsage nodeUsage : metaInfo.getUsedNodes()) {
-                int pstart = nodeUsage.getStart();
-                int pend = nodeUsage.getEnd();
-                String tableUri = nodeUsage.getUri();
-                buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex, pstart)));
-                // add link to used table with signature in tooltip
-                buff.append("<span class=\"title")
+            if (metaInfo.getUsedNodes() != null) {
+                for (NodeUsage nodeUsage : metaInfo.getUsedNodes()) {
+                    int pstart = nodeUsage.getStart();
+                    int pend = nodeUsage.getEnd();
+                    String tableUri = nodeUsage.getUri();
+                    buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex, pstart)));
+                    // add link to used table with signature in tooltip
+                    buff.append("<span class=\"title")
                         .append(" title-")
                         .append(nodeUsage.getNodeType().toString().toLowerCase())
-                        .append(" ").append(Constants.TABLE_EDITOR_META_INFO_CLASS)
+                        .append(" ")
+                        .append(Constants.TABLE_EDITOR_META_INFO_CLASS)
                         .append("\">");
-                if (addUri && tableUri != null) {
-                    buff.append(linkBuilder.createLinkForTable(tableUri, formattedValue.substring(pstart, pend + 1)));
-                } else {
-                    buff.append(escapeHtml4(formattedValue.substring(pstart, pend + 1)));
+                    if (addUri && tableUri != null) {
+                        buff.append(
+                            linkBuilder.createLinkForTable(tableUri, formattedValue.substring(pstart, pend + 1)));
+                    } else {
+                        buff.append(escapeHtml4(formattedValue.substring(pstart, pend + 1)));
+                    }
+                    buff.append("<em>").append(escapeHtml4(nodeUsage.getDescription())).append("</em></span>");
+                    nextSymbolIndex = pend + 1;
                 }
-                buff.append("<em>").append(escapeHtml4(nodeUsage.getDescription())).append("</em></span>");
-                nextSymbolIndex = pend + 1;
             }
             buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex)));
             

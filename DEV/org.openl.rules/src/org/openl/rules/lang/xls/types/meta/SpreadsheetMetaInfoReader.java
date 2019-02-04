@@ -36,7 +36,7 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
             return null;
         }
         ICell firstCell = cells[0][0].getSourceCell();
-        
+
         int r = row - firstCell.getAbsoluteRow();
         int c = col - firstCell.getAbsoluteColumn();
 
@@ -54,8 +54,9 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
 
         String stringValue = sourceCell.getStringValue();
         if (stringValue != null) {
+            List<NodeUsage> nodeUsages = null;
             if (stringValue.startsWith("=") || stringValue.startsWith("{") && stringValue.endsWith("}")) {
-                List<NodeUsage> nodeUsages = new ArrayList<>();
+                nodeUsages = new ArrayList<>();
                 int from = stringValue.indexOf('=');
                 if (from >= 0) {
                     String description = "Cell type: " + type.getDisplayName(0);
@@ -65,21 +66,18 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
                 IOpenMethod method = spreadsheetCell.getMethod();
                 if (method instanceof CompositeMethod) {
                     int startIndex = from + 1;
-                    List<NodeUsage> parsedNodeUsages = OpenLCellExpressionsCompiler.getNodeUsages(
-                            (CompositeMethod) method,
-                            stringValue.substring(startIndex), startIndex
-                    );
+                    List<NodeUsage> parsedNodeUsages = OpenLCellExpressionsCompiler
+                        .getNodeUsages((CompositeMethod) method, stringValue.substring(startIndex), startIndex);
                     nodeUsages.addAll(parsedNodeUsages);
                 }
-                boolean isRet = false;
-                if (getBoundNode().getComponentsBuilder().isExistsReturnHeader()) {
-                    isRet = getBoundNode().getComponentsBuilder().getReturnHeaderDefinition().isReturnCell(spreadsheetCell);
-                }
-
-                return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages, isRet);
             }
-        }
+            boolean isRet = false;
+            if (getBoundNode().getComponentsBuilder().isExistsReturnHeader()) {
+                isRet = getBoundNode().getComponentsBuilder().getReturnHeaderDefinition().isReturnCell(spreadsheetCell);
+            }
 
+            return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages, isRet);
+        }
 
         return null;
     }
