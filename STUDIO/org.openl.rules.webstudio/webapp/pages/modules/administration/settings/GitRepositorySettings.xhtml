@@ -31,8 +31,8 @@
         <h:outputText value="Path in repository:" styleClass="required" required="true"/>
         <h:inputText value="#{settings.basePath}" title="Base path in repository where everything will be saved. Must end with '/'."/>
 
-        <h:outputText value="Version in deployment name" rendered="#{isProduction}" />
-        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}"/>
+        <h:outputLabel value="Version in deployment name:" rendered="#{isProduction}" for="#{prependId}gitIncludeVersionInDeploymentName"/>
+        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}" id="#{prependId}gitIncludeVersionInDeploymentName"/>
         <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction and isEditing}"/>
     </h:panelGrid>
 
