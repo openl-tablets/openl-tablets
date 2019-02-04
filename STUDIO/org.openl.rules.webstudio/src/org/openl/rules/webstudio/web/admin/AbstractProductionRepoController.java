@@ -7,6 +7,7 @@ import javax.faces.bean.ManagedProperty;
 
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.util.StringUtils;
 
@@ -15,8 +16,6 @@ import org.openl.util.StringUtils;
  * 
  */
 public abstract class AbstractProductionRepoController {
-    private static final String LOCAL = "local";
-
     private RepositoryConfiguration repositoryConfiguration;
 
     private boolean checked = false;
@@ -110,7 +109,7 @@ public abstract class AbstractProductionRepoController {
         return repositoryConfiguration;
     }
 
-    public boolean isInputParamValid(RepositoryConfiguration prodConfig) {
+    public boolean isInputParamInvalid(RepositoryConfiguration prodConfig) {
         try {
             RepositoryValidators.validate(prodConfig, getProductionRepositoryConfigurations());
 
@@ -124,10 +123,10 @@ public abstract class AbstractProductionRepoController {
                 }
             }
 
-            return true;
+            return false;
         } catch (RepositoryValidationException e) {
             this.errorMessage = e.getMessage();
-            return false;
+            return true;
         }
     }
 

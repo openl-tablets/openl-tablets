@@ -13,12 +13,14 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +52,7 @@ public class SystemSettingsBean {
 
     private ConfigurationManager configManager;
     private RepositoryConfiguration designRepositoryConfiguration;
+    private RepositoryConfiguration deployConfigRepositoryConfiguration;
 
     private ProductionRepositoryEditor productionRepositoryEditor;
     private SystemSettingsValidator validator;
@@ -59,6 +62,8 @@ public class SystemSettingsBean {
         configManager = WebStudioUtils.getWebStudio(true).getSystemConfigManager();
 
         designRepositoryConfiguration = new RepositoryConfiguration("", configManager, RepositoryMode.DESIGN);
+
+        deployConfigRepositoryConfiguration = new RepositoryConfiguration("", configManager, RepositoryMode.DEPLOY_CONFIG);
 
         productionRepositoryEditor = new ProductionRepositoryEditor(configManager,
                 productionConfigManagerFactory,
@@ -123,6 +128,18 @@ public class SystemSettingsBean {
         return designRepositoryConfiguration;
     }
 
+    public RepositoryConfiguration getDeployConfigRepositoryConfiguration() {
+        return deployConfigRepositoryConfiguration;
+    }
+
+    public boolean isUseDesignRepo() {
+        return !Boolean.parseBoolean(configManager.getStringProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO));
+    }
+
+    public void setUseDesignRepo(boolean useDesignRepo) {
+        configManager.setProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO, !useDesignRepo);
+    }
+
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
         return productionRepositoryEditor.getProductionRepositoryConfigurations();
     }
@@ -162,7 +179,15 @@ public class SystemSettingsBean {
     public void applyChanges() {
         try {
             RepositoryValidators.validate(designRepositoryConfiguration);
-            RepositoryValidators.validateConnectionForDesignRepository(designRepositoryConfiguration, designTimeRepository);
+            RepositoryValidators.validateConnectionForDesignRepository(designRepositoryConfiguration, designTimeRepository,
+                    RepositoryMode.DESIGN);
+
+            if (!isUseDesignRepo()) {
+                RepositoryValidators.validate(deployConfigRepositoryConfiguration);
+                RepositoryValidators.validateConnectionForDesignRepository(deployConfigRepositoryConfiguration,
+                        designTimeRepository,
+                        RepositoryMode.DEPLOY_CONFIG);
+            }
 
             productionRepositoryEditor.validate();
             productionRepositoryEditor.save(new ProductionRepositoryEditor.Callback() {
@@ -186,6 +211,10 @@ public class SystemSettingsBean {
     private void saveSystemConfig() {
         // TODO: This line also do configManager.save() implicitly
         boolean saved = designRepositoryConfiguration.save();
+        if (!isUseDesignRepo()) {
+            saved &= deployConfigRepositoryConfiguration.save();
+        }
+
         if (saved) {
             refreshConfig();
         }

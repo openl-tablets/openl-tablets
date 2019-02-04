@@ -35,7 +35,7 @@
 
     <bean id="rulesDeployerService" class="org.openl.rules.ruleservice.deployer.RulesDeployerService">
         <constructor-arg name="repository" ref="repository"/>
-        <constructor-arg name="deployPath" value="${production-repository.deployments.path}"/>
+        <constructor-arg name="deployPath" value="${production-repository.base.path}"/>
     </bean>
 
     <!-- Data source storage that provides information about deployments, projects and their properties and version -->
@@ -65,7 +65,7 @@
           depends-on="deployClasspathJarsBean">
         <property name="repository" ref="repository"/>
         <property name="includeVersionInDeploymentName" value="${version-in-deployment-name}"/>
-        <property name="deployPath" value="${production-repository.deployments.path}"/>
+        <property name="deployPath" value="${production-repository.base.path}"/>
     </bean>
 
     <bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean">

@@ -13,44 +13,26 @@
         <h:inputText value="#{settings.login}"/>
         <h:outputText value="Password:"/>
         <h:inputSecret value="#{settings.password}" redisplay="true"/>
-        <h:outputText value="Local path:" title="Local path for Git repository." styleClass="required"/>
-        <h:inputText value="#{settings.localRepositoryPath}"/>
-        <h:outputText value="Branch:" title="The branch where the changes will be comitted." styleClass="required"/>
-        <h:inputText value="#{settings.branch}"/>
-        <h:outputText value="Tag prefix:" title="Prefix for automatically generated tag which will be added to every commit."/>
-        <h:inputText value="#{settings.tagPrefix}"/>
+        <h:outputText value="Local path:" styleClass="required"/>
+        <h:inputText value="#{settings.localRepositoryPath}" title="Local path for Git repository."/>
+        <h:outputText value="Branch:" styleClass="required"/>
+        <h:inputText value="#{settings.branch}" title="The branch where the changes will be comitted."/>
+        <h:outputText value="Tag prefix:"/>
+        <h:inputText value="#{settings.tagPrefix}" title="Prefix for automatically generated tag which will be added to every commit."/>
         <h:outputText value="Listener period (sec):"/>
-        <h:inputText value="#{settings.listenerTimerPeriod}" id="gitListenerTimerPeriod"
+        <h:inputText value="#{settings.listenerTimerPeriod}" id="#{prependId}gitListenerTimerPeriod"
                      title="Repository changes check interval. Must be greater than 0."
                      validatorMessage="Please enter a value greater than 0">
             <f:validateLongRange minimum="1"/>
         </h:inputText>
         <h:outputText value=""/>
-        <h:message for="gitListenerTimerPeriod" styleClass="error"/>
+        <h:message for="#{prependId}gitListenerTimerPeriod" styleClass="error"/>
 
-        <h:outputText value="Projects path:"
-                      title="The path in repository where projects will be saved. Must end with '/'."
-                      styleClass="required"
-                      required="true"
-                      rendered="#{not isProduction}"/>
-        <h:inputText value="#{settings.designRulesPath}" rendered="#{not isProduction}"/>
+        <h:outputText value="Path in repository:" styleClass="required" required="true"/>
+        <h:inputText value="#{settings.basePath}" title="Base path in repository where everything will be saved. Must end with '/'."/>
 
-        <h:outputText value="Deployment Configs path:"
-                      title="The path in repository where deployment configurations will be saved. Must end with '/'."
-                      styleClass="required"
-                      required="true"
-                      rendered="#{not isProduction}"/>
-        <h:inputText value="#{settings.designDeployConfigPath}" rendered="#{not isProduction}"/>
-
-        <h:outputText value="Deployments path:"
-                      title="The path in repository where deployments will be saved. Must end with '/'."
-                      styleClass="required"
-                      required="true"
-                      rendered="#{isProduction}"/>
-        <h:inputText value="#{settings.productionDeployPath}" rendered="#{isProduction}"/>
-
-        <h:outputText value="Version in deployment name" rendered="#{isProduction}" />
-        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}"/>
+        <h:outputLabel value="Version in deployment name:" rendered="#{isProduction}" for="#{prependId}gitIncludeVersionInDeploymentName"/>
+        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}" id="#{prependId}gitIncludeVersionInDeploymentName"/>
         <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction and isEditing}"/>
     </h:panelGrid>
 

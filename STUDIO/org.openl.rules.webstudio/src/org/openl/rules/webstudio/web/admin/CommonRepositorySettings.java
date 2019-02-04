@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.admin;
 import java.io.File;
 
 import org.openl.config.ConfigurationManager;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.util.StringUtils;
 
 public class CommonRepositorySettings extends RepositorySettings {
@@ -84,7 +85,21 @@ public class CommonRepositorySettings extends RepositorySettings {
     }
 
     String getDefaultPath(RepositoryType repositoryType) {
-        String type = repositoryMode == RepositoryMode.DESIGN ? "design" : "deployment";
+        String type;
+        switch (repositoryMode) {
+            case DESIGN:
+                type = "design";
+                break;
+            case DEPLOY_CONFIG:
+                type = "deploy-config";
+                break;
+            case PRODUCTION:
+                type = "deployment";
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
+
         switch (repositoryType) {
             case LOCAL:
                 return defaultLocalUri != null ?

@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.repository;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.admin.RepositorySettings;
@@ -69,7 +70,7 @@ public class ProductionRepositoryFactoryProxy {
         ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
         Map<String, Object> properties = configurationManager.getProperties();
 
-        return RepositoryFactoryInstatiator.newFactory(properties, false);
+        return RepositoryFactoryInstatiator.newFactory(properties, RepositoryMode.PRODUCTION);
     }
 
     public boolean isIncludeVersionInDeploymentName(String propertiesFileName) {
@@ -79,6 +80,6 @@ public class ProductionRepositoryFactoryProxy {
 
     public String getDeploymentsPath(String propertiesFileName) {
         ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
-        return configurationManager.getStringProperty("production-repository.deployments.path");
+        return configurationManager.getStringProperty("production-repository.base.path");
     }
 }

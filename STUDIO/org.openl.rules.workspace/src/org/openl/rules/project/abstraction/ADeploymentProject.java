@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class stores only deployment configuration, not deployed projects!
+ * This class stores only deploy configuration, not deployed projects!
  * For the latter see {@link Deployment} class.
  */
 public class ADeploymentProject extends UserWorkspaceProject {

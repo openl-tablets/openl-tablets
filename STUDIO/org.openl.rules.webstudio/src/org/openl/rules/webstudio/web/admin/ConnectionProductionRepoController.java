@@ -21,7 +21,7 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
     public void save() {
         RepositoryConfiguration repoConfig = createRepositoryConfiguration();
 
-        if (!isInputParamValid(repoConfig)) {
+        if (isInputParamInvalid(repoConfig)) {
             return;
         }
 
@@ -98,7 +98,7 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
     }
 
     public static class RepoDirChecker{
-        private String root = "";
+        private String root;
         private boolean hasRepoDir = false;
         private boolean hasVersionDir = false;
         private boolean hasWorkSpacesDir = false;

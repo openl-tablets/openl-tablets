@@ -6,6 +6,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.factories.LocalJackrabbitRepositoryFactory;
@@ -29,7 +30,7 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
 
         RepositoryConfiguration repoConfig = createRepositoryConfiguration();
 
-        if (!isInputParamValid(repoConfig)) {
+        if (isInputParamInvalid(repoConfig)) {
             return;
         }
 
@@ -40,7 +41,7 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
                 CommonRepositorySettings s = (CommonRepositorySettings) settings;
                 RepositoryConfiguration adminConfig = this.createAdminRepositoryConfiguration();
 
-                Repository repository = RepositoryFactoryInstatiator.newFactory(adminConfig.getProperties(), false);
+                Repository repository = RepositoryFactoryInstatiator.newFactory(adminConfig.getProperties(), RepositoryMode.PRODUCTION);
 
                 try {
                     if (repository instanceof LocalJackrabbitRepositoryFactory) {
@@ -59,9 +60,7 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
             } else {
                 RepositoryValidators.validateConnection(repoConfig, getProductionRepositoryFactoryProxy());
             }
-        } catch (RRepositoryException e) {
-            setErrorMessage(e);
-        } catch (RepositoryValidationException e) {
+        } catch (RRepositoryException | RepositoryValidationException e) {
             setErrorMessage(e);
         }
 
