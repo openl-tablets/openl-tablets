@@ -440,12 +440,11 @@ public class SpreadsheetComponentsBuilder {
             List<IOpenCast> casts = new ArrayList<>();
             List<SpreadsheetCell> returnSpreadsheetCellsAsArray = new ArrayList<>();
             List<IOpenCast> castsAsArray = new ArrayList<>();
-            SpreadsheetCell nonEmptySpreadsheetCell = null;
+            
             IOpenClass type = spreadsheet.getType();
             IAggregateInfo aggregateInfo = type.getAggregateInfo();
             IOpenClass componentType = aggregateInfo.getComponentType(type);
             boolean asArray = false;
-            int nonEmptyCellsCount = 0;
 
             List<SpreadsheetCell> sprCells = new ArrayList<>();
             int n = returnHeaderDefinition.getRow();
@@ -461,13 +460,11 @@ public class SpreadsheetComponentsBuilder {
                     sprCells.add(spreadsheet.getCells()[n][i]);
                 }
             }
-
+            
+            List<SpreadsheetCell> nonEmptySpreadsheetCells = new ArrayList<>();
             for (SpreadsheetCell cell : sprCells) {
                 if (!cell.isEmpty()) {
-                    nonEmptyCellsCount++;
-                    if (nonEmptySpreadsheetCell == null) {
-                        nonEmptySpreadsheetCell = cell;
-                    }
+                    nonEmptySpreadsheetCells.add(cell);
                     if (cell.getType() != null) {
                         IOpenCast cast = bindingContext.getCast(cell.getType(), type);
                         if (cast != null && cast.isImplicit() && !(cast instanceof IOneElementArrayCast)) {
@@ -496,18 +493,29 @@ public class SpreadsheetComponentsBuilder {
             }
 
             SpreadsheetCell[] retCells = returnSpreadsheetCells.toArray(new SpreadsheetCell[] {});
-            if (nonEmptyCellsCount > 1) {
+            if (!returnSpreadsheetCells.isEmpty()) {
                 if (asArray) {
                     returnHeaderDefinition.setReturnCells(byColumn, retCells);
                 } else {
                     returnHeaderDefinition.setReturnCells(byColumn,
                         returnSpreadsheetCells.get(returnSpreadsheetCells.size() - 1));
                 }
+            } else {
+                if (!nonEmptySpreadsheetCells.isEmpty()) {
+                    if (asArray) {
+                        returnHeaderDefinition.setReturnCells(byColumn,
+                            nonEmptySpreadsheetCells.toArray(new SpreadsheetCell[] {}));
+                    } else {
+                        returnHeaderDefinition.setReturnCells(byColumn,
+                            nonEmptySpreadsheetCells.get(nonEmptySpreadsheetCells.size() - 1));
+                    }
+                }
             }
 
             switch (returnSpreadsheetCells.size()) {
                 case 0:
-                    if (nonEmptySpreadsheetCell != null) {
+                    if (!nonEmptySpreadsheetCells.isEmpty()) {
+                        SpreadsheetCell nonEmptySpreadsheetCell = nonEmptySpreadsheetCells.get(nonEmptySpreadsheetCells.size() - 1); 
                         if (nonEmptySpreadsheetCell.getType() != null) {
                             throw SyntaxNodeExceptionUtils.createError(
                                 "Can not convert from " + nonEmptySpreadsheetCell.getType()
