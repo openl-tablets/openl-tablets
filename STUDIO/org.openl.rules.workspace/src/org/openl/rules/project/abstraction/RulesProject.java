@@ -17,6 +17,7 @@ import org.openl.util.RuntimeExceptionWrapper;
 public class RulesProject extends UserWorkspaceProject {
     private LocalRepository localRepository;
     private String localFolderName;
+
     private Repository designRepository;
     private String designFolderName;
     private final LockEngine lockEngine;
@@ -154,26 +155,20 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public LockInfo getLockInfo() {
-        synchronized (lockEngine) {
-            return lockEngine.getLockInfo(getName());
-        }
+        return lockEngine.getLockInfo(getName());
     }
 
     @Override
     public void lock() throws ProjectException {
-        synchronized (lockEngine) {
             // No need to lock local only projects. Other users don't see it.
             if (!isLocalOnly()) {
                 lockEngine.lock(getName(), getUser().getUserName());
             }
-        }
     }
 
     @Override
     public void unlock() {
-        synchronized (lockEngine) {
-            lockEngine.unlock(getName());
-        }
+        lockEngine.unlock(getName());
     }
 
     /**
@@ -184,7 +179,6 @@ public class RulesProject extends UserWorkspaceProject {
      * @throws ProjectException if can't lock the project
      */
     public boolean tryLock() throws ProjectException {
-        synchronized (lockEngine) {
             if (isLocalOnly()) {
                 // No need to lock local only projects. Other users don't see it.
                 return true;
@@ -197,7 +191,6 @@ public class RulesProject extends UserWorkspaceProject {
             lockEngine.lock(getName(), getUser().getUserName());
 
             return true;
-        }
     }
 
     public String getLockedUserName() {

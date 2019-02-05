@@ -39,7 +39,7 @@ public class LockEngineImpl implements LockEngine {
     }
 
     @Override
-    public void lock(String projectName, String userName) throws ProjectException {
+    public synchronized void lock(String projectName, String userName) throws ProjectException {
         Properties properties = new Properties();
         properties.setProperty(USER_NAME, userName);
         properties.setProperty(DATE, new SimpleDateFormat(DATE_FORMAT).format(new Date()));
@@ -63,13 +63,13 @@ public class LockEngineImpl implements LockEngine {
     }
 
     @Override
-    public void unlock(String projectName) {
+    public synchronized void unlock(String projectName) {
         File file = new File(locksRoot, projectName);
         file.delete();
     }
 
     @Override
-    public LockInfo getLockInfo(String projectName) {
+    public synchronized LockInfo getLockInfo(String projectName) {
         File file = new File(locksRoot, projectName);
         if (!file.exists()) {
             return new SimpleLockInfo(false, null, null);
