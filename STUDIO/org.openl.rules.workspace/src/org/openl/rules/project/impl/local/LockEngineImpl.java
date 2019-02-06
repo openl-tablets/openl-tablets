@@ -12,6 +12,7 @@ import java.util.Properties;
 import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.LockEngine;
+import org.openl.rules.project.abstraction.LockException;
 import org.openl.util.IOUtils;
 
 public class LockEngineImpl implements LockEngine {
@@ -39,7 +40,7 @@ public class LockEngineImpl implements LockEngine {
     }
 
     @Override
-    public synchronized boolean lock(String projectName, String userName) throws ProjectException {
+    public synchronized boolean lock(String projectName, String userName) throws LockException {
         LockInfo lockInfo = getLockInfo(projectName);
         if (lockInfo.isLocked()) {
             return userName.equals(lockInfo.getLockedBy().getUserName());
@@ -59,7 +60,7 @@ public class LockEngineImpl implements LockEngine {
             os = new FileOutputStream(file);
             properties.store(os, "Lock info");
         } catch (IOException e) {
-            throw new ProjectException("Can't lock the project " + projectName, e);
+            throw new LockException("Can't lock the project " + projectName, e);
         } finally {
             IOUtils.closeQuietly(os);
         }
