@@ -1,7 +1,15 @@
 package org.openl.rules.types;
 
-import java.util.*;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -284,7 +292,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             if (newMethod instanceof IUriMember && existedMethod instanceof IUriMember) {
                 if (!UriMemberHelper.isTheSame((IUriMember) newMethod, (IUriMember) existedMethod)) {
                     String message = ValidationMessages.getDuplicatedMethodMessage(existedMethod, newMethod);
-                    throw new DuplicatedMethodException(message, existedMethod);
+                    throw new DuplicatedMethodException(message, existedMethod, newMethod);
                 }
             } else {
                 throw new IllegalStateException("Implementation supports only IUriMember!");
@@ -343,8 +351,8 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                     candidatesToDimensionKey.put(i, new DimensionPropertiesMethodKey(candidate));
                 } catch (DuplicatedMethodException e) {
                     if (!candidateKeys.contains(candidateKey)) {
-                        if (existedMethod instanceof IMemberMetaInfo) {
-                            IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) existedMethod;
+                        if (candidate instanceof IMemberMetaInfo) {
+                            IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) candidate;
                             if (memberMetaInfo.getSyntaxNode() != null) {
                                 if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
                                     SyntaxNodeException error = SyntaxNodeExceptionUtils

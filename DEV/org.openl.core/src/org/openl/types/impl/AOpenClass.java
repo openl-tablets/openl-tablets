@@ -328,8 +328,8 @@ public abstract class AOpenClass implements IOpenClass {
         final IOpenMethod existMethod = putMethod(method);
         if (existMethod != null) {
             throw new DuplicatedMethodException(
-                "Method '" + key + "' have bean already defined for class '" + getName() + "'",
-                method);
+                "Method '" + key + "' is already defined in class '" + getName() + "'",
+                existMethod, method);
         }
         invalidateInternalData();
     }
@@ -339,8 +339,8 @@ public abstract class AOpenClass implements IOpenClass {
         final IOpenMethod existCostructor = putConstructor(method);
         if (existCostructor != null) {
             throw new DuplicatedMethodException(
-                "Constructor '" + key + "' have bean already defined for class '" + getName() + "'",
-                method);
+                "Constructor '" + key + "' is already defined in class '" + getName() + "'",
+                existCostructor, method);
         }
     }
 

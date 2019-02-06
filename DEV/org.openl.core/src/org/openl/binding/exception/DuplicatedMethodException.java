@@ -19,12 +19,22 @@ public class DuplicatedMethodException extends OpenlNotCheckedException {
      *
      */
     private static final long serialVersionUID = 4145939391957085009L;
-    
-    private IOpenMethod method;
 
-    public DuplicatedMethodException(String msg, IOpenMethod method) {
+    private IOpenMethod existedMethod;
+    private IOpenMethod newMethod;
+
+    public DuplicatedMethodException(String msg, IOpenMethod existedMethod, IOpenMethod newMethod) {
         super(msg);
-        this.method = method;
+        this.existedMethod = existedMethod;
+        this.newMethod = newMethod;
+    }
+
+    public IOpenMethod getExistedMethod() {
+        return existedMethod;
+    }
+
+    public IOpenMethod getNewMethod() {
+        return newMethod;
     }
 
     @Override
@@ -35,7 +45,7 @@ public class DuplicatedMethodException extends OpenlNotCheckedException {
 
         StringBuilder buf = new StringBuilder();
         buf.append("Method ");
-        MethodUtil.printMethod(method, buf);
+        MethodUtil.printMethod(newMethod, buf);
         buf.append(" has already been defined");
         return buf.toString();
     }
