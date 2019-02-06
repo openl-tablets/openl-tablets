@@ -122,6 +122,10 @@ public class RepositoryConfiguration {
         }
     }
 
+    public boolean isFolderRepository() {
+        return repositoryType == RepositoryType.GIT;
+    }
+
     public String getType() {
         return repositoryType.name().toLowerCase();
     }
