@@ -6,7 +6,8 @@ import org.openl.rules.project.abstraction.LockEngine;
 
 public class DummyLockEngine implements LockEngine {
     @Override
-    public void lock(String projectName, String userName) throws ProjectException {
+    public boolean lock(String projectName, String userName) throws ProjectException {
+        return true;
     }
 
     @Override

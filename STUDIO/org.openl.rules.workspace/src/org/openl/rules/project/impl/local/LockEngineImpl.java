@@ -39,7 +39,11 @@ public class LockEngineImpl implements LockEngine {
     }
 
     @Override
-    public synchronized void lock(String projectName, String userName) throws ProjectException {
+    public synchronized boolean lock(String projectName, String userName) throws ProjectException {
+        LockInfo lockInfo = getLockInfo(projectName);
+        if (lockInfo.isLocked()) {
+            return userName.equals(lockInfo.getLockedBy().getUserName());
+        }
         Properties properties = new Properties();
         properties.setProperty(USER_NAME, userName);
         properties.setProperty(DATE, new SimpleDateFormat(DATE_FORMAT).format(new Date()));
@@ -59,6 +63,7 @@ public class LockEngineImpl implements LockEngine {
         } finally {
             IOUtils.closeQuietly(os);
         }
+        return true;
 
     }
 

@@ -4,7 +4,7 @@ import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectException;
 
 public interface LockEngine {
-    void lock(String projectName, String userName) throws ProjectException;
+    boolean lock(String projectName, String userName) throws ProjectException;
 
     void unlock(String projectName);
 

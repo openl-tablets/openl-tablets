@@ -183,14 +183,7 @@ public class RulesProject extends UserWorkspaceProject {
                 // No need to lock local only projects. Other users don't see it.
                 return true;
             }
-            LockInfo lockInfo = getLockInfo();
-            if (lockInfo.isLocked()) {
-                return isLockedByMe(lockInfo);
-            }
-
-            lockEngine.lock(getName(), getUser().getUserName());
-
-            return true;
+            return lockEngine.lock(getName(), getUser().getUserName());
     }
 
     public String getLockedUserName() {
