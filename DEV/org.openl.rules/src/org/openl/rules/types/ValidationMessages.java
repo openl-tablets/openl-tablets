@@ -35,11 +35,11 @@ public final class ValidationMessages {
             // Case module names where not set to the methods
             if (canBeDispatched) {
                 message = String.format(
-                        "Method \"%s\" has already been used with the same version, active status, properties set and different method body!",
+                        "Method \"%s\" is already used with the same version, active status, properties set!",
                         existedMethod.getName());
             } else {
                 message = String.format(
-                        "Method \"%s\" has already been used with different method body!",
+                        "Method \"%s\" is already used!",
                         existedMethod.getName());
             }
         } else {
@@ -48,13 +48,13 @@ public final class ValidationMessages {
             if (modules.size() > 1) {
                 if (canBeDispatched) {
                     message = String.format(
-                            "Method \"%s\" has already been used in modules \"%s\" and \"%s\" with the same version, active status, properties set and different method body!",
+                            "Method \"%s\" is already used in modules \"%s\" and \"%s\" with the same version, active status, properties set!",
                             existedMethod.getName(),
                             modulesString,
                             modules.get(1));
                 } else {
                     message = String.format(
-                            "Method \"%s\" has already been used in modules \"%s\" and \"%s\" with different method body!",
+                            "Method \"%s\" is already used in modules \"%s\" and \"%s\"!",
                             existedMethod.getName(),
                             modulesString,
                             modules.get(1));
@@ -62,12 +62,12 @@ public final class ValidationMessages {
             } else {
                 if (canBeDispatched) {
                     message = String.format(
-                            "Method \"%s\" has already been used in module \"%s\" with the same version, active status, properties set and different method body!",
+                            "Method \"%s\" is already used in module \"%s\" with the same version, active status, properties set!",
                             existedMethod.getName(),
                             modulesString);
                 } else {
                     message = String.format(
-                            "Method \"%s\" has already been used in module \"%s\" with different method body!",
+                            "Method \"%s\" is already used in module \"%s\"!",
                             existedMethod.getName(),
                             modulesString);
                 }
