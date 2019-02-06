@@ -482,16 +482,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             String baseFolder,
             ObjectId start) throws GitAPIException, IOException {
         String fullPath = baseFolder + dirWalk.getPathString();
-        Iterator<RevCommit> iterator = git.log()
-                .add(start)
-                .addPath(fullPath)
-                .call()
-                .iterator();
-        if (!iterator.hasNext()) {
-            throw new IllegalStateException("Can't find revision for a file " + dirWalk.getPathString());
-        }
-
-        return createFileData(repository, dirWalk, baseFolder, iterator.next());
+        return new LazyFileData(fullPath, this, start, getFileId(dirWalk));
     }
 
     private ObjectId resolveBranchId() throws IOException {
@@ -508,38 +499,16 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             RevCommit fileCommit) throws GitAPIException, IOException {
         String fullPath = baseFolder + dirWalk.getPathString();
 
+        return new LazyFileData(fullPath, this, fileCommit, getFileId(dirWalk));
+    }
+
+    private ObjectId getFileId(TreeWalk dirWalk) {
         int fileModeBits = dirWalk.getFileMode().getBits();
-
-        FileData fileData = new FileData();
-        fileData.setName(fullPath);
-
-        PersonIdent committerIdent = fileCommit.getCommitterIdent();
-
-        fileData.setAuthor(committerIdent.getName());
-        fileData.setModifiedAt(committerIdent.getWhen());
-        String message = fileCommit.getFullMessage();
-        try {
-            Object[] parse = new MessageFormat(commentPattern).parse(message);
-            if (parse.length == 2) {
-                CommitType commitType = CommitType.valueOf(String.valueOf(parse[0]));
-                if (commitType == CommitType.ARCHIVE) {
-                    fileData.setDeleted(true);
-                }
-                message = String.valueOf(parse[1]);
-            }
-        } catch (ParseException | IllegalArgumentException ignored) {
-        }
-        fileData.setComment(message);
-
-        String version = getVersionName(fileCommit.getId());
-        fileData.setVersion(version);
-
+        ObjectId fileId = null;
         if ((fileModeBits & FileMode.TYPE_FILE) != 0) {
-            ObjectLoader loader = repository.open(dirWalk.getObjectId(0));
-            fileData.setSize(loader.getSize());
+            fileId = dirWalk.getObjectId(0);
         }
-
-        return fileData;
+        return fileId;
     }
 
     private ObjectId getLastRevision() throws GitAPIException, IOException {
@@ -677,7 +646,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         return String.valueOf(maxId + 1);
     }
 
-    private String getVersionName(ObjectId commitId) throws GitAPIException {
+    String getVersionName(ObjectId commitId) throws GitAPIException {
         return getVersionName(git.tagList().call(), commitId);
     }
 
@@ -706,6 +675,14 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     private String getLocalTagName(Ref tagRef) {
         String name = tagRef.getName();
         return name.startsWith(Constants.R_TAGS) ? name.substring(Constants.R_TAGS.length()) : name;
+    }
+
+    String getCommentPattern() {
+        return commentPattern;
+    }
+
+    Git getGit() {
+        return git;
     }
 
     private void addTagToCommit(RevCommit commit) throws GitAPIException {
@@ -1087,9 +1064,5 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         public FileItem getResult() {
             return result;
         }
-    }
-
-    private enum CommitType {
-        NORMAL, ARCHIVE, RESTORE, ERASE
     }
 }
