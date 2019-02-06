@@ -138,6 +138,10 @@ public class ConfigurationManager {
         return compositeConfiguration.getBoolean(key);
     }
 
+    public Boolean getBooleanProperty(String key, Boolean defaultValue) {
+        return compositeConfiguration.getBoolean(key, defaultValue);
+    }
+
     public int getIntegerProperty(String key) {
         return compositeConfiguration.getInt(key);
     }

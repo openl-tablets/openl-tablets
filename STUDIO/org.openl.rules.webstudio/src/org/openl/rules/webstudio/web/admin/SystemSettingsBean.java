@@ -140,6 +140,14 @@ public class SystemSettingsBean {
         configManager.setProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO, !useDesignRepo);
     }
 
+    public FolderStructureSettings getDesignFolderStructure() {
+        return new FolderStructureSettings(configManager, RepositoryMode.DESIGN);
+    }
+
+    public FolderStructureSettings getDeployConfigFolderStructure() {
+        return new FolderStructureSettings(configManager, RepositoryMode.DEPLOY_CONFIG);
+    }
+
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
         return productionRepositoryEditor.getProductionRepositoryConfigurations();
     }
