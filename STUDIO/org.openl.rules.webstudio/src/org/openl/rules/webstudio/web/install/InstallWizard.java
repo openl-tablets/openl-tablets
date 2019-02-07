@@ -904,6 +904,14 @@ public class InstallWizard {
         systemConfig.setProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO, !useDesignRepo);
     }
 
+    public FolderStructureSettings getDesignFolderStructure() {
+        return new FolderStructureSettings(systemConfig, RepositoryMode.DESIGN);
+    }
+
+    public FolderStructureSettings getDeployConfigFolderStructure() {
+        return new FolderStructureSettings(systemConfig, RepositoryMode.DEPLOY_CONFIG);
+    }
+
     public List<RepositoryConfiguration> getProductionRepositoryConfigurations() {
         return productionRepositoryEditor.getProductionRepositoryConfigurations();
     }

@@ -151,7 +151,7 @@ public class ProductionRepositoryDataSource implements DataSource {
     }
 
     public void setDeployPath(String deployPath) {
-        this.deployPath = deployPath;
+        this.deployPath = deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
     }
 
     private boolean isFolderStructure(String deploymentFolderPath) {

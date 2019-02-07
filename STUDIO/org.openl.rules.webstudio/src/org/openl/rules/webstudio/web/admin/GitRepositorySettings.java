@@ -15,7 +15,6 @@ public class GitRepositorySettings extends RepositorySettings {
     private String branch;
     private String tagPrefix;
     private int listenerTimerPeriod;
-    private String basePath;
     private String commentPattern;
 
     private final String URI;
@@ -25,7 +24,6 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String BRANCH;
     private final String TAG_PREFIX;
     private final String LISTENER_TIMER_PERIOD;
-    private final String BASE_PATH;
     private final String COMMENT_PATTERN;
 
     public GitRepositorySettings(ConfigurationManager configManager,
@@ -40,7 +38,6 @@ public class GitRepositorySettings extends RepositorySettings {
         BRANCH = configPrefix + "branch";
         TAG_PREFIX = configPrefix + "tag-prefix";
         LISTENER_TIMER_PERIOD = configPrefix + "listener-timer-period";
-        BASE_PATH = configPrefix + "base.path";
         COMMENT_PATTERN = "comment-pattern";
 
         String type;
@@ -70,7 +67,6 @@ public class GitRepositorySettings extends RepositorySettings {
         branch = configManager.getStringProperty(BRANCH, Constants.MASTER);
         tagPrefix = configManager.getStringProperty(TAG_PREFIX);
         listenerTimerPeriod = configManager.getLongProperty(LISTENER_TIMER_PERIOD, 10L).intValue();
-        basePath = configManager.getStringProperty(BASE_PATH);
         commentPattern = configManager.getStringProperty(COMMENT_PATTERN);
     }
 
@@ -132,14 +128,6 @@ public class GitRepositorySettings extends RepositorySettings {
         this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
-    public String getBasePath() {
-        return basePath;
-    }
-
-    public void setBasePath(String basePath) {
-        this.basePath = basePath;
-    }
-
     public String getCommentPattern() {
         return commentPattern;
     }
@@ -162,12 +150,10 @@ public class GitRepositorySettings extends RepositorySettings {
             configurationManager.setPassword(PASSWORD, getPassword());
         }
 
-
         configurationManager.setProperty(LOCAL_REPOSITORY_PATH, localRepositoryPath);
         configurationManager.setProperty(BRANCH, branch);
         configurationManager.setProperty(TAG_PREFIX, tagPrefix);
         configurationManager.setProperty(LISTENER_TIMER_PERIOD, listenerTimerPeriod);
-        configurationManager.setProperty(BASE_PATH, basePath);
         configurationManager.setProperty(COMMENT_PATTERN, commentPattern);
     }
 
@@ -184,7 +170,6 @@ public class GitRepositorySettings extends RepositorySettings {
             setBranch(otherSettings.getBranch());
             setTagPrefix(otherSettings.getTagPrefix());
             setListenerTimerPeriod(otherSettings.getListenerTimerPeriod());
-            setBasePath(otherSettings.getBasePath());
             setCommentPattern(otherSettings.getCommentPattern());
         }
     }

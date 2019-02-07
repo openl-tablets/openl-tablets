@@ -469,29 +469,15 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         return treeWalk;
     }
 
-    private FileData createFileData(org.eclipse.jgit.lib.Repository repository,
-            TreeWalk dirWalk,
-            String baseFolder) throws GitAPIException, IOException {
+    private FileData createFileData(TreeWalk dirWalk, String baseFolder) throws IOException {
         ObjectId start = resolveBranchId();
 
-        return createFileData(repository, dirWalk, baseFolder, start);
+        return createFileData(dirWalk, baseFolder, start);
     }
 
-    private FileData createFileData(org.eclipse.jgit.lib.Repository repository,
-            TreeWalk dirWalk,
-            String baseFolder,
-            ObjectId start) throws GitAPIException, IOException {
+    private FileData createFileData(TreeWalk dirWalk, String baseFolder, ObjectId start) {
         String fullPath = baseFolder + dirWalk.getPathString();
-        Iterator<RevCommit> iterator = git.log()
-                .add(start)
-                .addPath(fullPath)
-                .call()
-                .iterator();
-        if (!iterator.hasNext()) {
-            throw new IllegalStateException("Can't find revision for a file " + dirWalk.getPathString());
-        }
-
-        return createFileData(repository, dirWalk, baseFolder, iterator.next());
+        return new LazyFileData(fullPath, this, start, getFileId(dirWalk));
     }
 
     private ObjectId resolveBranchId() throws IOException {
@@ -502,44 +488,19 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         return branchId;
     }
 
-    private FileData createFileData(org.eclipse.jgit.lib.Repository repository,
-            TreeWalk dirWalk,
-            String baseFolder,
-            RevCommit fileCommit) throws GitAPIException, IOException {
-        String fullPath = baseFolder + dirWalk.getPathString();
+    private FileData createFileData(TreeWalk dirWalk, RevCommit fileCommit) {
+        String fullPath = dirWalk.getPathString();
 
+        return new LazyFileData(fullPath, this, fileCommit, getFileId(dirWalk));
+    }
+
+    private ObjectId getFileId(TreeWalk dirWalk) {
         int fileModeBits = dirWalk.getFileMode().getBits();
-
-        FileData fileData = new FileData();
-        fileData.setName(fullPath);
-
-        PersonIdent committerIdent = fileCommit.getCommitterIdent();
-
-        fileData.setAuthor(committerIdent.getName());
-        fileData.setModifiedAt(committerIdent.getWhen());
-        String message = fileCommit.getFullMessage();
-        try {
-            Object[] parse = new MessageFormat(commentPattern).parse(message);
-            if (parse.length == 2) {
-                CommitType commitType = CommitType.valueOf(String.valueOf(parse[0]));
-                if (commitType == CommitType.ARCHIVE) {
-                    fileData.setDeleted(true);
-                }
-                message = String.valueOf(parse[1]);
-            }
-        } catch (ParseException | IllegalArgumentException ignored) {
-        }
-        fileData.setComment(message);
-
-        String version = getVersionName(fileCommit.getId());
-        fileData.setVersion(version);
-
+        ObjectId fileId = null;
         if ((fileModeBits & FileMode.TYPE_FILE) != 0) {
-            ObjectLoader loader = repository.open(dirWalk.getObjectId(0));
-            fileData.setSize(loader.getSize());
+            fileId = dirWalk.getObjectId(0);
         }
-
-        return fileData;
+        return fileId;
     }
 
     private ObjectId getLastRevision() throws GitAPIException, IOException {
@@ -677,7 +638,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         return String.valueOf(maxId + 1);
     }
 
-    private String getVersionName(ObjectId commitId) throws GitAPIException {
+    String getVersionName(ObjectId commitId) throws GitAPIException {
         return getVersionName(git.tagList().call(), commitId);
     }
 
@@ -706,6 +667,14 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     private String getLocalTagName(Ref tagRef) {
         String name = tagRef.getName();
         return name.startsWith(Constants.R_TAGS) ? name.substring(Constants.R_TAGS.length()) : name;
+    }
+
+    String getCommentPattern() {
+        return commentPattern;
+    }
+
+    Git getGit() {
+        return git;
     }
 
     private void addTagToCommit(RevCommit commit) throws GitAPIException {
@@ -851,15 +820,15 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         @Override
         public List<FileData> apply(org.eclipse.jgit.lib.Repository repository,
                 TreeWalk rootWalk,
-                String baseFolder) throws IOException, GitAPIException {
+                String baseFolder) throws IOException {
             if (rootWalk != null) {
                 // Iterate files in folder
                 List<FileData> files = new ArrayList<>();
                 if (rootWalk.getFilter() == TreeFilter.ALL) {
                     while (rootWalk.next()) {
                         FileData fileData = start == null ?
-                                            createFileData(repository, rootWalk, baseFolder) :
-                                            createFileData(repository, rootWalk, baseFolder, start);
+                                            createFileData(rootWalk, baseFolder) :
+                                            createFileData(rootWalk, baseFolder, start);
                         files.add(fileData);
                     }
                 } else {
@@ -870,8 +839,8 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
 
                             while (dirWalk.next()) {
                                 FileData fileData = start == null ?
-                                                    createFileData(repository, dirWalk, baseFolder) :
-                                                    createFileData(repository, dirWalk, baseFolder, start);
+                                                    createFileData(dirWalk, baseFolder) :
+                                                    createFileData(dirWalk, baseFolder, start);
                                 files.add(fileData);
                             }
                         }
@@ -889,7 +858,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         @Override
         public List<FileData> apply(org.eclipse.jgit.lib.Repository repository,
                 TreeWalk rootWalk,
-                String baseFolder) throws IOException, GitAPIException {
+                String baseFolder) throws IOException {
             if (rootWalk != null) {
                 if (rootWalk.getFilter() == TreeFilter.ALL) {
                     return collectFolderData(rootWalk, baseFolder);
@@ -906,12 +875,12 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             return Collections.emptyList();
         }
 
-        private List<FileData> collectFolderData(TreeWalk rootWalk, String baseFolder) throws IOException, GitAPIException {
+        private List<FileData> collectFolderData(TreeWalk rootWalk, String baseFolder) throws IOException {
             List<FileData> files = new ArrayList<>();
             rootWalk.setRecursive(false);
             while (rootWalk.next()) {
                 if ((rootWalk.getFileMode().getBits() & FileMode.TYPE_TREE) != 0) {
-                    files.add(createFileData(git.getRepository(), rootWalk, baseFolder));
+                    files.add(createFileData(rootWalk, baseFolder));
                 }
             }
 
@@ -922,10 +891,9 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     private class CheckCommand implements WalkCommand<FileData> {
         @Override
         public FileData apply(org.eclipse.jgit.lib.Repository repository, TreeWalk rootWalk, String baseFolder) throws
-                                                                                                                IOException,
-                                                                                                                GitAPIException {
+                                                                                                                IOException {
             if (rootWalk != null) {
-                return createFileData(repository, rootWalk, "");
+                return createFileData(rootWalk, "");
             } else {
                 return null;
             }
@@ -935,10 +903,9 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     private class ReadCommand implements WalkCommand<FileItem> {
         @Override
         public FileItem apply(org.eclipse.jgit.lib.Repository repository, TreeWalk rootWalk, String baseFolder) throws
-                                                                                                                IOException,
-                                                                                                                GitAPIException {
+                                                                                                                IOException {
             if (rootWalk != null) {
-                FileData fileData = createFileData(repository, rootWalk, "");
+                FileData fileData = createFileData(rootWalk, "");
                 ObjectLoader loader = repository.open(rootWalk.getObjectId(0));
                 return new FileItem(fileData, loader.openStream());
             } else {
@@ -963,7 +930,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
                 String versionName = getVersionName(commit);
                 // Skip technical commits
                 if (!isTechnicalCommit(commit)) {
-                    history.add(createFileData(repository, rootWalk, "", commit));
+                    history.add(createFileData(rootWalk, commit));
                 }
             } catch (FileNotFoundException e) {
                 log.debug("File '{}' is absent in the commit {}", fullPath, commitVersion, e);
@@ -1006,7 +973,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         }
 
         @Override
-        public boolean visit(String fullPath, RevCommit commit, String commitVersion) throws IOException, GitAPIException {
+        public boolean visit(String fullPath, RevCommit commit, String commitVersion) throws IOException {
             if (commitVersion.equals(version)) {
                 RevTree tree = commit.getTree();
 
@@ -1038,12 +1005,12 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         }
 
         @Override
-        public boolean visit(String fullPath, RevCommit commit, String commitVersion) throws IOException, GitAPIException {
+        public boolean visit(String fullPath, RevCommit commit, String commitVersion) throws IOException {
             if (commitVersion.equals(version)) {
                 RevTree tree = commit.getTree();
 
                 try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
-                    result = createFileData(repository, rootWalk, "", commit);
+                    result = createFileData(rootWalk, commit);
                     return true;
                 }
             }
@@ -1068,12 +1035,12 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         }
 
         @Override
-        public boolean visit(String fullPath, RevCommit commit, String commitVersion) throws IOException, GitAPIException {
+        public boolean visit(String fullPath, RevCommit commit, String commitVersion) throws IOException {
             if (commitVersion.equals(version)) {
                 RevTree tree = commit.getTree();
 
                 try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
-                    FileData fileData = createFileData(repository, rootWalk, "", commit);
+                    FileData fileData = createFileData(rootWalk, commit);
                     ObjectLoader loader = repository.open(rootWalk.getObjectId(0));
                     result = new FileItem(fileData, loader.openStream());
                     return true;
@@ -1087,9 +1054,5 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         public FileItem getResult() {
             return result;
         }
-    }
-
-    private enum CommitType {
-        NORMAL, ARCHIVE, RESTORE, ERASE
     }
 }
