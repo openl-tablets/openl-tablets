@@ -15,7 +15,6 @@ public class BaseTableEditorController {
     public BaseTableEditorController() {
     }
 
-    @SuppressWarnings("unchecked")
     protected TableEditorModel getEditorModel(String editorId) {
         Map editorModelMap = (Map) FacesUtils.getSessionParam(Constants.TABLE_EDITOR_MODEL_NAME);
         if (editorModelMap != null) {

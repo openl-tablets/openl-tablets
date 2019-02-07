@@ -50,8 +50,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     private int left;
 
     public DecisionTableMetaInfoReader(DecisionTableBoundNode boundNode) {
-        super(boundNode);
-        decisionTable = null;
+        this(boundNode, null);
     }
 
     public DecisionTableMetaInfoReader(DecisionTableBoundNode boundNode, DecisionTable decisionTable) {
