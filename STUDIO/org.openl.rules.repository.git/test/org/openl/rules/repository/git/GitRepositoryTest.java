@@ -278,6 +278,11 @@ public class GitRepositoryTest {
         assertContains(files, "rules/project1/file2");
         assertEquals(2, files.size());
 
+        // Save second time without changes. Mustn't fail.
+        changes.get(0).getStream().reset();
+        changes.get(1).getStream().reset();
+        assertNotNull(repo.save(folderData, changes));
+
         for (FileChange file : changes) {
             IOUtils.closeQuietly(file.getStream());
         }
