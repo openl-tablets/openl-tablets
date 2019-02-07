@@ -153,7 +153,7 @@ public class JAXRSEnhancerHelper {
         private Set<String> initRequestEntitiesCache(List<Method> methods) {
             Set<String> cache = new HashSet<>();
             for (Method method : methods) {
-                for (Class paramType : method.getParameterTypes()) {
+                for (Class<?> paramType : method.getParameterTypes()) {
                     String requestEntityName = paramType.getSimpleName();
                     if (requestEntityName.contains(REQUEST_PARAMETER_SUFFIX)) {
                         cache.add(requestEntityName);
@@ -209,75 +209,100 @@ public class JAXRSEnhancerHelper {
                 throw new RuleServiceRuntimeException("Method is not found in the original class!");
             }
 
-            boolean skip = originalMethod.getAnnotation(Path.class) != null || originalMethod
-                .getAnnotation(POST.class) != null || originalMethod.getAnnotation(GET.class) != null;
-
             MethodVisitor mv;
             Class<?> returnType = originalMethod.getReturnType();
             boolean hasResponse = returnType.equals(Response.class);
             arg2 = hasResponse ? arg2 : arg2.substring(0, arg2.lastIndexOf(')') + 1) + Type.getDescriptor(Response.class);
-            if (skip) {
+            
+            boolean allParametersIsPrimitive = true;
+            Class<?>[] originalParameterTypes = originalMethod.getParameterTypes();
+            int numOfParameters = originalParameterTypes.length;
+            if (numOfParameters < MAX_PARAMETERS_COUNT_FOR_GET) {
+                for (Class<?> parameterType : originalParameterTypes) {
+                    if (!parameterType.isPrimitive()) {
+                        allParametersIsPrimitive = false;
+                        break;
+                    }
+                }
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append("/").append(getPath(originalMethod));
+            if (numOfParameters < MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && originalMethod.getAnnotation(POST.class) == null || originalMethod.getAnnotation(GET.class) != null) {
                 mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
+                String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
+                final String[] withPathParamValues = getPathParamValuesFromMethodParameters(originalMethod);
 
-                // Parameter annotations process, because InterfaceTransformer skips them
-                // Needs refactoring.
-                if (originalMethod.getParameterAnnotations().length > 0) {
-                    int index = 0;
-                    for (Annotation[] annotatons : originalMethod.getParameterAnnotations()) {
-                        for (Annotation annotaton : annotatons) {
-                            AnnotationVisitor av = mv
-                                .visitParameterAnnotation(index, Type.getDescriptor(annotaton.annotationType()), true);
-                            InterfaceTransformer.processAnnotation(annotaton, av);
+                processAnnotationsOnMethodParameters(originalMethod, mv);
+                Set<String> usedValues = new HashSet<>(Arrays.asList(withPathParamValues));
+                int i = 0;
+                for (String paramName : parameterNames) {
+                    if (withPathParamValues[i] == null) {
+                        String p = paramName;
+                        int j = 1;
+                        while (usedValues.contains(p)) {
+                            p = paramName + j;
                         }
-                        index++;
+                        sb.append("/{").append(p).append(": .*}");
+                        addPathParamAnnotation(mv, i, p);
+                        usedValues.add(p);
+                    } else {
+                        sb.append("/{").append(withPathParamValues[i]).append(": .*}");
                     }
+                    i++;
                 }
+                
+                addGetAnnotation(mv, originalMethod);
+                addPathAnnotation(mv, originalMethod, sb.toString());
             } else {
-                boolean allParametersIsPrimitive = true;
-                Class<?>[] originalParameterTypes = originalMethod.getParameterTypes();
-                int numOfParameters = originalParameterTypes.length;
-                if (numOfParameters < MAX_PARAMETERS_COUNT_FOR_GET) {
-                    for (Class<?> parameterType : originalParameterTypes) {
-                        if (!parameterType.isPrimitive()) {
-                            allParametersIsPrimitive = false;
-                            break;
-                        }
+                try {
+                    if (numOfParameters > 1) {
+                        String changeArgumentTypes = changeArgumentTypes(arg2, originalMethod);
+                        mv = super.visitMethod(arg0, methodName, changeArgumentTypes, arg3, arg4);
+                    } else {
+                        mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
+                        processAnnotationsOnMethodParameters(originalMethod, mv);
                     }
-                }
-                StringBuilder sb = new StringBuilder();
-                sb.append("/").append(getPath(originalMethod));
-                if (numOfParameters < MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive) {
-                    mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
-                    String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
-                    int i = 0;
-                    for (String paramName : parameterNames) {
-                        sb.append("/{").append(paramName).append(": .*}");
-                        addPathParamAnnotation(mv, i, paramName);
-                        i++;
+                    if (!hasResponse) {
+                        annotateReturnElementClass(mv, returnType);
                     }
-                    addGetAnnotation(mv);
-                    addPathAnnotation(mv, sb.toString());
-                } else {
-                    try {
-                        if (numOfParameters > 1) {
-                            String changeArgumentTypes = changeArgumentTypes(arg2, originalMethod);
-                            mv = super.visitMethod(arg0, methodName, changeArgumentTypes, arg3, arg4);
-                        } else {
-                            mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
-                        }
-                        if (!hasResponse) {
-                            annotateReturnElementClass(mv, returnType);
-                        }
-                        addPostAnnotation(mv);
-                        addPathAnnotation(mv, sb.toString());
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
+                    if (originalMethod.getAnnotation(GET.class) == null) {
+                        addPostAnnotation(mv, originalMethod);    
                     }
+                    addPathAnnotation(mv, originalMethod, sb.toString());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
             }
 
             addSwaggerMethodAnnotation(mv, originalMethod);
             return mv;
+        }
+
+        private String[] getPathParamValuesFromMethodParameters(Method originalMethod) {
+            final String[] values = new String[originalMethod.getParameterCount()];
+
+            int index = 0;
+            for (Annotation[] annotatons : originalMethod.getParameterAnnotations()) {
+                for (Annotation annotaton : annotatons) {
+                    if (PathParam.class.equals(annotaton.annotationType())) {
+                        values[index] = ((PathParam) annotaton).value();
+                    }
+                }
+                index++;
+            }
+            return values;
+        }
+
+        private void processAnnotationsOnMethodParameters(Method originalMethod, MethodVisitor mv) {
+            int index = 0;
+            for (Annotation[] annotatons : originalMethod.getParameterAnnotations()) {
+                for (Annotation annotaton : annotatons) {
+                    AnnotationVisitor av = mv
+                        .visitParameterAnnotation(index, Type.getDescriptor(annotaton.annotationType()), true);
+                    InterfaceTransformer.processAnnotation(annotaton, av);
+                }
+                index++;
+            }
         }
 
         private void annotateReturnElementClass(MethodVisitor mv, Class<?> returnType) {
@@ -289,20 +314,26 @@ public class JAXRSEnhancerHelper {
             av.visitEnd();
         }
 
-        private void addPostAnnotation(MethodVisitor mv) {
-            AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(POST.class), true);
-            av.visitEnd();
+        private void addPostAnnotation(MethodVisitor mv, Method originalMethod) {
+            if (!originalMethod.isAnnotationPresent(POST.class)) {
+                AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(POST.class), true);
+                av.visitEnd();
+            }
         }
 
-        private void addGetAnnotation(MethodVisitor mv) {
-            AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(GET.class), true);
-            av.visitEnd();
+        private void addGetAnnotation(MethodVisitor mv, Method originalMethod) {
+            if (!originalMethod.isAnnotationPresent(GET.class)) {
+                AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(GET.class), true);
+                av.visitEnd();
+            }
         }
 
-        private void addPathAnnotation(MethodVisitor mv, String path) {
-            AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Path.class), true);
-            av.visit("value", path);
-            av.visitEnd();
+        private void addPathAnnotation(MethodVisitor mv, Method originalMethod, String path) {
+            if (!originalMethod.isAnnotationPresent(Path.class)) {
+                AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Path.class), true);
+                av.visit("value", path);
+                av.visitEnd();
+            }
         }
 
         private void addSwaggerMethodAnnotation(MethodVisitor mv, Method originalMethod) {
