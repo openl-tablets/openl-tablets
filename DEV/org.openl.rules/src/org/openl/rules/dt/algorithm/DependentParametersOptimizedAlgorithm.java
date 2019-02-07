@@ -1,10 +1,5 @@
 package org.openl.rules.dt.algorithm;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Date;
-import java.util.regex.Pattern;
-
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.BinaryOpNode;
@@ -38,6 +33,11 @@ import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterDeclaration;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.regex.Pattern;
+
 public class DependentParametersOptimizedAlgorithm {
 
     public static IConditionEvaluator makeEvaluator(ICondition condition,
@@ -70,11 +70,11 @@ public class DependentParametersOptimizedAlgorithm {
 
                 if (evaluatorFactory instanceof OneParameterEqualsFactory) {
                     return getOneParamEqualsEvaluator(evaluatorFactory, openCast);
-                } else {
-                    return getOneParamRangeEvaluator(evaluatorFactory, expressionType, openCast);
+                /*} else {
+                    return getOneParamRangeEvaluator(evaluatorFactory, expressionType, openCast);*/
                 }
 
-            case 2:
+            /*case 2:
 
                 IOpenClass paramType0 = params[0].getType();
                 IOpenClass paramType1 = params[1].getType();
@@ -89,7 +89,7 @@ public class DependentParametersOptimizedAlgorithm {
                     }
                     return getTwoParamRangeEvaluator(evaluatorFactory, expressionType, cast);
                 }
-                break;
+                break;*/
         }
 
         return null;
@@ -436,15 +436,15 @@ public class DependentParametersOptimizedAlgorithm {
                         parsedValues[2],
                         condition,
                         signature);
-                } else {
+/*                } else {
                     OneParameterRangeFactory oneParameterRangefactory = makeOneParameterRangeFactory(parsedValues[0],
                         parsedValues[1],
                         parsedValues[2],
                         condition,
                         signature);
-                    return oneParameterRangefactory;
+                    return oneParameterRangefactory;*/
                 }
-            case 2:
+/*            case 2:
                 String[][] parsedValuesTwoParameters = twoParameterExpressionParse(condition);
                 if (parsedValuesTwoParameters == null)
                     return null;
@@ -455,7 +455,7 @@ public class DependentParametersOptimizedAlgorithm {
                     parsedValuesTwoParameters[1][1],
                     parsedValuesTwoParameters[1][2],
                     condition,
-                    signature);
+                    signature);*/
             default:
                 return null;
         }

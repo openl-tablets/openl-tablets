@@ -216,6 +216,11 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
         return new EqualsIndex(emptyBuilder.makeNode(), nodeMap);
     }
 
+    @Override
+    public int countUniqueKeys(ICondition condition, IIntIterator it) {
+        return 0;
+    }
+
     public IDomain<? extends Object> getRuleParameterDomain(IBaseCondition condition) throws DomainCanNotBeDefined {
         return null;
     }

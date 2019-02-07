@@ -123,7 +123,7 @@ public class Condition extends FunctionalRow implements ICondition {
         if (!hasFormulas()) {
             return source;
         }
-        
+
         if (signature.getNumberOfParameters() == 1 && signature.getParameterName(0).equals(source.getCode())) {
             IParameterDeclaration[] params = getParams(source,
                 signature,

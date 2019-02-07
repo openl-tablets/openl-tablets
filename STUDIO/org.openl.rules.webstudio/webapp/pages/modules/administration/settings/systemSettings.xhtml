@@ -276,7 +276,7 @@
                                         <h:inputText value="#{designRepository.name}" disabled="true"/>
                                         <h:outputText value="Type:" />
                                         <h:selectOneMenu value="#{designRepository.type}">
-                                            <f:ajax event="change" render="designParameters" />
+                                            <f:ajax event="change" render="designParameters deployConfigFolderStructureParams" />
                                             <f:selectItem itemValue="local" itemLabel="Local" />
                                             <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
                                             <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
@@ -308,6 +308,13 @@
                                                 <ui:param name="isProduction" value="false" />
                                             </ui:include>
                                         </h:panelGroup>
+
+                                        <h:panelGroup rendered="#{designRepository.folderRepository}">
+                                            <ui:include src="/pages/modules/administration/settings/folderStructureSettings.xhtml">
+                                                <ui:param name="prependId" value="design"/>
+                                                <ui:param name="settings" value="#{systemSettingsBean.designFolderStructure}" />
+                                            </ui:include>
+                                        </h:panelGroup>
                                     </h:panelGroup>
                                 </td></tr></table>
                                 </div>
@@ -332,7 +339,7 @@
                                             <h:inputText value="#{deployConfigRepo.name}" disabled="true" rendered="#{not systemSettingsBean.useDesignRepo}"/>
                                             <h:outputText value="Type:" rendered="#{not systemSettingsBean.useDesignRepo}" />
                                             <h:selectOneMenu value="#{deployConfigRepo.type}" rendered="#{not systemSettingsBean.useDesignRepo}">
-                                                <f:ajax event="change" render="deployConfigParameters" />
+                                                <f:ajax event="change" render="deployConfigParameters deployConfigFolderStructureParams" />
                                                 <f:selectItem itemValue="local" itemLabel="Local" />
                                                 <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
                                                 <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
@@ -362,6 +369,14 @@
                                                     <ui:param name="prependId" value="deployConfig"/>
                                                     <ui:param name="repository" value="#{deployConfigRepo}" />
                                                     <ui:param name="isProduction" value="false" />
+                                                </ui:include>
+                                            </h:panelGroup>
+                                        </h:panelGroup>
+                                        <h:panelGroup id="deployConfigFolderStructureParams">
+                                            <h:panelGroup rendered="#{systemSettingsBean.useDesignRepo ? designRepository.folderRepository : deployConfigRepo.folderRepository}">
+                                                <ui:include src="/pages/modules/administration/settings/folderStructureSettings.xhtml">
+                                                    <ui:param name="prependId" value="deployConfig"/>
+                                                    <ui:param name="settings" value="#{systemSettingsBean.deployConfigFolderStructure}" />
                                                 </ui:include>
                                             </h:panelGroup>
                                         </h:panelGroup>

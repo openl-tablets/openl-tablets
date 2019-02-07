@@ -17,8 +17,6 @@
         <h:inputText value="#{settings.localRepositoryPath}" title="Local path for Git repository."/>
         <h:outputText value="Branch:" styleClass="required"/>
         <h:inputText value="#{settings.branch}" title="The branch where the changes will be comitted."/>
-        <h:outputText value="Tag prefix:"/>
-        <h:inputText value="#{settings.tagPrefix}" title="Prefix for automatically generated tag which will be added to every commit."/>
         <h:outputText value="Listener period (sec):"/>
         <h:inputText value="#{settings.listenerTimerPeriod}" id="#{prependId}gitListenerTimerPeriod"
                      title="Repository changes check interval. Must be greater than 0."
@@ -27,9 +25,6 @@
         </h:inputText>
         <h:outputText value=""/>
         <h:message for="#{prependId}gitListenerTimerPeriod" styleClass="error"/>
-
-        <h:outputText value="Path in repository:" styleClass="required" required="true"/>
-        <h:inputText value="#{settings.basePath}" title="Base path in repository where everything will be saved. Must end with '/'."/>
 
         <h:outputLabel value="Version in deployment name:" rendered="#{isProduction}" for="#{prependId}gitIncludeVersionInDeploymentName"/>
         <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}" id="#{prependId}gitIncludeVersionInDeploymentName"/>

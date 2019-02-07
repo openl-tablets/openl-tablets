@@ -10,7 +10,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.EnumDomain;
@@ -126,6 +128,31 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
 
         return index;
 
+    }
+
+    @Override
+    public int countUniqueKeys(ICondition condition, IIntIterator it) {
+        Set<Object> uniqueVals = null;
+        while (it.hasNext()) {
+            int i = it.nextInt();
+            if (condition.isEmpty(i)) {
+                continue;
+            }
+            Object val = condition.getParamValue(0, i);
+            if (uniqueVals == null) {
+                if (NumberUtils.isFloatPointNumber(val)) {
+                    if (val instanceof BigDecimal) {
+                        uniqueVals = new HashSet<>();
+                    } else {
+                        uniqueVals = new TreeSet<>(FloatTypeComparator.getInstance());
+                    }
+                } else {
+                    uniqueVals = new HashSet<>();
+                }
+            }
+            uniqueVals.add(val);
+        }
+        return uniqueVals == null ? 0 : uniqueVals.size();
     }
 
     protected IDomain<Object> indexedDomain(IBaseCondition condition) {

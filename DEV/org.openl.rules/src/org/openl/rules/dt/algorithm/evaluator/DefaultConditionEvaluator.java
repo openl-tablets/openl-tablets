@@ -32,6 +32,11 @@ public class DefaultConditionEvaluator implements IConditionEvaluator {
         return false;
     }
 
+    @Override
+    public int countUniqueKeys(ICondition condition, IIntIterator it) {
+        return 0;
+    }
+
     /**
      * No indexing for default evaluator
      */
