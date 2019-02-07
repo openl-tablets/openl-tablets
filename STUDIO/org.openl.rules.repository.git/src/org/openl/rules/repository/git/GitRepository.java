@@ -113,8 +113,10 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
                 String comment = StringUtils.trimToEmpty(data.getComment());
                 String commitMessage = MessageFormat.format(commentPattern, CommitType.ARCHIVE, comment);
 
-                // "touch" marker file
-                new FileOutputStream(new File(file, DELETED_MARKER_FILE)).close();
+                // Create marker file if it absents and write current time
+                try (DataOutputStream os = new DataOutputStream(new FileOutputStream(new File(file, DELETED_MARKER_FILE)))) {
+                    os.writeLong(System.currentTimeMillis());
+                }
 
                 String markerFile = name + "/" + DELETED_MARKER_FILE;
                 git.add().addFilepattern(markerFile).call();
