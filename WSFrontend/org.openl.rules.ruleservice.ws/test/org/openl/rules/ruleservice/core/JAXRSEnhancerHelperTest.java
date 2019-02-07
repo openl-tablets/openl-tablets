@@ -126,17 +126,95 @@ public class JAXRSEnhancerHelperTest {
         }
     }
 
+    public static interface TestAnnotatedInterface1 {
+        @Path("/someMethod/{arg1}/{arg2}")
+        @GET
+        String someMethod(@PathParam("arg1") String arg, String arg2);
+    }
+    
+    @Test
+    public void testMethodWithAnnotation1() throws Exception {
+        Class<?> enchancedClass = createService(TestAnnotatedInterface1.class);
+        Method someMethod = enchancedClass.getMethod("someMethod", String.class, String.class);
+        Path path = (Path) someMethod.getAnnotation(Path.class);
+        Assert.assertNotNull(path);
+        Assert.assertEquals("/someMethod/{arg1}/{arg2}", path.value());
+        Assert.assertNotNull(someMethod.getAnnotation(GET.class));
+        Assert.assertNull(someMethod.getAnnotation(POST.class));
+        int i = 0;
+        for (Annotation[] parameterAnnotation : someMethod.getParameterAnnotations()) {
+            if (parameterAnnotation.length == 1) {
+                if (i == 0) {
+                    Assert.assertEquals("arg1", ((PathParam)parameterAnnotation[0]).value());
+                }else {
+                    Assert.assertEquals("arg11", ((PathParam)parameterAnnotation[0]).value());
+                }
+            } else {
+                Assert.fail("Expected @PathParam annotation");
+            }
+            i++;
+        }
+    }
+
+    public static interface TestAnnotatedInterface2 {
+        @POST
+        String someMethod(String arg1, String arg2);
+    }
+
+    @Test
+    public void testMethodWithAnnotation2() throws Exception {
+        Class<?> enchancedClass = createService(TestAnnotatedInterface2.class);
+        Method someMethod = null;
+        for (Method method : enchancedClass.getMethods()) {
+            if ("someMethod".equals(method.getName())){
+                someMethod = method;
+                break;
+            }
+        }
+        Assert.assertNotNull(someMethod);
+        Path path = (Path) someMethod.getAnnotation(Path.class);
+        Assert.assertNotNull(path);
+        Assert.assertEquals("/someMethod", path.value());
+        Assert.assertNotNull(someMethod.getAnnotation(POST.class));
+        Assert.assertNull(someMethod.getAnnotation(GET.class));
+        Assert.assertEquals(1, someMethod.getParameterCount());
+    }
+    
+    public static interface TestAnnotatedInterface3 {
+        @POST
+        @Path("/value")
+        String someMethod(String arg1, String arg2);
+    }
+
+    @Test
+    public void testMethodWithAnnotation3() throws Exception {
+        Class<?> enchancedClass = createService(TestAnnotatedInterface3.class);
+        Method someMethod = null;
+        for (Method method : enchancedClass.getMethods()) {
+            if ("someMethod".equals(method.getName())){
+                someMethod = method;
+                break;
+            }
+        }
+        Assert.assertNotNull(someMethod);
+        Path path = (Path) someMethod.getAnnotation(Path.class);
+        Assert.assertNotNull(path);
+        Assert.assertEquals("/value", path.value());
+        Assert.assertNotNull(someMethod.getAnnotation(POST.class));
+        Assert.assertNull(someMethod.getAnnotation(GET.class));
+        Assert.assertEquals(1, someMethod.getParameterCount());
+    }
+    
     @Test
     public void testMethodWithAnnotation() throws Exception {
         Class<?> enchancedClass = createService(TestAnnotatedInterface.class);
         boolean f = false;
-        for (Annotation annotation : enchancedClass.getAnnotations()) {
-            if (annotation.annotationType().equals(Path.class)) {
-                Path path = (Path) annotation;
-                String value = path.value();
-                if (value.equals("/test")) {
-                    f = true;
-                }
+        Annotation pathAnnotation = enchancedClass.getAnnotation(Path.class);
+        if (pathAnnotation != null) {
+            Path path = (Path) pathAnnotation;
+            String value = path.value();
+            if (value.equals("/test")) {
+                f = true;
             }
         }
 
