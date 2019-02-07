@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -30,9 +31,9 @@ public class TableProperties extends DynamicObject implements ITableProperties {
      */
     private ILogicalTable propertySection;
 
-    private ILogicalTable modulePropertiesTable;
+    private TableSyntaxNode modulePropertiesTableSyntaxNode;
 
-    private ILogicalTable categoryPropertiesTable;
+    private TableSyntaxNode categoryPropertiesTableSyntaxNode;
 
     private Map<String, Object> categoryProperties = Collections.emptyMap();
 
@@ -459,28 +460,28 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     public void setPropertiesSection(ILogicalTable propertySection) {
         this.propertySection = propertySection;
     }
-
-    public ILogicalTable getModulePropertiesTable() {
-        return modulePropertiesTable;
+    
+    public TableSyntaxNode getModulePropertiesTableSyntaxNode() {
+        return modulePropertiesTableSyntaxNode;
     }
 
-    public void setModulePropertiesTable(ILogicalTable modulePropertiesTable) {
-        this.modulePropertiesTable = modulePropertiesTable;
+    public void setModulePropertiesTableSyntaxNode(TableSyntaxNode modulePropertiesTableSyntaxNode) {
+        this.modulePropertiesTableSyntaxNode = modulePropertiesTableSyntaxNode;
     }
 
-    public ILogicalTable getCategoryPropertiesTable() {
-        return categoryPropertiesTable;
+    public TableSyntaxNode getCategoryPropertiesTableSyntaxNode() {
+        return categoryPropertiesTableSyntaxNode;
     }
 
-    public void setCategoryPropertiesTable(ILogicalTable categoryPropertiesTable) {
-        this.categoryPropertiesTable = categoryPropertiesTable;
+    public void setCategoryPropertiesTableSyntaxNode(TableSyntaxNode categoryPropertiesTableSyntaxNode) {
+        this.categoryPropertiesTableSyntaxNode = categoryPropertiesTableSyntaxNode;
     }
 
-    public ILogicalTable getInheritedPropertiesTable(InheritanceLevel inheritanceLevel) {
+    public TableSyntaxNode getInheritedPropertiesTableSyntaxNode(InheritanceLevel inheritanceLevel) {
         if (InheritanceLevel.MODULE.equals(inheritanceLevel)) {
-            return modulePropertiesTable;
+            return modulePropertiesTableSyntaxNode;
         } else if (InheritanceLevel.CATEGORY.equals(inheritanceLevel)) {
-            return categoryPropertiesTable;
+            return categoryPropertiesTableSyntaxNode;
         }
         return null;
     }

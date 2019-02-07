@@ -1,11 +1,12 @@
 package org.openl.rules.table.properties;
 
+import java.util.Map;
+
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
-
-import java.util.Map;
 
 public interface ITableProperties {
     
@@ -86,14 +87,15 @@ public interface ITableProperties {
      * Gets the logical table of the properties defined in table.
      */
     ILogicalTable getPropertiesSection();
+    void setPropertiesSection(ILogicalTable propertySection);
+    
+    TableSyntaxNode getModulePropertiesTableSyntaxNode();
+    void setModulePropertiesTableSyntaxNode(TableSyntaxNode modulePropertiesTableSyntaxNode);
 
-    ILogicalTable getModulePropertiesTable();
-    void setModulePropertiesTable(ILogicalTable modulePropertiesTable);
+    TableSyntaxNode getCategoryPropertiesTableSyntaxNode();
+    void setCategoryPropertiesTableSyntaxNode(TableSyntaxNode categoryPropertiesTableSyntaxNode);
 
-    ILogicalTable getCategoryPropertiesTable();
-    void setCategoryPropertiesTable(ILogicalTable categoryPropertiesTable);
-
-    ILogicalTable getInheritedPropertiesTable(InheritanceLevel inheritanceLevel);
+    TableSyntaxNode getInheritedPropertiesTableSyntaxNode(InheritanceLevel inheritanceLevel);
 
     /**
      * Goes through the hierarchy of properties from TABLE to CATEGORY and then to MODULE and returns the level
@@ -210,7 +212,5 @@ public interface ITableProperties {
     void setCurrentTableType(String currentTableType);
 
     String getCurrentTableType();
-
-    void setPropertiesSection(ILogicalTable propertySection);
 	
 }

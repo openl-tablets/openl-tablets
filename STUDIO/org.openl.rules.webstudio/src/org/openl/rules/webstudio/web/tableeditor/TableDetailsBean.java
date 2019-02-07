@@ -18,8 +18,7 @@ import javax.faces.model.SelectItemGroup;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.lang.xls.syntax.TableUtils;
-import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -140,13 +139,11 @@ public class TableDetailsBean {
     }
 
     private String getProprtiesTableId(InheritanceLevel inheritanceLevel, ITableProperties props) {
-        String id = null;
-        ILogicalTable propertiesTable = props.getInheritedPropertiesTable(inheritanceLevel);
-        if (propertiesTable != null) {
-            String tableUri = propertiesTable.getSource().getUri();
-            id = TableUtils.makeTableId(tableUri);
+        TableSyntaxNode propertiesTableSyntaxNode = props.getInheritedPropertiesTableSyntaxNode(inheritanceLevel);
+        if (propertiesTableSyntaxNode != null) {
+            return propertiesTableSyntaxNode.getId();
         }
-        return id;
+        return null;
     }
 
     public final IOpenLTable getTable() {

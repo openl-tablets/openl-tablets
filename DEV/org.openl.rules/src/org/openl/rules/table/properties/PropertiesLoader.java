@@ -96,7 +96,7 @@ public class PropertiesLoader {
         if (categoryPropertiesTsn != null) {
             ITableProperties categoryProperties = categoryPropertiesTsn.getTableProperties();
             tableProperties.setCategoryProperties(categoryProperties.getAllProperties());
-            tableProperties.setCategoryPropertiesTable(categoryProperties.getPropertiesSection());
+            tableProperties.setCategoryPropertiesTableSyntaxNode(categoryPropertiesTsn);
         }
     }
 
@@ -125,7 +125,7 @@ public class PropertiesLoader {
         if (tableProperties != null && modulePropertiesTsn != null) {
             ITableProperties moduleProperties = modulePropertiesTsn.getTableProperties();
             tableProperties.setModuleProperties(moduleProperties.getAllProperties());
-            tableProperties.setModulePropertiesTable(moduleProperties.getPropertiesSection());
+            tableProperties.setModulePropertiesTableSyntaxNode(modulePropertiesTsn);
         }
     }
 
