@@ -726,11 +726,23 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
             removeAbsentFiles(basePath, folder, savedFiles);
 
             // TODO: Add possibility to set committer email
-            RevCommit commit = git.commit()
+            CommitCommand commitCommand = git.commit()
                     .setMessage(StringUtils.trimToEmpty(folderData.getComment()))
-                    .setCommitter(folderData.getAuthor(), "")
-                    .setOnly(relativeFolder)
-                    .call();
+                    .setCommitter(folderData.getAuthor(), "");
+
+            RevCommit commit;
+
+            if (git.status().call().getUncommittedChanges().isEmpty()) {
+                // For the cases:
+                // 1) User modified a project, then manually reverted, then pressed save.
+                // 2) Copy project that doesn't have rules.xml, check "Copy old revisions". The last one commit should
+                // have changed rules.xml with changed project name but the project doesn't have rules.xml so there are no changes
+                // 3) Try to deploy several times same deploy configuration. For example if we need to trigger
+                // webservices redeployment without actually changing projects.
+                commit = commitCommand.setAllowEmpty(true).call();
+            } else {
+                commit = commitCommand.setOnly(relativeFolder).call();
+            }
 
             addTagToCommit(commit);
 
