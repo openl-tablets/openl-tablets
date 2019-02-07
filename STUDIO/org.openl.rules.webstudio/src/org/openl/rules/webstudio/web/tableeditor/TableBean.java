@@ -20,6 +20,7 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.model.Module;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -408,9 +409,13 @@ public class TableBean {
     public boolean beforeEditAction() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         RulesProject currentProject = studio.getCurrentProject();
-        if (currentProject != null) {
+        Module currentModule = studio.getCurrentModule();
+        if (currentProject != null && currentModule != null) {
             try {
-                return currentProject.tryLock();
+                String projectName = currentModule.getProject().getName();
+                String moduleName = currentModule.getName();
+                String item = projectName + "/" + moduleName;
+                return currentProject.tryLock(item);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 return false;
