@@ -24,7 +24,7 @@ public interface IConditionEvaluator extends IBaseConditionEvaluator {
 
     boolean isIndexed();
     
-    
+    int countUniqueKeys(ICondition condition, IIntIterator it);
 
     //Added to support dependent parameters
 	String getOptimizedSourceCode();

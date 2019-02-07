@@ -3,8 +3,14 @@
  */
 package org.openl.rules.dt.algorithm;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
@@ -21,8 +27,9 @@ import org.openl.rules.dt.algorithm.evaluator.ContainsInOrNotInArrayIndexedEvalu
 import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.FloatTypeComparator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
-import org.openl.rules.dt.algorithm.evaluator.RangeIndexedEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.RangeConditionEvaluator;
 import org.openl.rules.dt.data.ConditionOrActionParameterField;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
@@ -32,6 +39,7 @@ import org.openl.rules.dt.type.CharRangeAdaptor;
 import org.openl.rules.dt.type.DoubleRangeAdaptor;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.IntRangeAdaptor;
+import org.openl.rules.helpers.NumberUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -229,51 +237,88 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     /**
      * There is one evaluator per condition in DT
      */
-    private IConditionEvaluator[] evaluators;
-    private DecisionTable table;
-    private ARuleIndex indexRoot;
+    private final ConditionToEvaluatorHolder[] evaluators;
+    private final ARuleIndex indexRoot;
     private BindingDependencies dependencies;
-    IndexInfo info;
+    private final IndexInfo info;
 
-    public DecisionTableOptimizedAlgorithm(IConditionEvaluator[] evaluators, DecisionTable table, IndexInfo info) {
-        this.evaluators = evaluators;
-        this.table = table;
+    DecisionTableOptimizedAlgorithm(IConditionEvaluator[] evaluators, DecisionTable table, IndexInfo info) {
+        this.evaluators = initEvaluators(evaluators, table, info);
         this.info = info;
         this.indexRoot = buildIndex(info);
         this.dependencies = new RulesBindingDependencies();
         table.updateDependency(dependencies);
     }
 
+    private ConditionToEvaluatorHolder[] initEvaluators(IConditionEvaluator[] evaluators, DecisionTable table, IndexInfo info) {
+        if (table.getNumberOfConditions() <= info.fromCondition || info.fromCondition > info.toCondition) {
+            return new ConditionToEvaluatorHolder[0];
+        } else {
+            List<ConditionToEvaluatorHolder> eqEvalToConds = new ArrayList<>(evaluators.length);
+            List<ConditionToEvaluatorHolder> evalToConds = new ArrayList<>(evaluators.length);
+            for (int j = info.fromCondition; j <= info.toCondition; j++) {
+                IConditionEvaluator eval = evaluators[j];
+                ConditionToEvaluatorHolder pair = new ConditionToEvaluatorHolder(table.getCondition(j), eval);
+                if (eval instanceof EqualsIndexedEvaluator || eval instanceof ContainsInArrayIndexedEvaluator) {
+                    eqEvalToConds.add(pair);
+                } else {
+                    evalToConds.add(pair);
+                }
+            }
+            ConditionToEvaluatorHolder[] result = new ConditionToEvaluatorHolder[eqEvalToConds.size() + evalToConds.size()];
+            for (int i = 0, j =  eqEvalToConds.size(); i < evalToConds.size(); i++, j++) {
+                result[j] = evalToConds.get(i);
+            }
+            if (eqEvalToConds.isEmpty()) {
+                return result;
+            }
+            //order equals condition by unique key count
+            if (eqEvalToConds.size() == 1) {
+                result[0] = eqEvalToConds.get(0);
+                return result;
+            }
+            Map<Integer, List<ConditionToEvaluatorHolder>> orderedEvals = new TreeMap<>();
+            for (ConditionToEvaluatorHolder pair : eqEvalToConds) {
+                int uniqueKeysCount = pair.getEvaluator().countUniqueKeys(pair.getCondition(), info.makeRuleIterator());
+                List<ConditionToEvaluatorHolder> conds = orderedEvals.get(uniqueKeysCount);
+                if (conds == null) {
+                    conds = new ArrayList<>();
+                    orderedEvals.put(uniqueKeysCount, conds);
+                }
+                conds.add(pair);
+            }
+
+            int i = 0;
+            for (List<ConditionToEvaluatorHolder> conditions : orderedEvals.values()) {
+                for (ConditionToEvaluatorHolder pair : conditions) {
+                    result[i++] = pair;
+                }
+            }
+            return result;
+
+        }
+    }
+
     private ARuleIndex buildIndex(IndexInfo info) {
-
-        int first = info.fromCondition;
-        IBaseCondition[] cc = table.getConditionRows();
-
-        if (cc.length <= first || first > info.toCondition)
+        if (evaluators.length == 0) {
             return null;
-
-        ICondition firstCondition = (ICondition) cc[first];
-
-        if (!canIndex(evaluators[first], firstCondition))
+        }
+        ConditionToEvaluatorHolder firstPair = evaluators[0];
+        if (!firstPair.canIndex()) {
             return null;
-
-        ARuleIndex indexRoot = evaluators[first].makeIndex(firstCondition, info.makeRuleIterator());
-
-        indexNodes(indexRoot, first + 1, info);
-
+        }
+        ARuleIndex indexRoot = firstPair.makeIndex(info.makeRuleIterator());
+        indexNodes(indexRoot, 1, info);
         return indexRoot;
     }
 
-    private boolean canIndex(IConditionEvaluator evaluator, ICondition condition) {
-        return evaluator.isIndexed() && !condition.hasFormulas();
-    }
-
     private void indexNodes(ARuleIndex index, int condN, IndexInfo info) {
-
-        if (index == null || condN > info.toCondition)
+        if (index == null || condN >= evaluators.length) {
             return;
+        }
 
-        if (!canIndex(evaluators[condN], table.getCondition(condN))) {
+        ConditionToEvaluatorHolder pair = evaluators[condN];
+        if (!pair.canIndex()) {
             return;
         }
 
@@ -284,19 +329,11 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     }
 
     private void indexNode(DecisionTableRuleNode node, int condN, IndexInfo info) {
-
-        ARuleIndex nodeIndex = evaluators[condN].makeIndex(table.getCondition(condN), node.getRulesIterator());
+        ConditionToEvaluatorHolder pair = evaluators[condN];
+        ARuleIndex nodeIndex = pair.makeIndex(node.getRulesIterator());
         node.setNextIndex(nodeIndex);
 
         indexNodes(nodeIndex, condN + 1, info);
-    }
-
-    public IConditionEvaluator[] getEvaluators() {
-        return evaluators;
-    }
-
-    public DecisionTable getTable() {
-        return table;
     }
 
     private Object evaluateTestValue(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
@@ -375,7 +412,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                     paramType);
 
                 if (rangeAdaptor != null) {
-                    return new RangeIndexedEvaluator((IRangeAdaptor<Object, ? extends Comparable<Object>>) rangeAdaptor,
+                    return new RangeConditionEvaluator((IRangeAdaptor<Object, ? extends Comparable<Object>>) rangeAdaptor,
                         1);
                 }
 
@@ -399,8 +436,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                         String message = String.format("Type '%s' is not Comparable", methodType.getName());
                         throw SyntaxNodeExceptionUtils.createError(message, null, null, condition.getSourceCodeModule());
                     }
-
-                    return new RangeIndexedEvaluator(null, 2);
+                    return new RangeConditionEvaluator(null, 2);
                 }
 
                 aggregateInfo = paramType1.getAggregateInfo();
@@ -468,6 +504,11 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         }
 
         @Override
+        public int countUniqueKeys(ICondition cond, IIntIterator it) {
+            return 0;
+        }
+
+        @Override
         public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
             return decorate.getSelector(condition, target, dtparams, env);
         }
@@ -500,14 +541,14 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
      * used in index(only if it condition is not used).
      */
     public void removeParamValuesForIndexedConditions() {
-        for (int i = info.fromRule; i <= info.toCondition; i++) {
-            if (evaluators[i].isIndexed()) {
-                if (!isDependecyOnConditionExists(table.getCondition(i))) {
-                    table.getCondition(i).clearParamValues();
+        for (ConditionToEvaluatorHolder pair : evaluators) {
+            if (pair.isIndexed()) {
+                if (!isDependecyOnConditionExists(pair.getCondition())) {
+                    pair.getCondition().clearParamValues();
                 }
             } else {
-                final IConditionEvaluator evaluator = evaluators[i];
-                evaluators[i] = new ConditionEvaluatorDecoratorAsNotIndexed(evaluator);
+                IConditionEvaluator decoratedEvaluator = new ConditionEvaluatorDecoratorAsNotIndexed(pair.getEvaluator());
+                pair.setEvaluator(decoratedEvaluator);
                 break;
             }
         }
@@ -547,17 +588,15 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
      */
     public IIntIterator checkedRules(Object target, Object[] params, IRuntimeEnv env) {
         IIntIterator iterator = null;
-        int conditionNumber = info.fromCondition;
+        int conditionNumber = 0;
 
         if (indexRoot == null) {
             iterator = info.makeRuleIterator();
         } else {
-
             ARuleIndex index = indexRoot;
 
-            while(conditionNumber <= info.toCondition) {
-
-                ICondition condition = table.getCondition(conditionNumber);
+            while(conditionNumber < evaluators.length) {
+                ICondition condition = evaluators[conditionNumber].getCondition();
                 index = Tracer.wrap(this, index, condition);
                 Object testValue = evaluateTestValue(condition, target, params, env);
 
@@ -575,10 +614,10 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             }
         }
 
-        while (conditionNumber <= info.toCondition) {
-
-            ICondition condition = table.getCondition(conditionNumber);
-            IConditionEvaluator evaluator = evaluators[conditionNumber];
+        while (conditionNumber < evaluators.length) {
+            ConditionToEvaluatorHolder pair = evaluators[conditionNumber];
+            ICondition condition = pair.getCondition();
+            IConditionEvaluator evaluator = pair.getEvaluator();
 
             IIntSelector sel = evaluator.getSelector(condition, target, params, env);
             sel = Tracer.wrap(this, sel, condition);
@@ -588,5 +627,40 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         }
 
         return iterator;
+    }
+
+    private static class ConditionToEvaluatorHolder {
+
+        private final ICondition condition;
+        private IConditionEvaluator evaluator;
+
+        ConditionToEvaluatorHolder(ICondition condition, IConditionEvaluator evaluator) {
+            this.condition = condition;
+            this.evaluator = evaluator;
+        }
+
+        public ICondition getCondition() {
+            return condition;
+        }
+
+        public IConditionEvaluator getEvaluator() {
+            return evaluator;
+        }
+
+        public void setEvaluator(IConditionEvaluator evaluator) {
+            this.evaluator = evaluator;
+        }
+
+        public boolean canIndex() {
+            return evaluator.isIndexed() && !condition.hasFormulas();
+        }
+
+        public ARuleIndex makeIndex(IIntIterator it) {
+            return evaluator.makeIndex(condition, it);
+        }
+
+        public boolean isIndexed() {
+            return evaluator.isIndexed();
+        }
     }
 }

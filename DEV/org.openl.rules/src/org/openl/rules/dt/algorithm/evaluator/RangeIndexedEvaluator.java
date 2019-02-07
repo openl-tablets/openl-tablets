@@ -156,6 +156,11 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
         return new RangeIndex(emptyNode, index, new PointRangeAdaptor(rangeAdaptor));
     }
 
+    @Override
+    public int countUniqueKeys(ICondition condition, IIntIterator it) {
+        return 0;
+    }
+
     static class PointRangeAdaptor implements IRangeAdaptor<Point, Comparable<?>> {
         IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor;
 
