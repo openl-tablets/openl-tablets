@@ -40,7 +40,7 @@ public class LockEngineImpl implements LockEngine {
     }
 
     @Override
-    public synchronized boolean lock(String projectName, String userName) throws LockException {
+    public synchronized boolean tryLock(String projectName, String userName) throws LockException {
         LockInfo lockInfo = getLockInfo(projectName);
         if (lockInfo.isLocked()) {
             return userName.equals(lockInfo.getLockedBy().getUserName());

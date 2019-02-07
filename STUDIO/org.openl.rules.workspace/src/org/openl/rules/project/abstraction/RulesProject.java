@@ -162,7 +162,7 @@ public class RulesProject extends UserWorkspaceProject {
     public void lock() throws ProjectException {
             // No need to lock local only projects. Other users don't see it.
             if (!isLocalOnly()) {
-                lockEngine.lock(getName(), getUser().getUserName());
+                lockEngine.tryLock(getName(), getUser().getUserName());
             }
     }
 
@@ -183,7 +183,7 @@ public class RulesProject extends UserWorkspaceProject {
                 // No need to lock local only projects. Other users don't see it.
                 return true;
             }
-            return lockEngine.lock(getName(), getUser().getUserName());
+            return lockEngine.tryLock(getName(), getUser().getUserName());
     }
 
     public String getLockedUserName() {
