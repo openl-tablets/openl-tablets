@@ -35,6 +35,7 @@ import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.rules.security.Privileges;
+import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
@@ -99,15 +100,8 @@ public class RepositoryService {
             if (!isGranted(Privileges.VIEW_PROJECTS)) {
                 return Response.status(Status.FORBIDDEN).entity("Doesn't have VIEW privilege").build();
             }
-            FileItem fileItem = getRepository().read(getFileName(name));
-            if (fileItem == null) {
-                throw new FileNotFoundException("File '" + name + "' not found.");
-            }
-            String zipFileName = String.format("%s-%s.zip", name, fileItem.getData().getVersion());
-
-            return Response.ok(fileItem.getStream())
-                    .header("Content-Disposition", "attachment;filename=\"" + zipFileName + "\"")
-                    .build();
+            FileData fileData = getRepository().check(getFileName(name));
+            return getProject(name, fileData.getVersion());
         } catch (IOException ex) {
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
         }
@@ -123,18 +117,40 @@ public class RepositoryService {
     @GET
     @Path("project/{name}/{version}")
     @Produces("application/zip")
-    public Response getProject(@PathParam("name") String name, @PathParam("version") String version) throws WorkspaceException {
+    public Response getProject(@PathParam("name") String name, @PathParam("version") final String version) throws WorkspaceException {
         try {
             if (!isGranted(Privileges.VIEW_PROJECTS)) {
                 return Response.status(Status.FORBIDDEN).entity("Doesn't have VIEW privilege").build();
             }
-            FileItem fileItem = getRepository().readHistory(getFileName(name), version);
-            if (fileItem == null) {
-                throw new FileNotFoundException("File '" + name + "' not found.");
+
+            final Repository repository = getRepository();
+            final String projectPath = getFileName(name);
+
+            Object entity;
+
+            if (repository instanceof FolderRepository) {
+                FileData fileData = getRepository().check(getFileName(name));
+                if (fileData == null) {
+                    throw new FileNotFoundException("Project '" + name + "' not found.");
+                }
+
+                entity = new StreamingOutput() {
+                    @Override
+                    public void write(OutputStream out) throws IOException {
+                        RepositoryUtils.archive((FolderRepository) repository, projectPath + "/", version, out);
+                    }
+                };
+            } else {
+                FileItem fileItem = repository.readHistory(projectPath, version);
+                if (fileItem == null) {
+                    throw new FileNotFoundException("File '" + name + "' not found.");
+                }
+
+                entity = fileItem.getStream();
             }
             String zipFileName = String.format("%s-%s.zip", name, version);
 
-            return Response.ok(fileItem.getStream())
+            return Response.ok(entity)
                 .header("Content-Disposition", "attachment;filename=\"" + zipFileName + "\"")
                 .build();
         } catch (IOException ex) {
@@ -297,9 +313,7 @@ public class RepositoryService {
             }
             userWorkspace.getProject(name).unlock();
             return Response.created(new URI(uri + "/" + StringTool.encodeURL(save.getVersion()))).build();
-        } catch (IOException ex) {
-            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
-        } catch (URISyntaxException ex) {
+        } catch (IOException | URISyntaxException ex) {
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } catch (ProjectException ex) {
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();

@@ -1,12 +1,22 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Comparator;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,4 +69,30 @@ public final class RepositoryUtils {
         return null;
     }
 
+    public static void archive(FolderRepository folderRepository,
+            String projectPath,
+            String version,
+            OutputStream out) throws IOException {
+        ZipOutputStream zipOutputStream = null;
+        try {
+            zipOutputStream = new ZipOutputStream(out);
+
+            List<FileData> files = folderRepository.listFiles(projectPath, version);
+
+            for (FileData file : files) {
+                String internalPath = file.getName().substring(projectPath.length());
+                zipOutputStream.putNextEntry(new ZipEntry(internalPath));
+
+                FileItem fileItem = folderRepository.readHistory(file.getName(), file.getVersion());
+                try (InputStream content = fileItem.getStream()) {
+                    IOUtils.copy(content, zipOutputStream);
+                }
+
+                zipOutputStream.closeEntry();
+            }
+            zipOutputStream.finish();
+        } finally {
+            IOUtils.closeQuietly(zipOutputStream);
+        }
+    }
 }
