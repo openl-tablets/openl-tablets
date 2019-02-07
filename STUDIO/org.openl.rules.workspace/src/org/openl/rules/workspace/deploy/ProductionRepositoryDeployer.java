@@ -79,6 +79,8 @@ public class ProductionRepositoryDeployer {
             String deployPath = (String) properties.get(DEPLOY_PATH_PROPERTY);
             if (deployPath == null) {
                 deployPath = "deploy/"; // Workaround for backward compatibility.
+            } else if (!deployPath.isEmpty() && !deployPath.endsWith("/")) {
+                deployPath += "/";
             }
 
             deployInternal(zipFile, deployRepo, skipExist, Boolean.valueOf(includeVersion), deployPath);

@@ -74,7 +74,13 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
 
         rulesLocation = config.get(RULES_LOCATION_CONFIG_NAME).toString();
+        if (!rulesLocation.isEmpty() && !rulesLocation.endsWith("/")) {
+            rulesLocation += "/";
+        }
         deploymentConfigurationLocation = config.get(DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME).toString();
+        if (!deploymentConfigurationLocation.isEmpty() && !deploymentConfigurationLocation.endsWith("/")) {
+            deploymentConfigurationLocation += "/";
+        }
         boolean separateDeployConfigRepo = Boolean.parseBoolean(config.get(USE_SEPARATE_DEPLOY_CONFIG_REPO).toString());
         boolean flatProjects = Boolean.parseBoolean(config.get(PROJECTS_FLAT_FOLDER_STRUCTURE).toString());
         boolean flatDeployConfig = Boolean.parseBoolean(config.get(DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE).toString());
