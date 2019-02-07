@@ -80,6 +80,7 @@ public class ProductionRepositoryFactoryProxy {
 
     public String getDeploymentsPath(String propertiesFileName) {
         ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
-        return configurationManager.getStringProperty("production-repository.base.path");
+        String deployPath = configurationManager.getStringProperty("production-repository.base.path");
+        return deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
     }
 }

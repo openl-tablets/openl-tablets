@@ -38,7 +38,8 @@ public class FolderStructureSettings {
     }
 
     public void setBasePath(String basePath) {
-        configManager.setProperty(BASE_PATH, basePath);
+        String value = basePath.isEmpty() || basePath.endsWith("/") ? basePath : basePath + "/";
+        configManager.setProperty(BASE_PATH, value);
     }
 
     public boolean isFlatFolderStructure() {
