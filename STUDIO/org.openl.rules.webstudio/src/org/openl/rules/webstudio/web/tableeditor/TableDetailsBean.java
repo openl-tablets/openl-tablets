@@ -61,9 +61,6 @@ public class TableDetailsBean {
             uri = table.getUri();
         }
 
-        //table = getTable();
-        //uri = table.getId();
-
         if (table != null && table.isCanContainProperties()) {
             editable = WebStudioUtils.getProjectModel().isCanEditTable(uri) && !table.getName().startsWith(
                     DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
@@ -78,7 +75,11 @@ public class TableDetailsBean {
 
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             Object value = props.getPropertyValue(propDefinition.getName());
-            if (value != null) {
+                
+            if (value != null && (table.getProperties().getTableProperties().containsKey(propDefinition.getName()) || 
+                                  table.getProperties().getCategoryProperties().containsKey(propDefinition.getName()) ||
+                                  table.getProperties().getModuleProperties().containsKey(propDefinition.getName()) ||
+                                  table.getProperties().getExternalProperties().containsKey(propDefinition.getName()))) {    
                 InheritanceLevel inheritanceLevel = props.getPropertyLevelDefinedOn(propDefinition.getName());
 
                 TableProperty prop = new TableProperty(propDefinition);
@@ -286,19 +287,5 @@ public class TableDetailsBean {
             studio.compile();
         }
     }
-
-    /*for (Constraint constraint : constraints.getAll()) {
-        if (constraint instanceof LessThanConstraint || constraint instanceof MoreThanConstraint) {
-            String validator = constraint instanceof LessThanConstraint ? "lessThan" : "moreThan";
-            String compareToField = (String) constraint.getParams()[0];
-            String compareToFieldId = "_" + id.replaceFirst(prop.getName() + "(?=$)", compareToField);
-            TableProperty compareToProperty = getProperty(compareToField);
-            String compareToPropertyDisplayName = compareToProperty == null ? "" : compareToProperty
-                    .getDisplayName();
-            result.append(renderJSBody("new Validation('_" + id + "', '" + validator
-                    + "', 'blur', {compareToFieldId:'" + compareToFieldId + "',messageParams:'"
-                    + compareToPropertyDisplayName + "'})"));
-        }
-    }*/
 
 }
