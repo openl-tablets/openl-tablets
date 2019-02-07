@@ -49,10 +49,11 @@ public class LockEngineImpl implements LockEngine {
         properties.setProperty(USER_NAME, userName);
         properties.setProperty(DATE, new SimpleDateFormat(DATE_FORMAT).format(new Date()));
 
-        if (!locksRoot.mkdirs() && !locksRoot.exists()) {
+        File file = new File(locksRoot, projectName);
+        File folder = file.getParentFile();
+        if (folder != null && !folder.mkdirs() && !folder.exists()) {
             throw new IllegalStateException("Can't create a folder for locks");
         }
-        File file = new File(locksRoot, projectName);
 
         FileOutputStream os = null;
         try {
@@ -77,7 +78,7 @@ public class LockEngineImpl implements LockEngine {
     @Override
     public synchronized LockInfo getLockInfo(String projectName) {
         File file = new File(locksRoot, projectName);
-        if (!file.exists()) {
+        if (!file.exists() || !file.isFile()) {
             return new SimpleLockInfo(false, null, null);
         }
 
