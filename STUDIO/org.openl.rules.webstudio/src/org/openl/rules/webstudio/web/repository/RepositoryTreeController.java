@@ -802,7 +802,7 @@ public class RepositoryTreeController {
                             FileData fileData = new FileData();
                             fileData.setName(projectName);
                             if (!repository.delete(fileData)) {
-                                if (repository.check(fileData.getName()) == null) {
+                                if (repository.check(fileData.getName()) != null) {
                                     log.warn("Can't close project because resource '" + fileData.getName() + "' is used");
                                 }
                             }
