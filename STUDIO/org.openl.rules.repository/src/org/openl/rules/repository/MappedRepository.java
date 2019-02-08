@@ -215,9 +215,14 @@ public class MappedRepository implements FolderRepository, Closeable {
     }
 
     private FileData toInternal(Map<String, String> externalToInternal, FileData data) {
-        FileData fileData = copy(data);
-        fileData.setName(toInternal(externalToInternal, data.getName()));
-        return fileData;
+        FileData copy = new FileData();
+        copy.setVersion(data.getVersion());
+        copy.setAuthor(data.getAuthor());
+        copy.setComment(data.getComment());
+        copy.setSize(data.getSize());
+        copy.setDeleted(data.isDeleted());
+        copy.setName(toInternal(externalToInternal, data.getName()));
+        return copy;
     }
 
     private String toInternal(Map<String, String> externalToInternal, String externalPath) {
@@ -251,9 +256,8 @@ public class MappedRepository implements FolderRepository, Closeable {
             return null;
         }
 
-        FileData fileData = copy(data);
-        fileData.setName(toExternal(externalToInternal, data.getName()));
-        return fileData;
+        data.setName(toExternal(externalToInternal, data.getName()));
+        return data;
     }
 
     private String toExternal(Map<String, String> externalToInternal, String internalPath) {
@@ -267,15 +271,5 @@ public class MappedRepository implements FolderRepository, Closeable {
         // Shouldn't occur. If occurred, it's a bug.
         log.warn("Mapped folder for " + internalPath + " not found. Use it as is.");
         return internalPath;
-    }
-
-    private FileData copy(FileData data) {
-        FileData copy = new FileData();
-        copy.setVersion(data.getVersion());
-        copy.setAuthor(data.getAuthor());
-        copy.setComment(data.getComment());
-        copy.setSize(data.getSize());
-        copy.setDeleted(data.isDeleted());
-        return copy;
     }
 }
