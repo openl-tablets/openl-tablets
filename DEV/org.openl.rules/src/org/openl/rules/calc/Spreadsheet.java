@@ -74,10 +74,6 @@ public class Spreadsheet extends ExecutableRulesMethod {
         this.customSpreadsheetType = customSpreadsheetType;
     }
 
-    public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode) {
-        this(header, boundNode, false);
-    }
-
     @Override
     public IOpenClass getType() {
         if (isCustomSpreadsheetType()) {
