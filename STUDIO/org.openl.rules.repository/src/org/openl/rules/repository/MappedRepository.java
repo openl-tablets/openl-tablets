@@ -265,7 +265,8 @@ public class MappedRepository implements FolderRepository, Closeable {
         }
 
         // Shouldn't occur. If occurred, it's a bug.
-        throw new IllegalStateException("Can't find external path for: " + internalPath);
+        log.warn("Mapped folder for " + internalPath + " not found. Use it as is.");
+        return internalPath;
     }
 
     private FileData copy(FileData data) {
