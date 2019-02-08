@@ -83,7 +83,7 @@ public class JavaOpenClass extends AOpenClass {
                     res = new JavaOpenClass(c);
                 }
             }
-            JavaOpenClassCache.getInstance().put(c, res);
+            return JavaOpenClassCache.getInstance().put(c, res);
         }
 
         return res;

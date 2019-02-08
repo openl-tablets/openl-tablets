@@ -1,9 +1,3 @@
-/*
- * Created on Jul 3, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.types.impl;
 
 import org.openl.binding.MethodUtil;
@@ -38,20 +32,10 @@ public class OpenMethodHeader implements IOpenMethodHeader {
     }
 
     public OpenMethodHeader(String name, IOpenClass typeClass, IMethodSignature signature, IOpenClass declaringClass) {
-        this(name, typeClass, signature, declaringClass, false, null);
-    }
-
-    /**
-     *
-     */
-    public OpenMethodHeader(String name, IOpenClass typeClass, IMethodSignature signature, IOpenClass declaringClass,
-            boolean isStatic, IMemberMetaInfo info) {
         this.name = name;
         this.typeClass = typeClass;
         this.signature = signature;
         this.declaringClass = declaringClass;
-        this.isStatic = isStatic;
-        this.info = info;
     }
 
     /*

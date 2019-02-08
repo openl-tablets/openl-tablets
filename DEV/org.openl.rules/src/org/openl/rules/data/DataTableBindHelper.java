@@ -728,7 +728,7 @@ public class DataTableBindHelper {
                 .equals(JavaOpenClass.OBJECT)) {
                 if (fieldNameNode.getIdentifier().matches(SPREADSHEETRESULTFIELD_PATTERN)) {
                     AOpenField aOpenField = (AOpenField) fieldAccessorChain[fieldIndex - 1];
-                    aOpenField.setType(new SpreadsheetResultOpenClass(SpreadsheetResult.class));
+                    aOpenField.setType(JavaOpenClass.getOpenClass(SpreadsheetResult.class));
                 }
             }
 
