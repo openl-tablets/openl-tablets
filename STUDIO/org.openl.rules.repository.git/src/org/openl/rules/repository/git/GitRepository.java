@@ -53,7 +53,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
 
     @Override
     public List<FileData> list(String path) throws IOException {
-        return iterate(path, new ListCommand());
+        return iterate(path, new ListCommand(resolveBranchId()));
     }
 
     @Override
@@ -471,12 +471,6 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         return treeWalk;
     }
 
-    private FileData createFileData(TreeWalk dirWalk, String baseFolder) throws IOException {
-        ObjectId start = resolveBranchId();
-
-        return createFileData(dirWalk, baseFolder, start);
-    }
-
     private FileData createFileData(TreeWalk dirWalk, String baseFolder, ObjectId start) {
         String fullPath = baseFolder + dirWalk.getPathString();
         return new LazyFileData(fullPath, this, start, getFileId(dirWalk));
@@ -823,10 +817,6 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
     private class ListCommand implements WalkCommand<List<FileData>> {
         private final ObjectId start;
 
-        public ListCommand() {
-            start = null;
-        }
-
         public ListCommand(ObjectId start) {
             this.start = start;
         }
@@ -840,10 +830,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
                 List<FileData> files = new ArrayList<>();
                 if (rootWalk.getFilter() == TreeFilter.ALL) {
                     while (rootWalk.next()) {
-                        FileData fileData = start == null ?
-                                            createFileData(rootWalk, baseFolder) :
-                                            createFileData(rootWalk, baseFolder, start);
-                        files.add(fileData);
+                        files.add(createFileData(rootWalk, baseFolder, start));
                     }
                 } else {
                     if (rootWalk.getTreeCount() > 0) {
@@ -852,10 +839,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
                             dirWalk.setRecursive(true);
 
                             while (dirWalk.next()) {
-                                FileData fileData = start == null ?
-                                                    createFileData(dirWalk, baseFolder) :
-                                                    createFileData(dirWalk, baseFolder, start);
-                                files.add(fileData);
+                                files.add(createFileData(dirWalk, baseFolder, start));
                             }
                         }
                     }
@@ -892,9 +876,10 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         private List<FileData> collectFolderData(TreeWalk rootWalk, String baseFolder) throws IOException {
             List<FileData> files = new ArrayList<>();
             rootWalk.setRecursive(false);
+            ObjectId start = resolveBranchId();
             while (rootWalk.next()) {
                 if ((rootWalk.getFileMode().getBits() & FileMode.TYPE_TREE) != 0) {
-                    files.add(createFileData(rootWalk, baseFolder));
+                    files.add(createFileData(rootWalk, baseFolder, start));
                 }
             }
 
@@ -907,7 +892,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         public FileData apply(org.eclipse.jgit.lib.Repository repository, TreeWalk rootWalk, String baseFolder) throws
                                                                                                                 IOException {
             if (rootWalk != null) {
-                return createFileData(rootWalk, "");
+                return createFileData(rootWalk, "", resolveBranchId());
             } else {
                 return null;
             }
@@ -919,7 +904,7 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         public FileItem apply(org.eclipse.jgit.lib.Repository repository, TreeWalk rootWalk, String baseFolder) throws
                                                                                                                 IOException {
             if (rootWalk != null) {
-                FileData fileData = createFileData(rootWalk, "");
+                FileData fileData = createFileData(rootWalk, "", resolveBranchId());
                 ObjectLoader loader = repository.open(rootWalk.getObjectId(0));
                 return new FileItem(fileData, loader.openStream());
             } else {
@@ -937,11 +922,10 @@ public class GitRepository implements FolderRepository, Closeable, RRepositoryFa
         }
 
         @Override
-        public boolean visit(String fullPath, RevCommit commit, String commitVersion) throws IOException, GitAPIException {
+        public boolean visit(String fullPath, RevCommit commit, String commitVersion) throws IOException {
             RevTree tree = commit.getTree();
 
             try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
-                String versionName = getVersionName(commit);
                 // Skip technical commits
                 if (!isTechnicalCommit(commit)) {
                     history.add(createFileData(rootWalk, commit));
