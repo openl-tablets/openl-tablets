@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 class LazyFileData extends FileData {
     private final Logger log = LoggerFactory.getLogger(GitRepository.class);
 
+    private final String fullPath;
     private final GitRepository repo;
     private ObjectId fromCommit;
     private RevCommit fileCommit;
@@ -30,6 +31,7 @@ class LazyFileData extends FileData {
     public LazyFileData(String fullPath, GitRepository repo, ObjectId fromCommit, ObjectId fileId) {
         setName(fullPath);
 
+        this.fullPath = fullPath;
         this.repo = repo;
         this.fromCommit = fromCommit;
         this.fileId = fileId;
@@ -38,6 +40,7 @@ class LazyFileData extends FileData {
     public LazyFileData(String fullPath, GitRepository repo, RevCommit fileCommit, ObjectId fileId) {
         setName(fullPath);
 
+        this.fullPath = fullPath;
         this.repo = repo;
         this.fileCommit = fileCommit;
         this.fileId = fileId;
@@ -135,14 +138,14 @@ class LazyFileData extends FileData {
             try {
                 iterator = repo.getGit().log()
                         .add(fromCommit)
-                        .addPath(getName())
+                        .addPath(fullPath)
                         .call()
                         .iterator();
             } catch (GitAPIException | MissingObjectException | IncorrectObjectTypeException e) {
                 log.error(e.getMessage(), e);
             }
             if (iterator == null || !iterator.hasNext()) {
-                throw new IllegalStateException("Can't find revision for a file " + getName());
+                throw new IllegalStateException("Can't find revision for the file " + fullPath);
             }
 
             fileCommit = iterator.next();
