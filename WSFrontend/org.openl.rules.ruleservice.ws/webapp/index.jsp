@@ -15,6 +15,7 @@
     <meta charset="UTF-8"/>
     <title>OpenL Tablets Web Services</title>
     <base href="${pageContext.request.contextPath}/"/>
+    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
     <style>
         body {
             margin: 0;
