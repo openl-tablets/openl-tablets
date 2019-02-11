@@ -31,9 +31,9 @@ public abstract class ANodeBinder implements INodeBinder {
 
         try {
             return binder.bind(node, bindingContext);
-        } catch (Exception e) {
+        } catch (Exception | LinkageError e) {
             return makeErrorNode(e, node, bindingContext);
-        }
+        } 
     }
 
     protected static boolean hasErrorBoundNode(IBoundNode[] boundNodes) {
@@ -55,9 +55,9 @@ public abstract class ANodeBinder implements INodeBinder {
 
         try {
             return binder.bindTarget(node, bindingContext, targetNode);
-        } catch (Exception e) {
+        } catch (Exception | LinkageError e) {
             return makeErrorNode(e, node, bindingContext);
-        }
+        } 
     }
 
     public static IBoundNode bindTypeNode(ISyntaxNode node, IBindingContext bindingContext, IOpenClass type) {
@@ -66,8 +66,8 @@ public abstract class ANodeBinder implements INodeBinder {
 
         try {
             return binder.bindType(node, bindingContext, type);
-        } catch (Exception t) {
-            return makeErrorNode(t, node, bindingContext);
+        } catch (Exception | LinkageError e) {
+            return makeErrorNode(e, node, bindingContext);
         }
     }
 
@@ -223,14 +223,14 @@ public abstract class ANodeBinder implements INodeBinder {
         return new ErrorBoundNode(node);
     }
 
-    protected static IBoundNode makeErrorNode(Exception exception, ISyntaxNode node, IBindingContext bindingContext) {
-        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(exception, node);
+    protected static IBoundNode makeErrorNode(Throwable e, ISyntaxNode node, IBindingContext bindingContext) {
+        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, node);
         bindingContext.addError(error);
         return new ErrorBoundNode(node);
     }
 
-    protected static IBoundNode makeErrorNode(String message, Exception exception, ISyntaxNode node, IBindingContext bindingContext) {
-        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, exception, node);
+    protected static IBoundNode makeErrorNode(String message, Throwable e, ISyntaxNode node, IBindingContext bindingContext) {
+        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, node);
         bindingContext.addError(error);
         return new ErrorBoundNode(node);
     }

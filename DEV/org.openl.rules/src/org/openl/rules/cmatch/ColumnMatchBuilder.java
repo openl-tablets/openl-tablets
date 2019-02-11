@@ -48,7 +48,7 @@ public class ColumnMatchBuilder {
         IMatchAlgorithmCompiler algorithm;
         try {
             algorithm = MatchAlgorithmFactory.getAlgorithm(nameOfAlgorithm);
-        } catch (Exception ex) {
+        } catch (Exception | LinkageError ex) {
             throw SyntaxNodeExceptionUtils.createError(ex, columnMatch.getSyntaxNode());
         }
 

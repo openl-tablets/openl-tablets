@@ -33,15 +33,9 @@ public class BindHelper {
     private BindHelper() {
     }
 
-    public static void processError(ISyntaxNode syntaxNode, Exception throwable, IBindingContext bindingContext) {
-
-        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(throwable, syntaxNode);
-        bindingContext.addError(error);
-    }
-
     public static void processError(String message,
             ISyntaxNode syntaxNode,
-            Exception ex,
+            Throwable ex,
             IBindingContext bindingContext) {
 
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, ex, syntaxNode);
@@ -55,7 +49,7 @@ public class BindHelper {
         }
     }
 
-    public static void processError(Exception error, ISyntaxNode syntaxNode, IBindingContext bindingContext) {
+    public static void processError(Throwable error, ISyntaxNode syntaxNode, IBindingContext bindingContext) {
         SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(error, syntaxNode);
         bindingContext.addError(syntaxNodeException);
     }

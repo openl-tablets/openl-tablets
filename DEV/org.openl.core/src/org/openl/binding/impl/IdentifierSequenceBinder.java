@@ -39,9 +39,9 @@ public class IdentifierSequenceBinder extends ANodeBinder {
 
             return bindTargetNode(newNode, bindingContext, target);
 
-        } catch (Exception e) {
+        } catch (Exception | LinkageError e) {
             return makeErrorNode("Cannot bind node", e, node, bindingContext);
-        }
+        } 
     }
 
     private String concatChildren(ISyntaxNode node) {

@@ -116,9 +116,9 @@ public class StringNodeBinder extends ANodeBinder {
                 }
             } // end for
 
-        } catch (Exception ex) {
-            return makeErrorNode(ex, node, bindingContext);
-        }
+        } catch (Exception | LinkageError e) {
+            return makeErrorNode(e, node, bindingContext);
+        } 
 
         return new LiteralBoundNode(node, buf.toString(), JavaOpenClass.STRING);
     }

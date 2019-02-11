@@ -82,9 +82,9 @@ public class CharNodeBinder extends ANodeBinder {
                 }
             }
 
-        } catch (Exception ex) {
-            return makeErrorNode(ex, node, bindingContext);
-        }
+        } catch (Exception | LinkageError e) {
+            return makeErrorNode(e, node, bindingContext);
+        } 
 
         return new LiteralBoundNode(node, new Character(c), JavaOpenClass.CHAR);
     }

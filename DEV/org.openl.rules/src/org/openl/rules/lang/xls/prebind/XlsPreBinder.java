@@ -49,7 +49,7 @@ public class XlsPreBinder extends XlsBinder {
                 for (SyntaxNodeException error : ex.getErrors()) {
                     processError(error, tableSyntaxNode, moduleContext);
                 }
-            } catch (Exception t) {
+            } catch (Exception | LinkageError t) {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNode);
                 processError(error, tableSyntaxNode, moduleContext);
             }

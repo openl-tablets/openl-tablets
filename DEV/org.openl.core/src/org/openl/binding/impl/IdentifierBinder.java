@@ -84,12 +84,12 @@ public class IdentifierBinder extends ANodeBinder {
                 BindHelper.checkOnDeprecation(node, bindingContext, field);
                 return new FieldBoundNode(node, field, target, dims);
 
-            } catch (Exception e) {
+            } catch (Exception | LinkageError e) {
                 return makeErrorNode(e, node, bindingContext);
             }
-        } catch (Exception e) {
+        } catch (Exception | LinkageError e) {
             return makeErrorNode(e, node, bindingContext);
-        }
+        } 
     }
 
     private boolean isStrictMatch(ISyntaxNode node) {

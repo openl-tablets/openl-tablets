@@ -327,10 +327,10 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                     IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(openClass.getInstanceClass());
                     result[i] = converter.parse(s, null);
                 }
-            } catch (Exception ex) {
+            } catch (Exception | LinkageError ex) {
                 TextInterval location = LocationUtils.createTextInterval(s);
                 throw SyntaxNodeExceptionUtils.createError(ex, location, sv.getStringValue().asSourceCodeModule());
-            }
+            } 
         }
 
         return result;

@@ -225,7 +225,7 @@ public class SpreadsheetStructureBuilder {
             } catch (CompositeSyntaxNodeException e) {
                 componentsBuilder.getTableSyntaxNode().addError(e);
                 BindHelper.processError(e, spreadsheetBindingContext);
-            } catch (Exception e) {
+            } catch (Exception | LinkageError e) {
                 String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
                 
                 addError(SyntaxNodeExceptionUtils

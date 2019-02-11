@@ -1083,7 +1083,7 @@ public class ProjectModel {
                 }
             }
         } catch (Throwable t) {
-            Log.error("Problem Loading OpenLWrapper", t);
+            Log.error("Failed to load!", t);
             Collection<OpenLMessage> messages = new LinkedHashSet<>();
             for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(t)) {
                 String message = String.format("Can't load the module: %s", openLMessage.getSummary());

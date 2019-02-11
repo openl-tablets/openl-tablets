@@ -231,7 +231,7 @@ public class RuleRowHelper {
                     }
                     return res;
                 }
-            } catch (Exception t) {
+            } catch (Exception | LinkageError t ) {
                 String message = t.getMessage();
                 if (message == null) {
                     message = "Can't load cell value";
@@ -458,7 +458,7 @@ public class RuleRowHelper {
                     }
                 }
 
-            } catch (Exception e) {
+            } catch (Exception | LinkageError e) {
                 // Parsing of loaded string value can be sophisticated process.
                 // As a result various exception types can be thrown (e.g.
                 // CompositeSyntaxNodeException) with not user-friendly message.
