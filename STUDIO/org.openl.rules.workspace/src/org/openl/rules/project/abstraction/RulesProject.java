@@ -95,9 +95,7 @@ public class RulesProject extends UserWorkspaceProject {
             if (localFolderName != null) {
                 deleteFromLocalRepository();
             }
-            if (isLockedByUser(user)) {
-                unlock();
-            }
+            unlock();
             if (!isLocalOnly()) {
                 setRepository(designRepository);
                 setFolderPath(designFolderName);
@@ -168,7 +166,7 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public void unlock() {
-        lockEngine.unlock(getName());
+        lockEngine.unlock(getName(), getUser().getUserName());
     }
 
     /**

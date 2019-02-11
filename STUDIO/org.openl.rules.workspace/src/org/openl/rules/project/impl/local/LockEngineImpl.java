@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.Properties;
 
 import org.openl.rules.common.LockInfo;
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.LockException;
 import org.openl.util.IOUtils;
@@ -41,7 +40,8 @@ public class LockEngineImpl implements LockEngine {
 
     @Override
     public synchronized boolean tryLock(String projectName, String userName) throws LockException {
-        LockInfo lockInfo = getLockInfo(projectName);
+        File file = new File(locksRoot, projectName);
+        LockInfo lockInfo = getLockInfo(file);
         if (lockInfo.isLocked()) {
             return userName.equals(lockInfo.getLockedBy().getUserName());
         }
@@ -49,7 +49,6 @@ public class LockEngineImpl implements LockEngine {
         properties.setProperty(USER_NAME, userName);
         properties.setProperty(DATE, new SimpleDateFormat(DATE_FORMAT).format(new Date()));
 
-        File file = new File(locksRoot, projectName);
         File folder = file.getParentFile();
         if (folder != null && !folder.mkdirs() && !folder.exists()) {
             throw new IllegalStateException("Can't create a folder for locks");
@@ -70,6 +69,26 @@ public class LockEngineImpl implements LockEngine {
     }
 
     @Override
+    public synchronized void unlock(String projectName, String userName) {
+        File file = new File(locksRoot, projectName);
+        unlock(userName, file);
+    }
+
+    private void unlock(String userName, File file) {
+        if (file.exists() && file.isFile()) {
+            LockInfo lockInfo = getLockInfo(file);
+            if (lockInfo.isLocked() && userName.equals(lockInfo.getLockedBy().getUserName())) {
+                file.delete();
+            }
+        } else if (file.exists() && file.isDirectory()) {
+            File[] files = file.listFiles();
+            for (File f : files) {
+                unlock(userName, f);
+            }
+        }
+    }
+
+    @Override
     public synchronized void unlock(String projectName) {
         File file = new File(locksRoot, projectName);
         file.delete();
@@ -78,10 +97,13 @@ public class LockEngineImpl implements LockEngine {
     @Override
     public synchronized LockInfo getLockInfo(String projectName) {
         File file = new File(locksRoot, projectName);
+        return getLockInfo(file);
+    }
+
+    private LockInfo getLockInfo(File file) {
         if (!file.exists() || !file.isFile()) {
             return new SimpleLockInfo(false, null, null);
         }
-
         Properties properties = new Properties();
         FileInputStream is = null;
         try {
