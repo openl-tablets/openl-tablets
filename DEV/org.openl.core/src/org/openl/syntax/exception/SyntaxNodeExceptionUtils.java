@@ -35,7 +35,7 @@ public class SyntaxNodeExceptionUtils {
     }
 
     public static SyntaxNodeException createError(String message,
-            Exception ex,
+            Throwable ex,
             ILocation location,
             IOpenSourceCodeModule source) {
         Logger logger = LoggerFactory.getLogger(SyntaxNodeExceptionUtils.class);
@@ -43,23 +43,23 @@ public class SyntaxNodeExceptionUtils {
         return new SyntaxNodeException(message, ex, location, source);
     }
 
-    public static SyntaxNodeException createError(Exception ex,
+    public static SyntaxNodeException createError(Throwable ex,
             ILocation location,
             IOpenSourceCodeModule source) {
         return createError(formatErrorMessage(ex), ex, location, source);
     }
 
-    public static SyntaxNodeException createError(String message, Exception ex, ISyntaxNode syntaxNode) {
+    public static SyntaxNodeException createError(String message, Throwable ex, ISyntaxNode syntaxNode) {
         Logger logger = LoggerFactory.getLogger(SyntaxNodeExceptionUtils.class);
         logger.debug(message, ex);
         return new SyntaxNodeException(message, ex, syntaxNode);
     }
 
-    public static SyntaxNodeException createError(Exception ex, ISyntaxNode syntaxNode) {
+    public static SyntaxNodeException createError(Throwable ex, ISyntaxNode syntaxNode) {
         return createError(formatErrorMessage(ex), ex, syntaxNode);
     }
 
-    private static String formatErrorMessage(Exception ex) {
+    private static String formatErrorMessage(Throwable ex) {
         String formattedMessage = ex.getMessage();
         ExceptionMessageFormatter filter = formatters.get(ex.getClass());
         if (filter != null) {

@@ -76,7 +76,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
             try {
                 type = spreadsheet.getType(); // Can throw RuntimeException
                 bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, type);
-            } catch (Exception e) {
+            } catch (Exception | LinkageError e) {
                 String message = String.format("Can't define type %s",
                     type != null ? type.getName() : spreadsheet.getName());
                 SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());

@@ -399,7 +399,7 @@ public class XlsBinder implements IOpenBinder {
                 for (SyntaxNodeException error : ex.getErrors()) {
                     processError(error, tsn, bindingContext);
                 }
-            } catch (Exception t) {
+            } catch (Exception | LinkageError t) {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tsn);
                 processError(error, tsn, bindingContext);
             }
@@ -693,7 +693,7 @@ public class XlsBinder implements IOpenBinder {
                 syntaxNodeExceptionHolder);
             moduleContext.addBinderMethod(openMethodHeader, xlsBinderExecutableMethodBind);
             return openMethodHeader;
-        } catch (Exception e) {
+        } catch (Exception | LinkageError e) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);
             processError(error, tableSyntaxNode, moduleContext);
         }
@@ -736,7 +736,7 @@ public class XlsBinder implements IOpenBinder {
                     processError(error, tableSyntaxNode, moduleContext);
                 }
             }
-        } catch (Exception t) {
+        } catch (Exception | LinkageError t) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNode);
             processError(error, tableSyntaxNode, moduleContext);
         }
@@ -759,7 +759,7 @@ public class XlsBinder implements IOpenBinder {
                         processError(error, tableSyntaxNodes[i], moduleContext);
                     }
 
-                } catch (Exception t) {
+                } catch (Exception | LinkageError t) {
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNodes[i]);
                     processError(error, tableSyntaxNodes[i], moduleContext);
                 }
@@ -788,7 +788,7 @@ public class XlsBinder implements IOpenBinder {
 
             return null;
 
-        } catch (Exception t) {
+        } catch (Exception | LinkageError t) {
 
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNode);
             processError(error, tableSyntaxNode, moduleContext);
@@ -923,7 +923,7 @@ public class XlsBinder implements IOpenBinder {
                     if (memberBoundNode != null) {
                         try {
                             memberBoundNode.addTo(module);
-                        } catch (Exception e) {
+                        } catch (Exception | LinkageError e) {
                             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);
                             processError(error, tableSyntaxNode, moduleContext);
                         }

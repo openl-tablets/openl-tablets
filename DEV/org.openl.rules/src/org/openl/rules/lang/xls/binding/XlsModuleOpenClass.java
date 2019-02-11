@@ -56,16 +56,12 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
 import org.openl.util.Log;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor
  *
  */
 public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableModuleOpenClass {
-    private Logger log = LoggerFactory.getLogger(XlsModuleOpenClass.class);
-
     private IDataBase dataBase = null;
 
     /**

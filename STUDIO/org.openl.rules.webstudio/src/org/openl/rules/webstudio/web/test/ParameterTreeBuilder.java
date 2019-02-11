@@ -77,7 +77,6 @@ public class ParameterTreeBuilder {
         if (type instanceof SpreadsheetResultOpenClass) {
             return false;
         }
-
         if (type.getInstanceClass() == null) {
             return false;
         }
@@ -85,7 +84,7 @@ public class ParameterTreeBuilder {
         try {
             type.newInstance(new SimpleVM().getRuntimeEnv());
             return true;
-        } catch (Exception ex) {
+        } catch (Exception | LinkageError ex) {
             return false;
         }
     }

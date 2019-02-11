@@ -469,7 +469,7 @@ public abstract class FunctionalRow implements IDecisionRow {
                 String paramName = makeParamName();
 
                 return new ParameterDeclaration(type, paramName);
-            } catch (Exception ex) {
+            } catch (Exception | LinkageError ex) {
                 throw SyntaxNodeExceptionUtils.createError("Cannot compile expression", ex, null, methodSource);
             }
         }

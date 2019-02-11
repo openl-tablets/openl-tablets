@@ -249,7 +249,7 @@ public class XlsLoader {
         } else if (type.equals(XlsNodeTypes.XLS_TABLEPART.toString())) {
             try {
                 tablePartProcessor.register(table, source);
-            } catch (Exception t) {
+            } catch (Exception | LinkageError t) {
                 tsn = new TableSyntaxNode(XlsNodeTypes.XLS_OTHER
                     .toString(), tsn.getGridLocation(), source, table, tsn.getHeader());
                 SyntaxNodeException sne = SyntaxNodeExceptionUtils.createError(t, tsn);
