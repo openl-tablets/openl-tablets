@@ -279,7 +279,7 @@ public class JAXRSEnhancerHelper {
         }
 
         private String[] getPathParamValuesFromMethodParameters(Method originalMethod) {
-            final String[] values = new String[originalMethod.getParameterCount()];
+            final String[] values = new String[originalMethod.getParameterTypes().length];
 
             int index = 0;
             for (Annotation[] annotatons : originalMethod.getParameterAnnotations()) {

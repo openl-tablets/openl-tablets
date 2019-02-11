@@ -177,7 +177,7 @@ public class JAXRSEnhancerHelperTest {
         Assert.assertEquals("/someMethod", path.value());
         Assert.assertNotNull(someMethod.getAnnotation(POST.class));
         Assert.assertNull(someMethod.getAnnotation(GET.class));
-        Assert.assertEquals(1, someMethod.getParameterCount());
+        Assert.assertEquals(1, someMethod.getParameterTypes().length);
     }
     
     public static interface TestAnnotatedInterface3 {
@@ -202,7 +202,7 @@ public class JAXRSEnhancerHelperTest {
         Assert.assertEquals("/value", path.value());
         Assert.assertNotNull(someMethod.getAnnotation(POST.class));
         Assert.assertNull(someMethod.getAnnotation(GET.class));
-        Assert.assertEquals(1, someMethod.getParameterCount());
+        Assert.assertEquals(1, someMethod.getParameterTypes().length);
     }
     
     @Test
