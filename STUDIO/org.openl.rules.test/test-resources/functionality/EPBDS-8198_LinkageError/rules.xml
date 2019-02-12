@@ -1,0 +1,16 @@
+<project>
+  <name>EPBDS-8198_LinkageError</name>
+  <modules>
+    <module>
+      <name>module1</name>
+      <rules-root path="module1.xlsx"/>
+    </module>
+    <module>
+      <name>module2</name>
+      <rules-root path="module2.xlsx"/>
+    </module>
+  </modules>
+  <classpath>
+    <entry path="bin"/>
+  </classpath>
+</project>
