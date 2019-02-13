@@ -238,4 +238,8 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
     public void setOptimizedSourceCode(String code) {
     }
 
+    @Override
+    public int getPriority() {
+        return 10;
+    }
 }

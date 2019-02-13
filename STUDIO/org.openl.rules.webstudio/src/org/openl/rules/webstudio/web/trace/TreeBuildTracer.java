@@ -6,6 +6,7 @@ package org.openl.rules.webstudio.web.trace;
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.RangeIndex;
+import org.openl.rules.dt.index.RangeAscIndex;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
 import org.openl.rules.webstudio.web.trace.node.SimpleTracerObject;

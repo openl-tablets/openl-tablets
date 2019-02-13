@@ -2,15 +2,13 @@ package org.openl.rules.dt;
 
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IntArrayIterator;
-import org.openl.rules.dt.index.ARuleIndex;
-import org.openl.rules.dt.IDecisionTableRuleNode;
+import org.openl.rules.dt.index.IRuleIndex;
 
 public class DecisionTableRuleNode  implements IDecisionTableRuleNode{
 
     public static final int[] ZERO_ARRAY = new int[0];
     private int[] rules;
-
-    protected ARuleIndex nextIndex;
+    protected IRuleIndex nextIndex;
 
     // private boolean saveRulesMetaInfo;
 
@@ -26,11 +24,11 @@ public class DecisionTableRuleNode  implements IDecisionTableRuleNode{
     // this.saveRulesMetaInfo = saveRulesMetaInfo;
     // }
 
-    public ARuleIndex getNextIndex() {
+    public IRuleIndex getNextIndex() {
         return nextIndex;
     }
 
-    public void setNextIndex(ARuleIndex nextIndex) {
+    public void setNextIndex(IRuleIndex nextIndex) {
         this.nextIndex = nextIndex;
         if (nextIndex != null) {
             rules = null;

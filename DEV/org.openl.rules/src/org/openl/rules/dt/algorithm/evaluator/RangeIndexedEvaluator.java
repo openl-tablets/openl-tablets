@@ -302,4 +302,8 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
         return nparams;
     }
 
+    @Override
+    public int getPriority() {
+        return 110;
+    }
 }

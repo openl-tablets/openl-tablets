@@ -14,7 +14,7 @@ import org.openl.rules.dt.DecisionTableRuleNode;
  * @author snshor
  *
  */
-public abstract class ARuleIndex {
+public abstract class ARuleIndex implements IRuleIndex {
 
     protected DecisionTableRuleNode emptyOrFormulaNodes;
 
@@ -26,7 +26,7 @@ public abstract class ARuleIndex {
         return emptyOrFormulaNodes;
     }
 
-    public DecisionTableRuleNode findNode(Object value) {
+    public DecisionTableRuleNode findNode(Object value, DecisionTableRuleNode prevResult) {
         if (value == null) {
             return emptyOrFormulaNodes;
         }

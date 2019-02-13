@@ -3,14 +3,7 @@
  */
 package org.openl.rules.dt.algorithm;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
@@ -27,19 +20,17 @@ import org.openl.rules.dt.algorithm.evaluator.ContainsInOrNotInArrayIndexedEvalu
 import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
-import org.openl.rules.dt.algorithm.evaluator.FloatTypeComparator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.RangeConditionEvaluator;
 import org.openl.rules.dt.data.ConditionOrActionParameterField;
 import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.dt.index.ARuleIndex;
+import org.openl.rules.dt.index.IRuleIndex;
 import org.openl.rules.dt.type.BooleanAdaptorFactory;
 import org.openl.rules.dt.type.BooleanTypeAdaptor;
 import org.openl.rules.dt.type.CharRangeAdaptor;
 import org.openl.rules.dt.type.DoubleRangeAdaptor;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.IntRangeAdaptor;
-import org.openl.rules.helpers.NumberUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -238,7 +229,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
      * There is one evaluator per condition in DT
      */
     private final ConditionToEvaluatorHolder[] evaluators;
-    private final ARuleIndex indexRoot;
+    private final IRuleIndex indexRoot;
     private BindingDependencies dependencies;
     private final IndexInfo info;
 
@@ -265,6 +256,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                     evalToConds.add(pair);
                 }
             }
+            Collections.sort(evalToConds);
             ConditionToEvaluatorHolder[] result = new ConditionToEvaluatorHolder[eqEvalToConds.size() + evalToConds.size()];
             for (int i = 0, j =  eqEvalToConds.size(); i < evalToConds.size(); i++, j++) {
                 result[j] = evalToConds.get(i);
@@ -295,11 +287,10 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 }
             }
             return result;
-
         }
     }
 
-    private ARuleIndex buildIndex(IndexInfo info) {
+    private IRuleIndex buildIndex(IndexInfo info) {
         if (evaluators.length == 0) {
             return null;
         }
@@ -307,12 +298,12 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         if (!firstPair.canIndex()) {
             return null;
         }
-        ARuleIndex indexRoot = firstPair.makeIndex(info.makeRuleIterator());
+        IRuleIndex indexRoot = firstPair.makeIndex(info.makeRuleIterator());
         indexNodes(indexRoot, 1, info);
         return indexRoot;
     }
 
-    private void indexNodes(ARuleIndex index, int condN, IndexInfo info) {
+    private void indexNodes(IRuleIndex index, int condN, IndexInfo info) {
         if (index == null || condN >= evaluators.length) {
             return;
         }
@@ -330,7 +321,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
     private void indexNode(DecisionTableRuleNode node, int condN, IndexInfo info) {
         ConditionToEvaluatorHolder pair = evaluators[condN];
-        ARuleIndex nodeIndex = pair.makeIndex(node.getRulesIterator());
+        IRuleIndex nodeIndex = pair.makeIndex(node.getRulesIterator());
         node.setNextIndex(nodeIndex);
 
         indexNodes(nodeIndex, condN + 1, info);
@@ -494,7 +485,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         }
 
         @Override
-        public ARuleIndex makeIndex(ICondition condition, IIntIterator it) {
+        public IRuleIndex makeIndex(ICondition condition, IIntIterator it) {
             throw new UnsupportedOperationException();
         }
 
@@ -531,6 +522,11 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         @Override
         public IDomain<? extends Object> getConditionParameterDomain(int paramIdx, IBaseCondition condition) throws DomainCanNotBeDefined {
             return decorate.getConditionParameterDomain(paramIdx, condition);
+        }
+
+        @Override
+        public int getPriority() {
+            return 100;
         }
     };
 
@@ -593,14 +589,14 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         if (indexRoot == null) {
             iterator = info.makeRuleIterator();
         } else {
-            ARuleIndex index = indexRoot;
-
-            while(conditionNumber < evaluators.length) {
+            IRuleIndex index = indexRoot;
+            DecisionTableRuleNode node = null;
+            while (conditionNumber < evaluators.length) {
                 ICondition condition = evaluators[conditionNumber].getCondition();
                 index = Tracer.wrap(this, index, condition);
                 Object testValue = evaluateTestValue(condition, target, params, env);
 
-                DecisionTableRuleNode node = index.findNode(testValue);
+                node = index.findNode(testValue, node);
                 Tracer.put(this, "index", condition, node, true);
 
                 if (!node.hasIndex()) {
@@ -629,7 +625,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         return iterator;
     }
 
-    private static class ConditionToEvaluatorHolder {
+    private static class ConditionToEvaluatorHolder implements Comparable<ConditionToEvaluatorHolder> {
 
         private final ICondition condition;
         private IConditionEvaluator evaluator;
@@ -655,12 +651,17 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             return evaluator.isIndexed() && !condition.hasFormulas();
         }
 
-        public ARuleIndex makeIndex(IIntIterator it) {
+        public IRuleIndex makeIndex(IIntIterator it) {
             return evaluator.makeIndex(condition, it);
         }
 
         public boolean isIndexed() {
             return evaluator.isIndexed();
+        }
+
+        @Override
+        public int compareTo(ConditionToEvaluatorHolder o) {
+            return Integer.compare(this.evaluator.getPriority(), o.evaluator.getPriority());
         }
     }
 }
