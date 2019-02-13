@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
-import org.openl.rules.dt.algorithm.evaluator.OneParameterRangeIndexEvaluator.IndexNode;
+import org.openl.rules.dt.algorithm.evaluator.ARangeIndexEvaluator.IndexNode;
 import org.openl.rules.dt.type.IRangeAdaptor;
 
 public class RangeDescIndex extends RangeAscIndex {

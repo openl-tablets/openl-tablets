@@ -21,7 +21,7 @@ import org.openl.rules.dt.algorithm.evaluator.AConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.OneParameterRangeIndexEvaluator;
-import org.openl.rules.dt.algorithm.evaluator.RangeIndexedEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.ITypeAdaptor;
@@ -76,7 +76,7 @@ public class DependentParametersOptimizedAlgorithm {
                     return getOneParamRangeEvaluator(evaluatorFactory, expressionType, openCast);
                 }
 
-            /*case 2:
+            case 2:
 
                 IOpenClass paramType0 = params[0].getType();
                 IOpenClass paramType1 = params[1].getType();
@@ -91,7 +91,7 @@ public class DependentParametersOptimizedAlgorithm {
                     }
                     return getTwoParamRangeEvaluator(evaluatorFactory, expressionType, cast);
                 }
-                break;*/
+                break;
         }
 
         return null;
@@ -108,8 +108,7 @@ public class DependentParametersOptimizedAlgorithm {
             return null;
 
         @SuppressWarnings("unchecked")
-        RangeIndexedEvaluator rix = new RangeIndexedEvaluator((IRangeAdaptor<Object, ? extends Comparable<Object>>) adaptor,
-            2);
+        CombinedRangeIndexEvaluator rix = new CombinedRangeIndexEvaluator((IRangeAdaptor<Object, ? extends Comparable<Object>>) adaptor, 2);
 
         rix.setOptimizedSourceCode(evaluatorFactory.getExpression());
 
@@ -443,7 +442,7 @@ public class DependentParametersOptimizedAlgorithm {
                         signature);
                     return oneParameterRangefactory;
                 }
-/*            case 2:
+            case 2:
                 String[][] parsedValuesTwoParameters = twoParameterExpressionParse(condition);
                 if (parsedValuesTwoParameters == null)
                     return null;
@@ -454,7 +453,7 @@ public class DependentParametersOptimizedAlgorithm {
                     parsedValuesTwoParameters[1][1],
                     parsedValuesTwoParameters[1][2],
                     condition,
-                    signature);*/
+                    signature);
             default:
                 return null;
         }

@@ -5,7 +5,7 @@ import java.util.*;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.RangeIndexDecisionTableRuleNode;
-import org.openl.rules.dt.algorithm.evaluator.OneParameterRangeIndexEvaluator.IndexNode;
+import org.openl.rules.dt.algorithm.evaluator.ARangeIndexEvaluator.IndexNode;
 import org.openl.rules.dt.type.IRangeAdaptor;
 
 public class RangeAscIndex implements IRuleIndex {
@@ -67,20 +67,24 @@ public class RangeAscIndex implements IRuleIndex {
 
     @Override
     public DecisionTableRuleNode findNode(Object value, DecisionTableRuleNode prevResult) {
+        return new RangeIndexDecisionTableRuleNode(findRules(value, prevResult), nextNode.getNextIndex());
+    }
+
+    Set<Integer> findRules(Object value, DecisionTableRuleNode prevResult) {
         if (prevResult == null) {
-            return new RangeIndexDecisionTableRuleNode(findRules(value), nextNode.getNextIndex());
+            return findRules(value);
         }
         Set<Integer> prevRes = getRulesSetFromDecisionTableRuleNode(prevResult);
         if (prevRes.isEmpty()) {
-            return new RangeIndexDecisionTableRuleNode(prevRes, nextNode.getNextIndex());
+            return prevRes;
         }
         Set<Integer> result = findRules(value);
         if (result.size() <= prevRes.size()) {
             result.retainAll(prevRes);
-            return new RangeIndexDecisionTableRuleNode(result, nextNode.getNextIndex());
+            return result;
         }
         prevRes.retainAll(result);
-        return new RangeIndexDecisionTableRuleNode(prevRes, nextNode.getNextIndex());
+        return prevRes;
     }
 
     private Set<Integer> getRulesSetFromDecisionTableRuleNode(DecisionTableRuleNode ruleNode) {

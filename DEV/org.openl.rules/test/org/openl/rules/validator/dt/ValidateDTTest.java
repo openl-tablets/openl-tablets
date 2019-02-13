@@ -1,7 +1,6 @@
 package org.openl.rules.validator.dt;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.dt.validator.DecisionTableValidationResult;
@@ -17,7 +16,6 @@ public class ValidateDTTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    @Ignore
     public void testHello1() {
         String tableName = "Rules int tableAScore(String maritalStatus, String gender, int tyde, int dsr)";
         TableSyntaxNode resultTsn = findTable(tableName);
@@ -51,7 +49,6 @@ public class ValidateDTTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    @Ignore
     public void testHello3() {
         String tableName = "Rules String check3(int dd1, String dd2)";
         TableSyntaxNode resultTsn = findTable(tableName);

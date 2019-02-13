@@ -22,6 +22,7 @@ import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.RangeConditionEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
 import org.openl.rules.dt.data.ConditionOrActionParameterField;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.IRuleIndex;
@@ -403,7 +404,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                     paramType);
 
                 if (rangeAdaptor != null) {
-                    return new RangeConditionEvaluator((IRangeAdaptor<Object, ? extends Comparable<Object>>) rangeAdaptor,
+                    return new CombinedRangeIndexEvaluator((IRangeAdaptor<Object, ? extends Comparable<Object>>) rangeAdaptor,
                         1);
                 }
 
@@ -427,7 +428,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                         String message = String.format("Type '%s' is not Comparable", methodType.getName());
                         throw SyntaxNodeExceptionUtils.createError(message, null, null, condition.getSourceCodeModule());
                     }
-                    return new RangeConditionEvaluator(null, 2);
+                    return new CombinedRangeIndexEvaluator(null, 2);
                 }
 
                 aggregateInfo = paramType1.getAggregateInfo();
