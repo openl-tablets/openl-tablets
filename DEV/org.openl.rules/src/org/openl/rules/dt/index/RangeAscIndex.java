@@ -71,10 +71,10 @@ public class RangeAscIndex implements IRuleIndex {
     }
 
     Set<Integer> findRules(Object value, DecisionTableRuleNode prevResult) {
-        if (prevResult == null) {
+        if (!(prevResult instanceof RangeIndexDecisionTableRuleNode)) {
             return findRules(value);
         }
-        Set<Integer> prevRes = getRulesSetFromDecisionTableRuleNode(prevResult);
+        Set<Integer> prevRes = ((RangeIndexDecisionTableRuleNode) prevResult).getRuleSet();
         if (prevRes.isEmpty()) {
             return prevRes;
         }
@@ -85,18 +85,6 @@ public class RangeAscIndex implements IRuleIndex {
         }
         prevRes.retainAll(result);
         return prevRes;
-    }
-
-    private Set<Integer> getRulesSetFromDecisionTableRuleNode(DecisionTableRuleNode ruleNode) {
-        if (ruleNode instanceof RangeIndexDecisionTableRuleNode) {
-            return ((RangeIndexDecisionTableRuleNode) ruleNode).getRuleSet();
-        } else {
-            Set<Integer> ruleSet = new HashSet<>();
-            for (int i : ruleNode.getRules()) {
-                ruleSet.add(i);
-            }
-            return ruleSet;
-        }
     }
 
     @Override
