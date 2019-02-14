@@ -21,7 +21,6 @@ import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
-import org.openl.rules.dt.algorithm.evaluator.RangeConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
 import org.openl.rules.dt.data.ConditionOrActionParameterField;
 import org.openl.rules.dt.element.ICondition;

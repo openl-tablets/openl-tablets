@@ -14,7 +14,6 @@ import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.algorithm.DecisionTableAlgorithmBuilder;
 import org.openl.rules.dt.algorithm.IAlgorithmBuilder;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
-import org.openl.rules.dt.algorithm2.DecisionTableAlgorithmBuilder2;
 import org.openl.rules.dt.element.ArrayHolder;
 import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.dt.element.IAction;
@@ -36,8 +35,6 @@ import org.openl.vm.IRuntimeEnv;
  */
 @Executable
 public class DecisionTable extends ExecutableRulesMethod implements IDecisionTable {
-
-    private static final boolean ALG2 = false;
     
     private IBaseCondition[] conditionRows;
     private IBaseAction[] actionRows;
@@ -204,8 +201,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
             OpenL openl,
             ComponentOpenClass module,
             IBindingContext bindingContext) {
-        return ALG2 ? new DecisionTableAlgorithmBuilder2(this, header, openl, module, bindingContext)
-                    : new DecisionTableAlgorithmBuilder(this, header, openl, module, bindingContext);
+        return new DecisionTableAlgorithmBuilder(this, header, openl, module, bindingContext);
     }
 
     @Override

@@ -20,7 +20,7 @@ import org.openl.meta.ShortValue;
 import org.openl.rules.dt.algorithm.evaluator.AConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
-import org.openl.rules.dt.algorithm.evaluator.OneParameterRangeIndexEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.SingleRangeIndexEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.type.IRangeAdaptor;
@@ -134,7 +134,7 @@ public class DependentParametersOptimizedAlgorithm {
             return null;
 
         @SuppressWarnings("unchecked")
-        AConditionEvaluator rix = new OneParameterRangeIndexEvaluator((IRangeAdaptor<Object, ? extends Comparable<Object>>) adaptor);
+        AConditionEvaluator rix = new SingleRangeIndexEvaluator((IRangeAdaptor<Object, ? extends Comparable<Object>>) adaptor);
         rix.setOptimizedSourceCode(evaluatorFactory.getExpression());
         return rix;
     }

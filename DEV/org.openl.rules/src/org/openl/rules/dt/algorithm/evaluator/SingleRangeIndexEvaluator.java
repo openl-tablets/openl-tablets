@@ -11,9 +11,9 @@ import org.openl.rules.dt.index.RangeAscIndex;
 import org.openl.rules.dt.index.RangeDescIndex;
 import org.openl.rules.dt.type.IRangeAdaptor;
 
-public class OneParameterRangeIndexEvaluator extends ARangeIndexEvaluator {
+public class SingleRangeIndexEvaluator extends ARangeIndexEvaluator {
 
-    public OneParameterRangeIndexEvaluator(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor) {
+    public SingleRangeIndexEvaluator(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor) {
         super(rangeAdaptor, 1);
     }
 
