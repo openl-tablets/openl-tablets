@@ -97,8 +97,8 @@
         <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
-        <surefire.argLine>@{jacoco.argLine} -Xms8m -Xmx160m</surefire.argLine>
-        <invoker.mavenOpts>${jacoco.argLine} -Xms64m -Xmx128m</invoker.mavenOpts>
+        <surefire.argLine>-Xms8m -Xmx160m</surefire.argLine>
+        <invoker.mavenOpts>-Xms64m -Xmx128m</invoker.mavenOpts>
         <openl.home>${project.build.directory}/openl-test</openl.home>
     </properties>
 
@@ -283,7 +283,7 @@
                         <!-- Special cases should be defined in invoker.properties file. -->
                         <!-- !!! Don't increase these parameters without special need !!! -->
                         <timeoutInSeconds>30</timeoutInSeconds>
-                        <mavenOpts>${invoker.mavenOpts}</mavenOpts>
+                        <mavenOpts>${jacoco.argLine} ${invoker.mavenOpts}</mavenOpts>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -372,7 +372,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>${surefire.argLine}</argLine>
+                    <argLine>@{jacoco.argLine} ${surefire.argLine}</argLine>
                 </configuration>
             </plugin>
         </plugins>
@@ -399,6 +399,13 @@
                         <version>0.8.3</version>
                         <configuration>
                             <propertyName>jacoco.argLine</propertyName>
+                            <includes>
+                                <include>org.openl.*</include>
+                            </includes>
+                            <excludes>
+                                <exclude>org.openl.generated.*</exclude>
+                                <exclude>org.openl.internal.*</exclude>
+                            </excludes>
                         </configuration>
                         <executions>
                             <execution>
