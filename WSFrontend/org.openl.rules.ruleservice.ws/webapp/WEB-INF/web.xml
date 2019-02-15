@@ -29,6 +29,10 @@
 			<param-name>redirect-servlet-name</param-name>
 			<param-value>index.jsp</param-value>
 		</init-param>
+		<init-param>
+			<param-name>static-resources-list</param-name>
+			<param-value>/favicon.ico</param-value>
+		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<!-- JSPs -->
