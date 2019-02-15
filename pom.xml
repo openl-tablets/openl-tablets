@@ -93,11 +93,11 @@
         <jetty.http.port>9999</jetty.http.port>
         <jetty.server.version>9.2.26.v20180806</jetty.server.version>
         <!-- Empty for building without JaCoCo agent -->
-        <jacococ.argLine />
+        <jacoco.argLine/>
         <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
-        <surefire.argLine>${jacococ.argLine} -Xms8m -Xmx160m</surefire.argLine>
+        <surefire.argLine>@{jacoco.argLine} -Xms8m -Xmx160m</surefire.argLine>
         <invoker.mavenOpts>-Xms64m -Xmx128m</invoker.mavenOpts>
         <openl.home>${project.build.directory}/openl-test</openl.home>
     </properties>
@@ -388,6 +388,35 @@
             <modules>
                 <module>ITEST</module>
             </modules>
+        </profile>
+        <profile>
+            <id>sonar</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.8.3</version>
+                        <configuration>
+                            <propertyName>jacoco.argLine</propertyName>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <id>gpg-sign</id>
