@@ -98,7 +98,7 @@
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
         <surefire.argLine>@{jacoco.argLine} -Xms8m -Xmx160m</surefire.argLine>
-        <invoker.mavenOpts>-Xms64m -Xmx128m</invoker.mavenOpts>
+        <invoker.mavenOpts>${jacoco.argLine} -Xms64m -Xmx128m</invoker.mavenOpts>
         <openl.home>${project.build.directory}/openl-test</openl.home>
     </properties>
 
@@ -402,8 +402,16 @@
                         </configuration>
                         <executions>
                             <execution>
+                                <id>prepare-ut</id>
                                 <goals>
                                     <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>prepare-it</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>prepare-agent-integration</goal>
                                 </goals>
                             </execution>
                             <execution>
