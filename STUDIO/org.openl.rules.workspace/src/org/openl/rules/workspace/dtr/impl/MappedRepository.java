@@ -3,6 +3,8 @@ package org.openl.rules.workspace.dtr.impl;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -388,9 +390,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         }
 
         Properties prop;
-        try (InputStream stream = fileItem.getStream()) {
+        try (InputStreamReader in = new InputStreamReader(fileItem.getStream(), StandardCharsets.UTF_8)) {
             prop = new Properties();
-            prop.load(stream);
+            prop.load(in);
         }
 
         Set<String> processed = new HashSet<>();
