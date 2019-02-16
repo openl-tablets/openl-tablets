@@ -9,6 +9,7 @@ import java.util.List;
 import org.openl.rules.common.*;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -71,12 +72,8 @@ public class RulesProject extends UserWorkspaceProject {
         String version = designProject.getFileData().getVersion();
         setLastHistoryVersion(version);
         setHistoryVersion(version);
-        if (!isRepositoryOnly()) {
-            localRepository.getProjectState(localFolderName).setProjectVersion(null);
-        }
-        clearModifyStatus();
+        resetLocalFileData();
         unlock();
-        refresh();
     }
 
     @Override
@@ -268,12 +265,18 @@ public class RulesProject extends UserWorkspaceProject {
 
         setHistoryVersion(version);
 
+        resetLocalFileData();
+    }
+
+    private void resetLocalFileData() {
         refresh();
 
-        localRepository.getProjectState(localFolderName).clearModifyStatus();
-        if (!isLastVersion()) {
-            localRepository.getProjectState(localFolderName).saveFileData(getFileData());
+        FileData fileData = getFileData();
+        if (designRepository.supports().branches()) {
+            fileData.setBranch(((BranchRepository) designRepository).getBranch());
         }
+        localRepository.getProjectState(localFolderName).clearModifyStatus();
+        localRepository.getProjectState(localFolderName).saveFileData(fileData);
     }
 
     // Is Opened for Editing by me? -- in LW + locked by me
@@ -311,5 +314,19 @@ public class RulesProject extends UserWorkspaceProject {
 
     public String getDesignFolderName() {
         return designFolderName;
+    }
+
+    @Override
+    protected void setDesignRepository(Repository repository) {
+        this.designRepository = repository;
+
+        if (!isOpened()) {
+            setRepository(repository);
+        }
+    }
+
+    @Override
+    public Repository getDesignRepository() {
+        return designRepository;
     }
 }

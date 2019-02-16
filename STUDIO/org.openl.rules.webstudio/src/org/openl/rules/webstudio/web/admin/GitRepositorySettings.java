@@ -16,6 +16,7 @@ public class GitRepositorySettings extends RepositorySettings {
     private String tagPrefix;
     private int listenerTimerPeriod;
     private String commentPattern;
+    private String settingsPath;
 
     private final String URI;
     private final String LOGIN;
@@ -25,6 +26,7 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String TAG_PREFIX;
     private final String LISTENER_TIMER_PERIOD;
     private final String COMMENT_PATTERN;
+    private final String SETTINGS_PATH;
 
     public GitRepositorySettings(ConfigurationManager configManager,
             String configPrefix,
@@ -39,6 +41,7 @@ public class GitRepositorySettings extends RepositorySettings {
         TAG_PREFIX = configPrefix + "tag-prefix";
         LISTENER_TIMER_PERIOD = configPrefix + "listener-timer-period";
         COMMENT_PATTERN = "comment-pattern";
+        SETTINGS_PATH = "git-settings-path";
 
         String type;
         switch (repositoryMode) {
@@ -68,6 +71,7 @@ public class GitRepositorySettings extends RepositorySettings {
         tagPrefix = configManager.getStringProperty(TAG_PREFIX);
         listenerTimerPeriod = configManager.getLongProperty(LISTENER_TIMER_PERIOD, 10L).intValue();
         commentPattern = configManager.getStringProperty(COMMENT_PATTERN);
+        settingsPath = configManager.getStringProperty(SETTINGS_PATH);
     }
 
     public String getUri() {
@@ -136,6 +140,14 @@ public class GitRepositorySettings extends RepositorySettings {
         this.commentPattern = commentPattern;
     }
 
+    public String getSettingsPath() {
+        return settingsPath;
+    }
+
+    public void setSettingsPath(String settingsPath) {
+        this.settingsPath = settingsPath;
+    }
+
     @Override
     protected void store(ConfigurationManager configurationManager) {
         super.store(configurationManager);
@@ -155,6 +167,7 @@ public class GitRepositorySettings extends RepositorySettings {
         configurationManager.setProperty(TAG_PREFIX, tagPrefix);
         configurationManager.setProperty(LISTENER_TIMER_PERIOD, listenerTimerPeriod);
         configurationManager.setProperty(COMMENT_PATTERN, commentPattern);
+        configurationManager.setProperty(SETTINGS_PATH, settingsPath);
     }
 
     @Override
@@ -171,6 +184,7 @@ public class GitRepositorySettings extends RepositorySettings {
             setTagPrefix(otherSettings.getTagPrefix());
             setListenerTimerPeriod(otherSettings.getListenerTimerPeriod());
             setCommentPattern(otherSettings.getCommentPattern());
+            setSettingsPath(otherSettings.getSettingsPath());
         }
     }
 }

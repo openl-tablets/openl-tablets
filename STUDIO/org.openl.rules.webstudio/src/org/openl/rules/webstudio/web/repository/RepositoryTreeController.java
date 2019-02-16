@@ -37,7 +37,9 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.filter.IFilter;
@@ -852,7 +854,13 @@ public class RepositoryTreeController {
         try {
             projectDescriptorResolver.deleteRevisionsFromCache(project);
             synchronized (userWorkspace) {
-                project.erase(userWorkspace.getUser());
+                Repository mainRepo = userWorkspace.getDesignTimeRepository().getRepository();
+                if (mainRepo.supports().branches() && !((BranchRepository) mainRepo).getBranch().equals(project.getBranch())) {
+                    // Delete secondary branch
+                    ((BranchRepository) mainRepo).deleteBranch(project.getName(), project.getBranch());
+                } else {
+                    project.erase(userWorkspace.getUser());
+                }
             }
             deleteProjectHistory(project.getName());
             userWorkspace.refresh();

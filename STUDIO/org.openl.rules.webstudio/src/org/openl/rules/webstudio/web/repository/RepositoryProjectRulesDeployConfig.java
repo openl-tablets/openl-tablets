@@ -43,6 +43,7 @@ public class RepositoryProjectRulesDeployConfig {
 
     private RulesDeployGuiWrapper rulesDeploy;
     private UserWorkspaceProject lastProject;
+    private String lastBranch;
 
     public RepositoryProjectRulesDeployConfig() {
     }
@@ -58,9 +59,10 @@ public class RepositoryProjectRulesDeployConfig {
 
     public RulesDeployGuiWrapper getRulesDeploy() {
         UserWorkspaceProject project = getProject();
-        if (lastProject != project) {
+        if (lastProject != project || lastBranch != null && !lastBranch.equals(project.getBranch())) {
             rulesDeploy = null;
             lastProject = project;
+            lastBranch = project.getBranch();
         }
         if (project == null) {
             return null;
@@ -142,10 +144,7 @@ public class RepositoryProjectRulesDeployConfig {
             InputStream content = artefact.getContent();
             String sourceString = IOUtils.toStringAndClose(content);
             return serializer.deserialize(sourceString, getSupportedVersion(project));
-        } catch (IOException e) {
-            FacesUtils.addErrorMessage("Cannot read " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
-            log.error(e.getMessage(), e);
-        } catch (ProjectException e) {
+        } catch (IOException | ProjectException e) {
             FacesUtils.addErrorMessage("Cannot read " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
             log.error(e.getMessage(), e);
         } catch (XStreamException e) {

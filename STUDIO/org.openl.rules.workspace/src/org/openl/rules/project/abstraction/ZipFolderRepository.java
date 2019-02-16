@@ -8,10 +8,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.Listener;
-import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.*;
 import org.openl.util.IOUtils;
 
 /**
@@ -116,6 +113,11 @@ class ZipFolderRepository implements Repository {
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Features supports() {
+        return new Features(this);
     }
 
     private ZipInputStream getZipInputStream() throws IOException {

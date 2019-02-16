@@ -10,6 +10,7 @@ import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
+import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -17,6 +18,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.webstudio.filter.AllFilter;
 import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.web.repository.tree.*;
@@ -582,5 +584,49 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public boolean isConfirmOverwriteNewerRevision() {
         UserWorkspaceProject project = getSelectedProject();
         return project != null && project.isOpenedOtherVersion() && !project.isModified();
+    }
+
+    public boolean isSupportsBranches() {
+        try {
+            return getSelectedProject().getDesignRepository().supports().branches();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public String getProjectBranch() {
+        try {
+            return getSelectedProject().getBranch();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    public void setProjectBranch(String branch) {
+        try {
+            UserWorkspaceProject selectedProject = getSelectedProject();
+            if (selectedProject.isOpened()) {
+                selectedProject.close();
+                selectedProject.setBranch(branch);
+                selectedProject.open();
+            } else {
+                selectedProject.setBranch(branch);
+            }
+            refreshSelectedNode();
+            WebStudioUtils.getWebStudio().reset();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    public List<SelectItem> getProjectBranches() {
+        UserWorkspaceProject selectedProject = getSelectedProject();
+
+        Collection<String> branches = ((BranchRepository) userWorkspace.getDesignTimeRepository()
+                .getRepository()).getBranches(selectedProject.getName());
+
+        return Arrays.asList(FacesUtils.createSelectItems(branches));
     }
 }

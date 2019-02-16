@@ -31,7 +31,20 @@
                 <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                     <h:outputText value="Project Name:"/>
                     <h:outputText id="currentProjectName" value="#{copyBean.currentProjectName}"/>
-
+                </h:panelGrid>
+                <h:panelGrid id="cloneProject" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
+                             rendered="#{copyBean.supportsBranches}">
+                    <h:outputLabel value="Clone project:" for="cloneCheckbox"/>
+                    <h:selectBooleanCheckbox id="cloneCheckbox" value="#{copyBean.cloneProject}"
+                                             onclick="updateCloneProjectState()">
+                    </h:selectBooleanCheckbox>
+                    <h:outputLabel for="newBranchName" styleClass="required" value="New Branch Name:"/>
+                    <h:inputText id="newBranchName" value="#{copyBean.newBranchName}"
+                                 validator="#{copyBean.newBranchNameValidator}"/>
+                    <h:outputText value=""/>
+                    <h:message id="newBranchNameMessage" for="newBranchName" styleClass="error"/>
+                </h:panelGrid>
+                <h:panelGrid id="newProject" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                     <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name:"/>
                     <h:inputText id="newProjectName" maxlength="50" value="#{copyBean.newProjectName}"
                                  validator="#{copyBean.newProjectNameValidator}"/>
@@ -74,7 +87,7 @@
 
             <footer>
                 <a4j:commandButton id="copy" value="Copy" action="#{copyBean.copy}" render="@form" styleClass="button-primary"
-                                   oncomplete="updateRevisionsCountState(); if (#{!facesContext.validationFailed}) {RichFaces.$('modalCopyProject').hide(); location.href = location.href;}"/>
+                                   oncomplete="updateStates(); if (#{!facesContext.validationFailed}) {RichFaces.$('modalCopyProject').hide(); location.href = location.href;}"/>
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalCopyProject').hide();"/>
             </footer>
 
@@ -95,18 +108,36 @@
         function showCopyProjectDialog() {
             $j('#copyProjectForm\\:hiddenProjectName').val($j('#copyProjectForm\\:currentProjectName').text());
             fixInputNumberSpinner('copyProjectForm:revisionsCount');
-            updateRevisionsCountState();
+            updateStates();
             $j('#copyProjectForm\\:copy').prop('disabled', true);
-            $j('#copyProjectForm\\:newProjectName').off().on('change keyup keydown cut paste', function () {
-                var $name = $j(this);
+            var copyListener = function () {
+                var shouldClone = false;
+                var branchName = '';
+                var $cloneCheckbox = $j('#copyProjectForm\\:cloneCheckbox');
+                if ($cloneCheckbox.length) {
+                    shouldClone = $cloneCheckbox.is(':checked');
+                    branchName = $j('#copyProjectForm\\:newBranchName').val().trim();
+                }
+
+                var $projectName = $j('#copyProjectForm\\:newProjectName');
+                var projectName = $projectName.val().trim();
+                var disableCopy = shouldClone && branchName.length === 0 || !shouldClone && projectName.length === 0;
+                $j('#copyProjectForm\\:copy').prop('disabled', disableCopy);
+            };
+            var selector = '#copyProjectForm\\:newProjectName, #copyProjectForm\\:newBranchName, #copyProjectForm\\:cloneCheckbox';
+            $j(selector).off().on('change keyup keydown cut paste click', function () {
                 // setTimeout() is needed to correctly handle on paste / on cut events
                 setTimeout(function () {
-                    var value = $name.val().trim();
-                    $j('#copyProjectForm\\:copy').prop('disabled', value.length === 0);
+                    copyListener();
                 }, 0);
             });
             RichFaces.$("modalCopyProject").show();
             focusElement('copyProjectForm:newProjectName');
+        }
+
+        function updateStates() {
+            updateRevisionsCountState();
+            updateCloneProjectState();
         }
 
         function updateRevisionsCountState() {
@@ -129,6 +160,27 @@
                 $rowWarning.show();
             } else {
                 $rowWarning.hide();
+            }
+        }
+
+        function updateCloneProjectState() {
+            var $cloneCheckbox = $j('#copyProjectForm\\:cloneCheckbox');
+            if (!$cloneCheckbox.length) {
+                return;
+            }
+
+            var shouldClone = $cloneCheckbox.is(':checked');
+            var $newBranchName = $j('#copyProjectForm\\:newBranchName').closest('tr');
+            var $newBranchNameMessage = $j('#copyProjectForm\\:newBranchNameMessage').closest('tr');
+            var $newProject = $j('#copyProjectForm\\:newProject');
+            if (shouldClone) {
+                $newBranchName.show();
+                $newBranchNameMessage.show();
+                $newProject.hide();
+            } else {
+                $newBranchName.hide();
+                $newBranchNameMessage.hide();
+                $newProject.show();
             }
         }
 

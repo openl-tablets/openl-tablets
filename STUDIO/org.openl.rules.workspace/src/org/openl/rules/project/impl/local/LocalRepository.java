@@ -78,6 +78,7 @@ public class LocalRepository extends FileSystemRepository {
             private static final String MODIFIED_FILE_NAME = ".modified";
             private static final String VERSION_FILE_NAME = ".version";
             private static final String VERSION_PROPERTY = "version";
+            private static final String BRANCH_PROPERTY = "branch";
             private static final String AUTHOR_PROPERTY = "author";
             private static final String MODIFIED_AT_PROPERTY = "modified-at";
             private static final String SIZE_PROPERTY = "size";
@@ -161,6 +162,10 @@ public class LocalRepository extends FileSystemRepository {
                 if (fileData.getComment() != null) {
                     properties.setProperty(COMMENT_PROPERTY, fileData.getComment());
                 }
+                String branch = fileData.getBranch();
+                if (branch != null) {
+                    properties.setProperty(BRANCH_PROPERTY, branch);
+                }
                 FileOutputStream os = null;
                 try {
                     File file = propertiesEngine.createPropertiesFile(pathInProject, VERSION_FILE_NAME);
@@ -191,6 +196,7 @@ public class LocalRepository extends FileSystemRepository {
 
                     String name = projectFolder.getName();
                     String version = properties.getProperty(VERSION_PROPERTY);
+                    String branch = properties.getProperty(BRANCH_PROPERTY);
                     String author = properties.getProperty(AUTHOR_PROPERTY);
                     String modifiedAt = properties.getProperty(MODIFIED_AT_PROPERTY);
                     String size = properties.getProperty(SIZE_PROPERTY);
@@ -203,6 +209,7 @@ public class LocalRepository extends FileSystemRepository {
 
                     fileData.setName(name);
                     fileData.setVersion(version);
+                    fileData.setBranch(branch);
                     fileData.setAuthor(author);
                     fileData.setModifiedAt(new SimpleDateFormat(DATE_FORMAT).parse(modifiedAt));
                     fileData.setSize(Long.parseLong(size));

@@ -15,10 +15,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 import org.openl.rules.repository.RRepositoryFactory;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.Listener;
-import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -402,6 +399,11 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
         } catch (SdkClientException e) {
             throw new IOException(e);
         }
+    }
+
+    @Override
+    public Features supports() {
+        return new Features(this);
     }
 
     private void onModified() {
