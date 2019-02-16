@@ -15,10 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.rules.repository.RRepositoryFactory;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.Listener;
-import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.util.IOUtils;
@@ -307,6 +304,11 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             safeClose(statement);
             safeClose(connection);
         }
+    }
+
+    @Override
+    public Features supports() {
+        return new Features(this);
     }
 
     protected abstract Connection getConnection() throws SQLException;

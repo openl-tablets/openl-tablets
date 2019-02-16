@@ -55,6 +55,15 @@
   </h:panelGroup>
 
   <h:panelGroup rendered="#{node.type == 'project'}">
+    <h:panelGroup rendered="#{repositoryTreeState.supportsBranches}" style="margin-right: 4px">
+        <h:selectOneMenu value="#{repositoryTreeState.projectBranch}"
+                         disabled="#{repositoryTreeState.selectedProject.opened}"
+                         title="Branch: #{repositoryTreeState.projectBranch}">
+            <f:selectItems value="#{repositoryTreeState.projectBranches}"/>
+            <f:ajax event="change" immediate="true" render="projectTree nodeView"/>
+        </h:selectOneMenu>
+    </h:panelGroup>
+
     <h:panelGroup rendered="#{artefact.deleted}">
         <h:commandButton id="undeleteId1" rendered="#{repositoryTreeState.canUndelete}" value="Undelete" onclick="confirmUndeleteProject();return false;" title="#{undeleteMessage}"/>
         <h:commandButton id="eraseId1" rendered="#{repositoryTreeState.canErase}" value="Erase" onclick="confirmEraseProject();return false;" title="#{eraseMessage}"/>

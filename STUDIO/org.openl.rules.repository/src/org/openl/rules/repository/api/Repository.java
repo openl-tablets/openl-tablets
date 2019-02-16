@@ -170,4 +170,11 @@ public interface Repository {
      */
     FileData copyHistory(String srcName, FileData destData, String version) throws IOException;
 
+    /**
+     * Get the features supported by the repository.
+     * If specific feature is supported, repository instance can be casted to interface class that support that feature.
+     *
+     * @return Supported features
+     */
+    Features supports();
 }

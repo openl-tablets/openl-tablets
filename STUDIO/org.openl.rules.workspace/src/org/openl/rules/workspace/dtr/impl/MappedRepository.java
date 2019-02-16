@@ -1,4 +1,4 @@
-package org.openl.rules.repository;
+package org.openl.rules.workspace.dtr.impl;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -7,12 +7,25 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import org.openl.rules.repository.RRepositoryFactory;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
 
-public class MappedRepository implements FolderRepository, Closeable {
+public class MappedRepository implements FolderRepository, BranchRepository, RRepositoryFactory, Closeable {
+    private static final Pattern PROJECT_PROPERTY_PATTERN = Pattern.compile("(project\\.\\d+\\.)\\w+");
     private final Logger log = LoggerFactory.getLogger(MappedRepository.class);
 
     private FolderRepository delegate;
@@ -20,16 +33,27 @@ public class MappedRepository implements FolderRepository, Closeable {
     private volatile Map<String, String> externalToInternal = Collections.emptyMap();
 
     private ReadWriteLock mappingLock = new ReentrantReadWriteLock();
+    private RepositoryMode repositoryMode;
+    private String configFile;
+    private String baseFolder;
 
     public void setDelegate(FolderRepository delegate) {
         this.delegate = delegate;
     }
 
-    public FolderRepository getDelegate() {
-        return delegate;
+    public void setRepositoryMode(RepositoryMode repositoryMode) {
+        this.repositoryMode = repositoryMode;
     }
 
-    public void setExternalToInternal(Map<String, String> externalToInternal) {
+    public void setConfigFile(String configFile) {
+        this.configFile = configFile;
+    }
+
+    public void setBaseFolder(String baseFolder) {
+        this.baseFolder = baseFolder;
+    }
+
+    private void setExternalToInternal(Map<String, String> externalToInternal) {
         Lock lock = mappingLock.writeLock();
         try {
             lock.lock();
@@ -109,7 +133,18 @@ public class MappedRepository implements FolderRepository, Closeable {
 
     @Override
     public void setListener(final Listener callback) {
-        delegate.setListener(callback);
+        delegate.setListener(new Listener() {
+            @Override
+            public void onChange() {
+                try {
+                    initialize();
+                } catch (Exception e) {
+                    log.warn(e.getMessage(), e);
+                }
+
+                callback.onChange();
+            }
+        });
     }
 
     @Override
@@ -172,6 +207,49 @@ public class MappedRepository implements FolderRepository, Closeable {
     public FileData save(FileData folderData, Iterable<FileChange> files) throws IOException {
         Map<String, String> mapping = getMappingForRead();
         return toExternal(mapping, delegate.save(toInternal(mapping, folderData), toInternal(mapping, files)));
+    }
+
+    @Override
+    public Features supports() {
+        return delegate.supports();
+    }
+
+    @Override
+    public String getBranch() {
+        return ((BranchRepository) delegate).getBranch();
+    }
+
+    @Override
+    public void createBranch(String projectName, String branch) throws IOException {
+        ((BranchRepository) delegate).createBranch(projectName, branch);
+    }
+
+    @Override
+    public void deleteBranch(String projectName, String branch) throws IOException {
+        ((BranchRepository) delegate).deleteBranch(projectName, branch);
+    }
+
+    @Override
+    public List<String> getBranches(String projectName) {
+        return ((BranchRepository) delegate).getBranches(projectName);
+    }
+
+    @Override
+    public BranchRepository cloneFor(String branch) throws IOException {
+        BranchRepository delegateForBranch = ((BranchRepository) delegate).cloneFor(branch);
+
+        MappedRepository mappedRepository = new MappedRepository();
+        mappedRepository.setDelegate((FolderRepository) delegateForBranch);
+        mappedRepository.setRepositoryMode(repositoryMode);
+        mappedRepository.setConfigFile(configFile);
+        mappedRepository.setBaseFolder(baseFolder);
+        try {
+            mappedRepository.initialize();
+        } catch (RRepositoryException e) {
+            throw new IOException(e.getMessage(), e);
+        }
+
+        return mappedRepository;
     }
 
     private Map<String, String> getMappingForRead() {
@@ -271,5 +349,150 @@ public class MappedRepository implements FolderRepository, Closeable {
         // Shouldn't occur. If occurred, it's a bug.
         log.warn("Mapped folder for " + internalPath + " not found. Use it as is.");
         return internalPath;
+    }
+
+    @Override
+    public void initialize() throws RRepositoryException {
+        try {
+            Map<String, String> newMapping = readExternalToInternalMap(delegate,
+                    repositoryMode,
+                    configFile,
+                    baseFolder);
+
+            setExternalToInternal(newMapping);
+        } catch (IOException e) {
+            throw new RRepositoryException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Load mapping from properties file.
+     *
+     * @param delegate   original repository
+     * @param repositoryMode Repository mode: design or deploy config.
+     * @param configFile properties file
+     * @param baseFolder virtual base folder. WebStudio will think that projects can be found in this folder.
+     * @return loaded mapping
+     * @throws IOException if it was any error during operation
+     */
+    private Map<String, String>  readExternalToInternalMap(FolderRepository delegate,
+            RepositoryMode repositoryMode, String configFile,
+            String baseFolder) throws IOException {
+        baseFolder = StringUtils.isBlank(baseFolder) ? "" : baseFolder.endsWith("/") ?
+                                                            baseFolder : baseFolder + "/";
+        Map<String, String> externalToInternal = new HashMap<>();
+        FileItem fileItem = delegate.read(configFile);
+        if (fileItem == null) {
+            log.debug("Repository configuration file {} is not found", configFile);
+            return generateExternalToInternalMap(delegate, repositoryMode, baseFolder);
+        }
+
+        Properties prop;
+        try (InputStream stream = fileItem.getStream()) {
+            prop = new Properties();
+            prop.load(stream);
+        }
+
+        Set<String> processed = new HashSet<>();
+        for (Object key : prop.keySet()) {
+            String propertyName = ((String) key);
+
+            Matcher matcher = PROJECT_PROPERTY_PATTERN.matcher(propertyName);
+            if (matcher.matches()) {
+                String suffix = matcher.group(1);
+                if (processed.add(suffix)) {
+                    String name = prop.getProperty(suffix + "name");
+                    String path = prop.getProperty(suffix + "path");
+
+                    if (name != null && path != null) {
+                        if (path.endsWith("/")) {
+                            path = path.substring(0, path.length() - 1);
+                        }
+                        String externalPath = createUniquePath(externalToInternal, baseFolder + name);
+
+                        externalToInternal.put(externalPath, path);
+                    }
+                }
+            }
+        }
+
+        return externalToInternal;
+    }
+
+    private String createUniquePath(Map<String, String> externalToInternal, String externalPath) {
+        // If occasionally such project name exists already, add some suffix to it.
+        if (externalToInternal.containsKey(externalPath)) {
+            int i = 1;
+            String copy = externalPath + "." + i;
+            while (externalToInternal.containsKey(copy)) {
+                copy = externalPath + "." + (++i);
+            }
+            externalPath = copy;
+        }
+
+        return externalPath;
+    }
+
+    /**
+     * Detect existing projects and Deploy Configurations based on rules.xml and {@link ArtefactProperties#DESCRIPTORS_FILE}.
+     * If there are several projects with same name, suffix will be added to them
+     *
+     * @param delegate       repository to detect projects
+     * @param repositoryMode repository mode. If design repository, rules.xml will be searched, otherwise {@link ArtefactProperties#DESCRIPTORS_FILE}
+     * @param baseFolder     virtual base folder. WebStudio will think that projects can be found in this folder.
+     * @return generated mapping
+     */
+    private Map<String, String> generateExternalToInternalMap(FolderRepository delegate,
+            RepositoryMode repositoryMode,
+            String baseFolder) throws IOException {
+        Map<String, String> externalToInternal = new HashMap<>();
+        List<FileData> allFiles = delegate.list("");
+        for (FileData fileData : allFiles) {
+            String fullName = fileData.getName();
+            String[] nameParts = fullName.split("/");
+            if (nameParts.length == 0) {
+                continue;
+            }
+            String fileName = nameParts[nameParts.length - 1];
+            if (repositoryMode == RepositoryMode.DESIGN) {
+                if ("rules.xml".equals(fileName)) {
+                    FileItem fileItem = delegate.read(fullName);
+                    try (InputStream stream = fileItem.getStream()) {
+                        String projectName = getProjectName(stream);
+                        String externalPath = createUniquePath(externalToInternal, baseFolder + projectName);
+
+                        int cutSize = "rules.xml".length() + (nameParts.length > 1 ? 1 : 0); // Exclude "/" if exist
+                        String path = fullName.substring(0, fullName.length() - cutSize);
+                        externalToInternal.put(externalPath, path);
+                    }
+                }
+            } else if (repositoryMode == RepositoryMode.DEPLOY_CONFIG) {
+                if (ArtefactProperties.DESCRIPTORS_FILE.equals(fileName)) {
+                    if (nameParts.length < 2) {
+                        continue;
+                    }
+
+                    String deployConfigName = nameParts[nameParts.length - 2];
+                    String externalPath = createUniquePath(externalToInternal, baseFolder + deployConfigName);
+                    int cutSize = ArtefactProperties.DESCRIPTORS_FILE.length() + 1; // Exclude "/"
+                    String path = fullName.substring(0, fullName.length() - cutSize);
+                    externalToInternal.put(externalPath, path);
+                }
+            }
+        }
+
+        return externalToInternal;
+    }
+
+    private String getProjectName(InputStream inputStream) {
+        try {
+            InputSource inputSource = new InputSource(inputStream);
+            XPathFactory factory = XPathFactory.newInstance();
+            XPath xPath = factory.newXPath();
+            XPathExpression xPathExpression = xPath.compile("/project/name");
+            return xPathExpression.evaluate(inputSource);
+        } catch (XPathExpressionException e) {
+            return null;
+        }
     }
 }
