@@ -19,6 +19,7 @@ import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.gen.ByteCodeGenerationException;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.constants.ConstantOpenField;
@@ -183,6 +184,11 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     byte[] byteCode = createBeanForDatatype(fields);
                     beanClass = ClassUtils.defineClass(beanName, byteCode, classLoader);
                     log.debug("bean {} is using generated at runtime", beanName);
+                }  catch (ByteCodeGenerationException genE) {
+                    throw SyntaxNodeExceptionUtils.createError(
+                            String.format("Can't generate a Java bean for datatype %s. %s", beanName, genE.getMessage()),
+                            genE,
+                            tableSyntaxNode);
                 } catch (Exception e2) {
                     throw SyntaxNodeExceptionUtils.createError("Can't generate a Java bean for datatype " + beanName,
                         tableSyntaxNode);
