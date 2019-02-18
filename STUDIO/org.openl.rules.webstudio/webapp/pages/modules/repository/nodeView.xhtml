@@ -55,11 +55,12 @@
   </h:panelGroup>
 
   <h:panelGroup rendered="#{node.type == 'project'}">
-    <h:panelGroup rendered="#{repositoryTreeState.supportsBranches}" style="margin-right: 4px">
-        <h:selectOneMenu value="#{repositoryTreeState.projectBranch}"
-                         disabled="#{repositoryTreeState.selectedProject.opened}"
-                         title="Branch: #{repositoryTreeState.projectBranch}">
-            <f:selectItems value="#{repositoryTreeState.projectBranches}"/>
+    <h:panelGroup rendered="#{repositoryTreeController.supportsBranches}" style="margin-right: 4px">
+        <h:selectOneMenu value="#{repositoryTreeController.projectBranch}"
+                         title="Branch: #{repositoryTreeController.projectBranch}"
+                         id="branchSelector"
+                         onchange="return canOpenOtherBranch(this);">
+            <f:selectItems value="#{repositoryTreeController.projectBranches}"/>
             <f:ajax event="change" immediate="true" render="projectTree nodeView"/>
         </h:selectOneMenu>
     </h:panelGroup>
@@ -267,17 +268,36 @@
 
     <script>
         //<![CDATA[
+        var $selectedBranch;
+
         $j(function () {
             // If project is closed, open first tab
             if (#{not artefact.project.openedForEditing}) {
                 var $nodeTabPanel = RichFaces.$("nodeTabPanel");
                 $nodeTabPanel && $nodeTabPanel.switchToItem("@first");
             }
+
+            $selectedBranch = $j('#branchSelector option:selected');
         });
 
         function canOverwriteRevision() {
             var confirmNeeded = #{repositoryTreeState.confirmOverwriteNewerRevision};
             return !confirmNeeded || confirm("#{msg['ws.project.warning.version.old']}");
+        }
+
+        function canOpenOtherBranch(branchSelector) {
+            var confirmNeeded = #{artefact.opened};
+            if (!confirmNeeded) {
+                return true;
+            }
+
+            if (confirm("#{msg['ws.project.warning.other.branch']}")) {
+                $selectedBranch = $j(branchSelector).find("option:selected");
+                return true;
+            } else {
+                $selectedBranch.prop("selected", true);
+                return false;
+            }
         }
         //]]>
     </script>
