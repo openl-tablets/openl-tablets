@@ -1658,6 +1658,50 @@ public class RepositoryTreeController {
         }
     }
 
+    public boolean isSupportsBranches() {
+        try {
+            return repositoryTreeState.getSelectedProject().getDesignRepository().supports().branches();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public String getProjectBranch() {
+        try {
+            return repositoryTreeState.getSelectedProject().getBranch();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    public void setProjectBranch(String branch) {
+        try {
+            UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+            if (selectedProject.isOpened()) {
+                closeProjectAndReleaseResources(selectedProject);
+                selectedProject.setBranch(branch);
+                selectedProject.open();
+            } else {
+                selectedProject.setBranch(branch);
+            }
+            repositoryTreeState.refreshSelectedNode();
+            resetStudioModel();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    public List<SelectItem> getProjectBranches() {
+        UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+
+        Collection<String> branches = ((BranchRepository) userWorkspace.getDesignTimeRepository()
+                .getRepository()).getBranches(selectedProject.getName());
+
+        return Arrays.asList(FacesUtils.createSelectItems(branches));
+    }
+
     public TreeNode getSelectedNode() {
         TreeNode selectedNode = repositoryTreeState.getSelectedNode();
         return activeProjectNode != null && selectedNode instanceof TreeRepository ? activeProjectNode : selectedNode;
