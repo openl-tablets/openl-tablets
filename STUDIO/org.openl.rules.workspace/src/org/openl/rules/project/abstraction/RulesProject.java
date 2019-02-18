@@ -263,9 +263,26 @@ public class RulesProject extends UserWorkspaceProject {
         setRepository(localRepository);
         setFolderPath(localFolderName);
 
-        setHistoryVersion(version);
+        String designVersion = designProject.getFileData().getVersion();
+        setHistoryVersion(designVersion);
+        if (version == null) {
+            // version == 0 means that designVersion is last history version
+            setLastHistoryVersion(designVersion);
+        }
 
         resetLocalFileData();
+    }
+
+    @Override
+    public FileData getFileData() {
+        FileData fileData = super.getFileData();
+
+        Repository designRepo = getDesignRepository();
+        if (fileData != null && designRepo.supports().branches()) {
+            fileData.setBranch(((BranchRepository) designRepo).getBranch());
+        }
+
+        return fileData;
     }
 
     private void resetLocalFileData() {

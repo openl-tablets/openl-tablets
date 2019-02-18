@@ -340,7 +340,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     BranchRepository branchRepository = (BranchRepository) designRepository;
                     String repoBranch = branchRepository.getBranch();
                     String branch = local.getBranch();
-                    if (!branch.equals(repoBranch)) {
+                    if (branch == null) {
+                        log.warn("Unknown branch in repository supporting branches");
+                    } else if (!branch.equals(repoBranch)) {
                         // We are inside alternative branch. Must change design repo info.
                         try {
                             desRepo = branchRepository.cloneFor(branch);
