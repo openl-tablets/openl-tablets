@@ -286,7 +286,7 @@
         }
 
         function canOpenOtherBranch(branchSelector) {
-            var confirmNeeded = #{artefact.opened};
+            var confirmNeeded = #{node.type == 'project' and artefact.project.opened};
             if (!confirmNeeded) {
                 return true;
             }
