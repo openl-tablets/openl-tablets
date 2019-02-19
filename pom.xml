@@ -400,13 +400,6 @@
                         <version>0.8.3</version>
                         <configuration>
                             <propertyName>jacoco.argLine</propertyName>
-                            <includes>
-                                <include>org.openl.*</include>
-                            </includes>
-                            <excludes>
-                                <exclude>org.openl.generated.*</exclude>
-                                <exclude>org.openl.internal.*</exclude>
-                            </excludes>
                         </configuration>
                         <executions>
                             <execution>
@@ -420,6 +413,14 @@
                                 <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>prepare-agent-integration</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                    <goal>report-integration</goal>
                                 </goals>
                             </execution>
                         </executions>
