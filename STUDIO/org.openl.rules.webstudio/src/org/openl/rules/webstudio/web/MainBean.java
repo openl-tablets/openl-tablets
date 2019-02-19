@@ -56,10 +56,11 @@ public class MainBean {
     public void init() {
         WebStudio studio = WebStudioUtils.getWebStudio(true);
 
+        String branchName = FacesUtils.getRequestParameter("branch");
         String projectName = FacesUtils.getRequestParameter("project");
         String moduleName = FacesUtils.getRequestParameter("module");
 
-        studio.init(projectName, moduleName);
+        studio.init(branchName, projectName, moduleName);
     }
 
 
