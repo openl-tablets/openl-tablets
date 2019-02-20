@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.test;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.openl.base.INamedThing;
@@ -57,48 +58,51 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
         } else {
             LinkedHashMap<Object, ParameterDeclarationTreeNode> fields = new LinkedHashMap<>();
             IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+            Map<String, IOpenField> fieldMap;
             try {
-                for (Entry<String, IOpenField> fieldEntry : getType().getFields().entrySet()) {
-                    IOpenField field = fieldEntry.getValue();
-                    if (!field.isConst() && field.isReadable()) {
-                        String fieldName = fieldEntry.getKey();
-                        Object fieldValue;
-                        IOpenClass fieldType = field.getType();
-    
-                        try {
-                            fieldValue = field.get(getValue(), env);
-                        } catch (RuntimeException e) {
-                            // Usually this can happen only in cases when TestResult is a OpenLRuntimeException.
-                            // So this field usually doesn't have any useful information.
-                            // For example, it can be NotSupportedOperationException in not implemented getters.
-                            log.debug("Exception while trying to get a value of a field:", e);
-                            fieldType = JavaOpenClass.getOpenClass(String.class);
-                            fieldValue = "Exception while trying to get a value of a field: " + e;
-                        }
-    
-                        if (fieldType == JavaOpenClass.OBJECT && fieldValue != null) {
-                            fieldType = JavaOpenClass.getOpenClass(fieldValue.getClass());
-                        }
-    
-                        String reference = getReferenceNameToParent(fieldValue, this, "this");
-                        if (reference != null) {
-                            // Avoid infinite loop because of cyclic references
-                            fieldType = JavaOpenClass.getOpenClass(String.class);
-                            fieldValue = reference;
-                        }
-    
-                        ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(fieldType, fieldValue)
-                                .fieldNameInParent(fieldName)
-                                .parent(this)
-                                .hasExplainLinks(config.isHasExplainLinks())
-                                .requestId(config.getRequestId())
-                                .build();
-    
-                        fields.put(fieldName, ParameterTreeBuilder.createNode(childConfig));
-                    }
-                }
+                fieldMap = getType().getFields();
             } catch (LinkageError e) {
-                
+                return fields;
+            }
+
+            for (Entry<String, IOpenField> fieldEntry : fieldMap.entrySet()) {
+                IOpenField field = fieldEntry.getValue();
+                if (!field.isConst() && field.isReadable()) {
+                    String fieldName = fieldEntry.getKey();
+                    Object fieldValue;
+                    IOpenClass fieldType = field.getType();
+
+                    try {
+                        fieldValue = field.get(getValue(), env);
+                    } catch (RuntimeException e) {
+                        // Usually this can happen only in cases when TestResult is a OpenLRuntimeException.
+                        // So this field usually doesn't have any useful information.
+                        // For example, it can be NotSupportedOperationException in not implemented getters.
+                        log.debug("Exception while trying to get a value of a field:", e);
+                        fieldType = JavaOpenClass.getOpenClass(String.class);
+                        fieldValue = "Exception while trying to get a value of a field: " + e;
+                    }
+
+                    if (fieldType == JavaOpenClass.OBJECT && fieldValue != null) {
+                        fieldType = JavaOpenClass.getOpenClass(fieldValue.getClass());
+                    }
+
+                    String reference = getReferenceNameToParent(fieldValue, this, "this");
+                    if (reference != null) {
+                        // Avoid infinite loop because of cyclic references
+                        fieldType = JavaOpenClass.getOpenClass(String.class);
+                        fieldValue = reference;
+                    }
+
+                    ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(fieldType, fieldValue)
+                        .fieldNameInParent(fieldName)
+                        .parent(this)
+                        .hasExplainLinks(config.isHasExplainLinks())
+                        .requestId(config.getRequestId())
+                        .build();
+
+                    fields.put(fieldName, ParameterTreeBuilder.createNode(childConfig));
+                }
             }
             return fields;
         }
