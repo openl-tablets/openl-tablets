@@ -172,6 +172,8 @@ public final class TreeBuildTracer extends Tracer {
         if (node != null) {
             ITracerObject newNode = new RefToTracerNodeObject(node);
             doPut(newNode);
+        } else {
+            log.warn("Something is wrong. Could not restore tracer node from cache");
         }
     }
 }
