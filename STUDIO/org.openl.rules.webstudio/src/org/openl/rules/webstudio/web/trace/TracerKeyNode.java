@@ -38,7 +38,6 @@ public class TracerKeyNode<T, E extends IRuntimeEnv> {
     @Override
     public int hashCode() {
         int result = Objects.hash(executor, target, env, source);
-        result = 31 * result + Arrays.hashCode(params);
-        return result;
+        return 31 * result;
     }
 }
