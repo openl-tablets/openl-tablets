@@ -3,9 +3,11 @@
  */
 package org.openl.rules.webstudio.web.trace;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.dt.index.RangeIndex;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
 import org.openl.rules.webstudio.web.trace.node.SimpleTracerObject;
@@ -16,9 +18,6 @@ import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Yury Molchan
@@ -106,9 +105,6 @@ public final class TreeBuildTracer extends Tracer {
     protected <T> T doWrap(Object source, T target, Object[] args) {
         if (!isOn()) {
             return target;
-        } else if (target instanceof RangeIndex) {
-            new RangeIndexTracer((RangeIndex) target, (ICondition) args[0]);
-            // No return
         } else if (target instanceof IIntSelector) {
             return (T) new IntSelectorTracer((IIntSelector) target, (ICondition) args[0]);
         }
@@ -172,6 +168,8 @@ public final class TreeBuildTracer extends Tracer {
         if (node != null) {
             ITracerObject newNode = new RefToTracerNodeObject(node);
             doPut(newNode);
+        } else {
+            log.warn("Something is wrong. Could not restore tracer node from cache");
         }
     }
 }

@@ -8,6 +8,7 @@ import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.IBaseConditionEvaluator;
+import org.openl.rules.dt.index.IRuleIndex;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -16,18 +17,18 @@ import org.openl.vm.IRuntimeEnv;
  */
 public interface IConditionEvaluator extends IBaseConditionEvaluator {
 
-
-
     IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env);
 
-    ARuleIndex makeIndex(ICondition cond, IIntIterator it);
+    IRuleIndex makeIndex(ICondition cond, IIntIterator it);
 
     boolean isIndexed();
-    
+
     int countUniqueKeys(ICondition condition, IIntIterator it);
 
-    //Added to support dependent parameters
-	String getOptimizedSourceCode();
+    // Added to support dependent parameters
+    String getOptimizedSourceCode();
 
-	void setOptimizedSourceCode(String code);
+    void setOptimizedSourceCode(String code);
+
+    int getPriority();
 }

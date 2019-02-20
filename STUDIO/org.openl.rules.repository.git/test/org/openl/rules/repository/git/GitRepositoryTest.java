@@ -505,6 +505,14 @@ public class GitRepositoryTest {
         // successfully and repository must be switched to that branch.
         try (GitRepository repository = createRepository(remote, local)) {
             assertEquals(5, repository.list("").size());
+
+            // Check that changes are saved to correct branch.
+            String text = "New file";
+            FileChange change1 = new FileChange("rules/project-second/new/file1", IOUtils.toInputStream(text));
+            FileChange change2 = new FileChange("rules/project-second/new/file2", IOUtils.toInputStream(text));
+            FileData newProjectData = createFileData("rules/project-second/new", text);
+            repository.save(newProjectData, Arrays.asList(change1, change2));
+            assertEquals(7, repository.list("").size());
         }
     }
 

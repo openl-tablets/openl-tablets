@@ -2,15 +2,7 @@ package org.openl.rules.workspace.dtr.impl;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
@@ -19,20 +11,20 @@ import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.ResourceTransformer;
-import org.openl.rules.repository.MappedRepository;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.util.RuntimeExceptionWrapper;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.InputSource;
 
 /**
  * @author Aleh Bykhavets
@@ -47,8 +39,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private static final String PROJECTS_NESTED_FOLDER_CONFIG = "design-repository.folder-structure.configuration";
     private static final String DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE = "deploy-config-repository.folder-structure.flat";
     private static final String DEPLOY_CONFIG_NESTED_FOLDER_CONFIG = "deploy-config-repository.folder-structure.configuration";
-
-    private static final Pattern PROJECT_PROPERTY_PATTERN = Pattern.compile("(project\\.\\d+\\.)\\w+");
 
     private Repository repository;
     private Repository deployConfigRepository;
@@ -106,7 +96,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     }
                 }
             });
-        } catch (RRepositoryException | IOException e) {
+        } catch (RRepositoryException e) {
             log.error("Cannot init DTR! {}", e.getMessage(), e);
             throw new IllegalStateException("Can't initialize Design Repository.", e);
         }
@@ -119,25 +109,20 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     private Repository createRepo(RepositoryMode repositoryMode, boolean flatStructure, String folderConfig, String baseFolder) throws
-                                                                                                                          IOException,
-                                                                                                                          RRepositoryException {
+                                                                                                                                RRepositoryException {
         Repository repo = RepositoryFactoryInstatiator.newFactory(config, repositoryMode);
         if (!flatStructure && repo instanceof FolderRepository) {
             // Nested folder structure is supported for FolderRepository only
             FolderRepository delegate = (FolderRepository) repo;
             String configFile = config.get(folderConfig).toString();
-            Map<String, String> externalToInternal = readExternalToInternalMap(delegate,
-                    repositoryMode,
-                    configFile,
-                    baseFolder
-            );
 
-            final MappedRepository mappedRepository = new MappedRepository();
+            MappedRepository mappedRepository = new MappedRepository();
             mappedRepository.setDelegate(delegate);
-            mappedRepository.setExternalToInternal(externalToInternal);
+            mappedRepository.setRepositoryMode(repositoryMode);
+            mappedRepository.setConfigFile(configFile);
+            mappedRepository.setBaseFolder(baseFolder);
+            mappedRepository.initialize();
             repo = mappedRepository;
-
-            addListener(new MappedRepositoryListener(mappedRepository, repositoryMode, configFile, baseFolder));
         }
 
         return repo;
@@ -336,137 +321,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return rulesLocation;
     }
 
-    /**
-     * Load mapping from properties file.
-     *
-     * @param delegate   original repository
-     * @param repositoryMode Repository mode: design or deploy config.
-     * @param configFile properties file
-     * @param baseFolder virtual base folder. WebStudio will think that projects can be found in this folder.
-     * @return loaded mapping
-     * @throws IOException if it was any error during operation
-     */
-    private Map<String, String>  readExternalToInternalMap(FolderRepository delegate,
-            RepositoryMode repositoryMode, String configFile,
-            String baseFolder) throws IOException {
-        baseFolder = StringUtils.isBlank(baseFolder) ? "" : baseFolder.endsWith("/") ?
-                                                                baseFolder : baseFolder + "/";
-        Map<String, String> externalToInternal = new HashMap<>();
-        FileItem fileItem = delegate.read(configFile);
-        if (fileItem == null) {
-            log.debug("Repository configuration file {} is not found", configFile);
-            return generateExternalToInternalMap(delegate, repositoryMode, baseFolder);
-        }
-
-        Properties prop;
-        try (InputStream stream = fileItem.getStream()) {
-            prop = new Properties();
-            prop.load(stream);
-        }
-
-        Set<String> processed = new HashSet<>();
-        for (Object key : prop.keySet()) {
-            String propertyName = ((String) key);
-
-            Matcher matcher = PROJECT_PROPERTY_PATTERN.matcher(propertyName);
-            if (matcher.matches()) {
-                String suffix = matcher.group(1);
-                if (processed.add(suffix)) {
-                    String name = prop.getProperty(suffix + "name");
-                    String path = prop.getProperty(suffix + "path");
-
-                    if (name != null && path != null) {
-                        if (path.endsWith("/")) {
-                            path = path.substring(0, path.length() - 1);
-                        }
-                        String externalPath = createUniquePath(externalToInternal, baseFolder + name);
-
-                        externalToInternal.put(externalPath, path);
-                    }
-                }
-            }
-        }
-
-        return externalToInternal;
-    }
-
-    private String createUniquePath(Map<String, String> externalToInternal, String externalPath) {
-        // If occasionally such project name exists already, add some suffix to it.
-        if (externalToInternal.containsKey(externalPath)) {
-            int i = 1;
-            String copy = externalPath + "." + i;
-            while (externalToInternal.containsKey(copy)) {
-                copy = externalPath + "." + (++i);
-            }
-            externalPath = copy;
-        }
-
-        return externalPath;
-    }
-
-    /**
-     * Detect existing projects and Deploy Configurations based on rules.xml and {@link ArtefactProperties#DESCRIPTORS_FILE}.
-     * If there are several projects with same name, suffix will be added to them
-     *
-     * @param delegate       repository to detect projects
-     * @param repositoryMode repository mode. If design repository, rules.xml will be searched, otherwise {@link ArtefactProperties#DESCRIPTORS_FILE}
-     * @param baseFolder     virtual base folder. WebStudio will think that projects can be found in this folder.
-     * @return generated mapping
-     */
-    private Map<String, String> generateExternalToInternalMap(FolderRepository delegate,
-            RepositoryMode repositoryMode,
-            String baseFolder) throws IOException {
-        Map<String, String> externalToInternal = new HashMap<>();
-        List<FileData> allFiles = delegate.list("");
-        for (FileData fileData : allFiles) {
-            String fullName = fileData.getName();
-            String[] nameParts = fullName.split("/");
-            if (nameParts.length == 0) {
-                continue;
-            }
-            String fileName = nameParts[nameParts.length - 1];
-            if (repositoryMode == RepositoryMode.DESIGN) {
-                if ("rules.xml".equals(fileName)) {
-                    FileItem fileItem = delegate.read(fullName);
-                    try (InputStream stream = fileItem.getStream()) {
-                        String projectName = getProjectName(stream);
-                        String externalPath = createUniquePath(externalToInternal, baseFolder + projectName);
-
-                        int cutSize = "rules.xml".length() + (nameParts.length > 1 ? 1 : 0); // Exclude "/" if exist
-                        String path = fullName.substring(0, fullName.length() - cutSize);
-                        externalToInternal.put(externalPath, path);
-                    }
-                }
-            } else if (repositoryMode == RepositoryMode.DEPLOY_CONFIG) {
-                if (ArtefactProperties.DESCRIPTORS_FILE.equals(fileName)) {
-                    if (nameParts.length < 2) {
-                        continue;
-                    }
-
-                    String deployConfigName = nameParts[nameParts.length - 2];
-                    String externalPath = createUniquePath(externalToInternal, baseFolder + deployConfigName);
-                    int cutSize = ArtefactProperties.DESCRIPTORS_FILE.length() + 1; // Exclude "/"
-                    String path = fullName.substring(0, fullName.length() - cutSize);
-                    externalToInternal.put(externalPath, path);
-                }
-            }
-        }
-
-        return externalToInternal;
-    }
-
-    private String getProjectName(InputStream inputStream) {
-        try {
-            InputSource inputSource = new InputSource(inputStream);
-            XPathFactory factory = XPathFactory.newInstance();
-            XPath xPath = factory.newXPath();
-            XPathExpression xPathExpression = xPath.compile("/project/name");
-            return xPathExpression.evaluate(inputSource);
-        } catch (XPathExpressionException e) {
-            return null;
-        }
-    }
-
     private static class RepositoryListener implements Listener {
         private final List<DesignTimeRepositoryListener> listeners;
 
@@ -478,54 +332,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         public void onChange() {
             for (DesignTimeRepositoryListener listener : listeners) {
                 listener.onRepositoryModified();
-            }
-        }
-    }
-
-    private class MappedRepositoryListener implements DesignTimeRepositoryListener {
-        private final MappedRepository mappedRepository;
-        private final RepositoryMode repositoryMode;
-        private final String configFile;
-        private final String baseFolder;
-        private Date lastModified;
-
-        public MappedRepositoryListener(MappedRepository mappedRepository,
-                RepositoryMode repositoryMode,
-                String configFile,
-                String baseFolder) {
-            this.mappedRepository = mappedRepository;
-            this.repositoryMode = repositoryMode;
-            this.configFile = configFile;
-            this.baseFolder = baseFolder;
-        }
-
-        @Override
-        public void onRepositoryModified() {
-            try {
-                FolderRepository delegate = mappedRepository.getDelegate();
-                FileData data = delegate.check(configFile);
-                if (data == null) {
-                    log.debug("Repository configuration file {} is not found", configFile);
-                    Map<String, String> mapping = generateExternalToInternalMap(delegate,
-                            repositoryMode,
-                            baseFolder);
-                    mappedRepository.setExternalToInternal(mapping);
-                    return;
-                }
-
-                // No need to reload mapping from config if it's not modified.
-                Date modifiedAt = data.getModifiedAt();
-                if (lastModified == null || modifiedAt.after(lastModified)) {
-                    lastModified = modifiedAt;
-
-                    Map<String, String> mapping = readExternalToInternalMap(delegate,
-                            repositoryMode,
-                            configFile, baseFolder
-                    );
-                    mappedRepository.setExternalToInternal(mapping);
-                }
-            } catch (Exception e) {
-                log.warn(e.getMessage(), e);
             }
         }
     }

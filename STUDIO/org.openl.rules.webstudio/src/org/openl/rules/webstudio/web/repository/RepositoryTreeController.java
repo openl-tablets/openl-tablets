@@ -37,7 +37,9 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.filter.IFilter;
@@ -852,7 +854,13 @@ public class RepositoryTreeController {
         try {
             projectDescriptorResolver.deleteRevisionsFromCache(project);
             synchronized (userWorkspace) {
-                project.erase(userWorkspace.getUser());
+                Repository mainRepo = userWorkspace.getDesignTimeRepository().getRepository();
+                if (mainRepo.supports().branches() && !((BranchRepository) mainRepo).getBranch().equals(project.getBranch())) {
+                    // Delete secondary branch
+                    ((BranchRepository) mainRepo).deleteBranch(project.getName(), project.getBranch());
+                } else {
+                    project.erase(userWorkspace.getUser());
+                }
             }
             deleteProjectHistory(project.getName());
             userWorkspace.refresh();
@@ -1648,6 +1656,50 @@ public class RepositoryTreeController {
             log.error("Cannot delete rules project '{}'.", projectName, e);
             FacesUtils.addErrorMessage("Failed to delete rules project.", e.getMessage());
         }
+    }
+
+    public boolean isSupportsBranches() {
+        try {
+            return repositoryTreeState.getSelectedProject().getDesignRepository().supports().branches();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public String getProjectBranch() {
+        try {
+            return repositoryTreeState.getSelectedProject().getBranch();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    public void setProjectBranch(String branch) {
+        try {
+            UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+            if (selectedProject.isOpened()) {
+                closeProjectAndReleaseResources(selectedProject);
+                selectedProject.setBranch(branch);
+                selectedProject.open();
+            } else {
+                selectedProject.setBranch(branch);
+            }
+            repositoryTreeState.refreshSelectedNode();
+            resetStudioModel();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    public List<SelectItem> getProjectBranches() {
+        UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+
+        Collection<String> branches = ((BranchRepository) userWorkspace.getDesignTimeRepository()
+                .getRepository()).getBranches(selectedProject.getName());
+
+        return Arrays.asList(FacesUtils.createSelectItems(branches));
     }
 
     public TreeNode getSelectedNode() {

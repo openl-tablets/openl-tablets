@@ -28,7 +28,12 @@ class LazyFileData extends FileData {
 
     private boolean loaded = false;
 
-    public LazyFileData(String fullPath, GitRepository repo, ObjectId fromCommit, ObjectId fileId) {
+    public LazyFileData(String branch,
+            String fullPath,
+            GitRepository repo,
+            ObjectId fromCommit,
+            ObjectId fileId) {
+        setBranch(branch);
         setName(fullPath);
 
         this.fullPath = fullPath;
@@ -37,7 +42,12 @@ class LazyFileData extends FileData {
         this.fileId = fileId;
     }
 
-    public LazyFileData(String fullPath, GitRepository repo, RevCommit fileCommit, ObjectId fileId) {
+    public LazyFileData(String branch,
+            String fullPath,
+            GitRepository repo,
+            RevCommit fileCommit,
+            ObjectId fileId) {
+        setBranch(branch);
         setName(fullPath);
 
         this.fullPath = fullPath;

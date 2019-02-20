@@ -10,8 +10,8 @@ import java.util.Date;
 import java.util.Properties;
 
 import org.openl.rules.common.LockInfo;
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.LockEngine;
+import org.openl.rules.project.abstraction.LockException;
 import org.openl.util.IOUtils;
 
 public class LockEngineImpl implements LockEngine {
@@ -39,15 +39,20 @@ public class LockEngineImpl implements LockEngine {
     }
 
     @Override
-    public void lock(String projectName, String userName) throws ProjectException {
+    public synchronized boolean tryLock(String projectName, String userName) throws LockException {
+        File file = new File(locksRoot, projectName);
+        LockInfo lockInfo = getLockInfo(file);
+        if (lockInfo.isLocked()) {
+            return userName.equals(lockInfo.getLockedBy().getUserName());
+        }
         Properties properties = new Properties();
         properties.setProperty(USER_NAME, userName);
         properties.setProperty(DATE, new SimpleDateFormat(DATE_FORMAT).format(new Date()));
 
-        if (!locksRoot.mkdirs() && !locksRoot.exists()) {
+        File folder = file.getParentFile();
+        if (folder != null && !folder.mkdirs() && !folder.exists()) {
             throw new IllegalStateException("Can't create a folder for locks");
         }
-        File file = new File(locksRoot, projectName);
 
         FileOutputStream os = null;
         try {
@@ -55,26 +60,50 @@ public class LockEngineImpl implements LockEngine {
             os = new FileOutputStream(file);
             properties.store(os, "Lock info");
         } catch (IOException e) {
-            throw new ProjectException("Can't lock the project " + projectName, e);
+            throw new LockException("Can't lock the project " + projectName, e);
         } finally {
             IOUtils.closeQuietly(os);
         }
+        return true;
 
     }
 
     @Override
-    public void unlock(String projectName) {
+    public synchronized void unlock(String projectName, String userName) {
+        File file = new File(locksRoot, projectName);
+        unlock(userName, file);
+    }
+
+    private void unlock(String userName, File file) {
+        if (file.exists() && file.isFile()) {
+            LockInfo lockInfo = getLockInfo(file);
+            if (lockInfo.isLocked() && userName.equals(lockInfo.getLockedBy().getUserName())) {
+                file.delete();
+            }
+        } else if (file.exists() && file.isDirectory()) {
+            File[] files = file.listFiles();
+            for (File f : files) {
+                unlock(userName, f);
+            }
+        }
+    }
+
+    @Override
+    public synchronized void unlock(String projectName) {
         File file = new File(locksRoot, projectName);
         file.delete();
     }
 
     @Override
-    public LockInfo getLockInfo(String projectName) {
+    public synchronized LockInfo getLockInfo(String projectName) {
         File file = new File(locksRoot, projectName);
-        if (!file.exists()) {
+        return getLockInfo(file);
+    }
+
+    private LockInfo getLockInfo(File file) {
+        if (!file.exists() || !file.isFile()) {
             return new SimpleLockInfo(false, null, null);
         }
-
         Properties properties = new Properties();
         FileInputStream is = null;
         try {

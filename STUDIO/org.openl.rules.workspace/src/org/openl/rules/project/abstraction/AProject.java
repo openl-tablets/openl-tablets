@@ -56,6 +56,9 @@ public class AProject extends AProjectFolder {
                     } else {
                         fileData = repository.checkHistory(getFolderPath(), getHistoryVersion());
                     }
+                    if (fileData != null && repository.supports().branches()) {
+                        fileData.setBranch(((BranchRepository) repository).getBranch());
+                    }
                 } catch (IOException ex) {
                     throw new IllegalStateException(ex);
                 }
@@ -316,7 +319,7 @@ public class AProject extends AProjectFolder {
             if (projectFrom.isFolder()) {
                 super.update(projectFrom, user);
             } else {
-                unpack(projectFrom, repositoryTo, getFolderPath(), user);
+                setFileData(unpack(projectFrom, repositoryTo, getFolderPath(), user));
             }
         } else {
             if (!projectFrom.isFolder()) {
@@ -391,7 +394,7 @@ public class AProject extends AProjectFolder {
         }
     }
 
-    private void unpack(AProject projectFrom,
+    private FileData unpack(AProject projectFrom,
             Repository repositoryTo,
             String folderTo,
             CommonUser user) throws ProjectException {
@@ -405,12 +408,12 @@ public class AProject extends AProjectFolder {
                 fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
             }
             if (fileItem == null) {
-                return;
+                return getFileData();
             }
             stream = new ZipInputStream(fileItem.getStream());
             FileData fileData = getFileData();
             fileData.setAuthor(user == null ? null : user.getUserName());
-            ((FolderRepository) repositoryTo).save(fileData, new FileChangesFromZip(stream, folderTo));
+            return ((FolderRepository) repositoryTo).save(fileData, new FileChangesFromZip(stream, folderTo));
         } catch (IOException e) {
             throw new ProjectException("Can't update: " + e.getMessage(), e);
         } finally {

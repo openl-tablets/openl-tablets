@@ -195,4 +195,8 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
         return ed;
     }
 
+    @Override
+    public int getPriority() {
+        return 0;
+    }
 }

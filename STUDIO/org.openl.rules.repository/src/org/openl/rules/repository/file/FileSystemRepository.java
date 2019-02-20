@@ -185,6 +185,11 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
         throw new FileNotFoundException("File versions are not supported.");
     }
 
+    @Override
+    public Features supports() {
+        return new Features(this);
+    }
+
     private void listFiles(Collection<FileData> files, File directory) {
         File[] found = directory.listFiles();
 

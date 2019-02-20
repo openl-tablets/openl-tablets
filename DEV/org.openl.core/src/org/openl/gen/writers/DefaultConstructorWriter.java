@@ -9,16 +9,19 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
+import org.openl.gen.ByteCodeGenerationException;
 import org.openl.gen.FieldDescription;
 
 public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
 
     private static final Method STR_CONSTR = Method.getMethod("void <init> (java.lang.String)");
+    private static final Class<?>[] STR_CONSTR_PARAMS = { String.class };
     private static final Method DEF_CONSTR = Method.getMethod("void <init> ()");
-    
+    private static final Class<?>[] DEF_CONSTR_PARAMS = {};
+
     public static final Map<String, Class<?>> DEFAULT_COLLECTIONS_INTERFACES;
     private static final Map<String, Class<?>> boxed = new HashMap<String, Class<?>>(8);
-    
+
     static {
         boxed.put(Byte.class.getName(), byte.class);
         boxed.put(Short.class.getName(), short.class);
@@ -36,12 +39,12 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
         defaultInterfaceCollections.put(SortedSet.class.getName(), TreeSet.class);
         defaultInterfaceCollections.put(Map.class.getName(), HashMap.class);
         defaultInterfaceCollections.put(SortedMap.class.getName(), TreeMap.class);
-        
+
         DEFAULT_COLLECTIONS_INTERFACES = Collections.unmodifiableMap(defaultInterfaceCollections);
     }
 
     /**
-     * 
+     *
      * @param beanNameWithPackage name of the class being generated with package,
      *            symbol '/' is used as separator<br>
      *            (e.g. <code>my/test/TestClass</code>)
@@ -121,7 +124,7 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
         String className = type.getClassName();
         if (DefaultValue.DEFAULT.equals(value)) {
             if (DEFAULT_COLLECTIONS_INTERFACES.containsKey(className)) {
-                // Collection, Map, SortedMap, List, Set 
+                // Collection, Map, SortedMap, List, Set
                 Class<?> defaultImpl = DEFAULT_COLLECTIONS_INTERFACES.get(className);
                 Type defaultImplType = Type.getType(defaultImpl);
                 mg.newInstance(defaultImplType);
@@ -129,6 +132,7 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
                 mg.invokeConstructor(defaultImplType, DEF_CONSTR);
             } else {
                 // new SomeType()
+                validateConstructor(type.getClassName(), DEF_CONSTR_PARAMS);
                 mg.newInstance(type);
                 mg.dup();
                 mg.invokeConstructor(type, DEF_CONSTR);
@@ -156,10 +160,32 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
             mg.getStatic(enumType, ((Enum)value).name(), enumType);
         } else {
             // new SomeType("value")
+            validateConstructor(type.getClassName(), STR_CONSTR_PARAMS);
             mg.newInstance(type);
             mg.dup();
             mg.push(String.valueOf(value));
             mg.invokeConstructor(type, STR_CONSTR);
+        }
+    }
+
+    private static void validateConstructor(String className, Class<?>[] parameterTypes) {
+        Class<?> clazz;
+        try {
+            clazz = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            //it's OK. Maybe happen when datatype class wasn't generated yet
+            return;
+        }
+
+        try {
+            clazz.getDeclaredConstructor(parameterTypes);
+        } catch (NoSuchMethodException e) {
+            if (parameterTypes.length == 0) {
+                throw new ByteCodeGenerationException("There is no default constructor for type: " + className);
+            } else {
+                throw new ByteCodeGenerationException(String.format("%s doesn't have a constructor with parameters: %s",
+                        className, Arrays.toString(parameterTypes)));
+            }
         }
     }
 

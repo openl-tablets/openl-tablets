@@ -61,4 +61,8 @@ public class DefaultConditionEvaluator implements IConditionEvaluator {
 	public void setOptimizedSourceCode(String code) {
 	}
 
+    @Override
+    public int getPriority() {
+        return 100;
+    }
 }

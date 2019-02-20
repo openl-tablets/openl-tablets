@@ -176,4 +176,8 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
         return ed;
     }
 
+    @Override
+    public int getPriority() {
+        return 0;
+    }
 }

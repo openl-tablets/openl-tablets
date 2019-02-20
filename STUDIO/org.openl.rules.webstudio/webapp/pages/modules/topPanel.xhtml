@@ -59,6 +59,27 @@
                 </ul>
             </span>
             </h:panelGroup>
+            <h:panelGroup rendered="#{!empty rProject.name and empty module.name and studio.supportsBranches}">
+            <span class="delimeter"></span>
+            <span class="dropdown" id="breadcrumbs-module">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#" title="Branch: #{studio.projectBranch}">
+                    #{studio.projectBranch}
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                    <li class="nav-header">Current Branch</li>
+                    <li><a href="##{jsffn:encodeURL(project.name)}/[#{jsffn:encodeURL(studio.projectBranch)}]">#{studio.projectBranch}</a></li>
+                    <h:panelGroup rendered="#{studio.projectBranches.size() > 1}">
+                    <li class="divider"></li>
+                    <li class="nav-header">All Branches</li>
+                    <ui:repeat value="#{studio.projectBranches}" var="branch">
+                        <h:panelGroup rendered="#{branch != studio.projectBranch}">
+                        <li><a href="##{jsffn:encodeURL(project.name)}/[#{jsffn:encodeURL(branch)}]" onclick="return canOpenOtherBranch();">#{branch}</a></li>
+                        </h:panelGroup>
+                    </ui:repeat>
+                    </h:panelGroup>
+                </ul>
+            </span>
+            </h:panelGroup>
             <h:panelGroup rendered="#{!empty module.name}">
             <span class="delimeter"></span>
             <span class="dropdown" id="breadcrumbs-module">
@@ -263,6 +284,10 @@
         function canOverwriteRevision() {
             var confirmNeeded = #{studio.model.confirmOverwriteNewerRevision};
             return !confirmNeeded || confirm("#{msg['ws.project.warning.version.old']}");
+        }
+
+        function canOpenOtherBranch() {
+            return confirm("#{msg['ws.project.warning.other.branch']}");
         }
 
         //]]>

@@ -17,9 +17,11 @@ import org.openl.meta.FloatValue;
 import org.openl.meta.IntValue;
 import org.openl.meta.LongValue;
 import org.openl.meta.ShortValue;
+import org.openl.rules.dt.algorithm.evaluator.AConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
-import org.openl.rules.dt.algorithm.evaluator.RangeIndexedEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.SingleRangeIndexEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.ITypeAdaptor;
@@ -70,11 +72,11 @@ public class DependentParametersOptimizedAlgorithm {
 
                 if (evaluatorFactory instanceof OneParameterEqualsFactory) {
                     return getOneParamEqualsEvaluator(evaluatorFactory, openCast);
-                /*} else {
-                    return getOneParamRangeEvaluator(evaluatorFactory, expressionType, openCast);*/
+                } else {
+                    return getOneParamRangeEvaluator(evaluatorFactory, expressionType, openCast);
                 }
 
-            /*case 2:
+            case 2:
 
                 IOpenClass paramType0 = params[0].getType();
                 IOpenClass paramType1 = params[1].getType();
@@ -89,7 +91,7 @@ public class DependentParametersOptimizedAlgorithm {
                     }
                     return getTwoParamRangeEvaluator(evaluatorFactory, expressionType, cast);
                 }
-                break;*/
+                break;
         }
 
         return null;
@@ -106,8 +108,7 @@ public class DependentParametersOptimizedAlgorithm {
             return null;
 
         @SuppressWarnings("unchecked")
-        RangeIndexedEvaluator rix = new RangeIndexedEvaluator((IRangeAdaptor<Object, ? extends Comparable<Object>>) adaptor,
-            2);
+        CombinedRangeIndexEvaluator rix = new CombinedRangeIndexEvaluator((IRangeAdaptor<Object, ? extends Comparable<Object>>) adaptor, 2);
 
         rix.setOptimizedSourceCode(evaluatorFactory.getExpression());
 
@@ -133,11 +134,8 @@ public class DependentParametersOptimizedAlgorithm {
             return null;
 
         @SuppressWarnings("unchecked")
-        RangeIndexedEvaluator rix = new RangeIndexedEvaluator((IRangeAdaptor<Object, ? extends Comparable<Object>>) adaptor,
-            1);
-
+        AConditionEvaluator rix = new SingleRangeIndexEvaluator((IRangeAdaptor<Object, ? extends Comparable<Object>>) adaptor);
         rix.setOptimizedSourceCode(evaluatorFactory.getExpression());
-
         return rix;
     }
 
@@ -436,15 +434,15 @@ public class DependentParametersOptimizedAlgorithm {
                         parsedValues[2],
                         condition,
                         signature);
-/*                } else {
+                } else {
                     OneParameterRangeFactory oneParameterRangefactory = makeOneParameterRangeFactory(parsedValues[0],
                         parsedValues[1],
                         parsedValues[2],
                         condition,
                         signature);
-                    return oneParameterRangefactory;*/
+                    return oneParameterRangefactory;
                 }
-/*            case 2:
+            case 2:
                 String[][] parsedValuesTwoParameters = twoParameterExpressionParse(condition);
                 if (parsedValuesTwoParameters == null)
                     return null;
@@ -455,7 +453,7 @@ public class DependentParametersOptimizedAlgorithm {
                     parsedValuesTwoParameters[1][1],
                     parsedValuesTwoParameters[1][2],
                     condition,
-                    signature);*/
+                    signature);
             default:
                 return null;
         }
@@ -693,10 +691,6 @@ public class DependentParametersOptimizedAlgorithm {
                 throw new IllegalArgumentException("parameterDeclaration");
             }
             this.oneParameterEqualsFactory = oneParameterEqualsFactory;
-        }
-
-        public OneParameterEqualsIndexedEvaluator(OneParameterEqualsFactory oneParameterEqualsFactory) {
-            this(oneParameterEqualsFactory, null);
         }
 
         @Override

@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 
 /**
  * A set of utils to work with general IO streams.
@@ -132,7 +133,7 @@ public class IOUtils {
     public static String toStringAndClose(InputStream input) throws IOException {
         try {
             StringWriter writer = new StringWriter();
-            Reader reader = new InputStreamReader(input, StringUtils.UTF_8);
+            Reader reader = new InputStreamReader(input, StandardCharsets.UTF_8);
             copy(reader, writer);
             return writer.toString();
         } finally {
