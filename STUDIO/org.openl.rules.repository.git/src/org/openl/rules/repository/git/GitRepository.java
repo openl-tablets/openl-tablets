@@ -853,7 +853,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             Collection<String> projectBranches = branches.get(projectName);
             if (projectBranches != null) {
                 projectBranches.remove(branch);
-                pushBranch(new RefSpec().setSource(null).setDestination(branch));
+                pushBranch(new RefSpec().setSource(null).setDestination(Constants.R_HEADS + branch));
 
                 saveBranches();
             }
