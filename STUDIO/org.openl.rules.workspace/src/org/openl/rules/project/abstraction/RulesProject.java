@@ -9,6 +9,7 @@ import java.util.List;
 import org.openl.rules.common.*;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -17,6 +18,7 @@ import org.openl.util.RuntimeExceptionWrapper;
 public class RulesProject extends UserWorkspaceProject {
     private LocalRepository localRepository;
     private String localFolderName;
+
     private Repository designRepository;
     private String designFolderName;
     private final LockEngine lockEngine;
@@ -70,12 +72,8 @@ public class RulesProject extends UserWorkspaceProject {
         String version = designProject.getFileData().getVersion();
         setLastHistoryVersion(version);
         setHistoryVersion(version);
-        if (!isRepositoryOnly()) {
-            localRepository.getProjectState(localFolderName).setProjectVersion(null);
-        }
-        clearModifyStatus();
+        resetLocalFileData();
         unlock();
-        refresh();
     }
 
     @Override
@@ -94,9 +92,7 @@ public class RulesProject extends UserWorkspaceProject {
             if (localFolderName != null) {
                 deleteFromLocalRepository();
             }
-            if (isLockedByUser(user)) {
-                unlock();
-            }
+            unlock();
             if (!isLocalOnly()) {
                 setRepository(designRepository);
                 setFolderPath(designFolderName);
@@ -154,26 +150,20 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public LockInfo getLockInfo() {
-        synchronized (lockEngine) {
-            return lockEngine.getLockInfo(getName());
-        }
+        return lockEngine.getLockInfo(getName());
     }
 
     @Override
     public void lock() throws ProjectException {
-        synchronized (lockEngine) {
             // No need to lock local only projects. Other users don't see it.
             if (!isLocalOnly()) {
-                lockEngine.lock(getName(), getUser().getUserName());
+                lockEngine.tryLock(getName(), getUser().getUserName());
             }
-        }
     }
 
     @Override
     public void unlock() {
-        synchronized (lockEngine) {
-            lockEngine.unlock(getName());
-        }
+        lockEngine.unlock(getName(), getUser().getUserName());
     }
 
     /**
@@ -184,20 +174,19 @@ public class RulesProject extends UserWorkspaceProject {
      * @throws ProjectException if can't lock the project
      */
     public boolean tryLock() throws ProjectException {
-        synchronized (lockEngine) {
             if (isLocalOnly()) {
                 // No need to lock local only projects. Other users don't see it.
                 return true;
             }
-            LockInfo lockInfo = getLockInfo();
-            if (lockInfo.isLocked()) {
-                return isLockedByMe(lockInfo);
-            }
+            return lockEngine.tryLock(getName(), getUser().getUserName());
+    }
 
-            lockEngine.lock(getName(), getUser().getUserName());
-
+    public boolean tryLock(String module) throws ProjectException {
+        if (isLocalOnly()) {
+            // No need to lock local only projects. Other users don't see it.
             return true;
         }
+        return lockEngine.tryLock(module, getUser().getUserName());
     }
 
     public String getLockedUserName() {
@@ -274,14 +263,37 @@ public class RulesProject extends UserWorkspaceProject {
         setRepository(localRepository);
         setFolderPath(localFolderName);
 
-        setHistoryVersion(version);
+        String designVersion = designProject.getFileData().getVersion();
+        setHistoryVersion(designVersion);
+        if (version == null) {
+            // version == 0 means that designVersion is last history version
+            setLastHistoryVersion(designVersion);
+        }
 
+        resetLocalFileData();
+    }
+
+    @Override
+    public FileData getFileData() {
+        FileData fileData = super.getFileData();
+
+        Repository designRepo = getDesignRepository();
+        if (fileData != null && designRepo.supports().branches()) {
+            fileData.setBranch(((BranchRepository) designRepo).getBranch());
+        }
+
+        return fileData;
+    }
+
+    private void resetLocalFileData() {
         refresh();
 
-        localRepository.getProjectState(localFolderName).clearModifyStatus();
-        if (!isLastVersion()) {
-            localRepository.getProjectState(localFolderName).saveFileData(getFileData());
+        FileData fileData = getFileData();
+        if (designRepository.supports().branches()) {
+            fileData.setBranch(((BranchRepository) designRepository).getBranch());
         }
+        localRepository.getProjectState(localFolderName).clearModifyStatus();
+        localRepository.getProjectState(localFolderName).saveFileData(fileData);
     }
 
     // Is Opened for Editing by me? -- in LW + locked by me
@@ -319,5 +331,19 @@ public class RulesProject extends UserWorkspaceProject {
 
     public String getDesignFolderName() {
         return designFolderName;
+    }
+
+    @Override
+    protected void setDesignRepository(Repository repository) {
+        this.designRepository = repository;
+
+        if (!isOpened()) {
+            setRepository(repository);
+        }
+    }
+
+    @Override
+    public Repository getDesignRepository() {
+        return designRepository;
     }
 }

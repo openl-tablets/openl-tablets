@@ -16,6 +16,7 @@
     </bean>
     <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
         <security:filter-chain-map request-matcher="ant">
+            <security:filter-chain pattern="/favicon.ico" filters="none" />
             <security:filter-chain pattern="/css/**" filters="none" />
             <security:filter-chain pattern="/images/**" filters="none" />
             <security:filter-chain pattern="/javascript/**" filters="none" />

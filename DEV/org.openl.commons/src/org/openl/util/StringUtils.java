@@ -1,6 +1,6 @@
 package org.openl.util;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,7 +12,6 @@ import java.util.List;
  */
 public class StringUtils {
 
-    public static final Charset UTF_8 = Charset.forName("UTF-8");
     public static final String[] EMPTY_STRING_ARRAY = new String[0];
     public static final String EMPTY = "";
 
@@ -24,7 +23,7 @@ public class StringUtils {
      * @return an array of encoded chars
      */
     public static byte[] toBytes(CharSequence input) {
-        return input.toString().getBytes(UTF_8);
+        return input.toString().getBytes(StandardCharsets.UTF_8);
     }
 
     /**
@@ -108,7 +107,7 @@ public class StringUtils {
         if (len == 0) {
             return EMPTY_STRING_ARRAY;
         }
-        final List<String> list = new ArrayList<String>();
+        final List<String> list = new ArrayList<>();
         int i = 0, start = 0, end = 0;
         boolean match = false;
         while (i < len) {

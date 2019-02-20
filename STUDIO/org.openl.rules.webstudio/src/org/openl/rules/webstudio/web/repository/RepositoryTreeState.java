@@ -583,4 +583,5 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         UserWorkspaceProject project = getSelectedProject();
         return project != null && project.isOpenedOtherVersion() && !project.isModified();
     }
+
 }

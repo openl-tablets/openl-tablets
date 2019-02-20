@@ -101,6 +101,10 @@ public class RepositoryService {
                 return Response.status(Status.FORBIDDEN).entity("Doesn't have VIEW privilege").build();
             }
             FileData fileData = getRepository().check(getFileName(name));
+            if (fileData == null) {
+                throw new FileNotFoundException("Project '" + name + "' not found.");
+            }
+
             return getProject(name, fileData.getVersion());
         } catch (IOException ex) {
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();

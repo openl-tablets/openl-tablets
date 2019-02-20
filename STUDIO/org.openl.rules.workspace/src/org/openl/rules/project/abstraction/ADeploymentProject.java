@@ -204,26 +204,20 @@ public class ADeploymentProject extends UserWorkspaceProject {
         if (lockEngine == null) {
             return LockInfoImpl.NO_LOCK;
         }
-        synchronized (lockEngine) {
-            return lockEngine.getLockInfo(getName());
-        }
+        return lockEngine.getLockInfo(getName());
     }
 
     @Override
     public void lock() throws ProjectException {
         if (lockEngine != null) {
-            synchronized (lockEngine) {
-                lockEngine.lock(getName(), getUser().getUserName());
-            }
+            lockEngine.tryLock(getName(), getUser().getUserName());
         }
     }
 
     @Override
     public void unlock() {
         if (lockEngine != null) {
-            synchronized (lockEngine) {
-                lockEngine.unlock(getName());
-            }
+            lockEngine.unlock(getName());
         }
     }
 

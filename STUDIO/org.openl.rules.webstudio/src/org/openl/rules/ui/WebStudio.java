@@ -5,11 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
@@ -42,6 +38,7 @@ import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.tree.view.*;
@@ -444,9 +441,9 @@ public class WebStudio {
         manualCompile = true;
     }
 
-    public synchronized void init(String projectName, String moduleName) {
+    public synchronized void init(String branchName, String projectName, String moduleName) {
         try {
-            log.debug("Project='{}'  Module='{}'", projectName, moduleName);
+            log.debug("Branch='{}'  Project='{}'  Module='{}'", branchName, projectName, moduleName);
             ProjectDescriptor project = getProjectByName(projectName);
             if (StringUtils.isNotBlank(projectName) && project == null) {
                 // Not empty project name is requested but it's not found
@@ -464,6 +461,9 @@ public class WebStudio {
             boolean moduleChanged = currentProject != project || currentModule != module;
             currentModule = module;
             currentProject = project;
+            if (branchName != null) {
+                setProjectBranch(branchName);
+            }
             if (module != null && (needCompile && (isAutoCompile() || manualCompile) || forcedCompile || moduleChanged)) {
                 if (forcedCompile) {
                     reset(ReloadType.FORCED);
@@ -1092,5 +1092,57 @@ public class WebStudio {
     public WebStudioLinkBuilder getLinkBuilder() {
         return linkBuilder;
     }
+
+    public boolean isSupportsBranches() {
+        try {
+            RulesProject project = getCurrentProject();
+            return project != null && project.getDesignRepository().supports().branches();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public String getProjectBranch() {
+        try {
+            RulesProject project = getCurrentProject();
+            return project == null ? null : project.getBranch();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    private void setProjectBranch(String branch) {
+        try {
+            RulesProject project = getCurrentProject();
+            if (isSupportsBranches() && project != null) {
+                String previousBranch = project.getBranch();
+                if (!branch.equals(previousBranch)) {
+                    getModel().clearModuleInfo();
+                    project.close();
+                    project.setBranch(branch);
+                    project.open();
+                    resetProjects();
+                }
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    public List<String> getProjectBranches() {
+        try {
+            if (!isSupportsBranches()) {
+                return Collections.emptyList();
+            }
+            RulesProject project = getCurrentProject();
+            return ((BranchRepository) getCurrentProject().getDesignRepository()).getBranches(project.getName());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return Collections.emptyList();
+        }
+    }
+
 
 }

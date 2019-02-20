@@ -16,6 +16,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
+    <link href="#{contextPath}/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
     <link href="#{contextPath}/css/bootstrap.min.css" rel="stylesheet" />
     <link href="#{contextPath}/css/common.css" rel="stylesheet" />
     <link href="#{contextPath}/css/layout/main.css" rel="stylesheet" />
@@ -642,6 +643,16 @@
                     determineIfModuleChanged(project, "");
                     render(url, { project: project }, toReload, toOpen, openProjectNode);
                 });
+                // Project with branch page
+                crossroads.addRoute("{project}/[{branch}]", function(reload, project, branch) {
+                    var url = "project.xhtml?name=" + project;
+                    setModule(project);
+                    var leftReload = reload == "true" || !$("#projects-tree").length;
+                    var toReload = { top: 1, left: leftReload, bottom: 0, right: 0 };
+                    var toOpen = { bottom: 0, right: 0 };
+                    determineIfModuleChanged(project, "");
+                    render(url, { branch: branch, project: project }, toReload, toOpen, openProjectNode);
+                });
                 // Module page
                 crossroads.addRoute("{project}/{module}", function(reload, project, module) {
                     var url = "module.xhtml?project=" + project + "&name=" + module;
@@ -802,6 +813,9 @@
                     initUrl += ("?project=" + init.project);
                     if (init.module) {
                         initUrl += "&module=" + init.module;
+                    }
+                    if (init.branch) {
+                        initUrl += "&branch=" + init.branch;
                     }
                 }
 

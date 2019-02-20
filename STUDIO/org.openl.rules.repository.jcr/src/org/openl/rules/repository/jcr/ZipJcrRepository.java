@@ -38,14 +38,7 @@ import org.openl.rules.common.ValueType;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonUserImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.repository.api.ArtefactAPI;
-import org.openl.rules.repository.api.ArtefactProperties;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderAPI;
-import org.openl.rules.repository.api.Listener;
-import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.api.ResourceAPI;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
@@ -384,6 +377,11 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
                 IOUtils.closeQuietly(fileItem.getStream());
             }
         }
+    }
+
+    @Override
+    public Features supports() {
+        return new Features(this);
     }
 
     private CommonUser getUser() {

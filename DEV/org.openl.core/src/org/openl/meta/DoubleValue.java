@@ -775,13 +775,15 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
 
     public DoubleValue(String valueString) {
         super();
-        value = Double.parseDouble(valueString);
+        this.value = Double.parseDouble(valueString);
+        this.hashCode = ((Double) this.value).hashCode();
     }
 
     /** Function constructor **/
     public DoubleValue(DoubleValue result, NumberOperations function, DoubleValue... params) {
         super(function, params);
         this.value = result.doubleValue();
+        this.hashCode = ((Double) this.value).hashCode();
     }
 
     @Override

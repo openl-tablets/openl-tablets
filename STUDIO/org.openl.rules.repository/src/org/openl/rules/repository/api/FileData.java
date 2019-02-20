@@ -18,6 +18,7 @@ public class FileData {
     private Date modifiedAt;
     private String version;
     private boolean deleted;
+    private String branch;
 
     /**
      * The full path of the file from the root folder. The path MUST not start
@@ -118,5 +119,19 @@ public class FileData {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    /**
+     * Branch where the file can be found.
+     * If repository doesn't support branching, it will be null.
+     *
+     * @return branch name
+     */
+    public String getBranch() {
+        return branch;
+    }
+
+    public void setBranch(String branch) {
+        this.branch = branch;
     }
 }

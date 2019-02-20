@@ -1,8 +1,11 @@
 package org.openl.rules.project.abstraction;
 
+import java.io.IOException;
+
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -90,4 +93,31 @@ public abstract class UserWorkspaceProject extends AProject {
         }
     }
 
+    protected void setDesignRepository(Repository repository) {
+        setRepository(repository);
+    }
+
+    public Repository getDesignRepository() {
+        return getRepository();
+    }
+
+    public void setBranch(String newBranch) throws IOException {
+        BranchRepository branchRepository = (BranchRepository) getRepository();
+        String currentBranch = branchRepository.getBranch();
+        if (!newBranch.equals(currentBranch)) {
+            setDesignRepository(branchRepository.cloneFor(newBranch));
+            setHistoryVersion(null);
+            refresh();
+            getFileData(); // Reinitialize file data
+        }
+    }
+
+    public String getBranch() {
+        Repository designRepository = getDesignRepository();
+        if (designRepository.supports().branches()) {
+            return ((BranchRepository) designRepository).getBranch();
+        }
+
+        return null;
+    }
 }

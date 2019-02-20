@@ -1,5 +1,6 @@
 package org.openl.rules.workspace.uw.impl;
 
+import java.io.IOException;
 import java.util.*;
 
 import org.openl.rules.common.ArtefactPath;
@@ -7,6 +8,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.abstraction.LockEngine;
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -314,7 +316,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             userRulesProjects.clear();
 
             // add new
-            Repository designRepository = designTimeRepository.getRepository();
+            final Repository designRepository = designTimeRepository.getRepository();
             LocalRepository localRepository = localWorkspace.getRepository();
             for (AProject rp : designTimeRepository.getProjects()) {
                 String name = rp.getName();
@@ -330,7 +332,31 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 }
 
                 FileData local = lp == null ? null : lp.getFileData();
-                userRulesProjects.put(name, new RulesProject(this, localRepository, local, designRepository, rp.getFileData(), projectsLockEngine));
+
+                Repository desRepo = designRepository;
+                FileData designFileData = rp.getFileData();
+
+                if (designRepository.supports().branches() && local != null) {
+                    BranchRepository branchRepository = (BranchRepository) designRepository;
+                    String repoBranch = branchRepository.getBranch();
+                    String branch = local.getBranch();
+                    if (branch == null) {
+                        log.warn("Unknown branch in repository supporting branches");
+                    } else if (!branch.equals(repoBranch)) {
+                        // We are inside alternative branch. Must change design repo info.
+                        try {
+                            desRepo = branchRepository.cloneFor(branch);
+                            // Other branch - other version of file data
+                            if (designFileData != null) {
+                                designFileData = desRepo.check(designFileData.getName());
+                            }
+                        } catch (IOException e) {
+                            throw new IllegalStateException(e);
+                        }
+                    }
+                }
+
+                userRulesProjects.put(name, new RulesProject(this, localRepository, local, desRepo, designFileData, projectsLockEngine));
             }
 
             // LocalProjects that hasn't corresponding project in
