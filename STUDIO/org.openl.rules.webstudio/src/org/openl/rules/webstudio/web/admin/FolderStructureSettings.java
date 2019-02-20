@@ -57,4 +57,8 @@ public class FolderStructureSettings {
     public void setFolderConfigFile(String folderConfigFile) {
         configManager.setProperty(FOLDER_CONFIG_FILE, folderConfigFile);
     }
+
+    public FolderStructureValidators getValidators() {
+        return new FolderStructureValidators();
+    }
 }
