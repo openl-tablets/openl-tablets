@@ -3,7 +3,6 @@ package org.openl.rules.project.model;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -109,27 +108,6 @@ public class ProjectDescriptor {
 
     public void setClasspath(List<PathEntry> classpath) {
         this.classpath = classpath;
-    }
-
-    /**
-     * @param reload Boolean flag that indicates whether classloader must be
-     *            reloaded or used existing.
-     * @return ClassLoader for this project.
-     * @deprecated Must be removed to separate class. Project descriptor is just
-     *             description of project and must be simple java bean.
-     */
-    public ClassLoader getClassLoader(boolean reload) {
-        if (classLoader == null || reload) {
-            OpenClassUtil.releaseClassLoader(classLoader);
-            URL[] urls = new URL[0];
-            // temporary commented. as we extends the strategies classloaders
-            // with this URLS.
-            // it is done to ensure that wrapper class will be loaded with
-            // strategy classloader.
-            // URL[] urls = getClassPathUrls();
-            classLoader = new URLClassLoader(urls, this.getClass().getClassLoader());
-        }
-        return classLoader;
     }
 
     public URL[] getClassPathUrls() {

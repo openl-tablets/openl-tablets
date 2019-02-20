@@ -134,8 +134,8 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         if (classLoaders.get(project.getName()) != null) {
             return classLoaders.get(project.getName());
         }
-        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(project.getClassPathUrls(), rootClassLoader);
-        classLoader.addClassLoader(project.getClassLoader(false));
+        ClassLoader parentClassLoader = rootClassLoader == null ? this.getClass().getClassLoader() : rootClassLoader;  
+        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(project.getClassPathUrls(), parentClassLoader);
         if (project.getDependencies() != null) {
             for (ProjectDependencyDescriptor projectDependencyDescriptor : project.getDependencies()) {
                 if (getProjectDescriptors() != null) {
@@ -220,6 +220,7 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
             OpenClassUtil.releaseClassLoader(classLoader);
         }
         classLoaders.clear();
+        
         for (IDependencyLoader dependencyLoader : getDependencyLoaders()) {
             ((SimpleProjectDependencyLoader) dependencyLoader).reset();
         }

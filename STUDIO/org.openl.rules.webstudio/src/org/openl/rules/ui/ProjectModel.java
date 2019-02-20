@@ -992,7 +992,9 @@ public class ProjectModel {
         
 
         clearModuleResources(); // prevent memory leak
-
+        if (openedInSingleModuleMode) {
+            OpenClassUtil.release(compiledOpenClass);
+        }
         compiledOpenClass = null;
         projectRoot = null;
         xlsModuleSyntaxNode = null;
@@ -1025,13 +1027,6 @@ public class ProjectModel {
         LazyWorkbookLoaderFactory factory = new LazyWorkbookLoaderFactory(canUnload);
 
         try {
-            if (reloadType == ReloadType.FORCED) {
-                // FIXME Why we create classloader in singleModuleMode and immediately clear it by invoking forcedReset() ?
-                instantiationStrategy.forcedReset();
-            } else if (reloadType != ReloadType.NO) {
-                instantiationStrategy.reset();
-            }
-
             WorkbookLoaders.setCurrentFactory(factory);
 
             // Find all dependent XlsModuleSyntaxNode-s
