@@ -6,10 +6,13 @@
 >
 
     <ui:param name="settings" value="#{repository.settings}" />
+    <ui:param name="validators" value="#{settings.validators}" />
 
     <h:panelGrid id="#{prependId}repoSettings" columns="2" columnClasses="titleColumn">
         <h:outputText value="#{repository.type == 'local' ? 'Directory' : 'URL'}:" styleClass="required" />
-        <h:inputText value="#{settings.path}" styleClass="pathInput" disabled="#{settings.repositoryPathSystem}" />
+        <h:inputText value="#{settings.path}" styleClass="pathInput" disabled="#{settings.repositoryPathSystem}" id="#{prependId}uri" validator="#{validators.url}"/>
+        <h:outputText value=""/>
+        <h:message for="#{prependId}uri" styleClass="error"/>
         <h:outputLabel value="Secure connection:" for="#{prependId}repositorySecureConnection" />
         <h:selectBooleanCheckbox id="#{prependId}repositorySecureConnection" value="#{settings.secure}"
                                  onmousedown="if($j(this).attr('checked')){if(!window.confirm('Login and password will be deleted. Do you want to continue?')) {return false;}} return this.click()">

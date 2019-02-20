@@ -4,6 +4,8 @@
                 xmlns:f="http://java.sun.com/jsf/core"
 >
 
+    <ui:param name="validators" value="#{settings.validators}" />
+
     <h:panelGrid columns="2" columnClasses="titleColumn">
         <h:outputLabel value="Flat folder structure:" for="#{prependId}flatFolderStructure"/>
         <h:selectBooleanCheckbox id="#{prependId}flatFolderStructure" value="#{settings.flatFolderStructure}"
@@ -14,9 +16,13 @@
 
     <h:panelGroup id="#{prependId}flatStructureParameters">
         <h:panelGrid columns="2" columnClasses="titleColumn" rendered="#{settings.flatFolderStructure}">
-            <h:outputText value="Path in repository:" styleClass="required" required="true"/>
+            <h:outputText value="Path in repository:" required="true"/>
             <h:inputText value="#{settings.basePath}"
+                         id="#{prependId}pathInRepository"
+                         validator="#{validators.pathInRepository}"
                          title="Base path in repository where everything will be saved. Must end with '/'."/>
+            <h:outputText value=""/>
+            <h:message for="#{prependId}pathInRepository" styleClass="error"/>
         </h:panelGrid>
     </h:panelGroup>
 
@@ -24,7 +30,11 @@
         <h:panelGrid columns="2" columnClasses="titleColumn" rendered="#{not settings.flatFolderStructure}">
             <h:outputText value="Folder config file:" styleClass="required" required="true"/>
             <h:inputText value="#{settings.folderConfigFile}"
+                         id="#{prependId}folderConfigFile"
+                         validator="#{validators.folderConfigFile}"
                          title="The path for folder configuration file."/>
+            <h:outputText value=""/>
+            <h:message for="#{prependId}folderConfigFile" styleClass="error"/>
         </h:panelGrid>
     </h:panelGroup>
 

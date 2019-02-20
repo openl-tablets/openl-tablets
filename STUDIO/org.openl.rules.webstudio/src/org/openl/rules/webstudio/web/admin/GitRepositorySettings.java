@@ -187,4 +187,9 @@ public class GitRepositorySettings extends RepositorySettings {
             setSettingsPath(otherSettings.getSettingsPath());
         }
     }
+
+    @Override
+    public RepositorySettingsValidators getValidators() {
+        return new GitRepositorySettingsValidators();
+    }
 }

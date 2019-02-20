@@ -5,18 +5,27 @@
 >
 
     <ui:param name="settings" value="#{repository.settings}" />
+    <ui:param name="validators" value="#{settings.validators}" />
 
     <h:panelGrid columns="2" columnClasses="titleColumn">
         <h:outputText value="URL:" styleClass="required"/>
-        <h:inputText value="#{settings.uri}" styleClass="pathInput"/>
+        <h:inputText value="#{settings.uri}" styleClass="pathInput" id="#{prependId}gitUri" validator="#{validators.url}"/>
+        <h:outputText value=""/>
+        <h:message for="#{prependId}gitUri" styleClass="error"/>
         <h:outputText value="Login:"/>
         <h:inputText value="#{settings.login}"/>
         <h:outputText value="Password:"/>
         <h:inputSecret value="#{settings.password}" redisplay="true"/>
         <h:outputText value="Local path:" styleClass="required"/>
-        <h:inputText value="#{settings.localRepositoryPath}" title="Local path for Git repository."/>
+        <h:inputText value="#{settings.localRepositoryPath}" title="Local path for Git repository."
+                     id="#{prependId}gitLocalRepositoryPath" validator="#{validators.localRepositoryPath}"/>
+        <h:outputText value=""/>
+        <h:message for="#{prependId}gitLocalRepositoryPath" styleClass="error"/>
         <h:outputText value="Branch:" styleClass="required"/>
-        <h:inputText value="#{settings.branch}" title="The branch where the changes will be comitted."/>
+        <h:inputText value="#{settings.branch}" title="The branch where the changes will be comitted."
+                     id="#{prependId}gitBranch" validator="#{validators.branch}"/>
+        <h:outputText value=""/>
+        <h:message for="#{prependId}gitBranch" styleClass="error"/>
         <h:outputText value="Listener period (sec):"/>
         <h:inputText value="#{settings.listenerTimerPeriod}" id="#{prependId}gitListenerTimerPeriod"
                      title="Repository changes check interval. Must be greater than 0."
