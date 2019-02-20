@@ -133,10 +133,6 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     public void forcedReset() {
         reset();
         classLoader = null;
-        // renew all classloaders
-        for (Module module : getModules()) {
-            module.getProject().getClassLoader(true);
-        }
     }
 
     /**

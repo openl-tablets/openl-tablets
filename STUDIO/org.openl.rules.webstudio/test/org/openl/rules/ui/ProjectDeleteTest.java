@@ -70,6 +70,7 @@ public class ProjectDeleteTest {
     @Test
     public void testUseMultiModuleThenDelete() throws Exception {
         pm.setModuleInfo(getModules().get(0));
+        pm.useSingleModuleMode();
         pm.useMultiModuleMode();
         pm.clearModuleInfo();
 

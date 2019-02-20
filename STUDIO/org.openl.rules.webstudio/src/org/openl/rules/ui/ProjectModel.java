@@ -29,8 +29,12 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
-import org.openl.rules.lang.xls.*;
+import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
+import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.XlsWorkbookListener;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule.ModificationChecker;
+import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.load.LazyWorkbookLoaderFactory;
 import org.openl.rules.lang.xls.load.WorkbookLoaders;
@@ -266,7 +270,6 @@ public class ProjectModel {
     }
 
     private TableSyntaxNode findNode(XlsUrlParser p1) {
-//        TableSyntaxNode[] nodes = getTableSyntaxNodes();
         TableSyntaxNode[] nodes = getAllTableSyntaxNodes();
 
         for (int i = 0; i < nodes.length; i++) {
@@ -965,13 +968,13 @@ public class ProjectModel {
 
         Module previousModuleInfo = this.moduleInfo;
         
-            // Current module changed - mark the previous one as read only
-            XlsModuleSyntaxNode moduleSyntaxNode = xlsModuleSyntaxNode;
-            if (moduleSyntaxNode != null) {
-                for (WorkbookSyntaxNode workbookSyntaxNode : moduleSyntaxNode.getWorkbookSyntaxNodes()) {
-                    workbookSyntaxNode.getWorkbookSourceCodeModule().getWorkbookLoader().setCanUnload(true);
-                }
+        // Current module changed - mark the previous one as read only
+        XlsModuleSyntaxNode moduleSyntaxNode = xlsModuleSyntaxNode;
+        if (moduleSyntaxNode != null) {
+            for (WorkbookSyntaxNode workbookSyntaxNode : moduleSyntaxNode.getWorkbookSyntaxNodes()) {
+                workbookSyntaxNode.getWorkbookSourceCodeModule().getWorkbookLoader().setCanUnload(true);
             }
+        }
         if (reloadType != ReloadType.NO) {
             uriTableCache.clear();
             idTableCache.clear();
@@ -995,7 +998,9 @@ public class ProjectModel {
         
 
         clearModuleResources(); // prevent memory leak
-
+        if (openedInSingleModuleMode) {
+            OpenClassUtil.release(compiledOpenClass);
+        }
         compiledOpenClass = null;
         projectRoot = null;
         xlsModuleSyntaxNode = null;
@@ -1025,13 +1030,6 @@ public class ProjectModel {
         LazyWorkbookLoaderFactory factory = new LazyWorkbookLoaderFactory();
 
         try {
-            if (reloadType == ReloadType.FORCED) {
-                // FIXME Why we create classloader in singleModuleMode and immediately clear it by invoking forcedReset() ?
-                instantiationStrategy.forcedReset();
-            } else if (reloadType != ReloadType.NO) {
-                instantiationStrategy.reset();
-            }
-
             WorkbookLoaders.setCurrentFactory(factory);
             factory.disallowUnload();
 
