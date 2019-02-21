@@ -18,7 +18,7 @@ import java.util.zip.ZipOutputStream;
  *
  * @author Yury Molchan
  */
-class ZipCompressor implements FileVisitor<Path> {
+final class ZipCompressor implements FileVisitor<Path> {
     private static final int BUFFER_SIZE = 64 * 1024;
     private static final Pattern BACK_SLASH = Pattern.compile("\\\\");
 
@@ -80,8 +80,8 @@ class ZipCompressor implements FileVisitor<Path> {
     public FileVisitResult postVisitDirectory(Path file, IOException exc) throws IOException {
         if (emptyDir) {
             emptyDir = false;
-            String relativePath = dir.relativize(file).toString();
-            String zipPath = BACK_SLASH.matcher(relativePath).replaceAll("/") + "/";
+            String relativePath = dir.relativize(file).toString() + File.separatorChar;
+            String zipPath = BACK_SLASH.matcher(relativePath).replaceAll("/");
             ZipEntry entry = new ZipEntry(zipPath);
             zos.putNextEntry(entry);
         }
