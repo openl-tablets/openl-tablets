@@ -119,6 +119,9 @@ public class ProjectDescriptorManager {
         check(descriptor.getProjectFolder(), files, pathPattern.trim(), descriptor.getProjectFolder());
 
         for (File file : files) {
+            if (isTemporaryFile(file)) {
+                continue;
+            }
             Module m = new Module();
             m.setProject(descriptor);
             m.setRulesRootPath(new PathEntry(file.getCanonicalPath()));
@@ -130,6 +133,20 @@ public class ProjectDescriptorManager {
             modules.add(m);
         }
         return modules;
+    }
+
+    private boolean isTemporaryFile(File file) {
+        if (file.getName().startsWith("~$") && file.isHidden()) {
+            OutputStream os = null;
+            try {
+                os = new FileOutputStream(file);
+            } catch (FileNotFoundException unused) {
+                return true;
+            } finally {
+                IOUtils.closeQuietly(os);
+            }
+        }
+        return false;
     }
 
     private boolean containsInProcessedModules(Collection<Module> modules, Module m, File projectRoot) {
