@@ -1,16 +1,18 @@
 package org.openl.rules.convertor;
 
+import org.openl.meta.BigDecimalValue;
+
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
-class String2BigDecimalConvertor extends String2NumberConverter<BigDecimal> {
+class String2BigDecimalValueConverter extends String2NumberConverter<BigDecimalValue> {
 
     @Override
-    BigDecimal convert(Number number, String data) {
+    BigDecimalValue convert(Number number, String data) {
         if (number == null) {
             return null;
         }
-        return ((BigDecimal) number).stripTrailingZeros();
+        return new BigDecimalValue(((BigDecimal) number).stripTrailingZeros());
     }
 
     @Override
