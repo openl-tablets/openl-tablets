@@ -8,6 +8,7 @@ package org.openl.rules.convertor;
 
 import org.openl.binding.IBindingContext;
 import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.meta.BigDecimalValue;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
@@ -65,6 +66,7 @@ public class String2DataConvertorFactory {
         convertors.put(DoubleRange.class, new String2DoubleRangeConvertor());
         convertors.put(BigInteger.class, new String2BigIntegerConvertor());
         convertors.put(BigDecimal.class, new String2BigDecimalConvertor());
+        convertors.put(BigDecimalValue.class, new String2BigDecimalValueConverter());
         Lock writeLock = convertorsLock.writeLock();
         try {
             writeLock.lock();

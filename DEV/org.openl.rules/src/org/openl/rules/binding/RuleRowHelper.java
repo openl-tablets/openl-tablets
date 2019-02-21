@@ -279,9 +279,7 @@ public class RuleRowHelper {
                 .isAssignableFrom(expectedType)) {
                 // Convert String -> BigDecimal instead of double ->BigDecimal,
                 // otherwise we lose in precision (part of EPBDS-5879)
-                IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType,
-                    String.class);
-                res = objectConvertor.convert(cell.getStringValue(), bindingContext);
+                res = String2DataConvertorFactory.parse(expectedType, cell.getStringValue(), bindingContext);
             } else {
                 double value = cell.getNativeNumber();
                 IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType,

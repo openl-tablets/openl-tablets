@@ -7,8 +7,10 @@ class String2BigDecimalConvertor extends String2NumberConverter<BigDecimal> {
 
     @Override
     BigDecimal convert(Number number, String data) {
-
-        return (BigDecimal) number;
+        if (number == null) {
+            return null;
+        }
+        return ((BigDecimal) number).stripTrailingZeros();
     }
 
     @Override
