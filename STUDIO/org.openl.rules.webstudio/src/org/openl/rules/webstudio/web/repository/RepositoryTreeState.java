@@ -127,6 +127,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                                                                 rootCause.getMessage());
             log.error(message, e);
             FacesUtils.addErrorMessage(message);
+            setSelectedNode(rulesRepository);
         }
     }
 
