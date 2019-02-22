@@ -35,7 +35,7 @@ public class GitRepositoryTest {
 
     @Before
     public void setUp() throws GitAPIException, IOException, RRepositoryException {
-        root = Files.createTempDirectory(null).toFile();
+        root = Files.createTempDirectory("openl").toFile();
 
         File remote = new File(root, "remote");
         File local = new File(root, "local");
