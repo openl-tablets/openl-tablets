@@ -1660,7 +1660,7 @@ public class RepositoryTreeController {
 
     public boolean isSupportsBranches() {
         try {
-            return repositoryTreeState.getSelectedProject().getDesignRepository().supports().branches();
+            return userWorkspace.getDesignTimeRepository().getRepository().supports().branches();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
