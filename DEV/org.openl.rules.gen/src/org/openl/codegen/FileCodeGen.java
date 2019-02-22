@@ -2,17 +2,17 @@ package org.openl.codegen;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Deque;
 import java.util.LinkedList;
 
 /**
- * Generates file in outFileLocation by inserting code into predefined places in
- * input file inFileLocation. Insertion places are defined by INSERT_TAG. The
- * insertion logic is handled by ICodeGenAdaptor, there could be multiple
+ * Generates file in outFileLocation by inserting code into predefined places in input file inFileLocation. Insertion
+ * places are defined by INSERT_TAG. The insertion logic is handled by ICodeGenAdaptor, there could be multiple
  * INSERT_TAGS in the code, calling class can redefine INSERT_TAG value
  * 
  * @author snshor Created Jul 27, 2009
@@ -21,8 +21,8 @@ import java.util.LinkedList;
 
 public class FileCodeGen {
 
-    public static final String DEFAULT_INSERT_TAG = "<<< INSERT";
-    public static final String DEFAULT_END_INSERT_TAG = "<<< END INSERT";
+    private static final String DEFAULT_INSERT_TAG = "<<< INSERT";
+    private static final String DEFAULT_END_INSERT_TAG = "<<< END INSERT";
 
     private String inFileLocation;
     private String outFileLocation;
@@ -35,22 +35,19 @@ public class FileCodeGen {
 
     }
 
-    public String getEndInsertTag(String line) {
+    private String getEndInsertTag(String line) {
         return DEFAULT_END_INSERT_TAG;
     }
 
     public void processFile(ICodeGenAdaptor cga) throws IOException {
-        if (inFileLocation.equals(outFileLocation)){
+        if (inFileLocation.equals(outFileLocation)) {
             System.out.println("Processing " + inFileLocation);
-        }else{
+        } else {
             System.out.println("Processing " + inFileLocation + " into " + outFileLocation);
         }
-        BufferedReader br = null;
-        StringBuilder sb = new StringBuilder(10000);
-        IOException ex = null;
-        try {
-            br = new BufferedReader(new FileReader(inFileLocation));
 
+        StringBuilder sb = new StringBuilder(10000);
+        try (BufferedReader br = new BufferedReader(new FileReader(inFileLocation))) {
             String line = null;
 
             Deque<String> endInsert = new LinkedList<String>();
@@ -81,41 +78,10 @@ public class FileCodeGen {
             if (endInsert.size() > 0) {
                 throw new IllegalStateException("Not processed " + endInsert);
             }
-        } catch (IOException e) {
-            ex = e;
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    if (ex == null) {
-                        throw e;
-                    }
-                    throw ex;
-                }
-            }
         }
 
-        BufferedWriter bw = null;
-        ex = null;
-        try {
-            FileOutputStream fos = new FileOutputStream(outFileLocation);
-            OutputStreamWriter writer = new OutputStreamWriter(fos, "UTF-8");
-            bw = new BufferedWriter(writer);
+        try (BufferedWriter bw = Files.newBufferedWriter(Paths.get(outFileLocation), StandardCharsets.UTF_8)) {
             bw.write(sb.toString());
-        } catch (IOException e) {
-            ex = e;
-        } finally {
-            if (bw != null) {
-                try {
-                    bw.close();
-                } catch (IOException e) {
-                    if (ex == null) {
-                        throw e;
-                    }
-                    throw ex;
-                }
-            }
         }
     }
 }

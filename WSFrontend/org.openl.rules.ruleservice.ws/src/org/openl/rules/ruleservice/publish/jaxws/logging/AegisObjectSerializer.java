@@ -36,14 +36,20 @@ public class AegisObjectSerializer implements ObjectSerializer {
         AegisWriter<XMLStreamWriter> writer = context.createXMLStreamWriter();
         AegisType aegisType = context.getTypeMapping().getType(obj.getClass());
 
+        @SuppressWarnings("squid:S2095") //no need to close ByteArrayOutputStream because of it does nothing
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        XMLStreamWriter xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream);
+        XMLStreamWriter xmlWriter = null;
+        try {
+            xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream);
 
-        writer.write(obj, new QName("http://logging.ws.ruleservice.rules.openl.org", ""), false, xmlWriter, aegisType);
+            writer.write(obj, new QName("http://logging.ws.ruleservice.rules.openl.org", ""), false, xmlWriter, aegisType);
 
-        xmlWriter.close();
-
-        return outputStream.toString(Charset.defaultCharset());
+            return outputStream.toString(Charset.defaultCharset());
+        } finally {
+            if (xmlWriter != null) {
+                xmlWriter.close();
+            }
+        }
     }
 }

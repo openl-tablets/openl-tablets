@@ -18,7 +18,7 @@ public class ConversionRuleBean {
     private String[] operationParam1;
     private String[] operationParam2;
     private String[] nameForDebug;
-    private List<ConversionRuleStep> convertionSteps;
+    private volatile List<ConversionRuleStep> convertionSteps;
 
     private List<ConversionRuleStep> extractConversionSteps() {
         ArrayList<ConversionRuleStep> steps = new ArrayList<ConversionRuleStep>(operationType.length);
@@ -40,15 +40,17 @@ public class ConversionRuleBean {
     }
 
     public List<ConversionRuleStep> getConvertionSteps() {
-        if (convertionSteps == null) {
+        List<ConversionRuleStep> localConvertionSteps = convertionSteps;
+        if (localConvertionSteps == null) {
+            localConvertionSteps = convertionSteps;
             synchronized (this) {
-                if (convertionSteps == null) {
-                    convertionSteps = extractConversionSteps();
+                if (localConvertionSteps == null) {
+                    convertionSteps = localConvertionSteps = extractConversionSteps();
                 }
             }
         }
 
-        return convertionSteps;
+        return localConvertionSteps;
     }
 
     /**

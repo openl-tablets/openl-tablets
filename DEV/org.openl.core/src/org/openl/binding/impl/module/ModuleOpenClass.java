@@ -58,6 +58,8 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
     private List<Exception> errors = new ArrayList<Exception>();
 
+    private volatile Map<String, IOpenField> dependencyFields = null;
+
     public ModuleOpenClass(String name, OpenL openl) {
         super(name, openl);
     }
@@ -158,22 +160,23 @@ public class ModuleOpenClass extends ComponentOpenClass {
         return null;
     }
 
-    private Map<String, IOpenField> dependencyFields = null;
-
     @Override
     public Map<String, IOpenField> getFields() {
         Map<String, IOpenField> fields = new HashMap<String, IOpenField>();
 
         // get fields from dependencies
         //
-        if (dependencyFields == null) {
+        Map<String, IOpenField> localDependencyFields = this.dependencyFields;
+        if (localDependencyFields == null) {
             synchronized (this) {
-                if (dependencyFields == null) {
-                    dependencyFields = new HashMap<String, IOpenField>();
+                localDependencyFields = this.dependencyFields;
+                if (localDependencyFields == null) {
+                    localDependencyFields = new HashMap<>();
                     for (CompiledDependency dependency : usingModules) {
                         CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
-                        dependencyFields.putAll(compiledOpenClass.getOpenClassWithErrors().getFields());
+                        localDependencyFields.putAll(compiledOpenClass.getOpenClassWithErrors().getFields());
                     }
+                    this.dependencyFields = localDependencyFields;
                 }
             }
         }
