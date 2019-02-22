@@ -101,12 +101,11 @@ class JUnitReportWriter {
         dir.mkdirs();
         File file = new File(dir, filename);
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
-        try {
-            xml = factory.createXMLStreamWriter(Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8));
-            writeTestsuite(suitName, tests, failures, errors, executionTime, testUnits);
-        } finally {
-            if (xml != null) {
-                xml.writeEndDocument();
+        try (Writer writer = Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8)) {
+            xml = factory.createXMLStreamWriter(writer);
+            try {
+                writeTestsuite(suitName, tests, failures, errors, executionTime, testUnits);
+            } finally {
                 xml.flush();
                 xml.close();
                 xml = null;
@@ -138,6 +137,7 @@ class JUnitReportWriter {
 
         end();
         newLine();
+        xml.writeEndDocument();
     }
 
     private void writeTestcase(String testName, ITestUnit test) throws XMLStreamException {
