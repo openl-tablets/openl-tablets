@@ -114,40 +114,19 @@ final class ReformatDocumentation {
 
     private static String readFileToString(File file, String encoding) throws IOException {
         StringBuilder sb = new StringBuilder();
-        InputStream in = null;
-        try {
-            in = new BufferedInputStream(new FileInputStream(file));
-            InputStreamReader reader = new InputStreamReader(in, encoding);
+        try (InputStreamReader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), encoding)) {
             char buf[] = new char[1024];
             int count;
             while ((count = reader.read(buf)) > 0) {
                 sb.append(buf, 0, count);
-            }
-            in.close();
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ignored) {
-                }
             }
         }
         return sb.toString();
     }
 
     private static void writeStringToFile(File file, String data, String encoding) throws IOException {
-        OutputStream os = null;
-        try {
-            os = new BufferedOutputStream(new FileOutputStream(file));
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             os.write(data.getBytes(encoding));
-            os.close();
-        } finally {
-            if (os != null) {
-                try {
-                    os.close();
-                } catch (IOException ignored) {
-                }
-            }
         }
     }
 

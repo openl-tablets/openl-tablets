@@ -1,13 +1,11 @@
 package org.openl.codegen.tools.generator;
 
-import org.openl.util.IOUtils;
-
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Properties;
 
@@ -39,27 +37,21 @@ public class SourceGenerator {
         generator = VelocityGenerator.getInstance(properties);
     }
 
-    private Properties loadVelocityProperties() throws IOException, FileNotFoundException {
-
-        Properties properties = new Properties();
-        FileInputStream is = new FileInputStream(new File(VELOCITY_PROPERTIES));
-        properties.load(is);
-        IOUtils.closeQuietly(is);
-
-        return properties;
+    private Properties loadVelocityProperties() throws IOException {
+        try (FileInputStream is = new FileInputStream(new File(VELOCITY_PROPERTIES))) {
+            Properties properties = new Properties();
+            properties.load(is);
+            return properties;
+        }
     }
 
     public void generateSource(String sourceFilePath, String templateName, Map<String, Object> variables)
             throws Exception {
 
-        File file = new File(sourceFilePath);
-        FileOutputStream os = new FileOutputStream(file, false);
-        OutputStreamWriter writer = new OutputStreamWriter(os, "UTF-8");
-        
-        String codeSnippet = generateSource(templateName, variables);
-        writer.write(codeSnippet);
-
-        writer.close();
+        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(sourceFilePath), StandardCharsets.UTF_8)) {
+            String codeSnippet = generateSource(templateName, variables);
+            writer.write(codeSnippet);
+        }
     }
 
     public String generateSource(String templateName, Map<String, Object> variables) throws Exception {

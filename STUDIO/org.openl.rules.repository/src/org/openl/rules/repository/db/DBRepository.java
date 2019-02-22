@@ -514,6 +514,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         }
     }
 
+    @SuppressWarnings("squid:S2095") // Statement is closed by safeClose(...) method in finally block
     private void initializeDatabase() throws SQLException {
         Object revision = checkRepository();
         if (!(revision instanceof Throwable)) {

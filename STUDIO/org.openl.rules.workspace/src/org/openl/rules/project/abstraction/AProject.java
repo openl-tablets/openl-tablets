@@ -330,13 +330,14 @@ public class AProject extends AProjectFolder {
                     try {
                         // Unpack to temp folder
                         tempFolder = Files.createTempDirectory("openl").toFile();
-                        FileSystemRepository tempRepository = new FileSystemRepository();
-                        tempRepository.setRoot(tempFolder);
-                        tempRepository.initialize();
-                        unpack(projectFrom, tempRepository, projectFrom.getName(), user);
-                        AProject tempProject = new AProject(tempRepository, projectFrom.getName());
+                        try (FileSystemRepository tempRepository = new FileSystemRepository()) {
+                            tempRepository.setRoot(tempFolder);
+                            tempRepository.initialize();
+                            unpack(projectFrom, tempRepository, projectFrom.getName(), user);
+                            AProject tempProject = new AProject(tempRepository, projectFrom.getName());
 
-                        transformAndArchive(tempProject, user);
+                            transformAndArchive(tempProject, user);
+                        }
                     } catch (IOException e) {
                         throw new ProjectException(e.getMessage(), e);
                     } finally {

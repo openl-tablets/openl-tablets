@@ -8,13 +8,12 @@ package org.openl.conf;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
 import org.openl.util.Log;
-
-// import org.openl.util.Log;
 
 /**
  * Class PropertyFileLoader loads a property file using the following algorithm:
@@ -32,9 +31,9 @@ import org.openl.util.Log;
  *
  */
 public class PropertyFileLoader {
-    
+
     public static final Properties NO_PROPERTIES = new Properties();
-    
+
     private String propertiesFileDefaultName;
 
     private String propertiesFileProperty;
@@ -102,10 +101,7 @@ public class PropertyFileLoader {
             if (f == null) {
                 return false;
             }
-            InputStream in = new FileInputStream(f);
-            properties = new Properties();
-            properties.load(in);
-            in.close();
+            properties = loadProperties(f);
             return true;
         } catch (Throwable t) {
             // System.out.println("File not as found: " + url);
@@ -115,16 +111,11 @@ public class PropertyFileLoader {
 
     boolean loadAsResource(String name) {
         try {
-
             URL url = getContext().findClassPathResource(name);
             if (url == null) {
                 return false;
             }
-            InputStream in = url.openStream();
-            Properties p = new Properties();
-            p.load(in);
-            properties = p;
-            in.close();
+            properties = loadProperties(url);
             return true;
         } catch (Throwable t) {
             // Log.debug("Loading as resource: ", t);
@@ -134,14 +125,27 @@ public class PropertyFileLoader {
 
     boolean loadAsURL(String url) {
         try {
-            InputStream in = new URL(url).openStream();
-            properties = new Properties();
-            properties.load(in);
-            in.close();
+            properties = loadProperties(new URL(url));
             return true;
         } catch (Throwable t) {
             // Log.debug("Loading as url: ", t);
             return false;
+        }
+    }
+
+    private Properties loadProperties(URL url) throws IOException {
+        try (InputStream in = url.openStream()) {
+            Properties properties = new Properties();
+            properties.load(in);
+            return properties;
+        }
+    }
+
+    private Properties loadProperties(File f) throws IOException {
+        try (InputStream in = new FileInputStream(f)) {
+            Properties properties = new Properties();
+            properties.load(in);
+            return properties;
         }
     }
 

@@ -797,8 +797,7 @@ public class RepositoryTreeController {
                     String userName = file.getName();
                     // Check for reserved folder name
                     if (!LockEngineImpl.LOCKS_FOLDER_NAME.equals(userName)) {
-                        try {
-                            FileSystemRepository repository = new FileSystemRepository();
+                        try (FileSystemRepository repository = new FileSystemRepository()) {
                             repository.setRoot(file);
                             repository.initialize();
                             FileData fileData = new FileData();
