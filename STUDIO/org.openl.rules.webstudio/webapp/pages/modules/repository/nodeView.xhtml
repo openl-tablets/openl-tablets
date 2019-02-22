@@ -123,7 +123,7 @@
                     <h:outputText value="#{node.logicalName} (#{node.name})" rendered="#{node.type == 'project' and node.renamed}"/>
                 </td>
             </tr>
-            <h:panelGroup rendered="#{node.type == 'project' and repositoryTreeController.supportsBranches}">
+            <h:panelGroup rendered="#{node.type == 'project' and repositoryTreeState.supportsBranches}">
             <tr>
                 <td class="label">
                     <h:outputText value="Branch" />

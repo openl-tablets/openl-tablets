@@ -1094,13 +1094,8 @@ public class WebStudio {
     }
 
     public boolean isSupportsBranches() {
-        try {
-            RulesProject project = getCurrentProject();
-            return project != null && project.getDesignRepository().supports().branches();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return false;
-        }
+        RulesProject project = getCurrentProject();
+        return project != null && project.isSupportsBranches();
     }
 
     public String getProjectBranch() {

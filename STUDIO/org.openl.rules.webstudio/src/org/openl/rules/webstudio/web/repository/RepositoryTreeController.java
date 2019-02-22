@@ -1657,6 +1657,9 @@ public class RepositoryTreeController {
         }
     }
 
+    /**
+     * Checks if design repository supports branches
+     */
     public boolean isSupportsBranches() {
         try {
             return userWorkspace.getDesignTimeRepository().getRepository().supports().branches();
