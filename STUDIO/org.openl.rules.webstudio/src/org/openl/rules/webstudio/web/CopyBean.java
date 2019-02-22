@@ -238,16 +238,8 @@ public class CopyBean {
     }
 
     public boolean isSupportsBranches() {
-        try {
-            UserWorkspace userWorkspace = getUserWorkspace();
-            DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
-
-            Repository designRepository = designTimeRepository.getRepository();
-            return designRepository.supports().branches();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return false;
-        }
+        RulesProject project = getCurrentProject();
+        return project != null && project.isSupportsBranches();
     }
 
     private RulesProject getCurrentProject() {

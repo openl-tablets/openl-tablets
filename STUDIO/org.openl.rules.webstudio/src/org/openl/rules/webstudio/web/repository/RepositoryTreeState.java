@@ -585,4 +585,16 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         return project != null && project.isOpenedOtherVersion() && !project.isModified();
     }
 
+    /**
+     * Checks if selected project supports branches
+     */
+    public boolean isSupportsBranches() {
+        try {
+            UserWorkspaceProject project = getSelectedProject();
+            return project != null && project.isSupportsBranches();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
 }
