@@ -88,7 +88,7 @@ public class AProject extends AProjectFolder {
         return fileDatas.isEmpty() ? null : createProjectVersion(fileDatas.get(fileDatas.size() - 1));
     }
 
-    protected boolean isLastVersion() {
+    public boolean isLastVersion() {
         String historyVersion = getHistoryVersion();
         if (historyVersion == null) {
             return true;

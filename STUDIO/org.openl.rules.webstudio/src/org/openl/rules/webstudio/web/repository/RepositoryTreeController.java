@@ -1638,7 +1638,7 @@ public class RepositoryTreeController {
      */
     public void selectCurrentProjectForOpen(AjaxBehaviorEvent event) {
         currentProject = getSelectedProject();
-        if (currentProject == null || currentProject.getVersion() == null) {
+        if (currentProject == null || currentProject.getVersion() == null || currentProject.isLastVersion()) {
             version = null;
         } else {
             version = currentProject.getVersion().getVersionName();
@@ -1690,6 +1690,7 @@ public class RepositoryTreeController {
             }
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
+            version = null;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
