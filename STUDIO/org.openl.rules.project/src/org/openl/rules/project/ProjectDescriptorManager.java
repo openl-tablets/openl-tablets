@@ -139,7 +139,7 @@ public class ProjectDescriptorManager {
         if (file.getName().startsWith("~$") && file.isHidden()) {
             OutputStream os = null;
             try {
-                os = new FileOutputStream(file);
+                os = new FileOutputStream(file, true);
             } catch (FileNotFoundException unused) {
                 return true;
             } finally {
