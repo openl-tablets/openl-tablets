@@ -99,11 +99,14 @@ public class GitRepositoryTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws IOException {
         if (repo != null) {
             repo.close();
         }
-        FileUtils.deleteQuietly(root);
+        FileUtils.delete(root);
+        if (root.exists()) {
+            fail("Can't delete folder " + root);
+        }
     }
 
     @Test

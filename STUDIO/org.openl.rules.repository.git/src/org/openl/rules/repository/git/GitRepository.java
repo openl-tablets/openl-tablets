@@ -516,7 +516,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private FileData createFileData(TreeWalk dirWalk, String baseFolder, ObjectId start) {
         String fullPath = baseFolder + dirWalk.getPathString();
-        return new LazyFileData(branch, fullPath, this, start, getFileId(dirWalk));
+        return new LazyFileData(branch, fullPath, new File(localRepositoryPath), start, getFileId(dirWalk), commentPattern);
     }
 
     private ObjectId resolveBranchId() throws IOException {
@@ -530,7 +530,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private FileData createFileData(TreeWalk dirWalk, RevCommit fileCommit) {
         String fullPath = dirWalk.getPathString();
 
-        return new LazyFileData(branch, fullPath, this, fileCommit, getFileId(dirWalk));
+        return new LazyFileData(branch, fullPath, new File(localRepositoryPath), fileCommit, getFileId(dirWalk), commentPattern);
     }
 
     private ObjectId getFileId(TreeWalk dirWalk) {
@@ -632,7 +632,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             while (iterator.hasNext()) {
                 RevCommit commit = iterator.next();
 
-                boolean stop = historyVisitor.visit(name, commit, getVersionName(tags, commit));
+                boolean stop = historyVisitor.visit(name, commit, getVersionName(git.getRepository(), tags, commit));
                 if (stop) {
                     break;
                 }
@@ -676,20 +676,16 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return String.valueOf(maxId + 1);
     }
 
-    String getVersionName(ObjectId commitId) throws GitAPIException {
-        return getVersionName(git.tagList().call(), commitId);
-    }
-
-    private String getVersionName(List<Ref> tags, ObjectId commitId) {
-        Ref tagRef = getTagRefForCommit(tags, commitId);
+    static String getVersionName(Repository repository, List<Ref> tags, ObjectId commitId) {
+        Ref tagRef = getTagRefForCommit(repository, tags, commitId);
 
         return tagRef != null ? getLocalTagName(tagRef) : commitId.getName();
     }
 
-    private Ref getTagRefForCommit(List<Ref> tags, ObjectId commitId) {
+    private static Ref getTagRefForCommit(Repository repository, List<Ref> tags, ObjectId commitId) {
         Ref tagRefForCommit = null;
         for (Ref tagRef : tags) {
-            ObjectId objectId = git.getRepository().peel(tagRef).getPeeledObjectId();
+            ObjectId objectId = repository.peel(tagRef).getPeeledObjectId();
             if (objectId == null) {
                 objectId = tagRef.getObjectId();
             }
@@ -702,17 +698,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return tagRefForCommit;
     }
 
-    private String getLocalTagName(Ref tagRef) {
+    private static String getLocalTagName(Ref tagRef) {
         String name = tagRef.getName();
         return name.startsWith(Constants.R_TAGS) ? name.substring(Constants.R_TAGS.length()) : name;
-    }
-
-    String getCommentPattern() {
-        return commentPattern;
-    }
-
-    Git getGit() {
-        return git;
     }
 
     private void addTagToCommit(RevCommit commit) throws GitAPIException {

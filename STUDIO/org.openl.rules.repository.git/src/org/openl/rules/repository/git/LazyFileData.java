@@ -1,11 +1,13 @@
 package org.openl.rules.repository.git;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Iterator;
 
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -21,37 +23,42 @@ class LazyFileData extends FileData {
     private final Logger log = LoggerFactory.getLogger(GitRepository.class);
 
     private final String fullPath;
-    private final GitRepository repo;
+    private final File repoFolder;
     private ObjectId fromCommit;
     private RevCommit fileCommit;
     private ObjectId fileId;
+    private final String commentPattern;
 
     private boolean loaded = false;
 
-    public LazyFileData(String branch,
-            String fullPath,
-            GitRepository repo,
-            ObjectId fromCommit,
-            ObjectId fileId) {
+    LazyFileData(String branch,
+                 String fullPath,
+                 File repoFolder,
+                 ObjectId fromCommit,
+                 ObjectId fileId,
+                 String commentPattern) {
         setBranch(branch);
         setName(fullPath);
 
         this.fullPath = fullPath;
-        this.repo = repo;
+        this.repoFolder = repoFolder;
+        this.commentPattern = commentPattern;
         this.fromCommit = fromCommit;
         this.fileId = fileId;
     }
 
-    public LazyFileData(String branch,
-            String fullPath,
-            GitRepository repo,
-            RevCommit fileCommit,
-            ObjectId fileId) {
+    LazyFileData(String branch,
+                 String fullPath,
+                 File repoFolder,
+                 RevCommit fileCommit,
+                 ObjectId fileId,
+                 String commentPattern) {
         setBranch(branch);
         setName(fullPath);
 
         this.fullPath = fullPath;
-        this.repo = repo;
+        this.repoFolder = repoFolder;
+        this.commentPattern = commentPattern;
         this.fileCommit = fileCommit;
         this.fileId = fileId;
     }
@@ -59,8 +66,8 @@ class LazyFileData extends FileData {
     @Override
     public long getSize() {
         if (fileId != null) {
-            try {
-                ObjectLoader loader = repo.getGit().getRepository().open(fileId);
+            try (Git git = Git.open(repoFolder)) {
+                ObjectLoader loader = git.getRepository().open(fileId);
                 super.setSize(loader.getSize());
                 fileId = null;
             } catch (IOException e) {
@@ -143,52 +150,56 @@ class LazyFileData extends FileData {
             return;
         }
 
-        if (fileCommit == null) {
-            Iterator<RevCommit> iterator = null;
-            try {
-                iterator = repo.getGit().log()
-                        .add(fromCommit)
-                        .addPath(fullPath)
-                        .call()
-                        .iterator();
-            } catch (GitAPIException | MissingObjectException | IncorrectObjectTypeException e) {
-                log.error(e.getMessage(), e);
-            }
-            if (iterator == null || !iterator.hasNext()) {
-                throw new IllegalStateException("Can't find revision for the file " + fullPath);
-            }
-
-            fileCommit = iterator.next();
-            fromCommit = null;
-        }
-
-        PersonIdent committerIdent = fileCommit.getCommitterIdent();
-
-        super.setAuthor(committerIdent.getName());
-        super.setModifiedAt(committerIdent.getWhen());
-        String message = fileCommit.getFullMessage();
-        try {
-            Object[] parse = new MessageFormat(repo.getCommentPattern()).parse(message);
-            if (parse.length == 2) {
-                CommitType commitType = CommitType.valueOf(String.valueOf(parse[0]));
-                if (commitType == CommitType.ARCHIVE) {
-                    super.setDeleted(true);
+        try (Git git = Git.open(repoFolder)) {
+            if (fileCommit == null) {
+                Iterator<RevCommit> iterator = null;
+                try {
+                    iterator = git.log()
+                            .add(fromCommit)
+                            .addPath(fullPath)
+                            .call()
+                            .iterator();
+                } catch (GitAPIException | MissingObjectException | IncorrectObjectTypeException e) {
+                    log.error(e.getMessage(), e);
                 }
-                message = String.valueOf(parse[1]);
+                if (iterator == null || !iterator.hasNext()) {
+                    throw new IllegalStateException("Can't find revision for the file " + fullPath);
+                }
+
+                fileCommit = iterator.next();
+                fromCommit = null;
             }
-        } catch (ParseException | IllegalArgumentException ignored) {
-        }
-        super.setComment(message);
 
-        String version;
-        try {
-            version = repo.getVersionName(fileCommit.getId());
-        } catch (GitAPIException e) {
-            throw new IllegalStateException("Can't get tags list: " + e.getMessage(), e);
-        }
-        super.setVersion(version);
+            PersonIdent committerIdent = fileCommit.getCommitterIdent();
 
-        loaded = true;
+            super.setAuthor(committerIdent.getName());
+            super.setModifiedAt(committerIdent.getWhen());
+            String message = fileCommit.getFullMessage();
+            try {
+                Object[] parse = new MessageFormat(commentPattern).parse(message);
+                if (parse.length == 2) {
+                    CommitType commitType = CommitType.valueOf(String.valueOf(parse[0]));
+                    if (commitType == CommitType.ARCHIVE) {
+                        super.setDeleted(true);
+                    }
+                    message = String.valueOf(parse[1]);
+                }
+            } catch (ParseException | IllegalArgumentException ignored) {
+            }
+            super.setComment(message);
+
+            String version;
+            try {
+                version = GitRepository.getVersionName(git.getRepository(), git.tagList().call(), fileCommit.getId());
+            } catch (GitAPIException e) {
+                throw new IllegalStateException("Can't get tags list: " + e.getMessage(), e);
+            }
+            super.setVersion(version);
+
+            loaded = true;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
 }
