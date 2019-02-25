@@ -237,8 +237,8 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     @Override
-    public BranchRepository cloneFor(String branch) throws IOException {
-        BranchRepository delegateForBranch = ((BranchRepository) delegate).cloneFor(branch);
+    public BranchRepository forBranch(String branch) throws IOException {
+        BranchRepository delegateForBranch = ((BranchRepository) delegate).forBranch(branch);
 
         MappedRepository mappedRepository = new MappedRepository();
         mappedRepository.setDelegate((FolderRepository) delegateForBranch);

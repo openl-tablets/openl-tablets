@@ -57,6 +57,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private Map<String, List<String>> branches = new HashMap<>();
 
+    /**
+     * Holds secondary repositories for other branches.
+     */
+    private Map<String, GitRepository> branchRepos = new HashMap<>();
+
     @Override
     public List<FileData> list(String path) throws IOException {
         return iterate(path, new ListCommand(resolveBranchId()));
@@ -457,6 +462,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         if (git != null) {
             git.close();
         }
+        for (GitRepository repository : branchRepos.values()) {
+            repository.close();
+        }
     }
 
     public void setUri(String uri) {
@@ -815,7 +823,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 projectBranches.add(newBranch);
             }
 
-            pushBranch(new RefSpec().setSource(newBranch).setDestination(newBranch));
+            pushBranch(new RefSpec().setSource(newBranch).setDestination(Constants.R_HEADS + newBranch));
 
             saveBranches();
         } catch (Exception e) {
@@ -843,6 +851,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             Collection<String> projectBranches = branches.get(projectName);
             if (projectBranches != null) {
                 projectBranches.remove(branch);
+                branchRepos.remove(branch);
                 pushBranch(new RefSpec().setSource(null).setDestination(Constants.R_HEADS + branch));
 
                 saveBranches();
@@ -868,23 +877,38 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public BranchRepository cloneFor(String branch) throws IOException {
-        GitRepository repository = new GitRepository();
+    public GitRepository forBranch(String branch) throws IOException {
+        GitRepository repository = branchRepos.get(branch);
+        if (repository == null) {
+            Lock writeLock = repositoryLock.writeLock();
+            try {
+                writeLock.lock();
 
-        repository.setUri(uri);
-        repository.setLogin(login);
-        repository.setPassword(password);
-        repository.setLocalRepositoryPath(localRepositoryPath);
-        repository.setBranch(branch);
-        repository.baseBranch = baseBranch; // Base branch is only one
-        repository.setTagPrefix(tagPrefix);
-        repository.setListenerTimerPeriod(listenerTimerPeriod);
-        repository.setCommentPattern(commentPattern);
-        repository.setGitSettingsPath(gitSettingsPath);
-        repository.git = Git.open(new File(localRepositoryPath));
-        repository.repositoryLock = repositoryLock; // must be common for all instances because git repository is same
-        repository.branches = branches; // Can be shared between instances
-        repository.monitor = monitor;
+                repository = branchRepos.get(branch);
+                if (repository == null) {
+                    repository = new GitRepository();
+
+                    repository.setUri(uri);
+                    repository.setLogin(login);
+                    repository.setPassword(password);
+                    repository.setLocalRepositoryPath(localRepositoryPath);
+                    repository.setBranch(branch);
+                    repository.baseBranch = baseBranch; // Base branch is only one
+                    repository.setTagPrefix(tagPrefix);
+                    repository.setListenerTimerPeriod(listenerTimerPeriod);
+                    repository.setCommentPattern(commentPattern);
+                    repository.setGitSettingsPath(gitSettingsPath);
+                    repository.git = Git.open(new File(localRepositoryPath));
+                    repository.repositoryLock = repositoryLock; // must be common for all instances because git repository is same
+                    repository.branches = branches; // Can be shared between instances
+                    repository.monitor = monitor;
+
+                    branchRepos.put(branch, repository);
+                }
+            } finally {
+                writeLock.unlock();
+            }
+        }
 
         return repository;
     }
