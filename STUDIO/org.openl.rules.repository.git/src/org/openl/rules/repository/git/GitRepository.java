@@ -162,6 +162,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
+    @SuppressWarnings("squid:S2095") // resources are closed by IOUtils
     public FileData copy(String srcName, FileData destData) throws IOException {
         Lock writeLock = repositoryLock.writeLock();
         try {

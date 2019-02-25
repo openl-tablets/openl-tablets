@@ -135,17 +135,17 @@ public class PropertyFileLoader {
 
     private Properties loadProperties(URL url) throws IOException {
         try (InputStream in = url.openStream()) {
-            Properties properties = new Properties();
-            properties.load(in);
-            return properties;
+            Properties props = new Properties();
+            props.load(in);
+            return props;
         }
     }
 
     private Properties loadProperties(File f) throws IOException {
         try (InputStream in = new FileInputStream(f)) {
-            Properties properties = new Properties();
-            properties.load(in);
-            return properties;
+            Properties props = new Properties();
+            props.load(in);
+            return props;
         }
     }
 
