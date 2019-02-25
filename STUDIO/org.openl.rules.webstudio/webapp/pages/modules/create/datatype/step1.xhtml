@@ -18,8 +18,9 @@
                     <h:message for="technicalName" styleClass="error" />
                 </a4j:outputPanel>
 
-                <h:outputText value="Parent type" rendered="#{wizard.definedDatatypesLength > 1}"/>
-                <h:selectOneMenu value="#{wizard.parent}" rendered="#{wizard.definedDatatypesLength > 1}">
+                <h:outputText value="Parent type" rendered="#{not empty wizard.definedDatatypes}"/>
+                <h:selectOneMenu value="#{wizard.parent}" rendered="#{not empty wizard.definedDatatypes}">
+                    <f:selectItem itemLabel="" itemValue="#{null}"/>
                     <f:selectItems value="#{wizard.definedDatatypes}" />
                 </h:selectOneMenu>
 
