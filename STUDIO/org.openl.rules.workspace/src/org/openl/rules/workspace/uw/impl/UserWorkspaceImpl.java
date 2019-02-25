@@ -345,7 +345,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     } else if (!branch.equals(repoBranch)) {
                         // We are inside alternative branch. Must change design repo info.
                         try {
-                            desRepo = branchRepository.cloneFor(branch);
+                            desRepo = branchRepository.forBranch(branch);
                             // Other branch - other version of file data
                             if (designFileData != null) {
                                 designFileData = desRepo.check(designFileData.getName());
