@@ -352,7 +352,7 @@ public final class ServiceDescription {
         /**
          * Sets rmi class name to the builder. (Optional)
          * 
-         * @param serviceClassName
+         * @param rmiServiceClassName
          * @return
          */
         public ServiceDescriptionBuilder setRmiServiceClassName(String rmiServiceClassName) {
@@ -403,9 +403,6 @@ public final class ServiceDescription {
             }
             if (this.deployment == null) {
                 throw new IllegalStateException("Field 'deployment' is required for building ServiceDescription");
-            }
-            if (this.modules == null) {
-                throw new IllegalStateException("Field 'modulesInService' is required for building ServiceDescription");
             }
             return new ServiceDescription(this);
         }

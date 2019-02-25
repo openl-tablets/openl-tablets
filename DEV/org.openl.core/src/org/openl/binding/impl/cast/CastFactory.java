@@ -161,7 +161,7 @@ public class CastFactory implements ICastFactory {
 
         // If one class is not primitive we use wrapper for prevent NPE
         if (ret != null && openClass1.getInstanceClass() != null && openClass2.getInstanceClass() != null) {
-            if (!openClass1.getInstanceClass().isPrimitive() || !openClass1.getInstanceClass().isPrimitive()) {
+            if (!openClass1.getInstanceClass().isPrimitive() || !openClass2.getInstanceClass().isPrimitive()) {
                 if (ret.getInstanceClass().isPrimitive()) {
                     return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(ret.getInstanceClass()));
                 }
