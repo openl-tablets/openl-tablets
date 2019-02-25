@@ -603,10 +603,12 @@ public class DependentParametersOptimizedAlgorithm {
 
     private static IParameterDeclaration getParameter(String pname, IMethodSignature signature) {
         String parameterName = pname;
-        if (pname.indexOf(".") > 0) {
-            parameterName = pname.substring(0, pname.indexOf("."));
-            if (parameterName.indexOf("[") > 0){
-                parameterName = pname.substring(0, pname.indexOf("["));
+        int dotIndex = parameterName.indexOf('.');
+        if (dotIndex > 0) {
+            parameterName = parameterName.substring(0, dotIndex);
+            int brIndex = parameterName.indexOf('[');
+            if (brIndex > 0){
+                parameterName = parameterName.substring(0, brIndex);
             }
         }
 

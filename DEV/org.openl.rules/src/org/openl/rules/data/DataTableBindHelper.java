@@ -180,12 +180,14 @@ public class DataTableBindHelper {
             fieldName = StringUtils.trim(fieldName);
 
             // if it is field chain get first token
-            if (fieldName.indexOf(".") > 0) {
-                fieldName = fieldName.substring(0, fieldName.indexOf("."));
+            int dotIndex = fieldName.indexOf('.');
+            if (dotIndex > 0) {
+                fieldName = fieldName.substring(0, dotIndex);
             }
             // if it is array field correct field name
-            if (fieldName.indexOf("[") > 0) {
-                fieldName = fieldName.substring(0, fieldName.indexOf("["));
+            int brIndex = fieldName.indexOf('[');
+            if (brIndex > 0) {
+                fieldName = fieldName.substring(0, brIndex);
             }
 
             IOpenField field = findField(fieldName, null, tableType);
@@ -596,12 +598,12 @@ public class DataTableBindHelper {
     private static IOpenClass getTypeForCollection(IBindingContext bindingContext,
             ITable table,
             IdentifierNode identifierNode) {
-        if (identifierNode.getIdentifier().indexOf(":") < 0) {
+        int typeSeparatorIndex = identifierNode.getIdentifier().indexOf(':');
+        if (typeSeparatorIndex < 0) {
             return JavaOpenClass.OBJECT;
         }
 
-        String typeName = identifierNode.getIdentifier().substring(identifierNode.getIdentifier().indexOf(":") + 1,
-            identifierNode.getIdentifier().length());
+        String typeName = identifierNode.getIdentifier().substring(typeSeparatorIndex + 1);
         typeName = typeName.trim();
 
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
@@ -743,7 +745,7 @@ public class DataTableBindHelper {
 
             fieldAccessorChain[fieldIndex] = fieldInChain;
             if (fieldIndex > 0) {
-                partPathFromRoot.append(".");
+                partPathFromRoot.append('.');
             }
             partPathFromRoot.append(fieldInChain.getName());
         }
@@ -759,7 +761,7 @@ public class DataTableBindHelper {
     public static Integer getPrecisionValue(IdentifierNode fieldNameNode) {
         try {
             String fieldName = fieldNameNode.getIdentifier();
-            String txtIndex = fieldName.substring(fieldName.indexOf("(") + 1, fieldName.indexOf(")"));
+            String txtIndex = fieldName.substring(fieldName.indexOf('(') + 1, fieldName.indexOf(')'));
 
             return Integer.parseInt(txtIndex);
         } catch (Exception e) {
@@ -769,13 +771,13 @@ public class DataTableBindHelper {
 
     public static int getCollectionIndex(IdentifierNode fieldNameNode) {
         String fieldName = fieldNameNode.getIdentifier();
-        String txtIndex = fieldName.substring(fieldName.indexOf("[") + 1, fieldName.indexOf("]")).trim();
+        String txtIndex = fieldName.substring(fieldName.indexOf('[') + 1, fieldName.indexOf(']')).trim();
         return Integer.parseInt(txtIndex);
     }
 
     public static String getCollectionName(IdentifierNode fieldNameNode) {
         String fieldName = fieldNameNode.getIdentifier();
-        int ind = fieldName.indexOf("[");
+        int ind = fieldName.indexOf('[');
         if (ind > 0) {
             return fieldName.substring(0, ind).trim();
         }
@@ -856,8 +858,9 @@ public class DataTableBindHelper {
 
     private static String getFieldName(String identifier) {
         String fieldName = identifier.trim();
-        if (fieldName.indexOf(":") > 0) {
-            fieldName = fieldName.substring(0, fieldName.indexOf(":")).trim();
+        int endIndex = fieldName.indexOf(':');
+        if (endIndex > 0) {
+            fieldName = fieldName.substring(0, endIndex).trim();
         }
         return fieldName;
     }
@@ -983,7 +986,7 @@ public class DataTableBindHelper {
 
     public static Object getCollectionKey(IdentifierNode currentFieldNameNode) {
         String s = currentFieldNameNode.getIdentifier();
-        s = s.substring(s.indexOf("[") + 1, s.lastIndexOf("]")).trim();
+        s = s.substring(s.indexOf('[') + 1, s.lastIndexOf(']')).trim();
         if (StringUtils.matches(QUOTED, s)) {
             return s.substring(1, s.length() - 1);
         } else {
