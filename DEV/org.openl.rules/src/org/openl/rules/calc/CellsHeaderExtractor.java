@@ -17,6 +17,7 @@ import org.openl.rules.table.ILogicalTable;
  *
  */
 public class CellsHeaderExtractor {
+    private static final Pattern COMMA = Pattern.compile("\\s*,\\s*");
     private String[] rowNames;
     private String[] columnNames;
     private Set<String> dependentSpreadsheetTypes;
@@ -119,7 +120,7 @@ public class CellsHeaderExtractor {
         matcher = PARAMETERS_PATTERN.matcher(signature);
         if (matcher.find()) {
             String allParams = matcher.group(1);
-            for (String param : allParams.split("\\s*,\\s*")) {
+            for (String param : COMMA.split(allParams)) {
                 Matcher paramMatcher = CSR_TYPE_PATTERN.matcher(param);
                 if (paramMatcher.matches()) {
                     dependentSpreadsheets.add(paramMatcher.group(1));
