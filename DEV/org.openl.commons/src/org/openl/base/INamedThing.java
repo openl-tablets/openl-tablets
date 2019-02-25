@@ -13,11 +13,11 @@ package org.openl.base;
  */
 public interface INamedThing {
 
-    static public INamedThing[] EMPTY = {};
+    INamedThing[] EMPTY = {};
 
-    static public int SHORT = 0;
-    static public int REGULAR = 1;
-    static public int LONG = 2;
+    int SHORT = 0;
+    int REGULAR = 1;
+    int LONG = 2;
 
     String getDisplayName(int mode);
 
