@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
@@ -38,12 +38,12 @@ public class BindingContext implements IBindingContext {
 
     private LocalFrameBuilder localFrame = new LocalFrameBuilder();
     private List<SyntaxNodeException> errors = new ArrayList<>();
-    private Stack<List<SyntaxNodeException>> errorStack = new Stack<>();
+    private LinkedList<List<SyntaxNodeException>> errorStack = new LinkedList<>();
     
     private Map<String, Object> externalParams;
 
     private Collection<OpenLMessage> messages = new LinkedHashSet<>();
-    private Stack<Collection<OpenLMessage>> messagesStack = new Stack<>();
+    private LinkedList<Collection<OpenLMessage>> messagesStack = new LinkedList<>();
 
     private boolean executionMode = false;
 

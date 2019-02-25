@@ -1,8 +1,8 @@
 package org.openl.syntax.impl;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
@@ -18,7 +18,7 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
     private static final SyntaxNodeException[] SYNTAX_NODE_EXCEPTIONS = new SyntaxNodeException[0];
     private IOpenSourceCodeModule module;
     private List<SyntaxNodeException> parseErrors;
-    private Stack<Object> stack = new Stack<>();
+    private LinkedList<Object> stack = new LinkedList<>();
 
     public IOpenSourceCodeModule getModule() {
         return module;

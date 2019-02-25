@@ -7,7 +7,7 @@
 package org.openl.binding.impl;
 
 import java.util.ArrayList;
-import java.util.Stack;
+import java.util.LinkedList;
 
 import org.openl.binding.ILocalVar;
 import org.openl.binding.exception.DuplicatedVarException;
@@ -156,7 +156,7 @@ public class LocalFrameBuilder {
     static public class LocalVarFrameElement extends ArrayList<ILocalVar> {
     }
 
-    Stack<LocalVarFrameElement> localFrames = new Stack<LocalVarFrameElement>();
+    LinkedList<LocalVarFrameElement> localFrames = new LinkedList<>();
 
     int localVarFrameSize = 0;
 

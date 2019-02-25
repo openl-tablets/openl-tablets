@@ -1,15 +1,9 @@
-/*
- * Created on Jul 29, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.exception;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Stack;
+import java.util.LinkedList;
 
 import org.openl.binding.IBoundNode;
 import org.openl.main.SourceCodeURLTool;
@@ -29,7 +23,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
     private static final long serialVersionUID = -8422089115244904493L;
 
     private IBoundNode node;
-    private Stack<IBoundNode> openlCallStack = new Stack<IBoundNode>();
+    private LinkedList<IBoundNode> openlCallStack = new LinkedList<>();
     
     public OpenLRuntimeException() {
         super();
@@ -99,10 +93,6 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
         return node;
     }
 
-    public Stack<IBoundNode> getOpenlCallStack() {
-        return openlCallStack;
-    }
-    
     public void pushMethodNode(IBoundNode node) {
         openlCallStack.push(node);
     }
@@ -137,11 +127,10 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
             }
         }
 
-        Stack<IBoundNode> nodes = getOpenlCallStack();
+        LinkedList<IBoundNode> nodes = openlCallStack;
 
-        for (int i = 0; i < nodes.size(); i++) {
-            IBoundNode node1 = nodes.elementAt(i);
-            ISyntaxNode syntaxNode = node1.getSyntaxNode();
+        for (IBoundNode node: nodes) {
+            ISyntaxNode syntaxNode = node.getSyntaxNode();
             if (syntaxNode != null) {
                 SourceCodeURLTool.printSourceLocation(syntaxNode.getSourceLocation(), syntaxNode.getModule(), writer);
             }
