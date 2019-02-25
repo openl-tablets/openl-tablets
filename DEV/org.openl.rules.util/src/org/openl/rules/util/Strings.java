@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
  */
 public class Strings {
 
+    private static final Pattern TRAILING_ZERO = Pattern.compile("(\\.0+$)|(?<=\\.\\d{0,20})0+$");
+
     /**
      * <p>
      * Checks if String contains a search String, handling <code>null</code>. This method uses
@@ -551,7 +553,7 @@ public class Strings {
         if (obj == null) {
             return null;
         } else if (obj instanceof Double || obj instanceof Float || obj instanceof BigDecimal) {
-            return obj.toString().replaceAll("(\\.0+$)|(?<=\\.\\d{0,20})0+$", ""); // remove zeros
+            return TRAILING_ZERO.matcher(obj.toString()).replaceAll(""); // remove zeros
         }
         return obj.toString();
     }

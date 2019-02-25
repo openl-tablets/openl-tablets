@@ -6,22 +6,25 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 public class StringTool {
 
     public static final String NEW_LINE = "\n";
+    private static final Pattern PLUS = Pattern.compile("\\+");
 
     // TODO Move to URLUtils class
     public static String encodeURL(String url) {
-        String encodedUrl = null;
+        String encodedUrl;
         if (StringUtils.isBlank(url)) {
             return url;
         }
         try {
-            encodedUrl = URLEncoder.encode(url, "UTF-8").replaceAll("\\+", "%20");
+            encodedUrl = URLEncoder.encode(url, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            throw new IllegalArgumentException(e);
         }
+        encodedUrl = PLUS.matcher(encodedUrl).replaceAll("%20");
         return encodedUrl;
     }
 

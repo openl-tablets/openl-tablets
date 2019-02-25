@@ -25,7 +25,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     private static final String EMPTY_STRING = "";
     private static final String ARRAY_SEPARATOR = ",";
     private static final String DEFAULT_PATTERN = ".+?";
-    private static Pattern pattern = Pattern.compile("(\\%[^%]+\\%)");
+    private static final Pattern pattern = Pattern.compile("(%[^%]+%)");
 
     @Override
     public ITableProperties process(Module module, String fileNamePattern) throws NoMatchFileNameException,
