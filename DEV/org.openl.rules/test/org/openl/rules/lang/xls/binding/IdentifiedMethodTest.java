@@ -32,7 +32,7 @@ public class IdentifiedMethodTest {
         TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
 
         ITestI instance = testHelper.getInstance();
-        IRulesRuntimeContext context = ((IRulesRuntimeContextProvider) instance).getRuntimeContext();
+        IRulesRuntimeContext context = instance.getRuntimeContext();
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(2003, 5, 15);
@@ -65,7 +65,7 @@ public class IdentifiedMethodTest {
                 return;
             }
         }
-        assertTrue(false);
+        fail();
     }
 
     @Test
@@ -78,16 +78,13 @@ public class IdentifiedMethodTest {
                 break;
             }
         }
-        if (regexpConstraint == null) {
-            assertTrue(false);
-        } else {
-            String regex = ((RegexpValueConstraint)regexpConstraint).getRegexp();
-            assertTrue("_name".matches(regex));
-            assertTrue("Name".matches(regex));
-            assertTrue("name__999".matches(regex));
-            assertFalse("9asd".matches(regex));
-            assertFalse("name postfix".matches(regex));
-            assertFalse("name&9".matches(regex));
-        }
+        assertNotNull(regexpConstraint);
+        String regex = ((RegexpValueConstraint)regexpConstraint).getRegexp();
+        assertTrue("_name".matches(regex));
+        assertTrue("Name".matches(regex));
+        assertTrue("name__999".matches(regex));
+        assertFalse("9asd".matches(regex));
+        assertFalse("name postfix".matches(regex));
+        assertFalse("name&9".matches(regex));
     }
 }

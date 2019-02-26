@@ -176,7 +176,7 @@ public class BigDecimalvalueTest {
             assertEquals(null, BigDecimalValue.quotient(new BigDecimalValue("5"), new BigDecimalValue("0")));
             fail();
         } catch (ArithmeticException e) {
-            assertTrue(true);
+            assertEquals("Division by zero", e.getMessage());
         }
     }
 
@@ -195,7 +195,7 @@ public class BigDecimalvalueTest {
                 BigDecimalValue.mod(new BigDecimalValue("5"), new BigDecimalValue("0")));
             fail();
         } catch (ArithmeticException e) {
-            assertTrue(true);
+            assertEquals("Division by zero", e.getMessage());
         }
     }
 

@@ -26,28 +26,38 @@ public class FormattersTest {
     public void testBooleanParse() {
         String boolValue = "yes";
         IFormatter formatter = FormattersManager.getFormatter(Boolean.class);
-        assertEquals(true, formatter.parse(boolValue));
+        customAssertTrue(formatter.parse(boolValue));
         
         boolValue = "NO";
-        assertEquals(false, formatter.parse(boolValue));
+        customAssertFalse(formatter.parse(boolValue));
         
         boolValue = "Y";
-        assertEquals(true, formatter.parse(boolValue));
+        customAssertTrue(formatter.parse(boolValue));
         
         boolValue = "N";
-        assertEquals(false, formatter.parse(boolValue));
+        customAssertFalse(formatter.parse(boolValue));
         
         boolValue = "true";
-        assertEquals(true, formatter.parse(boolValue));
+        customAssertTrue(formatter.parse(boolValue));
         
         boolValue = "false";
-        assertEquals(false, formatter.parse(boolValue));
+        customAssertFalse(formatter.parse(boolValue));
         
         boolValue = "on";
-        assertEquals(true, formatter.parse(boolValue));
+        customAssertTrue(formatter.parse(boolValue));
         
         boolValue = "off";
-        assertEquals(false, formatter.parse(boolValue));        
+        customAssertFalse(formatter.parse(boolValue));
+    }
+
+    private void customAssertTrue(Object o) {
+        assertNotNull(o);
+        assertTrue((Boolean) o);
+    }
+
+    private void customAssertFalse(Object o) {
+        assertNotNull(o);
+        assertFalse((Boolean) o);
     }
     
     @Test

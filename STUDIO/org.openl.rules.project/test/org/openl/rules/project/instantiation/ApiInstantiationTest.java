@@ -1,11 +1,5 @@
 package org.openl.rules.project.instantiation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.util.ArrayList;
 
@@ -17,6 +11,8 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.runtime.IEngineWrapper;
+
+import static org.junit.Assert.*;
 
 public class ApiInstantiationTest {
 //    @Test
@@ -50,8 +46,7 @@ public class ApiInstantiationTest {
         try {
             assertNotNull(strategy.compile());
         } catch (Exception e) {
-//            e.printStackTrace();
-            assertFalse(true);
+            fail();
         }
     }
 
@@ -75,7 +70,7 @@ public class ApiInstantiationTest {
         assertEquals("Good Evening, World!", ((ServiceClass)instance).hello1(19));
     }
     
-    public static interface ServiceClass{
+    public interface ServiceClass{
         String hello1(int hour);
     }
 }

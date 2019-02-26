@@ -1,6 +1,7 @@
 package org.openl.rules.engine;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -23,32 +24,38 @@ public class ContextManaginFromRulesTest extends BaseOpenlBuilderHelper {
 
     private static final String SRC = "test/rules/engine/TestContextManaginFromRules.xlsx";
 
+    private static  final IOpenClass[] EMPTY_PARAMS = {};
+
     public ContextManaginFromRulesTest() {
         super(SRC);
     }
 
     @Test
     public void testContextModifying() {
-        IOpenMethod testMethod = getCompiledOpenClass().getOpenClass().getMethod("modifyContextTest", new IOpenClass[] {});
+        IOpenMethod testMethod = getCompiledOpenClass().getOpenClass().getMethod("modifyContextTest", EMPTY_PARAMS);
         Object instance = newInstance();
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setUsState(UsStatesEnum.DC);
         context.setLob("home");
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         env.setContext(context);
-        assertEquals(true, testMethod.invoke(instance, new Object[] {}, env));
+        Object res = testMethod.invoke(instance, new Object[] {}, env);
+        assertNotNull(res);
+        assertTrue((Boolean) res);
     }
 
     @Test
     public void testContextSetter() {
-        IOpenMethod testMethod = getCompiledOpenClass().getOpenClass().getMethod("setContextTest", new IOpenClass[] {});
+        IOpenMethod testMethod = getCompiledOpenClass().getOpenClass().getMethod("setContextTest", EMPTY_PARAMS);
         Object instance = newInstance();
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setUsState(UsStatesEnum.DC);
         context.setLob("home");
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         env.setContext(context);
-        assertEquals(true, testMethod.invoke(instance, new Object[] {}, env));
+        Object res = testMethod.invoke(instance, new Object[] {}, env);
+        assertNotNull(res);
+        assertTrue((Boolean) res);
     }
 
     @Test
@@ -65,7 +72,7 @@ public class ContextManaginFromRulesTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testEmptyContextGetter() throws Exception {
-        IOpenMethod testMethod = getCompiledOpenClass().getOpenClass().getMethod("emptyContextTest", new IOpenClass[] {});
+        IOpenMethod testMethod = getCompiledOpenClass().getOpenClass().getMethod("emptyContextTest", EMPTY_PARAMS);
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         Object instance = newInstance();
         Object result = testMethod.invoke(instance, new Object[] {}, env);
@@ -79,25 +86,29 @@ public class ContextManaginFromRulesTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testContextRestoring() {
-        IOpenMethod testMethod = getCompiledOpenClass().getOpenClass().getMethod("restoreContextTest", new IOpenClass[] {});
+        IOpenMethod testMethod = getCompiledOpenClass().getOpenClass().getMethod("restoreContextTest", EMPTY_PARAMS);
         Object instance = newInstance();
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setUsState(UsStatesEnum.DC);
         context.setLob("home");
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         env.setContext(context);
-        assertEquals(true, testMethod.invoke(instance, new Object[] {}, env));
+        Object res = testMethod.invoke(instance, new Object[] {}, env);
+        assertNotNull(res);
+        assertTrue((Boolean) res);
     }
 
     @Test
     public void testTBasicContext() {
-        IOpenMethod testMethod = getCompiledOpenClass().getOpenClass().getMethod("tbasicCaller", new IOpenClass[] {});
+        IOpenMethod testMethod = getCompiledOpenClass().getOpenClass().getMethod("tbasicCaller", EMPTY_PARAMS);
         Object instance = newInstance();
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setUsState(UsStatesEnum.DC);
         context.setLob("home");
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         env.setContext(context);
-        assertEquals(true, testMethod.invoke(instance, new Object[] {}, env));
+        Object res = testMethod.invoke(instance, new Object[] {}, env);
+        assertNotNull(res);
+        assertTrue((Boolean) res);
     }
 }
