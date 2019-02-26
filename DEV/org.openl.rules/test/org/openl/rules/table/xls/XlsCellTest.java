@@ -71,13 +71,15 @@ public class XlsCellTest {
             cell.getNativeDate();  
             fail();
         } catch (IllegalStateException e) {
-            assertTrue(true); // can`t get numeric values from string cell
+            // can`t get numeric values from string cell
+            assertEquals("Cannot get a NUMERIC value from a STRING cell", e.getMessage());
         }
         try {
             cell.getNativeNumber();
             fail();
         } catch (IllegalStateException e) {
-            assertTrue(true); // can`t get numeric values from string cell
+            // can`t get numeric values from string cell
+            assertEquals("Cannot get a NUMERIC value from a STRING cell", e.getMessage());
         }
         
         ICellFont font = cell.getFont();
@@ -107,8 +109,7 @@ public class XlsCellTest {
         
         assertEquals(4, gridRegion.getLeft());
         assertEquals(7, gridRegion.getRight());
-        
-        gridRegion = null;
+
         gridRegion = cell.getRegion();
         assertEquals(7, gridRegion.getTop());
         assertEquals(9, gridRegion.getBottom());

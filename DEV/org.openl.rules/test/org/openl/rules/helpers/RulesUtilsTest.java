@@ -3059,16 +3059,16 @@ public class RulesUtilsTest {
         boolean[] outputArray = instance.testBooleanTypeAdd(inputArray, false);
         assertTrue(ArrayUtils.contains(outputArray, false));
         outputArray = instance.testBooleanTypeAdd(null, false);
-        assertEquals(false, outputArray[0]);
+        assertFalse(outputArray[0]);
     }
 
     @Test
     public void testAddBooleanTypeInPosition() {
         boolean[] inputArray = { true, true, true };
         boolean[] outputArray = instance.testBooleanTypeAdd(inputArray, 2, false);
-        assertEquals(false, outputArray[2]);
+        assertFalse(outputArray[2]);
         outputArray = instance.testBooleanTypeAdd(null, 0, false);
-        assertEquals(false, outputArray[0]);
+        assertFalse(outputArray[0]);
     }
 
     @Test
@@ -3077,16 +3077,16 @@ public class RulesUtilsTest {
         Boolean[] outputArray = instance.testBooleanAdd(inputArray, false);
         assertTrue(ArrayUtils.contains(outputArray, false));
         outputArray = instance.testBooleanAdd(null, false);
-        assertEquals(false, outputArray[0]);
+        assertFalse(outputArray[0]);
     }
 
     @Test
     public void testAddBooleanInPosition() {
         Boolean[] inputArray = { true, true, true };
         Boolean[] outputArray = instance.testBooleanAdd(inputArray, 2, false);
-        assertEquals(false, outputArray[2]);
+        assertFalse(outputArray[2]);
         outputArray = instance.testBooleanAdd(null, 0, false);
-        assertEquals(false, outputArray[0]);
+        assertFalse(outputArray[0]);
     }
 
     @Test

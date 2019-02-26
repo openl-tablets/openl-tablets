@@ -1,6 +1,7 @@
 package org.openl.rules.project;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -67,7 +68,7 @@ public class ProjectDescriptorManagerTest {
         assertEquals(1, descriptor.getDependencies().size());
         ProjectDependencyDescriptor projectDependencyDescriptor = descriptor.getDependencies().iterator().next();
         assertEquals("someProjectName", projectDependencyDescriptor.getName());
-        assertEquals(false, projectDependencyDescriptor.isAutoIncluded());
+        assertFalse(projectDependencyDescriptor.isAutoIncluded());
     }
 
     @Test(expected = ValidationException.class)

@@ -28,8 +28,8 @@ public class ArrayParameterColumnTest {
         // test array column with one element
         //
         TableProperties tableProperty = new TableProperties();
-        tableProperty.setCountry(new CountriesEnum[]{CountriesEnum.CL});
-        List<ITableProperties> properties = new ArrayList<ITableProperties>();
+        tableProperty.setCountry(CountriesEnum.CL);
+        List<ITableProperties> properties = new ArrayList<>();
         properties.add(tableProperty);
         ArrayParameterColumn arrayColumn1 = new ArrayParameterColumn(getArrayProperty(), 
             new DispatcherTableRules(properties));
@@ -84,18 +84,17 @@ public class ArrayParameterColumnTest {
                 getRules());
             fail("Exception should be thrown for not array property");
         } catch (OpenlNotCheckedException e) {
-            assertTrue("Got the exception, as expected", true);
+            assertEquals("Can`t create array parameter column for not an array property", e.getMessage());
         }
     }
     
     private DispatcherTableRules getRules() {
         TableProperties tableProperty = new TableProperties();
-        tableProperty.setCountry(new CountriesEnum[]{CountriesEnum.CL, CountriesEnum.BA, CountriesEnum.AT, 
-                CountriesEnum.SA});
+        tableProperty.setCountry(CountriesEnum.CL, CountriesEnum.BA, CountriesEnum.AT, CountriesEnum.SA);
         
         TableProperties tableProperty1 = new TableProperties();
-        tableProperty1.setCountry(new CountriesEnum[]{CountriesEnum.CA, CountriesEnum.BE, CountriesEnum.AU});
-        List<ITableProperties> properties = new ArrayList<ITableProperties>();
+        tableProperty1.setCountry(CountriesEnum.CA, CountriesEnum.BE, CountriesEnum.AU);
+        List<ITableProperties> properties = new ArrayList<>();
         properties.add(tableProperty);
         properties.add(tableProperty1);
         

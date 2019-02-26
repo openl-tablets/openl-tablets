@@ -3,6 +3,7 @@ package org.openl.rules.helpers;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.math.BigDecimal;
 
@@ -20,9 +21,10 @@ public class NumberUtilsTest {
         assertEquals(1, NumberUtils.getScale(0.2));
 
         try {
-            assertEquals(0, NumberUtils.getScale(null));
+            NumberUtils.getScale(null);
+            fail();
         } catch (NullPointerException e) {
-            assertTrue("Expecting NullPointerException", true);
+            assertEquals("Null value is not supported", e.getMessage());
         }
 
         assertEquals(0, NumberUtils.getScale(Double.NaN));
@@ -36,9 +38,10 @@ public class NumberUtilsTest {
         assertEquals(0, NumberUtils.getScale(new Integer(0)));
 
         try {
-            assertEquals(0, NumberUtils.getScale((Number) null));
+            NumberUtils.getScale((Number) null);
+            fail();
         } catch (NullPointerException e) {
-            assertTrue("Expecting NullPointerException", true);
+            assertEquals("Null value is not supported", e.getMessage());
         }
 
         assertEquals(0, NumberUtils.getScale((Number) Double.NaN));

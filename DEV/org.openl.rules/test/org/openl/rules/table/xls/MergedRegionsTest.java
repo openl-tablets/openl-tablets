@@ -243,8 +243,7 @@ public class MergedRegionsTest {
                     e1.printStackTrace();
                 }
             }
-            assertFalse("Different cells:\n" + e.getResultCell().getUri() + "\n and \n" + e.getExpectedCell().getUri(),
-                    true);
+            fail("Different cells:\n" + e.getResultCell().getUri() + "\n and \n" + e.getExpectedCell().getUri());
         }
     }
 

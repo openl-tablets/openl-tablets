@@ -78,7 +78,7 @@ public class IntValueTest {
             assertEquals(1, IntValue.divide(value1, value2));
             fail();
         } catch (OpenLRuntimeException e) {
-            assertTrue(true);
+            assertEquals("Division by zero", e.getMessage());
         }
         
         IntValue val1 = new IntValue(10);
