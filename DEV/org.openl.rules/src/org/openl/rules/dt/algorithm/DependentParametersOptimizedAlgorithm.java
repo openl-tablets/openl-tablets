@@ -655,7 +655,7 @@ public class DependentParametersOptimizedAlgorithm {
         if (relation == null)
             throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + oppositeOp, condition.getSourceCodeModule());
 
-        if (p2.startsWith(signatureParam.getName() + "[") || p2.startsWith(signatureParam.getName() + "[") || p2.startsWith(signatureParam.getName() + ".") || p2.equals(signatureParam.getName())){
+        if (p2.startsWith(signatureParam.getName() + "[") || p2.startsWith(signatureParam.getName() + ".") || p2.equals(signatureParam.getName())){
             return new OneParameterRangeFactory(signatureParam, conditionParam, relation, p2);
         }else{
             return new OneParameterRangeFactory(signatureParam, conditionParam, relation, signatureParam.getName() + "." + p2);
