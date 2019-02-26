@@ -93,9 +93,6 @@
         <maven.plugin.version>3.6.0</maven.plugin.version>
         <jetty.http.port>9999</jetty.http.port>
         <jetty.server.version>9.2.26.v20180806</jetty.server.version>
-        <!-- Empty for building without JaCoCo agent -->
-        <jacoco.argLine/>
-        <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
         <surefire.argLine>-Xms8m -Xmx40m</surefire.argLine>
@@ -373,7 +370,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>@{jacoco.argLine} ${surefire.argLine}</argLine>
+                    <argLine>${jacoco.argLine} ${surefire.argLine}</argLine>
                 </configuration>
             </plugin>
         </plugins>
@@ -391,7 +388,28 @@
             </modules>
         </profile>
         <profile>
+            <id>no-sonar</id>
+            <activation>
+                <property>
+                    <name>!sonar</name>
+                </property>
+            </activation>
+            <properties>
+                <!-- Empty for building without JaCoCo agent -->
+                <jacoco.argLine/>
+                <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
+            </properties>
+        </profile>
+        <profile>
             <id>sonar</id>
+            <activation>
+                <property>
+                    <name>sonar</name>
+                </property>
+            </activation>
+            <properties>
+                <sonar/>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
