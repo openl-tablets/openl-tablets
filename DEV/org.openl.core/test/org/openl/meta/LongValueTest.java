@@ -107,7 +107,7 @@ public class LongValueTest {
             assertEquals(new LongValue(0), LongValue.quotient(new LongValue(5), new LongValue(0)));
             fail();
         } catch (ArithmeticException e) {
-            assertEquals("Division by zero", e.getMessage());
+            assertEquals("/ by zero", e.getMessage());
         }
     }
 
@@ -124,7 +124,7 @@ public class LongValueTest {
             assertEquals(new LongValue(0), LongValue.mod(new LongValue(5), new LongValue(0)));
             fail();
         } catch (ArithmeticException e) {
-            assertEquals("Division by zero", e.getMessage());
+            assertEquals("/ by zero", e.getMessage());
         }
     }
 
