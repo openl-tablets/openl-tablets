@@ -15,11 +15,16 @@ import org.openl.rules.util.dates.DateInterval.Unit;
  * A set of util methods to work with dates.
  *
  * Note: Days and months begin from 1 (not like in Java from 0). Years begin from 0000.
+ * 
  * Note: For OpenL rules only! Don't use it in Java code.
  *
- * @author  Yury Molchan, Vladyslav Pikus
+ * @author Yury Molchan, Vladyslav Pikus
  */
 public final class Dates {
+
+    private Dates() {
+        // Utility class
+    }
 
     /**
      * Creates Date object using human numbers for the year and the month. Also validates correctness of the date.

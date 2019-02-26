@@ -11,7 +11,11 @@ import org.openl.rules.util.Statistics.Result;
 /**
  * Avg functions for different types of numbers.
  */
-public class Avg {
+public final class Avg {
+
+    private Avg() {
+        // Utility class
+    }
 
     /**
      * Returns the average of values.

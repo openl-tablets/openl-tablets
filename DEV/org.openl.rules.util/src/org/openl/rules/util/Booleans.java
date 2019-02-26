@@ -18,7 +18,11 @@ package org.openl.rules.util;
  *
  * @author Yury Molchan
  */
-public class Booleans {
+public final class Booleans {
+
+    private Booleans() {
+        // Utility class
+    }
 
     public static boolean allTrue(boolean[] values) {
         return Boolean.TRUE.equals(and(values));

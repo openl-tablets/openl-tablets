@@ -4,7 +4,12 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
 
-public class Miscs {
+public final class Miscs {
+
+    private Miscs() {
+        // Utility class
+    }
+
     public static boolean isEmpty(Object obj) {
         if (obj == null) {
             return true;
@@ -16,7 +21,7 @@ public class Miscs {
             return ((Map) obj).isEmpty();
         } else if (obj instanceof CharSequence) {
             return ((CharSequence) obj).toString().trim().isEmpty();
-        } else if (obj instanceof Iterable){
+        } else if (obj instanceof Iterable) {
             return !((Iterable) obj).iterator().hasNext();
         }
         return false;
@@ -43,7 +48,7 @@ public class Miscs {
     }
 
     public static Boolean isInfinite(Long num) {
-        return (num != null) && (Long.MAX_VALUE == num || Long.MIN_VALUE == num );
+        return (num != null) && (Long.MAX_VALUE == num || Long.MIN_VALUE == num);
     }
 
     public static Boolean isInfinite(Integer num) {
