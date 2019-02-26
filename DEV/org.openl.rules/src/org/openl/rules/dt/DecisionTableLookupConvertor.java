@@ -250,7 +250,7 @@ public class DecisionTableLookupConvertor {
         int i = 0;
         int h = 0;
         while (i < hcHeaderTable.getHeight()) {
-            i = i + hcHeaderTable.getCell(i, 0).getHeight();
+            i = i + hcHeaderTable.getCell(i, hcHeaderTable.getWidth() - 1).getHeight();
             h = h + 1;
         }
         return h;
