@@ -1,10 +1,13 @@
 package org.openl.rules.webstudio.web;
 
+import java.util.Map;
 import java.util.UUID;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.CommonException;
@@ -13,6 +16,7 @@ import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.ParameterRegistry;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.WebContext;
+import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.tableeditor.TableBean;
 import org.openl.rules.webstudio.web.util.Constants;
@@ -31,6 +35,11 @@ public class MainBean {
     @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
 
+    @ManagedProperty(value = "#{systemConfig}")
+    private Map<String, Object> config;
+
+    private CommentValidator commentValidator;
+
     private String requestId;
 
     private final Logger log = LoggerFactory.getLogger(MainBean.class);
@@ -43,6 +52,12 @@ public class MainBean {
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
         this.repositoryTreeState = repositoryTreeState;
+    }
+
+    public void setConfig(Map<String, Object> config) {
+        this.config = config;
+
+        commentValidator = CommentValidator.forDesignRepo(config);
     }
 
     /**
@@ -82,6 +97,12 @@ public class MainBean {
         if (project != null) {
             project.setVersionComment(comment);
         }
+    }
+
+    public void commentValidator(FacesContext context, UIComponent toValidate, Object value) {
+        String comment = (String) value;
+
+        commentValidator.validate(comment);
     }
 
     public void saveProject() {
