@@ -909,7 +909,6 @@ public class DecisionTableHelper {
         int j = 0;
         for (int i = numberOfConditions - numberOfHcondition; i < numberOfConditions; i++) {
             int c = hColumn;
-            int w = 1;
             while (c < originalTable.getSource().getWidth()) {
                 ICell cell = originalTable.getSource().getCell(c, j);
 
@@ -923,9 +922,8 @@ public class DecisionTableHelper {
                     }
                 }
                 c = c + cell.getWidth();
-                w = cell.getHeight();
             }
-            j = j + w;
+            j++;
         }
     }
 
