@@ -6,7 +6,6 @@
 
 package org.openl.util;
 
-import java.util.Enumeration;
 import java.util.Iterator;
 
 /**
@@ -14,23 +13,6 @@ import java.util.Iterator;
  * 
  */
 public class OpenIterator<T> extends AOpenIterator.SimpleIteratorWrapper<T> {
-
-    private static class EnumerationIterator<T> extends AOpenIterator<T> {
-        private Enumeration<T> enumeration;
-
-        EnumerationIterator(Enumeration<T> enumeration) {
-            this.enumeration = enumeration;
-        }
-
-        public boolean hasNext() {
-            return enumeration.hasMoreElements();
-        }
-
-        public T next() {
-            return enumeration.nextElement();
-        }
-
-    }
 
     public static <T> Iterator<T> fromArray(T[] ary) {
         if (ary == null || ary.length == 0) {
@@ -48,16 +30,7 @@ public class OpenIterator<T> extends AOpenIterator.SimpleIteratorWrapper<T> {
         return new AIndexedIterator.AnyArrayIterator(ary);
     }
 
-    public static <T> IOpenIterator<T> fromEnumeration(Enumeration<T> enumeration) {
-        if (enumeration == null) {
-            return empty();
-        }
-
-        return new EnumerationIterator<T>(enumeration);
-    }
-
     public OpenIterator(Iterator<T> it) {
         super(it);
     }
-
 }
