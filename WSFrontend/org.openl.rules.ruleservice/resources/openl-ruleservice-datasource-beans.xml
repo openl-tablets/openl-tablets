@@ -27,6 +27,8 @@
                 <entry key="branch" value="${production-repository.branch}"/>
                 <entry key="tagPrefix" value="${production-repository.tag-prefix}"/>
                 <entry key="commentPattern" value="${production-repository.comment-pattern}"/>
+                <entry key="userDisplayName" value="${production-repository.user-display-name}"/>
+                <entry key="userEmail" value="${production-repository.user-email}"/>
                 <!-- AWS S3 and Git specific -->
                 <entry key="listenerTimerPeriod" value="${production-repository.listener-timer-period}"/>
             </map>
