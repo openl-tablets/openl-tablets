@@ -54,30 +54,43 @@ public class DatasourceDBRepositoryFactory extends DBRepository {
         if (StringUtils.isBlank(uri)) {
             throw new IllegalStateException("Required 'uri' property is not defined.");
         }
-        InitialContext initialContext;
+        InitialContext initialContext = createInitialContext();
 
-        boolean noExceptions = true;
+        RuntimeException exception = null;
         try {
-            initialContext = new InitialContext();
-            try {
-                this.dataSource = (DataSource) initialContext.lookup(uri);
-            } catch (Throwable e) {
-                noExceptions = false;
-                throw new IllegalStateException("Cannot determine JNDI [ " + uri + " ] name", e);
-            } finally {
+            this.dataSource = (DataSource) initialContext.lookup(uri);
+        } catch (Throwable e) {
+            exception = new IllegalStateException("Cannot determine JNDI [ " + uri + " ] name", e);
+            throw exception;
+        } finally {
+            if (exception != null) {
                 try {
                     initialContext.close();
                 } catch (Throwable e) {
-                    if (noExceptions) {
-                        throw new IllegalStateException("Cannot close JNDI context", e);
-                    }
+                    exception.addSuppressed(new IllegalStateException("Cannot close JNDI context", e));
                 }
+            } else {
+                closeInitialContext(initialContext);
             }
-        } catch (NamingException e) {
-            throw new IllegalStateException("Cannot initialize JNDI context", e);
         }
         if (dataSource == null) {
             throw new IllegalStateException("DataSource has not been found in JNDI context by 'uri' : " + uri);
+        }
+    }
+
+    private InitialContext createInitialContext() {
+        try {
+            return new InitialContext();
+        } catch (NamingException e) {
+            throw new IllegalStateException("Cannot initialize JNDI context", e);
+        }
+    }
+
+    private void closeInitialContext(InitialContext initialContext) {
+        try {
+            initialContext.close();
+        } catch (Throwable e) {
+            throw new IllegalStateException("Cannot close JNDI context", e);
         }
     }
 }

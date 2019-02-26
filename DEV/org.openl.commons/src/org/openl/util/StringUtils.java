@@ -4,6 +4,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Utils to manipulate with strings.
@@ -411,6 +413,18 @@ public class StringUtils {
             }
         }
         return false;
+    }
+
+    /**
+     * Do the same as {@link java.lang.String#matches(String)}
+     * @param regex a Pattern to which this string is to be matched
+     * @param input an input string to match regexp Pattern
+     * @return {@code true} if, and only if, this string matches the
+     *           given regular expression
+     */
+    public static boolean matches(Pattern regex, CharSequence input) {
+        Matcher m = regex.matcher(input);
+        return m.matches();
     }
 
     /**

@@ -144,7 +144,7 @@ public class DataTableBuilder extends TableBuilder {
             if (foreignKey.startsWith(">"))
                 return foreignKey;
 
-            int dotPos = foreignKey.indexOf(".");
+            int dotPos = foreignKey.indexOf('.');
             String tableName = dotPos > 0 ? foreignKey.substring(0, dotPos) : foreignKey;
             String columnName = dotPos > 0 ? " " + foreignKey.substring(dotPos + 1) : "";
             return ">" + tableName + columnName;

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
-import java.util.Stack;
 
 import org.openl.OpenL;
 import org.openl.binding.impl.Binder;
@@ -15,31 +14,6 @@ import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.SimpleVM;
 
 public abstract class AOpenLBuilder extends BaseOpenLBuilder {
-
-    static class UserContextStack extends ThreadLocal<Stack<IUserContext>> {
-
-        @Override
-        protected Stack<IUserContext> initialValue() {
-            return new Stack<>();
-        }
-
-        public IUserContext pop() {
-            return stack().pop();
-        }
-
-        public void push(IUserContext ucxt) {
-            stack().push(ucxt);
-        }
-
-        protected Stack<IUserContext> stack() {
-            return get();
-        }
-
-        public IUserContext top() {
-            return stack().peek();
-        }
-
-    }
 
     public OpenL build(String openl) throws OpenConfigurationException {
         OpenL op = new OpenL();
@@ -86,18 +60,6 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
             } catch (Throwable t) {
                 Log.error("Error closing stream", t);
             }
-        }
-
-    }
-
-    private ClassLoader myClassLoader() {
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        String myName = getClass().getName();
-        try {
-            oldClassLoader.loadClass(myName);
-            return oldClassLoader;
-        } catch (ClassNotFoundException e) {
-            return getClass().getClassLoader();
         }
 
     }

@@ -14,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.IOpenBinder;
@@ -93,6 +94,7 @@ import org.slf4j.LoggerFactory;
  */
 public class XlsBinder implements IOpenBinder {
 
+    private static final Pattern REGEX = Pattern.compile("[ ,()\t\n\r]");
     private final Logger log = LoggerFactory.getLogger(XlsBinder.class);
     private static Map<String, AXlsTableBinder> binderFactory;
 
@@ -636,7 +638,7 @@ public class XlsBinder implements IOpenBinder {
             if (!customSpreadsheetResultTypes.isEmpty()) {
                 String headerSource = aExecutableNodeBinder.createHeaderSource(tableSyntaxNode, moduleContext)
                     .getCode();
-                String[] tokens = headerSource.split("[ ,()\t\n\r]");
+                String[] tokens = REGEX.split(headerSource);
                 List<String> notEmptyTokens = new ArrayList<String>();
                 for (String token : tokens) {
                     if (!token.isEmpty()) {
@@ -701,7 +703,7 @@ public class XlsBinder implements IOpenBinder {
     }
 
     private void addTypeToken(Set<String> customSpreadsheetResultTypes, String token, StringBuilder sb) {
-        int i = token.indexOf("[");
+        int i = token.indexOf('[');
         if (i > 0) { // Array type
             String beginToken = token.substring(0, i);
             String endToken = token.substring(i);

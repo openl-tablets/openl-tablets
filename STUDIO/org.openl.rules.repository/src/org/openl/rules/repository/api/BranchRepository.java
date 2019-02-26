@@ -12,5 +12,5 @@ public interface BranchRepository extends Repository {
 
     List<String> getBranches(String projectName);
 
-    BranchRepository cloneFor(String branch) throws IOException;
+    BranchRepository forBranch(String branch) throws IOException;
 }

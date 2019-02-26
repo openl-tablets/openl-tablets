@@ -114,18 +114,20 @@ public class DatatypeOpenClass extends ADynamicClass {
         return (LinkedHashMap<String, IOpenField>) fieldMap;
     }
 
-    private Map<String, IOpenField> fields = null;
+    private volatile Map<String, IOpenField> fields = null;
 
     @Override
     public Map<String, IOpenField> getFields() {
-        if (fields == null) {
+        Map<String, IOpenField> localFields = this.fields;
+        if (localFields == null) {
             synchronized (this) {
-                if (fields == null) {
-                    fields = initializeFields();
+                localFields = this.fields;
+                if (localFields == null) {
+                    fields = localFields = initializeFields();
                 }
             }
         }
-        return Collections.unmodifiableMap(fields);
+        return Collections.unmodifiableMap(localFields);
     }
 
     private Map<String, IOpenField> initializeFields() {

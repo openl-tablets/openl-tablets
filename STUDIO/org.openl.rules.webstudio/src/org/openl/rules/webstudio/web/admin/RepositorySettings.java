@@ -32,4 +32,8 @@ public abstract class RepositorySettings {
     public void copyContent(RepositorySettings other) {
         setIncludeVersionInDeploymentName(other.isIncludeVersionInDeploymentName());
     }
+
+    public RepositorySettingsValidators getValidators() {
+        return new RepositorySettingsValidators();
+    }
 }

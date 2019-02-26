@@ -98,9 +98,6 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
             uri = (String) message.get(Message.REQUEST_URI);
             if (uri != null && uri.startsWith("/")) {
                 if (address != null && !address.startsWith(uri)) {
-                    if (address.endsWith("/") && address.length() > 1) {
-                        address = address.substring(0, address.length());
-                    }
                     uri = address + uri;
                 }
             } else {
@@ -161,11 +158,10 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
     }
 
     protected void logInputStream(Message message, InputStream is, LoggingMessage buffer, String encoding, String ct) {
-        CachedOutputStream bos = new CachedOutputStream();
-        if (threshold > 0) {
-            bos.setThreshold(threshold);
-        }
-        try {
+        try (CachedOutputStream bos = new CachedOutputStream()) {
+            if (threshold > 0) {
+                bos.setThreshold(threshold);
+            }
             // use the appropriate input stream and restore it later
             InputStream bis = is instanceof DelegatingInputStream ? ((DelegatingInputStream) is).getInputStream() : is;
 
@@ -191,8 +187,6 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
                 buffer.getMessage().append("(message truncated to " + limit + " bytes)\n");
             }
             writePayload(buffer.getPayload(), bos, encoding, ct);
-
-            bos.close();
         } catch (Exception e) {
             throw new Fault(e);
         }

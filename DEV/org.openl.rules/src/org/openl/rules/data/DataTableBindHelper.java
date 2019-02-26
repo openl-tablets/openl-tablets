@@ -14,7 +14,6 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.StringValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultField;
-import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
@@ -43,28 +42,29 @@ public class DataTableBindHelper {
 
     private static final char INDEX_ROW_REFERENCE_START_SYMBOL = '>';
 
-    public static final String FPK = "_PK_";
+    private static final String FPK = "_PK_";
 
     /**
      * Indicates that field is a constructor.<br>
      */
     // Protected to make javadoc reference.
-    protected static final String CONSTRUCTOR_FIELD = "this";
+    static final String CONSTRUCTOR_FIELD = "this";
 
     private static final String CODE_DELIMETERS = ".\n\r";
     private static final String INDEX_ROW_REFERENCE_DELIMITER = " >\n\r";
     private static final String LINK_DELIMETERS = ".";
 
     // patter for field like addressArry[0]
-    public static final String COLLECTION_ACCESS_BY_INDEX_PATTERN = "\\s*[^\\:\\s]+\\s*\\[\\s*[0-9]+\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$";
-    public static final String COLLECTION_ACCESS_BY_KEY_PATTERN = "\\s*[^\\:\\s]+\\s*\\[\\s*(\\\".*\\\"|[0-9]+)\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$";
+    public static final Pattern COLLECTION_ACCESS_BY_INDEX_PATTERN = Pattern.compile("\\s*[^\\:\\s]+\\s*\\[\\s*[0-9]+\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$");
+    public static final Pattern COLLECTION_ACCESS_BY_KEY_PATTERN = Pattern.compile("\\s*[^\\:\\s]+\\s*\\[\\s*(\\\".*\\\"|[0-9]+)\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$");
     
-    public static final String THIS_ARRAY_ACCESS_PATTERN = "\\s*\\[\\s*[0-9]+\\s*\\]\\s*$";
-    public static final String THIS_LIST_ACCESS_PATTERN = "\\s*\\[\\s*[0-9]+\\s*\\]\\s*(\\:\\s*[^\\:]+|)$";
-    public static final String THIS_MAP_ACCESS_PATTERN = "\\s*\\[\\s*(\\\".*\\\"|[0-9]+)\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$";
-    public static final String PRECISION_PATTERN = "^\\(\\-?[0-9]+\\)$";
-    public static final String SPREADSHEETRESULTFIELD_PATTERN = "^\\$.+\\$.+$";
+    static final Pattern THIS_ARRAY_ACCESS_PATTERN = Pattern.compile("\\s*\\[\\s*[0-9]+\\s*\\]\\s*$");
+    static final Pattern THIS_LIST_ACCESS_PATTERN = Pattern.compile("\\s*\\[\\s*[0-9]+\\s*\\]\\s*(\\:\\s*[^\\:]+|)$");
+    static final Pattern THIS_MAP_ACCESS_PATTERN = Pattern.compile("\\s*\\[\\s*(\\\".*\\\"|[0-9]+)\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$");
+    public static final Pattern PRECISION_PATTERN = Pattern.compile("^\\(\\-?[0-9]+\\)$");
+    public static final Pattern SPREADSHEETRESULTFIELD_PATTERN = Pattern.compile("^\\$.+\\$.+$");
     private static final Pattern FIELD_WITH_PRECISION_PATTERN = Pattern.compile("^(.*\\S)\\s*(\\(-?[0-9]+\\))$");
+    private static final Pattern QUOTED = Pattern.compile("\\\".*\\\"");
 
     /**
      * Foreign keys row is optional for data table. It consists reference for field value to other table. Foreign keys
@@ -180,12 +180,14 @@ public class DataTableBindHelper {
             fieldName = StringUtils.trim(fieldName);
 
             // if it is field chain get first token
-            if (fieldName.indexOf(".") > 0) {
-                fieldName = fieldName.substring(0, fieldName.indexOf("."));
+            int dotIndex = fieldName.indexOf('.');
+            if (dotIndex > 0) {
+                fieldName = fieldName.substring(0, dotIndex);
             }
             // if it is array field correct field name
-            if (fieldName.indexOf("[") > 0) {
-                fieldName = fieldName.substring(0, fieldName.indexOf("["));
+            int brIndex = fieldName.indexOf('[');
+            if (brIndex > 0) {
+                fieldName = fieldName.substring(0, brIndex);
             }
 
             IOpenField field = findField(fieldName, null, tableType);
@@ -596,12 +598,12 @@ public class DataTableBindHelper {
     private static IOpenClass getTypeForCollection(IBindingContext bindingContext,
             ITable table,
             IdentifierNode identifierNode) {
-        if (identifierNode.getIdentifier().indexOf(":") < 0) {
+        int typeSeparatorIndex = identifierNode.getIdentifier().indexOf(':');
+        if (typeSeparatorIndex < 0) {
             return JavaOpenClass.OBJECT;
         }
 
-        String typeName = identifierNode.getIdentifier().substring(identifierNode.getIdentifier().indexOf(":") + 1,
-            identifierNode.getIdentifier().length());
+        String typeName = identifierNode.getIdentifier().substring(typeSeparatorIndex + 1);
         typeName = typeName.trim();
 
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
@@ -639,11 +641,11 @@ public class DataTableBindHelper {
 
         for (int fieldIndex = 0; fieldIndex < fieldAccessorChain.length; fieldIndex++) {
             IdentifierNode fieldNameNode = fieldAccessorChainTokens[fieldIndex];
-            IOpenField fieldInChain;
+            String identifier = fieldNameNode.getIdentifier();
 
-            if (fieldIndex > 0 && (fieldIndex == fieldAccessorChain.length - 1) && fieldNameNode.getIdentifier()
-                .matches(
-                    FPK) && (fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementWithMultiRowField)) { // Multi-rows
+            IOpenField fieldInChain;
+            if (fieldIndex > 0 && (fieldIndex == fieldAccessorChain.length - 1) && identifier.equals(FPK)
+                    && (fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementWithMultiRowField)) { // Multi-rows
                 // support.
                 // PK
                 // for
@@ -662,8 +664,7 @@ public class DataTableBindHelper {
                 continue;
             }
 
-            if (fieldIndex == 0 && fieldNameNode.getIdentifier()
-                .matches(THIS_ARRAY_ACCESS_PATTERN) && (!(type instanceof TestMethodOpenClass)) && type.isArray()) {
+            if (fieldIndex == 0 && StringUtils.matches(THIS_ARRAY_ACCESS_PATTERN, identifier) && (!(type instanceof TestMethodOpenClass)) && type.isArray()) {
                 fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionIndex(fieldNameNode),
                     type.getComponentClass(),
                     CollectionType.ARRAY);
@@ -671,9 +672,9 @@ public class DataTableBindHelper {
                 continue;
             }
 
-            if (fieldIndex == 0 && fieldNameNode.getIdentifier()
-                .matches(THIS_LIST_ACCESS_PATTERN) && (!(type instanceof TestMethodOpenClass)) && List.class
-                    .isAssignableFrom(type.getInstanceClass())) {
+            if (fieldIndex == 0 &&
+                StringUtils.matches(THIS_LIST_ACCESS_PATTERN, identifier) &&
+                    (!(type instanceof TestMethodOpenClass)) && List.class.isAssignableFrom(type.getInstanceClass())) {
                 IOpenClass elementType = getTypeForCollection(bindingContext, table, fieldNameNode);
                 fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionIndex(fieldNameNode),
                     elementType,
@@ -682,9 +683,9 @@ public class DataTableBindHelper {
                 continue;
             }
             
-            if (fieldIndex == 0 && fieldNameNode.getIdentifier()
-                .matches(THIS_MAP_ACCESS_PATTERN) && (!(type instanceof TestMethodOpenClass)) && Map.class
-                    .isAssignableFrom(type.getInstanceClass())) {
+            if (fieldIndex == 0 &&
+                    StringUtils.matches(THIS_MAP_ACCESS_PATTERN, identifier) &&
+                    (!(type instanceof TestMethodOpenClass)) && Map.class.isAssignableFrom(type.getInstanceClass())) {
                 IOpenClass elementType = getTypeForCollection(bindingContext, table, fieldNameNode);
                 fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionKey(fieldNameNode),
                     elementType);
@@ -692,14 +693,15 @@ public class DataTableBindHelper {
                 continue;
             }
 
-            if (fieldNameNode.getIdentifier().matches(PRECISION_PATTERN)) {
+            if (StringUtils.matches(PRECISION_PATTERN, identifier)) {
                 fieldAccessorChain = ArrayUtils.remove(fieldAccessorChain, fieldIndex);
                 fieldAccessorChainTokens = ArrayUtils.remove(fieldAccessorChainTokens, fieldIndex);
                 // Skip creation of IOpenField
                 continue;
             }
 
-            boolean collectionAccessPattern = fieldNameNode.getIdentifier().matches(COLLECTION_ACCESS_BY_INDEX_PATTERN) || fieldNameNode.getIdentifier().matches(COLLECTION_ACCESS_BY_KEY_PATTERN);
+            boolean collectionAccessPattern = StringUtils.matches(COLLECTION_ACCESS_BY_INDEX_PATTERN, identifier) ||
+                    StringUtils.matches(COLLECTION_ACCESS_BY_KEY_PATTERN, identifier);
             
             if (collectionAccessPattern) {
                 hasAccessByArrayId = true;
@@ -726,7 +728,7 @@ public class DataTableBindHelper {
             if (fieldIndex > 0 && (fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementField || fieldAccessorChain[fieldIndex - 1] instanceof SpreadsheetResultField) && fieldAccessorChain[fieldIndex - 1]
                 .getType()
                 .equals(JavaOpenClass.OBJECT)) {
-                if (fieldNameNode.getIdentifier().matches(SPREADSHEETRESULTFIELD_PATTERN)) {
+                if (StringUtils.matches(SPREADSHEETRESULTFIELD_PATTERN, identifier)) {
                     AOpenField aOpenField = (AOpenField) fieldAccessorChain[fieldIndex - 1];
                     aOpenField.setType(JavaOpenClass.getOpenClass(SpreadsheetResult.class));
                 }
@@ -743,7 +745,7 @@ public class DataTableBindHelper {
 
             fieldAccessorChain[fieldIndex] = fieldInChain;
             if (fieldIndex > 0) {
-                partPathFromRoot.append(".");
+                partPathFromRoot.append('.');
             }
             partPathFromRoot.append(fieldInChain.getName());
         }
@@ -759,7 +761,7 @@ public class DataTableBindHelper {
     public static Integer getPrecisionValue(IdentifierNode fieldNameNode) {
         try {
             String fieldName = fieldNameNode.getIdentifier();
-            String txtIndex = fieldName.substring(fieldName.indexOf("(") + 1, fieldName.indexOf(")"));
+            String txtIndex = fieldName.substring(fieldName.indexOf('(') + 1, fieldName.indexOf(')'));
 
             return Integer.parseInt(txtIndex);
         } catch (Exception e) {
@@ -769,13 +771,13 @@ public class DataTableBindHelper {
 
     public static int getCollectionIndex(IdentifierNode fieldNameNode) {
         String fieldName = fieldNameNode.getIdentifier();
-        String txtIndex = fieldName.substring(fieldName.indexOf("[") + 1, fieldName.indexOf("]")).trim();
+        String txtIndex = fieldName.substring(fieldName.indexOf('[') + 1, fieldName.indexOf(']')).trim();
         return Integer.parseInt(txtIndex);
     }
 
     public static String getCollectionName(IdentifierNode fieldNameNode) {
         String fieldName = fieldNameNode.getIdentifier();
-        int ind = fieldName.indexOf("[");
+        int ind = fieldName.indexOf('[');
         if (ind > 0) {
             return fieldName.substring(0, ind).trim();
         }
@@ -856,8 +858,9 @@ public class DataTableBindHelper {
 
     private static String getFieldName(String identifier) {
         String fieldName = identifier.trim();
-        if (fieldName.indexOf(":") > 0) {
-            fieldName = fieldName.substring(0, fieldName.indexOf(":")).trim();
+        int endIndex = fieldName.indexOf(':');
+        if (endIndex > 0) {
+            fieldName = fieldName.substring(0, endIndex).trim();
         }
         return fieldName;
     }
@@ -983,8 +986,8 @@ public class DataTableBindHelper {
 
     public static Object getCollectionKey(IdentifierNode currentFieldNameNode) {
         String s = currentFieldNameNode.getIdentifier();
-        s = s.substring(s.indexOf("[") + 1, s.lastIndexOf("]")).trim();
-        if (s.matches("\\\".*\\\"")) {
+        s = s.substring(s.indexOf('[') + 1, s.lastIndexOf(']')).trim();
+        if (StringUtils.matches(QUOTED, s)) {
             return s.substring(1, s.length() - 1);
         } else {
             return Integer.valueOf(s);

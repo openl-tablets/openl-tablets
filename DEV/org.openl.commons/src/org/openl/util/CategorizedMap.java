@@ -59,11 +59,11 @@ public class CategorizedMap {
 
     }
 
-    protected HashMap<String, Category> categories = new HashMap<String, Category>();
+    private HashMap<String, Category> categories = new HashMap<String, Category>();
 
     protected HashMap<String, Object> all = new HashMap<String, Object>();
 
-    Object findByCategory(String str) {
+    private Object findByCategory(String str) {
         Category c = getCategory(str);
         while ((c = c.parent) != null) {
             Object res = all.get(c.getCategory());
@@ -88,7 +88,7 @@ public class CategorizedMap {
      * 
      * @see org.openl.env.IResourceProvider#getResource(java.lang.Object)
      */
-    public Object getCategorized(String category) {
+    private Object getCategorized(String category) {
 
         Object res = all.get(category);
         return res != null ? res : findByCategory(category);
@@ -116,17 +116,15 @@ public class CategorizedMap {
         return putCategorized((String) key, value);
     }
 
-    public Object putCategorized(String category, Object value) {
+    private Object putCategorized(String category, Object value) {
         if (!all.containsKey(category)) {
             getCategory(category);
         }
         return all.put(category, value);
     }
 
-    protected synchronized void reassignParents(int parentDistance, Category parent) {
-        for (Iterator<Category> iter = categories.values().iterator(); iter.hasNext();) {
-            Category c = iter.next();
-
+    private synchronized void reassignParents(int parentDistance, Category parent) {
+        for (Category c : categories.values()) {
             if (c.getParent() == parent && c.getParentDistance() > parentDistance) {
                 setParent(c);
             }

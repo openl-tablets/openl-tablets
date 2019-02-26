@@ -55,16 +55,6 @@
   </h:panelGroup>
 
   <h:panelGroup rendered="#{node.type == 'project'}">
-    <h:panelGroup rendered="#{repositoryTreeController.supportsBranches}" style="margin-right: 4px">
-        <h:selectOneMenu value="#{repositoryTreeController.projectBranch}"
-                         title="Branch: #{repositoryTreeController.projectBranch}"
-                         id="branchSelector"
-                         onchange="return canOpenOtherBranch(this);">
-            <f:selectItems value="#{repositoryTreeController.projectBranches}"/>
-            <f:ajax event="change" immediate="true" render="projectTree nodeView"/>
-        </h:selectOneMenu>
-    </h:panelGroup>
-
     <h:panelGroup rendered="#{artefact.deleted}">
         <h:commandButton id="undeleteId1" rendered="#{repositoryTreeState.canUndelete}" value="Undelete" onclick="confirmUndeleteProject();return false;" title="#{undeleteMessage}"/>
         <h:commandButton id="eraseId1" rendered="#{repositoryTreeState.canErase}" value="Erase" onclick="confirmEraseProject();return false;" title="#{eraseMessage}"/>
@@ -133,6 +123,22 @@
                     <h:outputText value="#{node.logicalName} (#{node.name})" rendered="#{node.type == 'project' and node.renamed}"/>
                 </td>
             </tr>
+            <h:panelGroup rendered="#{node.type == 'project' and repositoryTreeState.supportsBranches}">
+            <tr>
+                <td class="label">
+                    <h:outputText value="Branch" />
+                </td>
+                <td>
+                    <h:selectOneMenu value="#{repositoryTreeController.projectBranch}"
+                                     title="#{repositoryTreeController.projectBranch}"
+                                     id="branchSelector"
+                                     onchange="return canOpenOtherBranch(this);">
+                        <f:selectItems value="#{repositoryTreeController.projectBranches}"/>
+                        <f:ajax event="change" immediate="true" render="projectTree nodeView"/>
+                    </h:selectOneMenu>
+                </td>
+            </tr>
+            </h:panelGroup>
             <h:panelGroup rendered="#{node.type == 'project' || node.type == 'prodproject' }">
             <tr>
                 <td class="label">

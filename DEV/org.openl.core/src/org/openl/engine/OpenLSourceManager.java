@@ -42,6 +42,8 @@ public class OpenLSourceManager extends OpenLHolder {
 
     public static final String ADDITIONAL_WARN_MESSAGES_KEY = "additional-warn-messages";
     public static final String ADDITIONAL_ERROR_MESSAGES_KEY = "additional-error-messages";
+    private static final Pattern ASTERIX_SIGN = Pattern.compile("\\*");
+    private static final Pattern QUESTION_SIGN = Pattern.compile("\\?");
 
     private OpenLParseManager parseManager;
 
@@ -104,8 +106,8 @@ public class OpenLSourceManager extends OpenLHolder {
         }
         for (IDependency dependency : dependencies) {
             String value = dependency.getNode().getIdentifier();
-            value = value.replaceAll("\\*", "\\\\E.*\\\\Q");
-            value = value.replaceAll("\\?", "\\\\E.\\\\Q");
+            value = ASTERIX_SIGN.matcher(value).replaceAll("\\\\E.*\\\\Q");
+            value = QUESTION_SIGN.matcher(value).replaceAll("\\\\E.\\\\Q");
             value = "\\Q" + value + "\\E";
 
             boolean found = false;

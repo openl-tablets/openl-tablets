@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.data.*;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -29,11 +29,13 @@ import org.openl.types.impl.CollectionElementField;
 import org.openl.types.impl.DynamicObject;
 import org.openl.types.impl.ThisField;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class TestSuiteMethod extends ExecutableRulesMethod {
 
     private final static String PRECISION_PARAM = "precision";
+    private static final Pattern DASH_SEPARATOR = Pattern.compile("\\s[-]\\s");
     private IOpenMethod testedMethod;
     private TestDescription[] tests;
     private Map<String, Integer> indeces;
@@ -90,7 +92,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         }
         TreeSet<Integer> result = new TreeSet<>();
 
-        String ranges[] = ids.trim().split(",");
+        String ranges[] = StringUtils.split(ids.trim(), ',');
         for (String range : ranges) {
             if (range.isEmpty() && indeces.containsKey(",")) {
                 result.add(indeces.get(","));
@@ -101,9 +103,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                 result.add(indeces.get(v));
                 continue;
             }
-            String edges[] = v.split("-");
+            String edges[] = StringUtils.split(v, '-');
             if (edges.length > 2 || edges[edges.length - 1].trim().isEmpty()) {
-                edges = v.split("\\s[-]\\s");
+                edges = DASH_SEPARATOR.split(v);
             }
             if (edges.length == 0) {
                 if (indeces.containsKey("-")) {
@@ -298,8 +300,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                     continue;
                 }
                 Integer fieldPrecision = testTablePrecision;
-                if (nodes.length > 1 && nodes[nodes.length - 1].getIdentifier()
-                    .matches(DataTableBindHelper.PRECISION_PATTERN)) {
+                if (nodes.length > 1 && StringUtils.matches(DataTableBindHelper.PRECISION_PATTERN, nodes[nodes.length - 1].getIdentifier())) {
                     // set the precision of the field
                     fieldPrecision = DataTableBindHelper.getPrecisionValue(nodes[nodes.length - 1]);
                     nodes = ArrayUtils.remove(nodes, nodes.length - 1);
@@ -309,8 +310,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                     fieldsToTest.addAll(resultType.getFields().values());
                 }  else {
                     IOpenField[] fieldSequence;
-                    boolean resIsCollection = nodes[0].getIdentifier().matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN)
-                            || nodes[0].getIdentifier().matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN);
+                    String identifier1 = nodes[0].getIdentifier();
+                    boolean resIsCollection = StringUtils.matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, identifier1)
+                            || StringUtils.matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, identifier1);
                     int startIndex = 0;
                     IOpenClass currentType = resultType;
 
@@ -339,14 +341,14 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                     int i;
                     for (i = startIndex; i < fieldSequence.length; i++) {
                         String identifier = nodes[i + 1 - startIndex].getIdentifier();
-                        boolean isCollection = identifier.matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN)
-                                || identifier.matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN);
+                        boolean isCollection = StringUtils.matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, identifier)
+                                || StringUtils.matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, identifier);
                         if (isCollection) {
                             IOpenField arrayField = currentType.getField(DataTableBindHelper.getCollectionName(nodes[i + 1 - startIndex]));
                             // Try process field as SpreadsheetResult
                             if (arrayField == null && currentType
-                                .equals(JavaOpenClass.OBJECT) && identifier
-                                    .matches(DataTableBindHelper.SPREADSHEETRESULTFIELD_PATTERN)) {
+                                .equals(JavaOpenClass.OBJECT) && StringUtils
+                                    .matches(DataTableBindHelper.SPREADSHEETRESULTFIELD_PATTERN, identifier)) {
                                 IOpenClass spreadsheetResultOpenClass = JavaOpenClass.getOpenClass(SpreadsheetResult.class);
                                 arrayField = spreadsheetResultOpenClass
                                     .getField(DataTableBindHelper.getCollectionName(nodes[i + 1 - startIndex]));

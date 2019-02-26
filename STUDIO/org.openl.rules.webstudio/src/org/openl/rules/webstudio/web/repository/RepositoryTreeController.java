@@ -797,8 +797,7 @@ public class RepositoryTreeController {
                     String userName = file.getName();
                     // Check for reserved folder name
                     if (!LockEngineImpl.LOCKS_FOLDER_NAME.equals(userName)) {
-                        try {
-                            FileSystemRepository repository = new FileSystemRepository();
+                        try (FileSystemRepository repository = new FileSystemRepository()) {
                             repository.setRoot(file);
                             repository.initialize();
                             FileData fileData = new FileData();
@@ -855,7 +854,7 @@ public class RepositoryTreeController {
             projectDescriptorResolver.deleteRevisionsFromCache(project);
             synchronized (userWorkspace) {
                 Repository mainRepo = userWorkspace.getDesignTimeRepository().getRepository();
-                if (mainRepo.supports().branches() && !((BranchRepository) mainRepo).getBranch().equals(project.getBranch())) {
+                if (project instanceof RulesProject && mainRepo.supports().branches() && !((BranchRepository) mainRepo).getBranch().equals(project.getBranch())) {
                     // Delete secondary branch
                     ((BranchRepository) mainRepo).deleteBranch(project.getName(), project.getBranch());
                 } else {
@@ -1639,7 +1638,7 @@ public class RepositoryTreeController {
      */
     public void selectCurrentProjectForOpen(AjaxBehaviorEvent event) {
         currentProject = getSelectedProject();
-        if (currentProject == null || currentProject.getVersion() == null) {
+        if (currentProject == null || currentProject.getVersion() == null || currentProject.isLastVersion()) {
             version = null;
         } else {
             version = currentProject.getVersion().getVersionName();
@@ -1658,9 +1657,12 @@ public class RepositoryTreeController {
         }
     }
 
+    /**
+     * Checks if design repository supports branches
+     */
     public boolean isSupportsBranches() {
         try {
-            return repositoryTreeState.getSelectedProject().getDesignRepository().supports().branches();
+            return userWorkspace.getDesignTimeRepository().getRepository().supports().branches();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -1688,6 +1690,7 @@ public class RepositoryTreeController {
             }
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
+            version = null;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

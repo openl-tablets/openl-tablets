@@ -17,6 +17,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Listener;
@@ -35,7 +36,7 @@ public class GitRepositoryTest {
 
     @Before
     public void setUp() throws GitAPIException, IOException, RRepositoryException {
-        root = Files.createTempDirectory(null).toFile();
+        root = Files.createTempDirectory("openl").toFile();
 
         File remote = new File(root, "remote");
         File local = new File(root, "local");
@@ -99,11 +100,14 @@ public class GitRepositoryTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws IOException {
         if (repo != null) {
             repo.close();
         }
-        FileUtils.deleteQuietly(root);
+        FileUtils.delete(root);
+        if (root.exists()) {
+            fail("Can't delete folder " + root);
+        }
     }
 
     @Test
@@ -546,6 +550,32 @@ public class GitRepositoryTest {
         }
     }
 
+    @Test
+    public void testBranches() throws IOException {
+        repo.createBranch("project1", "project1/test1");
+        repo.createBranch("project1", "project1/test2");
+        List<String> branches = repo.getBranches("project1");
+        assertTrue(branches.contains("test"));
+        assertTrue(branches.contains("project1/test1"));
+        assertTrue(branches.contains("project1/test2"));
+
+        // Don't close "project1/test1" and "project1/test2" repositories explicitly.
+        // Secondary repositories should be closed by parent repository automatically.
+        BranchRepository repoTest1 = repo.forBranch("project1/test1");
+        BranchRepository repoTest2 = repo.forBranch("project1/test2");
+
+        assertEquals(BRANCH, repo.getBranch());
+        assertEquals("project1/test1", repoTest1.getBranch());
+        assertEquals("project1/test2", repoTest2.getBranch());
+        assertSame(repoTest1, repo.forBranch("project1/test1"));
+
+        repoTest1.deleteBranch("project1", "project1/test1");
+        branches = repo.getBranches("project1");
+        assertTrue(branches.contains("test"));
+        assertFalse(branches.contains("project1/test1"));
+        assertTrue(branches.contains("project1/test2"));
+    }
+
     private GitRepository createRepository(File remote, File local) throws RRepositoryException {
         return createRepository(remote, local, BRANCH);
     }
@@ -557,6 +587,8 @@ public class GitRepositoryTest {
         repo.setBranch(branch);
         repo.setTagPrefix(TAG_PREFIX);
         repo.setCommentPattern("WebStudio: {0}. {1}");
+        String settingsPath = local.getParent() + "/git-settings";
+        repo.setGitSettingsPath(settingsPath);
         repo.initialize();
 
         return repo;

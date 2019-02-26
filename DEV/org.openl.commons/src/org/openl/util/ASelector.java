@@ -12,14 +12,6 @@ package org.openl.util;
  */
 public abstract class ASelector<T> implements ISelector<T> {
 
-    static class AllSelector<T> extends ASelector<T> {
-
-        public boolean select(T obj) {
-            return true;
-        }
-
-    }
-
     static class ANDSelector<T> extends BoolBinSelector<T> {
         public ANDSelector(ISelector<T> sel1, ISelector<T> sel2) {
             super(sel1, sel2);
@@ -60,62 +52,6 @@ public abstract class ASelector<T> implements ISelector<T> {
         @Override
         protected int redefinedHashCode() {
             return sel1.hashCode() + sel2.hashCode();
-        }
-
-    }
-
-    public static class ClassSelector<T> extends ASelector<T> {
-        Class<T> c;
-
-        public ClassSelector(Class<T> c) {
-            this.c = c;
-        }
-
-        @Override
-        protected boolean equalsSelector(ASelector<T> sel) {
-            return c == ((ClassSelector<T>) sel).c;
-        }
-
-        @Override
-        protected int redefinedHashCode() {
-            return c.hashCode();
-        }
-
-        public boolean select(Object obj) {
-            return c.isInstance(obj);
-        }
-
-    }
-
-    public static abstract class IntValueSelector<T> extends ASelector<T> {
-        int value;
-
-        public IntValueSelector(int value) {
-            this.value = value;
-        }
-
-        @Override
-        protected boolean equalsSelector(ASelector<T> sel) {
-            return ((IntValueSelector<?>) sel).value == value;
-        }
-
-        protected abstract int getIntValue(T test);
-
-        @Override
-        protected int redefinedHashCode() {
-            return value;
-        }
-
-        public boolean select(T obj) {
-            return value == getIntValue(obj);
-        }
-
-    }
-
-    static class NoneSelector<T> extends ASelector<T> {
-
-        public boolean select(T obj) {
-            return false;
         }
 
     }
@@ -218,18 +154,6 @@ public abstract class ASelector<T> implements ISelector<T> {
         public boolean select(T obj) {
             return sel1.select(obj) ^ sel2.select(obj);
         }
-    }
-
-    public static <T> ISelector<T> selectAll(T obj) {
-        return new AllSelector<T>();
-    }
-
-    public static <T> ISelector<T> selectClass(Class<T> c) {
-        return new ClassSelector<T>(c);
-    }
-
-    public static <T> ISelector<T> selectNone(T obj) {
-        return new NoneSelector<T>();
     }
 
     public static <T> ISelector<T> selectObject(T obj) {

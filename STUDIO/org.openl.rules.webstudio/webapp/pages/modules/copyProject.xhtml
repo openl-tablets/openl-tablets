@@ -14,9 +14,13 @@
         #copyProjectForm input[type="text"].rf-insp-inp {
             min-width: 203px;
         }
+
+        #copyProjectForm .label {
+            width: 170px;
+        }
     </style>
 
-    <rich:popupPanel id="modalCopyProject" width="400" autosized="true">
+    <rich:popupPanel id="modalCopyProject" width="420" autosized="true">
         <f:facet name="header">
             <h:outputText value="Copy project"/>
         </f:facet>
@@ -32,11 +36,11 @@
                     <h:outputText value="Project Name:"/>
                     <h:outputText id="currentProjectName" value="#{copyBean.currentProjectName}"/>
                 </h:panelGrid>
-                <h:panelGrid id="cloneProject" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
+                <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                              rendered="#{copyBean.supportsBranches}">
-                    <h:outputLabel value="Clone project:" for="cloneCheckbox"/>
-                    <h:selectBooleanCheckbox id="cloneCheckbox" value="#{copyBean.cloneProject}"
-                                             onclick="updateCloneProjectState()">
+                    <h:outputLabel value="Don't link to origin project:" for="separateProjectCheckbox"/>
+                    <h:selectBooleanCheckbox id="separateProjectCheckbox" value="#{copyBean.separateProject}"
+                                             onclick="updateSeparateProjectState()">
                     </h:selectBooleanCheckbox>
                     <h:outputLabel for="newBranchName" styleClass="required" value="New Branch Name:"/>
                     <h:inputText id="newBranchName" value="#{copyBean.newBranchName}"
@@ -111,33 +115,35 @@
             updateStates();
             $j('#copyProjectForm\\:copy').prop('disabled', true);
             var copyListener = function () {
-                var shouldClone = false;
+                var shouldSeparateProject = true;
                 var branchName = '';
-                var $cloneCheckbox = $j('#copyProjectForm\\:cloneCheckbox');
-                if ($cloneCheckbox.length) {
-                    shouldClone = $cloneCheckbox.is(':checked');
+                var $separateProjectCheckbox = $j('#copyProjectForm\\:separateProjectCheckbox');
+                if ($separateProjectCheckbox.length) {
+                    shouldSeparateProject = $separateProjectCheckbox.is(':checked');
                     branchName = $j('#copyProjectForm\\:newBranchName').val().trim();
                 }
 
                 var $projectName = $j('#copyProjectForm\\:newProjectName');
                 var projectName = $projectName.val().trim();
-                var disableCopy = shouldClone && branchName.length === 0 || !shouldClone && projectName.length === 0;
+                var disableCopy = !shouldSeparateProject && branchName.length === 0 || shouldSeparateProject && projectName.length === 0;
                 $j('#copyProjectForm\\:copy').prop('disabled', disableCopy);
             };
-            var selector = '#copyProjectForm\\:newProjectName, #copyProjectForm\\:newBranchName, #copyProjectForm\\:cloneCheckbox';
+            var selector = '#copyProjectForm\\:newProjectName, #copyProjectForm\\:newBranchName, #copyProjectForm\\:separateProjectCheckbox';
             $j(selector).off().on('change keyup keydown cut paste click', function () {
                 // setTimeout() is needed to correctly handle on paste / on cut events
                 setTimeout(function () {
                     copyListener();
                 }, 0);
             });
+
+            copyListener();
             RichFaces.$("modalCopyProject").show();
             focusElement('copyProjectForm:newProjectName');
         }
 
         function updateStates() {
             updateRevisionsCountState();
-            updateCloneProjectState();
+            updateSeparateProjectState();
         }
 
         function updateRevisionsCountState() {
@@ -163,24 +169,24 @@
             }
         }
 
-        function updateCloneProjectState() {
-            var $cloneCheckbox = $j('#copyProjectForm\\:cloneCheckbox');
-            if (!$cloneCheckbox.length) {
+        function updateSeparateProjectState() {
+            var $separateProjectCheckbox = $j('#copyProjectForm\\:separateProjectCheckbox');
+            if (!$separateProjectCheckbox.length) {
                 return;
             }
 
-            var shouldClone = $cloneCheckbox.is(':checked');
+            var shouldSeparateProject = $separateProjectCheckbox.is(':checked');
             var $newBranchName = $j('#copyProjectForm\\:newBranchName').closest('tr');
             var $newBranchNameMessage = $j('#copyProjectForm\\:newBranchNameMessage').closest('tr');
             var $newProject = $j('#copyProjectForm\\:newProject');
-            if (shouldClone) {
-                $newBranchName.show();
-                $newBranchNameMessage.show();
-                $newProject.hide();
-            } else {
+            if (shouldSeparateProject) {
                 $newBranchName.hide();
                 $newBranchNameMessage.hide();
                 $newProject.show();
+            } else {
+                $newBranchName.show();
+                $newBranchNameMessage.show();
+                $newProject.hide();
             }
         }
 

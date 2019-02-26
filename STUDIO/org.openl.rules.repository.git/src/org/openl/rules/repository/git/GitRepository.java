@@ -57,6 +57,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private Map<String, List<String>> branches = new HashMap<>();
 
+    /**
+     * Holds secondary repositories for other branches.
+     */
+    private Map<String, GitRepository> branchRepos = new HashMap<>();
+
     @Override
     public List<FileData> list(String path) throws IOException {
         return iterate(path, new ListCommand(resolveBranchId()));
@@ -73,6 +78,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
+    @SuppressWarnings("squid:S2095") // resources are closed by IOUtils
     public FileData save(FileData data, InputStream stream) throws IOException {
         Lock writeLock = repositoryLock.writeLock();
         try {
@@ -161,6 +167,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
+    @SuppressWarnings("squid:S2095") // resources are closed by IOUtils
     public FileData copy(String srcName, FileData destData) throws IOException {
         Lock writeLock = repositoryLock.writeLock();
         try {
@@ -455,6 +462,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         if (git != null) {
             git.close();
         }
+        for (GitRepository repository : branchRepos.values()) {
+            repository.close();
+        }
     }
 
     public void setUri(String uri) {
@@ -514,7 +524,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private FileData createFileData(TreeWalk dirWalk, String baseFolder, ObjectId start) {
         String fullPath = baseFolder + dirWalk.getPathString();
-        return new LazyFileData(branch, fullPath, this, start, getFileId(dirWalk));
+        return new LazyFileData(branch, fullPath, new File(localRepositoryPath), start, getFileId(dirWalk), commentPattern);
     }
 
     private ObjectId resolveBranchId() throws IOException {
@@ -528,7 +538,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private FileData createFileData(TreeWalk dirWalk, RevCommit fileCommit) {
         String fullPath = dirWalk.getPathString();
 
-        return new LazyFileData(branch, fullPath, this, fileCommit, getFileId(dirWalk));
+        return new LazyFileData(branch, fullPath, new File(localRepositoryPath), fileCommit, getFileId(dirWalk), commentPattern);
     }
 
     private ObjectId getFileId(TreeWalk dirWalk) {
@@ -630,7 +640,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             while (iterator.hasNext()) {
                 RevCommit commit = iterator.next();
 
-                boolean stop = historyVisitor.visit(name, commit, getVersionName(tags, commit));
+                boolean stop = historyVisitor.visit(name, commit, getVersionName(git.getRepository(), tags, commit));
                 if (stop) {
                     break;
                 }
@@ -674,20 +684,16 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return String.valueOf(maxId + 1);
     }
 
-    String getVersionName(ObjectId commitId) throws GitAPIException {
-        return getVersionName(git.tagList().call(), commitId);
-    }
-
-    private String getVersionName(List<Ref> tags, ObjectId commitId) {
-        Ref tagRef = getTagRefForCommit(tags, commitId);
+    static String getVersionName(Repository repository, List<Ref> tags, ObjectId commitId) {
+        Ref tagRef = getTagRefForCommit(repository, tags, commitId);
 
         return tagRef != null ? getLocalTagName(tagRef) : commitId.getName();
     }
 
-    private Ref getTagRefForCommit(List<Ref> tags, ObjectId commitId) {
+    private static Ref getTagRefForCommit(Repository repository, List<Ref> tags, ObjectId commitId) {
         Ref tagRefForCommit = null;
         for (Ref tagRef : tags) {
-            ObjectId objectId = git.getRepository().peel(tagRef).getPeeledObjectId();
+            ObjectId objectId = repository.peel(tagRef).getPeeledObjectId();
             if (objectId == null) {
                 objectId = tagRef.getObjectId();
             }
@@ -700,17 +706,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return tagRefForCommit;
     }
 
-    private String getLocalTagName(Ref tagRef) {
+    private static String getLocalTagName(Ref tagRef) {
         String name = tagRef.getName();
         return name.startsWith(Constants.R_TAGS) ? name.substring(Constants.R_TAGS.length()) : name;
-    }
-
-    String getCommentPattern() {
-        return commentPattern;
-    }
-
-    Git getGit() {
-        return git;
     }
 
     private void addTagToCommit(RevCommit commit) throws GitAPIException {
@@ -825,7 +823,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 projectBranches.add(newBranch);
             }
 
-            pushBranch(new RefSpec().setSource(newBranch).setDestination(newBranch));
+            pushBranch(new RefSpec().setSource(newBranch).setDestination(Constants.R_HEADS + newBranch));
 
             saveBranches();
         } catch (Exception e) {
@@ -853,7 +851,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             Collection<String> projectBranches = branches.get(projectName);
             if (projectBranches != null) {
                 projectBranches.remove(branch);
-                pushBranch(new RefSpec().setSource(null).setDestination(branch));
+                branchRepos.remove(branch);
+                pushBranch(new RefSpec().setSource(null).setDestination(Constants.R_HEADS + branch));
 
                 saveBranches();
             }
@@ -878,23 +877,38 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public BranchRepository cloneFor(String branch) throws IOException {
-        GitRepository repository = new GitRepository();
+    public GitRepository forBranch(String branch) throws IOException {
+        GitRepository repository = branchRepos.get(branch);
+        if (repository == null) {
+            Lock writeLock = repositoryLock.writeLock();
+            try {
+                writeLock.lock();
 
-        repository.setUri(uri);
-        repository.setLogin(login);
-        repository.setPassword(password);
-        repository.setLocalRepositoryPath(localRepositoryPath);
-        repository.setBranch(branch);
-        repository.baseBranch = baseBranch; // Base branch is only one
-        repository.setTagPrefix(tagPrefix);
-        repository.setListenerTimerPeriod(listenerTimerPeriod);
-        repository.setCommentPattern(commentPattern);
-        repository.setGitSettingsPath(gitSettingsPath);
-        repository.git = Git.open(new File(localRepositoryPath));
-        repository.repositoryLock = repositoryLock; // must be common for all instances because git repository is same
-        repository.branches = branches; // Can be shared between instances
-        repository.monitor = monitor;
+                repository = branchRepos.get(branch);
+                if (repository == null) {
+                    repository = new GitRepository();
+
+                    repository.setUri(uri);
+                    repository.setLogin(login);
+                    repository.setPassword(password);
+                    repository.setLocalRepositoryPath(localRepositoryPath);
+                    repository.setBranch(branch);
+                    repository.baseBranch = baseBranch; // Base branch is only one
+                    repository.setTagPrefix(tagPrefix);
+                    repository.setListenerTimerPeriod(listenerTimerPeriod);
+                    repository.setCommentPattern(commentPattern);
+                    repository.setGitSettingsPath(gitSettingsPath);
+                    repository.git = Git.open(new File(localRepositoryPath));
+                    repository.repositoryLock = repositoryLock; // must be common for all instances because git repository is same
+                    repository.branches = branches; // Can be shared between instances
+                    repository.monitor = monitor;
+
+                    branchRepos.put(branch, repository);
+                }
+            } finally {
+                writeLock.unlock();
+            }
+        }
 
         return repository;
     }

@@ -44,7 +44,7 @@ public class CopyBean {
 
     private String currentProjectName;
     private String newProjectName;
-    private boolean cloneProject = false;
+    private boolean separateProject = false;
     private String newBranchName;
     private String comment;
     private Boolean copyOldRevisions = Boolean.FALSE;
@@ -70,12 +70,12 @@ public class CopyBean {
         this.newProjectName = StringUtils.trimToNull(newProjectName);
     }
 
-    public boolean isCloneProject() {
-        return cloneProject;
+    public boolean isSeparateProject() {
+        return separateProject;
     }
 
-    public void setCloneProject(boolean cloneProject) {
-        this.cloneProject = cloneProject;
+    public void setSeparateProject(boolean separateProject) {
+        this.separateProject = separateProject;
     }
 
     public String getNewBranchName() {
@@ -130,7 +130,7 @@ public class CopyBean {
             LocalRepository localRepository = userWorkspace.getLocalWorkspace().getRepository();
 
             RulesProject project = userWorkspace.getProject(currentProjectName, false);
-            if (cloneProject) {
+            if (isSupportsBranches() && !separateProject) {
                 ((BranchRepository) designRepository).createBranch(currentProjectName, newBranchName);
             } else {
                 String designPath = designTimeRepository.createProject(newProjectName).getFolderPath();
@@ -173,7 +173,7 @@ public class CopyBean {
     }
 
     public void newProjectNameValidator(FacesContext context, UIComponent toValidate, Object value) {
-        if (isSupportsBranches() && isCloneSubmitted(context)) {
+        if (isSupportsBranches() && !isSeparateProjectSubmitted(context)) {
             return;
         }
         String newProjectName = StringUtils.trim((String) value);
@@ -191,7 +191,7 @@ public class CopyBean {
     }
 
     public void newBranchNameValidator(FacesContext context, UIComponent toValidate, Object value) {
-        if (!isSupportsBranches() || !isCloneSubmitted(context)) {
+        if (!isSupportsBranches() || isSeparateProjectSubmitted(context)) {
             return;
         }
 
@@ -212,8 +212,8 @@ public class CopyBean {
 
     }
 
-    private Boolean isCloneSubmitted(FacesContext context) {
-        return (Boolean) ((UIInput) context.getViewRoot().findComponent("copyProjectForm:cloneCheckbox")).getValue();
+    private Boolean isSeparateProjectSubmitted(FacesContext context) {
+        return (Boolean) ((UIInput) context.getViewRoot().findComponent("copyProjectForm:separateProjectCheckbox")).getValue();
     }
 
     public void setInitProject(String currentProjectName) {
@@ -223,7 +223,7 @@ public class CopyBean {
             comment = null;
             copyOldRevisions = Boolean.FALSE;
             revisionsCount = null;
-            cloneProject = false;
+            separateProject = false;
             if (isSupportsBranches()) {
                 // Remove restricted symbols
                 String simplifiedProjectName = currentProjectName.replaceAll("[^\\w\\-]", "");
@@ -238,16 +238,8 @@ public class CopyBean {
     }
 
     public boolean isSupportsBranches() {
-        try {
-            UserWorkspace userWorkspace = getUserWorkspace();
-            DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
-
-            Repository designRepository = designTimeRepository.getRepository();
-            return designRepository.supports().branches();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return false;
-        }
+        RulesProject project = getCurrentProject();
+        return project != null && project.isSupportsBranches();
     }
 
     private RulesProject getCurrentProject() {

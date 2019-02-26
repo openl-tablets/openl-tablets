@@ -101,11 +101,15 @@ public abstract class UserWorkspaceProject extends AProject {
         return getRepository();
     }
 
+    public boolean isSupportsBranches() {
+        return !isLocalOnly() && getDesignRepository().supports().branches();
+    }
+
     public void setBranch(String newBranch) throws IOException {
         BranchRepository branchRepository = (BranchRepository) getRepository();
         String currentBranch = branchRepository.getBranch();
         if (!newBranch.equals(currentBranch)) {
-            setDesignRepository(branchRepository.cloneFor(newBranch));
+            setDesignRepository(branchRepository.forBranch(newBranch));
             setHistoryVersion(null);
             refresh();
             getFileData(); // Reinitialize file data

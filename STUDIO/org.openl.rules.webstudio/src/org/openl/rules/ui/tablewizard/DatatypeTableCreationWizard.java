@@ -43,7 +43,6 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
     private SelectItem[] definedDatatypes;
     private SelectItem[] domainTypes;
     private String parent;
-    private int definedDatatypesLength;
 
     public DatatypeTableCreationWizard() {
     }
@@ -84,14 +83,6 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
         return domainTypes;
     }
 
-    public int getDefinedDatatypesLength() {
-        return definedDatatypes.length;
-    }
-
-    public void setDefinedDatatypesLength(int definedDatatypesLength) {
-        this.definedDatatypesLength = definedDatatypesLength;
-    }
-
     @Override
     public String getName() {
         return "newDatatypeTable";
@@ -108,7 +99,6 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
         types.addAll(importedClasses);
         
         List<String> datatypes = new ArrayList<String>(types.size());
-        datatypes.add("");
         for (IOpenClass datatype : types) {
             if (Modifier.isFinal(datatype.getInstanceClass().getModifiers())) {
                 // cannot inherit from final class

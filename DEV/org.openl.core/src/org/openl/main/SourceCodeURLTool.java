@@ -7,6 +7,7 @@
 package org.openl.main;
 
 import java.io.PrintWriter;
+import java.util.regex.Pattern;
 
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.CompositeSourceCodeModule;
@@ -20,6 +21,8 @@ import org.slf4j.LoggerFactory;
  * @author snshor
  */
 public class SourceCodeURLTool implements SourceCodeURLConstants {
+
+    private static final Pattern NEW_LINE = Pattern.compile("[\r\n]+");
 
     static public String makeSourceLocationURL(ILocation location, IOpenSourceCodeModule module) {
         final Logger log = LoggerFactory.getLogger(SourceCodeURLTool.class);
@@ -98,7 +101,7 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
 
         String src = module.getCode();
         TextInfo info = new TextInfo(src);
-        String[] lines = src.split("[\r\n]+");
+        String[] lines = NEW_LINE.split(src);
 
         pw.println("Openl Code Fragment:");
         pw.println("=======================");

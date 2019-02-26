@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.filter;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -38,26 +39,22 @@ public class WebResourceFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
 
-        try {
-            HttpServletRequest httpRequest = (HttpServletRequest) request;
-            String path = httpRequest.getRequestURI();
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        String path = httpRequest.getRequestURI();
 
-            if (path != null && path.contains(WEBRESOURCE_PREFIX)) {
-                Matcher matcher = JSESSION_ID_PATTERN.matcher(path);
-                if (matcher.matches()) {
-                    path = matcher.group(1);
-                }
+        if (path != null && path.contains(WEBRESOURCE_PREFIX)) {
+            Matcher matcher = JSESSION_ID_PATTERN.matcher(path);
+            if (matcher.matches()) {
+                path = matcher.group(1);
+            }
 
-                // When "webresource/**" is requested from html page which was
-                // loaded via "webresource/**" itself
-                // the path will contain 2 "webresource" strings.
-                // "lastIndexOf" cuts off all prefixes at once.
-                path = path.substring(path.lastIndexOf(WEBRESOURCE_PREFIX) + WEBRESOURCE_PREFIX.length());
-                InputStream stream = WebResourceFilter.class.getResourceAsStream(path);
-                if (stream == null) {
-                    stream = new FileInputStream(new File(filterConfig.getServletContext().getRealPath(path)));
-                }
+            // When "webresource/**" is requested from html page which was
+            // loaded via "webresource/**" itself
+            // the path will contain 2 "webresource" strings.
+            // "lastIndexOf" cuts off all prefixes at once.
+            path = path.substring(path.lastIndexOf(WEBRESOURCE_PREFIX) + WEBRESOURCE_PREFIX.length());
 
+            try (InputStream stream = initializeInputStream(path)) {
                 // IE 9 fix
                 if ("css".equals(FileUtils.getExtension(path))) {
                     response.setContentType("text/css");
@@ -65,15 +62,21 @@ public class WebResourceFilter implements Filter {
 
                 OutputStream out = response.getOutputStream();
                 IOUtils.copy(stream, out);
-                stream.close();
-            } else {
-                chain.doFilter(request, response);
             }
-        } finally {
+        } else {
+            chain.doFilter(request, response);
         }
     }
 
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) {
         this.filterConfig = filterConfig;
+    }
+
+    private InputStream initializeInputStream(String path) throws FileNotFoundException {
+        InputStream stream = WebResourceFilter.class.getResourceAsStream(path);
+        if (stream == null) {
+            stream = new FileInputStream(new File(filterConfig.getServletContext().getRealPath(path)));
+        }
+        return stream;
     }
 }

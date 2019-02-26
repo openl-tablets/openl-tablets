@@ -15,6 +15,7 @@ import org.openl.OpenL;
 import org.openl.meta.StringValue;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -180,12 +181,10 @@ public class ColumnDescriptor {
                 if (supportMultirows) {
                     processWithMultiRowsSupport(literal, valuesTable, toolAdapter, env, aggregateType, paramType, valuesAnArray);
                 } else {
-                    Object res = RuleRowHelper.loadSingleParam(paramType,
-                        field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(),
-                        null,
-                        LogicalTableHelper.logicalTable(valuesTable.getSource().getSubtable(0, 0, 1, 1))
-                            .getSubtable(0, 0, 1, 1),
-                        toolAdapter);
+                    IGridTable sourceGrid = valuesTable.getSource().getSubtable(0, 0, 1, 1);
+                    ILogicalTable logicalTable = LogicalTableHelper.logicalTable(sourceGrid).getSubtable(0, 0, 1, 1);
+                    String fieldName = field.getName();
+                    Object res = RuleRowHelper.loadSingleParam(paramType, fieldName, null, logicalTable, toolAdapter);
                     if (res != null) {
                         field.set(literal, res, env);
                     }

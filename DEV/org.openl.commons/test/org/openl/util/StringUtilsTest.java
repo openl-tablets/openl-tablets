@@ -3,6 +3,7 @@ package org.openl.util;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
 
@@ -164,6 +165,14 @@ public class StringUtilsTest {
         assertTrue("Returned value is false", StringUtils.containsIgnoreCase("abc", "a"));
         assertTrue("Returned value is false", StringUtils.containsIgnoreCase("абв", "б"));
         assertTrue("Returned value is false", StringUtils.containsIgnoreCase("abc", "B"));
+    }
+
+    @Test
+    public void testMatches() throws Exception {
+        assertFalse("Returned value is true", StringUtils.matches(Pattern.compile("\\d"), ""));
+        assertTrue("Returned value is true", StringUtils.matches(Pattern.compile("\\d"), "1"));
+        assertTrue("Returned value is true", StringUtils.matches(Pattern.compile("\\d"), "2"));
+        assertFalse("Returned value is true", StringUtils.matches(Pattern.compile("\\d"), "12"));
     }
 
     @Test

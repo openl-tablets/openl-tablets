@@ -78,8 +78,7 @@ public abstract class AbstractProcessLoggingMessageInterceptor extends AbstractP
             StringWriter swriter = new StringWriter();
             XMLStreamWriter xwriter = StaxUtils.createXMLStreamWriter(swriter);
             xwriter = new PrettyPrintXMLStreamWriter(xwriter, 2);
-            InputStream in = cos.getInputStream();
-            try {
+            try (InputStream in = cos.getInputStream()) {
                 StaxUtils.copy(new StreamSource(in), xwriter);
             } catch (XMLStreamException xse) {
                 // ignore
@@ -90,7 +89,6 @@ public abstract class AbstractProcessLoggingMessageInterceptor extends AbstractP
                 } catch (XMLStreamException xse2) {
                     // ignore
                 }
-                in.close();
             }
 
             String result = swriter.toString();
