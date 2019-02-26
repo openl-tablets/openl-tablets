@@ -9,6 +9,7 @@ package org.openl.util;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * @author snshor
@@ -28,8 +29,19 @@ public class CategorizedMap {
         }
 
         @Override
-        public boolean equals(Object obj) {
-            return category.equals(((Category) obj).getCategory());
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            return Objects.equals(category, ((Category) o).category);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(category);
         }
 
         public String getCategory() {
@@ -42,11 +54,6 @@ public class CategorizedMap {
 
         public int getParentDistance() {
             return parentDistance;
-        }
-
-        @Override
-        public int hashCode() {
-            return category.hashCode();
         }
 
         public void setParent(Category category) {

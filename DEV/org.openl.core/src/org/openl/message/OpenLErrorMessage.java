@@ -7,22 +7,16 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
 import org.openl.main.SourceCodeURLConstants;
 import org.openl.main.SourceCodeURLTool;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.util.StringUtils;
 
 /**
- * Class defines error OpenL message abstraction. <code>OpenLErrorMessage</code> encapsulates {@link IOpenLError} object
+ * Class defines error OpenL message abstraction. <code>OpenLErrorMessage</code> encapsulates {@link OpenLException} object
  * as source of message.
  * 
  */
 public class OpenLErrorMessage extends OpenLMessage {
 
     private OpenLException error;
-
-    public OpenLErrorMessage(String summary) {
-        super(summary, Severity.ERROR);
-    }
 
     public OpenLErrorMessage(OpenLException error) {
         super(getOpenLExceptionMessage(error), Severity.ERROR);
@@ -77,19 +71,20 @@ public class OpenLErrorMessage extends OpenLMessage {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         OpenLErrorMessage other = (OpenLErrorMessage) obj;
         if (error == null) {
-            if (other.error != null)
-                return false;
+            return other.error == null;
         } else if (other.error == null) {
-            if (error != null)
-                return false;
+            return false;
         }
 
         if (!StringUtils.equals(error.getMessage(), other.error.getMessage())) {
@@ -99,12 +94,9 @@ public class OpenLErrorMessage extends OpenLMessage {
         if (error instanceof OpenLCompilationException && other.error instanceof OpenLCompilationException) {
             String location = ((OpenLCompilationException) error).getSourceLocation();
             String otherLocation = ((OpenLCompilationException) other.error).getSourceLocation();
-            if (!StringUtils.equals(location, otherLocation)) {
-                return false;
-            }
-
+            return StringUtils.equals(location, otherLocation);
         }
-        
+
         return true;
     }
 
