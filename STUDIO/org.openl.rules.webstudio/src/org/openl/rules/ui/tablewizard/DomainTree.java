@@ -158,9 +158,7 @@ public class DomainTree {
     }
 
     private boolean addType(IOpenClass type) {
-        if (isArrayType(type)) {
-            type = getComponentType(type);
-        }
+        type = getComponentType(type);
                 
         String simpleTypeName = type.getDisplayName(INamedThing.SHORT);
 
@@ -192,16 +190,12 @@ public class DomainTree {
     }
 
     private IOpenClass getComponentType(IOpenClass type) {
-        IOpenClass result = null;
         if (isArrayType(type)) {
             IOpenClass componentType = (type).getComponentClass();
-            if (componentType != null) {
-                result = componentType;
-            } else {
-                result = type;
-            }
-        } 
-        return result;
+            return componentType == null ? type : componentType;
+        } else {
+            return type;
+        }
     }
 
     /**

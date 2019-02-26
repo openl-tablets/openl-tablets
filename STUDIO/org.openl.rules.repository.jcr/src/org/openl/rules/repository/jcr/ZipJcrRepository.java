@@ -52,7 +52,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     // In this case there is no need to store a strong reference to the listener: current field is used only to remove
     // old instance. If it's GC-ed, no need to remove it.
 
-    protected void init(Session session) throws RRepositoryException, RepositoryException {
+    protected void init(Session session) throws RepositoryException {
         this.session = session;
         int eventTypes = Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED | Event.PROPERTY_REMOVED | Event.PROPERTY_CHANGED | Event.NODE_REMOVED;
         String[] nodeTypeName = {JcrNT.NT_COMMON_ENTITY};
@@ -88,9 +88,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             }
 
             return result;
-        } catch (CommonException e) {
-            throw new IOException(e);
-        } catch (RepositoryException e) {
+        } catch (CommonException | RepositoryException e) {
             throw new IOException(e);
         }
     }
@@ -243,12 +241,12 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     }
 
     @Override
-    public FileData copy(String srcPath, FileData destData) throws IOException {
+    public FileData copy(String srcPath, FileData destData) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public FileData rename(String path, FileData destData) throws IOException {
+    public FileData rename(String path, FileData destData) {
         throw new UnsupportedOperationException();
     }
 
@@ -522,7 +520,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
         return session;
     }
 
-    private ArtefactAPI getArtefact(String name) throws RRepositoryException {
+    private ArtefactAPI getArtefact(String name) {
         try {
             Node node = checkFolder(session.getRootNode(), name, false);
             if (node == null) {
@@ -547,9 +545,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
 
             FolderAPI folder = (FolderAPI) artefact;
             return folder.addResource(name.substring(name.lastIndexOf("/") + 1), inputStream);
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot add resource " + name, e);
-        } catch (ProjectException e) {
+        } catch (RepositoryException | ProjectException e) {
             throw new RRepositoryException("Cannot add resource " + name, e);
         }
     }
@@ -569,7 +565,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         setListener(null);
         try {
             Workspace workspace = session.getWorkspace();

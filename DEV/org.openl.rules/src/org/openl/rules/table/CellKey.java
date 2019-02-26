@@ -32,6 +32,12 @@ public class CellKey {
 
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
         CellKey k = (CellKey) obj;
         return col == k.col && row == k.row;
     }
@@ -42,10 +48,10 @@ public class CellKey {
     }
 
 
-    public static CellKey ZERO_ZERO = new CellKey(0, 0);
-    public static CellKey ZERO_ONE = new CellKey(0, 1);
-    public static CellKey ONE_ZERO = new CellKey(1, 0);
-    public static CellKey ONE_ONE = new CellKey(1, 1);
+    private static CellKey ZERO_ZERO = new CellKey(0, 0);
+    private static CellKey ZERO_ONE = new CellKey(0, 1);
+    private static CellKey ONE_ZERO = new CellKey(1, 0);
+    private static CellKey ONE_ONE = new CellKey(1, 1);
 
     public static final class CellKeyFactory {
         public static CellKey getCellKey(int col, int row) {
