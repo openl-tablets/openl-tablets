@@ -245,7 +245,11 @@ public class DecisionTableLoader {
         int k = 0;
         int i = 0;
         while (i < d) {
-            i = i + tableBody.getSource().getCell(h - 1, i).getHeight();
+            if (tableBody.getSource().getCell(h - 1, i).getRegion() != null) {
+                i = i + tableBody.getSource().getCell(h - 1, i).getTopLeftCellFromRegion().getHeight();
+            } else {
+                i = i + tableBody.getSource().getCell(h - 1, i).getHeight();
+            }
             k++;
         }
         return k;
