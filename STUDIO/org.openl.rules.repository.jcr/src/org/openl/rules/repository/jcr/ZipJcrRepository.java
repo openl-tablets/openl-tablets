@@ -54,7 +54,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
 
     protected void init(Session session) throws RepositoryException {
         this.session = session;
-        int eventTypes = Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED | Event.PROPERTY_REMOVED | Event.PROPERTY_CHANGED | Event.NODE_REMOVED;
+        int eventTypes = Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED | Event.PROPERTY_REMOVED | Event.NODE_REMOVED;
         String[] nodeTypeName = {JcrNT.NT_COMMON_ENTITY};
         session.getWorkspace().getObservationManager().addEventListener(this, eventTypes, "/", true, null, nodeTypeName, false);
     }
