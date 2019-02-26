@@ -418,6 +418,9 @@
                         <version>0.8.3</version>
                         <configuration>
                             <propertyName>jacoco.argLine</propertyName>
+                            <excludes>
+                                <exclude>org/openl/generated/**/*</exclude>
+                            </excludes>
                         </configuration>
                         <executions>
                             <execution>
