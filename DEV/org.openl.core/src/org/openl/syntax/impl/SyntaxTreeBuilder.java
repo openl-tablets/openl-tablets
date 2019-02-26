@@ -18,7 +18,7 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
     private static final SyntaxNodeException[] SYNTAX_NODE_EXCEPTIONS = new SyntaxNodeException[0];
     private IOpenSourceCodeModule module;
     private List<SyntaxNodeException> parseErrors;
-    private LinkedList<Object> stack = new LinkedList<>();
+    private LinkedList<ISyntaxNode> stack = new LinkedList<>();
 
     public IOpenSourceCodeModule getModule() {
         return module;
@@ -119,11 +119,7 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
     }
 
     private ISyntaxNode pop() {
-        Object x = stack.pop();
-        if (x instanceof ISyntaxNode) {
-            return (ISyntaxNode) x;
-        }
-        return null;
+        return stack.pop();
     }
 
     private ISyntaxNode[] popN(int n) {

@@ -236,9 +236,9 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 InputStream content = null;
                 try {
                     content = ((AProjectResource) source.getArtefact(ArtefactProperties.DESCRIPTORS_FILE)).getContent();
-                    descriptors = ProjectDescriptorHelper.deserialize(content);
-                    if (descriptors == null) {
-                        descriptors = new ArrayList<>();
+                    List<ProjectDescriptor> newDescriptors = ProjectDescriptorHelper.deserialize(content);
+                    if (newDescriptors != null) {
+                        descriptors = newDescriptors;
                     }
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);

@@ -221,23 +221,29 @@ public class PoiExcelHelper {
 
     public static void setCellFontBold(Cell cell, boolean boldweight) {
         Font font = getCellFont(cell);
-        setCellFont(cell,
-                boldweight, font.getColor(), font.getFontHeight(), font.getFontName(), font.getItalic(),
-                font.getStrikeout(), font.getTypeOffset(), font.getUnderline());
+        if (font != null) {
+            setCellFont(cell,
+                    boldweight, font.getColor(), font.getFontHeight(), font.getFontName(), font.getItalic(),
+                    font.getStrikeout(), font.getTypeOffset(), font.getUnderline());
+        }
     }
 
     public static void setCellFontItalic(Cell cell, boolean italic) {
         Font font = getCellFont(cell);
-        setCellFont(cell,
-                font.getBold(), font.getColor(), font.getFontHeight(), font.getFontName(), italic,
-                font.getStrikeout(), font.getTypeOffset(), font.getUnderline());
+        if (font != null) {
+            setCellFont(cell,
+                    font.getBold(), font.getColor(), font.getFontHeight(), font.getFontName(), italic,
+                    font.getStrikeout(), font.getTypeOffset(), font.getUnderline());
+        }
     }
 
     public static void setCellFontUnderline(Cell cell, byte underline) {
         Font font = getCellFont(cell);
-        setCellFont(cell,
-                font.getBold(), font.getColor(), font.getFontHeight(), font.getFontName(), font.getItalic(),
-                font.getStrikeout(), font.getTypeOffset(), underline);
+        if (font != null) {
+            setCellFont(cell,
+                    font.getBold(), font.getColor(), font.getFontHeight(), font.getFontName(), font.getItalic(),
+                    font.getStrikeout(), font.getTypeOffset(), underline);
+        }
     }
 
     public static short[] toRgb(Color color) {

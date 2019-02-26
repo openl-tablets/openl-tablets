@@ -566,8 +566,9 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     public void setCategoryProperties(Map<String, Object> categoryProperties) {
         if (categoryProperties == null) {
             this.categoryProperties = Collections.emptyMap();
+        } else {
+            this.categoryProperties = extractPropertiesMap(categoryProperties);
         }
-        this.categoryProperties = extractPropertiesMap(categoryProperties);;
         reset();
     }
 
@@ -581,8 +582,9 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     public void setModuleProperties(Map<String, Object> moduleProperties) {
         if (moduleProperties == null) {
             this.moduleProperties = Collections.emptyMap();
+        } else {
+            this.moduleProperties = extractPropertiesMap(moduleProperties);
         }
-        this.moduleProperties = extractPropertiesMap(moduleProperties);;
         reset();
     }
 
@@ -596,8 +598,9 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     public void setDefaultProperties(Map<String, Object> defaultProperties) {
         if (defaultProperties == null) {
             this.defaultProperties = Collections.emptyMap();
+        } else {
+            this.defaultProperties = Collections.unmodifiableMap(defaultProperties);
         }
-        this.defaultProperties = Collections.unmodifiableMap(defaultProperties);
         reset();
     }
 
@@ -623,13 +626,14 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     public void setExternalProperties(Map<String, Object> externalProperties) {
         if (externalProperties == null) {
             this.externalModuleProperties = Collections.emptyMap();
+        } else {
+            this.externalModuleProperties = extractPropertiesMap(externalProperties);
         }
-        this.externalModuleProperties = extractPropertiesMap(externalProperties);
         reset();
     }
 
     private Map<String, Object> extractPropertiesMap(Map<String, Object> externalProperties) {
-        Map<String, Object> tmp = new HashMap<String, Object>();
+        Map<String, Object> tmp = new HashMap<>();
         for (Entry<String, Object> entry : externalProperties.entrySet()) {
             tmp.put(entry.getKey(), toPropertyValue(entry.getValue()));
         }

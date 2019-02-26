@@ -159,12 +159,12 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
             domainAdaptor = getDomains().get(name);
         
         if (domainAdaptor != null) {
-            result = new Integer(domainAdaptor.getIndex(value));
+            result = domainAdaptor.getIndex(value);
         } else { // then search domains from its type.
             IDomain<?> domain = dtan.getParameterDomain(name, condition);
             if (domain != null) {
                 IDomainAdaptor domainAdapt = makeDomainAdaptor(domain);
-                result = new Integer(domainAdapt.getIndex(value));
+                result = domainAdapt.getIndex(value);
             } else {
                 if (!(value instanceof Integer)) { // integer don`t need to be converted. so the original value 
                                                    // will be returned. in other cases throws an exception.
