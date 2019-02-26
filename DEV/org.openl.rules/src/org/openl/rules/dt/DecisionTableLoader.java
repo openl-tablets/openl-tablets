@@ -13,7 +13,6 @@ import java.util.Map;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.dt.DTScale.RowScale;
@@ -240,6 +239,18 @@ public class DecisionTableLoader {
         
     }
     
+    private int getNumberOfHConditions(ILogicalTable tableBody) {
+        int h = tableBody.getSource().getWidth();
+        int d = tableBody.getSource().getCell(0, 0).getHeight();
+        int k = 0;
+        int i = 0;
+        while (i < d) {
+            i = i + tableBody.getSource().getCell(h - 1, i).getHeight();
+            k++;
+        }
+        return k;
+    }
+    
     /**
      * Adds conditions and return headers to simple Decision table body.<br>
      * Supports simple Desicion Table and simple lookup Desicion Table.
@@ -255,8 +266,7 @@ public class DecisionTableLoader {
         if (DecisionTableHelper.isSimpleDecisionTableOrSmartDecisionTable(tableSyntaxNode)) {
             tableBody = DecisionTableHelper.preprocessSimpleDecisionTable(tableSyntaxNode, decisionTable, tableBody, 0, tableBody.getSource().getCell(0, 0).getHeight(), DecisionTableHelper.isSmartDecisionTable(tableSyntaxNode), DecisionTableHelper.isCollectDecisionTable(tableSyntaxNode), bindingContext);
         } else if (DecisionTableHelper.isSimpleLookupTable(tableSyntaxNode)) {
-            tableBody = DecisionTableHelper.preprocessSimpleDecisionTable(tableSyntaxNode, decisionTable, tableBody, tableBody.getSource()
-                    .getCell(0, 0).getHeight(), tableBody.getSource().getCell(0, 0).getHeight(), DecisionTableHelper.isSmartSimpleLookupTable(tableSyntaxNode), DecisionTableHelper.isCollectDecisionTable(tableSyntaxNode), bindingContext);
+            tableBody = DecisionTableHelper.preprocessSimpleDecisionTable(tableSyntaxNode, decisionTable, tableBody, getNumberOfHConditions(tableBody), tableBody.getSource().getCell(0, 0).getHeight(), DecisionTableHelper.isSmartSimpleLookupTable(tableSyntaxNode), DecisionTableHelper.isCollectDecisionTable(tableSyntaxNode), bindingContext);
         }
         
         return tableBody;

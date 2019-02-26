@@ -802,6 +802,7 @@ public class DecisionTableHelper {
             //
             boolean isThatVCondition = i < numberOfConditions - numberOfHcondition;
             boolean lastCondition = i + 1 == numberOfConditions;
+            int hIndex = 0;
 
             if (isThatVCondition) {
                 vColumnCounter++;
@@ -860,7 +861,7 @@ public class DecisionTableHelper {
 
             if (!bindingContext.isExecutionMode()) {
                 MetaInfoReader metaReader = decisionTable.getSyntaxNode().getMetaInfoReader();
-                if (metaReader instanceof DecisionTableMetaInfoReader) {
+                if (metaReader instanceof DecisionTableMetaInfoReader && isThatVCondition) {
                     DecisionTableMetaInfoReader metaInfoReader = (DecisionTableMetaInfoReader) metaReader;
                     ICell cell = originalTable.getSource().getCell(column, 0);
                     metaInfoReader.addSimpleRulesCondition(cell.getAbsoluteRow(),
@@ -871,7 +872,7 @@ public class DecisionTableHelper {
             }
 
             // merge columns
-            if (isThatVCondition || lastCondition) {
+            if (isThatVCondition) {
                 int mergedColumnsCounts = isThatVCondition ? originalTable.getColumnWidth(
                     i) : originalTable.getSource().getCell(vColumnCounter, i - vColumnCounter).getWidth();
 
@@ -909,7 +910,8 @@ public class DecisionTableHelper {
         int j = 0;
         for (int i = numberOfConditions - numberOfHcondition; i < numberOfConditions; i++) {
             int c = hColumn;
-            while (c <= originalTable.getSource().getWidth()) {
+            int w = 1;
+            while (c < originalTable.getSource().getWidth()) {
                 ICell cell = originalTable.getSource().getCell(c, j);
 
                 String cellValue = cell.getStringValue();
@@ -922,8 +924,9 @@ public class DecisionTableHelper {
                     }
                 }
                 c = c + cell.getWidth();
+                w = cell.getHeight();
             }
-            j++;
+            j = j + w;
         }
     }
 
