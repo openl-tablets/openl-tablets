@@ -45,6 +45,22 @@
         <h:outputText value=""/>
         <h:message for="#{prependId}gitListenerTimerPeriod" styleClass="error"/>
 
+        <h:outputText value="Comment pattern:" rendered="#{not isProduction}"/>
+        <h:inputText value="#{settings.commentValidationPattern}"
+                     title="Regular expression for comment pattern. If empty, comment isn't validated."
+                     rendered="#{not isProduction}"
+                     id="#{prependId}gitCommentPattern" validator="#{validators.commentValidationPattern}"/>
+        <h:outputText value="" rendered="#{not isProduction}"/>
+        <h:message for="#{prependId}gitCommentPattern" styleClass="error" rendered="#{not isProduction}"/>
+
+        <h:outputText value="Invalid comment message:" rendered="#{not isProduction}"/>
+        <h:inputText value="#{settings.invalidCommentMessage}"
+                     title="Message shown when comment is invalid."
+                     rendered="#{not isProduction}"
+                     id="#{prependId}gitInvalidCommentMessage"/>
+        <h:outputText value="" rendered="#{not isProduction}"/>
+        <h:message for="#{prependId}gitInvalidCommentMessage" styleClass="error" rendered="#{not isProduction}"/>
+
         <h:outputLabel value="Version in deployment name:" rendered="#{isProduction}" for="#{prependId}gitIncludeVersionInDeploymentName"/>
         <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}" id="#{prependId}gitIncludeVersionInDeploymentName"/>
         <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction and isEditing}"/>

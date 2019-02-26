@@ -39,6 +39,22 @@
         <h:outputText value=""/>
         <h:message for="#{prependId}listenerTimerPeriod" styleClass="error"/>
 
+        <h:outputText value="Comment pattern:" rendered="#{not isProduction}"/>
+        <h:inputText value="#{settings.commentValidationPattern}"
+                     title="Regular expression for comment pattern. If empty, comment isn't validated."
+                     rendered="#{not isProduction}"
+                     id="#{prependId}awsCommentPattern" validator="#{validators.commentValidationPattern}"/>
+        <h:outputText value="" rendered="#{not isProduction}"/>
+        <h:message for="#{prependId}awsCommentPattern" styleClass="error" rendered="#{not isProduction}"/>
+
+        <h:outputText value="Invalid comment message:" rendered="#{not isProduction}"/>
+        <h:inputText value="#{settings.invalidCommentMessage}"
+                     title="Message shown when comment is invalid."
+                     rendered="#{not isProduction}"
+                     id="#{prependId}awsInvalidCommentMessage"/>
+        <h:outputText value="" rendered="#{not isProduction}"/>
+        <h:message for="#{prependId}awsInvalidCommentMessage" styleClass="error" rendered="#{not isProduction}"/>
+
         <h:outputLabel value="Version in deployment name:" rendered="#{isProduction}" for="#{prependId}s3IncludeVersionInDeploymentName"/>
         <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}" id="#{prependId}s3IncludeVersionInDeploymentName"/>
         <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction and isEditing}"/>
