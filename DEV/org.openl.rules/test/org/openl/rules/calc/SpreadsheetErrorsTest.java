@@ -1,15 +1,13 @@
 package org.openl.rules.calc;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
-// test is commented as it fails the test executions in maven. in eclipse everything is fine.
-// need to be checked
-@Ignore
 public class SpreadsheetErrorsTest extends BaseOpenlBuilderHelper {
 
     private static final String SRC = "test/rules/calc1/SpreadsheetErrorsTest.xlsx";
