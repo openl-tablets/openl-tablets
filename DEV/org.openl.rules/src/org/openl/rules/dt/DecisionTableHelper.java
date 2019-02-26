@@ -865,7 +865,7 @@ public class DecisionTableHelper {
                 vColumnCounter);
             grid.setCellValue(column, 2, typeOfValue.getLeft());
 
-            if (!bindingContext.isExecutionMode()) {
+            if (!bindingContext.isExecutionMode() && isThatVCondition) {
                 writeMetaInfoForCondition(originalTable,
                     column,
                     conditionStatement,
@@ -873,7 +873,7 @@ public class DecisionTableHelper {
             }
 
             // merge columns
-            if (isThatVCondition || lastCondition) {
+            if (isThatVCondition) {
                 int mergedColumnsCounts = isThatVCondition ? originalTable.getColumnWidth(
                     i) : originalTable.getSource().getCell(vColumnCounter, i - vColumnCounter).getWidth();
 
@@ -910,7 +910,8 @@ public class DecisionTableHelper {
         int j = 0;
         for (int i = numberOfConditions - numberOfHcondition; i < numberOfConditions; i++) {
             int c = hColumn;
-            while (c <= originalTable.getSource().getWidth()) {
+            int w = 1;
+            while (c < originalTable.getSource().getWidth()) {
                 String cellValue = originalTable.getSource().getCell(c, j).getFormattedValue();
                 String text = String.format("Condition for %s: %s",
                     decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()), decisionTable.getSignature().getParameterType(i).getDisplayName(0));
@@ -927,8 +928,9 @@ public class DecisionTableHelper {
                     Collections.singletonList(simpleNodeUsage));
                 cell.setMetaInfo(meta);
                 c = c + originalTable.getSource().getCell(c, j).getWidth();
+                w = cell.getHeight();
             }
-            j++;
+            j = j + w;
         }
     }
 
