@@ -15,6 +15,17 @@
         <fileSet>
             <directory>apache-tomcat-conf</directory>
             <outputDirectory>${tomcat.root}</outputDirectory>
+            <includes>
+                <include>*.sh</include>
+            </includes>
+            <fileMode>0755</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>apache-tomcat-conf</directory>
+            <outputDirectory>${tomcat.root}</outputDirectory>
+            <excludes>
+                <exclude>*.sh</exclude>
+            </excludes>
         </fileSet>
         <fileSet>
             <directory>data</directory>
