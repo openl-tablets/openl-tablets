@@ -79,9 +79,7 @@ public class RepositoryInstatiator {
                                     method.invoke(instance, convert(parameterTypes[0], value));
                                     // Found needed setter
                                     break;
-                                } catch (NoSuchMethodException ignore) {
-                                    // Can't convert using this method. Skip.
-                                } catch (IllegalAccessException ignore) {
+                                } catch (NoSuchMethodException | IllegalAccessException ignore) {
                                     // Can't convert using this method. Skip.
                                 } catch (InvocationTargetException e1) {
                                     // The underlying method throws an exception
@@ -105,18 +103,13 @@ public class RepositoryInstatiator {
 
     private static void initialize(Object instance) {
         Class<?> clazz = instance.getClass();
-        Method initMethod;
         try {
             // Try to find initialize() method
-            initMethod = clazz.getMethod("initialize");
-        } catch (NoSuchMethodException e) {
-            initMethod = null;
-        }
-        try {
+            Method initMethod = clazz.getMethod("initialize");
             // Execute initialize() method to finish instantiation of the
             // repository.
             initMethod.invoke(instance);
-        } catch (Exception e) {
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new IllegalStateException("Failed to call initialize() in: " + clazz, e);
         }
     }

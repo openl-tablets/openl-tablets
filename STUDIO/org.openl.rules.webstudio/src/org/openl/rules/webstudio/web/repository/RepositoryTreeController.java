@@ -1479,13 +1479,14 @@ public class RepositoryTreeController {
     }
 
     private String uploadAndUpdateFile() {
-        if (getLastUploadedFile() == null) {
+        ProjectFile lastUploadedFile = getLastUploadedFile();
+        if (lastUploadedFile == null) {
             return "There are no uploaded files.";
         }
 
         try {
             AProjectResource node = (AProjectResource) repositoryTreeState.getSelectedNode().getData();
-            node.setContent(getLastUploadedFile().getInput());
+            node.setContent(lastUploadedFile.getInput());
 
             clearUploadedFiles();
         } catch (Exception e) {
