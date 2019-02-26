@@ -802,7 +802,6 @@ public class DecisionTableHelper {
             //
             boolean isThatVCondition = i < numberOfConditions - numberOfHcondition;
             boolean lastCondition = i + 1 == numberOfConditions;
-            int hIndex = 0;
 
             if (isThatVCondition) {
                 vColumnCounter++;
