@@ -97,8 +97,8 @@
         <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
-        <surefire.argLine>-Xms8m -Xmx160m</surefire.argLine>
-        <invoker.mavenOpts>-Xms64m -Xmx128m</invoker.mavenOpts>
+        <surefire.argLine>-Xms8m -Xmx80m</surefire.argLine>
+        <invoker.mavenOpts>-Xms32m -Xmx64m</invoker.mavenOpts>
         <openl.home>${project.build.directory}/openl-test</openl.home>
     </properties>
 
