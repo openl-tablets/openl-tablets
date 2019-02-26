@@ -16,14 +16,14 @@ public final class Round {
         // Utility class
     }
 
-    public static RoundingMode UP = RoundingMode.UP;
-    public static RoundingMode DOWN = RoundingMode.DOWN;
-    public static RoundingMode CEILING = RoundingMode.CEILING;
-    public static RoundingMode FLOOR = RoundingMode.FLOOR;
-    public static RoundingMode HALF_UP = RoundingMode.HALF_UP;
-    public static RoundingMode HALF_DOWN = RoundingMode.HALF_DOWN;
-    public static RoundingMode HALF_EVEN = RoundingMode.HALF_EVEN;
-    public static RoundingMode UNNECESSARY = RoundingMode.UNNECESSARY;
+    public static final RoundingMode UP = RoundingMode.UP;
+    public static final RoundingMode DOWN = RoundingMode.DOWN;
+    public static final RoundingMode CEILING = RoundingMode.CEILING;
+    public static final RoundingMode FLOOR = RoundingMode.FLOOR;
+    public static final RoundingMode HALF_UP = RoundingMode.HALF_UP;
+    public static final RoundingMode HALF_DOWN = RoundingMode.HALF_DOWN;
+    public static final RoundingMode HALF_EVEN = RoundingMode.HALF_EVEN;
+    public static final RoundingMode UNNECESSARY = RoundingMode.UNNECESSARY;
 
     /**
      * Like {@link #round(double)} but null-safe.
