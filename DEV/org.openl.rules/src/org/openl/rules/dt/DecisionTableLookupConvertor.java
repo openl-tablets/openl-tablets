@@ -246,21 +246,11 @@ public class DecisionTableLookupConvertor {
         return displayRowRegion;
     }
     
-    private int getHCHeaderTableHeight(IGridTable hcHeaderTable) {
-        int i = 0;
-        int h = 0;
-        while (i < hcHeaderTable.getHeight()) {
-            i = i + hcHeaderTable.getCell(i, hcHeaderTable.getWidth() - 1).getHeight();
-            h = h + 1;
-        }
-        return h;
-    }
-
     private void validateHCHeaders(IGridTable hcHeaderTable) throws OpenLCompilationException {
 
-        String message = String.format("The width of the horizontal keys must be equal to the number of the %s headers",
+        String message = String.format("The height of the horizontal keys must be equal to the number of the %s headers",
             DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey());
-        assertEQ(hcHeaders.size(), getHCHeaderTableHeight(hcHeaderTable), message);
+        assertEQ(hcHeaders.size(), hcHeaderTable.getHeight(), message);
     }
 
     private void assertEQ(int v1, int v2, String message) throws OpenLCompilationException {
