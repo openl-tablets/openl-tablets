@@ -11,6 +11,8 @@ public class GitRepositorySettings extends RepositorySettings {
     private String uri;
     private String login;
     private String password;
+    private String userDisplayName;
+    private String userEmail;
     private String localRepositoryPath;
     private String branch;
     private String tagPrefix;
@@ -21,6 +23,8 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String URI;
     private final String LOGIN;
     private final String PASSWORD;
+    private final String USER_DISPLAY_NAME;
+    private final String USER_EMAIL;
     private final String LOCAL_REPOSITORY_PATH;
     private final String BRANCH;
     private final String TAG_PREFIX;
@@ -36,6 +40,8 @@ public class GitRepositorySettings extends RepositorySettings {
         URI = configPrefix + "uri";
         LOGIN = configPrefix + "login";
         PASSWORD = configPrefix + "password";
+        USER_DISPLAY_NAME = configPrefix + "user-display-name";
+        USER_EMAIL = configPrefix + "user-email";
         LOCAL_REPOSITORY_PATH = configPrefix + "local-repository-path";
         BRANCH = configPrefix + "branch";
         TAG_PREFIX = configPrefix + "tag-prefix";
@@ -66,6 +72,8 @@ public class GitRepositorySettings extends RepositorySettings {
         uri = configManager.getStringProperty(URI);
         login = configManager.getStringProperty(LOGIN);
         password = configManager.getPassword(PASSWORD);
+        userDisplayName = configManager.getStringProperty(USER_DISPLAY_NAME);
+        userEmail = configManager.getStringProperty(USER_EMAIL);
         localRepositoryPath = defaultLocalPath;
         branch = configManager.getStringProperty(BRANCH, Constants.MASTER);
         tagPrefix = configManager.getStringProperty(TAG_PREFIX);
@@ -96,6 +104,22 @@ public class GitRepositorySettings extends RepositorySettings {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getUserDisplayName() {
+        return userDisplayName;
+    }
+
+    public void setUserDisplayName(String userDisplayName) {
+        this.userDisplayName = userDisplayName;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
     public String getLocalRepositoryPath() {
@@ -162,6 +186,8 @@ public class GitRepositorySettings extends RepositorySettings {
             configurationManager.setPassword(PASSWORD, getPassword());
         }
 
+        configurationManager.setProperty(USER_DISPLAY_NAME, userDisplayName);
+        configurationManager.setProperty(USER_EMAIL, userEmail);
         configurationManager.setProperty(LOCAL_REPOSITORY_PATH, localRepositoryPath);
         configurationManager.setProperty(BRANCH, branch);
         configurationManager.setProperty(TAG_PREFIX, tagPrefix);
@@ -179,6 +205,8 @@ public class GitRepositorySettings extends RepositorySettings {
             setUri(otherSettings.getUri());
             setLogin(otherSettings.getLogin());
             setPassword(otherSettings.getPassword());
+            setUserDisplayName(otherSettings.getUserDisplayName());
+            setUserEmail(otherSettings.getUserEmail());
             setLocalRepositoryPath(otherSettings.getLocalRepositoryPath());
             setBranch(otherSettings.getBranch());
             setTagPrefix(otherSettings.getTagPrefix());

@@ -16,6 +16,16 @@
         <h:inputText value="#{settings.login}"/>
         <h:outputText value="Password:"/>
         <h:inputSecret value="#{settings.password}" redisplay="true"/>
+
+        <h:outputText value="User display name:"/>
+        <h:inputText value="#{settings.userDisplayName}" title="User Display Name used when commit to git. If it's empty, WebStudio username will be used."/>
+
+        <h:outputText value="User email:"/>
+        <h:inputText value="#{settings.userEmail}" title="User email used when commit to git."
+                     id="#{prependId}gitUserEmail" validator="#{validators.userEmail}"/>
+        <h:outputText value=""/>
+        <h:message for="#{prependId}gitUserEmail" styleClass="error"/>
+
         <h:outputText value="Local path:" styleClass="required"/>
         <h:inputText value="#{settings.localRepositoryPath}" title="Local path for Git repository."
                      id="#{prependId}gitLocalRepositoryPath" validator="#{validators.localRepositoryPath}"/>
