@@ -910,7 +910,6 @@ public class DecisionTableHelper {
         int j = 0;
         for (int i = numberOfConditions - numberOfHcondition; i < numberOfConditions; i++) {
             int c = hColumn;
-            int w = 1;
             while (c < originalTable.getSource().getWidth()) {
                 String cellValue = originalTable.getSource().getCell(c, j).getFormattedValue();
                 String text = String.format("Condition for %s: %s",
@@ -928,9 +927,8 @@ public class DecisionTableHelper {
                     Collections.singletonList(simpleNodeUsage));
                 cell.setMetaInfo(meta);
                 c = c + originalTable.getSource().getCell(c, j).getWidth();
-                w = cell.getHeight();
             }
-            j = j + w;
+            j++;
         }
     }
 
