@@ -11,20 +11,20 @@ public class ArrayHolder {
 
     private CompositeMethod[] methods;
     private IOpenClass componentType;
-    
+
     public ArrayHolder(IOpenClass componentType, CompositeMethod[] methods) {
         this.methods = methods;
         this.componentType = componentType;
     }
 
     public Object invoke(Object target, Object[] dtParams, IRuntimeEnv env) {
-        
-    	Object res = componentType.getAggregateInfo().makeIndexedAggregate(componentType, methods.length);
-    	
+
+        Object res = componentType.getAggregateInfo().makeIndexedAggregate(componentType, methods.length);
+
         for (int i = 0; i < methods.length; i++) {
-            
+
             CompositeMethod compositeMethod = methods[i];
-            
+
             if (compositeMethod != null) {
                 Object result = compositeMethod.invoke(target, dtParams, env);
                 Array.set(res, i, result);
@@ -34,10 +34,11 @@ public class ArrayHolder {
         return res;
     }
 
-	public void updateDependency(BindingDependencies dependencies) {
-		for (int i = 0; i < methods.length; i++) {
-			if (methods[i] != null)
-				methods[i].updateDependency(dependencies);
-		}
-	}
+    public void updateDependency(BindingDependencies dependencies) {
+        for (CompositeMethod method : methods) {
+            if (method != null) {
+                method.updateDependency(dependencies);
+            }
+        }
+    }
 }

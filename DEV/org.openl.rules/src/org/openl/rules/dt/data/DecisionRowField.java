@@ -9,25 +9,26 @@ import org.openl.vm.IRuntimeEnv;
 
 public class DecisionRowField implements IOpenField {
 
-    private IDecisionRow conditionOrAction; 
+    private IDecisionRow conditionOrAction;
     private DecisionTableDataType decisionTableDataType;
     private ConditionOrActionDataType dataType;
 
-    public DecisionRowField(IDecisionRow condOrAction, ConditionOrActionDataType dataType,  DecisionTableDataType decisionTableDataType) {
+    DecisionRowField(IDecisionRow condOrAction,
+            ConditionOrActionDataType dataType,
+            DecisionTableDataType decisionTableDataType) {
         this.conditionOrAction = condOrAction;
         this.dataType = dataType;
         this.decisionTableDataType = decisionTableDataType;
     }
 
     public Object get(Object target, IRuntimeEnv env) {
-        RuleExecutionObject reo = (RuleExecutionObject)target;
+        RuleExecutionObject reo = (RuleExecutionObject) target;
         int ruleNum = reo.getRuleNum();
 
-        
-        Object[] res = new Object[conditionOrAction.getNumberOfParams()]; 
-        conditionOrAction.loadValues(res, 0, ruleNum, target, null, env); //TODO does not work for methods in conditions!!!
-        
-        
+        Object[] res = new Object[conditionOrAction.getNumberOfParams()];
+        conditionOrAction.loadValues(res, 0, ruleNum, target, null, env); // TODO does not work for methods in
+                                                                          // conditions!!!
+
         return res;
     }
 

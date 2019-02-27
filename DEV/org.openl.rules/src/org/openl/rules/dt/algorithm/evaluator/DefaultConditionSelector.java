@@ -11,7 +11,7 @@ public class DefaultConditionSelector implements IIntSelector {
     private Object[] params;
     private IRuntimeEnv env;
 
-    public DefaultConditionSelector(ICondition condition, Object target, Object[] params, IRuntimeEnv env) {
+    DefaultConditionSelector(ICondition condition, Object target, Object[] params, IRuntimeEnv env) {
         this.condition = condition;
         this.target = target;
         this.params = params;
@@ -19,16 +19,7 @@ public class DefaultConditionSelector implements IIntSelector {
     }
 
     public boolean select(int rule) {
-        return evaluateConditionExpression(condition, rule, target, params, env);
-    }
-
-    public boolean evaluateConditionExpression(ICondition condition,
-            int rule,
-            Object target,
-            Object[] dtparams,
-            IRuntimeEnv env) {
-
-        return condition.calculateCondition(rule, target, dtparams, env).getBooleanValue();
+        return condition.calculateCondition(rule, target, params, env).getBooleanValue();
     }
 
 }

@@ -6,8 +6,8 @@ import java.util.List;
 import org.openl.domain.IIntIterator;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.dt.index.IRuleIndex;
 import org.openl.rules.dt.index.CombinedRangeIndex;
+import org.openl.rules.dt.index.IRuleIndex;
 import org.openl.rules.dt.index.RangeAscIndex;
 import org.openl.rules.dt.index.RangeDescIndex;
 import org.openl.rules.dt.type.IRangeAdaptor;
@@ -58,7 +58,8 @@ public class CombinedRangeIndexEvaluator extends ARangeIndexEvaluator {
                 emptyRulesBuilder.addRule(ruleN);
                 continue;
             }
-            Comparable<Object> vFrom = rangeAdaptor == null ? (Comparable<Object>) origVal : rangeAdaptor.getMin(origVal);
+            Comparable<Object> vFrom = rangeAdaptor == null ? (Comparable<Object>) origVal
+                                                            : rangeAdaptor.getMin(origVal);
             nodes.add(new IndexNode(vFrom, ruleN));
         }
 

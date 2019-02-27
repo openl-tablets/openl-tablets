@@ -23,7 +23,7 @@ public final class CharRangeAdaptor implements IRangeAdaptor<CharRange, Characte
             max = max + 1;
         }
 
-        return new Character((char) max);
+        return (char) max;
     }
 
     public Character getMin(CharRange range) {
@@ -31,7 +31,7 @@ public final class CharRangeAdaptor implements IRangeAdaptor<CharRange, Characte
             return null;
         }
 
-        return new Character((char) range.getMin());
+        return (char) range.getMin();
     }
 
     @Override
@@ -47,8 +47,4 @@ public final class CharRangeAdaptor implements IRangeAdaptor<CharRange, Characte
         return false;
     }
 
-    @Override
-    public Class<?> getIndexType() {
-        return Character.class;
-    }
 }

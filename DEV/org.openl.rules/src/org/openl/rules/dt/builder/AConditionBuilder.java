@@ -4,16 +4,16 @@ import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.validation.properties.dimentional.IDecisionTableColumn;
 
 public abstract class AConditionBuilder implements IDecisionTableColumnBuilder {
-    
+
     private IDecisionTableColumn condition;
-    
+
     private int conditionNumber;
-    
-    public AConditionBuilder(IDecisionTableColumn condition, int conditionNumber) {
+
+    AConditionBuilder(IDecisionTableColumn condition, int conditionNumber) {
         this.condition = condition;
         this.conditionNumber = conditionNumber;
     }
-    
+
     public final int build(IWritableGrid gridModel, int numberOfRules, int columnStartIndex, int rowStartIndex) {
         writeColumnType(gridModel, columnStartIndex, rowStartIndex);
         writeCodeExpression(gridModel, columnStartIndex, rowStartIndex);
@@ -27,10 +27,10 @@ public abstract class AConditionBuilder implements IDecisionTableColumnBuilder {
         return condition;
     }
 
-    public int getConditionNumber() {
+    int getConditionNumber() {
         return conditionNumber;
     }
-    
+
     protected abstract void writeColumnType(IWritableGrid gridModel, int columnStartIndex, int rowStartIndex);
 
     protected abstract void writeCodeExpression(IWritableGrid gridModel, int columnStartIndex, int rowStartIndex);
@@ -39,6 +39,8 @@ public abstract class AConditionBuilder implements IDecisionTableColumnBuilder {
 
     protected abstract void writeTitle(IWritableGrid gridModel, int columnStartIndex, int rowStartIndex);
 
-    protected abstract void writeRuleValue(IWritableGrid gridModel, int numberOfRules, int columnStartIndex,
+    protected abstract void writeRuleValue(IWritableGrid gridModel,
+            int numberOfRules,
+            int columnStartIndex,
             int rowStartIndex);
 }

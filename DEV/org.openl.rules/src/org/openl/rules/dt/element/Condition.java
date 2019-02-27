@@ -108,7 +108,7 @@ public class Condition extends FunctionalRow implements ICondition {
 
         return false;
     }
-    
+
     protected IOpenSourceCodeModule getExpressionSource(IBindingContext bindingContext,
             OpenL openl,
             IOpenClass declaringClass,
@@ -119,7 +119,7 @@ public class Condition extends FunctionalRow implements ICondition {
             declaringClass,
             signature,
             methodType);
-        
+
         if (!hasFormulas()) {
             return source;
         }
@@ -141,13 +141,13 @@ public class Condition extends FunctionalRow implements ICondition {
                     return new StringSourceCodeModule("contains(" + params[0].getName() + ", " + source.getCode() + ")",
                         source.getUri()); // Contains syntax to full code (must be the same as indexed variant)
                 }
-                
-                if (INumberRange.class.isAssignableFrom(params[0].getType().getInstanceClass())){
+
+                if (INumberRange.class.isAssignableFrom(params[0].getType().getInstanceClass())) {
                     return new StringSourceCodeModule(params[0].getName() + ".contains(" + source.getCode() + ")",
                         source.getUri()); // Range syntax to full code (must be the same as indexed variant)
-                    
+
                 }
-                
+
                 return new StringSourceCodeModule(source.getCode() + "==" + params[0].getName(), source.getUri()); // Simple
                                                                                                                    // syntax
                                                                                                                    // to
@@ -172,5 +172,5 @@ public class Condition extends FunctionalRow implements ICondition {
     public void removeDebugInformation() {
         getMethod().removeDebugInformation();
     }
-    
+
 }

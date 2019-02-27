@@ -15,7 +15,7 @@ public class ContainsInOrNotInArraySelector implements IIntSelector {
     private IRuntimeEnv env;
     private BooleanTypeAdaptor adaptor;
 
-    public ContainsInOrNotInArraySelector(ICondition condition,
+    ContainsInOrNotInArraySelector(ICondition condition,
             Object value,
             Object target,
             Object[] params,
@@ -32,7 +32,6 @@ public class ContainsInOrNotInArraySelector implements IIntSelector {
 
     public boolean select(int ruleN) {
 
-
         if (condition.isEmpty(ruleN)) {
             return true;
         }
@@ -40,8 +39,6 @@ public class ContainsInOrNotInArraySelector implements IIntSelector {
         Object[] realParams = new Object[condition.getNumberOfParams()];
 
         condition.loadValues(realParams, 0, ruleN, target, this.params, env);
-
-
 
         if (realParams.length < 2 || realParams[1] == null) {
             return true;

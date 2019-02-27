@@ -9,9 +9,9 @@ import org.openl.rules.table.IWritableGrid;
  *
  */
 public interface IDecisionTableColumnBuilder {
-    
+
     /**
-     * Build the condition to the sheet with the given number of rules and start writing from the given column and row 
+     * Build the condition to the sheet with the given number of rules and start writing from the given column and row
      * indexes.
      * 
      * @param gridModel the place for writing conditions

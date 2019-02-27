@@ -1,5 +1,10 @@
 package org.openl.rules.dt.algorithm;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.regex.Pattern;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.BinaryOpNode;
@@ -17,15 +22,15 @@ import org.openl.meta.FloatValue;
 import org.openl.meta.IntValue;
 import org.openl.meta.LongValue;
 import org.openl.meta.ShortValue;
+import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.evaluator.AConditionEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.SingleRangeIndexEvaluator;
-import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.ITypeAdaptor;
-import org.openl.rules.dt.IBaseCondition;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -35,14 +40,11 @@ import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterDeclaration;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Date;
-import java.util.regex.Pattern;
+class DependentParametersOptimizedAlgorithm {
 
-public class DependentParametersOptimizedAlgorithm {
+    RangeEvaluatorFactory[] rangeFactories = { new RangeEvaluatorFactory(null, 0, 0, 0) };
 
-    public static IConditionEvaluator makeEvaluator(ICondition condition,
+    static IConditionEvaluator makeEvaluator(ICondition condition,
             IMethodSignature signature,
             IBindingContext bindingContext) throws SyntaxNodeException {
 
@@ -63,17 +65,32 @@ public class DependentParametersOptimizedAlgorithm {
                 IOpenCast openCast = bindingContext.getCast(paramType, expressionType);
 
                 if (openCast == null) {
-                    String message = String.format("Can not convert from '%s' to '%s'. incompatible types comparison in '%s' condition",
+                    String message = String.format(
+                        "Can not convert from '%s' to '%s'. incompatible types comparison in '%s' condition",
                         paramType.getName(),
-                        expressionType.getName(), condition.getName());
-                    
+                        expressionType.getName(),
+                        condition.getName());
+
                     throw new SyntaxNodeException(message, null, null, condition.getSourceCodeModule());
                 }
 
                 if (evaluatorFactory instanceof OneParameterEqualsFactory) {
-                    return getOneParamEqualsEvaluator(evaluatorFactory, openCast);
+                    return new OneParameterEqualsIndexedEvaluator((OneParameterEqualsFactory) evaluatorFactory,
+                        openCast);
                 } else {
-                    return getOneParamRangeEvaluator(evaluatorFactory, expressionType, openCast);
+
+                    IRangeAdaptor<?, ? extends Comparable<?>> adaptor = getRangeAdaptor(evaluatorFactory,
+                        expressionType,
+                        openCast);
+
+                    if (adaptor == null)
+                        return null;
+
+                    @SuppressWarnings("unchecked")
+                    AConditionEvaluator rix = new SingleRangeIndexEvaluator(
+                        (IRangeAdaptor<Object, ? extends Comparable<Object>>) adaptor);
+                    rix.setOptimizedSourceCode(evaluatorFactory.getExpression());
+                    return rix;
                 }
 
             case 2:
@@ -84,12 +101,28 @@ public class DependentParametersOptimizedAlgorithm {
                 if (paramType0.equals(paramType1)) {
                     IOpenCast cast = bindingContext.getCast(paramType0, expressionType);
                     if (cast == null) {
-                        String message = String.format("Can not convert from '%s' to '%s'. incompatible types comparison in '%s' condition",
+                        String message = String.format(
+                            "Can not convert from '%s' to '%s'. incompatible types comparison in '%s' condition",
                             paramType0.getName(),
-                            expressionType.getName(), condition.getName());
+                            expressionType.getName(),
+                            condition.getName());
                         throw new SyntaxNodeException(message, null, null, condition.getSourceCodeModule());
                     }
-                    return getTwoParamRangeEvaluator(evaluatorFactory, expressionType, cast);
+                    IRangeAdaptor<?, ? extends Comparable<?>> adaptor = getRangeAdaptor(evaluatorFactory,
+                        expressionType,
+                        cast);
+
+                    if (adaptor == null)
+                        return null;
+
+                    @SuppressWarnings("unchecked")
+                    CombinedRangeIndexEvaluator rix = new CombinedRangeIndexEvaluator(
+                        (IRangeAdaptor<Object, ? extends Comparable<Object>>) adaptor,
+                        2);
+
+                    rix.setOptimizedSourceCode(evaluatorFactory.getExpression());
+
+                    return rix;
                 }
                 break;
         }
@@ -97,199 +130,84 @@ public class DependentParametersOptimizedAlgorithm {
         return null;
     }
 
-    private static IConditionEvaluator getTwoParamRangeEvaluator(EvaluatorFactory evaluatorFactory,
-            IOpenClass paramType,
-            IOpenCast openCast) {
-        IRangeAdaptor<? extends Object, ? extends Comparable<?>> adaptor = getRangeAdaptor(evaluatorFactory,
-            paramType,
-            openCast);
-
-        if (adaptor == null)
-            return null;
-
-        @SuppressWarnings("unchecked")
-        CombinedRangeIndexEvaluator rix = new CombinedRangeIndexEvaluator((IRangeAdaptor<Object, ? extends Comparable<Object>>) adaptor, 2);
-
-        rix.setOptimizedSourceCode(evaluatorFactory.getExpression());
-
-        return rix;
-    }
-
-    private static IConditionEvaluator getOneParamEqualsEvaluator(EvaluatorFactory evaluatorFactory, IOpenCast openCast) {
-        OneParameterEqualsFactory oneParameterEqualsFactory = (OneParameterEqualsFactory) evaluatorFactory;
-        OneParameterEqualsIndexedEvaluator oneParameterEqualsIndexedEvaluator = new OneParameterEqualsIndexedEvaluator(oneParameterEqualsFactory,
-            openCast);
-        return oneParameterEqualsIndexedEvaluator;
-    }
-
-    private static IConditionEvaluator getOneParamRangeEvaluator(EvaluatorFactory evaluatorFactory,
-            IOpenClass paramType,
-            IOpenCast openCast) {
-
-        IRangeAdaptor<? extends Object, ? extends Comparable<?>> adaptor = getRangeAdaptor(evaluatorFactory,
-            paramType,
-            openCast);
-
-        if (adaptor == null)
-            return null;
-
-        @SuppressWarnings("unchecked")
-        AConditionEvaluator rix = new SingleRangeIndexEvaluator((IRangeAdaptor<Object, ? extends Comparable<Object>>) adaptor);
-        rix.setOptimizedSourceCode(evaluatorFactory.getExpression());
-        return rix;
-    }
-
-    private static IRangeAdaptor<? extends Object, ? extends Comparable<?>> getRangeAdaptor(EvaluatorFactory evaluatorFactory,
+    private static IRangeAdaptor<?, ? extends Comparable<?>> getRangeAdaptor(EvaluatorFactory evaluatorFactory,
             IOpenClass paramType,
             IOpenCast openCast) {
 
         Class<?> typeClass = paramType.getInstanceClass();
         if (typeClass.equals(String.class)) {
-            return new RelationRangeAdaptor<String>(evaluatorFactory, ITypeAdaptor.STRING, openCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.STRING, openCast);
         }
 
         if (typeClass.equals(byte.class) || typeClass.equals(Byte.class)) {
-            return new RelationRangeAdaptor<Byte>(evaluatorFactory, ITypeAdaptor.BYTE, openCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BYTE, openCast);
         }
 
         if (typeClass.equals(ByteValue.class)) {
-            return new RelationRangeAdaptor<Byte>(evaluatorFactory, ITypeAdaptor.BYTE_VALUE, openCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BYTE_VALUE, openCast);
         }
 
         if (typeClass.equals(short.class) || typeClass.equals(Short.class)) {
-            return new RelationRangeAdaptor<Short>(evaluatorFactory, ITypeAdaptor.SHORT, openCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.SHORT, openCast);
         }
 
         if (typeClass.equals(ShortValue.class)) {
-            return new RelationRangeAdaptor<Short>(evaluatorFactory, ITypeAdaptor.SHORT_VALUE, openCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.SHORT_VALUE, openCast);
         }
 
         if (typeClass.equals(int.class) || typeClass.equals(Integer.class)) {
-            return new RelationRangeAdaptor<Integer>(evaluatorFactory, ITypeAdaptor.INT, openCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.INT, openCast);
         }
 
         if (typeClass.equals(IntValue.class)) {
-            return new RelationRangeAdaptor<Integer>(evaluatorFactory, ITypeAdaptor.INT_VALUE, openCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.INT_VALUE, openCast);
         }
 
         if (typeClass.equals(long.class) || typeClass.equals(Long.class)) {
-            return new RelationRangeAdaptor<Long>(evaluatorFactory, ITypeAdaptor.LONG, openCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.LONG, openCast);
         }
 
         if (typeClass.equals(LongValue.class)) {
-            return new RelationRangeAdaptor<Long>(evaluatorFactory, ITypeAdaptor.LONG_VALUE, openCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.LONG_VALUE, openCast);
         }
 
         if (typeClass.equals(double.class) || typeClass.equals(Double.class)) {
-            return new RelationRangeAdaptor<Double>(evaluatorFactory, ITypeAdaptor.DOUBLE, openCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.DOUBLE, openCast);
         }
 
         if (typeClass.equals(DoubleValue.class)) {
-            return new RelationRangeAdaptor<Double>(evaluatorFactory, ITypeAdaptor.DOUBLE_VALUE, openCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.DOUBLE_VALUE, openCast);
         }
 
         if (typeClass.equals(float.class) || typeClass.equals(Float.class)) {
-            return new RelationRangeAdaptor<Float>(evaluatorFactory, ITypeAdaptor.FLOAT, openCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.FLOAT, openCast);
         }
 
         if (typeClass.equals(FloatValue.class)) {
-            return new RelationRangeAdaptor<Float>(evaluatorFactory, ITypeAdaptor.FLOAT_VALUE, openCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.FLOAT_VALUE, openCast);
         }
 
         if (typeClass.equals(BigInteger.class)) {
-            return new RelationRangeAdaptor<BigInteger>(evaluatorFactory, ITypeAdaptor.BIGINTEGER, openCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGINTEGER, openCast);
         }
 
         if (typeClass.equals(BigIntegerValue.class)) {
-            return new RelationRangeAdaptor<BigInteger>(evaluatorFactory, ITypeAdaptor.BIGINTEGER_VALUE, openCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGINTEGER_VALUE, openCast);
         }
 
         if (typeClass.equals(BigDecimal.class)) {
-            return new RelationRangeAdaptor<BigDecimal>(evaluatorFactory, ITypeAdaptor.BIGDECIMAL, openCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGDECIMAL, openCast);
         }
 
         if (typeClass.equals(BigDecimalValue.class)) {
-            return new RelationRangeAdaptor<BigDecimal>(evaluatorFactory, ITypeAdaptor.BIGDECIMAL_VALUE, openCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGDECIMAL_VALUE, openCast);
         }
 
         if (typeClass.equals(Date.class)) {
-            return new RelationRangeAdaptor<Integer>(evaluatorFactory, ITypeAdaptor.DATE, openCast);
+            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.DATE, openCast);
         }
 
         return null;
-    }
-
-    static class RelationRangeAdaptor<C extends Comparable<C>> implements IRangeAdaptor<Object, C> {
-        EvaluatorFactory evaluatorFactory;
-        ITypeAdaptor<Object, C> typeAdaptor;
-        IOpenCast openCast;
-
-        @SuppressWarnings("unchecked")
-        public RelationRangeAdaptor(EvaluatorFactory evaluatorFactory,
-                ITypeAdaptor<? extends Object, C> typeAdaptor,
-                IOpenCast openCast) {
-            super();
-            this.evaluatorFactory = evaluatorFactory;
-            this.typeAdaptor = (ITypeAdaptor<Object, C>) typeAdaptor;
-            this.openCast = openCast;
-        }
-
-        public RelationRangeAdaptor(EvaluatorFactory evaluatorFactory, ITypeAdaptor<Object, C> typeAdaptor) {
-            this(evaluatorFactory, typeAdaptor, null);
-        }
-
-        @Override
-        public C getMax(Object param) {
-            if (param == null) {
-                return null;
-            }
-            if (evaluatorFactory.hasMax()) {
-                if (openCast != null) {
-                    param = openCast.convert(param);
-                }
-                C v = typeAdaptor.convert(param);
-                if (evaluatorFactory.needsIncrement(Bound.UPPER))
-                    v = typeAdaptor.increment(v);
-                return v;
-            }
-
-            return null;
-        }
-
-        @Override
-        public C getMin(Object param) {
-            if (param == null) {
-                return null;
-            }
-            if (evaluatorFactory.hasMin()) {
-                if (openCast != null) {
-                    param = openCast.convert(param);
-                }
-                C v = typeAdaptor.convert(param);
-                if (evaluatorFactory.needsIncrement(Bound.LOWER))
-                    v = typeAdaptor.increment(v);
-                return v;
-            }
-
-            return null;
-        }
-
-        @Override
-        public C adaptValueType(Object value) {
-            return typeAdaptor.convert(value);
-        }
-
-        @Override
-        public boolean useOriginalSource() {
-            return true;
-        }
-
-		@Override
-		public Class<?> getIndexType() {
-
-			return typeAdaptor.getTargetType();
-		}
-
     }
 
     private static String buildFieldName(IndexNode indexNode) throws SyntaxNodeException {
@@ -297,11 +215,11 @@ public class DependentParametersOptimizedAlgorithm {
         IBoundNode[] children = indexNode.getChildren();
         if (children != null && children.length == 1 && children[0] instanceof LiteralBoundNode) {
             LiteralBoundNode literalBoundNode = (LiteralBoundNode) children[0];
-			if ("literal.string".equals(literalBoundNode.getSyntaxNode().getType())) {
-				value = value + "\""+literalBoundNode.getValue().toString() + "\"]";
-			} else {
-				value = value + literalBoundNode.getValue().toString() + "]";
-			}
+            if ("literal.string".equals(literalBoundNode.getSyntaxNode().getType())) {
+                value = value + "\"" + literalBoundNode.getValue().toString() + "\"]";
+            } else {
+                value = value + literalBoundNode.getValue().toString() + "]";
+            }
         } else {
             throw new SyntaxNodeException("Can't parse array index", null, indexNode.getSyntaxNode());
         }
@@ -416,7 +334,8 @@ public class DependentParametersOptimizedAlgorithm {
         throw new IllegalStateException("Condition method should be an instance of CompositeMethod!");
     }
 
-    private static EvaluatorFactory determineOptimizedEvaluationFactory(ICondition condition, IMethodSignature signature) throws SyntaxNodeException {
+    private static EvaluatorFactory determineOptimizedEvaluationFactory(ICondition condition,
+            IMethodSignature signature) throws SyntaxNodeException {
         IParameterDeclaration[] params = condition.getParams();
 
         String code = condition.getSourceCodeModule().getCode();
@@ -476,9 +395,10 @@ public class DependentParametersOptimizedAlgorithm {
             }
             if (!p1.equals(conditionParam.getName()))
                 return null;
-            if (p2.startsWith(signatureParam.getName() + "[") || p2.startsWith(signatureParam.getName() + ".") || p2.equals(signatureParam.getName())){
+            if (p2.startsWith(signatureParam.getName() + "[") || p2.startsWith(signatureParam.getName() + ".") || p2
+                .equals(signatureParam.getName())) {
                 return new OneParameterEqualsFactory(signatureParam, p2);
-            }else{
+            } else {
                 return new OneParameterEqualsFactory(signatureParam, signatureParam.getName() + "." + p2);
             }
         }
@@ -486,9 +406,10 @@ public class DependentParametersOptimizedAlgorithm {
         if (!p2.equals(conditionParam.getName()))
             return null;
 
-        if (p1.startsWith(signatureParam.getName() + "[") || p1.startsWith(signatureParam.getName() + ".") || p1.equals(signatureParam.getName())){
+        if (p1.startsWith(signatureParam.getName() + "[") || p1.startsWith(signatureParam.getName() + ".") || p1
+            .equals(signatureParam.getName())) {
             return new OneParameterEqualsFactory(signatureParam, p1);
-        }else{
+        } else {
             return new OneParameterEqualsFactory(signatureParam, signatureParam.getName() + "." + p1);
         }
     }
@@ -512,12 +433,17 @@ public class DependentParametersOptimizedAlgorithm {
         RelationType relation = RelationType.findElement(op);
 
         if (relation == null)
-            throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op, condition.getSourceCodeModule());
+            throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op,
+                condition.getSourceCodeModule());
 
-        if (p1.startsWith(signatureParam.getName() + "[") || p1.startsWith(signatureParam.getName() + ".") || p1.equals(signatureParam.getName())){
+        if (p1.startsWith(signatureParam.getName() + "[") || p1.startsWith(signatureParam.getName() + ".") || p1
+            .equals(signatureParam.getName())) {
             return new OneParameterRangeFactory(signatureParam, conditionParam, relation, p1);
-        }else{
-            return new OneParameterRangeFactory(signatureParam, conditionParam, relation, signatureParam.getName() + "." + p1);
+        } else {
+            return new OneParameterRangeFactory(signatureParam,
+                conditionParam,
+                relation,
+                signatureParam.getName() + "." + p1);
         }
     }
 
@@ -534,7 +460,7 @@ public class DependentParametersOptimizedAlgorithm {
 
         if (rel1 == null) {
             throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op1,
-                    condition.getSourceCodeModule());
+                condition.getSourceCodeModule());
         }
 
         if (!rel1.isLessThan()) {
@@ -547,7 +473,7 @@ public class DependentParametersOptimizedAlgorithm {
         RelationType rel2 = RelationType.findElement(op2);
         if (rel2 == null) {
             throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op2,
-                    condition.getSourceCodeModule());
+                condition.getSourceCodeModule());
         }
 
         if (!rel2.isLessThan()) {
@@ -591,10 +517,16 @@ public class DependentParametersOptimizedAlgorithm {
         if (!p22.equals(conditionParam2.getName()))
             return null;
 
-        if (p12.startsWith(signatureParam.getName() + "[") || p12.startsWith(signatureParam.getName() + ".") || p12.equals(signatureParam.getName())){
+        if (p12.startsWith(signatureParam.getName() + "[") || p12.startsWith(signatureParam.getName() + ".") || p12
+            .equals(signatureParam.getName())) {
             return new TwoParameterRangeFactory(signatureParam, conditionParam1, rel1, conditionParam2, rel2, p12);
-        }else{
-            return new TwoParameterRangeFactory(signatureParam, conditionParam1, rel1, conditionParam2, rel2, signatureParam.getName() + "." + p12);
+        } else {
+            return new TwoParameterRangeFactory(signatureParam,
+                conditionParam1,
+                rel1,
+                conditionParam2,
+                rel2,
+                signatureParam.getName() + "." + p12);
         }
 
     }
@@ -605,7 +537,7 @@ public class DependentParametersOptimizedAlgorithm {
         if (dotIndex > 0) {
             parameterName = parameterName.substring(0, dotIndex);
             int brIndex = parameterName.indexOf('[');
-            if (brIndex > 0){
+            if (brIndex > 0) {
                 parameterName = parameterName.substring(0, brIndex);
             }
         }
@@ -615,13 +547,13 @@ public class DependentParametersOptimizedAlgorithm {
                 return new ParameterDeclaration(signature.getParameterType(i), parameterName);
             }
         }
-        
+
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
-            if (signature.getParameterType(i).getField(parameterName, false) != null){
+            if (signature.getParameterType(i).getField(parameterName, false) != null) {
                 return new ParameterDeclaration(signature.getParameterType(i), signature.getParameterName(i));
             }
         }
-        
+
         return null;
     }
 
@@ -644,24 +576,140 @@ public class DependentParametersOptimizedAlgorithm {
         RelationType relation = RelationType.findElement(op);
 
         if (relation == null)
-            throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op, condition.getSourceCodeModule());
+            throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op,
+                condition.getSourceCodeModule());
 
         String oppositeOp = relation.opposite;
 
         relation = RelationType.findElement(oppositeOp);
 
         if (relation == null)
-            throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + oppositeOp, condition.getSourceCodeModule());
+            throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + oppositeOp,
+                condition.getSourceCodeModule());
 
-        if (p2.startsWith(signatureParam.getName() + "[") || p2.startsWith(signatureParam.getName() + ".") || p2.equals(signatureParam.getName())){
+        if (p2.startsWith(signatureParam.getName() + "[") || p2.startsWith(signatureParam.getName() + ".") || p2
+            .equals(signatureParam.getName())) {
             return new OneParameterRangeFactory(signatureParam, conditionParam, relation, p2);
-        }else{
-            return new OneParameterRangeFactory(signatureParam, conditionParam, relation, signatureParam.getName() + "." + p2);
+        } else {
+            return new OneParameterRangeFactory(signatureParam,
+                conditionParam,
+                relation,
+                signatureParam.getName() + "." + p2);
         }
+    }
+
+    enum Bound {
+        LOWER,
+        UPPER
+    }
+
+    enum RelationType {
+
+        LT("<", ">", true, null),
+        LE("<=", ">=", true, Bound.UPPER),
+        GE(">=", "<=", false, null),
+        GT(">", "<", false, Bound.LOWER);
+
+        String func;
+        String opposite;
+        boolean lessThan;
+        Bound incBound;
+        private RelationType(String func, String opposite, boolean lessThan, Bound incBound) {
+            this.func = func;
+            this.opposite = opposite;
+            this.lessThan = lessThan;
+            this.incBound = incBound;
+        }
+
+        static RelationType findElement(String code) {
+            RelationType[] all = values();
+            for (int i = 0; i < all.length; i++) {
+                if (code.equals(all[i].func))
+                    return all[i];
+            }
+
+            return null;
+        }
+
+        public Bound getIncBound() {
+            return incBound;
+        }
+
+        public boolean isLessThan() {
+            return lessThan;
+        }
+
+    }
+
+    static class RelationRangeAdaptor<C extends Comparable<C>> implements IRangeAdaptor<Object, C> {
+        EvaluatorFactory evaluatorFactory;
+        ITypeAdaptor<Object, C> typeAdaptor;
+        IOpenCast openCast;
+
+        @SuppressWarnings("unchecked")
+        RelationRangeAdaptor(EvaluatorFactory evaluatorFactory,
+                ITypeAdaptor<? extends Object, C> typeAdaptor,
+                IOpenCast openCast) {
+            super();
+            this.evaluatorFactory = evaluatorFactory;
+            this.typeAdaptor = (ITypeAdaptor<Object, C>) typeAdaptor;
+            this.openCast = openCast;
+        }
+
+        @Override
+        public C getMax(Object param) {
+            if (param == null) {
+                return null;
+            }
+            if (evaluatorFactory.hasMax()) {
+                if (openCast != null) {
+                    param = openCast.convert(param);
+                }
+                C v = typeAdaptor.convert(param);
+                if (evaluatorFactory.needsIncrement(Bound.UPPER))
+                    v = typeAdaptor.increment(v);
+                return v;
+            }
+
+            return null;
+        }
+
+        @Override
+        public C getMin(Object param) {
+            if (param == null) {
+                return null;
+            }
+            if (evaluatorFactory.hasMin()) {
+                if (openCast != null) {
+                    param = openCast.convert(param);
+                }
+                C v = typeAdaptor.convert(param);
+                if (evaluatorFactory.needsIncrement(Bound.LOWER))
+                    v = typeAdaptor.increment(v);
+                return v;
+            }
+
+            return null;
+        }
+
+        @Override
+        public C adaptValueType(Object value) {
+            return typeAdaptor.convert(value);
+        }
+
+        @Override
+        public boolean useOriginalSource() {
+            return true;
+        }
+
     }
 
     static class RangeEvaluatorFactory {
 
+        Pattern pattern;
+        String regex;
+        int numberOfparams;
+        int minDelta, maxDelta;
         public RangeEvaluatorFactory(String regex, int numberOfparams, int minDelta, int maxDelta) {
             super();
             this.regex = regex;
@@ -669,18 +717,6 @@ public class DependentParametersOptimizedAlgorithm {
             this.minDelta = minDelta;
             this.maxDelta = maxDelta;
         }
-
-        Pattern pattern;
-        String regex;
-        int numberOfparams;
-        int minDelta, maxDelta;
-    }
-
-    RangeEvaluatorFactory[] rangeFactories = { new RangeEvaluatorFactory(null, 0, 0, 0) };
-
-    enum Bound {
-        LOWER,
-        UPPER
     }
 
     public static class OneParameterEqualsIndexedEvaluator extends EqualsIndexedEvaluator {
@@ -711,7 +747,7 @@ public class DependentParametersOptimizedAlgorithm {
         IParameterDeclaration signatureParam;
         String expression;
 
-        public EvaluatorFactory(IParameterDeclaration signatureParam, String expression) {
+        EvaluatorFactory(IParameterDeclaration signatureParam, String expression) {
             super();
             this.signatureParam = signatureParam;
             this.expression = expression;
@@ -727,8 +763,8 @@ public class DependentParametersOptimizedAlgorithm {
             return expression;
         }
 
-        public IOpenClass getExpressionType() {
-            return ExpressionTypeUtils.findExpressionType(signatureParam.getType(), expression);
+        IOpenClass getExpressionType() {
+            return DecisionTableAlgorithmBuilder.findExpressionType(signatureParam.getType(), expression);
         }
 
     }
@@ -757,6 +793,7 @@ public class DependentParametersOptimizedAlgorithm {
 
     static class OneParameterRangeFactory extends EvaluatorFactory {
         IParameterDeclaration conditionParam;
+        RelationType relation;
 
         public OneParameterRangeFactory(IParameterDeclaration signatureParam,
                 IParameterDeclaration conditionParam,
@@ -767,8 +804,6 @@ public class DependentParametersOptimizedAlgorithm {
             this.conditionParam = conditionParam;
             this.relation = relation;
         }
-
-        RelationType relation;
 
         @Override
         public boolean hasMin() {
@@ -821,46 +856,6 @@ public class DependentParametersOptimizedAlgorithm {
             if (bound == Bound.LOWER)
                 return relation1 == RelationType.LT;
             return relation2 == RelationType.LE;
-        }
-
-    }
-
-    enum RelationType {
-
-        LT("<", ">", true, null),
-        LE("<=", ">=", true, Bound.UPPER),
-        GE(">=", "<=", false, null),
-        GT(">", "<", false, Bound.LOWER);
-
-        private RelationType(String func, String opposite, boolean lessThan, Bound incBound) {
-            this.func = func;
-            this.opposite = opposite;
-            this.lessThan = lessThan;
-            this.incBound = incBound;
-        }
-
-        public Bound getIncBound() {
-            return incBound;
-        }
-
-        public boolean isLessThan() {
-            return lessThan;
-        }
-
-        String func;
-        String opposite;
-
-        boolean lessThan;
-        Bound incBound;
-
-        static RelationType findElement(String code) {
-            RelationType[] all = values();
-            for (int i = 0; i < all.length; i++) {
-                if (code.equals(all[i].func))
-                    return all[i];
-            }
-
-            return null;
         }
 
     }

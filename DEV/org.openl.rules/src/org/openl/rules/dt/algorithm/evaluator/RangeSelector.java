@@ -9,32 +9,36 @@ public class RangeSelector implements IIntSelector {
 
     private ICondition condition;
     private Object value;
-    
+
     private Object target;
     private Object[] params;
     private IRuntimeEnv env;
     private IRangeAdaptor<Object, ? extends Comparable<Object>> adaptor;
 
-    public RangeSelector(ICondition condition, Object value, Object target, Object[] params, IRangeAdaptor<Object, ? extends Comparable<Object>> adaptor,  IRuntimeEnv env) {
+    RangeSelector(ICondition condition,
+            Object value,
+            Object target,
+            Object[] params,
+            IRangeAdaptor<Object, ? extends Comparable<Object>> adaptor,
+            IRuntimeEnv env) {
         this.condition = condition;
         this.adaptor = adaptor;
-        
-        // As income value is of Number type, it should be adapted to the value type 
+
+        // As income value is of Number type, it should be adapted to the value type
         // from range adaptor for further comparison.
         //
         if (adaptor != null) {
             this.value = this.adaptor.adaptValueType(value);
-        }else{
+        } else {
             this.value = value;
         }
-        this.params = params;        
+        this.params = params;
         this.env = env;
         this.target = target;
     }
 
     @SuppressWarnings("unchecked")
     public boolean select(int ruleN) {
-        
 
         if (condition.isEmpty(ruleN)) {
             return true;
@@ -52,9 +56,9 @@ public class RangeSelector implements IIntSelector {
             vTo = (Comparable<Object>) realParams[1];
         } else {
             vFrom = adaptor.getMin(realParams[0]);
-            if (realParams.length == 2){
+            if (realParams.length == 2) {
                 vTo = adaptor.getMax(realParams[1]);
-            }else{
+            } else {
                 vTo = adaptor.getMax(realParams[0]);
             }
         }
@@ -62,8 +66,9 @@ public class RangeSelector implements IIntSelector {
         if (value == null) {
             return vFrom == null && vTo == null;
         }
-        
-        return (vFrom == null || vFrom.compareTo(value) <= 0) && (vTo == null || ((Comparable<Object>) value).compareTo(vTo) < 0);
+
+        return (vFrom == null || vFrom.compareTo(value) <= 0) && (vTo == null || ((Comparable<Object>) value)
+            .compareTo(vTo) < 0);
     }
 
 }

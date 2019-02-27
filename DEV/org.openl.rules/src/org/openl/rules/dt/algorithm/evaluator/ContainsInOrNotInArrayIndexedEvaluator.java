@@ -1,6 +1,3 @@
-/**
- * Created Jul 11, 2007
- */
 package org.openl.rules.dt.algorithm.evaluator;
 
 import java.lang.reflect.Array;
@@ -9,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,12 +18,11 @@ import org.openl.domain.IIntSelector;
 import org.openl.domain.IntArrayIterator;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
+import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.index.EqualsIndex;
 import org.openl.rules.dt.type.BooleanTypeAdaptor;
-import org.openl.rules.dt.IBaseCondition;
-import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.vm.IRuntimeEnv;
@@ -101,21 +96,21 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
                 if (allValues == null) {
                     if (NumberUtils.isFloatPointNumber(value)) {
                         if (value instanceof BigDecimal) {
-                            allValues = new TreeSet<Object>();
+                            allValues = new TreeSet<>();
                         } else {
-                            allValues = new TreeSet<Object>(FloatTypeComparator.getInstance());
+                            allValues = new TreeSet<>(FloatTypeComparator.getInstance());
                             smartFloatComparatorIsUsed = true;
                         }
                         comparatorBasedSet = true;
                     } else {
-                        allValues = new HashSet<Object>();
+                        allValues = new HashSet<>();
                     }
                 }
                 if (comparatorBasedSet) {
                     if (smartFloatComparatorIsUsed) {
-                        values = new TreeSet<Object>(FloatTypeComparator.getInstance());
+                        values = new TreeSet<>(FloatTypeComparator.getInstance());
                     } else {
-                        values = new TreeSet<Object>();
+                        values = new TreeSet<>();
                     }
                 }
                 allValues.add(value);
@@ -129,21 +124,21 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
         int[] rules = copyRules.makeRulesAry();
         iterator = new IntArrayIterator(rules);
 
-        Map<Object, DecisionTableRuleNodeBuilder> map = null;
-        Map<Object, DecisionTableRuleNode> nodeMap = null;
+        Map<Object, DecisionTableRuleNodeBuilder> map;
+        Map<Object, DecisionTableRuleNode> nodeMap;
 
         if (globalComparatorBasedSet) {
             if (globalSmartFloatComparatorIsUsed) {
-                map = new TreeMap<Object, DecisionTableRuleNodeBuilder>(FloatTypeComparator.getInstance());
-                nodeMap = new TreeMap<Object, DecisionTableRuleNode>(FloatTypeComparator.getInstance());
+                map = new TreeMap<>(FloatTypeComparator.getInstance());
+                nodeMap = new TreeMap<>(FloatTypeComparator.getInstance());
             } else {
-                nodeMap = new TreeMap<Object, DecisionTableRuleNode>();
-                map = new TreeMap<Object, DecisionTableRuleNodeBuilder>();
+                nodeMap = new TreeMap<>();
+                map = new TreeMap<>();
             }
 
         } else {
-            map = new HashMap<Object, DecisionTableRuleNodeBuilder>();
-            nodeMap = new HashMap<Object, DecisionTableRuleNode>();
+            map = new HashMap<>();
+            nodeMap = new HashMap<>();
         }
 
         DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
@@ -155,13 +150,9 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
             if (condition.isEmpty(i)) {
 
                 emptyBuilder.addRule(i);
-                if (map != null) {
-                    for (Iterator<DecisionTableRuleNodeBuilder> iter = map.values().iterator(); iter.hasNext();) {
-                        DecisionTableRuleNodeBuilder dtrnb = iter.next();
-                        dtrnb.addRule(i);
-                    }
+                for (DecisionTableRuleNodeBuilder dtrnb : map.values()) {
+                    dtrnb.addRule(i);
                 }
-
                 continue;
             }
 
@@ -172,9 +163,8 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
 
             if (isIn) {
 
-                for (Iterator<?> iter = values.iterator(); iter.hasNext();) {
+                for (Object value : values) {
 
-                    Object value = iter.next();
                     DecisionTableRuleNodeBuilder builder = map.get(value);
 
                     if (builder == null) {
@@ -186,9 +176,7 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
                 }
             } else {
 
-                for (Iterator<?> iter = allValues.iterator(); iter.hasNext();) {
-
-                    Object value = iter.next();
+                for (Object value : allValues) {
 
                     if (values.contains(value)) {
                         continue;
@@ -208,8 +196,7 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
             }
         }
 
-        for (Iterator<Map.Entry<Object, DecisionTableRuleNodeBuilder>> iter = map.entrySet().iterator(); iter.hasNext();) {
-            Map.Entry<Object, DecisionTableRuleNodeBuilder> element = iter.next();
+        for (Map.Entry<Object, DecisionTableRuleNodeBuilder> element : map.entrySet()) {
             nodeMap.put(element.getKey(), element.getValue().makeNode());
         }
 
@@ -221,11 +208,11 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
         return 0;
     }
 
-    public IDomain<? extends Object> getRuleParameterDomain(IBaseCondition condition) throws DomainCanNotBeDefined {
+    public IDomain<? extends Object> getRuleParameterDomain(IBaseCondition condition) {
         return null;
     }
 
-    public IDomain<? extends Object> getConditionParameterDomain(int paramIdx, IBaseCondition condition) throws DomainCanNotBeDefined {
+    public IDomain<? extends Object> getConditionParameterDomain(int paramIdx, IBaseCondition condition) {
         return null;
     }
 

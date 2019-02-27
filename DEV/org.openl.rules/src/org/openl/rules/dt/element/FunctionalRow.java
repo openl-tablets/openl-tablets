@@ -1,9 +1,3 @@
-/*
- * Created on Sep 11, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.rules.dt.element;
 
 import java.util.HashSet;
@@ -11,7 +5,6 @@ import java.util.Set;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.OpenlToolAdaptor;
@@ -22,7 +15,6 @@ import org.openl.rules.dt.IDecisionTableParameterInfo;
 import org.openl.rules.dt.storage.IStorage;
 import org.openl.rules.dt.storage.IStorageBuilder;
 import org.openl.rules.dt.storage.StorageFactory;
-import org.openl.rules.dt.storage.StorageInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -63,11 +55,11 @@ public abstract class FunctionalRow implements IDecisionRow {
     private ILogicalTable codeTable;
     private ILogicalTable presentationTable;
 
-    DTScale.RowScale scale;
+    private DTScale.RowScale scale;
 
     private int noParamsIndex = 0;
 
-    public FunctionalRow(String name, int row, ILogicalTable decisionTable, DTScale.RowScale scale) {
+    FunctionalRow(String name, int row, ILogicalTable decisionTable, DTScale.RowScale scale) {
 
         this.name = name;
         this.row = row;
@@ -184,16 +176,15 @@ public abstract class FunctionalRow implements IDecisionRow {
     public void prepare(IOpenClass methodType,
             IMethodSignature signature,
             OpenL openl,
-            ComponentOpenClass componentOpenClass,
             IBindingContext bindingContext,
             RuleRow ruleRow,
             TableSyntaxNode tableSyntaxNode) throws Exception {
 
-        method = generateMethod(signature, openl, bindingContext, componentOpenClass, methodType);
+        method = generateMethod(signature, openl, bindingContext, methodType);
 
         OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext, tableSyntaxNode);
 
-        IOpenMethodHeader header = new OpenMethodHeader(name, null, signature, componentOpenClass);
+        IOpenMethodHeader header = new OpenMethodHeader(name, null, signature, null);
         openlAdaptor.setHeader(header);
 
         prepareParamValues(method, openlAdaptor, ruleRow);
@@ -231,8 +222,8 @@ public abstract class FunctionalRow implements IDecisionRow {
                     declaringClass,
                     methodType,
                     openl,
-                    bindingContext,
-                    i);
+                    bindingContext
+                );
 
                 String paramName = parameterDeclaration.getName();
 
@@ -342,7 +333,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         return paramIndexed;
     }
 
-    protected Object[] mergeParams(Object target, Object[] dtParams, IRuntimeEnv env, int ruleN) {
+    Object[] mergeParams(Object target, Object[] dtParams, IRuntimeEnv env, int ruleN) {
 
         if (dtParams == null) {
             dtParams = new Object[0];
@@ -378,26 +369,25 @@ public abstract class FunctionalRow implements IDecisionRow {
         return (NO_PARAM + noParamsIndex).intern();
     }
 
-    protected final CompositeMethod generateMethod(IMethodSignature signature,
-            OpenL openl,
-            IBindingContext bindingContext,
-            IOpenClass declaringClass,
-            IOpenClass methodType) throws Exception {
+    private CompositeMethod generateMethod(IMethodSignature signature,
+                                           OpenL openl,
+                                           IBindingContext bindingContext,
+                                           IOpenClass methodType) throws Exception {
 
         IOpenSourceCodeModule source = getExpressionSource(bindingContext,
             openl,
-            declaringClass,
+            null,
             signature,
             methodType);
 
         IParameterDeclaration[] methodParams = getParams(source,
             signature,
-            declaringClass,
+            null,
             methodType,
             openl,
             bindingContext);
         IMethodSignature newSignature = ((MethodSignature) signature).merge(methodParams);
-        OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, newSignature, declaringClass);
+        OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, newSignature, null);
 
         return OpenLCellExpressionsCompiler.makeMethod(openl, source, methodHeader, bindingContext);
     }
@@ -437,18 +427,16 @@ public abstract class FunctionalRow implements IDecisionRow {
      * @param methodType return type of method
      * @param openl openl context
      * @param bindingContext binding context
-     * @param paramNum the number of parameter in {@link #paramsTable}
      * @return parameter declaration
      * @throws OpenLCompilationException if and error has occurred
      */
     private IParameterDeclaration getParameterDeclaration(IOpenSourceCodeModule paramSource,
-            IOpenSourceCodeModule methodSource,
-            IMethodSignature signature,
-            IOpenClass declaringClass,
-            IOpenClass methodType,
-            OpenL openl,
-            IBindingContext bindingContext,
-            int paramNum) throws OpenLCompilationException {
+                                                          IOpenSourceCodeModule methodSource,
+                                                          IMethodSignature signature,
+                                                          IOpenClass declaringClass,
+                                                          IOpenClass methodType,
+                                                          OpenL openl,
+                                                          IBindingContext bindingContext) throws OpenLCompilationException {
 
         IdentifierNode[] nodes = Tokenizer.tokenize(paramSource, " \n\r");
 
@@ -494,11 +482,6 @@ public abstract class FunctionalRow implements IDecisionRow {
         String name = nodes[1].getIdentifier();
 
         return new ParameterDeclaration(type, name);
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%s : %s", name, codeTable.toString());
     }
 
     @Override
@@ -574,10 +557,6 @@ public abstract class FunctionalRow implements IDecisionRow {
         return false;
     }
 
-    public StorageInfo getStorageInfo(int paramN) {
-        return storage[paramN].getInfo();
-    }
-
     public Object getStorageValue(int paramNum, int ruleNum) {
         if (storage == null) {
             return null;
@@ -589,60 +568,18 @@ public abstract class FunctionalRow implements IDecisionRow {
     public boolean isEqual(int rule1, int rule2) {
         int n = getNumberOfParams();
         for (int i = 0; i < n; i++) {
-            if (!objEquals(getParamValue(i, rule1), getParamValue(i, rule2)))
+            Object p1 = getParamValue(i, rule1);
+            Object p2 = getParamValue(i, rule2);
+            if ((p1 != p2) && (p1 != null && !p1.equals(p2))) {
                 return false;
+            }
         }
         return true;
     }
 
-    public static boolean objEquals(Object a, Object b) {
-        return (a == b) || (a != null && a.equals(b));
-    }
-
     @Override
-    public boolean hasEmptyRules() {
-
-        int n = getNumberOfParams();
-        if (n == 1)
-            return storage[0].getInfo().getNumberOfSpaces() > 0;
-
-        boolean hasAnySpaces = false;
-        for (int i = 0; i < n; i++) {
-            if (storage[i].getInfo().getNumberOfSpaces() > 0) {
-                hasAnySpaces = true;
-                break;
-            }
-        }
-        if (!hasAnySpaces)
-            return false;
-
-        int nRules = getNumberOfRules();
-
-        for (int ruleN = 0; ruleN < nRules; ruleN++) {
-            boolean allSpaces = true;
-            for (int np = 0; np < n; np++) {
-                if (!storage[np].isSpace(ruleN)) {
-                    allSpaces = false;
-                    break;
-                }
-            }
-            if (allSpaces)
-                return true;
-        }
-
-        return false;
-    }
-
-    @Override
-    public boolean hasSpecialRules() {
-        int n = getNumberOfParams();
-        for (int i = 0; i < n; i++) {
-            if (storage[i].getInfo().getNumberOfFormulas() > 0 || storage[i].getInfo().getNumberOfElses() > 0) {
-                return true;
-            }
-        }
-
-        return false;
+    public String toString() {
+        return name + " : " + codeTable;
     }
 
 }

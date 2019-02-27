@@ -23,7 +23,7 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
     final IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor;
     final int nparams;
 
-    public ARangeIndexEvaluator(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor, int nparams) {
+    ARangeIndexEvaluator(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor, int nparams) {
         this.rangeAdaptor = rangeAdaptor;
         this.nparams = nparams;
     }
@@ -37,11 +37,13 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
         IParameterDeclaration[] params = condition.getParams();
         IOpenSourceCodeModule conditionSource = condition.getSourceCodeModule();
 
-        String code = params.length == 2 ?
-                String.format("%1$s<=(%2$s) && (%2$s) < %3$s", params[0].getName(), conditionSource.getCode(), params[1].getName()) :
-                String.format("%1$s.contains(%2$s)", params[0].getName(), conditionSource.getCode());
+        String code = params.length == 2 ? String.format("%1$s<=(%2$s) && (%2$s) < %3$s",
+            params[0].getName(),
+            conditionSource.getCode(),
+            params[1].getName()) : String.format("%1$s.contains(%2$s)", params[0].getName(), conditionSource.getCode());
         return new StringSourceCodeModule(code, conditionSource.getUri());
     }
+
     @Override
     @SuppressWarnings("unchecked")
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
@@ -51,7 +53,7 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
 
     @Override
     @SuppressWarnings("unchecked")
-    protected IDomain<? extends Object> indexedDomain(IBaseCondition condition) throws DomainCanNotBeDefined {
+    protected IDomain<?> indexedDomain(IBaseCondition condition) throws DomainCanNotBeDefined {
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
 
@@ -118,6 +120,11 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
         return 0;
     }
 
+    @Override
+    public int getPriority() {
+        return 90;
+    }
+
     protected static class RangeIndexNodeAdaptor implements IRangeAdaptor<IndexNode, Comparable<?>> {
         private final IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor;
 
@@ -152,10 +159,6 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
             throw new UnsupportedOperationException("Operation not supported!");
         }
 
-        @Override
-        public Class<?> getIndexType() {
-            throw new UnsupportedOperationException("getIndexType fpr empty rangeAdaptors");
-        }
     }
 
     public static class IndexNode implements Comparable<IndexNode> {
@@ -163,17 +166,17 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
         private List<Integer> rules;
         private Integer ruleN;
 
-        public IndexNode(Comparable<Object> value, int ruleN) {
+        IndexNode(Comparable<Object> value, int ruleN) {
             this.value = value;
             this.ruleN = ruleN;
         }
 
-        public IndexNode(Comparable<Object> value, List<Integer> rules) {
+        IndexNode(Comparable<Object> value, List<Integer> rules) {
             this.value = value;
             this.rules = Collections.unmodifiableList(rules);
         }
 
-        public IndexNode(Comparable<Object> value) {
+        IndexNode(Comparable<Object> value) {
             this.value = value;
         }
 
@@ -200,10 +203,5 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
             }
             return this.value.compareTo(o.value);
         }
-    }
-
-    @Override
-    public int getPriority() {
-        return 90;
     }
 }

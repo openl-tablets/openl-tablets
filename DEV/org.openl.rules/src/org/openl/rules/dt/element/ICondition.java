@@ -1,8 +1,7 @@
 package org.openl.rules.dt.element;
 
-import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
-import org.openl.rules.dt.storage.StorageInfo;
 import org.openl.rules.dt.IBaseCondition;
+import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.types.IMethodCaller;
 import org.openl.vm.IRuntimeEnv;
 
@@ -12,21 +11,11 @@ public interface ICondition extends IBaseCondition, IDecisionRow {
 
     IConditionEvaluator getConditionEvaluator();
 
+    void setConditionEvaluator(IConditionEvaluator iConditionEvaluator);
+
     IMethodCaller getEvaluator();
-    
-//    IConditionEvaluator prepareCondition(IMethodSignature signature,
-//            OpenL openl,
-//            ComponentOpenClass componentOpenClass,
-//            IBindingContextDelegator cxtd,
-//            RuleRow ruleRow) throws Exception;
 
-	boolean isDependentOnAnyParams();
+    void setEvaluator(IMethodCaller iMethodCaller);
 
-	void setConditionEvaluator(IConditionEvaluator iConditionEvaluator);
-
-	void setEvaluator(IMethodCaller iMethodCaller);
-
-	
-	StorageInfo getStorageInfo(int paramN);
-
+    boolean isDependentOnAnyParams();
 }

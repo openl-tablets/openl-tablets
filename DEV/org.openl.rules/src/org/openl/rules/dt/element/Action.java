@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.data.RuleExecutionObject;
 import org.openl.rules.dt.storage.IStorage;
@@ -66,7 +65,6 @@ public class Action extends FunctionalRow implements IAction {
             }
 
             Object[] dest = new Object[getNumberOfParams()];
-//            RuleRowHelper.loadParams(array, 0, values, target, params, env);
             loadValues(dest, 0, ruleN, target, params, env);
 
             Object returnValue = dest[0];
@@ -116,7 +114,6 @@ public class Action extends FunctionalRow implements IAction {
     public void prepareAction(IOpenMethodHeader header,
             IMethodSignature signature,
             OpenL openl,
-            ComponentOpenClass componentOpenClass,
             IBindingContext bindingContext,
             RuleRow ruleRow,
             IOpenClass ruleExecutionType,
@@ -137,7 +134,7 @@ public class Action extends FunctionalRow implements IAction {
             }
         }
         
-        prepare(methodType, signature, openl, componentOpenClass, bindingContext, ruleRow, tableSyntaxNode);
+        prepare(methodType, signature, openl, bindingContext, ruleRow, tableSyntaxNode);
         this.ruleExecutionType = ruleExecutionType;
 
         IParameterDeclaration[] params = getParams();

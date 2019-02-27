@@ -6,94 +6,68 @@ import org.openl.rules.dt.DTInfo;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.DecisionTable;
 
-
 public class IndexInfo {
-	
-	DecisionTable table;
-	
-	int fromCondition = 0, 
-			toCondition; //defines a range of conditions to be included in the index
-	
-	int fromRule = 0, 
-			toRule;
 
-	private int step = 1;
-	
-	public int getStep() {
-		return step;
-	}
+    int fromCondition = 0, toCondition; // defines a range of conditions to be included in the index
+    private DecisionTable table;
+    private int toRule;
 
-	public IndexInfo withTable(DecisionTable t)
-	{
-		table = t;
-		toCondition = table.getConditionRows().length-1;
-		toRule = table.getNumberOfRules()-1;
-		return this;
-	}
+    private int step = 1;
 
-	public DecisionTable getTable() {
-		return table;
-	}
+    IndexInfo withTable(DecisionTable t) {
+        table = t;
+        toCondition = table.getConditionRows().length - 1;
+        toRule = table.getNumberOfRules() - 1;
+        return this;
+    }
 
-	public int getFromCondition() {
-		return fromCondition;
-	}
+    public DecisionTable getTable() {
+        return table;
+    }
 
-	public int getToCondition() {
-		return toCondition;
-	}
+    IndexInfo makeVerticalInfo() {
+        DTInfo dti = table.getDtInfo();
+        return new IndexInfo().withTable(table)
+            .withToCondition(dti.getNumberVConditions() - 1)
+            .withToRule(dti.getScale().getHScale().getMultiplier() - 1);
+    }
 
-	public int getFromRule() {
-		return fromRule;
-	}
+    IndexInfo makeHorizontalalInfo() {
+        DTInfo dti = table.getDtInfo();
+        DTScale dts = dti.getScale();
 
-	public int getToRule() {
-		return toRule;
-	}
+        int vSize = dts.getVScale().getMultiplier();
+        int hSize = dts.getHScale().getMultiplier();
 
-	public IndexInfo makeVerticalInfo() {
-		DTInfo dti = table.getDtInfo();
-		return new IndexInfo().withTable(table).withToCondition(dti.getNumberVConditions()-1).withToRule(dti.getScale().getHScale().getMultiplier() - 1);
-	}
+        return new IndexInfo().withTable(table)
+            .withFromCondition(dti.getNumberVConditions())
+            .withToCondition(toCondition)
+            .withToRule((vSize - 1) * hSize)
+            .withStep(hSize);
+    }
 
-	
-	public IndexInfo makeHorizontalalInfo() {
-		DTInfo dti = table.getDtInfo();
-		DTScale dts = dti.getScale();
-		
-		int vSize = dts.getVScale().getMultiplier();
-		int hSize = dts.getHScale().getMultiplier();
-		
-		
-		return new IndexInfo().withTable(table).withFromCondition(dti.getNumberVConditions())
-				.withToCondition(toCondition).withToRule((vSize-1) * hSize).withStep(hSize);
-	}
-	
-	
-	private IndexInfo withStep(int step) {
-		this.step  = step;
-		return this;
-	}
+    private IndexInfo withStep(int step) {
+        this.step = step;
+        return this;
+    }
 
-	private IndexInfo withFromCondition(int fromCondition) {
-		this.fromCondition = fromCondition; 
-		return this;
-	}
+    private IndexInfo withFromCondition(int fromCondition) {
+        this.fromCondition = fromCondition;
+        return this;
+    }
 
-	private IndexInfo withToRule(int toRule) {
-		this.toRule = toRule;
-		return this;
-	}
+    private IndexInfo withToRule(int toRule) {
+        this.toRule = toRule;
+        return this;
+    }
 
-	private IndexInfo withToCondition(int toCondition) {
-		this.toCondition = toCondition;
-		return this;
-	}
+    private IndexInfo withToCondition(int toCondition) {
+        this.toCondition = toCondition;
+        return this;
+    }
 
-	public IIntIterator makeRuleIterator()
-	{
-		return new IntRangeDomain(fromRule, toRule).iterate(step); 
-	}
-	
-	
+    IIntIterator makeRuleIterator() {
+        return new IntRangeDomain(0, toRule).iterate(step);
+    }
+
 }

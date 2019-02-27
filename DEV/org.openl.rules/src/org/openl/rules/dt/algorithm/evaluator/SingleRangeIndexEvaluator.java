@@ -55,6 +55,4 @@ public class SingleRangeIndexEvaluator extends ARangeIndexEvaluator {
             return new RangeDescIndex(nextNodeBuilder.makeNode(), result, indexNodeAdaptor, emptyRules);
         }
     }
-
-
 }

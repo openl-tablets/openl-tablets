@@ -15,7 +15,7 @@ public class EqualsSelector implements IIntSelector {
     private Object[] params;
     private IRuntimeEnv env;
 
-    public EqualsSelector(ICondition condition, Object value, Object target, Object[] params, IRuntimeEnv env) {
+    EqualsSelector(ICondition condition, Object value, Object target, Object[] params, IRuntimeEnv env) {
         this.condition = condition;
         this.value = value;
         this.params = params;

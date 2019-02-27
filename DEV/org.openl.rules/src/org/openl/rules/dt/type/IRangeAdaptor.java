@@ -1,6 +1,3 @@
-/**
- * Created Aug 28, 2007
- */
 package org.openl.rules.dt.type;
 
 /**
@@ -36,7 +33,5 @@ public interface IRangeAdaptor<T, C extends Comparable<?>> {
     C adaptValueType(Object value);
 
 	boolean useOriginalSource();
-
-	Class<?> getIndexType();
 
 }

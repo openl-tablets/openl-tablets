@@ -8,7 +8,7 @@ public class DecisionTableParameterInfo implements IDecisionTableParameterInfo {
     private int index;
     private IDecisionRow row;
 
-    public DecisionTableParameterInfo(int index, IDecisionRow row) {
+    DecisionTableParameterInfo(int index, IDecisionRow row) {
         this.index = index;
         this.row = row;
     }
@@ -30,10 +30,6 @@ public class DecisionTableParameterInfo implements IDecisionTableParameterInfo {
     }
 
     public Object getValue(int ruleN) {
-
-
         return row.getParamValue(index, ruleN);
-        
     }
-
 }

@@ -3,16 +3,11 @@ package org.openl.rules.dt.algorithm.evaluator;
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
+import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
-import org.openl.rules.dt.IBaseCondition;
-import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.vm.IRuntimeEnv;
-
-/**
- * Created Jul 11, 2007
- */
 
 /**
  * @author snshor
@@ -52,14 +47,14 @@ public class DefaultConditionEvaluator implements IConditionEvaluator {
         return null;
     }
 
-	@Override
-	public String getOptimizedSourceCode() {
-		return null;
-	}
+    @Override
+    public String getOptimizedSourceCode() {
+        return null;
+    }
 
-	@Override
-	public void setOptimizedSourceCode(String code) {
-	}
+    @Override
+    public void setOptimizedSourceCode(String code) {
+    }
 
     @Override
     public int getPriority() {

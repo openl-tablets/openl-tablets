@@ -8,19 +8,19 @@ import org.openl.vm.IRuntimeEnv;
 
 public class ConditionOrActionParameterField implements IOpenField {
 
-    private IBaseDecisionRow conditionOrAction; 
+    private IBaseDecisionRow conditionOrAction;
     private int paramNum;
-    
-    public ConditionOrActionParameterField(IBaseDecisionRow conditionOrAction, int paramNum) {
+
+    ConditionOrActionParameterField(IBaseDecisionRow conditionOrAction, int paramNum) {
         super();
         this.conditionOrAction = conditionOrAction;
         this.paramNum = paramNum;
     }
 
     public Object get(Object target, IRuntimeEnv env) {
-        
-        Object[] params = (Object[])target;
-        
+
+        Object[] params = (Object[]) target;
+
         return params[paramNum];
     }
 

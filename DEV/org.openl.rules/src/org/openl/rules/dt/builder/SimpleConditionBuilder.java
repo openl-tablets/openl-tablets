@@ -8,10 +8,9 @@ public class SimpleConditionBuilder extends AConditionBuilder {
     /**
      * 
      * @param condition that should be written to the source sheet
-     * @param conditionNumber number of the given condition in the Decision
-     *            Table
+     * @param conditionNumber number of the given condition in the Decision Table
      */
-    public SimpleConditionBuilder(IDecisionTableColumn condition, int conditionNumber) {
+    SimpleConditionBuilder(IDecisionTableColumn condition, int conditionNumber) {
         super(condition, conditionNumber);
     }
 

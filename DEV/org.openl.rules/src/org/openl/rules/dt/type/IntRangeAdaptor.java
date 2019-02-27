@@ -26,7 +26,7 @@ public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
             max = max + 1;
         }
 
-        return Integer.valueOf(max);
+        return max;
     }
 
     /**
@@ -37,7 +37,7 @@ public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
             return null;
         }
 
-        return Integer.valueOf(range.getMin());
+        return range.getMin();
     }
 
 
@@ -46,17 +46,12 @@ public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
 	    if (value == null){
 	        return null;
 	    }
-        return Integer.valueOf(((Number)value).intValue());
+        return ((Number)value).intValue();
 	}
 
 	@Override
 	public boolean useOriginalSource() {
 		return false;
-	}
-
-	@Override
-	public Class<?> getIndexType() {
-		return Integer.class;
 	}
 
 }

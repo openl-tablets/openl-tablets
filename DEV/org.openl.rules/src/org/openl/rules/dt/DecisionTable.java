@@ -201,7 +201,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
             OpenL openl,
             ComponentOpenClass module,
             IBindingContext bindingContext) {
-        return new DecisionTableAlgorithmBuilder(this, header, openl, module, bindingContext);
+        return new DecisionTableAlgorithmBuilder(this, header, openl, bindingContext);
     }
 
     @Override

@@ -46,7 +46,7 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
 	    if (value == null){
 	        return null;
 	    }
-        return Double.valueOf(((Number)value).doubleValue());
+        return((Number)value).doubleValue();
 	}
 
 	@Override
@@ -54,8 +54,4 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
 		return false;
 	}
 
-	@Override
-	public Class<?> getIndexType() {
-		return Double.class;
-	}
 }

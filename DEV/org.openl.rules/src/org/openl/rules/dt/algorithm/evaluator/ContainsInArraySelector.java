@@ -13,7 +13,7 @@ public class ContainsInArraySelector implements IIntSelector {
     private Object[] params;
     private IRuntimeEnv env;
 
-    public ContainsInArraySelector(ICondition condition, Object value, Object target, Object[] params, IRuntimeEnv env) {
+    ContainsInArraySelector(ICondition condition, Object value, Object target, Object[] params, IRuntimeEnv env) {
         this.condition = condition;
         this.value = value;
         this.params = params;
@@ -22,7 +22,6 @@ public class ContainsInArraySelector implements IIntSelector {
     }
 
     public boolean select(int ruleN) {
-
 
         if (condition.isEmpty(ruleN)) {
             return true;

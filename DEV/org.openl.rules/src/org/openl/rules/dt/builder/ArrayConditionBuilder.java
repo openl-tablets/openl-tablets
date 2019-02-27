@@ -6,7 +6,7 @@ import org.openl.rules.validation.properties.dimentional.IDecisionTableColumn;
 
 public class ArrayConditionBuilder extends AConditionBuilder {
 
-    public ArrayConditionBuilder(IDecisionTableColumn condition, int conditionNumber) {
+    ArrayConditionBuilder(IDecisionTableColumn condition, int conditionNumber) {
         super(condition, conditionNumber);
     }
 
@@ -40,10 +40,9 @@ public class ArrayConditionBuilder extends AConditionBuilder {
         final int numberOfLocalParameters = condition.getNumberOfLocalParameters();
         final String parameterDeclaration = condition.getParameterDeclaration();
         for (int i = 1; i <= numberOfLocalParameters; i++) {
-            final String value = new StringBuilder(64).append(parameterDeclaration).append(i).toString();
             sheet.setCellValue(columnStartIndex,
                 rowStartIndex + DecisionTableBuilder.PARAMETER_DECLARATION_ROW_INDEX,
-                value);
+                    parameterDeclaration + i);
 
             columnStartIndex++;
         }

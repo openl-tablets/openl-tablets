@@ -56,7 +56,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
                 params);
             String message = String.format("%s failed to match any rule condition", method);
 
-            throw new FailOnMissException(message, getInvokableMethod(), params);
+            throw new FailOnMissException(message, getInvokableMethod());
         }
 
         return null;
