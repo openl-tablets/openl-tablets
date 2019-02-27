@@ -132,7 +132,7 @@ public class RepositoryService {
 
             Object entity;
 
-            if (repository instanceof FolderRepository) {
+            if (repository.supports().folders()) {
                 FileData fileData = getRepository().check(getFileName(name));
                 if (fileData == null) {
                     throw new FileNotFoundException("Project '" + name + "' not found.");
@@ -307,7 +307,7 @@ public class RepositoryService {
             data.setAuthor(getUserName());
 
             FileData save;
-            if (repository instanceof FolderRepository) {
+            if (repository.supports().folders()) {
                 try (ZipInputStream stream = new ZipInputStream(zipFile)) {
                     save = ((FolderRepository) repository).save(data, new FileChangesFromZip(stream, fileName));
                 }

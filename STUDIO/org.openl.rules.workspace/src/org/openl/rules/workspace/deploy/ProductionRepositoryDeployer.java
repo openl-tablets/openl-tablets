@@ -154,7 +154,7 @@ public class ProductionRepositoryDeployer {
             dest.setName(target);
             dest.setAuthor("OpenL_Deployer");
 
-            if (deployRepo instanceof FolderRepository) {
+            if (deployRepo.supports().folders()) {
                 stream = new ZipInputStream(new FileInputStream(zipFile));
                 ((FolderRepository) deployRepo).save(dest, new FileChangesFromZip((ZipInputStream) stream, target));
             } else {

@@ -110,7 +110,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private Repository createRepo(RepositoryMode repositoryMode, boolean flatStructure, String folderConfig, String baseFolder) throws
                                                                                                                                 RRepositoryException {
         Repository repo = RepositoryFactoryInstatiator.newFactory(config, repositoryMode);
-        if (!flatStructure && repo instanceof FolderRepository) {
+        if (!flatStructure && repo.supports().folders()) {
             // Nested folder structure is supported for FolderRepository only
             FolderRepository delegate = (FolderRepository) repo;
             String configFile = config.get(folderConfig).toString();
@@ -174,7 +174,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         Collection<FileData> fileDatas;
         try {
             String path = deploymentConfigurationLocation;
-            if (repository instanceof FolderRepository) {
+            if (repository.supports().folders()) {
                 fileDatas = ((FolderRepository) repository).listFolders(path);
             } else {
                 fileDatas = repository.list(path);
@@ -224,7 +224,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         Repository repository = getRepository();
         try {
             String path = rulesLocation;
-            if (repository instanceof FolderRepository) {
+            if (repository.supports().folders()) {
                 fileDatas = ((FolderRepository) repository).listFolders(path);
             } else {
                 fileDatas = repository.list(path);

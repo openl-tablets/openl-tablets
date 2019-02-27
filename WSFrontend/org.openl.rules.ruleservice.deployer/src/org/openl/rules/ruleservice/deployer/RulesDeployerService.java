@@ -156,7 +156,7 @@ public class RulesDeployerService implements Closeable {
         dest.setName(name);
         dest.setAuthor(DEFAULT_AUTHOR_NAME);
 
-        if (deployRepo instanceof FolderRepository) {
+        if (deployRepo.supports().folders()) {
             ((FolderRepository) deployRepo).save(dest, new FileChangesFromZip(new ZipInputStream(inputStream), name));
         } else {
             dest.setSize(contentSize);

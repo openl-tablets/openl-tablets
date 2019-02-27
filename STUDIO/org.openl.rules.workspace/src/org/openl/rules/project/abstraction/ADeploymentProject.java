@@ -127,7 +127,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
     @Override
     public void save(CommonUser user) throws ProjectException {
         InputStream inputStream = ProjectDescriptorHelper.serialize(descriptors);
-        if (getRepository() instanceof FolderRepository) {
+        if (getRepository().supports().folders()) {
             FileData fileData = getFileData();
             try {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();

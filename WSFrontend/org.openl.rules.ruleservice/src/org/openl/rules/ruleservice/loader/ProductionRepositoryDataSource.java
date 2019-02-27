@@ -40,7 +40,7 @@ public class ProductionRepositoryDataSource implements DataSource {
     public Collection<Deployment> getDeployments() {
         Collection<FileData> fileDatas;
         try {
-            if (repository instanceof FolderRepository) {
+            if (repository.supports().folders()) {
                 // All deployments
                 fileDatas = ((FolderRepository) repository).listFolders(deployPath);
             } else {
@@ -157,7 +157,7 @@ public class ProductionRepositoryDataSource implements DataSource {
     private boolean isFolderStructure(String deploymentFolderPath) {
         boolean folderStructure;
         try {
-            if (repository instanceof FolderRepository) {
+            if (repository.supports().folders()) {
                 folderStructure = !((FolderRepository) repository).listFolders(deploymentFolderPath + "/").isEmpty();
             } else {
                 folderStructure = false;
