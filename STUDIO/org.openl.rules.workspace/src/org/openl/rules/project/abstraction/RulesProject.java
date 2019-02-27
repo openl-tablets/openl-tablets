@@ -92,7 +92,9 @@ public class RulesProject extends UserWorkspaceProject {
             if (localFolderName != null) {
                 deleteFromLocalRepository();
             }
-            unlock();
+            if (isLockedByUser(user)) {
+                unlock();
+            }
             if (!isLocalOnly()) {
                 setRepository(designRepository);
                 setFolderPath(designFolderName);
@@ -163,7 +165,7 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public void unlock() {
-        lockEngine.unlock(getName(), getUser().getUserName());
+        lockEngine.unlock(getName());
     }
 
     /**
@@ -179,14 +181,6 @@ public class RulesProject extends UserWorkspaceProject {
                 return true;
             }
             return lockEngine.tryLock(getName(), getUser().getUserName());
-    }
-
-    public boolean tryLock(String module) throws ProjectException {
-        if (isLocalOnly()) {
-            // No need to lock local only projects. Other users don't see it.
-            return true;
-        }
-        return lockEngine.tryLock(module, getUser().getUserName());
     }
 
     public String getLockedUserName() {
