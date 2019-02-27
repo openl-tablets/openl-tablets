@@ -10,7 +10,7 @@ import org.openl.validation.ValidationStatus;
 
 public class ValidationUtils {
 
-    public static ValidationResult withMessages(Collection<OpenLMessage> messages) {
+    static ValidationResult withMessages(Collection<OpenLMessage> messages) {
         if (messages == null || messages.isEmpty()) {
             return validationSuccess();
         }

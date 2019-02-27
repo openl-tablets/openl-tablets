@@ -1,8 +1,7 @@
-package org.openl.rules.dt.builder;
+package org.openl.rules.validation.properties.dimentional;
 
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IWritableGrid;
-import org.openl.rules.validation.properties.dimentional.IDecisionTableColumn;
 
 public class ArrayConditionBuilder extends AConditionBuilder {
 

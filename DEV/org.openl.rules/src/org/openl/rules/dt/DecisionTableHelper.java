@@ -1275,7 +1275,7 @@ public class DecisionTableHelper {
         return decisionTable.getSignature().getNumberOfParameters();
     }
 
-    public static IWritableGrid createVirtualGrid(String poiSheetName, int numberOfColumns) {
+    public static XlsSheetGridModel createVirtualGrid(String poiSheetName, int numberOfColumns) {
         // Pre-2007 excel sheets had a limitation of 256 columns.
         Workbook workbook = (numberOfColumns > 256) ? new XSSFWorkbook() : new HSSFWorkbook();
         final Sheet sheet = workbook.createSheet(poiSheetName);

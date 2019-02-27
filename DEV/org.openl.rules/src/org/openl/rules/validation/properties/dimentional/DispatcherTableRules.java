@@ -13,22 +13,22 @@ import org.openl.rules.table.properties.ITableProperties;
  * @author DLiauchuk
  *
  */
-public class DispatcherTableRules {
+class DispatcherTableRules {
     
     private List<ITableProperties> dimensionTableProperties;
     
-    public DispatcherTableRules(List<ITableProperties> dimensionTableProperties) {
+    DispatcherTableRules(List<ITableProperties> dimensionTableProperties) {
         if (dimensionTableProperties == null || dimensionTableProperties.size() == 0) {
             throw new OpenlNotCheckedException("The list of dimension properties in dispatcher table cannot be empty");
         }
-        this.dimensionTableProperties = new ArrayList<ITableProperties>(dimensionTableProperties);
+        this.dimensionTableProperties = new ArrayList<>(dimensionTableProperties);
     }
     
-    public int getRulesNumber() {
+    int getRulesNumber() {
         return dimensionTableProperties.size();
     }
 
-    public ITableProperties getRule(int ruleIndex) {        
+    ITableProperties getRule(int ruleIndex) {
         return dimensionTableProperties.get(ruleIndex);
     }
 

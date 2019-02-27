@@ -14,7 +14,7 @@ public class DispatcherTableReturnColumnTest {
 
     @Test
     public void testGetparameterDeclaration() {
-        IDecisionTableColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, null);
+        DispatcherTableReturnColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, null);
         assertEquals("float result", retColumn.getParameterDeclaration());
 
         retColumn = createDTColumn(NullOpenClass.the, null);
@@ -23,13 +23,13 @@ public class DispatcherTableReturnColumnTest {
 
     @Test
     public void testGetCodeExpression() {
-        IDecisionTableColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, null);
+        DispatcherTableReturnColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, null);
         assertEquals("result", retColumn.getCodeExpression());
     }
 
     @Test
     public void testGetTitle() {
-        IDecisionTableColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, null);
+        DispatcherTableReturnColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, null);
         assertEquals("RESULT", retColumn.getTitle());
     }
 
@@ -37,7 +37,7 @@ public class DispatcherTableReturnColumnTest {
     public void testGetRuleValue() {
         IMethodSignature signature = new MethodSignature(new ParameterDeclaration(JavaOpenClass.STRING, "key"),
             new ParameterDeclaration(JavaOpenClass.FLOAT, "value"));
-        IDecisionTableReturnColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, signature);
+        DispatcherTableReturnColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, signature);
         assertEquals("=aMethod$3(arg_key,arg_value)", retColumn.getRuleValue(3, 5));
 
         signature = IMethodSignature.VOID;

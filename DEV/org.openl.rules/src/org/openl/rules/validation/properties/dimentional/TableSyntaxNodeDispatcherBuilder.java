@@ -1,7 +1,11 @@
 package org.openl.rules.validation.properties.dimentional;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.MethodUtil;
@@ -12,21 +16,18 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.dt.*;
+import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.DecisionTableBoundNode;
+import org.openl.rules.dt.DecisionTableLoader;
+import org.openl.rules.dt.IBaseAction;
+import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
-import org.openl.rules.dt.builder.ConditionsBuilder;
-import org.openl.rules.dt.builder.DecisionTableBuilder;
-import org.openl.rules.dt.builder.ReturnColumnBuilder;
-import org.openl.rules.dt.builder.TableHeaderBuilder;
-import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IWritableGrid;
-import org.openl.rules.table.Point;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.PropertiesLoader;
@@ -35,9 +36,16 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
-import org.openl.types.*;
+import org.openl.types.IMethodCaller;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
+import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.MethodKey;
+import org.openl.types.impl.MethodSignature;
+import org.openl.types.impl.OpenMethodHeader;
+import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -50,17 +58,14 @@ import org.slf4j.LoggerFactory;
  */
 class TableSyntaxNodeDispatcherBuilder {
 
-    private static final String DISPATCHER_TABLES_SHEET_FORMAT = "$%sDispatcher Tables Sheet";
+    // LinkedHashMap to save the sequence of params
+    static final LinkedHashMap<String, IOpenClass> incomeParams;
+    static final String AUXILIARY_METHOD_DELIMETER = "$";
     private static final String ARGUMENT_PREFIX_IN_SIGNATURE = "arg_";
 
-    private final Logger log = LoggerFactory.getLogger(TableSyntaxNodeDispatcherBuilder.class);
-
-    //LinkedHashMap to save the sequence of params
-    private static final LinkedHashMap<String, IOpenClass> incomeParams;
-
     /*
-     * Initialize a map of parameters from context, that will be used as income parameters to newly 
-     * created dispatcher tables.
+     * Initialize a map of parameters from context, that will be used as income parameters to newly created dispatcher
+     * tables.
      *
      */
     static {
@@ -75,12 +80,14 @@ class TableSyntaxNodeDispatcherBuilder {
         }
     }
 
+    private final Logger log = LoggerFactory.getLogger(TableSyntaxNodeDispatcherBuilder.class);
     private RulesModuleBindingContext moduleContext;
     private XlsModuleOpenClass moduleOpenClass;
     private MatchingOpenMethodDispatcher dispatcher;
 
     TableSyntaxNodeDispatcherBuilder(RulesModuleBindingContext moduleContext,
-                                            XlsModuleOpenClass moduleOpenClass, MatchingOpenMethodDispatcher dispatcher) {
+            XlsModuleOpenClass moduleOpenClass,
+            MatchingOpenMethodDispatcher dispatcher) {
         if (moduleContext == null || moduleOpenClass == null || dispatcher == null) {
             throw new IllegalArgumentException("None of the constructor parameters can be null");
         }
@@ -93,6 +100,26 @@ class TableSyntaxNodeDispatcherBuilder {
         return ARGUMENT_PREFIX_IN_SIGNATURE + parameterName;
     }
 
+    private static IDecisionTableColumn makeColumn(TablePropertyDefinition dimensionProperty,
+            DispatcherTableRules rules) {
+        if (dimensionProperty.getType().getInstanceClass().isArray()) {
+            return new ArrayParameterColumn(dimensionProperty, rules);
+        } else {
+            return new SimpleParameterColumn(dimensionProperty, rules);
+        }
+    }
+
+    /**
+     * Exclude those methods, that are not used as context variables.
+     */
+    private static boolean belongsToExcluded(String methodName) {
+        boolean result = false;
+        if ("getValue".equals(methodName)) {
+            result = true;
+        }
+        return result;
+    }
+
     /**
      * Build dispatcher table for dimensional properties for particular overloaded method group.
      */
@@ -101,8 +128,24 @@ class TableSyntaxNodeDispatcherBuilder {
         if (needToBuild()) {
             // build source of decision table
             //
-            Builder<IWritableGrid> dtSourceBuilder = initDecisionTableSourceBuilder();
-            XlsSheetGridModel sheetWithTable = (XlsSheetGridModel) dtSourceBuilder.build();
+            // properties values from methods in group that will be used
+            // to build dispatcher table by dimensional properties.
+            //
+            List<ITableProperties> propertiesFromMethods = getMethodsProperties();
+            DispatcherTableRules rules = new DispatcherTableRules(propertiesFromMethods);
+            List<IDecisionTableColumn> conditions = getConditions(propertiesFromMethods, rules);
+            DispatcherTableReturnColumn returnColumn = new DispatcherTableReturnColumn(dispatcher.getType(),
+                dispatcher.getName(),
+                dispatcher.getSignature());
+
+            DecisionTableBuilder decisionTableBuilder = new DecisionTableBuilder();
+            decisionTableBuilder.setConditions(conditions);
+            decisionTableBuilder.setReturnColumn(returnColumn);
+            decisionTableBuilder.setTableName(getDispatcherTableName());
+            decisionTableBuilder.setMethodName(getMethodName());
+            decisionTableBuilder.setRulesNumber(rules.getRulesNumber());
+
+            XlsSheetGridModel sheetWithTable = decisionTableBuilder.build();
             IGridTable decisionTableSource = sheetWithTable.getTables()[0];
             XlsSheetSourceCodeModule sheetSource = sheetWithTable.getSheetSource();
 
@@ -117,16 +160,35 @@ class TableSyntaxNodeDispatcherBuilder {
 
             // build Openl decision table
             //
-            Builder<DecisionTable> dtOpenLBuilder = initDecisionTableOpenlBuilder(tsn);
-            DecisionTable decisionTable = dtOpenLBuilder.build();
+            IOpenClass originalReturnType = getMethodReturnType();
+            Map<String, IOpenClass> updatedIncomeParams = updateIncomeParams();
+
+            // table name for dispatcher table
+            String tableName = getDispatcherTableName();
+
+            IParameterDeclaration[] params = new IParameterDeclaration[updatedIncomeParams.size()];
+            int i = 0;
+            for (Map.Entry<String, IOpenClass> field : updatedIncomeParams.entrySet()) {
+                params[i] = new ParameterDeclaration(field.getValue(), field.getKey());
+                i++;
+            }
+            IMethodSignature signature = new MethodSignature(params);
+            OpenMethodHeader header = new OpenMethodHeader(tableName, originalReturnType, signature, moduleOpenClass);
+
+            DecisionTableBoundNode boundNode = null;
+            if (moduleOpenClass != null) {
+                boundNode = new DecisionTableBoundNode(tsn, moduleOpenClass.getOpenl(), header, moduleOpenClass);
+            }
+            DecisionTable decisionTable = new DecisionTable(header, boundNode);
             // Dispatcher tables are shown in Trace
-            tsn.setMetaInfoReader(new DecisionTableMetaInfoReader((DecisionTableBoundNode) decisionTable.getBoundNode(), decisionTable));
+            tsn.setMetaInfoReader(
+                new DecisionTableMetaInfoReader((DecisionTableBoundNode) decisionTable.getBoundNode(), decisionTable));
 
             loadCreatedTable(decisionTable, tsn);
 
             dispatcher.setDecisionTableOpenMethod(decisionTable);
-            
-            if (moduleContext.isExecutionMode()){
+
+            if (moduleContext.isExecutionMode()) {
                 removeDebugInformation(decisionTable, tsn);
             }
         }
@@ -165,8 +227,8 @@ class TableSyntaxNodeDispatcherBuilder {
      * @return flag if it is needed to build the table for given methods properties
      */
     private boolean needToBuild() {
-        List<TablePropertyDefinition> dimensionalPropertiesDef =
-                TablePropertyDefinitionUtils.getDimensionalTableProperties();
+        List<TablePropertyDefinition> dimensionalPropertiesDef = TablePropertyDefinitionUtils
+            .getDimensionalTableProperties();
 
         List<ITableProperties> propertiesFromMethods = getMethodsProperties();
 
@@ -178,113 +240,11 @@ class TableSyntaxNodeDispatcherBuilder {
         return false;
     }
 
-    private int getNumberOfColumns(List<IDecisionTableColumn> conditions) {
-        int numberOfAllLocalParameters = 0;
-        for (IDecisionTableColumn condition : conditions) {
-            if (condition.getNumberOfLocalParameters() > 0) {
-                numberOfAllLocalParameters += condition.getNumberOfLocalParameters();
-            }
-        }
-        return numberOfAllLocalParameters;
-    }
-
-    private DecisionTableOpenlBuilder initDecisionTableOpenlBuilder(TableSyntaxNode tsn) {
-        IOpenClass originalReturnType = getMethodReturnType();
-        Map<String, IOpenClass> updatedIncomeParams = updateIncomeParams();
-
-        // table name for dispatcher table
-        String tableName = getDispatcherTableName();
-
-        DecisionTableOpenlBuilder dtOpenLBuilder = new DecisionTableOpenlBuilder(tableName, originalReturnType, updatedIncomeParams);
-        dtOpenLBuilder.setTableSyntaxNode(tsn);
-        dtOpenLBuilder.setModuleOpenClass(moduleOpenClass);
-        return dtOpenLBuilder;
-    }
-
-    private DecisionTableBuilder initDecisionTableSourceBuilder() {
-        // properties values from methods in group that will be used
-        // to build dispatcher table by dimensional properties.
-        //
-        List<ITableProperties> propertiesFromMethods = getMethodsProperties();
-
-        DispatcherTableRules rules = new DispatcherTableRules(propertiesFromMethods);
-
-        List<IDecisionTableColumn> conditions = getConditions(propertiesFromMethods, rules);
-
-        int numberOfColumns = getNumberOfColumns(conditions) + 1; // + 1 for return column
-
-        // TODO Excel has a maximum sheet name length limit. Find a solution for case when name is longer.
-        String sheetName = String.format(DISPATCHER_TABLES_SHEET_FORMAT, getMethodName());
-        IWritableGrid sheetForTable = DecisionTableHelper.createVirtualGrid(sheetName, numberOfColumns);
-
-        DispatcherTableReturnColumn returnColumn = new DispatcherTableReturnColumn(dispatcher);
-
-        DecisionTableBuilder decisionTableBuilder = new DecisionTableBuilder(new Point(0, 0));
-
-        decisionTableBuilder.setConditionsBuilder(new ConditionsBuilder(conditions));
-        decisionTableBuilder.setReturnBuilder(new ReturnColumnBuilder(returnColumn));
-        decisionTableBuilder.setHeaderBuilder(new TableHeaderBuilder(buildMethodHeader(getDispatcherTableName(),
-                returnColumn)));
-        decisionTableBuilder.setSheetWithTable(sheetForTable);
-        decisionTableBuilder.setRulesNumber(rules.getRulesNumber());
-
-        return decisionTableBuilder;
-    }
-
-    private String buildMethodHeader(String tableName, DispatcherTableReturnColumn returnColumn) {
-
-        final IMethodSignature originalSignature = returnColumn.getOriginalSignature();
-        final StringBuilder builder = new StringBuilder(64);
-        builder.append(IXlsTableNames.DECISION_TABLE2)
-            .append(' ')
-            .append(returnColumn.getReturnType().getDisplayName(0))
-            .append(' ')
-            .append(tableName)
-            .append('(');
-
-        boolean prependComma = false;
-        // add original parameters of the method
-        //
-        for (int j = 0; j < originalSignature.getNumberOfParameters(); j++) {
-            final IOpenClass parameterType = originalSignature.getParameterType(j);
-            if (!(parameterType instanceof NullOpenClass) && parameterType.getInstanceClass() != null) {
-                /*
-                 * on compare in repository tutorial10, all original parameter
-                 * types are instances of NullOpenClass. it causes
-                 * NullPointerException. On compare we don`t need to build and
-                 * execute validation tables at all during binding.
-                 */
-                if (prependComma) {
-                    builder.append(',');
-                }
-                final String type = parameterType.getInstanceClass().getSimpleName();
-                final String name = getDispatcherParameterNameForOriginalParameter(originalSignature.getParameterName(j));
-                builder.append(type).append(' ').append(name);
-                prependComma = true;
-            }
-        }
-
-        // add new income parameters
-        //
-        for (Map.Entry<String, IOpenClass> param : incomeParams.entrySet()) {
-            if (prependComma) {
-                builder.append(',');
-            }
-            final String type = param.getValue().getInstanceClass().getSimpleName();
-            final String name = param.getKey();
-            builder.append(type).append(' ').append(name);
-            prependComma = true;
-        }
-
-        builder.append(')');
-        return builder.toString();
-    }
-
     private List<IDecisionTableColumn> getConditions(List<ITableProperties> propertiesFromMethods,
-                                                     DispatcherTableRules rules) {
+            DispatcherTableRules rules) {
 
-        List<TablePropertyDefinition> dimensionalPropertiesDef =
-                TablePropertyDefinitionUtils.getDimensionalTableProperties();
+        List<TablePropertyDefinition> dimensionalPropertiesDef = TablePropertyDefinitionUtils
+            .getDimensionalTableProperties();
 
         List<IDecisionTableColumn> conditions = new ArrayList<>();
 
@@ -298,18 +258,9 @@ class TableSyntaxNodeDispatcherBuilder {
         return conditions;
     }
 
-    private static IDecisionTableColumn makeColumn(TablePropertyDefinition dimensionProperty,
-            DispatcherTableRules rules) {
-        if (dimensionProperty.getType().getInstanceClass().isArray()) {
-            return new ArrayParameterColumn(dimensionProperty, rules);
-        } else {
-            return new SimpleParameterColumn(dimensionProperty, rules);
-        }
-    }
-
     /**
-     * Checks if there is any value of particular property represented in collection, that will be used as rules.
-     * If no, we don`t need to create column for this property.
+     * Checks if there is any value of particular property represented in collection, that will be used as rules. If no,
+     * we don`t need to create column for this property.
      */
     private boolean isPropertyPresented(String propertyName, List<ITableProperties> methodsProperties) {
         for (ITableProperties properties : methodsProperties) {
@@ -322,7 +273,7 @@ class TableSyntaxNodeDispatcherBuilder {
     }
 
     private IOpenMethod getMember() {
-        // as we have a group of overloaded methods, we need to take one it`s 
+        // as we have a group of overloaded methods, we need to take one it`s
         // member to get all common settings for the whole group
         return dispatcher.getCandidates().get(0);
     }
@@ -340,20 +291,21 @@ class TableSyntaxNodeDispatcherBuilder {
     }
 
     private Map<String, IOpenClass> updateIncomeParams() {
-        //LinkedHashMap to save the sequence of params
+        // LinkedHashMap to save the sequence of params
         LinkedHashMap<String, IOpenClass> updatedIncomeParams = new LinkedHashMap<>();
         IMethodSignature originalSignature = getMethodSignature();
         for (int j = 0; j < originalSignature.getNumberOfParameters(); j++) {
-            updatedIncomeParams.put(getDispatcherParameterNameForOriginalParameter(originalSignature.getParameterName(j)),
-                    originalSignature.getParameterType(j));
+            updatedIncomeParams.put(
+                getDispatcherParameterNameForOriginalParameter(originalSignature.getParameterName(j)),
+                originalSignature.getParameterType(j));
         }
         updatedIncomeParams.putAll(incomeParams);
         return updatedIncomeParams;
     }
 
     /**
-     * Gets properties values from methods in group that will be
-     * used to build dispatcher table by dimensional properties.
+     * Gets properties values from methods in group that will be used to build dispatcher table by dimensional
+     * properties.
      *
      * @return properties values from tables in group.
      */
@@ -396,7 +348,7 @@ class TableSyntaxNodeDispatcherBuilder {
      * Load and bind the decision table by OpenL.
      *
      * @param decisionTable created decision table.
-     * @param tsn           created table syntax node.
+     * @param tsn created table syntax node.
      */
     private void loadCreatedTable(DecisionTable decisionTable, TableSyntaxNode tsn) {
         tsn.setMember(decisionTable);
@@ -408,52 +360,17 @@ class TableSyntaxNodeDispatcherBuilder {
 
         DecisionTableLoader dtLoader = new DecisionTableLoader();
         try {
-            dtLoader.loadAndBind(tsn, decisionTable, moduleOpenClass.getOpenl(), null, createContextWithAuxiliaryMethods());
+            dtLoader
+                .loadAndBind(tsn, decisionTable, moduleOpenClass.getOpenl(), null, createContextWithAuxiliaryMethods());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             moduleContext.addMessages(OpenLMessagesUtils.newErrorMessages(e));
         }
     }
 
-    static final String AUXILIARY_METHOD_DELIMETER = "$";
-
-    private static class InternalMethodDelegator extends MethodDelegator {
-        String auxiliaryMethodName;
-        
-        InternalMethodDelegator(IMethodCaller methodCaller, String auxiliaryMethodName) {
-            super(methodCaller);
-            this.auxiliaryMethodName = auxiliaryMethodName;
-        }
-        
-        @Override
-        public String getName() {
-            return auxiliaryMethodName;
-        }
-    }
-    
     private IOpenMethod generateAuxiliaryMethod(final IOpenMethod originalMethod, int index) {
         final String auxiliaryMethodName = originalMethod.getName() + AUXILIARY_METHOD_DELIMETER + index;
         return new InternalMethodDelegator(originalMethod, auxiliaryMethodName);
-    }
-    
-    private static class InternalBindingContextDelegator extends BindingContextDelegator {
-        
-        private Map<MethodKey, IOpenMethod> auxiliaryMethods;
-        
-        InternalBindingContextDelegator(RulesModuleBindingContext context, Map<MethodKey, IOpenMethod> auxiliaryMethods) {
-            super(context);
-            this.auxiliaryMethods = auxiliaryMethods;
-        }
-        
-        @Override
-        public IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes) throws AmbiguousMethodException {
-            IOpenMethod auxiliaryMethod = auxiliaryMethods.get(new MethodKey(name, parTypes));
-            if (auxiliaryMethod == null) {
-                return super.findMethodCaller(namespace, name, parTypes);
-            } else {
-                return auxiliaryMethod;
-            }
-        }
     }
 
     private IBindingContext createContextWithAuxiliaryMethods() {
@@ -480,19 +397,45 @@ class TableSyntaxNodeDispatcherBuilder {
         properties.setFieldValue("description", buf.toString());
     }
 
-    /**
-     * Exclude those methods, that are not used as context variables.
-     */
-    private static boolean belongsToExcluded(String methodName) {
-        boolean result = false;
-        if ("getValue".equals(methodName)) {
-            result = true;
-        }
-        return result;
-    }
-
     private boolean isSuitable(String dimensionPropertyName, List<ITableProperties> methodsProperties) {
         return isPropertyPresented(dimensionPropertyName, methodsProperties) && !"origin".equals(dimensionPropertyName);
+    }
+
+    private static class InternalMethodDelegator extends MethodDelegator {
+        String auxiliaryMethodName;
+
+        InternalMethodDelegator(IMethodCaller methodCaller, String auxiliaryMethodName) {
+            super(methodCaller);
+            this.auxiliaryMethodName = auxiliaryMethodName;
+        }
+
+        @Override
+        public String getName() {
+            return auxiliaryMethodName;
+        }
+    }
+
+    private static class InternalBindingContextDelegator extends BindingContextDelegator {
+
+        private Map<MethodKey, IOpenMethod> auxiliaryMethods;
+
+        InternalBindingContextDelegator(RulesModuleBindingContext context,
+                Map<MethodKey, IOpenMethod> auxiliaryMethods) {
+            super(context);
+            this.auxiliaryMethods = auxiliaryMethods;
+        }
+
+        @Override
+        public IMethodCaller findMethodCaller(String namespace,
+                String name,
+                IOpenClass[] parTypes) throws AmbiguousMethodException {
+            IOpenMethod auxiliaryMethod = auxiliaryMethods.get(new MethodKey(name, parTypes));
+            if (auxiliaryMethod == null) {
+                return super.findMethodCaller(namespace, name, parTypes);
+            } else {
+                return auxiliaryMethod;
+            }
+        }
     }
 
 }

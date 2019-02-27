@@ -1,4 +1,4 @@
-package org.openl.rules.dt.builder;
+package org.openl.rules.validation.properties.dimentional;
 
 import org.openl.rules.table.IWritableGrid;
 
