@@ -86,7 +86,7 @@ public class Deployment extends AProjectFolder {
 
     @Override
     protected Map<String, AProjectArtefact> createInternalArtefacts() {
-        if (getRepository() instanceof FolderRepository) {
+        if (getRepository().supports().folders()) {
             FolderRepository repository = (FolderRepository) getRepository();
             List<FileData> fileDataList;
             try {

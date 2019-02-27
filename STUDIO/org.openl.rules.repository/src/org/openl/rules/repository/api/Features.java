@@ -15,14 +15,14 @@ public class Features {
     }
 
     /**
-     * If true, repository can be casted to FolderRepository
+     * If true, repository can be casted to {@link FolderRepository}
      */
     public boolean folders() {
         return repository instanceof FolderRepository;
     }
 
     /**
-     * If true, repository can be casted to BranchRepository
+     * If true, repository can be casted to {@link BranchRepository}
      */
     public boolean branches() {
         return repository instanceof BranchRepository;

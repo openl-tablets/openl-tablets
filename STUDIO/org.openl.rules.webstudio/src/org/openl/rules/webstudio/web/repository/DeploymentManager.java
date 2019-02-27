@@ -92,7 +92,7 @@ public class DeploymentManager implements InitializingBean {
             String deploymentPath = deploymentName + "/";
 
             String rulesPath = designRepository.getRulesLocation();
-            if (deployRepo instanceof FolderRepository) {
+            if (deployRepo.supports().folders()) {
                 FolderRepository folderRepo = (FolderRepository) deployRepo;
 
                 Repository designRepo = designRepository.getRepository();
@@ -126,7 +126,7 @@ public class DeploymentManager implements InitializingBean {
                         dest.setAuthor(userName);
                         dest.setComment(project.getFileData().getComment());
 
-                        if (designRepo instanceof FolderRepository) {
+                        if (designRepo.supports().folders()) {
                             String projectPath = rulesPath + projectName + "/";
                             archiveAndSave((FolderRepository) designRepo, projectPath, version, deployRepo, dest);
                         } else {

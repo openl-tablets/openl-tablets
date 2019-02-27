@@ -61,7 +61,7 @@ class FileChangesToDeploy implements Iterable<FileChange>, Closeable {
 
             private Iterator<FileChange> getProjectIterator(String projectName, String version) {
                 try {
-                    if (designRepo instanceof FolderRepository) {
+                    if (designRepo.supports().folders()) {
                         // Project in design repository is stored as a folder
                         String srcProjectPath = rulesPath + projectName + "/";
                         return new FolderIterator(((FolderRepository) designRepo).listFiles(srcProjectPath, version));

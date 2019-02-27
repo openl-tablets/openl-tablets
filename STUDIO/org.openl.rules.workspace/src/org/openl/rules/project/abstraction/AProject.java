@@ -445,7 +445,7 @@ public class AProject extends AProjectFolder {
 
     @Override
     public boolean isFolder() {
-        return folderStructure != null ? folderStructure : getRepository() instanceof FolderRepository;
+        return folderStructure != null ? folderStructure : getRepository().supports().folders();
     }
 
     /**

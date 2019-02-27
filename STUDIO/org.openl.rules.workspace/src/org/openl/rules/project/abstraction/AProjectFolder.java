@@ -204,7 +204,7 @@ public class AProjectFolder extends AProjectArtefact {
                 folderPath += "/";
             }
             if (isHistoric()) {
-                if (getRepository() instanceof FolderRepository) {
+                if (getRepository().supports().folders()) {
                     fileDatas = ((FolderRepository) getRepository()).listFiles(folderPath, getFileData().getVersion());
                 } else {
                     throw new UnsupportedOperationException("Can't get internal artifacts for historic project version");

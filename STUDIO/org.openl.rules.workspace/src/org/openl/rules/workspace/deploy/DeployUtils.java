@@ -28,7 +28,7 @@ public final class DeployUtils {
 
         Collection<FileData> fileDatas;
         try {
-            if (repository instanceof FolderRepository) {
+            if (repository.supports().folders()) {
                 // All deployments
                 fileDatas = ((FolderRepository) repository).listFolders(deployPath);
             } else {
@@ -62,7 +62,7 @@ public final class DeployUtils {
                 String folderPath = deployPath + deploymentFolderName;
                 boolean folderStructure;
                 try {
-                    if (repository instanceof FolderRepository) {
+                    if (repository.supports().folders()) {
                         folderStructure = !((FolderRepository) repository).listFolders(folderPath + "/").isEmpty();
                     } else {
                         folderStructure = false;
