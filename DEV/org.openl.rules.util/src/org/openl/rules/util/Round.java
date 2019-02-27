@@ -10,15 +10,20 @@ import java.math.RoundingMode;
  *
  * @author Yury Molchan
  */
-public class Round {
-    public static RoundingMode UP = RoundingMode.UP;
-    public static RoundingMode DOWN = RoundingMode.DOWN;
-    public static RoundingMode CEILING = RoundingMode.CEILING;
-    public static RoundingMode FLOOR = RoundingMode.FLOOR;
-    public static RoundingMode HALF_UP = RoundingMode.HALF_UP;
-    public static RoundingMode HALF_DOWN = RoundingMode.HALF_DOWN;
-    public static RoundingMode HALF_EVEN = RoundingMode.HALF_EVEN;
-    public static RoundingMode UNNECESSARY = RoundingMode.UNNECESSARY;
+public final class Round {
+
+    private Round() {
+        // Utility class
+    }
+
+    public static final RoundingMode UP = RoundingMode.UP;
+    public static final RoundingMode DOWN = RoundingMode.DOWN;
+    public static final RoundingMode CEILING = RoundingMode.CEILING;
+    public static final RoundingMode FLOOR = RoundingMode.FLOOR;
+    public static final RoundingMode HALF_UP = RoundingMode.HALF_UP;
+    public static final RoundingMode HALF_DOWN = RoundingMode.HALF_DOWN;
+    public static final RoundingMode HALF_EVEN = RoundingMode.HALF_EVEN;
+    public static final RoundingMode UNNECESSARY = RoundingMode.UNNECESSARY;
 
     /**
      * Like {@link #round(double)} but null-safe.
@@ -31,19 +36,17 @@ public class Round {
     }
 
     /**
-     * Returns the closest {@code long} to the argument, with ties rounding up. The
-     * value is rounded like using the {@link RoundingMode#HALF_UP} method.
+     * Returns the closest {@code long} to the argument, with ties rounding up. The value is rounded like using the
+     * {@link RoundingMode#HALF_UP} method.
      * <p/>
      * <p/>
      * Special cases:
      * <ul>
      * <li>If the argument is NaN, the result is 0.
-     * <li>If the argument is negative infinity or any value less than or equal to
-     * the value of {@code Long.MIN_VALUE}, the result is equal to the value of
-     * {@code Long.MIN_VALUE}.
-     * <li>If the argument is positive infinity or any value greater than or equal
-     * to the value of {@code Long.MAX_VALUE}, the result is equal to the value of
-     * {@code Long.MAX_VALUE}.
+     * <li>If the argument is negative infinity or any value less than or equal to the value of {@code Long.MIN_VALUE},
+     * the result is equal to the value of {@code Long.MIN_VALUE}.
+     * <li>If the argument is positive infinity or any value greater than or equal to the value of
+     * {@code Long.MAX_VALUE}, the result is equal to the value of {@code Long.MAX_VALUE}.
      * </ul>
      *
      * @param value a floating-point value to be rounded to a {@code long}.
@@ -52,7 +55,8 @@ public class Round {
     public static long round(double value) {
         if (value == 0.0 || Double.isNaN(value)) {
             return 0;
-        } if (Double.POSITIVE_INFINITY == value) {
+        }
+        if (Double.POSITIVE_INFINITY == value) {
             return Long.MAX_VALUE;
         } else if (Double.NEGATIVE_INFINITY == value) {
             return Long.MIN_VALUE;
@@ -77,19 +81,17 @@ public class Round {
     }
 
     /**
-     * Returns the closest {@code int} to the argument, with ties rounding up. The
-     * value is rounded like using the {@link RoundingMode#HALF_UP} method.
+     * Returns the closest {@code int} to the argument, with ties rounding up. The value is rounded like using the
+     * {@link RoundingMode#HALF_UP} method.
      * <p/>
      * <p/>
      * Special cases:
      * <ul>
      * <li>If the argument is NaN, the result is 0.
-     * <li>If the argument is negative infinity or any value less than or equal to
-     * the value of {@code Integer.MIN_VALUE}, the result is equal to the value of
-     * {@code Integer.MIN_VALUE}.
-     * <li>If the argument is positive infinity or any value greater than or equal
-     * to the value of {@code Integer.MAX_VALUE}, the result is equal to the value
-     * of {@code Integer.MAX_VALUE}.
+     * <li>If the argument is negative infinity or any value less than or equal to the value of
+     * {@code Integer.MIN_VALUE}, the result is equal to the value of {@code Integer.MIN_VALUE}.
+     * <li>If the argument is positive infinity or any value greater than or equal to the value of
+     * {@code Integer.MAX_VALUE}, the result is equal to the value of {@code Integer.MAX_VALUE}.
      * </ul>
      *
      * @param value a floating-point value to be rounded to an integer.
@@ -98,7 +100,8 @@ public class Round {
     public static int round(float value) {
         if (value == 0.0 || Float.isNaN(value)) {
             return 0;
-        } if (Float.POSITIVE_INFINITY == value) {
+        }
+        if (Float.POSITIVE_INFINITY == value) {
             return Integer.MAX_VALUE;
         } else if (Float.NEGATIVE_INFINITY == value) {
             return Integer.MIN_VALUE;
@@ -111,8 +114,8 @@ public class Round {
     }
 
     /**
-     * Returns the closest integer to the argument, with ties rounding up. The value
-     * is rounded like using the {@link RoundingMode#HALF_UP} method.
+     * Returns the closest integer to the argument, with ties rounding up. The value is rounded like using the
+     * {@link RoundingMode#HALF_UP} method.
      */
     public static BigDecimal round(BigDecimal value) {
         return Round.round(value, 0);
@@ -129,8 +132,8 @@ public class Round {
     }
 
     /**
-     * Round the given value to the specified number of decimal places. The value is
-     * rounded using the {@link RoundingMode#HALF_UP} method.
+     * Round the given value to the specified number of decimal places. The value is rounded using the
+     * {@link RoundingMode#HALF_UP} method.
      *
      * @param value the value to round.
      * @param scale the number of digits to the right of the decimal point.
@@ -148,8 +151,8 @@ public class Round {
     }
 
     /**
-     * Round the given value to the specified number of decimal places. The value is
-     * rounded using the {@link RoundingMode#HALF_UP} method.
+     * Round the given value to the specified number of decimal places. The value is rounded using the
+     * {@link RoundingMode#HALF_UP} method.
      *
      * @param value the value to round.
      * @param scale the number of digits to the right of the decimal point.
@@ -170,8 +173,8 @@ public class Round {
     }
 
     /**
-     * Round the given value to the specified number of decimal places. The value is
-     * rounded using the {@link RoundingMode#HALF_UP} method.
+     * Round the given value to the specified number of decimal places. The value is rounded using the
+     * {@link RoundingMode#HALF_UP} method.
      *
      * @param value the value to round.
      * @param scale the number of digits to the right of the decimal point.
@@ -192,9 +195,8 @@ public class Round {
     }
 
     /**
-     * Round the given value to the specified number of decimal places. The value is
-     * rounded using the given method which is any method defined in
-     * {@link RoundingMode}.
+     * Round the given value to the specified number of decimal places. The value is rounded using the given method
+     * which is any method defined in {@link RoundingMode}.
      *
      * @param x the value to round.
      * @param scale the number of digits to the right of the decimal point.
@@ -223,9 +225,8 @@ public class Round {
     }
 
     /**
-     * Round the given value to the specified number of decimal places. The value is
-     * rounded using the given method which is any method defined in
-     * {@link RoundingMode}.
+     * Round the given value to the specified number of decimal places. The value is rounded using the given method
+     * which is any method defined in {@link RoundingMode}.
      *
      * @param x the value to round.
      * @param scale the number of digits to the right of the decimal point.
@@ -245,9 +246,8 @@ public class Round {
     }
 
     /**
-     * Round the given value to the specified number of decimal places. The value is
-     * rounded using the given method which is any method defined in
-     * {@link RoundingMode}.
+     * Round the given value to the specified number of decimal places. The value is rounded using the given method
+     * which is any method defined in {@link RoundingMode}.
      *
      * @param x the value to round.
      * @param scale the number of digits to the right of the decimal point.
@@ -282,7 +282,8 @@ public class Round {
             return null;
         } else if (value == 0.0 || Double.isNaN(value)) {
             return 0L;
-        } if (Double.POSITIVE_INFINITY == value) {
+        }
+        if (Double.POSITIVE_INFINITY == value) {
             return Long.MAX_VALUE;
         } else if (Double.NEGATIVE_INFINITY == value) {
             return Long.MIN_VALUE;

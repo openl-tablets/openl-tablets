@@ -57,4 +57,5 @@ echo "Java found in:              $used_java"
 echo "Using JAVA_OPTS:            $JAVA_OPTS"
 echo "Using CATALINA_OPTS:        $CATALINA_OPTS"
 
+chmod +x bin/*.sh
 ./bin/startup.sh

@@ -29,12 +29,17 @@
           <h:outputText value="#{node.versionName}"/>
 
           <h:outputText value="Comment" />
-          <h:inputTextarea value="#{repositoryTreeController.versionComment}" type="text" size="35" readonly="false" title="#{repositoryTreeController.versionComment}"/>
+          <h:inputTextarea id="comment" value="#{repositoryTreeController.versionComment}" type="text" size="35"
+                           readonly="false" title="#{repositoryTreeController.versionComment}"
+                           validator="#{repositoryTreeController.commentValidator}"/>
+          <h:outputText value=""/>
+          <h:message for="comment" styleClass="error"/>
         </h:panelGrid>
       </h:panelGroup>
 
       <footer>
-        <h:commandButton value="Save" action="#{repositoryTreeController.saveProject}" styleClass="button-primary" />
+        <a4j:commandButton value="Save" action="#{repositoryTreeController.saveProject}" render="projectTree nodeView @form" styleClass="button-primary"
+                           oncomplete="if (#{!facesContext.validationFailed}) {RichFaces.$('modalSave').hide();}" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalSave')}.hide();" />
       </footer>
     </h:form>

@@ -1,22 +1,25 @@
 package org.openl.rules.datatype.binding;
 
-import org.junit.Test;
-import org.openl.rules.table.*;
-
-import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import org.junit.Test;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
 
 /**
  * Created by dl on 6/16/14.
  */
 public class MockGridTableTest {
 
-    public static final String CELL1 = "cell1";
-    public static final String CELL2 = "cell2";
-    public static final String CELL3 = "cell3";
-    public static final String CELL4 = "cell4";
-    public static final String CELL5 = "cell5";
-    public static final String CELL6 = "cell6";
+    private static final String CELL1 = "cell1";
+    private static final String CELL2 = "cell2";
+    private static final String CELL3 = "cell3";
+    private static final String CELL4 = "cell4";
+    private static final String CELL5 = "cell5";
+    private static final String CELL6 = "cell6";
 
     @Test
     public void testCellMergedHorizontally() {
@@ -54,7 +57,6 @@ public class MockGridTableTest {
         assertEquals(3, cell.getHeight());
     }
 
-
     @Test
     public void testCellMergedVertically1() {
         String[][] mas = new String[3][1];
@@ -62,14 +64,12 @@ public class MockGridTableTest {
         mas[1][0] = CELL1;
         mas[2][0] = null;
         try {
-            MockGridTable t = new MockGridTable(mas);
+            new MockGridTable(mas);
+            fail();
         } catch (IllegalArgumentException ex) {
-            assertTrue("Error should be thrown", true);
+            assertEquals("There should be any not null value before the null", ex.getMessage());
         }
     }
-
-
-
 
     @Test
     public void testGridTable() {

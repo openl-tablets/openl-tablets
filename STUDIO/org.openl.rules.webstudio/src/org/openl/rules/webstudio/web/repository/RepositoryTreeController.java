@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.repository;
 
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.*;
+import static org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,6 +15,7 @@ import java.util.*;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
@@ -103,6 +105,9 @@ public class RepositoryTreeController {
     @ManagedProperty(value = "#{zipCharsetDetector}")
     private ZipCharsetDetector zipCharsetDetector;
 
+    @ManagedProperty(value = "#{systemConfig}")
+    private Map<String, Object> config;
+
     private WebStudio studio = WebStudioUtils.getWebStudio(true);
 
     private String projectName;
@@ -128,6 +133,9 @@ public class RepositoryTreeController {
     }
 
     private TreeNode activeProjectNode;
+
+    private CommentValidator designCommentValidator;
+    private CommentValidator deployConfigCommentValidator;
 
     public void setZipFilter(PathFilter zipFilter) {
         this.zipFilter = zipFilter;
@@ -1719,11 +1727,36 @@ public class RepositoryTreeController {
         return project == null ? null : projectDescriptorResolver.getLogicalName(project);
     }
 
+    public void commentValidator(FacesContext context, UIComponent toValidate, Object value) {
+        String comment = (String) value;
+
+        UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+        if (project instanceof RulesProject) {
+            designCommentValidator.validate(comment);
+        } else if (project instanceof ADeploymentProject) {
+            deployConfigCommentValidator.validate(comment);
+        }
+    }
+
     public void setProjectDescriptorSerializerFactory(ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory) {
         this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
     }
 
     public void setZipCharsetDetector(ZipCharsetDetector zipCharsetDetector) {
         this.zipCharsetDetector = zipCharsetDetector;
+    }
+
+    public void setConfig(Map<String, Object> config) {
+        this.config = config;
+
+        designCommentValidator = CommentValidator.forDesignRepo(config);
+
+        boolean separateDeployConfigRepo = Boolean.parseBoolean(config.get(USE_SEPARATE_DEPLOY_CONFIG_REPO).toString());
+
+        if (separateDeployConfigRepo) {
+            deployConfigCommentValidator = CommentValidator.forDeployConfigRepo(config);
+        } else {
+            deployConfigCommentValidator = designCommentValidator;
+        }
     }
 }

@@ -54,7 +54,7 @@ public class MatchExpressionTest {
             testMatchExpression(operationNameTest, operationTest);       
             fail();
         } catch (OpenLRuntimeException e) {
-           assertTrue(true); 
+            assertEquals("Unknown match expression operation \"UNKNOWNOPERATION\"", e.getMessage());
         }
     }
     

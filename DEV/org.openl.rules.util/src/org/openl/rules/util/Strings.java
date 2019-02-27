@@ -13,7 +13,11 @@ import java.util.regex.Pattern;
  *
  * @author Yury Molchan
  */
-public class Strings {
+public final class Strings {
+
+    private Strings() {
+        // Utility class
+    }
 
     private static final Pattern TRAILING_ZERO = Pattern.compile("(\\.0+$)|(?<=\\.\\d{0,20})0+$");
 

@@ -10,7 +10,12 @@ import java.util.Collection;
  *
  * @author Yury Molchan
  */
-public class Arrays {
+public final class Arrays {
+
+    private Arrays() {
+        // Utility class
+    }
+
     /**
      * Checks if an array is empty or null.
      *

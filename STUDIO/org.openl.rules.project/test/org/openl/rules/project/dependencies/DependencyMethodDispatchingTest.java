@@ -33,7 +33,7 @@ public class DependencyMethodDispatchingTest {
         Class<?> interfaceClass = factory.getInterfaceClass();
         Method method = null;
         try {
-            method = interfaceClass.getMethod("hello1", new Class[] { int.class });
+            method = interfaceClass.getMethod("hello1", int.class);
         } catch (Throwable e1) {
             fail("Method should exist.");
         }
@@ -54,7 +54,7 @@ public class DependencyMethodDispatchingTest {
      * the overloaded table in main module.
      */
     @Test
-    public void testMethodDispatching() throws Exception {
+    public void testMethodDispatching() {
 
         ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder().setProvideRuntimeContext(true)
             .setProject("test-resources/dependencies/testMethodDispatching1")
@@ -71,7 +71,7 @@ public class DependencyMethodDispatchingTest {
         try {
             // get the method from dependency module for invoke
             //
-            method = interfaceClass.getMethod("start", new Class[] { IRulesRuntimeContext.class });
+            method = interfaceClass.getMethod("start", IRulesRuntimeContext.class);
         } catch (Throwable e1) {
             fail("Method should exist.");
         }
@@ -86,7 +86,6 @@ public class DependencyMethodDispatchingTest {
             // check that method from dependency will be invoked
             //
             assertEquals(2, method.invoke(factory.newInstance(), context));
-            assertTrue(true);
         } catch (Exception e) {
             fail("We should get the right result");
         }

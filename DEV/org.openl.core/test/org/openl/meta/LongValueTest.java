@@ -48,10 +48,10 @@ public class LongValueTest {
         assertEquals(new LongValue(5), LongValue.min(la));
 
         LongValue[] nullArray = null;
-        assertEquals(null, LongValue.min(nullArray));
+        assertNull(LongValue.min(nullArray));
 
         LongValue[] emptyArray = new LongValue[0];
-        assertEquals(null, LongValue.min(emptyArray));
+        assertNull(LongValue.min(emptyArray));
     }
 
     private LongValue[] getTestArray() {
@@ -64,10 +64,10 @@ public class LongValueTest {
         assertEquals(new LongValue(100), LongValue.max(la));
 
         LongValue[] nullArray = null;
-        assertEquals(null, LongValue.max(nullArray));
+        assertNull(LongValue.max(nullArray));
 
         LongValue[] emptyArray = new LongValue[0];
-        assertEquals(null, LongValue.max(emptyArray));
+        assertNull(LongValue.max(emptyArray));
     }
 
     @Test
@@ -76,10 +76,10 @@ public class LongValueTest {
         assertEquals(new LongValue(115), LongValue.sum(la));
 
         LongValue[] nullArray = null;
-        assertEquals(null, LongValue.sum(nullArray));
+        assertNull(LongValue.sum(nullArray));
 
         LongValue[] emptyArray = new LongValue[0];
-        assertEquals(null, LongValue.sum(emptyArray));
+        assertNull(LongValue.sum(emptyArray));
     }
 
     @Test
@@ -88,10 +88,10 @@ public class LongValueTest {
         assertEquals(new LongValue(5000), LongValue.product(la));
 
         LongValue[] nullArray = null;
-        assertEquals(null, LongValue.product(nullArray));
+        assertNull(LongValue.product(nullArray));
 
         LongValue[] emptyArray = new LongValue[0];
-        assertEquals(null, LongValue.product(emptyArray));
+        assertNull(LongValue.product(emptyArray));
     }
 
     @Test
@@ -99,15 +99,15 @@ public class LongValueTest {
         assertEquals(new LongValue(5), LongValue.quotient(new LongValue(26), new LongValue(5)));
 
         LongValue nullObj = null;
-        assertEquals(null, LongValue.quotient(nullObj, new LongValue(5)));
+        assertNull(LongValue.quotient(nullObj, new LongValue(5)));
 
-        assertEquals(null, LongValue.quotient(new LongValue(5), nullObj));
+        assertNull(LongValue.quotient(new LongValue(5), nullObj));
 
         try {
             assertEquals(new LongValue(0), LongValue.quotient(new LongValue(5), new LongValue(0)));
             fail();
         } catch (ArithmeticException e) {
-            assertTrue(true);
+            assertEquals("/ by zero", e.getMessage());
         }
     }
 
@@ -116,15 +116,15 @@ public class LongValueTest {
         assertEquals(new LongValue(1), LongValue.mod(new LongValue(26), new LongValue(5)));
 
         LongValue nullObj = null;
-        assertEquals(null, LongValue.mod(nullObj, new LongValue(5)));
+        assertNull(LongValue.mod(nullObj, new LongValue(5)));
 
-        assertEquals(null, LongValue.mod(new LongValue(5), nullObj));
+        assertNull(LongValue.mod(new LongValue(5), nullObj));
 
         try {
             assertEquals(new LongValue(0), LongValue.mod(new LongValue(5), new LongValue(0)));
             fail();
         } catch (ArithmeticException e) {
-            assertTrue(true);
+            assertEquals("/ by zero", e.getMessage());
         }
     }
 

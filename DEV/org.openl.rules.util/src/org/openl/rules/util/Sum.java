@@ -10,7 +10,11 @@ import org.openl.rules.util.Statistics.Result;
 /**
  * Sum functions for different types of numbers.
  */
-public class Sum {
+public final class Sum {
+
+    private Sum() {
+        // Utility class
+    }
 
     /**
      * Returns the sum of values.

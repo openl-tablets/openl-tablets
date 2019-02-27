@@ -3,6 +3,7 @@ package org.openl.rules.lang.xls;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -37,14 +38,10 @@ public class XlsWorkbookSourceCodeModuleTest {
     }
 
     @Test
-    public void testUrlWithWhiteSpaces() {
-        try {
-            File f = new File("test/rules/test xls/Test with spaces.xls");
-            XlsWorkbookSourceCodeModule module = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(f.toURI().toURL()));
-            assertNotNull(module.getSourceFile());
-        } catch (MalformedURLException e) {
-            assertFalse(true);
-        }
+    public void testUrlWithWhiteSpaces() throws MalformedURLException {
+        File f = new File("test/rules/test xls/Test with spaces.xls");
+        XlsWorkbookSourceCodeModule module = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(f.toURI().toURL()));
+        assertNotNull(module.getSourceFile());
     }
 
     @Test

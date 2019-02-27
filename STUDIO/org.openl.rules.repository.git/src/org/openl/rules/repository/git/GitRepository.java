@@ -42,6 +42,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private String uri;
     private String login;
     private String password;
+    private String userDisplayName;
+    private String userEmail;
     private String localRepositoryPath;
     private String branch = Constants.MASTER;
     private String baseBranch = branch;
@@ -95,7 +97,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             // TODO: Add possibility to set committer email
             RevCommit commit = git.commit()
                     .setMessage(StringUtils.trimToEmpty(data.getComment()))
-                    .setCommitter(data.getAuthor(), "")
+                    .setCommitter(userDisplayName != null ? userDisplayName : data.getAuthor(), userEmail != null ? userEmail : "")
                     .setOnly(fileInRepository)
                     .call();
 
@@ -139,7 +141,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 git.add().addFilepattern(markerFile).call();
                 RevCommit commit = git.commit()
                         .setMessage(commitMessage)
-                        .setCommitter(data.getAuthor(), "")
+                        .setCommitter(userDisplayName != null ? userDisplayName : data.getAuthor(), userEmail != null ? userEmail : "")
                         .setOnly(markerFile)
                         .call();
 
@@ -149,7 +151,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 git.rm().addFilepattern(name).call();
                 RevCommit commit = git.commit()
                         .setMessage(StringUtils.trimToEmpty(data.getComment()))
-                        .setCommitter(data.getAuthor(), "")
+                        .setCommitter(userDisplayName != null ? userDisplayName : data.getAuthor(), userEmail != null ? userEmail : "")
                         .call();
                 addTagToCommit(commit);
             }
@@ -182,7 +184,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             git.add().addFilepattern(destData.getName()).call();
             RevCommit commit = git.commit()
                     .setMessage(StringUtils.trimToEmpty(destData.getComment()))
-                    .setCommitter(destData.getAuthor(), "")
+                    .setCommitter(userDisplayName != null ? userDisplayName : destData.getAuthor(), userEmail != null ? userEmail : "")
                     .call();
             addTagToCommit(commit);
 
@@ -213,7 +215,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             git.add().addFilepattern(destData.getName()).call();
             RevCommit commit = git.commit()
                     .setMessage(StringUtils.trimToEmpty(destData.getComment()))
-                    .setCommitter(destData.getAuthor(), "")
+                    .setCommitter(userDisplayName != null ? userDisplayName : destData.getAuthor(), userEmail != null ? userEmail : "")
                     .setOnly(srcName)
                     .setOnly(destData.getName())
                     .call();
@@ -275,7 +277,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 git.rm().addFilepattern(name).call();
                 String commitMessage = MessageFormat.format(commentPattern, CommitType.ERASE, comment);
                 commit = git.commit()
-                        .setCommitter(author, "")
+                        .setCommitter(userDisplayName != null ? userDisplayName : author, userEmail != null ? userEmail : "")
                         .setMessage(commitMessage)
                         .setOnly(name)
                         .call();
@@ -296,7 +298,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 git.rm().addFilepattern(markerFile).call();
                 String commitMessage = MessageFormat.format(commentPattern, CommitType.RESTORE, comment);
                 commit = git.commit()
-                        .setCommitter(author, "")
+                        .setCommitter(userDisplayName != null ? userDisplayName : author, userEmail != null ? userEmail : "")
                         .setMessage(commitMessage)
                         .setOnly(markerFile)
                         .call();
@@ -477,6 +479,14 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setUserDisplayName(String userDisplayName) {
+        this.userDisplayName = userDisplayName;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
     public void setLocalRepositoryPath(String localRepositoryPath) {
@@ -763,7 +773,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             // TODO: Add possibility to set committer email
             CommitCommand commitCommand = git.commit()
                     .setMessage(StringUtils.trimToEmpty(folderData.getComment()))
-                    .setCommitter(folderData.getAuthor(), "");
+                    .setCommitter(userDisplayName != null ? userDisplayName : folderData.getAuthor(), userEmail != null ? userEmail : "");
 
             RevCommit commit;
 
@@ -891,6 +901,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     repository.setUri(uri);
                     repository.setLogin(login);
                     repository.setPassword(password);
+                    repository.setUserDisplayName(userDisplayName);
+                    repository.setUserEmail(userEmail);
                     repository.setLocalRepositoryPath(localRepositoryPath);
                     repository.setBranch(branch);
                     repository.baseBranch = baseBranch; // Base branch is only one

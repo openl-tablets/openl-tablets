@@ -1,6 +1,8 @@
 package org.openl.rules.datatype;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
@@ -10,144 +12,130 @@ import org.openl.rules.helpers.IntRange;
 
 public class AliasDatatypeTest {
 
-	private static final String SRC = "test/rules/datatype/AliasDatatypeTest.xlsx";
+    private static final String SRC = "test/rules/datatype/AliasDatatypeTest.xlsx";
 
-	public interface ITest {
-		int test1(String state);
-		int test2(int age);
-		int test3(IntRange age);
-		int method1();
-		int method2();
-		boolean method3(int z);
+    public interface ITest {
+        int test1(String state);
+        int test2(int age);
+        int test3(IntRange age);
+        int method1();
+        int method2();
+        boolean method3(int z);
         String method4(String x);
         String method5(String x);
-		
-		int testStringAliasType(String state);
+        int testStringAliasType(String state);
         int testAliasTypeAsArrays(String state);
-		int testIntAliasType(int i);
-		int testIntRangeAliasType2(int i);
-	}
+        int testIntAliasType(int i);
+        int testIntRangeAliasType2(int i);
+    }
 
-	@Test
-	public void test1() {
-		File xlsFile = new File(SRC);
-		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-				ITest.class);
+    @Test
+    public void test1() {
+        File xlsFile = new File(SRC);
+        TestHelper<ITest> testHelper = new TestHelper<>(xlsFile, ITest.class);
 
-		ITest instance = testHelper.getInstance();
-		int res = instance.test1("CA");
-		assertEquals(1, res);
-	}
-	
-	@Test
-	public void test11() {
-		File xlsFile = new File(SRC);
-		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-				ITest.class);
+        ITest instance = testHelper.getInstance();
+        int res = instance.test1("CA");
+        assertEquals(1, res);
+    }
 
-		ITest instance = testHelper.getInstance();
-		int res = instance.testStringAliasType("CA");
-		assertEquals(1, res);
-	}
+    @Test
+    public void test11() {
+        File xlsFile = new File(SRC);
+        TestHelper<ITest> testHelper = new TestHelper<>(xlsFile, ITest.class);
 
-	@Test(expected = RuntimeException.class)
-	public void test2() {
-		File xlsFile = new File(SRC);
-		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-				ITest.class);
+        ITest instance = testHelper.getInstance();
+        int res = instance.testStringAliasType("CA");
+        assertEquals(1, res);
+    }
 
-		ITest instance = testHelper.getInstance();
-		instance.test1("Something that doesn't belong to domain");
-	}
+    @Test(expected = RuntimeException.class)
+    public void test2() {
+        File xlsFile = new File(SRC);
+        TestHelper<ITest> testHelper = new TestHelper<>(xlsFile, ITest.class);
 
-	@Test
-	public void test3() {
-		File xlsFile = new File(SRC);
-		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-				ITest.class);
+        ITest instance = testHelper.getInstance();
+        instance.test1("Something that doesn't belong to domain");
+    }
 
-		ITest instance = testHelper.getInstance();
-		int res = instance.test2(1);
-		assertEquals(3, res);
-	}
-	
-	
-	@Test
-	public void test31() {
-		File xlsFile = new File(SRC);
-		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-				ITest.class);
+    @Test
+    public void test3() {
+        File xlsFile = new File(SRC);
+        TestHelper<ITest> testHelper = new TestHelper<>(xlsFile, ITest.class);
 
-		ITest instance = testHelper.getInstance();
-		int res = instance.testIntAliasType(1);
-		assertEquals(3, res);
-	}
-	
+        ITest instance = testHelper.getInstance();
+        int res = instance.test2(1);
+        assertEquals(3, res);
+    }
 
-	@Test(expected = Exception.class)
-	public void test4() {
-		File xlsFile = new File(SRC);
-		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-				ITest.class);
+    @Test
+    public void test31() {
+        File xlsFile = new File(SRC);
+        TestHelper<ITest> testHelper = new TestHelper<>(xlsFile, ITest.class);
 
-		ITest instance = testHelper.getInstance();
-		instance.test3(new IntRange(1, 3));
-	}
-	
-	@Test
-	public void test41() {
-		File xlsFile = new File(SRC);
-		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-				ITest.class);
+        ITest instance = testHelper.getInstance();
+        int res = instance.testIntAliasType(1);
+        assertEquals(3, res);
+    }
 
-		ITest instance = testHelper.getInstance();
-		int res = instance.testIntRangeAliasType2(15);
-		assertEquals(1, res);
+    @Test(expected = Exception.class)
+    public void test4() {
+        File xlsFile = new File(SRC);
+        TestHelper<ITest> testHelper = new TestHelper<>(xlsFile, ITest.class);
 
-		res = instance.testIntRangeAliasType2(1000);
-		assertEquals(0, res);
-	}
+        ITest instance = testHelper.getInstance();
+        instance.test3(new IntRange(1, 3));
+    }
 
-	@Test(expected = RuntimeException.class)
-	public void test5() {
-		File xlsFile = new File(SRC);
-		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-				ITest.class);
+    @Test
+    public void test41() {
+        File xlsFile = new File(SRC);
+        TestHelper<ITest> testHelper = new TestHelper<>(xlsFile, ITest.class);
 
-		ITest instance = testHelper.getInstance();
-		instance.method1();
-	}
+        ITest instance = testHelper.getInstance();
+        int res = instance.testIntRangeAliasType2(15);
+        assertEquals(1, res);
 
-	@Test
-	public void test6() {
-		File xlsFile = new File(SRC);
-		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-				ITest.class);
+        res = instance.testIntRangeAliasType2(1000);
+        assertEquals(0, res);
+    }
 
-		ITest instance = testHelper.getInstance();
-		int res = instance.method2();
-		assertEquals(1, res);
-	}
+    @Test(expected = RuntimeException.class)
+    public void test5() {
+        File xlsFile = new File(SRC);
+        TestHelper<ITest> testHelper = new TestHelper<>(xlsFile, ITest.class);
+
+        ITest instance = testHelper.getInstance();
+        instance.method1();
+    }
+
+    @Test
+    public void test6() {
+        File xlsFile = new File(SRC);
+        TestHelper<ITest> testHelper = new TestHelper<>(xlsFile, ITest.class);
+
+        ITest instance = testHelper.getInstance();
+        int res = instance.method2();
+        assertEquals(1, res);
+    }
 
     @Test
     public void test7() {
         File xlsFile = new File(SRC);
-        TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-                ITest.class);
+        TestHelper<ITest> testHelper = new TestHelper<>(xlsFile, ITest.class);
 
         ITest instance = testHelper.getInstance();
         boolean res = instance.method3(5);
-        assertEquals(true, res);
+        assertTrue(res);
 
         res = instance.method3(-1);
-        assertEquals(false, res);
+        assertFalse(res);
     }
-    
+
     @Test
     public void test8() {
         File xlsFile = new File(SRC);
-        TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-                ITest.class);
+        TestHelper<ITest> testHelper = new TestHelper<>(xlsFile, ITest.class);
 
         ITest instance = testHelper.getInstance();
         String res = instance.method4("New York");
@@ -160,8 +148,7 @@ public class AliasDatatypeTest {
     @Test
     public void testArrays() {
         File xlsFile = new File(SRC);
-        TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-                ITest.class);
+        TestHelper<ITest> testHelper = new TestHelper<>(xlsFile, ITest.class);
 
         ITest instance = testHelper.getInstance();
         int res = instance.testAliasTypeAsArrays("AR");

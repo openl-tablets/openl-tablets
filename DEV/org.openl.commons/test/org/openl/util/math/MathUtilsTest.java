@@ -1,6 +1,8 @@
 package org.openl.util.math;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -14,7 +16,7 @@ import java.util.Arrays;
 import org.junit.Test;
 
 /**
- * @author DLiauchuk TODO: test all methods.
+ * @author DLiauchuk
  */
 public class MathUtilsTest {
 
@@ -25,8 +27,8 @@ public class MathUtilsTest {
         values = new byte[] { 4, 5, 1, 7 };
         assertEquals(new Double(4.5), MathUtils.median(values), 0.1);
 
-        assertEquals(null, MathUtils.median((byte[]) null));
-        assertEquals(null, MathUtils.median(new byte[0]));
+        assertNull(MathUtils.median((byte[]) null));
+        assertNull(MathUtils.median(new byte[0]));
     }
 
     @Test
@@ -36,8 +38,8 @@ public class MathUtilsTest {
         values = new short[] { 4, 5, 1, 7 };
         assertEquals(new Double(4.5), MathUtils.median(values), 0.1);
 
-        assertEquals(null, MathUtils.median((short[]) null));
-        assertEquals(null, MathUtils.median(new short[0]));
+        assertNull(MathUtils.median((short[]) null));
+        assertNull(MathUtils.median(new short[0]));
     }
 
     @Test
@@ -47,8 +49,8 @@ public class MathUtilsTest {
         values = new int[] { 4, 5, 1, 7 };
         assertEquals(new Double(4.5), MathUtils.median(values), 0.1);
 
-        assertEquals(null, MathUtils.median((int[]) null));
-        assertEquals(null, MathUtils.median(new int[0]));
+        assertNull(MathUtils.median((int[]) null));
+        assertNull(MathUtils.median(new int[0]));
     }
 
     @Test
@@ -58,8 +60,8 @@ public class MathUtilsTest {
         values = new long[] { 4, 5, 1, 7 };
         assertEquals(new Double(4.5), MathUtils.median(values), 0.1);
 
-        assertEquals(null, MathUtils.median((long[]) null));
-        assertEquals(null, MathUtils.median(new long[0]));
+        assertNull(MathUtils.median((long[]) null));
+        assertNull(MathUtils.median(new long[0]));
     }
 
     @Test
@@ -69,8 +71,8 @@ public class MathUtilsTest {
         values = new float[] { 4, 5, 1, 7 };
         assertEquals(new Double(4.5), MathUtils.median(values), 0.1);
 
-        assertEquals(null, MathUtils.median((float[]) null));
-        assertEquals(null, MathUtils.median(new float[0]));
+        assertNull(MathUtils.median((float[]) null));
+        assertNull(MathUtils.median(new float[0]));
     }
 
     @Test
@@ -81,8 +83,8 @@ public class MathUtilsTest {
         values = new Float[] { 4f, 5f, 1f, 7f };
         assertEquals(new Float(4.5), MathUtils.median(values), 0.1);
 
-        assertEquals(null, MathUtils.median((Float[]) null));
-        assertEquals(null, MathUtils.median(new Float[0]));
+        assertNull(MathUtils.median((Float[]) null));
+        assertNull(MathUtils.median(new Float[0]));
 
         values = new Float[] { null, 4f, 4f, null, 1f, 7f, null, 2f };
         assertEquals(new Float(4.0), MathUtils.median(values), 0.1);
@@ -98,8 +100,12 @@ public class MathUtilsTest {
         values = new double[] { 4, 5, 1, 7 };
         assertEquals(new Double(4.5), MathUtils.median(values), 0.1);
 
-        assertEquals(null, MathUtils.median((double[]) null));
-        assertEquals(null, MathUtils.median(new double[0]));
+        assertNull(MathUtils.median((double[]) null));
+        assertNull(MathUtils.median(new double[0]));
+        values = new double[] { 4 };
+        assertEquals(new Double(4), MathUtils.median(values), 0.1);
+        values = new double[] { 4, 5 };
+        assertEquals(new Double(4.5), MathUtils.median(values), 0.1);
 
     }
 
@@ -110,8 +116,8 @@ public class MathUtilsTest {
         values = new Integer[] { 4, 5, 1, 7 };
         assertEquals(new Double(4.5), MathUtils.median(values), 0.1);
 
-        assertEquals(null, MathUtils.median((Integer[]) null));
-        assertEquals(null, MathUtils.median(new Integer[0]));
+        assertNull(MathUtils.median((Integer[]) null));
+        assertNull(MathUtils.median(new Integer[0]));
 
         values = new Integer[] { null, 4, 4, null, 1, 7, null, 2 };
         assertEquals(new Double(4.0), MathUtils.median(values), 0.1);
@@ -130,8 +136,8 @@ public class MathUtilsTest {
                 BigInteger.valueOf(7) };
         assertEquals(BigDecimal.valueOf(4.5), MathUtils.median(values));
 
-        assertEquals(null, MathUtils.median((BigInteger[]) null));
-        assertEquals(null, MathUtils.median(new BigInteger[0]));
+        assertNull(MathUtils.median((BigInteger[]) null));
+        assertNull(MathUtils.median(new BigInteger[0]));
 
         values = new BigInteger[] { null,
                 BigInteger.valueOf(4),
@@ -151,6 +157,10 @@ public class MathUtilsTest {
                 null,
                 BigInteger.valueOf(7) };
         assertEquals(BigDecimal.valueOf(4.5), MathUtils.median(values));
+        values = new BigInteger[] { BigInteger.valueOf(4) };
+        assertEquals(BigDecimal.valueOf(4), MathUtils.median(values));
+        values = new BigInteger[] { BigInteger.valueOf(4), BigInteger.valueOf(5) };
+        assertEquals(BigDecimal.valueOf(4.5), MathUtils.median(values));
     }
 
     @Test
@@ -164,8 +174,8 @@ public class MathUtilsTest {
                 BigDecimal.valueOf(7) };
         assertEquals(new BigDecimal(4.5), MathUtils.median(values));
 
-        assertEquals(null, MathUtils.median((BigDecimal[]) null));
-        assertEquals(null, MathUtils.median(new BigDecimal[0]));
+        assertNull(MathUtils.median((BigDecimal[]) null));
+        assertNull(MathUtils.median(new BigDecimal[0]));
 
         values = new BigDecimal[] { null,
                 BigDecimal.valueOf(4),
@@ -185,6 +195,10 @@ public class MathUtilsTest {
                 null,
                 BigDecimal.valueOf(7) };
         assertEquals(BigDecimal.valueOf(4.5), MathUtils.median(values));
+        values = new BigDecimal[] { BigDecimal.valueOf(4)};
+        assertEquals(new BigDecimal(4), MathUtils.median(values));
+        values = new BigDecimal[] { BigDecimal.valueOf(4), BigDecimal.valueOf(5)};
+        assertEquals(new BigDecimal(4.5), MathUtils.median(values));
     }
 
     @Test
@@ -203,8 +217,64 @@ public class MathUtilsTest {
             assertEquals(0, MathUtils.quotient(BigDecimal.valueOf(3.22), BigDecimal.valueOf(0)));
             fail();
         } catch (ArithmeticException e) {
-            assertTrue(true);
+            assertEquals("Division by zero", e.getMessage());
         }
+    }
+
+    @Test
+    public void testQuotientByteWrapper() {
+        assertEquals(0, MathUtils.quotient(null, Byte.valueOf("13")));
+        assertEquals(0, MathUtils.quotient(Byte.valueOf("13"), null));
+        assertEquals(3, MathUtils.quotient(Byte.valueOf("19"), Byte.valueOf("5")));
+        assertEquals(-3, MathUtils.quotient(Byte.valueOf("19"), Byte.valueOf("-5")));
+    }
+
+    @Test
+    public void testQuotientShortWrapper() {
+        assertEquals(0, MathUtils.quotient(null, Short.valueOf("13")));
+        assertEquals(0, MathUtils.quotient(Short.valueOf("13"), null));
+        assertEquals(3, MathUtils.quotient(Short.valueOf("19"), Short.valueOf("5")));
+        assertEquals(-3, MathUtils.quotient(Short.valueOf("19"), Short.valueOf("-5")));
+    }
+
+    @Test
+    public void testQuotientIntegerWrapper() {
+        assertEquals(0, MathUtils.quotient(null, Integer.valueOf("13")));
+        assertEquals(0, MathUtils.quotient(Integer.valueOf("13"), null));
+        assertEquals(3, MathUtils.quotient(Integer.valueOf("19"), Integer.valueOf("5")));
+        assertEquals(-3, MathUtils.quotient(Integer.valueOf("19"), Integer.valueOf("-5")));
+    }
+
+    @Test
+    public void testQuotientLongWrapper() {
+        assertEquals(0, MathUtils.quotient(null, Long.valueOf("13")));
+        assertEquals(0, MathUtils.quotient(Long.valueOf("13"), null));
+        assertEquals(3, MathUtils.quotient(Long.valueOf("19"), Long.valueOf("5")));
+        assertEquals(-3, MathUtils.quotient(Long.valueOf("19"), Long.valueOf("-5")));
+    }
+
+    @Test
+    public void testQuotientFloatWrapper() {
+        assertEquals(0, MathUtils.quotient(null, Float.valueOf("13")));
+        assertEquals(0, MathUtils.quotient(Float.valueOf("13"), null));
+        assertEquals(3, MathUtils.quotient(Float.valueOf("19"), Float.valueOf("5.55")));
+        assertEquals(-3, MathUtils.quotient(Float.valueOf("19"), Float.valueOf("-5.55")));
+    }
+
+    @Test
+    public void testQuotientDoubleWrapper() {
+        assertEquals(0, MathUtils.quotient(null, Double.valueOf("13")));
+        assertEquals(0, MathUtils.quotient(Double.valueOf("13"), null));
+        assertEquals(3, MathUtils.quotient(Double.valueOf("19"), Double.valueOf("5.55")));
+        assertEquals(-3, MathUtils.quotient(Double.valueOf("19"), Double.valueOf("-5.55")));
+    }
+
+    @Test
+    public void testQuotientBigInteger() {
+        assertEquals(0, MathUtils.quotient(null, BigInteger.valueOf(13)));
+        assertEquals(0, MathUtils.quotient(BigInteger.valueOf(13), null));
+        assertEquals(3, MathUtils.quotient(BigInteger.valueOf(19), BigInteger.valueOf(5)));
+        assertEquals(-3, MathUtils.quotient(BigInteger.valueOf(19), BigInteger.valueOf(-5)));
     }
 
     @Test
@@ -218,19 +288,109 @@ public class MathUtilsTest {
     }
 
     @Test
+    public void testModShort() {
+        assertEquals(6, MathUtils.mod((short) 19, (short) 13));
+        assertEquals(-7, MathUtils.mod((short) 19, (short) -13));
+        assertEquals(7, MathUtils.mod((short) -19, (short) 13));
+        assertEquals(-6, MathUtils.mod((short) -19, (short) -13));
+        assertEquals(0, MathUtils.mod((short) 19, (short) 19));
+        assertEquals(0, MathUtils.mod((short) 0, (short) 19));
+    }
+
+    @Test
+    public void testModInt() {
+        assertEquals(6, MathUtils.mod(19, 13));
+        assertEquals(-7, MathUtils.mod(19, -13));
+        assertEquals(7, MathUtils.mod(-19, 13));
+        assertEquals(-6, MathUtils.mod(-19, -13));
+        assertEquals(0, MathUtils.mod(19, 19));
+        assertEquals(0, MathUtils.mod(0, 19));
+    }
+
+    @Test
+    public void testModLong() {
+        assertEquals(6, MathUtils.mod(19L, 13L));
+        assertEquals(-7, MathUtils.mod(19L, -13L));
+        assertEquals(7, MathUtils.mod(-19L, 13L));
+        assertEquals(-6, MathUtils.mod(-19L, -13L));
+        assertEquals(0, MathUtils.mod(19L, 19L));
+        assertEquals(0, MathUtils.mod(0L, 19L));
+    }
+
+    @Test
     public void testModFloat() {
         assertEquals(1.47, MathUtils.mod((float) 3.22, (float) 1.75), 0.01);
+        assertEquals(-0.28, MathUtils.mod((float) 3.22, (float) -1.75), 0.01);
     }
 
     @Test
     public void testModDouble() {
         assertEquals(1.47, MathUtils.mod(3.22, 1.75), 0.01);
+        assertEquals(-0.28D, MathUtils.mod(3.22, -1.75), 0.01);
+    }
+
+    @Test
+    public void testModByteWrapper() {
+        assertEquals(Byte.valueOf("0"), MathUtils.mod(null, Byte.valueOf("13")));
+        assertEquals(Byte.valueOf("0"), MathUtils.mod(Byte.valueOf("13"), null));
+        assertEquals(Byte.valueOf("6"), MathUtils.mod(Byte.valueOf("19"), Byte.valueOf("13")));
+        assertEquals(Byte.valueOf("-7"), MathUtils.mod(Byte.valueOf("19"), Byte.valueOf("-13")));
+    }
+
+    @Test
+    public void testModShortWrapper() {
+        assertEquals(Short.valueOf("0"), MathUtils.mod(null, Short.valueOf("13")));
+        assertEquals(Short.valueOf("0"), MathUtils.mod(Short.valueOf("13"), null));
+        assertEquals(Short.valueOf("6"), MathUtils.mod(Short.valueOf("19"), Short.valueOf("13")));
+        assertEquals(Short.valueOf("-7"), MathUtils.mod(Short.valueOf("19"), Short.valueOf("-13")));
+    }
+
+    @Test
+    public void testModIntegerWrapper() {
+        assertEquals(Integer.valueOf("0"), MathUtils.mod(null, Integer.valueOf("13")));
+        assertEquals(Integer.valueOf("0"), MathUtils.mod(Integer.valueOf("13"), null));
+        assertEquals(Integer.valueOf("6"), MathUtils.mod(Integer.valueOf("19"), Integer.valueOf("13")));
+        assertEquals(Integer.valueOf("-7"), MathUtils.mod(Integer.valueOf("19"), Integer.valueOf("-13")));
+    }
+
+    @Test
+    public void testModLongWrapper() {
+        assertEquals(Long.valueOf("0"), MathUtils.mod(null, Long.valueOf("13")));
+        assertEquals(Long.valueOf("0"), MathUtils.mod(Long.valueOf("13"), null));
+        assertEquals(Long.valueOf("6"), MathUtils.mod(Long.valueOf("19"), Long.valueOf("13")));
+        assertEquals(Long.valueOf("-7"), MathUtils.mod(Long.valueOf("19"), Long.valueOf("-13")));
+    }
+
+    @Test
+    public void testModFloatWrapper() {
+        assertEquals(Float.valueOf("0"), MathUtils.mod(null, Float.valueOf("13")));
+        assertEquals(Float.valueOf("0"), MathUtils.mod(Float.valueOf("13"), null));
+        assertEquals(Float.valueOf("1.47"), MathUtils.mod(Float.valueOf("3.22"), Float.valueOf("1.75")), 0.01);
+        assertEquals(Float.valueOf("-0.28"), MathUtils.mod(Float.valueOf("3.22"), Float.valueOf("-1.75")), 0.01);
+    }
+
+    @Test
+    public void testModDoubleWrapper() {
+        assertEquals(Double.valueOf("0"), MathUtils.mod(null, Double.valueOf("13")));
+        assertEquals(Double.valueOf("0"), MathUtils.mod(Double.valueOf("13"), null));
+        assertEquals(Double.valueOf("1.47"), MathUtils.mod(Double.valueOf("3.22"), Double.valueOf("1.75")), 0.01);
+        assertEquals(Double.valueOf("-0.28"), MathUtils.mod(Double.valueOf("3.22"), Double.valueOf("-1.75")), 0.01);
+    }
+
+    @Test
+    public void testModBigInteger() {
+        assertEquals(BigInteger.valueOf(0), MathUtils.mod(null, BigInteger.valueOf(13)));
+        assertEquals(BigInteger.valueOf(0), MathUtils.mod(BigInteger.valueOf(13), null));
+        assertEquals(BigInteger.valueOf(6), MathUtils.mod(BigInteger.valueOf(19), BigInteger.valueOf(13)));
+        assertEquals(BigInteger.valueOf(-7), MathUtils.mod(BigInteger.valueOf(19), BigInteger.valueOf(-13)));
     }
 
     @Test
     public void testModBigDecimal() {
         assertEquals(BigDecimal.valueOf(1.47), MathUtils.mod(BigDecimal.valueOf(3.22), BigDecimal.valueOf(1.75)));
         assertEquals(BigDecimal.valueOf(0), MathUtils.mod(null, BigDecimal.valueOf(1.75)));
+        assertEquals(BigDecimal.valueOf(0), MathUtils.mod(BigDecimal.valueOf(1.75), null));
+        assertEquals(BigDecimal.valueOf(-0.28D), MathUtils.mod(BigDecimal.valueOf(3.22), BigDecimal.valueOf(-1.75)));
     }
 
     private void testSmall(Class<?> primitiveType, Object values) throws Throwable {
@@ -258,7 +418,7 @@ public class MathUtilsTest {
             assertEquals("There is no position '6' in the given array", e.getMessage());
         }
 
-        assertEquals(null, smallMethod.invoke(null, null, 5));
+        assertNull(smallMethod.invoke(null, null, 5));
 
         try {
             try {
@@ -298,7 +458,7 @@ public class MathUtilsTest {
             assertEquals("There is no position '6' in the given array", e.getMessage());
         }
 
-        assertEquals(null, bigMethod.invoke(null, null, 5));
+        assertNull(bigMethod.invoke(null, null, 5));
 
         try {
             try {
@@ -351,8 +511,7 @@ public class MathUtilsTest {
 
     @Test
     public void testBigForT() {
-        Long[] mas = new Long[] { Long
-            .valueOf(10), Long.valueOf(45), Long.valueOf(4), Long.valueOf(44), Long.valueOf(22) };
+        Long[] mas = new Long[] {10L, 45L, 4L, 44L, 22L};
         assertEquals(Long.valueOf(45), MathUtils.big(mas, 1));
         assertEquals(Long.valueOf(44), MathUtils.big(mas, 2));
         assertEquals(Long.valueOf(22), MathUtils.big(mas, 3));
@@ -367,7 +526,7 @@ public class MathUtilsTest {
         }
 
         mas = null;
-        assertEquals(null, MathUtils.big(mas, 5));
+        assertNull(MathUtils.big(mas, 5));
 
         mas = new Long[1];
         try {
@@ -377,14 +536,7 @@ public class MathUtilsTest {
             assertEquals("There is no position '0' in the given array", e.getMessage());
         }
 
-        mas = new Long[] { null,
-                Long.valueOf(10),
-                Long.valueOf(45),
-                Long.valueOf(4),
-                null,
-                Long.valueOf(44),
-                null,
-                Long.valueOf(22) };
+        mas = new Long[] { null, 10L, 45L, 4L, null, 44L, null, 22L};
         assertEquals(Long.valueOf(45), MathUtils.big(mas, 1));
         assertEquals(Long.valueOf(44), MathUtils.big(mas, 2));
         assertEquals(Long.valueOf(22), MathUtils.big(mas, 3));
@@ -430,9 +582,14 @@ public class MathUtilsTest {
     }
 
     @Test
+    public void testSmallForTWhenFirstArgIsNull() {
+        Long[] mas = null;
+        assertNull(MathUtils.small(mas, 1));
+    }
+
+    @Test
     public void testSmallForT() {
-        Long[] mas = new Long[] { Long
-            .valueOf(10), Long.valueOf(45), Long.valueOf(4), Long.valueOf(44), Long.valueOf(22) };
+        Long[] mas = new Long[] {10L, 45L, 4L, 44L, 22L};
         assertEquals(Long.valueOf(4), MathUtils.small(mas, 1));
         assertEquals(Long.valueOf(10), MathUtils.small(mas, 2));
         assertEquals(Long.valueOf(22), MathUtils.small(mas, 3));
@@ -440,36 +597,156 @@ public class MathUtilsTest {
         assertEquals(Long.valueOf(45), MathUtils.small(mas, 5));
 
         try {
-            MathUtils.big(mas, 6);
+            MathUtils.small(mas, 6);
             fail();
         } catch (IllegalArgumentException e) {
             assertEquals("There is no position '6' in the given array", e.getMessage());
         }
 
         mas = null;
-        assertEquals(null, MathUtils.big(mas, 5));
+        assertNull(MathUtils.small(mas, 5));
 
         mas = new Long[1];
         try {
-            MathUtils.big(mas, 0);
+            MathUtils.small(mas, 0);
             fail();
         } catch (IllegalArgumentException e) {
             assertEquals("There is no position '0' in the given array", e.getMessage());
         }
 
-        mas = new Long[] { null,
-                Long.valueOf(10),
-                Long.valueOf(45),
-                Long.valueOf(4),
-                null,
-                Long.valueOf(44),
-                null,
-                Long.valueOf(22) };
+        mas = new Long[] { null, 10L, 45L, 4L, null, 44L, null, 22L};
         assertEquals(Long.valueOf(4), MathUtils.small(mas, 1));
         assertEquals(Long.valueOf(10), MathUtils.small(mas, 2));
         assertEquals(Long.valueOf(22), MathUtils.small(mas, 3));
         assertEquals(Long.valueOf(44), MathUtils.small(mas, 4));
         assertEquals(Long.valueOf(45), MathUtils.small(mas, 5));
+    }
+
+    @Test
+    public void testSumForByte() {
+        byte[] arr = null;
+        assertNull(MathUtils.sum(arr));
+        arr = new byte[] {1, 2, 3};
+        assertEquals(Byte.valueOf("6"), MathUtils.sum(arr));
+    }
+
+    @Test
+    public void testSumForShort() {
+        short[] arr = null;
+        assertNull(MathUtils.sum(arr));
+        arr = new short[] {1, 2, 3};
+        assertEquals(Short.valueOf("6"), MathUtils.sum(arr));
+    }
+
+    @Test
+    public void testSumForInt() {
+        int[] arr = null;
+        assertNull(MathUtils.sum(arr));
+        arr = new int[] {1, 2, 3};
+        assertEquals(Integer.valueOf("6"), MathUtils.sum(arr));
+    }
+
+    @Test
+    public void testSumForLong() {
+        long[] arr = null;
+        assertNull(MathUtils.sum(arr));
+        arr = new long[] {1, 2, 3};
+        assertEquals(Long.valueOf("6"), MathUtils.sum(arr));
+    }
+
+    @Test
+    public void testSumForFloat() {
+        float[] arr = null;
+        assertNull(MathUtils.sum(arr));
+        arr = new float[] {1.1f, 2.2f, 3.3f};
+        assertEquals(Float.valueOf("6.6"), MathUtils.sum(arr), 0.1);
+    }
+
+    @Test
+    public void testSumForDouble() {
+        double[] arr = null;
+        assertNull(MathUtils.sum(arr));
+        arr = new double[] {1.1d, 2.2d, 3.3d};
+        assertEquals(Double.valueOf("6.6"), MathUtils.sum(arr), 0.1);
+    }
+
+    @Test
+    public void testSortForT() {
+        Long[] arr = null;
+        assertNull(MathUtils.sort(arr));
+        arr = new Long[] {1L, 9L, 8L, 5L, 2L, 8L, 9L, 10L, 6L};
+        Long[] expectedArr = new Long[] {1L, 2L, 5L, 6L, 8L, 8L, 9L, 9L, 10L};
+        assertArrayEquals(expectedArr, MathUtils.sort(arr));
+    }
+
+    @Test
+    public void testSortForLong() {
+        long[] arr = null;
+        assertNull(MathUtils.sort(arr));
+        arr = new long[] {1L, 9L, 8L, 5L, 2L, 8L, 9L, 10L, 6L};
+        long[] expectedArr = new long[] {1L, 2L, 5L, 6L, 8L, 8L, 9L, 9L, 10L};
+        assertArrayEquals(expectedArr, MathUtils.sort(arr));
+    }
+
+    @Test
+    public void testSortForByte() {
+        byte[] arr = null;
+        assertNull(MathUtils.sort(arr));
+        arr = new byte[] {1, 9, 8, 5, 2, 8, 9, 10, 6};
+        byte[] expectedArr = new byte[] {1, 2, 5, 6, 8, 8, 9, 9, 10};
+        assertArrayEquals(expectedArr, MathUtils.sort(arr));
+    }
+
+    @Test
+    public void testSortForShort() {
+        short[] arr = null;
+        assertNull(MathUtils.sort(arr));
+        arr = new short[] {1, 9, 8, 5, 2, 8, 9, 10, 6};
+        short[] expectedArr = new short[] {1, 2, 5, 6, 8, 8, 9, 9, 10};
+        assertArrayEquals(expectedArr, MathUtils.sort(arr));
+    }
+
+    @Test
+    public void testSortForInt() {
+        int[] arr = null;
+        assertNull(MathUtils.sort(arr));
+        arr = new int[] {1, 9, 8, 5, 2, 8, 9, 10, 6};
+        int[] expectedArr = new int[] {1, 2, 5, 6, 8, 8, 9, 9, 10};
+        assertArrayEquals(expectedArr, MathUtils.sort(arr));
+    }
+
+    @Test
+    public void testSortForFloat() {
+        float[] arr = null;
+        assertNull(MathUtils.sort(arr));
+        arr = new float[] {1, 9, 8, 5, 2, 8, 9, 10, 6};
+        float[] expectedArr = new float[] {1, 2, 5, 6, 8, 8, 9, 9, 10};
+        assertArrayEquals(expectedArr, MathUtils.sort(arr), 0.1f);
+    }
+
+    @Test
+    public void testSortForDouble() {
+        double[] arr = null;
+        assertNull(MathUtils.sort(arr));
+        arr = new double[] {1, 9, 8, 5, 2, 8, 9, 10, 6};
+        double[] expectedArr = new double[] {1, 2, 5, 6, 8, 8, 9, 9, 10};
+        assertArrayEquals(expectedArr, MathUtils.sort(arr), 0.1f);
+    }
+
+    @Test
+    public void testDivideBigInteger() {
+        assertNull(MathUtils.divide(null, BigInteger.valueOf(13)));
+        assertNull(MathUtils.divide(BigInteger.valueOf(13), null));
+        assertEquals(BigInteger.valueOf(3), MathUtils.divide(BigInteger.valueOf(19), BigInteger.valueOf(5)));
+        assertEquals(BigInteger.valueOf(-3), MathUtils.divide(BigInteger.valueOf(19), BigInteger.valueOf(-5)));
+    }
+
+    @Test
+    public void testDivideBigDecimal() {
+        assertNull(MathUtils.divide(null, BigDecimal.valueOf(13)));
+        assertNull(MathUtils.divide(BigDecimal.valueOf(13), null));
+        assertEquals(BigDecimal.valueOf(3.8), MathUtils.divide(BigDecimal.valueOf(19), BigDecimal.valueOf(5)));
+        assertEquals(BigDecimal.valueOf(-3.8), MathUtils.divide(BigDecimal.valueOf(19), BigDecimal.valueOf(-5)));
     }
 
 }
