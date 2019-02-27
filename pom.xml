@@ -96,6 +96,7 @@
         <!-- !!! Don't increase these parameters without special need !!! -->
         <surefire.argLine>-Xms8m -Xmx80m</surefire.argLine>
         <invoker.mavenOpts>-Xms32m -Xmx80m</invoker.mavenOpts>
+        <invoker.timeoutInSeconds>30</invoker.timeoutInSeconds>
         <openl.home>${project.build.directory}/openl-test</openl.home>
     </properties>
 
@@ -279,7 +280,7 @@
                         <!-- with limited amount of memory. It allows to detect memory leaks. -->
                         <!-- Special cases should be defined in invoker.properties file. -->
                         <!-- !!! Don't increase these parameters without special need !!! -->
-                        <timeoutInSeconds>30</timeoutInSeconds>
+                        <timeoutInSeconds>${invoker.timeoutInSeconds}</timeoutInSeconds>
                         <mavenOpts>${jacoco.argLine} ${invoker.mavenOpts}</mavenOpts>
                     </configuration>
                 </plugin>
@@ -408,6 +409,7 @@
             </activation>
             <properties>
                 <sonar/>
+                <invoker.timeoutInSeconds>40</invoker.timeoutInSeconds>
             </properties>
             <build>
                 <plugins>
