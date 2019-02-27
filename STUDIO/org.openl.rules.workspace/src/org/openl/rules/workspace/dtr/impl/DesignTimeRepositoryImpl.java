@@ -22,7 +22,6 @@ import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.RepositoryException;
-import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -231,7 +230,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 fileDatas = repository.list(path);
             }
         } catch (IOException ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
+            log.error(ex.getMessage(), ex);
+            fileDatas = Collections.emptyList();
         }
         synchronized (projects) {
             projects.clear();

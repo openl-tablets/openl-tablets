@@ -190,9 +190,10 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 // "external" is direct child of "path"
                 FileData data = delegate.check(entry.getValue());
                 if (data == null) {
-                    throw new IOException("Can't find " + entry.getValue());
+                    log.error("Project {} is not found", entry.getValue());
+                } else {
+                    internal.add(data);
                 }
-                internal.add(data);
             }
         }
 
