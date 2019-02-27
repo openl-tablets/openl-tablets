@@ -10,7 +10,11 @@ import org.openl.rules.util.Statistics.Result;
 /**
  * Product functions for different types of numbers.
  */
-public class Product {
+public final class Product {
+
+    private Product() {
+        // Utility class
+    }
 
     /**
      * Returns the product of values.

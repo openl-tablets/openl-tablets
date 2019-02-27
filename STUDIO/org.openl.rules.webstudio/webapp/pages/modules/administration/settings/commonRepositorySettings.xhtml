@@ -23,6 +23,22 @@
         <h:outputText value="Password:" rendered="#{settings.secure || !empty settings.login}"/>
         <h:inputSecret value="#{settings.password}" rendered="#{settings.secure || !empty settings.login}" redisplay="true"/>
 
+        <h:outputText value="Comment pattern:" rendered="#{not isProduction}"/>
+        <h:inputText value="#{settings.commentValidationPattern}"
+                     title="Regular expression for comment pattern. If empty, comment isn't validated."
+                     rendered="#{not isProduction}"
+                     id="#{prependId}commentPattern" validator="#{validators.commentValidationPattern}"/>
+        <h:outputText value="" rendered="#{not isProduction}"/>
+        <h:message for="#{prependId}commentPattern" styleClass="error" rendered="#{not isProduction}"/>
+
+        <h:outputText value="Invalid comment message:" rendered="#{not isProduction}"/>
+        <h:inputText value="#{settings.invalidCommentMessage}"
+                     title="Message shown when comment is invalid."
+                     rendered="#{not isProduction}"
+                     id="#{prependId}invalidCommentMessage"/>
+        <h:outputText value="" rendered="#{not isProduction}"/>
+        <h:message for="#{prependId}invalidCommentMessage" styleClass="error" rendered="#{not isProduction}"/>
+
         <h:outputLabel value="Version in deployment name:" rendered="#{isProduction}" for="#{prependId}includeVersionInDeploymentName"/>
         <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}" id="#{prependId}includeVersionInDeploymentName"/>
         <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction and isEditing}"/>

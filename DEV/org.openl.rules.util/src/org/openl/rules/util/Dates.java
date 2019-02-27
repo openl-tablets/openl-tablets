@@ -17,7 +17,11 @@ import java.util.Locale;
  *
  * @author Yury Molchan
  */
-public class Dates {
+public final class Dates {
+
+    private Dates() {
+        // Utility class
+    }
 
     /**
      * Creates Date object using human numbers for the year and the month. Also validates correctness of the date.

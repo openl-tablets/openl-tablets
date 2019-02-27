@@ -3,7 +3,11 @@ package org.openl.rules.util;
 /**
  * A set of function for statistical analyze.
  */
-public class Statistics {
+public final class Statistics {
+
+    private Statistics() {
+        // Utility class
+    }
 
     /**
      * Returns the greatest of values. If values are equal, the first instance will return.
