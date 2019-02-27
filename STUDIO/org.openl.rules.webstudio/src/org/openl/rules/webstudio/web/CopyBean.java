@@ -3,12 +3,15 @@ package org.openl.rules.webstudio.web;
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
 
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
@@ -41,6 +44,9 @@ import org.slf4j.LoggerFactory;
 @SessionScoped
 public class CopyBean {
     private final Logger log = LoggerFactory.getLogger(CopyBean.class);
+
+    @ManagedProperty(value = "#{systemConfig}")
+    private Map<String, Object> config;
 
     private String currentProjectName;
     private String newProjectName;
@@ -229,8 +235,9 @@ public class CopyBean {
                 String simplifiedProjectName = currentProjectName.replaceAll("[^\\w\\-]", "");
                 String userName = getUserWorkspace().getUser().getUserName();
                 String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
+                String pattern = config.get("design-repository.new-branch-pattern").toString();
 
-                newBranchName = "WebStudio/" + simplifiedProjectName + "/" + userName + "/" + date;
+                newBranchName = MessageFormat.format(pattern, simplifiedProjectName, userName, date);
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -259,5 +266,9 @@ public class CopyBean {
     private UserWorkspace getUserWorkspace() throws WorkspaceException {
         RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(FacesUtils.getSession());
         return rulesUserSession.getUserWorkspace();
+    }
+
+    public void setConfig(Map<String, Object> config) {
+        this.config = config;
     }
 }
