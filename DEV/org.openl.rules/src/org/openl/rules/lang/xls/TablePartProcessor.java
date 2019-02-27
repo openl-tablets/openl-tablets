@@ -134,7 +134,7 @@ public class TablePartProcessor {
         addToParts(tablePart);
     }
 
-    private static Pattern pattern = Pattern.compile("\\w+\\s+(\\w+)\\s+(column|row)\\s+(\\d+)\\s+of\\s+(\\d+)\\s*($)");
+    private static final Pattern PATTERN = Pattern.compile("\\w+\\s+(\\w+)\\s+(column|row)\\s+(\\d+)\\s+of\\s+(\\d+)\\s*($)");
 
     private void parseHeader(TablePart tablePart) throws OpenLCompilationException {
 
@@ -142,7 +142,7 @@ public class TablePartProcessor {
 
         String header = src.getCode();
 
-        Matcher m = pattern.matcher(header);
+        Matcher m = PATTERN.matcher(header);
 
         if (!m.matches()) {
             String message = "Valid Syntax: TablePart <table_id> <row|column> <npart(1 to total_number_of_parts)> of <total_number_of_parts>";

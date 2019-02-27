@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Path("/test/")
 public class TestDownloadService {
-    private final Logger log = LoggerFactory.getLogger(TestDownloadService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TestDownloadService.class);
 
     @GET
     @Path("testcase")
@@ -67,7 +67,7 @@ public class TestDownloadService {
                 .build();
         } catch (Exception e) {
             String message = "Failed to export results.";
-            log.error(message, e);
+            LOG.error(message, e);
 
             return Response.status(Response.Status.NOT_FOUND)
                 .entity(e.getMessage())
