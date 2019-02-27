@@ -1,6 +1,10 @@
 package org.openl.rules.dt.index;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
@@ -10,13 +14,16 @@ import org.openl.rules.dt.type.IRangeAdaptor;
 
 public class RangeAscIndex implements IRuleIndex {
 
+    protected final List<IndexNode> index;
     private final DecisionTableRuleNode emptyNodeStub = new DecisionTableRuleNodeBuilder().makeNode();
     private final DecisionTableRuleNode nextNode;
     private final IRangeAdaptor<IndexNode, ?> adaptor;
-    protected final List<IndexNode> index;
-    protected Set<Integer> emptyRules;
+    private Set<Integer> emptyRules;
 
-    public RangeAscIndex(DecisionTableRuleNode nextNode, List<IndexNode> index, IRangeAdaptor<IndexNode, ?> adaptor, int[] emptyRules) {
+    public RangeAscIndex(DecisionTableRuleNode nextNode,
+            List<IndexNode> index,
+            IRangeAdaptor<IndexNode, ?> adaptor,
+            int[] emptyRules) {
         this.index = Collections.unmodifiableList(index);
         this.adaptor = adaptor;
         this.nextNode = nextNode;

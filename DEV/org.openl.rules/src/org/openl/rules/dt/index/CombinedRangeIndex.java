@@ -41,7 +41,7 @@ public class CombinedRangeIndex implements IRuleIndex {
 
     @Override
     public int[] collectRules() {
-        //we assume that both indexes have the same list of rules and no need to merge them
+        // we assume that both indexes have the same list of rules and no need to merge them
         return minIndex.collectRules();
     }
 }

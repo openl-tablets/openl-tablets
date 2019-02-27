@@ -10,7 +10,7 @@ public class StorageInfo {
 
     private Map<Object, Integer> uniqueIndex = new HashMap<>();
 
-    public int getNumberOfSpaces() {
+    int getNumberOfSpaces() {
         return numberOfSpaces;
     }
 
@@ -18,27 +18,23 @@ public class StorageInfo {
         return numberOfFormulas;
     }
 
-    public Map<Object, Integer> getUniqueIndex() {
+    Map<Object, Integer> getUniqueIndex() {
         return uniqueIndex;
     }
 
-    public int getTotalNumberOfUniqueValues() {
+    int getTotalNumberOfUniqueValues() {
         return uniqueIndex.size() + numberOfFormulas + (numberOfSpaces > 0 ? 1 : 0) + (numberOfElses > 0 ? 1 : 0);
     }
 
-    public int getNumberOfElses() {
-        return numberOfElses;
-    }
-
-    public void addSpaceIndex() {
+    void addSpaceIndex() {
         numberOfSpaces++;
     }
 
-    public void addElseIndex() {
+    void addElseIndex() {
         numberOfElses++;
     }
 
-    public void addFormulaIndex() {
+    void addFormulaIndex() {
         numberOfFormulas++;
     }
 }

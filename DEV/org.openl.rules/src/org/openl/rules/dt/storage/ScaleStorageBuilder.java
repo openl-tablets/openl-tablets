@@ -2,42 +2,33 @@ package org.openl.rules.dt.storage;
 
 import org.openl.rules.dt.DTScale.RowScale;
 
-@SuppressWarnings("rawtypes")
-public class ScaleStorageBuilder implements  IStorageBuilder {
+public class ScaleStorageBuilder implements IStorageBuilder {
 
-	
-	RowScale scale; 
-	StorageBuilder sb;
-	
-	public ScaleStorageBuilder(RowScale scale, StorageBuilder sb) {
-		super();
-		this.scale = scale;
-		this.sb = sb;
-	}
+    private RowScale scale;
+    private StorageBuilder sb;
 
+    ScaleStorageBuilder(RowScale scale, StorageBuilder sb) {
+        super();
+        this.scale = scale;
+        this.sb = sb;
+    }
 
-	public void writeObject(Object loadedValue, int index) {
-		sb.writeObject(loadedValue, getStorageIndex(index));
-	}
+    public void writeObject(Object loadedValue, int index) {
+        sb.writeObject(loadedValue, getStorageIndex(index));
+    }
 
-	private int getStorageIndex(int index) {
-		return scale.getActualIndex(index);
-	}
+    private int getStorageIndex(int index) {
+        return scale.getActualIndex(index);
+    }
 
-	public int size() {
-		return sb.size() * scale.getMultiplier();
-	}
+    public int size() {
+        return sb.size() * scale.getMultiplier();
+    }
 
+    @Override
+    public IStorage optimizeAndBuild() {
+        IStorage storage = sb.optimizeAndBuild();
 
-	@Override
-	public IStorage optimizeAndBuild() {
-		IStorage storage = sb.optimizeAndBuild();
-		
-		return new ScaledStorage(scale, storage, sb.getInfo());
-	}
-
-
-
-
-
+        return new ScaledStorage(scale, storage, sb.getInfo());
+    }
 }

@@ -2,29 +2,31 @@ package org.openl.rules.dt.storage;
 
 public interface IStorage<T> {
 
-	public enum StorageType {
-		VALUE, SPACE, ELSE, FORMULA;
-	}
+    int size();
 
-	int size();
-	StorageInfo getInfo();
+    StorageInfo getInfo();
 
-	Object getValue(int index);
+    Object getValue(int index);
 
-	boolean isSpace(int index);
+    boolean isSpace(int index);
 
-	boolean isFormula(int index);
+    boolean isFormula(int index);
 
-	boolean isElse(int index);
-	
-	
-	void setValue(int index, Object o);
-	void setSpace(int index);
-	void setElse(int index);
-	
-	void setFormula(int index, Object formula);
+    boolean isElse(int index);
 
-	
-	
+    void setValue(int index, Object o);
+
+    void setSpace(int index);
+
+    void setElse(int index);
+
+    void setFormula(int index, Object formula);
+
+    enum StorageType {
+        VALUE,
+        SPACE,
+        ELSE,
+        FORMULA;
+    }
 
 }

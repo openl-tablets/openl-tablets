@@ -277,7 +277,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         int nparams = paramDecl.length;
         IStorageBuilder<?>[] builders = new IStorageBuilder[nparams];
         for (int i = 0; i < builders.length; i++) {
-            builders[i] = StorageFactory.makeStorageBuilder(paramDecl[i], len, scale);
+            builders[i] = StorageFactory.makeStorageBuilder(len, scale);
         }
 
         return builders;

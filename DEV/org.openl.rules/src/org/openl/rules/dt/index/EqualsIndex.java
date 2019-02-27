@@ -6,7 +6,7 @@ import org.openl.rules.dt.DecisionTableRuleNode;
 
 public class EqualsIndex extends ARuleIndex {
 
-    protected Map<Object, DecisionTableRuleNode> valueNodes;
+    private Map<Object, DecisionTableRuleNode> valueNodes;
 
     public EqualsIndex(DecisionTableRuleNode emptyOrFormulaNodes, Map<Object, DecisionTableRuleNode> valueNodes) {
         super(emptyOrFormulaNodes);

@@ -10,7 +10,10 @@ import org.openl.rules.dt.type.IRangeAdaptor;
 
 public class RangeDescIndex extends RangeAscIndex {
 
-    public RangeDescIndex(DecisionTableRuleNode nextNode, List<IndexNode> index, IRangeAdaptor<IndexNode, ?> adaptor, int[] emptyRules) {
+    public RangeDescIndex(DecisionTableRuleNode nextNode,
+            List<IndexNode> index,
+            IRangeAdaptor<IndexNode, ?> adaptor,
+            int[] emptyRules) {
         super(nextNode, index, adaptor, emptyRules);
     }
 
@@ -20,7 +23,7 @@ public class RangeDescIndex extends RangeAscIndex {
             return getRulesStartFrom(idx + 1);
         } else {
             int insertionPoint = -(idx + 1);
-            if (insertionPoint < index.size() && insertionPoint >= 0) {
+            if (insertionPoint < index.size()) {
                 return getRulesStartFrom(insertionPoint);
             }
         }

@@ -1,6 +1,3 @@
-/**
- * Created Jul 11, 2007
- */
 package org.openl.rules.dt.index;
 
 import java.util.Arrays;
@@ -16,9 +13,9 @@ import org.openl.rules.dt.DecisionTableRuleNode;
  */
 public abstract class ARuleIndex implements IRuleIndex {
 
-    protected DecisionTableRuleNode emptyOrFormulaNodes;
+    private DecisionTableRuleNode emptyOrFormulaNodes;
 
-    public ARuleIndex(DecisionTableRuleNode emptyOrFormulaNodes) {
+    ARuleIndex(DecisionTableRuleNode emptyOrFormulaNodes) {
         this.emptyOrFormulaNodes = emptyOrFormulaNodes;
     }
 
@@ -45,15 +42,15 @@ public abstract class ARuleIndex implements IRuleIndex {
 
         for (DecisionTableRuleNode node : nodes()) {
             int[] rules = node.getRules();
-            for (int i = 0; i < rules.length; i++) {
-                set.add(rules[i]);
+            for (int rule : rules) {
+                set.add(rule);
             }
         }
 
         if (emptyOrFormulaNodes != null) {
             int[] rules = emptyOrFormulaNodes.getRules();
-            for (int i = 0; i < rules.length; i++) {
-                set.add(rules[i]);
+            for (int rule : rules) {
+                set.add(rule);
             }
 
         }
