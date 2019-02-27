@@ -2,7 +2,7 @@ package org.openl.rules.dt;
 
 public class DTScale {
 
-	int vScale, hScale;
+	private int vScale, hScale;
 
 	public DTScale(int vScale, int hScale) {
 		super();
@@ -21,22 +21,22 @@ public class DTScale {
 	}
 
 	public RowScale getVScale() {
-		return vScale == 0 ? StandardScale : new VScale();
+		return vScale == 0 ? STANDARD_SCALE : new VScale();
 	}
 
 	public RowScale getHScale() {
-		return hScale == 0 ? StandardScale : new HScale();
+		return hScale == 0 ? STANDARD_SCALE : new HScale();
 	}
 
-	static public RowScale getStandardScale() {
-		return StandardScale;
+	static RowScale getStandardScale() {
+		return STANDARD_SCALE;
 	}
 
 	/**
 	 * Use this scale for standard decision tables and RET lookups
 	 */
 
-	static final RowScale StandardScale = new RowScale() {
+	private static final RowScale STANDARD_SCALE = new RowScale() {
 
 		@Override
 		public int getActualSize(int size) {
@@ -59,7 +59,7 @@ public class DTScale {
 		}
 	};
 
-	public static final DTScale STANDARD = new DTScale(0, 0);
+	static final DTScale STANDARD = new DTScale(0, 0);
 
 	/**
 	 * 

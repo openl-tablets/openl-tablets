@@ -12,7 +12,7 @@ import org.openl.rules.table.IGridTable;
 public class TwoDimensionDecisionTableTranformer implements CoordinatesTransformer {
 
     private static final int CONDITION_HEADERS_HEIGHT = 4;
-    protected static final int HCONDITION_HEADERS_HEIGHT = 3;
+    private static final int HCONDITION_HEADERS_HEIGHT = 3;
 
     // width of simple(vertical) conditions in columns
     private int conditionsWidth;
@@ -28,7 +28,7 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
      *            header).
      * @param lookupValuesTable The "values subtable"
      */
-    public TwoDimensionDecisionTableTranformer(IGridTable entireTable, IGridTable lookupValuesTable, int retTableWidth) {
+    TwoDimensionDecisionTableTranformer(IGridTable entireTable, IGridTable lookupValuesTable, int retTableWidth) {
         this.lookupValuesTableHeight = lookupValuesTable.getHeight();
         this.lookupValuesTableWidth = lookupValuesTable.getWidth();
         this.conditionsWidth = entireTable.getWidth() - lookupValuesTableWidth;
@@ -37,7 +37,7 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
         this.dtHeaderHeight = CONDITION_HEADERS_HEIGHT + (hConditionsCount - 1);
     }
 
-    protected int getRetTableWidth() {
+    int getRetTableWidth() {
         return retTableWidth;
     }
 

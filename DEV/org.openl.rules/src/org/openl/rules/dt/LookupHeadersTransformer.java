@@ -3,8 +3,8 @@ package org.openl.rules.dt;
 import org.openl.rules.table.IGridTable;
 
 /**
- * Transformer for lookup table headers values. The common case is that the RET
- * section is the last one in the header, as shown below:<br>
+ * Transformer for lookup table headers values. The common case is that the RET section is the last one in the header,
+ * as shown below:<br>
  * 
  * <table cellspacing="2">
  * <tr>
@@ -18,8 +18,8 @@ import org.openl.rules.table.IGridTable;
  * </tr>
  * </table>
  * <br>
- * For users convenience it is possible to define RET section in any place of
- * lookup header after vertical conditions. Example:
+ * For users convenience it is possible to define RET section in any place of lookup header after vertical conditions.
+ * Example:
  * <table cellspacing="2">
  * <tr>
  * <td align="center" bgcolor="#8FCB52"><b>C1</b></td>
@@ -49,7 +49,7 @@ public class LookupHeadersTransformer extends TwoDimensionDecisionTableTranforme
     // headers
     private int firstEmptyCell = 0;
 
-    public LookupHeadersTransformer(IGridTable entireTable,
+    LookupHeadersTransformer(IGridTable entireTable,
             IGridTable lookupValuesTable,
             int retTableWidth,
             int retColumnStartIndex,
@@ -64,7 +64,7 @@ public class LookupHeadersTransformer extends TwoDimensionDecisionTableTranforme
     public int getColumn(int col, int row) {
         if (col < retStartIndex) {
             return super.getColumn(col, row);
-        } else if (retStartIndex <= col && col < retStartIndex + firstEmptyCell - hcColumnStartAfterRet) {
+        } else if (col < retStartIndex + firstEmptyCell - hcColumnStartAfterRet) {
             return col + getRetTableWidth();
         } else if (retStartIndex + firstEmptyCell - hcColumnStartAfterRet <= col && col < firstEmptyCell) {
             return col - (firstEmptyCell - hcColumnStartAfterRet);
@@ -76,7 +76,7 @@ public class LookupHeadersTransformer extends TwoDimensionDecisionTableTranforme
     public int getRow(int col, int row) {
         if (col < retStartIndex) {
             return super.getRow(col, row);
-        } else if (retStartIndex <= col && col < retStartIndex + firstEmptyCell - hcColumnStartAfterRet) {
+        } else if (col < retStartIndex + firstEmptyCell - hcColumnStartAfterRet) {
             return row;
         } else if (retStartIndex + firstEmptyCell - hcColumnStartAfterRet <= col && col < firstEmptyCell) {
             return row;

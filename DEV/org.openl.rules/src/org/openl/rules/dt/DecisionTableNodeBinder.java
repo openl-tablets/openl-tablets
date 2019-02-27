@@ -1,9 +1,3 @@
-/*
- * Created on Oct 3, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.rules.dt;
 
 import org.openl.OpenL;

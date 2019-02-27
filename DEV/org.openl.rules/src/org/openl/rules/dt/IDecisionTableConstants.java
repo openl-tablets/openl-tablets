@@ -1,9 +1,3 @@
-/*
- * Created on Sep 11, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.rules.dt;
 
 /**
@@ -29,15 +23,4 @@ public interface IDecisionTableConstants {
      * 
      */
     int SERVICE_COLUMNS_NUMBER = 4;
-
-    /**
-     * Value type constants
-     */
-    int NA_VALUE = 0;
-    int BOOLEAN_VALUE = 1;
-    int PARAMETER_VALUE = 2;
-    int DEFAULT_VALUE = 3; // true if all conditions to the left, except for special cases are false
-    int NOT_VALUE = 4; // inverses previous non-special cell
-    int REPEAT_VALUE = 5; // same as previous non-special cell
-
 }

@@ -11,7 +11,6 @@ import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.IDecisionTableConstants;
-import org.openl.rules.dt.IDecisionTableParameterInfo;
 import org.openl.rules.dt.storage.IStorage;
 import org.openl.rules.dt.storage.IStorageBuilder;
 import org.openl.rules.dt.storage.StorageFactory;
@@ -90,10 +89,6 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     public void clearParamValues() {
         storage = null;
-    }
-
-    public IDecisionTableParameterInfo getParameterInfo(int i) {
-        return new DecisionTableParameterInfo(i, this);
     }
 
     public IOpenSourceCodeModule getSourceCodeModule() {

@@ -1,9 +1,3 @@
-/*
- * Created on Oct 7, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.rules.dt;
 
 import org.openl.OpenL;
@@ -27,7 +21,7 @@ public class DecisionTableBoundNode extends AMethodBasedNode {
             OpenL openl,
             IOpenMethodHeader header,
             ModuleOpenClass module) {
-        
+
         super(tableSyntaxNode, openl, header, module);
     }
 
@@ -42,7 +36,8 @@ public class DecisionTableBoundNode extends AMethodBasedNode {
         }
 
         super.finalizeBind(bindingContext);
-        new DecisionTableLoader().loadAndBind(getTableSyntaxNode(), getDecisionTable(), getOpenl(), getModule(), bindingContext);
+        new DecisionTableLoader()
+            .loadAndBind(getTableSyntaxNode(), getDecisionTable(), getOpenl(), getModule(), bindingContext);
     }
 
     public final DecisionTable getDecisionTable() {
@@ -53,7 +48,7 @@ public class DecisionTableBoundNode extends AMethodBasedNode {
     public void updateDependency(BindingDependencies dependencies) {
         getDecisionTable().updateDependency(dependencies);
     }
-    
+
     @Override
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
         super.removeDebugInformation(cxt);

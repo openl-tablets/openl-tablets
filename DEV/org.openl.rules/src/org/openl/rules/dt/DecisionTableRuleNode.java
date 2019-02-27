@@ -6,23 +6,13 @@ import org.openl.rules.dt.index.IRuleIndex;
 
 public class DecisionTableRuleNode  implements IDecisionTableRuleNode{
 
-    public static final int[] ZERO_ARRAY = new int[0];
+    static final int[] ZERO_ARRAY = new int[0];
     private int[] rules;
-    protected IRuleIndex nextIndex;
-
-    // private boolean saveRulesMetaInfo;
+    private IRuleIndex nextIndex;
 
     public DecisionTableRuleNode(int[] rules) {
         this.rules = rules;
     }
-
-    // public boolean isSaveRulesMetaInfo() {
-    // return saveRulesMetaInfo;
-    // }
-    //
-    // public void setSaveRulesMetaInfo(boolean saveRulesMetaInfo) {
-    // this.saveRulesMetaInfo = saveRulesMetaInfo;
-    // }
 
     public IRuleIndex getNextIndex() {
         return nextIndex;
@@ -37,20 +27,14 @@ public class DecisionTableRuleNode  implements IDecisionTableRuleNode{
         }
     }
 
-    
-    
-    int[] collectRules()
-    {
-    	if (nextIndex == null)
-    		throw new RuntimeException("Internal Error: nextIndex is null when rules is null");
-    	
-    	return nextIndex.collectRules();
-    }
-    
-    
+
     public int[] getRules() {
-    	if (rules == null)
-    		return collectRules();
+    	if (rules == null) {
+            if (nextIndex == null)
+                throw new RuntimeException("Internal Error: nextIndex is null when rules is null");
+
+            return nextIndex.collectRules();
+        }
     	
         return rules;
     }

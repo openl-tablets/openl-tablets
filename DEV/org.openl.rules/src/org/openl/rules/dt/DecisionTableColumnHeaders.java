@@ -9,13 +9,13 @@ public enum DecisionTableColumnHeaders {
     RETURN("RET"),
     COLLECT_RETURN("CRET"),
     KEY("KEY"),;
-    
+
     private String key;
-    
-    private DecisionTableColumnHeaders(String key) {
+
+    DecisionTableColumnHeaders(String key) {
         this.key = key;
     }
-    
+
     public String getHeaderKey() {
         return key;
     }

@@ -6,10 +6,10 @@ import org.openl.source.IOpenSourceCodeModule;
 
 public interface IBaseConditionEvaluator {
 
-	IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition);
+    IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition);
 
-	IDomain<?> getRuleParameterDomain(IBaseCondition condition) throws DomainCanNotBeDefined;
+    IDomain<?> getRuleParameterDomain(IBaseCondition condition) throws DomainCanNotBeDefined;
 
-	IDomain<?> getConditionParameterDomain(int i, IBaseCondition condition) throws DomainCanNotBeDefined;
+    IDomain<?> getConditionParameterDomain(int i, IBaseCondition condition) throws DomainCanNotBeDefined;
 
 }

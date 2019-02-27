@@ -1,8 +1,3 @@
-/*
- * Created on Sep 10, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
 package org.openl.rules.dt;
 
 import org.openl.OpenL;
@@ -35,7 +30,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 @Executable
 public class DecisionTable extends ExecutableRulesMethod implements IDecisionTable {
-    
+
     private IBaseCondition[] conditionRows;
     private IBaseAction[] actionRows;
     /**
@@ -67,6 +62,10 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         return actionRows;
     }
 
+    public void setActionRows(IAction[] actionRows) {
+        this.actionRows = actionRows;
+    }
+
     public IDecisionTableAlgorithm getAlgorithm() {
         return algorithm;
     }
@@ -75,8 +74,16 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         return columns;
     }
 
+    public void setColumns(int columns) {
+        this.columns = columns;
+    }
+
     public IBaseCondition[] getConditionRows() {
         return conditionRows;
+    }
+
+    public void setConditionRows(IBaseCondition[] conditionRows) {
+        this.conditionRows = conditionRows;
     }
 
     public String getDisplayName(int mode) {
@@ -108,10 +115,14 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         return ruleRow;
     }
 
+    public void setRuleRow(RuleRow ruleRow) {
+        this.ruleRow = ruleRow;
+    }
+
     /**
-     * Returns logical table that contains rule column. The column will contain
-     * all return, action and condition cells for rule specified by index.
-     * 
+     * Returns logical table that contains rule column. The column will contain all return, action and condition cells
+     * for rule specified by index.
+     *
      * @param ruleIndex Index of rule.
      * @return ILogicalTable that contains rule column.
      */
@@ -124,22 +135,6 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
 
     public String getSourceUrl() {
         return getSyntaxNode().getUri();
-    }
-
-    public void setActionRows(IAction[] actionRows) {
-        this.actionRows = actionRows;
-    }
-
-    public void setColumns(int columns) {
-        this.columns = columns;
-    }
-
-    public void setConditionRows(IBaseCondition[] conditionRows) {
-        this.conditionRows = conditionRows;
-    }
-
-    public void setRuleRow(RuleRow ruleRow) {
-        this.ruleRow = ruleRow;
     }
 
     public void bindTable(IBaseCondition[] conditionRows,
@@ -178,8 +173,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
     }
 
     /**
-     * Check whether execution of decision table should be failed if no rule
-     * fired.
+     * Check whether execution of decision table should be failed if no rule fired.
      */
     public boolean shouldFailOnMiss() {
         if (getMethodProperties() != null) {

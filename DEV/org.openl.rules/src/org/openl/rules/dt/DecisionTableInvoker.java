@@ -18,7 +18,7 @@ import org.openl.vm.Tracer;
  */
 public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
 
-    public DecisionTableInvoker(DecisionTable decisionTable) {
+    DecisionTableInvoker(DecisionTable decisionTable) {
         super(decisionTable);
     }
 
@@ -33,18 +33,18 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
 
         boolean atLeastOneRuleFired = false;
         List<Integer> r = new ArrayList<Integer>();
-        while (rulesIntIterator.hasNext()){
+        while (rulesIntIterator.hasNext()) {
             atLeastOneRuleFired = true;
             r.add(rulesIntIterator.nextInt());
         }
         int[] rules = new int[r.size()];
         int i = 0;
-        for (Integer v : r){
+        for (Integer v : r) {
             rules[i++] = v;
         }
-        
+
         IBaseAction[] actions = getInvokableMethod().getActionRows();
-        
+
         Object returnValue = Tracer.invoke(new ActionInvoker(rules, actions), target, params, env, this);
         if (returnValue != null) {
             return returnValue;
@@ -52,8 +52,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
 
         if (!atLeastOneRuleFired && getInvokableMethod().shouldFailOnMiss()) {
 
-            String method = MethodUtil.printMethodWithParameterValues(getInvokableMethod().getMethod(),
-                params);
+            String method = MethodUtil.printMethodWithParameterValues(getInvokableMethod().getMethod(), params);
             String message = String.format("%s failed to match any rule condition", method);
 
             throw new FailOnMissException(message, getInvokableMethod());

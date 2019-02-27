@@ -62,10 +62,35 @@ import org.openl.types.java.JavaOpenClass;
 
 public class DecisionTableHelper {
 
+    private final static String RET1_COLUMN_NAME = DecisionTableColumnHeaders.RETURN.getHeaderKey() + "1";
+    private final static String CRET1_COLUMN_NAME = DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + "1";
+    private final static String KEY1_COLUMN_NAME = DecisionTableColumnHeaders.KEY.getHeaderKey() + "1";
+    private static final List<String> INT_TYPES = Arrays.asList("byte",
+        "short",
+        "int",
+        "java.lang.Byte",
+        "org.openl.meta.ByteValue",
+        "org.openl.meta.ShortValue",
+        "org.openl.meta.IntValue",
+        "org.openl.meta.BigIntegerValue",
+        "java.lang.Integer",
+        "org.openl.meta.IntegerValue");
+    private static final List<String> DOUBLE_TYPES = Arrays.asList("long",
+        "float",
+        "double",
+        "java.lang.Long",
+        "java.lang.Float",
+        "java.lang.Double",
+        "org.openl.meta.LongValue",
+        "org.openl.meta.FloatValue",
+        "org.openl.meta.DoubleValue",
+        "org.openl.meta.BigDecimalValue");
+    private static final List<String> CHAR_TYPES = Arrays.asList("char", "java.lang.Character");
+    private static final Pattern MAYBE_INT_ARRAY_PATTERN = Pattern.compile("\\s*(\\d+,)*\\d+\\s*");
+
     /**
      * Check if table is vertical.<br>
-     * Vertical table is when conditions are represented from left to right,
-     * table is reading from top to bottom.</br>
+     * Vertical table is when conditions are represented from left to right, table is reading from top to bottom.</br>
      * Example of vertical table:
      *
      * <table cellspacing="2">
@@ -109,7 +134,7 @@ public class DecisionTableHelper {
      * @param table checked table
      * @return <code>TRUE</code> if table is vertical.
      */
-    public static boolean looksLikeVertical(ILogicalTable table) {
+    static boolean looksLikeVertical(ILogicalTable table) {
 
         if (table.getWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             return true;
@@ -129,56 +154,52 @@ public class DecisionTableHelper {
         return table.getWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
     }
 
-    public static boolean isValidConditionHeader(String s) {
+    static boolean isValidConditionHeader(String s) {
         return s.length() >= 2 && s.charAt(0) == DecisionTableColumnHeaders.CONDITION.getHeaderKey()
             .charAt(0) && Character.isDigit(s.charAt(1));
     }
 
-    public static boolean isValidHConditionHeader(String headerStr) {
+    static boolean isValidHConditionHeader(String headerStr) {
         return headerStr.startsWith(
             DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey()) && headerStr.length() > 2 && Character
                 .isDigit(headerStr.charAt(2));
     }
 
-    public static boolean isValidMergedConditionHeader(String headerStr) {
+    static boolean isValidMergedConditionHeader(String headerStr) {
         return headerStr.startsWith(
             DecisionTableColumnHeaders.MERGED_CONDITION.getHeaderKey()) && headerStr.length() > 2 && Character
                 .isDigit(headerStr.charAt(2));
     }
 
-    public static boolean isValidActionHeader(String s) {
+    static boolean isValidActionHeader(String s) {
         return s.length() >= 2 && s.charAt(0) == DecisionTableColumnHeaders.ACTION.getHeaderKey().charAt(0) && Character
             .isDigit(s.charAt(1));
     }
 
-    public static boolean isValidRetHeader(String s) {
+    static boolean isValidRetHeader(String s) {
         return s.length() >= 3 && s.startsWith(
             DecisionTableColumnHeaders.RETURN.getHeaderKey()) && (s.length() == 3 || Character.isDigit(s.charAt(3)));
     }
 
-    public static boolean isValidKeyHeader(String s) {
+    static boolean isValidKeyHeader(String s) {
         return s.length() >= 3 && s.startsWith(
             DecisionTableColumnHeaders.KEY.getHeaderKey()) && (s.length() == 3 || Character.isDigit(s.charAt(3)));
     }
 
-    public static boolean isValidCRetHeader(String s) {
+    static boolean isValidCRetHeader(String s) {
         return s.length() >= 4 && s.startsWith(DecisionTableColumnHeaders.COLLECT_RETURN
             .getHeaderKey()) && (s.length() == 4 || Character.isDigit(s.charAt(4)));
     }
 
-    public static boolean isValidRuleHeader(String s) {
+    static boolean isValidRuleHeader(String s) {
         return s.equals(DecisionTableColumnHeaders.RULE.getHeaderKey());
     }
 
-    public static boolean isActionHeader(String s) {
-        return isValidActionHeader(s) || isValidRetHeader(s) || isValidCRetHeader(s) || isValidKeyHeader(s);
-    }
-
-    public static boolean isConditionHeader(String s) {
+    static boolean isConditionHeader(String s) {
         return isValidConditionHeader(s) || isValidHConditionHeader(s) || isValidMergedConditionHeader(s);
     }
 
-    public static int countConditionsAndActions(ILogicalTable table) {
+    private static int countConditionsAndActions(ILogicalTable table) {
 
         int width = table.getWidth();
         int count = 0;
@@ -189,7 +210,8 @@ public class DecisionTableHelper {
 
             if (value != null) {
                 value = value.toUpperCase();
-                count += isValidConditionHeader(value) || isActionHeader(value) ? 1 : 0;
+                count += isValidConditionHeader(value) || isValidActionHeader(value) || isValidRetHeader(
+                    value) || isValidCRetHeader(value) || isValidKeyHeader(value) ? 1 : 0;
             }
         }
 
@@ -207,16 +229,14 @@ public class DecisionTableHelper {
     }
 
     /**
-     * Creates virtual headers for condition and return columns to load simple
-     * Decision Table as an usual Decision Table
+     * Creates virtual headers for condition and return columns to load simple Decision Table as an usual Decision Table
      *
      * @param decisionTable method description for simple Decision Table.
      * @param originalTable The original body of simple Decision Table.
-     * @param numberOfHcondition The number of horizontal conditions. In
-     *            SimpleRules it == 0 in SimpleLookups > 0
+     * @param numberOfHcondition The number of horizontal conditions. In SimpleRules it == 0 in SimpleLookups > 0
      * @return prepared usual Decision Table.
      */
-    public static ILogicalTable preprocessSimpleDecisionTable(TableSyntaxNode tableSyntaxNode,
+    static ILogicalTable preprocessSimpleDecisionTable(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             ILogicalTable originalTable,
             int numberOfHcondition,
@@ -290,12 +310,8 @@ public class DecisionTableHelper {
             bindingContext);
     }
 
-    private final static String RET1_COLUMN_NAME = DecisionTableColumnHeaders.RETURN.getHeaderKey() + "1";
-    private final static String CRET1_COLUMN_NAME = DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + "1";
-    private final static String KEY1_COLUMN_NAME = DecisionTableColumnHeaders.KEY.getHeaderKey() + "1";
-
     private static boolean isCompoundReturnType(IOpenClass compoundType) {
-        if (compoundType.getConstructor(new IOpenClass[] {}) == null) {
+        if (compoundType.getConstructor(IOpenClass.EMPTY) == null) {
             return false;
         }
 
@@ -685,8 +701,9 @@ public class DecisionTableHelper {
                     grid.setCellValue(firstReturnColumn, 1, "extraRet");
                     String componentClassName = decisionTable.getType().getComponentClass().getName();
                     if (decisionTable.getType().getAggregateInfo() != null) {
-                        IOpenClass componentOpenClass = decisionTable.getType().getAggregateInfo().getComponentType(
-                            decisionTable.getType());
+                        IOpenClass componentOpenClass = decisionTable.getType()
+                            .getAggregateInfo()
+                            .getComponentType(decisionTable.getType());
                         if (componentOpenClass != null) {
                             componentClassName = componentOpenClass.getName();
                         }
@@ -734,8 +751,9 @@ public class DecisionTableHelper {
                 } else {
                     if (!bindingContext.isExecutionMode()) {
                         ICell cell = originalTable.getSource().getCell(firstReturnColumn, 0);
-                        String description = "Return: " + decisionTable.getHeader().getType().getDisplayName(
-                            INamedThing.SHORT);
+                        String description = "Return: " + decisionTable.getHeader()
+                            .getType()
+                            .getDisplayName(INamedThing.SHORT);
 
                         writeMetaInfo(tableSyntaxNode, cell, description);
                     }
@@ -925,72 +943,6 @@ public class DecisionTableHelper {
             }
             j++;
         }
-    }
-
-    private final static class Condition {
-        int parameterIndex;
-        String description;
-        IOpenMethod[] methodsChain;
-        int column;
-
-        public Condition(int parameterIndex) {
-            this.parameterIndex = parameterIndex;
-        }
-
-        public Condition(int parameterIndex, String description, IOpenMethod[] methodsChain, int column) {
-            this.parameterIndex = parameterIndex;
-            this.description = description;
-            this.methodsChain = methodsChain;
-            this.column = column;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public int getParameterIndex() {
-            return parameterIndex;
-        }
-
-        public IOpenMethod[] getMethodsChain() {
-            return methodsChain;
-        }
-
-        public int getColumn() {
-            return column;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((description == null) ? 0 : description.hashCode());
-            result = prime * result + Arrays.hashCode(methodsChain);
-            result = prime * result + parameterIndex;
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            Condition other = (Condition) obj;
-            if (description == null) {
-                if (other.description != null)
-                    return false;
-            } else if (!description.equals(other.description))
-                return false;
-            if (!Arrays.equals(methodsChain, other.methodsChain))
-                return false;
-            if (parameterIndex != other.parameterIndex)
-                return false;
-            return true;
-        }
-
     }
 
     private static Condition[] findConditionsForParameters(TableSyntaxNode tableSyntaxNode,
@@ -1194,42 +1146,15 @@ public class DecisionTableHelper {
         return conditions;
     }
 
-    private static final List<String> INT_TYPES = Arrays.asList("byte",
-        "short",
-        "int",
-        "java.lang.Byte",
-        "org.openl.meta.ByteValue",
-        "org.openl.meta.ShortValue",
-        "org.openl.meta.IntValue",
-        "org.openl.meta.BigIntegerValue",
-        "java.lang.Integer",
-        "org.openl.meta.IntegerValue");
-
-    private static final List<String> DOUBLE_TYPES = Arrays.asList("long",
-        "float",
-        "double",
-        "java.lang.Long",
-        "java.lang.Float",
-        "java.lang.Double",
-        "org.openl.meta.LongValue",
-        "org.openl.meta.FloatValue",
-        "org.openl.meta.DoubleValue",
-        "org.openl.meta.BigDecimalValue");
-
-    private static final List<String> CHAR_TYPES = Arrays.asList("char", "java.lang.Character");
-
-    private static final Pattern MAYBE_INT_ARRAY_PATTERN = Pattern.compile("\\s*(\\d+,)*\\d+\\s*");
-
     /**
-     * Check type of condition values. If condition values are complex(Range,
-     * Array) then types of complex values will be returned
-     * 
+     * Check type of condition values. If condition values are complex(Range, Array) then types of complex values will
+     * be returned
+     *
      * @param originalTable The original body of simple Decision Table.
      * @param column The number of a condition
      * @param type The type of an input parameter
      * @param isThatVCondition If condition is vertical value = true
-     * @param vColumnCounter Counter of vertical conditions. Needed for
-     *            calculating position of horizontal condition
+     * @param vColumnCounter Counter of vertical conditions. Needed for calculating position of horizontal condition
      * @return type of condition values
      */
     private static Pair<String, IOpenClass> checkTypeOfValues(IBindingContext bindingContext,
@@ -1357,39 +1282,35 @@ public class DecisionTableHelper {
         return createVirtualGrid(sheet);
     }
 
-    public static boolean isSimpleDecisionTableOrSmartDecisionTable(TableSyntaxNode tableSyntaxNode) {
-        return isSimpleDecisionTable(tableSyntaxNode) || isSmartDecisionTable(tableSyntaxNode);
+    static boolean isSimpleDecisionTableOrSmartDecisionTable(TableSyntaxNode tableSyntaxNode) {
+        String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
+
+        return IXlsTableNames.SIMPLE_DECISION_TABLE.equals(dtType) || isSmartDecisionTable(tableSyntaxNode);
     }
 
-    public static boolean isCollectDecisionTable(TableSyntaxNode tableSyntaxNode) {
+    static boolean isCollectDecisionTable(TableSyntaxNode tableSyntaxNode) {
         return tableSyntaxNode.getHeader().isCollect();
     }
 
-    public static boolean isSimpleDecisionTable(TableSyntaxNode tableSyntaxNode) {
-        String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
-
-        return IXlsTableNames.SIMPLE_DECISION_TABLE.equals(dtType);
-    }
-
-    public static boolean isSmartDecisionTable(TableSyntaxNode tableSyntaxNode) {
+    static boolean isSmartDecisionTable(TableSyntaxNode tableSyntaxNode) {
         String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
 
         return IXlsTableNames.SMART_DECISION_TABLE.equals(dtType);
     }
 
-    public static boolean isSmartSimpleLookupTable(TableSyntaxNode tableSyntaxNode) {
+    static boolean isSmartSimpleLookupTable(TableSyntaxNode tableSyntaxNode) {
         String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
 
         return IXlsTableNames.SMART_DECISION_LOOKUP.equals(dtType);
     }
 
-    public static boolean isSimpleLookupTable(TableSyntaxNode tableSyntaxNode) {
+    static boolean isSimpleLookupTable(TableSyntaxNode tableSyntaxNode) {
         String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
 
         return IXlsTableNames.SIMPLE_DECISION_LOOKUP.equals(dtType) || isSmartSimpleLookupTable(tableSyntaxNode);
     }
 
-    public static int countHConditions(ILogicalTable table) {
+    static int countHConditions(ILogicalTable table) {
         int width = table.getWidth();
         int cnt = 0;
 
@@ -1409,7 +1330,7 @@ public class DecisionTableHelper {
         return cnt;
     }
 
-    public static int countVConditions(ILogicalTable table) {
+    static int countVConditions(ILogicalTable table) {
         int width = table.getWidth();
         int cnt = 0;
 
@@ -1452,6 +1373,75 @@ public class DecisionTableHelper {
             mockWorkbookSource);
 
         return new XlsSheetGridModel(mockSheetSource);
+    }
+
+    private final static class Condition {
+        int parameterIndex;
+        String description;
+        IOpenMethod[] methodsChain;
+        int column;
+
+        Condition(int parameterIndex) {
+            this.parameterIndex = parameterIndex;
+        }
+
+        Condition(int parameterIndex, String description, IOpenMethod[] methodsChain, int column) {
+            this.parameterIndex = parameterIndex;
+            this.description = description;
+            this.methodsChain = methodsChain;
+            this.column = column;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        int getParameterIndex() {
+            return parameterIndex;
+        }
+
+        IOpenMethod[] getMethodsChain() {
+            return methodsChain;
+        }
+
+        public int getColumn() {
+            return column;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((description == null) ? 0 : description.hashCode());
+            result = prime * result + Arrays.hashCode(methodsChain);
+            result = prime * result + parameterIndex;
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            Condition other = (Condition) obj;
+            if (description == null) {
+                if (other.description != null)
+                    return false;
+            } else if (!description.equals(other.description)) {
+                return false;
+            }
+            if (!Arrays.equals(methodsChain, other.methodsChain)) {
+                return false;
+            }
+            return parameterIndex == other.parameterIndex;
+        }
+
     }
 
 }

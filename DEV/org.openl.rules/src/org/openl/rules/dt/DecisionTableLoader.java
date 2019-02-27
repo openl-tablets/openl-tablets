@@ -1,9 +1,3 @@
-/*
- * Created on Oct 8, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.rules.dt;
 
 import java.util.ArrayList;
@@ -19,8 +13,6 @@ import org.openl.rules.dt.DTScale.RowScale;
 import org.openl.rules.dt.element.Action;
 import org.openl.rules.dt.element.ActionType;
 import org.openl.rules.dt.element.Condition;
-import org.openl.rules.dt.element.IAction;
-import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -38,17 +30,17 @@ import org.openl.types.IOpenClass;
  * 
  */
 public class DecisionTableLoader {
-    
+
     /**
      * protected modified is for tests access.
      */
-    protected static final String EMPTY_BODY = "Decision table must contain body section.";
+    static final String EMPTY_BODY = "Decision table must contain body section.";
 
     private int columnsNumber;
 
     private RuleRow ruleRow;
-    
-    DTInfo info;
+
+    private DTInfo info;
 
     private List<IBaseCondition> conditions = new ArrayList<IBaseCondition>();
     private List<IBaseAction> actions = new ArrayList<IBaseAction>();
@@ -66,20 +58,20 @@ public class DecisionTableLoader {
     }
 
     private RowScale getConditionScale(String name) {
-    	if (DecisionTableHelper.isValidHConditionHeader(name.toUpperCase()) )
-    		return info.getScale().getHScale();
-		return info.getScale().getVScale();
-	}
+        if (DecisionTableHelper.isValidHConditionHeader(name.toUpperCase()))
+            return info.getScale().getHScale();
+        return info.getScale().getVScale();
+    }
 
-	private void addReturnAction(String name, int row, ILogicalTable table) {
+    private void addReturnAction(String name, int row, ILogicalTable table) {
         actions.add(new Action(name, row, table, ActionType.RETURN, DTScale.getStandardScale()));
     }
-	
-	private void addCollectReturnKeyAction(String name, int row, ILogicalTable table) {
+
+    private void addCollectReturnKeyAction(String name, int row, ILogicalTable table) {
         actions.add(new Action(name, row, table, ActionType.COLLECT_RETURN_KEY, DTScale.getStandardScale()));
     }
-	
-	private void addCollectReturnAction(String name, int row, ILogicalTable table) {
+
+    private void addCollectReturnAction(String name, int row, ILogicalTable table) {
         actions.add(new Action(name, row, table, ActionType.COLLECT_RETURN, DTScale.getStandardScale()));
     }
 
@@ -90,13 +82,14 @@ public class DecisionTableLoader {
             throw SyntaxNodeExceptionUtils.createError("Only one rule row/column allowed",
                 new GridCellSourceCodeModule(table.getRow(row).getSource(),
                     IDecisionTableConstants.INFO_COLUMN_INDEX,
-                    0, bindingContext));
+                    0,
+                    bindingContext));
         }
 
         ruleRow = new RuleRow(row, table);
     }
 
-    public DecisionTable loadAndBind(TableSyntaxNode tableSyntaxNode,
+    public void loadAndBind(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             OpenL openl,
             ModuleOpenClass module,
@@ -104,15 +97,14 @@ public class DecisionTableLoader {
 
         loadTableStructure(tableSyntaxNode, decisionTable, bindingContext);
 
-        ICondition[] conditionsArray = conditions.toArray(new ICondition[conditions.size()]);
-        IAction[] actionsArray = actions.toArray(new IAction[actions.size()]);
+        IBaseCondition[] conditionsArray = conditions.toArray(IBaseCondition.EMPTY);
+        IBaseAction[] actionsArray = actions.toArray(IBaseAction.EMPTY);
 
         decisionTable.bindTable(conditionsArray, actionsArray, ruleRow, openl, module, bindingContext, columnsNumber);
-
-        return decisionTable;
     }
 
-    private void loadTableStructure(TableSyntaxNode tableSyntaxNode, DecisionTable decisionTable,
+    private void loadTableStructure(TableSyntaxNode tableSyntaxNode,
+            DecisionTable decisionTable,
             IBindingContext bindingContext) throws SyntaxNodeException {
 
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
@@ -127,25 +119,26 @@ public class DecisionTableLoader {
         try {
             tableBody = preprocessSimpleDecisionTable(tableSyntaxNode, decisionTable, tableBody, bindingContext);
         } catch (OpenLCompilationException e) {
-            throw SyntaxNodeExceptionUtils.createError("Can't create a header for a Simple Rules or Lookup Table", e, tableSyntaxNode);
+            throw SyntaxNodeExceptionUtils
+                .createError("Can't create a header for a Simple Rules or Lookup Table", e, tableSyntaxNode);
         }
 
         ILogicalTable toParse = tableBody;
-        
+
         // process lookup decision table.
         //
-        
+
         int nHConditions = countHConditions(tableBody);
         int nVConditions = countVConditions(tableBody);
         if (nHConditions > 0) {
             try {
-            	DecisionTableLookupConvertor dtlc = new DecisionTableLookupConvertor();
-            	
+                DecisionTableLookupConvertor dtlc = new DecisionTableLookupConvertor();
+
                 IGridTable convertedTable = dtlc.convertTable(tableBody);
                 ILogicalTable offsetConvertedTable = LogicalTableHelper.logicalTable(convertedTable);
                 toParse = offsetConvertedTable.transpose();
                 info = new DTInfo(nHConditions, nVConditions, dtlc.getScale());
-                
+
             } catch (Exception e) {
                 throw SyntaxNodeExceptionUtils.createError("Can't convert table", e, tableSyntaxNode);
             }
@@ -155,15 +148,13 @@ public class DecisionTableLoader {
             //
             toParse = tableBody.transpose();
         }
-        
+
         if (needToUnmergeFirstRow(toParse))
-        	toParse = unmergeFirstRow(toParse);
-        
-        
+            toParse = unmergeFirstRow(toParse);
+
         if (info == null)
-        	info = new DTInfo(nHConditions, nVConditions);
+            info = new DTInfo(nHConditions, nVConditions);
         decisionTable.setDtInfo(info);
-        
 
         if (toParse.getWidth() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             throw SyntaxNodeExceptionUtils.createError("Invalid structure of decision table", tableSyntaxNode);
@@ -178,19 +169,19 @@ public class DecisionTableLoader {
         for (int i = 0; i < toParse.getHeight(); i++) {
             loadRow(i, toParse, decisionTable, bindingContext);
         }
-        
+
         validateMapReturnType(decisionTable, tableSyntaxNode);
     }
-    
-    
-    private void validateMapReturnType(DecisionTable decisionTable, TableSyntaxNode tableSyntaxNode) throws SyntaxNodeException{
+
+    private void validateMapReturnType(DecisionTable decisionTable,
+            TableSyntaxNode tableSyntaxNode) throws SyntaxNodeException {
         if (Map.class.isAssignableFrom(decisionTable.getType().getInstanceClass())) {
-            if (hasCollectReturnAction && !hasCollectReturnKeyAction){
+            if (hasCollectReturnAction && !hasCollectReturnKeyAction) {
                 throw SyntaxNodeExceptionUtils.createError(
                     "Invalid Decision Table headers: At least one KEY header is required.",
                     tableSyntaxNode);
             }
-            if (hasCollectReturnKeyAction && !hasCollectReturnAction){
+            if (hasCollectReturnKeyAction && !hasCollectReturnAction) {
                 throw SyntaxNodeExceptionUtils.createError(
                     "Invalid Decision Table headers: At least one CRET header is required.",
                     tableSyntaxNode);
@@ -199,27 +190,29 @@ public class DecisionTableLoader {
     }
 
     private ILogicalTable unmergeFirstRow(ILogicalTable toParse) {
-    	ILogicalTable unmerged  = LogicalTableHelper.unmergeColumns(toParse, IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, toParse.getWidth());
-    	 
-		return unmerged;
-	}
 
-	private boolean needToUnmergeFirstRow(ILogicalTable toParse) {
-		String header = getHeaderStr(0, toParse);
-		
-		return DecisionTableHelper.isConditionHeader(header)  && !DecisionTableHelper.isValidMergedConditionHeader(header);
-	}
+        return LogicalTableHelper
+            .unmergeColumns(toParse, IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, toParse.getWidth());
+    }
 
-	/**
-     * Put subtable, that will be displayed at the business view.<br> 
-     * It must be without method header, properties section, conditions and return headers. 
+    private boolean needToUnmergeFirstRow(ILogicalTable toParse) {
+        String header = getHeaderStr(0, toParse);
+
+        return DecisionTableHelper
+            .isConditionHeader(header) && !DecisionTableHelper.isValidMergedConditionHeader(header);
+    }
+
+    /**
+     * Put subtable, that will be displayed at the business view.<br>
+     * It must be without method header, properties section, conditions and return headers.
      * 
      * @param tableSyntaxNode
      */
     private void putTableForBusinessView(TableSyntaxNode tableSyntaxNode) {
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
-        
-        if (DecisionTableHelper.isSimpleDecisionTableOrSmartDecisionTable(tableSyntaxNode) || DecisionTableHelper.isSimpleLookupTable(tableSyntaxNode)) {
+
+        if (DecisionTableHelper.isSimpleDecisionTableOrSmartDecisionTable(tableSyntaxNode) || DecisionTableHelper
+            .isSimpleLookupTable(tableSyntaxNode)) {
             // if DT is simple, its body doesn`t contain conditions and return headers.
             // so put the body as it is.
             tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
@@ -233,12 +226,12 @@ public class DecisionTableLoader {
                 // table is horizontal, so remove service columns.
                 businessView = tableBody.getColumns(IDecisionTableConstants.SERVICE_COLUMNS_NUMBER - 1);
             }
-            
+
             tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, businessView);
         }
-        
+
     }
-    
+
     private int getNumberOfHConditions(ILogicalTable tableBody) {
         int h = tableBody.getSource().getWidth();
         int d = tableBody.getSource().getCell(0, 0).getHeight();
@@ -250,25 +243,41 @@ public class DecisionTableLoader {
         }
         return k;
     }
-    
+
     /**
      * Adds conditions and return headers to simple Decision table body.<br>
      * Supports simple Desicion Table and simple lookup Desicion Table.
      * 
-     * @param tableSyntaxNode 
+     * @param tableSyntaxNode
      * @param decisionTable method description for simple Desicion Table.
      * @param tableBody original simple Decision Table body
      * @return table body with added conditions and return headers.
      */
-    private ILogicalTable preprocessSimpleDecisionTable(TableSyntaxNode tableSyntaxNode, DecisionTable decisionTable,
-            ILogicalTable tableBody, IBindingContext bindingContext) throws OpenLCompilationException {
-        
+    private ILogicalTable preprocessSimpleDecisionTable(TableSyntaxNode tableSyntaxNode,
+            DecisionTable decisionTable,
+            ILogicalTable tableBody,
+            IBindingContext bindingContext) throws OpenLCompilationException {
+
         if (DecisionTableHelper.isSimpleDecisionTableOrSmartDecisionTable(tableSyntaxNode)) {
-            tableBody = DecisionTableHelper.preprocessSimpleDecisionTable(tableSyntaxNode, decisionTable, tableBody, 0, tableBody.getSource().getCell(0, 0).getHeight(), DecisionTableHelper.isSmartDecisionTable(tableSyntaxNode), DecisionTableHelper.isCollectDecisionTable(tableSyntaxNode), bindingContext);
+            tableBody = DecisionTableHelper.preprocessSimpleDecisionTable(tableSyntaxNode,
+                decisionTable,
+                tableBody,
+                0,
+                tableBody.getSource().getCell(0, 0).getHeight(),
+                DecisionTableHelper.isSmartDecisionTable(tableSyntaxNode),
+                DecisionTableHelper.isCollectDecisionTable(tableSyntaxNode),
+                bindingContext);
         } else if (DecisionTableHelper.isSimpleLookupTable(tableSyntaxNode)) {
-            tableBody = DecisionTableHelper.preprocessSimpleDecisionTable(tableSyntaxNode, decisionTable, tableBody, getNumberOfHConditions(tableBody), tableBody.getSource().getCell(0, 0).getHeight(), DecisionTableHelper.isSmartSimpleLookupTable(tableSyntaxNode), DecisionTableHelper.isCollectDecisionTable(tableSyntaxNode), bindingContext);
+            tableBody = DecisionTableHelper.preprocessSimpleDecisionTable(tableSyntaxNode,
+                decisionTable,
+                tableBody,
+                getNumberOfHConditions(tableBody),
+                tableBody.getSource().getCell(0, 0).getHeight(),
+                DecisionTableHelper.isSmartSimpleLookupTable(tableSyntaxNode),
+                DecisionTableHelper.isCollectDecisionTable(tableSyntaxNode),
+                bindingContext);
         }
-        
+
         return tableBody;
     }
 
@@ -279,24 +288,24 @@ public class DecisionTableLoader {
     private int countVConditions(ILogicalTable tableBody) {
         return DecisionTableHelper.countVConditions(tableBody);
     }
-    
-    
-    private String getHeaderStr(int row, ILogicalTable table)
-    {
+
+    private String getHeaderStr(int row, ILogicalTable table) {
         String headerStr = table.getRow(row)
-                .getSource()
-                .getCell(IDecisionTableConstants.INFO_COLUMN_INDEX, 0)
-                .getStringValue();
+            .getSource()
+            .getCell(IDecisionTableConstants.INFO_COLUMN_INDEX, 0)
+            .getStringValue();
 
-            if (headerStr == null) {
-                return "";
-            }
+        if (headerStr == null) {
+            return "";
+        }
 
-            return headerStr.toUpperCase();
+        return headerStr.toUpperCase();
     }
-    
-    
-    private void loadRow(int row, ILogicalTable table, DecisionTable decisionTable, IBindingContext bindingContext) throws SyntaxNodeException {
+
+    private void loadRow(int row,
+            ILogicalTable table,
+            DecisionTable decisionTable,
+            IBindingContext bindingContext) throws SyntaxNodeException {
 
         String header = getHeaderStr(row, table);
 
@@ -310,7 +319,7 @@ public class DecisionTableLoader {
             addCollectReturnKeyAction(header, row, table);
             hasCollectReturnKeyAction = true;
         } else if (DecisionTableHelper.isValidRetHeader(header)) {
-            if (hasCollectReturnAction){
+            if (hasCollectReturnAction) {
                 throw SyntaxNodeExceptionUtils.createError(
                     "Invalid Decision Table header: " + header + ". Headers '" + firstUsedReturnActionHeader + "' and '" + header + "' can't be used together.",
                     new GridCellSourceCodeModule(table.getRow(row).getSource(),
@@ -322,7 +331,7 @@ public class DecisionTableLoader {
             saveFirstUsedReturnActionHeader(header);
             hasReturnAction = true;
         } else if (DecisionTableHelper.isValidCRetHeader(header)) {
-            if (hasReturnAction){
+            if (hasReturnAction) {
                 throw SyntaxNodeExceptionUtils.createError(
                     "Invalid Decision Table header: " + header + ". Headers '" + firstUsedReturnActionHeader + "' and '" + header + "' can't be used together.",
                     new GridCellSourceCodeModule(table.getRow(row).getSource(),
@@ -332,22 +341,22 @@ public class DecisionTableLoader {
             }
             hasCollectReturnAction = true;
             saveFirstUsedReturnActionHeader(header);
-            if (validateCollectReturnType(decisionTable)){
+            if (validateCollectReturnType(decisionTable)) {
                 addCollectReturnAction(header, row, table);
-            }else{
-                throw SyntaxNodeExceptionUtils.createError("Incompatible method return type with '" + header + "' header.",
+            } else {
+                throw SyntaxNodeExceptionUtils.createError(
+                    "Incompatible method return type with '" + header + "' header.",
                     new GridCellSourceCodeModule(table.getRow(row).getSource(),
                         IDecisionTableConstants.INFO_COLUMN_INDEX,
-                        0, bindingContext));
+                        0,
+                        bindingContext));
             }
-        } else if (ParserUtils.isBlankOrCommented(header)) {
-            // do nothing
-        } else {
+        } else if (!ParserUtils.isBlankOrCommented(header)) {
             throw SyntaxNodeExceptionUtils.createError("Invalid Decision Table header: " + header,
                 new GridCellSourceCodeModule(table.getRow(row).getSource(),
                     IDecisionTableConstants.INFO_COLUMN_INDEX,
-                    0, bindingContext));
-
+                    0,
+                    bindingContext));
         }
     }
 
@@ -366,11 +375,8 @@ public class DecisionTableLoader {
         if (Collection.class.isAssignableFrom(type.getInstanceClass())) {
             return true;
         }
-        if (Map.class.isAssignableFrom(type.getInstanceClass())) {
-            return true;
-        }
+        return Map.class.isAssignableFrom(type.getInstanceClass());
 
-        return false;
     }
 
 }
