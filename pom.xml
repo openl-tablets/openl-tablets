@@ -95,7 +95,7 @@
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
         <surefire.argLine>-Xms8m -Xmx80m</surefire.argLine>
-        <invoker.mavenOpts>-Xms32m -Xmx64m</invoker.mavenOpts>
+        <invoker.mavenOpts>-Xms32m -Xmx80m</invoker.mavenOpts>
         <openl.home>${project.build.directory}/openl-test</openl.home>
     </properties>
 
