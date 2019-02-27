@@ -63,7 +63,7 @@ import org.xml.sax.InputSource;
 @Path("/repo/")
 @Produces(MediaType.APPLICATION_JSON)
 public class RepositoryService {
-    private final Logger log = LoggerFactory.getLogger(RepositoryService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RepositoryService.class);
 
     @Autowired
     private MultiUserWorkspaceManager workspaceManager;
@@ -196,7 +196,7 @@ public class RepositoryService {
 
                     IOUtils.copyAndClose(IOUtils.toInputStream(modifiedRules), new FileOutputStream(rules));
                 } catch (Exception e) {
-                    log.warn(e.getMessage(), e);
+                    LOG.warn(e.getMessage(), e);
                 }
             }
 
