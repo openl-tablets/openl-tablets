@@ -545,16 +545,21 @@ public class RepositoryTreeController {
     }
 
     private String validateProjectName() {
-        String msg = null;
-        if (StringUtils.isBlank(projectName)) {
-            msg = "Project name must not be empty.";
-        } else if (!NameChecker.checkName(projectName)) {
-            msg = "Specified name is not a valid project name." + " " + NameChecker.BAD_NAME_MSG;
-        } else if (userWorkspace
-            .hasProject(projectName)) {
-            msg = "Cannot create project because project with such name already exists.";
+        try {
+            String msg = null;
+            if (StringUtils.isBlank(projectName)) {
+                msg = "Project name must not be empty.";
+            } else if (!NameChecker.checkName(projectName)) {
+                msg = "Specified name is not a valid project name." + " " + NameChecker.BAD_NAME_MSG;
+            } else if (userWorkspace
+                .hasProject(projectName)) {
+                msg = "Cannot create project because project with such name already exists.";
+            }
+            return msg;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return "Internal error is occurred: " + e.getMessage();
         }
-        return msg;
     }
 
     /*
