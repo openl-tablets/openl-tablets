@@ -145,12 +145,6 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     @Override
-    public void refresh() {
-        super.refresh();
-        setFileData(null);
-    }
-
-    @Override
     public LockInfo getLockInfo() {
         return lockEngine.getLockInfo(getName());
     }

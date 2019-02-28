@@ -712,6 +712,8 @@ public class RepositoryTreeController {
                 if (repositoryTreeState.isHideDeleted() || ((UserWorkspaceProject) projectArtefact).isLocalOnly()) {
                     repositoryTreeState.deleteNode(selectedNode);
                     repositoryTreeState.invalidateSelection();
+                } else {
+                    repositoryTreeState.refreshSelectedNode();
                 }
             }
             activeProjectNode = null;

@@ -71,6 +71,12 @@ public abstract class UserWorkspaceProject extends AProject {
         delete(user);
     }
 
+    @Override
+    public void refresh() {
+        super.refresh();
+        setFileData(null);
+    }
+
     // TODO Cache status in the field
     public ProjectStatus getStatus() {
         if (isLocalOnly()) {
