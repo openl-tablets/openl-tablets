@@ -558,7 +558,7 @@ public class RepositoryTreeController {
             return msg;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return "Internal error is occurred: " + e.getMessage();
+            return "Internal error: " + e.getMessage();
         }
     }
 
