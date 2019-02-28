@@ -410,7 +410,7 @@
             </activation>
             <properties>
                 <sonar/>
-                <invoker.timeoutInSeconds>30</invoker.timeoutInSeconds>
+                <invoker.timeoutInSeconds>40</invoker.timeoutInSeconds>
             </properties>
             <build>
                 <plugins>
@@ -420,6 +420,9 @@
                         <version>0.8.3</version>
                         <configuration>
                             <propertyName>jacoco.argLine</propertyName>
+                            <includes>
+                                <include>org/openl/**/*</include>
+                            </includes>
                             <excludes>
                                 <exclude>org/openl/generated/**/*</exclude>
                             </excludes>
