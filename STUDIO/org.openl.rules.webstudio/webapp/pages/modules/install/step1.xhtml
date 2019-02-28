@@ -11,6 +11,12 @@
         <div class="wizard-page">
             <div class="wizard-page-container">
                 <h:form>
+                    <h:panelGroup styleClass="messages" layout="block"
+                                  rendered="#{!empty facesContext.maximumSeverity}">
+                        <h:messages infoClass="success" errorClass="error" showDetail="true"
+                                    showSummary="false" tooltip="true" globalOnly="true" />
+                    </h:panelGroup>
+
                     <div class="wizard-block">
                         <h3>Enter a WebStudio working directory:
                             <div class="field-description">
