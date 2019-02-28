@@ -61,6 +61,9 @@ public class RepositoryConfiguration {
     private void load() {
         String factoryClassName = configManager.getStringProperty(REPOSITORY_FACTORY);
         repositoryType = RepositoryType.findByFactory(factoryClassName);
+        if (repositoryType == null) {
+            throw new IllegalArgumentException("Unsupported repository type. Repository factory: " + factoryClassName);
+        }
         name = configManager.getStringProperty(REPOSITORY_NAME);
 
         settings = createSettings(repositoryType);

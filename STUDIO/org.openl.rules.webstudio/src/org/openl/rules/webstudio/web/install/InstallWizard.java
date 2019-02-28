@@ -135,6 +135,7 @@ public class InstallWizard {
     }
 
     public String next() {
+        ConfigurationManager previousConfig = systemConfig;
         try {
             // Validations
             if (step == 2) {
@@ -217,6 +218,7 @@ public class InstallWizard {
                 FacesUtils.addErrorMessage("Cannot save the configuration. Check the logs for details.");
             }
             step--;
+            systemConfig = previousConfig;
             return null;
         }
     }
