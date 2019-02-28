@@ -52,7 +52,7 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
     }
 
     public boolean isIndexed() {
-        return true;
+        return false;
     }
 
     public ARuleIndex makeIndex(ICondition condition, IIntIterator iterator) {
@@ -227,6 +227,6 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
 
     @Override
     public int getPriority() {
-        return 10;
+        return 100;
     }
 }

@@ -51,7 +51,7 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
     }
 
     public boolean isIndexed() {
-        return true;
+        return false;
     }
 
     public ARuleIndex makeIndex(ICondition condition, IIntIterator iterator) {
@@ -186,6 +186,6 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
 
     @Override
     public int getPriority() {
-        return 0;
+        return 100;
     }
 }
