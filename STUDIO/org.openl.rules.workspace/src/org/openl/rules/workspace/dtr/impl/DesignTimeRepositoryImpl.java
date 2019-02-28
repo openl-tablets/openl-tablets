@@ -13,10 +13,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.ResourceTransformer;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FolderRepository;
-import org.openl.rules.repository.api.Listener;
-import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -208,10 +205,44 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     public AProject getProject(String name, CommonVersion version) {
-        String key = String.format("%s:%s", name, version.getVersionName());
+        String repoVersion = version.getVersionName();
+        String key = String.format("%s:%s", name, repoVersion);
         AProject project = projectsVersions.get(key);
+
         if (project == null) {
-            project = new AProject(getRepository(), rulesLocation + name, version.getVersionName());
+            Repository repository = getRepository();
+            String projectPath = rulesLocation + name;
+
+            if (repository.supports().branches()) {
+                try {
+                    FileData fileData = repository.checkHistory(projectPath, repoVersion);
+                    if (fileData != null) {
+                        project = new AProject(repository, fileData);
+                    } else {
+                        BranchRepository branchRepository = (BranchRepository) repository;
+                        List<String> branches = branchRepository.getBranches(name);
+                        for (String branch : branches) {
+                            BranchRepository secondaryBranch = branchRepository.forBranch(branch);
+                            fileData = secondaryBranch.checkHistory(projectPath, repoVersion);
+                            if (fileData != null) {
+                                project = new AProject(secondaryBranch, fileData);
+                                break;
+                            }
+                        }
+
+                        if (project == null) {
+                            log.warn("Can't find the project '{}' which version is '{}'.", name, repoVersion);
+                            project = new AProject(repository, projectPath, repoVersion);
+                        }
+                    }
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                    project = new AProject(repository, projectPath, repoVersion);
+                }
+            } else {
+                project = new AProject(repository, projectPath, repoVersion);
+            }
+
             projectsVersions.put(key, project);
         }
         return project;
