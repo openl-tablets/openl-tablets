@@ -55,7 +55,7 @@ public class DeploymentManager implements InitializingBean {
         repositoryFactoryProxy.releaseRepository(repositoryConfigName);
     }
 
-    public Collection<String> getRepositoryConfigNames() {
+    Collection<String> getRepositoryConfigNames() {
         return deployers;
     }
 
@@ -127,8 +127,7 @@ public class DeploymentManager implements InitializingBean {
                         dest.setComment(project.getFileData().getComment());
 
                         if (designRepo.supports().folders()) {
-                            String projectPath = rulesPath + projectName + "/";
-                            archiveAndSave((FolderRepository) designRepo, projectPath, version, deployRepo, dest);
+                            archiveAndSave((FolderRepository) designRepo, rulesPath, projectName, version, deployRepo, dest);
                         } else {
                             FileItem srcPrj = designRepo.readHistory(rulesPath + projectName, version);
                             stream = srcPrj.getStream();
@@ -149,10 +148,10 @@ public class DeploymentManager implements InitializingBean {
         }
     }
 
-    private void archiveAndSave(FolderRepository designRepo, String projectPath, String version, Repository deployRepo, FileData dest) throws ProjectException {
+    private void archiveAndSave(FolderRepository designRepo, String rulesPath, String projectName, String version, Repository deployRepo, FileData dest) throws ProjectException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
-            RepositoryUtils.archive(designRepo, projectPath, version, out);
+            RepositoryUtils.archive(designRepo, rulesPath, projectName, version, out);
 
             dest.setSize(out.size());
 
@@ -180,15 +179,11 @@ public class DeploymentManager implements InitializingBean {
     }
 
     private String getApiVersion(ADeploymentProject deploymentConfiguration) {
-        Repository designRepo = designRepository.getRepository();
-
         for (ProjectDescriptor pd : deploymentConfiguration.getProjectDescriptors()) {
             try {
                 InputStream content = null;
                 try {
-                    String projectVersion = pd.getProjectVersion().getVersionName();
-                    String projectName = pd.getProjectName();
-                    AProject project = new AProject(designRepo, designRepository.getRulesLocation() + projectName, projectVersion);
+                    AProject project = designRepository.getProject(pd.getProjectName(), pd.getProjectVersion());
 
                     AProjectArtefact artifact = project.getArtefact(DeployUtils.RULES_DEPLOY_XML);
                     if (artifact instanceof AProjectResource) {

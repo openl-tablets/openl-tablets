@@ -121,7 +121,7 @@ public class RepositoryService {
     @GET
     @Path("project/{name}/{version}")
     @Produces("application/zip")
-    public Response getProject(@PathParam("name") String name, @PathParam("version") final String version) throws WorkspaceException {
+    public Response getProject(@PathParam("name") final String name, @PathParam("version") final String version) throws WorkspaceException {
         try {
             if (!isGranted(Privileges.VIEW_PROJECTS)) {
                 return Response.status(Status.FORBIDDEN).entity("Doesn't have VIEW privilege").build();
@@ -138,10 +138,12 @@ public class RepositoryService {
                     throw new FileNotFoundException("Project '" + name + "' not found.");
                 }
 
+                final String rulesPath = getDesignTimeRepository().getRulesLocation();
+
                 entity = new StreamingOutput() {
                     @Override
                     public void write(OutputStream out) throws IOException {
-                        RepositoryUtils.archive((FolderRepository) repository, projectPath + "/", version, out);
+                        RepositoryUtils.archive((FolderRepository) repository, rulesPath, name, version, out);
                     }
                 };
             } else {
