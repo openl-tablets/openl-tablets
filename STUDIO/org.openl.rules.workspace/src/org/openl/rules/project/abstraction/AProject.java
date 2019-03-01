@@ -155,6 +155,7 @@ public class AProject extends AProjectFolder {
     public void setFileData(FileData fileData) {
         super.setFileData(fileData);
         historyFileDatas = null;
+        lastHistoryVersion = null;
     }
 
     @Override
@@ -171,6 +172,7 @@ public class AProject extends AProjectFolder {
             throw new ProjectException("Project is absent or can't be deleted");
         }
         setFileData(null);
+        setHistoryVersion(null); // In some repository types new version is created, so we must change version to latest
     }
 
     public void delete(CommonUser user) throws ProjectException {
@@ -191,6 +193,7 @@ public class AProject extends AProjectFolder {
             throw new ProjectException("Resource is absent or can't be deleted");
         }
         setFileData(null);
+        setHistoryVersion(null); // In some repository types new version is created, so we must change version to latest
     }
 
     public void close(CommonUser user) throws ProjectException {
