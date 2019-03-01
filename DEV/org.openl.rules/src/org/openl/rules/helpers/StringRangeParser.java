@@ -4,6 +4,9 @@ import java.util.regex.Pattern;
 
 public final class StringRangeParser extends ARangeParser<String> {
 
+    public static final String MAX_VALUE = String.valueOf(Character.MAX_VALUE);
+    public static final String MIN_VALUE = " ";
+
     private static final StringRangeParser INSTANCE = new StringRangeParser();
 
     private final RangeParser[] parsers;
@@ -39,12 +42,12 @@ public final class StringRangeParser extends ARangeParser<String> {
 
         @Override
         public String getMinLeftBound() {
-            return null;
+            return MIN_VALUE;
         }
 
         @Override
         public String getMaxRightBound() {
-            return null;
+            return MAX_VALUE;
         }
     }
 

@@ -74,18 +74,18 @@ public class StringRangeTest {
         assertEquals(new StringRange("AA", "ZZ", BoundType.EXCLUDING, BoundType.INCLUDING), new StringRange("(AA .. ZZ]"));
         assertEquals(new StringRange("AA", "ZZ", BoundType.INCLUDING, BoundType.EXCLUDING), new StringRange("[AA .. ZZ)"));
 
-        assertEquals(new StringRange("AA", null, BoundType.INCLUDING, BoundType.INCLUDING), new StringRange("AA and more"));
-        assertEquals(new StringRange(null, "AA", BoundType.INCLUDING, BoundType.INCLUDING), new StringRange("AA or less"));
+        assertEquals(new StringRange("AA", StringRangeParser.MAX_VALUE, BoundType.INCLUDING, BoundType.INCLUDING), new StringRange("AA and more"));
+        assertEquals(new StringRange(StringRangeParser.MIN_VALUE, "AA", BoundType.INCLUDING, BoundType.INCLUDING), new StringRange("AA or less"));
 
-        assertEquals(new StringRange("AA", null, BoundType.EXCLUDING, BoundType.INCLUDING), new StringRange("more than AA"));
-        assertEquals(new StringRange(null, "ZZ", BoundType.INCLUDING, BoundType.EXCLUDING), new StringRange("less than ZZ"));
+        assertEquals(new StringRange("AA", StringRangeParser.MAX_VALUE, BoundType.EXCLUDING, BoundType.INCLUDING), new StringRange("more than AA"));
+        assertEquals(new StringRange(StringRangeParser.MIN_VALUE, "ZZ", BoundType.INCLUDING, BoundType.EXCLUDING), new StringRange("less than ZZ"));
 
-        assertEquals(new StringRange("AA", null, BoundType.INCLUDING, BoundType.INCLUDING), new StringRange(">= AA"));
-        assertEquals(new StringRange(null, "AA", BoundType.INCLUDING, BoundType.INCLUDING), new StringRange("<= AA"));
+        assertEquals(new StringRange("AA", StringRangeParser.MAX_VALUE, BoundType.INCLUDING, BoundType.INCLUDING), new StringRange(">= AA"));
+        assertEquals(new StringRange(StringRangeParser.MIN_VALUE, "AA", BoundType.INCLUDING, BoundType.INCLUDING), new StringRange("<= AA"));
 
-        assertEquals(new StringRange("AA", null, BoundType.EXCLUDING, BoundType.INCLUDING), new StringRange("> AA"));
-        assertEquals(new StringRange(null, "ZZ", BoundType.INCLUDING, BoundType.EXCLUDING), new StringRange("< ZZ"));
-        assertEquals(new StringRange("AA", null, BoundType.INCLUDING, BoundType.INCLUDING), new StringRange("AA+"));
+        assertEquals(new StringRange("AA", StringRangeParser.MAX_VALUE, BoundType.EXCLUDING, BoundType.INCLUDING), new StringRange("> AA"));
+        assertEquals(new StringRange(StringRangeParser.MIN_VALUE, "ZZ", BoundType.INCLUDING, BoundType.EXCLUDING), new StringRange("< ZZ"));
+        assertEquals(new StringRange("AA", StringRangeParser.MAX_VALUE, BoundType.INCLUDING, BoundType.INCLUDING), new StringRange("AA+"));
 
         assertEquals(new StringRange("AA", "ZZ", BoundType.INCLUDING, BoundType.INCLUDING), new StringRange(">=AA <=ZZ"));
         assertEquals(new StringRange("AA", "ZZ", BoundType.INCLUDING, BoundType.INCLUDING), new StringRange("<=ZZ >=AA"));

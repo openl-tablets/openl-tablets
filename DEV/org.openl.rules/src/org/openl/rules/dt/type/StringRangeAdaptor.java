@@ -2,6 +2,7 @@ package org.openl.rules.dt.type;
 
 import org.openl.rules.helpers.StringRange;
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
+import org.openl.rules.helpers.StringRangeParser;
 
 public final class StringRangeAdaptor implements IRangeAdaptor<StringRange, String> {
 
@@ -20,8 +21,8 @@ public final class StringRangeAdaptor implements IRangeAdaptor<StringRange, Stri
             return null;
         }
         String max = range.getUpperBound();
-        if (max != null && range.getUpperBoundType() == BoundType.INCLUDING) {
-            max = incLastChar(max);
+        if (!StringRangeParser.MAX_VALUE.equals(max) && range.getUpperBoundType() == BoundType.INCLUDING) {
+            max = max + " ";
         }
         return max;
     }
@@ -32,22 +33,10 @@ public final class StringRangeAdaptor implements IRangeAdaptor<StringRange, Stri
             return null;
         }
         String min = range.getLowerBound();
-        if (min != null && range.getLowerBoundType() == BoundType.EXCLUDING) {
-            min = incLastChar(min);
+        if (!StringRangeParser.MAX_VALUE.equals(min) && range.getLowerBoundType() == BoundType.EXCLUDING) {
+            min = min + " ";
         }
         return min;
-    }
-
-    private String incLastChar(String s) {
-        StringBuilder sb = new StringBuilder(s);
-        int lastChIdx = s.length() - 1;
-        char lastCh = sb.charAt(lastChIdx);
-        if (lastCh != Character.MAX_VALUE) {
-            sb.setCharAt(lastChIdx, (char) (lastCh + 1));
-        } else {
-            sb.append(Character.MIN_VALUE);
-        }
-        return sb.toString();
     }
 
     @Override

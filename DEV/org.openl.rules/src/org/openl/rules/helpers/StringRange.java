@@ -44,10 +44,10 @@ public class StringRange {
         if (lowerBoundType == null || upperBoundType == null) {
             throw new IllegalStateException("Bound types must be initialized!");
         }
-        if (StringUtils.isBlank(lowerBound) && StringUtils.isBlank(upperBound)) {
-            throw new IllegalStateException("At least one bound must be initialized!");
+        if (lowerBound == null || upperBound == null) {
+            throw new IllegalStateException("All bounds must be initialized!");
         }
-        if (lowerBound != null && upperBound != null && lowerBound.compareTo(upperBound) > 0) {
+        if (lowerBound.compareTo(upperBound) > 0) {
             throw new IllegalStateException("Left bound must be lower than right!");
         }
     }
@@ -72,8 +72,8 @@ public class StringRange {
         if (s == null) {
             return false;
         }
-        int lowerComparison = lowerBound == null ? -1 : lowerBound.compareTo(s);
-        int upperComparison = upperBound == null ? 1 : upperBound.compareTo(s);
+        int lowerComparison = lowerBound.compareTo(s);
+        int upperComparison = upperBound.compareTo(s);
         if (lowerComparison < 0 && upperComparison > 0) {
             return true;
         } else if (lowerComparison == 0 && lowerBoundType == BoundType.INCLUDING) {
@@ -105,10 +105,10 @@ public class StringRange {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        if (lowerBound == null) {
+        if (StringRangeParser.MIN_VALUE.equals(lowerBound)) {
             sb.append(upperBoundType == BoundType.INCLUDING ? "<= " : "< ");
             sb.append(upperBound);
-        } else if (upperBound == null) {
+        } else if (StringRangeParser.MAX_VALUE.equals(upperBound)) {
             sb.append(lowerBoundType == BoundType.INCLUDING ? ">= " : "> ");
             sb.append(lowerBound);
         } else {
