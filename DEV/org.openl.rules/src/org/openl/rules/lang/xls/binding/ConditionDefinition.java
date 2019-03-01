@@ -7,17 +7,17 @@ import org.openl.types.impl.CompositeMethod;
 public class ConditionDefinition {
 
     private IParameterDeclaration[] parameterDeclarations;
-    private String[] descriptions;
+    private String[] titles;
 
     private IOpenMethodHeader header;
     private CompositeMethod compositeMethod;
 
-    public ConditionDefinition(String[] descriptions,
+    public ConditionDefinition(String[] titles,
             IParameterDeclaration[] parameterDeclarations,
             IOpenMethodHeader header,
             CompositeMethod compositeMethod) {
         this.parameterDeclarations = parameterDeclarations;
-        this.descriptions = descriptions;
+        this.titles = titles;
         this.compositeMethod = compositeMethod;
         this.header = header;
     }
@@ -34,8 +34,8 @@ public class ConditionDefinition {
         return parameterDeclarations;
     }
 
-    public String[] getDescriptions() {
-        return descriptions;
+    public String[] getTitles() {
+        return titles;
     }
 
     public IOpenMethodHeader getHeader() {

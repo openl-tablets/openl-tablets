@@ -20,6 +20,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.constants.ConstantOpenField;
@@ -669,24 +670,30 @@ public class DecisionTableHelper {
     
     private static ReturnDefinition getReturnDefinition(ILogicalTable originalTable,
             DecisionTable decisionTable,
-            int firstReturnColumn) {
+            int firstReturnColumn,
+            IBindingContext bindingContext) {
         XlsDefinitions xlsDefinitions = ((XlsModuleOpenClass) decisionTable.getDeclaringClass()).getXlsDefinitions();
 
-        Set<String> descriptions = new HashSet<>();
+        Set<String> titles = new HashSet<>();
         int c = firstReturnColumn;
         while (c < originalTable.getSource().getWidth()) {
             ICell cell = originalTable.getSource().getCell(c, 0);
             String d = cell.getStringValue();
             c = c + cell.getWidth();
-            descriptions.add(d);
+            titles.add(d);
         }
 
         for (ReturnDefinition returnDefinition : xlsDefinitions.getReturnDefinitions()) {
-            if (returnDefinition.getDescriptions().length == descriptions.size() && Arrays
-                .asList(returnDefinition.getDescriptions())
-                .containsAll(descriptions)) {
+            if (returnDefinition.getTitles().length == titles.size() && Arrays
+                .asList(returnDefinition.getTitles())
+                .containsAll(titles)) {
                 if (isStrictMatchedByParameters(decisionTable.getHeader(), returnDefinition.getHeader())) {
-                    return returnDefinition;
+                    IOpenClass decisionTableReturnType = decisionTable.getHeader().getType();
+                    IOpenClass definitionReturnType = returnDefinition.getCompositeMethod().getType();
+                    IOpenCast openCast = bindingContext.getCast(definitionReturnType, decisionTableReturnType);
+                    if (openCast != null && openCast.isImplicit()) {
+                        return returnDefinition;
+                    }
                 }
             }
         }
@@ -713,14 +720,14 @@ public class DecisionTableHelper {
             ICell cell = originalTable.getSource().getCell(c, 0);
             String d = cell.getStringValue();
             for (int i = 0; i < returnDefinition.getNumberOfParameters(); i++) {
-                if (Objects.equals(d, returnDefinition.getDescriptions()[i])) {
+                if (Objects.equals(d, returnDefinition.getTitles()[i])) {
                     grid.setCellValue(c, 2, returnDefinition.getParameterDeclarations()[i].getType().getName() + " " + returnDefinition.getParameterDeclarations()[i].getName());
                     
                     if (!bindingContext.isExecutionMode()) {
                         ICell cell1 = originalTable.getSource().getCell(c, 0);
-                        String description = "Return [" + returnDefinition.getParameterDeclarations()[i]
-                            .getName() + "] for expression [" + statement + "]: " + returnDefinition
-                                .getParameterDeclarations()[i].getType().getDisplayName(INamedThing.SHORT);
+                        String description = String.format("Parameter %s of return RET1 with expression %s : %s", returnDefinition.getParameterDeclarations()[i]
+                                .getName(), statement, returnDefinition
+                                .getParameterDeclarations()[i].getType().getDisplayName(INamedThing.SHORT)); 
                         writeMetaInfo(tableSyntaxNode, cell1, description);
                     }
                     break;
@@ -796,7 +803,7 @@ public class DecisionTableHelper {
 
         if (!isLookupTable) {
             if (originalTable.getWidth() > conditions.length) {
-                ReturnDefinition returnDefinition = getReturnDefinition(originalTable, decisionTable, firstReturnColumn);
+                ReturnDefinition returnDefinition = getReturnDefinition(originalTable, decisionTable, firstReturnColumn, bindingContext);
                 
                 if (returnDefinition != null) {
                     writeReturnWithReturnDefinition(tableSyntaxNode,
@@ -908,15 +915,15 @@ public class DecisionTableHelper {
             //
             boolean isThatVCondition = i < numberOfConditions - numberOfHcondition;
             boolean lastCondition = i + 1 == numberOfConditions;
-            String header;
+            String conditionName;
             if (isThatVCondition) {
                 vColumnCounter++;
                 // write simple condition
                 //
                 if (i == 0 && numberOfHcondition == 0 && numberOfConditions < 2) {
-                    header = (DecisionTableColumnHeaders.MERGED_CONDITION.getHeaderKey() + (i + 1)).intern();
+                    conditionName = (DecisionTableColumnHeaders.MERGED_CONDITION.getHeaderKey() + (i + 1)).intern();
                 } else {
-                    header = (DecisionTableColumnHeaders.CONDITION.getHeaderKey() + (i + 1)).intern();
+                    conditionName = (DecisionTableColumnHeaders.CONDITION.getHeaderKey() + (i + 1)).intern();
                 }
             } else {
                 if (hColumn < 0) {
@@ -924,9 +931,9 @@ public class DecisionTableHelper {
                 }
                 // write horizontal condition
                 //
-                header = (DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey() + (i + 1)).intern(); 
+                conditionName = (DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey() + (i + 1)).intern(); 
             }
-            grid.setCellValue(column, 0, header);
+            grid.setCellValue(column, 0, conditionName);
             
             String conditionStatement;
             if (conditions[i].isDeclared()) {
@@ -961,7 +968,7 @@ public class DecisionTableHelper {
                 grid.setCellValue(column, 2, typeOfValue.getLeft());
                 
                 if (!bindingContext.isExecutionMode() && isThatVCondition) {
-                    writeMetaInfoForVCondition(originalTable, decisionTable, column, null, conditionStatement, typeOfValue.getRight());
+                    writeMetaInfoForVCondition(originalTable, decisionTable, column, null, null, conditionStatement, typeOfValue.getRight());
                 }
                 
                 // merge columns
@@ -991,9 +998,9 @@ public class DecisionTableHelper {
                     }
                     if (!bindingContext.isExecutionMode()) {
                         if (conditions[i].getParameterDeclarations()[j] != null) {
-                            writeMetaInfoForVCondition(originalTable, decisionTable, column, conditions[i].getParameterDeclarations()[j].getName(), "expression [" + conditionStatement + "]", typeOfValue);
+                            writeMetaInfoForVCondition(originalTable, decisionTable, column, conditionName, conditions[i].getParameterDeclarations()[j].getName(), conditionStatement, typeOfValue);
                         }else {
-                            writeMetaInfoForVCondition(originalTable, decisionTable, column, null, "expression [" + conditionStatement + "]", typeOfValue);
+                            writeMetaInfoForVCondition(originalTable, decisionTable, column, conditionName, null, conditionStatement, typeOfValue);
                         }
                     }
                     column = column + originalTable.getColumnWidth(i);
@@ -1023,6 +1030,7 @@ public class DecisionTableHelper {
     private static void writeMetaInfoForVCondition(ILogicalTable originalTable,
             DecisionTable decisionTable,
             int column,
+            String conditionName,
             String parameterName,
             String conditionStatement,
             IOpenClass typeOfValue) {
@@ -1032,6 +1040,7 @@ public class DecisionTableHelper {
             ICell cell = originalTable.getSource().getCell(column, 0);
             metaInfoReader.addSimpleRulesCondition(cell.getAbsoluteRow(),
                 cell.getAbsoluteColumn(),
+                conditionName,
                 parameterName,
                 conditionStatement,
                 typeOfValue);
@@ -1056,6 +1065,7 @@ public class DecisionTableHelper {
                         ((DecisionTableMetaInfoReader) metaInfoReader).addSimpleRulesCondition(cell.getAbsoluteRow(),
                             cell.getAbsoluteColumn(),
                             (DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey() + (i + 1)).intern(),
+                            null,
                             decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()),
                             decisionTable.getSignature().getParameterType(conditions[i].getParameterIndex()));
                     }
@@ -1122,7 +1132,7 @@ public class DecisionTableHelper {
             if (originalTable.getCell(column, 0).getHeight() != firstColumnHeight) {
                 break;
             }
-            String description = originalTable.getCell(column, 0).getStringValue();
+            String title = originalTable.getCell(column, 0).getStringValue();
 
             column += 1;
 
@@ -1144,14 +1154,14 @@ public class DecisionTableHelper {
             
             boolean f = false;
             for (ConditionDefinition conditionDefinition : xlsDefinitions.getConditionDefinitions()) {
-                Set<String> descriptions = new HashSet<>(Arrays.asList(conditionDefinition.getDescriptions()));
-                String d = description;
+                Set<String> titles = new HashSet<>(Arrays.asList(conditionDefinition.getTitles()));
+                String d = title;
                 int x = column;
                 IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[conditionDefinition.getNumberOfParameters()];
-                while (descriptions.contains(d)) {
-                    descriptions.remove(d);
+                while (titles.contains(d)) {
+                    titles.remove(d);
                     int j = 0;
-                    for (String s : conditionDefinition.getDescriptions()) {
+                    for (String s : conditionDefinition.getTitles()) {
                         if (s.equals(d)) {
                             parameterDeclarations[x - column] = conditionDefinition.getParameterDeclarations()[j];
                             break;
@@ -1161,7 +1171,7 @@ public class DecisionTableHelper {
                     d = originalTable.getCell(x, 0).getStringValue();
                     x = x + 1;
                 }
-                if (descriptions.isEmpty()) {
+                if (titles.isEmpty()) {
                     column = x - 1;
                     List<Condition> conditions = new ArrayList<>();
                     //Has all declared parameters 
@@ -1184,7 +1194,7 @@ public class DecisionTableHelper {
                 continue;
             }
             
-            String tokenizedDescriptionString = OpenLFuzzySearch.toTokenString(description);
+            String tokenizedDescriptionString = OpenLFuzzySearch.toTokenString(title);
             Token[] bestMatchedTokens = OpenLFuzzySearch.openlFuzzyExtract(tokenizedDescriptionString, parameterTokens);
             if (bestMatchedTokens.length == 0) {
                 break;
@@ -1192,7 +1202,7 @@ public class DecisionTableHelper {
 
             if (bestMatchedTokens.length > 1 && numberOfHcondition == 0) {
                 if (returnTypeTokens != null) {
-                    Token[] bestMatchedTokensForReturnType = OpenLFuzzySearch.openlFuzzyExtract(description,
+                    Token[] bestMatchedTokensForReturnType = OpenLFuzzySearch.openlFuzzyExtract(title,
                         returnTypeTokens);
                     if (bestMatchedTokensForReturnType.length == 1) {
                         break;
@@ -1203,7 +1213,7 @@ public class DecisionTableHelper {
             List<Condition> conditions = new ArrayList<>();
             for (int i = 0; i < bestMatchedTokens.length; i++) {
                 conditions.add(new Condition(parameterTokensMap.get(bestMatchedTokens[i].getValue()),
-                    description,
+                    title,
                     parameterTokenMethodsChainMap.get(bestMatchedTokens[i].getValue()),
                     column));
             }

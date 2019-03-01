@@ -17,11 +17,11 @@ public class ReturnsTableBoundNode extends ADefinitionTableBoundNode {
         super(tableSyntaxNode, openl, true, true);
     }
 
-    protected void createAndAddDefinition(String[] parameterDescriptions,
+    protected void createAndAddDefinition(String[] titles,
             IParameterDeclaration[] parameterDeclarations,
             IOpenMethodHeader header,
             CompositeMethod compositeMethod) {
-        ReturnDefinition returnDefinition = new ReturnDefinition(parameterDescriptions,
+        ReturnDefinition returnDefinition = new ReturnDefinition(titles,
             parameterDeclarations,
             header,
             compositeMethod);

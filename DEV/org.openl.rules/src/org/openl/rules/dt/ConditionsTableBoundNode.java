@@ -17,8 +17,8 @@ public class ConditionsTableBoundNode extends ADefinitionTableBoundNode {
         super(tableSyntaxNode, openl, false, false);
     }
     
-    protected void createAndAddDefinition(String[] parameterDescriptions, IParameterDeclaration[] parameterDeclarations, IOpenMethodHeader header, CompositeMethod compositeMethod) {
-        ConditionDefinition conditionDefinition = new ConditionDefinition(parameterDescriptions,
+    protected void createAndAddDefinition(String[] titles, IParameterDeclaration[] parameterDeclarations, IOpenMethodHeader header, CompositeMethod compositeMethod) {
+        ConditionDefinition conditionDefinition = new ConditionDefinition(titles,
             parameterDeclarations,
             header,
             compositeMethod);
