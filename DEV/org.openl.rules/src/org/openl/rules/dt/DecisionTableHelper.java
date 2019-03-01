@@ -995,6 +995,9 @@ public class DecisionTableHelper {
                 for (int j = 0; j < conditions[i].getParameterDeclarations().length; j++) {
                     if (conditions[i].getParameterDeclarations()[j] != null) {
                         grid.setCellValue(column, 2, conditions[i].getParameterDeclarations()[j].getType().getName() + " " + conditions[i].getParameterDeclarations()[j].getName());
+                        if (originalTable.getCell(column, 0).getWidth() > 1) {
+                            grid.addMergedRegion(new GridRegion(2, column, 2, column + originalTable.getCell(column, 0).getWidth() - 1));
+                        }
                         typeOfValue = conditions[i].getParameterDeclarations()[j].getType();
                     } else {
                         typeOfValue = conditions[i].getCompositeMethod().getType();
@@ -1006,7 +1009,7 @@ public class DecisionTableHelper {
                             writeMetaInfoForVCondition(originalTable, decisionTable, column, conditionName, null, conditionStatement, typeOfValue);
                         }
                     }
-                    column = column + originalTable.getColumnWidth(i);
+                    column = column + originalTable.getCell(column, 0).getWidth();
                 }
                 
                 //merge columns
