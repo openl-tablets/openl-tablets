@@ -123,8 +123,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         }
     }
 
-    @Override
-    public FileData copy(String srcName, FileData destData) throws IOException {
+    private FileData copy(String srcName, FileData destData) throws IOException {
         Connection connection = null;
         PreparedStatement statement = null;
         try {

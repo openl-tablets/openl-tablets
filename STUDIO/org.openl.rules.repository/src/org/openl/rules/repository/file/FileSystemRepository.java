@@ -112,8 +112,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
         return deleted;
     }
 
-    @Override
-    public FileData copy(String srcName, FileData destData) throws IOException {
+    private FileData copy(String srcName, FileData destData) throws IOException {
         File srcFile = new File(root, srcName);
         String destName = destData.getName();
         File destFile = new File(root, destName);

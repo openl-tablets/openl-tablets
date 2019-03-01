@@ -349,23 +349,6 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void copy() throws IOException {
-        FileData dest = new FileData();
-        dest.setName("rules/project1/file2-copy");
-        dest.setComment("Copy file 2");
-        dest.setAuthor("John Smith");
-        FileData copy = repo.copy("rules/project1/file2", dest);
-        assertNotNull(copy);
-        assertEquals("rules/project1/file2-copy", copy.getName());
-        assertEquals("John Smith", copy.getAuthor());
-        assertEquals("Copy file 2", copy.getComment());
-        assertEquals(12, copy.getSize());
-
-        assertNotNull(repo.check("rules/project1/file2"));
-        assertNotNull(repo.check("rules/project1/file2-copy"));
-    }
-
-    @Test
     public void listHistory() throws IOException {
         List<FileData> file2History = repo.listHistory("rules/project1/file2");
         assertEquals(2, file2History.size());
