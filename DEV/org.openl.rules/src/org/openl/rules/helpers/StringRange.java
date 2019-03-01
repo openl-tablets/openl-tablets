@@ -84,6 +84,10 @@ public class StringRange {
         return false;
     }
 
+    public boolean contains(CharSequence s) {
+        return contains(s == null ? null : s.toString());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

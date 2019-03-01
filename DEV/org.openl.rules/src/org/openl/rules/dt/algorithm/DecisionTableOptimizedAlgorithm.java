@@ -258,7 +258,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     }
 
     private static boolean isMethodTypeString(IOpenClass methodType) {
-        return ClassUtils.isAssignable(methodType.getInstanceClass(), String.class);
+        return ClassUtils.isAssignable(methodType.getInstanceClass(), CharSequence.class);
     }
 
     // TODO to do - fix _NO_PARAM_ issue

@@ -31,6 +31,8 @@ import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.DoubleRangeParser;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.helpers.IntRangeParser;
+import org.openl.rules.helpers.StringRange;
+import org.openl.rules.helpers.StringRangeParser;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -95,6 +97,7 @@ public class DecisionTableHelper {
         "org.openl.meta.DoubleValue",
         "org.openl.meta.BigDecimalValue");
     private static final List<String> CHAR_TYPES = Arrays.asList("char", "java.lang.Character");
+    private static final List<String> STRINGS_TYPES = Arrays.asList("java.lang.String", "org.openl.meta.StringValue");
     private static final Pattern MAYBE_INT_ARRAY_PATTERN = Pattern.compile("\\s*(\\d+,)*\\d+\\s*");
 
     /**
@@ -1403,7 +1406,8 @@ public class DecisionTableHelper {
             if (constantOpenField != null && (IntRange.class
                 .equals(constantOpenField.getType().getInstanceClass()) || DoubleRange.class
                     .equals(constantOpenField.getType().getInstanceClass()) || CharRange.class
-                        .equals(constantOpenField.getType().getInstanceClass()))) {
+                        .equals(constantOpenField.getType().getInstanceClass()) || StringRange.class
+                            .equals(constantOpenField.getType().getInstanceClass()))) {
                 return Pair.of(constantOpenField.getType().getInstanceClass().getSimpleName(),
                     constantOpenField.getType());
             }
@@ -1449,6 +1453,14 @@ public class DecisionTableHelper {
                     }
                 } catch (Exception e) {
                     continue;
+                }
+            } else if (STRINGS_TYPES.contains(typeName)) {
+                try {
+                    if (StringRangeParser.getInstance().isStringRange(value)) {
+                        return Pair.of(StringRange.class.getSimpleName(), JavaOpenClass.getOpenClass(StringRange.class));
+                    }
+                } catch (Exception ignored) {
+                    //OK
                 }
             }
         }
