@@ -41,7 +41,7 @@ public final class StringRangeAdaptor implements IRangeAdaptor<StringRange, Stri
 
     @Override
     public String adaptValueType(Object value) {
-        return value == null ? null : (String) value;
+        return value == null ? null : ((CharSequence) value).toString();
     }
 
     @Override

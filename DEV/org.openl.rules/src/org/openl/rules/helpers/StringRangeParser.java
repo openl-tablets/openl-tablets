@@ -24,6 +24,10 @@ public final class StringRangeParser extends ARangeParser<String> {
                 new SimpleParser<>(Pattern.compile("\\s*(\\S+)\\s*"), adapter) };
     }
 
+    public boolean isStringRange(String s) {
+        return parsers[0].parse(s) != null;
+    }
+
     public static StringRangeParser getInstance() {
         return INSTANCE;
     }
