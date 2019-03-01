@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.tuple.Triple;
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
@@ -42,7 +41,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     /**
      * Map for condition cells in header to parameter index
      */
-    private final Map<CellKey, Triple<String, String, IOpenClass>> simpleRulesConditionMap = new HashMap<>();
+    private final Map<CellKey, ConditionDescription> simpleRulesConditionMap = new HashMap<>();
 
     /**
      * Map for compound return column descriptions in SimpleRules header
@@ -119,10 +118,11 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     }
 
     private void saveSimpleRulesMetaInfo(DecisionTable decisionTable, IGridRegion region) {
-        for (Map.Entry<CellKey, Triple<String, String, IOpenClass>> entry : simpleRulesConditionMap.entrySet()) {
-            String parameterName = entry.getValue().getLeft();
-            String conditionStatement = entry.getValue().getMiddle();
-            IOpenClass conditionType = entry.getValue().getRight();
+        for (Map.Entry<CellKey, ConditionDescription> entry : simpleRulesConditionMap.entrySet()) {
+            String parameterName = entry.getValue().getParameterName();
+            String conditionName = entry.getValue().getConditionName();
+            String conditionStatement = entry.getValue().getConditionStatement();
+            IOpenClass conditionType = entry.getValue().getConditionType();
             CellKey key = entry.getKey();
             int row = key.getRow();
             int col = key.getColumn();
@@ -138,10 +138,12 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             }
             
             String text;
-            if (parameterName != null) {
-                text = String.format("Condition [%s] for %s: %s", parameterName, conditionStatement, conditionType.getDisplayName(INamedThing.SHORT));
+            if (parameterName != null && conditionName != null && conditionStatement != null) {
+                text = String.format("Parameter %s of condition %s with expression %s : %s", parameterName, conditionName, conditionStatement, conditionType.getDisplayName(INamedThing.SHORT));
+            } else if (conditionName != null && conditionStatement != null) {
+                text = String.format("Condition %s with expression %s : %s", conditionName, conditionStatement, conditionType.getDisplayName(INamedThing.SHORT));
             } else {
-                text = String.format("Condition for %s: %s", conditionStatement, conditionType.getDisplayName(INamedThing.SHORT));
+                text = String.format("Condition for %s : %s", conditionStatement, conditionType.getDisplayName(INamedThing.SHORT));
             }
             SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
                     cellValue.length() - 1,
@@ -182,8 +184,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
     }
 
-    public void addSimpleRulesCondition(int row, int col, String parameterName, String conditionStatement, IOpenClass conditionType) {
-        simpleRulesConditionMap.put(CellKey.CellKeyFactory.getCellKey(col, row), Triple.of(parameterName, conditionStatement, conditionType));
+    public void addSimpleRulesCondition(int row, int col, String conditionName, String parameterName, String conditionStatement, IOpenClass conditionType) {
+        simpleRulesConditionMap.put(CellKey.CellKeyFactory.getCellKey(col, row), new ConditionDescription(conditionName, parameterName, conditionStatement, conditionType));
     }
 
     public void addSimpleRulesReturn(int row, int col, String description) {
@@ -335,5 +337,40 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             }
         }
         setPreparedMetaInfo(row, col, metaInfo);
+    }
+    
+    private static class ConditionDescription {
+        String conditionName;
+        String parameterName;
+        String conditionStatement;
+        IOpenClass conditionType;
+
+        public ConditionDescription(String conditionName,
+                String parameterName,
+                String conditionStatement,
+                IOpenClass conditionType) {
+            super();
+            this.conditionName = conditionName;
+            this.parameterName = parameterName;
+            this.conditionStatement = conditionStatement;
+            this.conditionType = conditionType;
+        }
+
+        public String getConditionName() {
+            return conditionName;
+        }
+
+        public String getParameterName() {
+            return parameterName;
+        }
+
+        public String getConditionStatement() {
+            return conditionStatement;
+        }
+
+        public IOpenClass getConditionType() {
+            return conditionType;
+        }
+
     }
 }

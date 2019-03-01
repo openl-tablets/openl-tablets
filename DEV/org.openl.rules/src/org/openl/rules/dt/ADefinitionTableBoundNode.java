@@ -110,7 +110,7 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
     public void removeDebugInformation(IBindingContext cxt) {
     }
     
-    protected abstract void createAndAddDefinition(String[] parameterDescriptions, IParameterDeclaration[] parameterDeclarations, IOpenMethodHeader header, CompositeMethod compositeMethod);
+    protected abstract void createAndAddDefinition(String[] titles, IParameterDeclaration[] parameterDeclarations, IOpenMethodHeader header, CompositeMethod compositeMethod);
     
     public void finalizeBind(IBindingContext cxt) throws Exception {
         TableSyntaxNode tsn = getTableSyntaxNode();
@@ -119,7 +119,7 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
         int w = tableBody.getWidth();
         if (w > 4 || w < 3 || mandatoryParameterDeclarationColumn && w == 3) {
             throw SyntaxNodeExceptionUtils.createError(
-                "Wrong table structure: Expected 4 columns table: <Description> <Parameter Declaration> <Expression> <Header Parameters>.",
+                "Wrong table structure: Expected 4 columns table: <Description> <Parameter> <Expression> <Variables>.",
                 getTableSyntaxNode());
         }
         int h = tableBody.getHeight();
@@ -166,17 +166,17 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
                     }
                     j = 0;
                     int k = 0;
-                    String[] parameterDescriptions = new String[parameterDeclarations.size()];
+                    String[] titles = new String[parameterDeclarations.size()];
                     while (j < d) {
                         ILogicalTable tCodeTable = tableBody.getSubtable(0, z + j, 1, 1);
-                        String parameterDescription = tCodeTable.getCell(0, 0).getStringValue();
-                        if (StringUtils.isEmpty(parameterDescription)) { 
+                        String title = tCodeTable.getCell(0, 0).getStringValue();
+                        if (StringUtils.isEmpty(title)) { 
                             GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(
                                 tCodeTable.getSource(),
                                 cxt); 
                             throw SyntaxNodeExceptionUtils.createError("Description cell can't be empty", tGridCellSourceCodeModule);
                         }
-                        parameterDescriptions[k++] = parameterDescription;
+                        titles[k++] = title;
                         j = j + tCodeTable.getCell(0, 0).getHeight();
                     }
 
@@ -194,7 +194,7 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
                         getXlsModuleOpenClass(),
                         cxt);
                     
-                    createAndAddDefinition(parameterDescriptions, parameterDeclarations.toArray(new IParameterDeclaration[] {}), header, compositeMethod);
+                    createAndAddDefinition(titles, parameterDeclarations.toArray(new IParameterDeclaration[] {}), header, compositeMethod);
                 }
             });
 
