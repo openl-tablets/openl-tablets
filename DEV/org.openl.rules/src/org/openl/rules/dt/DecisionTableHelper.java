@@ -725,7 +725,9 @@ public class DecisionTableHelper {
             for (int i = 0; i < returnDefinition.getNumberOfParameters(); i++) {
                 if (Objects.equals(d, returnDefinition.getTitles()[i])) {
                     grid.setCellValue(c, 2, returnDefinition.getParameterDeclarations()[i].getType().getName() + " " + returnDefinition.getParameterDeclarations()[i].getName());
-                    
+                    if (originalTable.getCell(c, 0).getWidth() > 1) {
+                        grid.addMergedRegion(new GridRegion(2, c, 2, c + originalTable.getCell(c, 0).getWidth() - 1));
+                    }
                     if (!bindingContext.isExecutionMode()) {
                         ICell cell1 = originalTable.getSource().getCell(c, 0);
                         String description = String.format("Parameter %s of return RET1 with expression %s : %s", returnDefinition.getParameterDeclarations()[i]
