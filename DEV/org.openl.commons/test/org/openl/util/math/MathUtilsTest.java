@@ -212,13 +212,11 @@ public class MathUtilsTest {
 
         BigDecimal nullObj = null;
         assertEquals(0, MathUtils.quotient(nullObj, nullObj));
+    }
 
-        try {
-            assertEquals(0, MathUtils.quotient(BigDecimal.valueOf(3.22), BigDecimal.valueOf(0)));
-            fail();
-        } catch (ArithmeticException e) {
-            assertEquals("Division by zero", e.getMessage());
-        }
+    @Test(expected = ArithmeticException.class)
+    public void testQuaotientBigDecimalOfZero() {
+        MathUtils.quotient(BigDecimal.valueOf(3.22), BigDecimal.valueOf(0));
     }
 
     @Test
