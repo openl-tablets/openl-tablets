@@ -11,14 +11,14 @@ public final class StringRangeParser extends ARangeParser<String> {
     private StringRangeParser() {
         StringConverter converter = new StringConverter();
         parsers = new RangeParser[] {
-                new BracketsParser<>(Pattern
-                        .compile("\\s*([\\[(])\\s*(\\S+)\\s*(?:;|\\.\\.)\\s*(\\S+)\\s*([])])\\s*"), converter),
+                new BracketsParser<>(Pattern.compile("\\s*([\\[(])\\s*(\\S+)\\s*(?:;|\\.\\.)\\s*(\\S+)\\s*([])])\\s*"),
+                    converter),
                 new MinMaxParser<>(Pattern.compile("\\s*(\\S+)\\s*([-…]|\\.\\.\\.?)\\s*(\\S+)\\s*"), converter),
                 new VerbalParser<>(Pattern.compile("\\s*(\\S+)\\s*(\\+|and more|or less)\\s*"), converter),
                 new MoreLessParser<>(Pattern.compile("\\s*(<|>|>=|<=|less than|more than)\\s*(\\S+)\\s*"), converter),
-                new RangeWithMoreLessParser<>(Pattern.compile("\\s*(<=?|>=?)\\s*(\\S+)\\s*(<=?|>=?)\\s*(\\S+)\\s*"), converter),
-                new SimpleParser<>(Pattern.compile("\\s*(\\S+)\\s*"), converter)
-        };
+                new RangeWithMoreLessParser<>(Pattern.compile("\\s*(<=?|>=?)\\s*(\\S+)\\s*(<=?|>=?)\\s*(\\S+)\\s*"),
+                    converter),
+                new SimpleParser<>(Pattern.compile("\\s*(\\S+)\\s*"), converter) };
     }
 
     public static StringRangeParser getInstance() {
