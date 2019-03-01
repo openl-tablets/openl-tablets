@@ -3,7 +3,7 @@ package org.openl.util;
 import java.util.Objects;
 
 public class RangeWithBounds {
-    public static enum BoundType {
+    public enum BoundType {
         INCLUDING,
         EXCLUDING
     }
