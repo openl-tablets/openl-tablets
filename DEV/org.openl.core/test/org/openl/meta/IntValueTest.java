@@ -73,14 +73,6 @@ public class IntValueTest {
         IntValue value2 = new IntValue(10000);
         assertEquals(1, IntValue.divide(value1, value2).getValue(), 1e-6);
         
-        value2 = new IntValue(0);
-        try {
-            assertEquals(1, IntValue.divide(value1, value2));
-            fail();
-        } catch (OpenLRuntimeException e) {
-            assertEquals("Division by zero", e.getMessage());
-        }
-        
         IntValue val1 = new IntValue(10);
         IntValue val2 = null;
         assertEquals(10, IntValue.divide(val1, val2).intValue());
@@ -92,6 +84,11 @@ public class IntValueTest {
         val1 = null;
         val2 = null;
         assertEquals(null, IntValue.divide(val1, val2));
+    }
+
+    @Test(expected = OpenLRuntimeException.class)
+    public void testDivideByZero() {
+        IntValue.divide(new IntValue(10000),  new IntValue(0));
     }
     
     @Test

@@ -171,13 +171,11 @@ public class BigDecimalvalueTest {
         assertEquals(null, BigDecimalValue.quotient(nullObj, new BigDecimalValue("5")));
 
         assertEquals(null, BigDecimalValue.quotient(new BigDecimalValue("5"), nullObj));
+    }
 
-        try {
-            assertEquals(null, BigDecimalValue.quotient(new BigDecimalValue("5"), new BigDecimalValue("0")));
-            fail();
-        } catch (ArithmeticException e) {
-            assertEquals("Division by zero", e.getMessage());
-        }
+    @Test(expected = ArithmeticException.class)
+    public void testQuaotientByZero() {
+        BigDecimalValue.quotient(new BigDecimalValue("5"), new BigDecimalValue("0"));
     }
 
     @Test
@@ -189,14 +187,11 @@ public class BigDecimalvalueTest {
         assertEquals(null, BigDecimalValue.mod(nullObj, new BigDecimalValue("5")));
 
         assertEquals(null, BigDecimalValue.mod(new BigDecimalValue("5"), nullObj));
+    }
 
-        try {
-            assertEquals(new BigDecimalValue("0"),
-                BigDecimalValue.mod(new BigDecimalValue("5"), new BigDecimalValue("0")));
-            fail();
-        } catch (ArithmeticException e) {
-            assertEquals("Division by zero", e.getMessage());
-        }
+    @Test(expected = ArithmeticException.class)
+    public void testModByZero() {
+        BigDecimalValue.mod(new BigDecimalValue("5"), new BigDecimalValue("0"));
     }
 
     @Test
