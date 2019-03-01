@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
@@ -19,7 +19,11 @@ import org.openl.rules.dt.IBaseAction;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.*;
+import org.openl.rules.table.CellKey;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGrid;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
@@ -38,7 +42,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     /**
      * Map for condition cells in header to parameter index
      */
-    private final Map<CellKey, Pair<String, IOpenClass>> simpleRulesConditionMap = new HashMap<>();
+    private final Map<CellKey, Triple<String, String, IOpenClass>> simpleRulesConditionMap = new HashMap<>();
 
     /**
      * Map for compound return column descriptions in SimpleRules header
@@ -115,8 +119,9 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     }
 
     private void saveSimpleRulesMetaInfo(DecisionTable decisionTable, IGridRegion region) {
-        for (Map.Entry<CellKey, Pair<String, IOpenClass>> entry : simpleRulesConditionMap.entrySet()) {
-            String conditionStatement = entry.getValue().getLeft();
+        for (Map.Entry<CellKey, Triple<String, String, IOpenClass>> entry : simpleRulesConditionMap.entrySet()) {
+            String parameterName = entry.getValue().getLeft();
+            String conditionStatement = entry.getValue().getMiddle();
             IOpenClass conditionType = entry.getValue().getRight();
             CellKey key = entry.getKey();
             int row = key.getRow();
@@ -131,8 +136,13 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             if (StringUtils.isBlank(cellValue)) {
                 continue;
             }
-
-            String text = String.format("Condition for %s: %s", conditionStatement, conditionType.getDisplayName(0));
+            
+            String text;
+            if (parameterName != null) {
+                text = String.format("Condition [%s] for %s: %s", parameterName, conditionStatement, conditionType.getDisplayName(INamedThing.SHORT));
+            } else {
+                text = String.format("Condition for %s: %s", conditionStatement, conditionType.getDisplayName(INamedThing.SHORT));
+            }
             SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
                     cellValue.length() - 1,
                     text,
@@ -172,8 +182,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
     }
 
-    public void addSimpleRulesCondition(int row, int col, String conditionStatement, IOpenClass conditionType) {
-        simpleRulesConditionMap.put(CellKey.CellKeyFactory.getCellKey(col, row), Pair.of(conditionStatement, conditionType));
+    public void addSimpleRulesCondition(int row, int col, String parameterName, String conditionStatement, IOpenClass conditionType) {
+        simpleRulesConditionMap.put(CellKey.CellKeyFactory.getCellKey(col, row), Triple.of(parameterName, conditionStatement, conditionType));
     }
 
     public void addSimpleRulesReturn(int row, int col, String description) {

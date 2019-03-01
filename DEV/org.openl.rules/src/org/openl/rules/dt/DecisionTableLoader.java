@@ -246,10 +246,10 @@ public class DecisionTableLoader {
 
     /**
      * Adds conditions and return headers to simple Decision table body.<br>
-     * Supports simple Desicion Table and simple lookup Desicion Table.
+     * Supports simple Decision Table and simple lookup Decision Table.
      * 
      * @param tableSyntaxNode
-     * @param decisionTable method description for simple Desicion Table.
+     * @param decisionTable method description for simple Decision Table.
      * @param tableBody original simple Decision Table body
      * @return table body with added conditions and return headers.
      */

@@ -78,6 +78,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     private ClassLoader classLoader;
 
     private RulesModuleBindingContext rulesModuleBindingContext;
+    
+    private XlsDefinitions xlsDefinitions = new XlsDefinitions();  
 
     public RulesModuleBindingContext getRulesModuleBindingContext() {
         return rulesModuleBindingContext;
@@ -128,6 +130,18 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     public IDataBase getDataBase() {
         return dataBase;
     }
+    
+    protected void addXlsDefinitions(CompiledDependency dependency) {
+        IOpenClass openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
+        if (openClass instanceof XlsModuleOpenClass) {
+            XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
+            this.xlsDefinitions.addAllDefinitions(xlsModuleOpenClass.getXlsDefinitions());
+        }
+    }
+    
+    public XlsDefinitions getXlsDefinitions() {
+        return xlsDefinitions;
+    }
 
     /**
      * Populate current module fields with data from dependent modules.
@@ -142,6 +156,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             //
             // addTypes(dependency);
             addDependencyTypes(dependency);
+            
+            addXlsDefinitions(dependency);
+            
             addMethods(dependency);
             // Populate current module fields with data from dependent modules.
             // Requered

@@ -19,7 +19,6 @@ import org.openl.rules.table.syntax.GridLocation;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.util.Log;
-import org.openl.util.StringTool;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInterval;
 
@@ -39,6 +38,8 @@ public abstract class XlsHelper {
             XlsHelper.tableHeaders.put(IXlsTableNames.SMART_DECISION_TABLE, XlsNodeTypes.XLS_DT.toString());
             XlsHelper.tableHeaders.put(IXlsTableNames.SIMPLE_DECISION_LOOKUP, XlsNodeTypes.XLS_DT.toString());
             XlsHelper.tableHeaders.put(IXlsTableNames.SMART_DECISION_LOOKUP, XlsNodeTypes.XLS_DT.toString());
+            XlsHelper.tableHeaders.put(IXlsTableNames.CONDITIONS_TABLE, XlsNodeTypes.XLS_CONDITIONS.toString());
+            XlsHelper.tableHeaders.put(IXlsTableNames.RETURNS_TABLE, XlsNodeTypes.XLS_RETURNS.toString());
 
             XlsHelper.tableHeaders.put(IXlsTableNames.SPREADSHEET_TABLE, XlsNodeTypes.XLS_SPREADSHEET.toString());
             XlsHelper.tableHeaders.put(IXlsTableNames.SPREADSHEET_TABLE2, XlsNodeTypes.XLS_SPREADSHEET.toString());
