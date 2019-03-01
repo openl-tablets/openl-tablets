@@ -246,11 +246,6 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     }
 
     @Override
-    public FileData rename(String path, FileData destData) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void setListener(final Listener callback) {
         this.listener = callback;
     }

@@ -65,13 +65,6 @@ public class LocalRepository extends FileSystemRepository {
         return fileData;
     }
 
-    @Override
-    public FileData rename(String path, FileData destData) throws IOException {
-        FileData fileData = super.rename(path, destData);
-        notifyModified(destData.getName());
-        return fileData;
-    }
-
     public ProjectState getProjectState(final String pathInProject) {
         return new ProjectState() {
             private static final String DATE_FORMAT = "yyyy-MM-dd";
