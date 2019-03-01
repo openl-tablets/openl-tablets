@@ -1066,120 +1066,6 @@ public class DecisionTableHelper {
         }
     }
 
-    private final static class Condition {
-        int parameterIndex;
-        String description;
-        IOpenMethod[] methodsChain;
-        int column;
-        String statement;
-        IParameterDeclaration[] parameterDeclarations;
-        boolean declared = false;
-        CompositeMethod compositeMethod;
-
-        public Condition(int parameterIndex) {
-            this.parameterIndex = parameterIndex;
-        }
-
-        public Condition(int parameterIndex, String description, IOpenMethod[] methodsChain, int column) {
-            this.parameterIndex = parameterIndex;
-            this.description = description;
-            this.methodsChain = methodsChain;
-            this.column = column;
-        }
-        
-        public Condition(CompositeMethod compositeMethod, String statement, IParameterDeclaration[] parameterDeclarations) {
-            this.parameterDeclarations = parameterDeclarations;
-            this.statement = statement;
-            this.declared = true;
-            this.compositeMethod = compositeMethod;
-        }
-        
-        public CompositeMethod getCompositeMethod() {
-            return compositeMethod;
-        }
-        
-        public boolean isDeclared() {
-            return declared;
-        }
-        
-        public String getStatement() {
-            return statement;
-        }
-        
-        public IParameterDeclaration[] getParameterDeclarations() {
-            return parameterDeclarations;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public int getParameterIndex() {
-            return parameterIndex;
-        }
-
-        public IOpenMethod[] getMethodsChain() {
-            return methodsChain;
-        }
-
-        public int getColumn() {
-            return column;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + column;
-            result = prime * result + ((compositeMethod == null) ? 0 : compositeMethod.hashCode());
-            result = prime * result + (declared ? 1231 : 1237);
-            result = prime * result + ((description == null) ? 0 : description.hashCode());
-            result = prime * result + Arrays.hashCode(methodsChain);
-            result = prime * result + Arrays.hashCode(parameterDeclarations);
-            result = prime * result + parameterIndex;
-            result = prime * result + ((statement == null) ? 0 : statement.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            Condition other = (Condition) obj;
-            if (column != other.column)
-                return false;
-            if (compositeMethod == null) {
-                if (other.compositeMethod != null)
-                    return false;
-            } else if (!compositeMethod.equals(other.compositeMethod))
-                return false;
-            if (declared != other.declared)
-                return false;
-            if (description == null) {
-                if (other.description != null)
-                    return false;
-            } else if (!description.equals(other.description))
-                return false;
-            if (!Arrays.equals(methodsChain, other.methodsChain))
-                return false;
-            if (!Arrays.equals(parameterDeclarations, other.parameterDeclarations))
-                return false;
-            if (parameterIndex != other.parameterIndex)
-                return false;
-            if (statement == null) {
-                if (other.statement != null)
-                    return false;
-            } else if (!statement.equals(other.statement))
-                return false;
-            return true;
-        }
-
-    }
-
     private static Condition[] findConditionsForSmartDecisionTable(TableSyntaxNode tableSyntaxNode,
             ILogicalTable originalTable,
             DecisionTable decisionTable,
@@ -1679,4 +1565,117 @@ public class DecisionTableHelper {
         return new XlsSheetGridModel(mockSheetSource);
     }
 
+    private final static class Condition {
+        int parameterIndex;
+        String description;
+        IOpenMethod[] methodsChain;
+        int column;
+        String statement;
+        IParameterDeclaration[] parameterDeclarations;
+        boolean declared = false;
+        CompositeMethod compositeMethod;
+
+        public Condition(int parameterIndex) {
+            this.parameterIndex = parameterIndex;
+        }
+
+        public Condition(int parameterIndex, String description, IOpenMethod[] methodsChain, int column) {
+            this.parameterIndex = parameterIndex;
+            this.description = description;
+            this.methodsChain = methodsChain;
+            this.column = column;
+        }
+        
+        public Condition(CompositeMethod compositeMethod, String statement, IParameterDeclaration[] parameterDeclarations) {
+            this.parameterDeclarations = parameterDeclarations;
+            this.statement = statement;
+            this.declared = true;
+            this.compositeMethod = compositeMethod;
+        }
+        
+        public CompositeMethod getCompositeMethod() {
+            return compositeMethod;
+        }
+        
+        public boolean isDeclared() {
+            return declared;
+        }
+        
+        public String getStatement() {
+            return statement;
+        }
+        
+        public IParameterDeclaration[] getParameterDeclarations() {
+            return parameterDeclarations;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public int getParameterIndex() {
+            return parameterIndex;
+        }
+
+        public IOpenMethod[] getMethodsChain() {
+            return methodsChain;
+        }
+
+        public int getColumn() {
+            return column;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + column;
+            result = prime * result + ((compositeMethod == null) ? 0 : compositeMethod.hashCode());
+            result = prime * result + (declared ? 1231 : 1237);
+            result = prime * result + ((description == null) ? 0 : description.hashCode());
+            result = prime * result + Arrays.hashCode(methodsChain);
+            result = prime * result + Arrays.hashCode(parameterDeclarations);
+            result = prime * result + parameterIndex;
+            result = prime * result + ((statement == null) ? 0 : statement.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Condition other = (Condition) obj;
+            if (column != other.column)
+                return false;
+            if (compositeMethod == null) {
+                if (other.compositeMethod != null)
+                    return false;
+            } else if (!compositeMethod.equals(other.compositeMethod))
+                return false;
+            if (declared != other.declared)
+                return false;
+            if (description == null) {
+                if (other.description != null)
+                    return false;
+            } else if (!description.equals(other.description))
+                return false;
+            if (!Arrays.equals(methodsChain, other.methodsChain))
+                return false;
+            if (!Arrays.equals(parameterDeclarations, other.parameterDeclarations))
+                return false;
+            if (parameterIndex != other.parameterIndex)
+                return false;
+            if (statement == null) {
+                if (other.statement != null)
+                    return false;
+            } else if (!statement.equals(other.statement))
+                return false;
+            return true;
+        }
+
+    }
 }
