@@ -29,12 +29,8 @@ import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.data.ConditionOrActionParameterField;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.IRuleIndex;
-import org.openl.rules.dt.type.BooleanAdaptorFactory;
-import org.openl.rules.dt.type.BooleanTypeAdaptor;
-import org.openl.rules.dt.type.CharRangeAdaptor;
-import org.openl.rules.dt.type.DoubleRangeAdaptor;
-import org.openl.rules.dt.type.IRangeAdaptor;
-import org.openl.rules.dt.type.IntRangeAdaptor;
+import org.openl.rules.dt.type.*;
+import org.openl.rules.helpers.StringRange;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -229,6 +225,11 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 return CharRangeAdaptor.getInstance();
             }
         }
+        if (isMethodTypeString(methodType)) {
+            if (isParameterStringRange(paramType)) {
+                return StringRangeAdaptor.getInstance();
+            }
+        }
         return null;
     }
 
@@ -244,12 +245,20 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         return org.openl.rules.helpers.CharRange.class.equals(paramType.getInstanceClass());
     }
 
+    private static boolean isParameterStringRange(IOpenClass paramType) {
+        return StringRange.class.equals(paramType.getInstanceClass());
+    }
+
     private static boolean isMethodTypeNumber(IOpenClass methodType) {
         return ClassUtils.isAssignable(methodType.getInstanceClass(), Number.class);
     }
 
     private static boolean isMethodTypeChar(IOpenClass methodType) {
         return ClassUtils.isAssignable(methodType.getInstanceClass(), Character.class);
+    }
+
+    private static boolean isMethodTypeString(IOpenClass methodType) {
+        return ClassUtils.isAssignable(methodType.getInstanceClass(), String.class);
     }
 
     // TODO to do - fix _NO_PARAM_ issue

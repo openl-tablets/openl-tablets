@@ -80,7 +80,7 @@ public class CharRangeParsingTest {
             new CharRange(">=A >=Z");
             fail("Must be failed!");
         } catch (RuntimeException e) {
-            assertEquals("Invalid Char Range: >=A >=Z", e.getMessage());
+            assertEquals("Invalid Range: >=A >=Z", e.getMessage());
         }
     }
 

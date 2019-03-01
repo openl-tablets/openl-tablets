@@ -1,7 +1,7 @@
 package org.openl.rules.helpers;
 
-import org.openl.rules.helpers.CharRangeParser.ParseStruct;
-import org.openl.rules.helpers.CharRangeParser.ParseStruct.BoundType;
+import org.openl.rules.helpers.ARangeParser.ParseStruct;
+import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 
 public class CharRange extends IntRange {
 
@@ -15,10 +15,11 @@ public class CharRange extends IntRange {
 
     public CharRange(String range) {
         super(0, 0);
-        if (range == null)
+        if (range == null) {
             throw new NullPointerException("CharRange value can not be null");
+        }
 
-        ParseStruct parsed = CharRangeParser.getInstance().parse(range);
+        ParseStruct<Character> parsed = CharRangeParser.getInstance().parse(range);
         min = parsed.min;
         if (parsed.leftBoundType == BoundType.EXCLUDING) {
             min += 1;
@@ -42,14 +43,14 @@ public class CharRange extends IntRange {
     }
 
     private boolean isPrintable(int ch) {
-        if (Character.isWhitespace(ch) || Character.isISOControl(ch))
+        if (Character.isWhitespace(ch) || Character.isISOControl(ch)) {
             return false;
+        }
 
-        if (ch < 255)
+        if (ch < 255) {
             return true;
-        if (Character.isUnicodeIdentifierPart(ch))
-            return true;
-        return false;
+        }
+        return Character.isUnicodeIdentifierPart(ch);
     }
 
     public static CharRange autocast(char x, CharRange y) {
