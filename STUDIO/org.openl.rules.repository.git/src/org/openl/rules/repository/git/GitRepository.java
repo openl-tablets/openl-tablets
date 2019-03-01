@@ -94,7 +94,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             IOUtils.copyAndClose(stream, new FileOutputStream(file));
 
             git.add().addFilepattern(fileInRepository).call();
-            // TODO: Add possibility to set committer email
             RevCommit commit = git.commit()
                     .setMessage(StringUtils.trimToEmpty(data.getComment()))
                     .setCommitter(userDisplayName != null ? userDisplayName : data.getAuthor(), userEmail != null ? userEmail : "")
@@ -737,7 +736,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             File folder = new File(localRepositoryPath, relativeFolder);
             removeAbsentFiles(basePath, folder, savedFiles);
 
-            // TODO: Add possibility to set committer email
             CommitCommand commitCommand = git.commit()
                     .setMessage(StringUtils.trimToEmpty(folderData.getComment()))
                     .setCommitter(userDisplayName != null ? userDisplayName : folderData.getAuthor(), userEmail != null ? userEmail : "");
