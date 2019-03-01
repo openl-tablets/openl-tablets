@@ -9,16 +9,16 @@ public final class StringRangeParser extends ARangeParser<String> {
     private final RangeParser[] parsers;
 
     private StringRangeParser() {
-        StringConverter converter = new StringConverter();
+        StringRangeBoundAdapter adapter = new StringRangeBoundAdapter();
         parsers = new RangeParser[] {
                 new BracketsParser<>(Pattern.compile("\\s*([\\[(])\\s*(\\S+)\\s*(?:;|\\.\\.)\\s*(\\S+)\\s*([])])\\s*"),
-                    converter),
-                new MinMaxParser<>(Pattern.compile("\\s*(\\S+)\\s*([-…]|\\.\\.\\.?)\\s*(\\S+)\\s*"), converter),
-                new VerbalParser<>(Pattern.compile("\\s*(\\S+)\\s*(\\+|and more|or less)\\s*"), converter),
-                new MoreLessParser<>(Pattern.compile("\\s*(<|>|>=|<=|less than|more than)\\s*(\\S+)\\s*"), converter),
+                    adapter),
+                new MinMaxParser<>(Pattern.compile("\\s*(\\S+)\\s*([-…]|\\.\\.\\.?)\\s*(\\S+)\\s*"), adapter),
+                new VerbalParser<>(Pattern.compile("\\s*(\\S+)\\s*(\\+|and more|or less)\\s*"), adapter),
+                new MoreLessParser<>(Pattern.compile("\\s*(<|>|>=|<=|less than|more than)\\s*(\\S+)\\s*"), adapter),
                 new RangeWithMoreLessParser<>(Pattern.compile("\\s*(<=?|>=?)\\s*(\\S+)\\s*(<=?|>=?)\\s*(\\S+)\\s*"),
-                    converter),
-                new SimpleParser<>(Pattern.compile("\\s*(\\S+)\\s*"), converter) };
+                    adapter),
+                new SimpleParser<>(Pattern.compile("\\s*(\\S+)\\s*"), adapter) };
     }
 
     public static StringRangeParser getInstance() {
@@ -30,10 +30,10 @@ public final class StringRangeParser extends ARangeParser<String> {
         return parsers;
     }
 
-    private static final class StringConverter implements Converter<String> {
+    private static final class StringRangeBoundAdapter implements RangeBoundAdapter<String> {
 
         @Override
-        public String convert(String s) {
+        public String adaptValue(String s) {
             return s;
         }
 

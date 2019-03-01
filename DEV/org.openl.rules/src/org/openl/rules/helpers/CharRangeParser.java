@@ -9,16 +9,16 @@ public final class CharRangeParser extends ARangeParser<Character> {
     private final RangeParser[] parsers;
 
     private CharRangeParser() {
-        CharacterConverter converter = new CharacterConverter();
+        CharacterRangeBoundAdapter adapter = new CharacterRangeBoundAdapter();
         parsers = new RangeParser[] {
-                new MinMaxParser<>(Pattern.compile("\\s*(\\S)\\s*([-…]|\\.\\.\\.?)\\s*(\\S)\\s*"), converter),
+                new MinMaxParser<>(Pattern.compile("\\s*(\\S)\\s*([-…]|\\.\\.\\.?)\\s*(\\S)\\s*"), adapter),
                 new BracketsParser<>(Pattern.compile("\\s*([\\[(])\\s*(\\S)\\s*(?:;|\\.\\.)\\s*(\\S)\\s*([])])\\s*"),
-                    converter),
-                new VerbalParser<>(Pattern.compile("\\s*(\\S)\\s*(\\+|and more|or less)\\s*"), converter),
-                new MoreLessParser<>(Pattern.compile("\\s*(<|>|>=|<=|less than|more than)\\s*(\\S)\\s*"), converter),
+                    adapter),
+                new VerbalParser<>(Pattern.compile("\\s*(\\S)\\s*(\\+|and more|or less)\\s*"), adapter),
+                new MoreLessParser<>(Pattern.compile("\\s*(<|>|>=|<=|less than|more than)\\s*(\\S)\\s*"), adapter),
                 new RangeWithMoreLessParser<>(Pattern.compile("\\s*(<=?|>=?)\\s*(\\S)\\s*(<=?|>=?)\\s*(\\S)\\s*"),
-                    converter),
-                new SimpleParser<>(Pattern.compile("\\s*(\\S)\\s*"), converter) };
+                    adapter),
+                new SimpleParser<>(Pattern.compile("\\s*(\\S)\\s*"), adapter) };
     }
 
     public static CharRangeParser getInstance() {
@@ -30,10 +30,10 @@ public final class CharRangeParser extends ARangeParser<Character> {
         return parsers;
     }
 
-    private static final class CharacterConverter implements Converter<Character> {
+    private static final class CharacterRangeBoundAdapter implements RangeBoundAdapter<Character> {
 
         @Override
-        public Character convert(String s) {
+        public Character adaptValue(String s) {
             return s.charAt(0);
         }
 
