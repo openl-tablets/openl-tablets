@@ -95,7 +95,7 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
         }
 
         if (nodes.length == 1) {
-            return new ParameterDeclaration(type, RandomStringUtils.random(6, true, false) + counter++);
+            return new ParameterDeclaration(type, null);
         }
 
         String name = nodes[1].getIdentifier();
@@ -191,6 +191,7 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
 
                     List<IParameterDeclaration> localParameterDeclarations = new ArrayList<>();
                     List<IParameterDeclaration> parameterDeclarations = new ArrayList<>();
+                    Set<String> uniqueSet = new HashSet<>();
                     while (j < d) {
                         ILogicalTable pCodeTable = tableBody.getSubtable(headerIndexes[PARAMETER_INDEX], z + j, 1, 1);
                         GridCellSourceCodeModule pGridCellSourceCodeModule = new GridCellSourceCodeModule(
@@ -201,11 +202,19 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
                         if (parameterDeclaration != null) {
                             localParameterDeclarations.add(parameterDeclaration);
                         }
+                        if (parameterDeclaration.getName() != null) {
+                            if (uniqueSet.contains(parameterDeclaration.getName())) {
+                                throw SyntaxNodeExceptionUtils.createError("Parameter '" + parameterDeclaration.getName() + "' has already been defined.",
+                                    pGridCellSourceCodeModule);
+                            }
+                            uniqueSet.add(parameterDeclaration.getName());
+                        }
                         parameterDeclarations.add(parameterDeclaration);
                         j = j + pCodeTable.getCell(0, 0).getHeight();
                     }
                     j = 0;
                     int k = 0;
+                    uniqueSet = new HashSet<>();
                     String[] titles = new String[parameterDeclarations.size()];
                     while (j < d) {
                         ILogicalTable tCodeTable = tableBody.getSubtable(headerIndexes[TITLE_INDEX], z + j, 1, 1);
@@ -214,9 +223,17 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
                             GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(
                                 tCodeTable.getSource(),
                                 cxt); 
-                            throw SyntaxNodeExceptionUtils.createError("Title can't be empty", tGridCellSourceCodeModule);
+                            throw SyntaxNodeExceptionUtils.createError("Title can't be empty.", tGridCellSourceCodeModule);
+                        }
+                        if (uniqueSet.contains(title)) {
+                            GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(
+                                tCodeTable.getSource(),
+                                cxt); 
+                            throw SyntaxNodeExceptionUtils.createError("Title '" + title + "' has already been defined.",
+                                tGridCellSourceCodeModule);
                         }
                         titles[k++] = title;
+                        uniqueSet.add(title);
                         j = j + tCodeTable.getCell(0, 0).getHeight();
                     }
 

@@ -991,7 +991,11 @@ public class DecisionTableHelper {
                 int firstColumn = column;
                 for (int j = 0; j < conditions[i].getParameterDeclarations().length; j++) {
                     if (conditions[i].getParameterDeclarations()[j] != null) {
-                        grid.setCellValue(column, 2, conditions[i].getParameterDeclarations()[j].getType().getName() + " " + conditions[i].getParameterDeclarations()[j].getName());
+                        if (conditions[i].getParameterDeclarations()[j].getName() != null) {
+                            grid.setCellValue(column, 2, conditions[i].getParameterDeclarations()[j].getType().getName() + " " + conditions[i].getParameterDeclarations()[j].getName());
+                        } else {
+                            grid.setCellValue(column, 2, conditions[i].getParameterDeclarations()[j].getType().getName());
+                        }
                         if (originalTable.getCell(column, 0).getWidth() > 1) {
                             grid.addMergedRegion(new GridRegion(2, column, 2, column + originalTable.getCell(column, 0).getWidth() - 1));
                         }
@@ -1157,7 +1161,7 @@ public class DecisionTableHelper {
             
             boolean f = false;
             for (ConditionDefinition conditionDefinition : xlsDefinitions.getConditionDefinitions()) {
-                Set<String> titles = new HashSet<>(Arrays.asList(conditionDefinition.getTitles()));
+                List<String> titles = new ArrayList<>(Arrays.asList(conditionDefinition.getTitles()));
                 String d = title;
                 int x = column;
                 IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[conditionDefinition.getNumberOfParameters()];
