@@ -102,13 +102,11 @@ public class LongValueTest {
         assertNull(LongValue.quotient(nullObj, new LongValue(5)));
 
         assertNull(LongValue.quotient(new LongValue(5), nullObj));
+    }
 
-        try {
-            assertEquals(new LongValue(0), LongValue.quotient(new LongValue(5), new LongValue(0)));
-            fail();
-        } catch (ArithmeticException e) {
-            assertEquals("/ by zero", e.getMessage());
-        }
+    @Test(expected = ArithmeticException.class)
+    public void testQuaotientByZero() {
+        LongValue.quotient(new LongValue(5), new LongValue(0));
     }
 
     @Test
@@ -119,13 +117,11 @@ public class LongValueTest {
         assertNull(LongValue.mod(nullObj, new LongValue(5)));
 
         assertNull(LongValue.mod(new LongValue(5), nullObj));
+    }
 
-        try {
-            assertEquals(new LongValue(0), LongValue.mod(new LongValue(5), new LongValue(0)));
-            fail();
-        } catch (ArithmeticException e) {
-            assertEquals("/ by zero", e.getMessage());
-        }
+    @Test(expected = ArithmeticException.class)
+    public void testModByZero() {
+        LongValue.mod(new LongValue(5), new LongValue(0));
     }
 
 }

@@ -20,15 +20,13 @@ public class NumberUtilsTest {
         assertEquals(5, NumberUtils.getScale(12.67867));
         assertEquals(1, NumberUtils.getScale(0.2));
 
-        try {
-            NumberUtils.getScale(null);
-            fail();
-        } catch (NullPointerException e) {
-            assertEquals("Null value is not supported", e.getMessage());
-        }
-
         assertEquals(0, NumberUtils.getScale(Double.NaN));
         assertEquals(0, NumberUtils.getScale(Double.NEGATIVE_INFINITY));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testGetDoubleScaleNull() {
+        NumberUtils.getScale(null);
     }
 
     @Test
@@ -37,15 +35,13 @@ public class NumberUtilsTest {
         assertEquals(0, NumberUtils.getScale(new Integer(12)));
         assertEquals(0, NumberUtils.getScale(new Integer(0)));
 
-        try {
-            NumberUtils.getScale((Number) null);
-            fail();
-        } catch (NullPointerException e) {
-            assertEquals("Null value is not supported", e.getMessage());
-        }
-
         assertEquals(0, NumberUtils.getScale((Number) Double.NaN));
         assertEquals(0, NumberUtils.getScale((Number) Double.NEGATIVE_INFINITY));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testGetNumberScaleNull() {
+        NumberUtils.getScale((Number) null);
     }
 
     @Test
