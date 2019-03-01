@@ -33,7 +33,9 @@ public enum XlsNodeTypes {
     XLS_TABLEPART("xls.tablepart"),
     XLS_OTHER("xls.other"),
     XLS_PROPERTIES("xls.properties"),
-
+    XLS_CONDITIONS("xls.conditions"),
+    XLS_RETURNS("xls.returns"),
+    
     XLS_CONSTANTS("xls.constants");
     
     private final String value;
