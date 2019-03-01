@@ -10,9 +10,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -70,13 +68,16 @@ public final class RepositoryUtils {
     }
 
     public static void archive(FolderRepository folderRepository,
-            String projectPath,
+            String rulesPath,
+            String projectName,
             String version,
             OutputStream out) throws IOException {
         ZipOutputStream zipOutputStream = null;
         try {
             zipOutputStream = new ZipOutputStream(out);
 
+            String projectPath = rulesPath + projectName + "/";
+            folderRepository = getRepositoryForVersion(folderRepository, rulesPath, projectName, version);
             List<FileData> files = folderRepository.listFiles(projectPath, version);
 
             for (FileData file : files) {
@@ -93,6 +94,34 @@ public final class RepositoryUtils {
             zipOutputStream.finish();
         } finally {
             IOUtils.closeQuietly(zipOutputStream);
+        }
+    }
+
+    static FolderRepository getRepositoryForVersion(FolderRepository folderRepo,
+            String rulesPath,
+            String projectName,
+            String version) throws IOException {
+        String srcProjectPath = rulesPath + projectName + "/";
+        if (folderRepo.supports().branches()) {
+            BranchRepository branchRepository = (BranchRepository) folderRepo;
+            if (branchRepository.checkHistory(srcProjectPath, version) != null) {
+                // Use main branch
+                return folderRepo;
+            } else {
+                // Use secondary branch
+                List<String> branches = branchRepository.getBranches(projectName);
+                for (String branch : branches) {
+                    BranchRepository secondaryBranch = branchRepository.forBranch(branch);
+                    FileData fileData = secondaryBranch.checkHistory(srcProjectPath, version);
+                    if (fileData != null) {
+                        return (FolderRepository) secondaryBranch;
+                    }
+                }
+
+                return folderRepo;
+            }
+        } else {
+            return folderRepo;
         }
     }
 }

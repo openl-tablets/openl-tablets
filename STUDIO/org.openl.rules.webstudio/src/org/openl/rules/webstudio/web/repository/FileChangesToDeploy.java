@@ -3,10 +3,7 @@ package org.openl.rules.webstudio.web.repository;
 import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.zip.ZipInputStream;
 
 import org.openl.rules.common.ProjectDescriptor;
@@ -64,7 +61,12 @@ class FileChangesToDeploy implements Iterable<FileChange>, Closeable {
                     if (designRepo.supports().folders()) {
                         // Project in design repository is stored as a folder
                         String srcProjectPath = rulesPath + projectName + "/";
-                        return new FolderIterator(((FolderRepository) designRepo).listFiles(srcProjectPath, version));
+                        FolderRepository repository = RepositoryUtils.getRepositoryForVersion((FolderRepository) designRepo, rulesPath, projectName, version);
+                        List<FileData> files = repository.listFiles(srcProjectPath, version);
+                        if (files.isEmpty()) {
+                            log.warn("Can't find files in project {}", projectName);
+                        }
+                        return new FolderIterator(files);
                     } else {
                         // Project in design repository is stored as a zip file
                         FileItem srcPrj = designRepo.readHistory(rulesPath + projectName, version);
@@ -104,7 +106,7 @@ class FileChangesToDeploy implements Iterable<FileChange>, Closeable {
         private final List<FileData> files;
         private int fileIndex = 0;
 
-        public FolderIterator(List<FileData> files) {
+        private FolderIterator(List<FileData> files) {
             this.files = files;
         }
 
