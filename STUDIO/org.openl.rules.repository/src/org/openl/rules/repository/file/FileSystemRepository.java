@@ -122,20 +122,6 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
     }
 
     @Override
-    public FileData rename(String srcName, FileData destData) throws IOException {
-        File srcFile = new File(root, srcName);
-        String destName = destData.getName();
-        File destFile = new File(root, destName);
-        boolean renamed = srcFile.renameTo(destFile);
-        if (!renamed) {
-            throw new IOException("Impossible to rename the file from [" + srcFile + "] to [" + destFile + "]");
-        }
-        // Delete empty parent folders
-        while (!(srcFile = srcFile.getParentFile()).equals(root) && srcFile.delete());
-        return getFileData(destFile);
-    }
-
-    @Override
     public void setListener(Listener callback) {
         if (monitor != null) {
             monitor.setListener(callback);

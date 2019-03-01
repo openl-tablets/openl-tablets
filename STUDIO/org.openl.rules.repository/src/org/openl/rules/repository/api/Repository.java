@@ -94,16 +94,6 @@ public interface Repository {
     FileData copy(String srcName, FileData destData) throws IOException;
 
     /**
-     * Rename or move a file.
-     *
-     * @param srcName the file to rename.
-     * @param destData the destination file descriptor.
-     * @return the file descriptor of the resulted file.
-     * @throws IOException if not possible to rename the file
-     */
-    FileData rename(String srcName, FileData destData) throws IOException;
-
-    /**
      * Set a listener to monitor changes in the repository.
      * 
      * @param callback the listener.

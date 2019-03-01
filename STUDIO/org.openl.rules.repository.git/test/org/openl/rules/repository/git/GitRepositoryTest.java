@@ -366,23 +366,6 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void rename() throws IOException {
-        FileData dest = new FileData();
-        dest.setName("rules/project1/file2-copy");
-        dest.setComment("Copy file 2");
-        dest.setAuthor("John Smith");
-        FileData renamed = repo.rename("rules/project1/file2", dest);
-        assertNotNull(renamed);
-        assertEquals("rules/project1/file2-copy", renamed.getName());
-        assertEquals("John Smith", renamed.getAuthor());
-        assertEquals("Copy file 2", renamed.getComment());
-        assertEquals(12, renamed.getSize());
-
-        assertNull("'file2' wasn't deleted", repo.check("rules/project1/file2"));
-        assertNotNull("'file2-copy' doesn't exist", repo.check("rules/project1/file2-copy"));
-    }
-
-    @Test
     public void listHistory() throws IOException {
         List<FileData> file2History = repo.listHistory("rules/project1/file2");
         assertEquals(2, file2History.size());

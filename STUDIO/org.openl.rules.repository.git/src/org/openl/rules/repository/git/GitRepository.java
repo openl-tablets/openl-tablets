@@ -200,39 +200,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public FileData rename(String srcName, FileData destData) throws IOException {
-        Lock writeLock = repositoryLock.writeLock();
-        try {
-            writeLock.lock();
-
-            git.checkout().setName(branch).call();
-
-            File src = new File(localRepositoryPath, srcName);
-            File dest = new File(localRepositoryPath, destData.getName());
-            FileUtils.move(src, dest);
-
-            git.rm().addFilepattern(srcName).call();
-            git.add().addFilepattern(destData.getName()).call();
-            RevCommit commit = git.commit()
-                    .setMessage(StringUtils.trimToEmpty(destData.getComment()))
-                    .setCommitter(userDisplayName != null ? userDisplayName : destData.getAuthor(), userEmail != null ? userEmail : "")
-                    .setOnly(srcName)
-                    .setOnly(destData.getName())
-                    .call();
-            addTagToCommit(commit);
-
-            push();
-        } catch (Exception e) {
-            reset();
-            throw new IOException(e);
-        } finally {
-            writeLock.unlock();
-        }
-
-        return check(destData.getName());
-    }
-
-    @Override
     public void setListener(Listener callback) {
         if (monitor != null) {
             monitor.setListener(callback);

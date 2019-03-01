@@ -250,21 +250,6 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     }
 
     @Override
-    public FileData rename(String srcName, FileData destData) throws IOException {
-        copy(srcName, destData);
-        FileData srcData = new FileData();
-        srcData.setName(srcName);
-        srcData.setVersion(null);
-        srcData.setAuthor(destData.getAuthor());
-        srcData.setComment(destData.getComment());
-        deleteHistory(srcData);
-
-        onModified();
-
-        return check(destData.getName());
-    }
-
-    @Override
     public void setListener(final Listener callback) {
         if (monitor != null) {
             monitor.setListener(callback);
