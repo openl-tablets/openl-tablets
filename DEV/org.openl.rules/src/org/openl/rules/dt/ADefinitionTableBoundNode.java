@@ -39,7 +39,6 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
     private String tableName;
     private OpenL openl;
     private XlsModuleOpenClass xlsModuleOpenClass;
-    private int counter = 0;
     private boolean mandatoryParameterName;
 
     public ADefinitionTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl, boolean mandatoryParameterName) {
@@ -79,7 +78,7 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
         IdentifierNode[] nodes = Tokenizer.tokenize(paramSource, " \n\r");
 
         if (nodes.length > 2 || mandatoryParameterName && nodes.length != 2) {
-            String errMsg = "Parameter cell format: <type> <name>";
+            String errMsg = "Parameter format: <type> <name>";
             throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, paramSource);
         }
 
@@ -131,7 +130,7 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
             } else if ("Expression".equalsIgnoreCase(d)) {
                 headerIndexes[2] = j;
                 k++;
-            } else if ("Variables".equalsIgnoreCase(d)) {
+            } else if ("Inputs".equalsIgnoreCase(d)) {
                 headerIndexes[3] = j;
                 k++;
             }
@@ -144,7 +143,7 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
     }
     
     private static final int[] DEFAULT_HEADER_INDEXES = new int[] { 0, 1, 2, 3 };
-    private static final int VARIABLES_INDEX = 3;
+    private static final int INPUTS_INDEX = 3;
     private static final int EXPRESSION_INDEX = 2;
     private static final int PARAMETER_INDEX = 1;
     private static final int TITLE_INDEX = 0;
@@ -156,7 +155,7 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
         int w = tableBody.getWidth();
         if (w != 4) {
             throw SyntaxNodeExceptionUtils.createError(
-                "Wrong table structure: Expected 4 columns table: <Title> <Parameter> <Expression> <Variables>.",
+                "Wrong table structure: Expected 4 columns table: <Title> <Parameter> <Expression> <Inputs>.",
                 getTableSyntaxNode());
         }
         int h = tableBody.getHeight();
@@ -169,7 +168,7 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
         
         SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         while (i < h) {
-            String signatureCode1 = tableBody.getCell(headerIndexes[VARIABLES_INDEX], i).getStringValue();
+            String signatureCode1 = tableBody.getCell(headerIndexes[INPUTS_INDEX], i).getStringValue();
             if (StringUtils.isEmpty(signatureCode1)) {
                 signatureCode1 = StringUtils.EMPTY;
             }
