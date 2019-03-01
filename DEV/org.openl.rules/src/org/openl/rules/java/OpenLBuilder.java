@@ -57,7 +57,8 @@ public class OpenLBuilder extends AOpenLBuilder {
             org.openl.meta.BigDecimalValue.class.getName(),
             org.openl.rules.helpers.IntRange.class.getName(),
             org.openl.rules.helpers.DoubleRange.class.getName(),
-            org.openl.rules.helpers.CharRange.class.getName()};
+            org.openl.rules.helpers.CharRange.class.getName(),
+            org.openl.rules.helpers.StringRange.class.getName()};
 
     @Override
     public OpenL build(String category) throws OpenConfigurationException {
