@@ -14,7 +14,7 @@ import org.openl.types.impl.CompositeMethod;
 public class ConditionsTableBoundNode extends ADefinitionTableBoundNode {
 
     public ConditionsTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl) {
-        super(tableSyntaxNode, openl, false, false);
+        super(tableSyntaxNode, openl, false);
     }
     
     protected void createAndAddDefinition(String[] titles, IParameterDeclaration[] parameterDeclarations, IOpenMethodHeader header, CompositeMethod compositeMethod) {

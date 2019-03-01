@@ -14,7 +14,7 @@ import org.openl.types.impl.CompositeMethod;
 public class ReturnsTableBoundNode extends ADefinitionTableBoundNode {
 
     public ReturnsTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl) {
-        super(tableSyntaxNode, openl, true, true);
+        super(tableSyntaxNode, openl, true);
     }
 
     protected void createAndAddDefinition(String[] titles,

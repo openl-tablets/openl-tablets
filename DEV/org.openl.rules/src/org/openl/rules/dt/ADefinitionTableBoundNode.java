@@ -1,7 +1,9 @@
 package org.openl.rules.dt;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -18,6 +20,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.Runnable;
 import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
@@ -31,20 +34,17 @@ import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.syntax.exception.Runnable;
 
 public abstract class ADefinitionTableBoundNode extends ATableBoundNode implements IMemberBoundNode {
     private String tableName;
     private OpenL openl;
     private XlsModuleOpenClass xlsModuleOpenClass;
     private int counter = 0;
-    private boolean mandatoryParameterDeclarationColumn;
     private boolean mandatoryParameterName;
 
-    public ADefinitionTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl, boolean mandatoryParameterDeclarationColumn, boolean mandatoryParameterName) {
+    public ADefinitionTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl, boolean mandatoryParameterName) {
         super(tableSyntaxNode);
         this.openl = openl;
-        this.mandatoryParameterDeclarationColumn = mandatoryParameterDeclarationColumn;
         this.mandatoryParameterName = mandatoryParameterName;
     }
 
@@ -111,27 +111,70 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
     }
     
     protected abstract void createAndAddDefinition(String[] titles, IParameterDeclaration[] parameterDeclarations, IOpenMethodHeader header, CompositeMethod compositeMethod);
+
+    
+    private int[] getHeaderIndexes(ILogicalTable tableBody) {
+        int w = tableBody.getWidth();
+        Set<String> headerTokens = new HashSet<String>();
+        int[] headerIndexes = new int[4];
+        int j = 0;
+        int k = 0;
+        while (j < w) {
+            String d = tableBody.getCell(j, 0).getStringValue();
+            headerTokens.add(d);
+            if ("Title".equalsIgnoreCase(d)) {
+                headerIndexes[0] = j;
+                k++;
+            } else if ("Parameter".equalsIgnoreCase(d)) {
+                headerIndexes[1] = j;
+                k++;
+            } else if ("Expression".equalsIgnoreCase(d)) {
+                headerIndexes[2] = j;
+                k++;
+            } else if ("Variables".equalsIgnoreCase(d)) {
+                headerIndexes[3] = j;
+                k++;
+            }
+            j++;
+        }
+        if (k == 4) {
+            return headerIndexes;
+        }
+        return DEFAULT_HEADER_INDEXES;
+    }
+    
+    private static final int[] DEFAULT_HEADER_INDEXES = new int[] { 0, 1, 2, 3 };
+    private static final int VARIABLES_INDEX = 3;
+    private static final int EXPRESSION_INDEX = 2;
+    private static final int PARAMETER_INDEX = 1;
+    private static final int TITLE_INDEX = 0;
     
     public void finalizeBind(IBindingContext cxt) throws Exception {
         TableSyntaxNode tsn = getTableSyntaxNode();
         ILogicalTable tableBody = tsn.getTableBody();
 
         int w = tableBody.getWidth();
-        if (w > 4 || w < 3 || mandatoryParameterDeclarationColumn && w == 3) {
+        if (w != 4) {
             throw SyntaxNodeExceptionUtils.createError(
-                "Wrong table structure: Expected 4 columns table: <Description> <Parameter> <Expression> <Variables>.",
+                "Wrong table structure: Expected 4 columns table: <Title> <Parameter> <Expression> <Variables>.",
                 getTableSyntaxNode());
         }
         int h = tableBody.getHeight();
         int i = 0;
+
+        final int[] headerIndexes = getHeaderIndexes(tableBody);
+        if (headerIndexes != DEFAULT_HEADER_INDEXES) {
+            i = 1;
+        } 
+        
         SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         while (i < h) {
-            String signatureCode1 = tableBody.getCell(w - 1, i).getStringValue();
+            String signatureCode1 = tableBody.getCell(headerIndexes[VARIABLES_INDEX], i).getStringValue();
             if (StringUtils.isEmpty(signatureCode1)) {
                 signatureCode1 = StringUtils.EMPTY;
             }
             final String signatureCode = signatureCode1;
-            ILogicalTable expressionTable = tableBody.getSubtable(w - 2, i, 1, 1);
+            ILogicalTable expressionTable = tableBody.getSubtable(headerIndexes[EXPRESSION_INDEX], i, 1, 1);
             int d = expressionTable.getSource().getCell(0, 0).getHeight();
             final int z = i;
             syntaxNodeExceptionCollector.run(new Runnable() {
@@ -148,33 +191,30 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
 
                     List<IParameterDeclaration> localParameterDeclarations = new ArrayList<>();
                     List<IParameterDeclaration> parameterDeclarations = new ArrayList<>();
-                    if (w == 4 || mandatoryParameterDeclarationColumn) {
-                        while (j < d) {
-                            ILogicalTable pCodeTable = tableBody.getSubtable(w - 3, z + j, 1, 1);
-                            GridCellSourceCodeModule pGridCellSourceCodeModule = new GridCellSourceCodeModule(
-                                pCodeTable.getSource(),
-                                cxt);
-                            IParameterDeclaration parameterDeclaration = getParameterDeclaration(
-                                pGridCellSourceCodeModule,
-                                cxt);
-                            if (parameterDeclaration != null) {
-                                localParameterDeclarations.add(parameterDeclaration);
-                            }
-                            parameterDeclarations.add(parameterDeclaration);
-                            j = j + pCodeTable.getCell(0, 0).getHeight();
+                    while (j < d) {
+                        ILogicalTable pCodeTable = tableBody.getSubtable(headerIndexes[PARAMETER_INDEX], z + j, 1, 1);
+                        GridCellSourceCodeModule pGridCellSourceCodeModule = new GridCellSourceCodeModule(
+                            pCodeTable.getSource(),
+                            cxt);
+                        IParameterDeclaration parameterDeclaration = getParameterDeclaration(pGridCellSourceCodeModule,
+                            cxt);
+                        if (parameterDeclaration != null) {
+                            localParameterDeclarations.add(parameterDeclaration);
                         }
+                        parameterDeclarations.add(parameterDeclaration);
+                        j = j + pCodeTable.getCell(0, 0).getHeight();
                     }
                     j = 0;
                     int k = 0;
                     String[] titles = new String[parameterDeclarations.size()];
                     while (j < d) {
-                        ILogicalTable tCodeTable = tableBody.getSubtable(0, z + j, 1, 1);
+                        ILogicalTable tCodeTable = tableBody.getSubtable(headerIndexes[TITLE_INDEX], z + j, 1, 1);
                         String title = tCodeTable.getCell(0, 0).getStringValue();
                         if (StringUtils.isEmpty(title)) { 
                             GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(
                                 tCodeTable.getSource(),
                                 cxt); 
-                            throw SyntaxNodeExceptionUtils.createError("Description cell can't be empty", tGridCellSourceCodeModule);
+                            throw SyntaxNodeExceptionUtils.createError("Title can't be empty", tGridCellSourceCodeModule);
                         }
                         titles[k++] = title;
                         j = j + tCodeTable.getCell(0, 0).getHeight();
