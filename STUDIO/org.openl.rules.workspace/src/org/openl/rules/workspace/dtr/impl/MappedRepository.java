@@ -122,18 +122,6 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     @Override
-    public FileData copy(String srcName, FileData destData) throws IOException {
-        Map<String, String> mapping = getMappingForRead();
-        return toExternal(mapping, delegate.copy(toInternal(mapping, srcName), toInternal(mapping, destData)));
-    }
-
-    @Override
-    public FileData rename(String srcName, FileData destData) throws IOException {
-        Map<String, String> mapping = getMappingForRead();
-        return toExternal(mapping, delegate.rename(toInternal(mapping, srcName), toInternal(mapping, destData)));
-    }
-
-    @Override
     public void setListener(final Listener callback) {
         delegate.setListener(new Listener() {
             @Override

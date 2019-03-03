@@ -84,26 +84,6 @@ public interface Repository {
     boolean delete(FileData data);
 
     /**
-     * Copy a file to the destination file.
-     * 
-     * @param srcName the file to copy.
-     * @param destData the destination file descriptor.
-     * @return the file descriptor of the resulted file.
-     * @throws IOException if not possible to copy the file
-     */
-    FileData copy(String srcName, FileData destData) throws IOException;
-
-    /**
-     * Rename or move a file.
-     *
-     * @param srcName the file to rename.
-     * @param destData the destination file descriptor.
-     * @return the file descriptor of the resulted file.
-     * @throws IOException if not possible to rename the file
-     */
-    FileData rename(String srcName, FileData destData) throws IOException;
-
-    /**
      * Set a listener to monitor changes in the repository.
      * 
      * @param callback the listener.
@@ -159,14 +139,13 @@ public interface Repository {
 
     /**
      * Copy a file of the given version to the destination file. If the version
-     * is null, then it will work like {@link #copy(String, FileData)} method.
+     * is null, then copy latest version.
      * 
      * @param srcName the file to copy.
      * @param destData the destination file descriptor.
      * @param version the version of the file to copy
      * @return the file descriptor of the resulted file.
      * @throws IOException if not possible to copy the file
-     * @see #copy(String, FileData)
      */
     FileData copyHistory(String srcName, FileData destData, String version) throws IOException;
 

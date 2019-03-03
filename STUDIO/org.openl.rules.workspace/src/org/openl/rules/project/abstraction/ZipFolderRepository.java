@@ -76,16 +76,6 @@ class ZipFolderRepository implements Repository {
     }
 
     @Override
-    public FileData copy(String srcName, FileData destData) throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public FileData rename(String srcName, FileData destData) throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void setListener(Listener callback) {
         throw new UnsupportedOperationException();
     }

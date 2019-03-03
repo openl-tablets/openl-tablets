@@ -94,7 +94,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             IOUtils.copyAndClose(stream, new FileOutputStream(file));
 
             git.add().addFilepattern(fileInRepository).call();
-            // TODO: Add possibility to set committer email
             RevCommit commit = git.commit()
                     .setMessage(StringUtils.trimToEmpty(data.getComment()))
                     .setCommitter(userDisplayName != null ? userDisplayName : data.getAuthor(), userEmail != null ? userEmail : "")
@@ -168,9 +167,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    @Override
     @SuppressWarnings("squid:S2095") // resources are closed by IOUtils
-    public FileData copy(String srcName, FileData destData) throws IOException {
+    private FileData copy(String srcName, FileData destData) throws IOException {
         Lock writeLock = repositoryLock.writeLock();
         try {
             writeLock.lock();
@@ -185,39 +183,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             RevCommit commit = git.commit()
                     .setMessage(StringUtils.trimToEmpty(destData.getComment()))
                     .setCommitter(userDisplayName != null ? userDisplayName : destData.getAuthor(), userEmail != null ? userEmail : "")
-                    .call();
-            addTagToCommit(commit);
-
-            push();
-        } catch (Exception e) {
-            reset();
-            throw new IOException(e);
-        } finally {
-            writeLock.unlock();
-        }
-
-        return check(destData.getName());
-    }
-
-    @Override
-    public FileData rename(String srcName, FileData destData) throws IOException {
-        Lock writeLock = repositoryLock.writeLock();
-        try {
-            writeLock.lock();
-
-            git.checkout().setName(branch).call();
-
-            File src = new File(localRepositoryPath, srcName);
-            File dest = new File(localRepositoryPath, destData.getName());
-            FileUtils.move(src, dest);
-
-            git.rm().addFilepattern(srcName).call();
-            git.add().addFilepattern(destData.getName()).call();
-            RevCommit commit = git.commit()
-                    .setMessage(StringUtils.trimToEmpty(destData.getComment()))
-                    .setCommitter(userDisplayName != null ? userDisplayName : destData.getAuthor(), userEmail != null ? userEmail : "")
-                    .setOnly(srcName)
-                    .setOnly(destData.getName())
                     .call();
             addTagToCommit(commit);
 
@@ -770,7 +735,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             File folder = new File(localRepositoryPath, relativeFolder);
             removeAbsentFiles(basePath, folder, savedFiles);
 
-            // TODO: Add possibility to set committer email
             CommitCommand commitCommand = git.commit()
                     .setMessage(StringUtils.trimToEmpty(folderData.getComment()))
                     .setCommitter(userDisplayName != null ? userDisplayName : folderData.getAuthor(), userEmail != null ? userEmail : "");
