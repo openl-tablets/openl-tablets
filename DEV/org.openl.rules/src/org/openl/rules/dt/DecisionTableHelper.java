@@ -3,6 +3,8 @@ package org.openl.rules.dt;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -14,6 +16,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -58,10 +61,12 @@ import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -71,6 +76,7 @@ import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.text.TextInfo;
 
 public class DecisionTableHelper {
 
@@ -671,12 +677,14 @@ public class DecisionTableHelper {
         }
     }
     
-    private static ReturnDefinition getReturnDefinition(ILogicalTable originalTable,
+    private static boolean writeReturnWithReturnDefinition(TableSyntaxNode tableSyntaxNode,
+            IWritableGrid grid,
+            ILogicalTable originalTable,
             DecisionTable decisionTable,
             int firstReturnColumn,
             IBindingContext bindingContext) {
+        
         XlsDefinitions xlsDefinitions = ((XlsModuleOpenClass) decisionTable.getDeclaringClass()).getXlsDefinitions();
-
         Set<String> titles = new HashSet<>();
         int c = firstReturnColumn;
         while (c < originalTable.getSource().getWidth()) {
@@ -685,40 +693,60 @@ public class DecisionTableHelper {
             c = c + cell.getWidth();
             titles.add(d);
         }
-
-        for (ReturnDefinition returnDefinition : xlsDefinitions.getReturnDefinitions()) {
-            if (returnDefinition.getTitles().length == titles.size() && Arrays
-                .asList(returnDefinition.getTitles())
+        
+        ReturnDefinition returnDefinition = null;
+        String statement = null;
+        
+        for (ReturnDefinition rd : xlsDefinitions.getReturnDefinitions()) {
+            if (rd.getTitles().length == titles.size() && Arrays
+                .asList(rd.getTitles())
                 .containsAll(titles)) {
-                if (isStrictMatchedByParameters(decisionTable.getHeader(), returnDefinition.getHeader())) {
+                if (isStrictMatchedByParameters(decisionTable.getHeader(), rd.getHeader())) {
                     IOpenClass decisionTableReturnType = decisionTable.getHeader().getType();
-                    IOpenClass definitionReturnType = returnDefinition.getCompositeMethod().getType();
+                    IOpenClass definitionReturnType = rd.getCompositeMethod().getType();
                     IOpenCast openCast = bindingContext.getCast(definitionReturnType, decisionTableReturnType);
                     if (openCast != null && openCast.isImplicit()) {
-                        return returnDefinition;
+                        returnDefinition = rd;
+                        IOpenSourceCodeModule sourceCodeModule = returnDefinition.getCompositeMethod()
+                                .getMethodBodyBoundNode()
+                                .getSyntaxNode()
+                                .getModule();
+                        statement = sourceCodeModule.getCode(); 
+                        break;
                     }
                 }
             }
         }
-        return null;
-    }
-    
-    private static void writeReturnWithReturnDefinition(TableSyntaxNode tableSyntaxNode,
-            IWritableGrid grid,
-            ILogicalTable originalTable,
-            DecisionTable decisionTable,
-            int firstReturnColumn,
-            IBindingContext bindingContext,
-            ReturnDefinition returnDefinition) {
-
-        IOpenSourceCodeModule sourceCodeModule = returnDefinition.getCompositeMethod()
-            .getMethodBodyBoundNode()
-            .getSyntaxNode()
-            .getModule();
-        String statement = sourceCodeModule.getCode();
+        if (returnDefinition == null) {
+            for (ReturnDefinition rd : xlsDefinitions.getReturnDefinitions()) {
+                if (rd.getTitles().length == titles.size() && Arrays
+                    .asList(rd.getTitles())
+                    .containsAll(titles)) {
+                    statement = buildStatementIfCan(rd.getCompositeMethod(),
+                        rd.getParameterDeclarations(),
+                        rd.getHeader(),
+                        decisionTable.getHeader());
+                    if (statement != null) {
+                        IOpenClass decisionTableReturnType = decisionTable.getHeader().getType();
+                        IOpenClass definitionReturnType = rd.getCompositeMethod().getType();
+                        IOpenCast openCast = bindingContext.getCast(definitionReturnType, decisionTableReturnType);
+                        if (openCast != null && openCast.isImplicit()) {
+                            returnDefinition = rd;
+                            break;
+                        }
+                    }
+                }
+            }   
+        }
+        
+        if (returnDefinition == null) {
+            return false;
+        }
+        
+        
         grid.setCellValue(firstReturnColumn, 1, statement);
 
-        int c = firstReturnColumn;
+        c = firstReturnColumn;
         while (c < originalTable.getSource().getWidth()) {
             ICell cell = originalTable.getSource().getCell(c, 0);
             String d = cell.getStringValue();
@@ -746,6 +774,8 @@ public class DecisionTableHelper {
                 grid.addMergedRegion(new GridRegion(row, firstReturnColumn, row, originalTable.getWidth() - 1));
             }
         }
+        
+        return true;
     }
 
     private static void writeReturn(TableSyntaxNode tableSyntaxNode,
@@ -808,17 +838,12 @@ public class DecisionTableHelper {
 
         if (!isLookupTable) {
             if (originalTable.getWidth() > conditions.length) {
-                ReturnDefinition returnDefinition = getReturnDefinition(originalTable, decisionTable, firstReturnColumn, bindingContext);
-                
-                if (returnDefinition != null) {
-                    writeReturnWithReturnDefinition(tableSyntaxNode,
-                        grid,
-                        originalTable,
-                        decisionTable,
-                        firstReturnColumn,
-                        bindingContext,
-                        returnDefinition);
-                } else {
+                if (!writeReturnWithReturnDefinition(tableSyntaxNode,
+                    grid,
+                    originalTable,
+                    decisionTable,
+                    firstReturnColumn,
+                    bindingContext)) {
                     IOpenClass compoundType = getCompoundReturnType(tableSyntaxNode,
                         decisionTable,
                         isCollectTable,
@@ -1001,12 +1026,12 @@ public class DecisionTableHelper {
                         } else {
                             grid.setCellValue(column, 2, conditions[i].getParameterDeclarations()[j].getType().getName());
                         }
-                        if (originalTable.getCell(column, 0).getWidth() > 1) {
-                            grid.addMergedRegion(new GridRegion(2, column, 2, column + originalTable.getCell(column, 0).getWidth() - 1));
-                        }
                         typeOfValue = conditions[i].getParameterDeclarations()[j].getType();
                     } else {
                         typeOfValue = conditions[i].getCompositeMethod().getType();
+                    }
+                    if (originalTable.getCell(column, 0).getWidth() > 1) {
+                        grid.addMergedRegion(new GridRegion(2, column, 2, column + originalTable.getCell(column, 0).getWidth() - 1));
                     }
                     if (!bindingContext.isExecutionMode()) {
                         if (conditions[i].getParameterDeclarations()[j] != null) {
@@ -1087,6 +1112,92 @@ public class DecisionTableHelper {
             j++;
         }
     }
+    
+    private static void parseRec(ISyntaxNode node, List<IdentifierNode> identifierNodes) {
+        if (node instanceof IdentifierNode) {
+            identifierNodes.add((IdentifierNode) node);
+        }
+        for (int i = 0; i < node.getNumberOfChildren(); i++) {
+            parseRec(node.getChild(i), identifierNodes);
+        }
+    }
+    
+    private static String buildStatementIfCan(CompositeMethod compositeMethod, IParameterDeclaration[] definitionParameters, IOpenMethodHeader definitionHeader,
+            IOpenMethodHeader header) {
+        List<IdentifierNode> identifierNodes = new ArrayList<>();
+        parseRec(compositeMethod.getMethodBodyBoundNode().getSyntaxNode(), identifierNodes);
+        Set<String> set = new HashSet<>();
+        for (IdentifierNode identifierNode : identifierNodes) {
+            boolean found = false;
+            for (IParameterDeclaration parameterDeclaration : definitionParameters) {
+                if (identifierNode.getIdentifier().equals(parameterDeclaration.getName())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                set.add(identifierNode.getIdentifier());
+            }
+        }
+        Map<String, String> parameterMap = new HashMap<>();
+        for (String param : set) {
+            int j = -1;
+            for (int i = 0; i < definitionHeader.getSignature().getNumberOfParameters(); i++) {
+                if (param.equals(definitionHeader.getSignature().getParameterName(i))) {
+                    j = i;
+                    break;
+                }
+            }
+            IOpenClass type = definitionHeader.getSignature().getParameterType(j);
+            int k = -1;
+            int t = 0;
+            for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
+                if (type.equals(header.getSignature().getParameterType(i))) {
+                    k = i;
+                    t++;
+                }
+            }
+            if (t == 1) {
+                parameterMap.put(param, header.getSignature().getParameterName(k));
+            }
+        }
+
+        if (set.size() == parameterMap.keySet().size()) {
+            final TextInfo textInfo = new TextInfo(compositeMethod.getMethodBodyBoundNode()
+                .getSyntaxNode()
+                .getModule()
+                .getCode());
+            Collections.sort(identifierNodes, new Comparator<IdentifierNode>() {
+                @Override
+                public int compare(IdentifierNode o1, IdentifierNode o2) {
+                    if (o1.getLocation().getStart().getAbsolutePosition(textInfo) < o2.getLocation()
+                        .getStart()
+                        .getAbsolutePosition(textInfo)) {
+                        return 1;
+                    } else if (o1.getLocation().getStart().getAbsolutePosition(textInfo) > o2.getLocation()
+                        .getStart()
+                        .getAbsolutePosition(textInfo)) {
+                        return -1;
+                    }
+                    return 0;
+                }
+            });
+
+            StringBuilder sb = new StringBuilder(compositeMethod.getMethodBodyBoundNode()
+                .getSyntaxNode()
+                .getModule()
+                .getCode());
+            for (IdentifierNode identifierNode : identifierNodes) {
+                if (parameterMap.containsKey(identifierNode.getIdentifier())) {
+                    int start = identifierNode.getLocation().getStart().getAbsolutePosition(textInfo);
+                    int end = identifierNode.getLocation().getEnd().getAbsolutePosition(textInfo);
+                    sb.replace(start, end + 1, parameterMap.get(identifierNode.getIdentifier()));
+                }
+            }
+            return sb.toString();
+        }
+        return null;
+    }
 
     private static Condition[] findConditionsForSmartDecisionTable(TableSyntaxNode tableSyntaxNode,
             ILogicalTable originalTable,
@@ -1164,43 +1275,48 @@ public class DecisionTableHelper {
                 }
             }
             
+            List<Triple<ConditionDefinition, IParameterDeclaration[], Integer>> matchedConditionDefinitions = getMatchedConditionDefinitions(
+                originalTable,
+                column,
+                xlsDefinitions,
+                title);
+           
             boolean f = false;
-            for (ConditionDefinition conditionDefinition : xlsDefinitions.getConditionDefinitions()) {
-                List<String> titles = new ArrayList<>(Arrays.asList(conditionDefinition.getTitles()));
-                String d = title;
-                int x = column;
-                IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[conditionDefinition.getNumberOfParameters()];
-                while (titles.contains(d)) {
-                    titles.remove(d);
-                    int j = 0;
-                    for (String s : conditionDefinition.getTitles()) {
-                        if (s.equals(d)) {
-                            parameterDeclarations[x - column] = conditionDefinition.getParameterDeclarations()[j];
-                            break;
-                        }
-                        j++;
-                    }
-                    d = originalTable.getCell(x, 0).getStringValue();
-                    x = x + 1;
-                }
-                if (titles.isEmpty()) {
-                    column = x - 1;
+            for (Triple<ConditionDefinition, IParameterDeclaration[], Integer> t : matchedConditionDefinitions) {
+                ConditionDefinition conditionDefinition = t.getLeft();
+                if (isStrictMatchedByParameters(decisionTable.getHeader(), conditionDefinition.getHeader())) {
+                    IOpenSourceCodeModule sourceCodeModule = conditionDefinition.getCompositeMethod()
+                        .getMethodBodyBoundNode()
+                        .getSyntaxNode()
+                        .getModule();
+                    String statement = sourceCodeModule.getCode();
+                    column = t.getRight() - 1;
                     List<Condition> conditions = new ArrayList<>();
-                    //Has all declared parameters 
-                    if (isStrictMatchedByParameters(decisionTable.getHeader(), conditionDefinition.getHeader())) {
-                        IOpenSourceCodeModule sourceCodeModule = conditionDefinition.getCompositeMethod()
-                            .getMethodBodyBoundNode()
-                            .getSyntaxNode()
-                            .getModule();
-                        String statement = sourceCodeModule.getCode();
-
-                        conditions.add(
-                            new Condition(conditionDefinition.getCompositeMethod(), statement, parameterDeclarations));
-                        vConditions.add(conditions);
-                        f = true;
-                        break;
-                    }
-                    
+                    conditions
+                        .add(new Condition(conditionDefinition.getCompositeMethod(), statement, t.getMiddle()));
+                    vConditions.add(conditions);
+                    f = true;
+                    break;
+                }
+            }
+            if (f) {
+                continue;
+            }
+            f = false;
+            for (Triple<ConditionDefinition, IParameterDeclaration[], Integer> t : matchedConditionDefinitions) {
+                ConditionDefinition conditionDefinition = t.getLeft();
+                String statement = buildStatementIfCan(conditionDefinition.getCompositeMethod(),
+                    conditionDefinition.getParameterDeclarations(),
+                    conditionDefinition.getHeader(),
+                    decisionTable.getHeader());
+                if (statement != null) {
+                    column = t.getRight() - 1;
+                    List<Condition> conditions = new ArrayList<>();
+                    conditions
+                        .add(new Condition(conditionDefinition.getCompositeMethod(), statement, t.getMiddle()));
+                    vConditions.add(conditions);
+                    f = true;
+                    break;
                 }
             }
             if (f) {
@@ -1334,6 +1450,51 @@ public class DecisionTableHelper {
         }
 
         return conditions;
+    }
+
+    private static List<Triple<ConditionDefinition, IParameterDeclaration[], Integer>> getMatchedConditionDefinitions(
+            ILogicalTable originalTable,
+            int column,
+            XlsDefinitions xlsDefinitions,
+            String title) {
+        List<Triple<ConditionDefinition, IParameterDeclaration[], Integer>> matchedConditionDefinitions = new ArrayList<>();
+        for (ConditionDefinition conditionDefinition : xlsDefinitions.getConditionDefinitions()) {
+            List<String> titles = new ArrayList<>(Arrays.asList(conditionDefinition.getTitles()));
+            String d = title;
+            int x = column;
+            IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[conditionDefinition.getNumberOfParameters()];
+            while (titles.contains(d)) {
+                titles.remove(d);
+                int j = 0;
+                for (String s : conditionDefinition.getTitles()) {
+                    if (s.equals(d)) {
+                        parameterDeclarations[x - column] = conditionDefinition.getParameterDeclarations()[j];
+                        break;
+                    }
+                    j++;
+                }
+                d = originalTable.getCell(x, 0).getStringValue();
+                x = x + 1;
+            }
+            if (titles.isEmpty()) {
+                matchedConditionDefinitions.add(Triple.of(conditionDefinition, parameterDeclarations, x));
+            }
+        }
+        Collections.sort(matchedConditionDefinitions,
+            new Comparator<Triple<ConditionDefinition, IParameterDeclaration[], Integer>>() {
+                @Override
+                public int compare(Triple<ConditionDefinition, IParameterDeclaration[], Integer> o1,
+                        Triple<ConditionDefinition, IParameterDeclaration[], Integer> o2) {
+                    if (o1.getRight() > o2.getRight()) {
+                        return -1;
+                    } else if (o1.getRight() < o2.getRight()) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                }
+            });
+        return matchedConditionDefinitions;
     }
 
     private static boolean isStrictMatchedByParameters(IOpenMethodHeader decisionTableMethodHeader,
