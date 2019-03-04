@@ -68,7 +68,7 @@
                   &#160;
                   <h:commandLink immediate="true"
                       rendered="#{repositoryTreeState.canCreate}"
-                      onclick="openCopyProjectDialog('#{prj.name}'); return false;" title="Copy project">
+                      onclick="openCopyProjectDialog('#{prj.name}', function() {location.href = location.href;}); return false;" title="Copy project">
                       <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" alt="Copy"/>
                   </h:commandLink>
                   <h:panelGroup rendered="#{repositoryTreeController.canUnlock and prj.data.locked and not prj.data.lockedByMe}">

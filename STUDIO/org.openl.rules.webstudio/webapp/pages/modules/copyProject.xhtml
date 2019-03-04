@@ -91,7 +91,7 @@
 
             <footer>
                 <a4j:commandButton id="copy" value="Copy" action="#{copyBean.copy}" render="@form" styleClass="button-primary"
-                                   oncomplete="updateStates(); if (#{!facesContext.validationFailed}) {RichFaces.$('modalCopyProject').hide(); location.href = location.href;}"/>
+                                   oncomplete="updateStates(); if (#{!facesContext.validationFailed}) {RichFaces.$('modalCopyProject').hide(); refreshPage(); return false;}"/>
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalCopyProject').hide();"/>
             </footer>
 
@@ -105,8 +105,17 @@
 
     <script>
         //<![CDATA[
-        function openCopyProjectDialog(projectName) {
+        var refreshPage = function () {
+            // In repository tab this function will be redefined with more lightweight refresh because POST requests
+            // without post/redirect/get pattern are used there heavily.
+            location.reload();
+        };
+
+        function openCopyProjectDialog(projectName, refreshPageFunc) {
             renderCopyProjectForm(projectName);
+            if (refreshPageFunc) {
+                refreshPage = refreshPageFunc;
+            }
         }
 
         function showCopyProjectDialog() {
