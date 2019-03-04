@@ -112,7 +112,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
             if (getHistoryVersion() == null || getFileData() != null) {
                 return super.getVersion();
             } else {
-                return new RepositoryProjectVersionImpl(getHistoryVersion(), null);
+                return new RepositoryProjectVersionImpl(getHistoryVersion(), null, false);
 
             }
         } else {

@@ -54,7 +54,7 @@
           <f:param name="projectName" value="#{projectReference}" />
         </h:commandLink>
       </rich:column>
-      <rich:column rendered="#{node.type == 'project' and repositoryTreeState.canOpenOtherVersion and !artefact.deleted}" style="text-align: center;">
+      <rich:column rendered="#{node.type == 'project' and repositoryTreeState.canOpenOtherVersion and !artefact.deleted and !version.deleted}" style="text-align: center;">
         <a4j:commandLink id="openPrjVersion" title="Open Revision ##{version.versionName}" onclick="return backToPropsTab();"
             immediate="true"
             action="#{repositoryTreeController.openProjectVersion(version.versionName)}" render="nodeView nodeTabPanel projectTree content">

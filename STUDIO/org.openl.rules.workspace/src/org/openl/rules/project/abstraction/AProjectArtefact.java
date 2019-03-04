@@ -97,7 +97,7 @@ public class AProjectArtefact {
         try {
             int versionsCount = getVersionsCount();
             if (versionsCount == 0) {
-                return new RepositoryProjectVersionImpl("0", null);
+                return new RepositoryProjectVersionImpl();
             }
 
             if (versionsCount == 1) {
@@ -106,7 +106,7 @@ public class AProjectArtefact {
 
             return getVersion(getFirstRevisionIndex());
         } catch (Exception e) {
-            return new RepositoryProjectVersionImpl("0", null);
+            return new RepositoryProjectVersionImpl();
         }
     }
 
@@ -155,11 +155,11 @@ public class AProjectArtefact {
 
     protected ProjectVersion createProjectVersion(FileData fileData) {
         if (fileData == null) {
-            return new RepositoryProjectVersionImpl("0", null);
+            return new RepositoryProjectVersionImpl();
         }
         RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(fileData.getModifiedAt(), fileData.getAuthor());
         String version = fileData.getVersion();
-        RepositoryProjectVersionImpl projectVersion = new RepositoryProjectVersionImpl(version == null ? "0" : version, rvii);
+        RepositoryProjectVersionImpl projectVersion = new RepositoryProjectVersionImpl(version == null ? "0" : version, rvii, fileData.isDeleted());
         projectVersion.setVersionComment(fileData.getComment());
         return projectVersion;
     }
