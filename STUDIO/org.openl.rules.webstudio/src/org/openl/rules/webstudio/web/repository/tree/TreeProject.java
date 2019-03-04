@@ -7,6 +7,8 @@ import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.repository.UiConst;
 import org.openl.rules.webstudio.filter.IFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
@@ -20,6 +22,7 @@ public class TreeProject extends TreeFolder {
 
     private static final long serialVersionUID = -326805891782640894L;
 
+    private final Logger log = LoggerFactory.getLogger(TreeProject.class);
     private final ProjectDescriptorArtefactResolver projectDescriptorResolver;
     private String logicalName;
 
@@ -98,11 +101,21 @@ public class TreeProject extends TreeFolder {
     }
 
     public Date getModifiedAt() {
-        return getProject().getFileData().getModifiedAt();
+        try {
+            return getProject().getFileData().getModifiedAt();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return null;
+        }
     }
 
     public String getModifiedBy() {
-        return getProject().getFileData().getAuthor();
+        try {
+            return getProject().getFileData().getAuthor();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return "Error";
+        }
     }
 
     @Override
@@ -151,8 +164,13 @@ public class TreeProject extends TreeFolder {
     }
 
     public String getVersion() {
-        String projectVersion = getProject().getFileData().getVersion();
-        return projectVersion == null ? "unversioned" : projectVersion;
+        try {
+            String projectVersion = getProject().getFileData().getVersion();
+            return projectVersion == null ? "unversioned" : projectVersion;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return "Error";
+        }
     }
 
     public boolean isRenamed() {
