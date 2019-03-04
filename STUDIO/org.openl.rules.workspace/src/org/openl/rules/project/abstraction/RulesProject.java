@@ -13,9 +13,12 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.util.RuntimeExceptionWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RulesProject extends UserWorkspaceProject {
+    private final Logger log = LoggerFactory.getLogger(RulesProject.class);
+
     private LocalRepository localRepository;
     private String localFolderName;
 
@@ -201,7 +204,8 @@ public class RulesProject extends UserWorkspaceProject {
                     historyFileDatas = Collections.emptyList();
                 }
             } catch (IOException ex) {
-                throw RuntimeExceptionWrapper.wrap(ex);
+                log.error(ex.getMessage(), ex);
+                return Collections.emptyList();
             }
         }
         return historyFileDatas;
@@ -220,7 +224,8 @@ public class RulesProject extends UserWorkspaceProject {
         try {
             fileDatas = getRepository().listHistory(fullPath);
         } catch (IOException ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
+            log.error(ex.getMessage(), ex);
+            return Collections.emptyList();
         }
         List<ProjectVersion> versions = new ArrayList<>();
         for (FileData data : fileDatas) {

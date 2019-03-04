@@ -14,9 +14,12 @@ import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.IOUtils;
-import org.openl.util.RuntimeExceptionWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AProjectFolder extends AProjectArtefact {
+    private final Logger log = LoggerFactory.getLogger(AProject.class);
+
     private Map<String, AProjectArtefact> artefacts;
     private ResourceTransformer resourceTransformer;
     private String folderPath;
@@ -213,7 +216,8 @@ public class AProjectFolder extends AProjectArtefact {
                 fileDatas = getRepository().list(folderPath);
             }
         } catch (IOException ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
+            log.error(ex.getMessage(), ex);
+            fileDatas = Collections.emptyList();
         }
         for (FileData fileData : fileDatas) {
             if (!fileData.getName().equals(folderPath) && !fileData.isDeleted()) {

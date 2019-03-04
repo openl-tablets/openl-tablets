@@ -16,10 +16,13 @@ import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
-import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AProject extends AProjectFolder {
+    private final Logger log = LoggerFactory.getLogger(AProject.class);
+
     /**
      * true if the project has a folder structure and false if the project is stored as a zip
      */
@@ -129,7 +132,8 @@ public class AProject extends AProjectFolder {
                     historyFileDatas = Collections.emptyList();
                 }
             } catch (IOException ex) {
-                throw RuntimeExceptionWrapper.wrap(ex);
+                log.error(ex.getMessage(), ex);
+                return Collections.emptyList();
             }
         }
         return historyFileDatas;
@@ -213,7 +217,12 @@ public class AProject extends AProjectFolder {
     }
 
     public boolean isDeleted() {
-        return getFileData().isDeleted();
+        try {
+            return getFileData().isDeleted();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
     }
 
     public void undelete(CommonUser user) throws ProjectException {
