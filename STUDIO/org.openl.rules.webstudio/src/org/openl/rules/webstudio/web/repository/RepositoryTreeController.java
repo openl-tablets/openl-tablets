@@ -1145,7 +1145,9 @@ public class RepositoryTreeController {
 
         List<SelectItem> selectItems = new ArrayList<>();
         for (ProjectVersion version : versions) {
-            selectItems.add(new SelectItem(version.getVersionName()));
+            if (!version.isDeleted()) {
+                selectItems.add(new SelectItem(version.getVersionName()));
+            }
         }
         return selectItems.toArray(new SelectItem[0]);
     }

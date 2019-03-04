@@ -4,7 +4,6 @@ import java.io.*;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
-import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -1127,31 +1126,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             RevTree tree = commit.getTree();
 
             try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
-                // Skip technical commits
-                if (!isTechnicalCommit(commit)) {
-                    history.add(createFileData(rootWalk, commit));
-                }
+                history.add(createFileData(rootWalk, commit));
             } catch (FileNotFoundException e) {
                 log.debug("File '{}' is absent in the commit {}", fullPath, commitVersion, e);
             }
 
             return false;
-        }
-
-        private boolean isTechnicalCommit(RevCommit commit) {
-            boolean technicalCommit = false;
-            try {
-                Object[] parse = new MessageFormat(commentPattern).parse(commit.getFullMessage());
-                if (parse.length == 2) {
-                    CommitType commitType = CommitType.valueOf(String.valueOf(parse[0]));
-                    if (commitType != CommitType.NORMAL) {
-                        technicalCommit = true;
-                    }
-                }
-            } catch (ParseException | IllegalArgumentException ignored) {
-                // If message doesn't conform format then it's typical commit message, not technical
-            }
-            return technicalCommit;
         }
 
         @Override
