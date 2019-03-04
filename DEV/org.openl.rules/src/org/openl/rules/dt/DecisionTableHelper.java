@@ -725,7 +725,8 @@ public class DecisionTableHelper {
                     statement = buildStatementIfCan(rd.getCompositeMethod(),
                         rd.getParameterDeclarations(),
                         rd.getHeader(),
-                        decisionTable.getHeader());
+                        decisionTable.getHeader(),
+                        bindingContext);
                     if (statement != null) {
                         IOpenClass decisionTableReturnType = decisionTable.getHeader().getType();
                         IOpenClass definitionReturnType = rd.getCompositeMethod().getType();
@@ -769,9 +770,9 @@ public class DecisionTableHelper {
             c = c + cell.getWidth();
         }
 
-        if (originalTable.getWidth() - firstReturnColumn > 1) {
+        if (originalTable.getSource().getWidth() - firstReturnColumn > 1) {
             for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1; row++) {
-                grid.addMergedRegion(new GridRegion(row, firstReturnColumn, row, originalTable.getWidth() - 1));
+                grid.addMergedRegion(new GridRegion(row, firstReturnColumn, row, originalTable.getSource().getWidth() - 1));
             }
         }
         
@@ -1044,7 +1045,7 @@ public class DecisionTableHelper {
                 }
                 
                 //merge columns
-                if (column - firstColumn > 0) {
+                if (column - firstColumn > 1) {
                     for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1; row++) {
                         grid.addMergedRegion(new GridRegion(row, firstColumn, row, column - 1));
                     }
@@ -1123,7 +1124,7 @@ public class DecisionTableHelper {
     }
     
     private static String buildStatementIfCan(CompositeMethod compositeMethod, IParameterDeclaration[] definitionParameters, IOpenMethodHeader definitionHeader,
-            IOpenMethodHeader header) {
+            IOpenMethodHeader header, IBindingContext bindingContext) {
         List<IdentifierNode> identifierNodes = new ArrayList<>();
         parseRec(compositeMethod.getMethodBodyBoundNode().getSyntaxNode(), identifierNodes);
         Set<String> set = new HashSet<>();
@@ -1140,6 +1141,7 @@ public class DecisionTableHelper {
             }
         }
         Map<String, String> parameterMap = new HashMap<>();
+        Map<String, String> implicitCastParameterMap = new HashMap<>();
         for (String param : set) {
             int j = -1;
             for (int i = 0; i < definitionHeader.getSignature().getNumberOfParameters(); i++) {
@@ -1151,18 +1153,28 @@ public class DecisionTableHelper {
             IOpenClass type = definitionHeader.getSignature().getParameterType(j);
             int k = -1;
             int t = 0;
+            int k1 = -1;
+            int t1 = 0;
             for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
-                if (type.equals(header.getSignature().getParameterType(i))) {
+                IOpenCast openCast = bindingContext.getCast(type, header.getSignature().getParameterType(i));
+                if (openCast != null && openCast.isImplicit()) {
                     k = i;
                     t++;
+                }
+                if (type.equals(header.getSignature().getParameterType(i))) {
+                    k1 = i;
+                    t1++;
                 }
             }
             if (t == 1) {
                 parameterMap.put(param, header.getSignature().getParameterName(k));
             }
+            if (t1 == 1) {
+                implicitCastParameterMap.put(param, header.getSignature().getParameterName(k1));
+            }
         }
 
-        if (set.size() == parameterMap.keySet().size()) {
+        if (set.size() == parameterMap.keySet().size() || set.size() == implicitCastParameterMap.size()) {
             final TextInfo textInfo = new TextInfo(compositeMethod.getMethodBodyBoundNode()
                 .getSyntaxNode()
                 .getModule()
@@ -1188,10 +1200,13 @@ public class DecisionTableHelper {
                 .getModule()
                 .getCode());
             for (IdentifierNode identifierNode : identifierNodes) {
-                if (parameterMap.containsKey(identifierNode.getIdentifier())) {
-                    int start = identifierNode.getLocation().getStart().getAbsolutePosition(textInfo);
-                    int end = identifierNode.getLocation().getEnd().getAbsolutePosition(textInfo);
+                int start = identifierNode.getLocation().getStart().getAbsolutePosition(textInfo);
+                int end = identifierNode.getLocation().getEnd().getAbsolutePosition(textInfo);
+                if (set.size() == parameterMap.keySet().size() && parameterMap
+                    .containsKey(identifierNode.getIdentifier())) {
                     sb.replace(start, end + 1, parameterMap.get(identifierNode.getIdentifier()));
+                } else if (implicitCastParameterMap.containsKey(identifierNode.getIdentifier())) {
+                    sb.replace(start, end + 1, implicitCastParameterMap.get(identifierNode.getIdentifier()));
                 }
             }
             return sb.toString();
@@ -1308,7 +1323,8 @@ public class DecisionTableHelper {
                 String statement = buildStatementIfCan(conditionDefinition.getCompositeMethod(),
                     conditionDefinition.getParameterDeclarations(),
                     conditionDefinition.getHeader(),
-                    decisionTable.getHeader());
+                    decisionTable.getHeader(),
+                    bindingContext);
                 if (statement != null) {
                     column = t.getRight() - 1;
                     List<Condition> conditions = new ArrayList<>();
