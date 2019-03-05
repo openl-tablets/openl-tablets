@@ -29,12 +29,19 @@
             onclick="RichFaces.$('modalExportVersion').hide();" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="RichFaces.$('modalExportVersion').hide();" />
       </footer>
+
+      <a4j:jsFunction name="renderExportVersionForm" render="exportVersionForm" oncomplete="showExportVersionDialog()"/>
+
     </h:form>
 
   </rich:popupPanel>
 
   <script>
     function openExportVersionDialog() {
+      renderExportVersionForm();
+    }
+
+    function showExportVersionDialog() {
         RichFaces.$('modalExportVersion').show();
         focusElement('exportVersionForm:projectVersion');
     }

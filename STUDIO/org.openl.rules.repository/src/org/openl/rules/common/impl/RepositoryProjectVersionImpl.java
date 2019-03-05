@@ -19,10 +19,16 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     
     private Map<String, Object> versionProperties;
     private String versionComment;
-    
+    private boolean deleted = false;
+
     @Override
     public String getVersionComment() {
         return versionComment;
+    }
+
+    @Override
+    public boolean isDeleted() {
+        return deleted;
     }
 
     public void setVersionComment(String versionComment) {
@@ -47,9 +53,14 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         this.versionProperties = versionProperties;
     }
     
-    public RepositoryProjectVersionImpl(String revision, VersionInfo versionInfo) {
+    public RepositoryProjectVersionImpl() {
+        this("0", null, false);
+    }
+
+    public RepositoryProjectVersionImpl(String revision, VersionInfo versionInfo, boolean deleted) {
         this.revision = revision;
         this.versionInfo = versionInfo;
+        this.deleted = deleted;
     }
 
     public int compareTo(CommonVersion o) {

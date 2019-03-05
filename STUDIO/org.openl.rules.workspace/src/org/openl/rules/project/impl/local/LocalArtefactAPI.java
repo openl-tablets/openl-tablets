@@ -48,7 +48,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
         this.creationDate = source.lastModified();
         this.path = path;
         this.workspace = workspace;
-        currentVersion = new RepositoryProjectVersionImpl("0", null);
+        currentVersion = new RepositoryProjectVersionImpl();
         properties = new PropertiesContainerImpl();
         load();
     }
@@ -61,7 +61,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
         state.modified = this.modified;
         state.creationDate = this.creationDate;
 
-        state.properties = new ArrayList<Property>();
+        state.properties = new ArrayList<>();
         state.properties.addAll(getProperties());
         return state;
     }
@@ -162,7 +162,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
 
     public List<ProjectVersion> getVersions() {
         if (versions == null) {
-            versions = new ArrayList<ProjectVersion>();
+            versions = new ArrayList<>();
         }
         return versions;
     }
@@ -255,7 +255,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
 
         if (segmentId > 1) {
             LocalArtefactAPI parentArtefactAPI = new LocalArtefactAPI(source.getParentFile(), path.withoutSegment(segmentId - 1), workspace);
-            Map<String, InheritedProperty> inheritedProps = new HashMap<String, InheritedProperty>();
+            Map<String, InheritedProperty> inheritedProps = new HashMap<>();
             
             inheritedProps.putAll(parentArtefactAPI.getInheritedProps());
             
@@ -273,7 +273,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
             return inheritedProps;
         }
 
-        return new HashMap<String, InheritedProperty>();
+        return new HashMap<>();
     }
     
     public void clearModifyStatus() { 

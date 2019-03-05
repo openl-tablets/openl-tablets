@@ -25,6 +25,7 @@
         <module>itest.smoke</module>
         <module>itest.jacksonbinding</module>
         <module>itest.WebServiceAnnotation</module>
+        <module>itest.ws-rest-rules-deploy</module>
         <module>itest.EPBDS-6437</module>
         <module>itest.HttpStatuses</module>
         <module>itest.EPBDS-7787</module>
