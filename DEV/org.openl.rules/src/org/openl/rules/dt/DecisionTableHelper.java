@@ -24,6 +24,7 @@ import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.fuzzy.OpenLFuzzySearch;
@@ -61,7 +62,6 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
@@ -1364,7 +1364,8 @@ public class DecisionTableHelper {
 
     private static List<Condition> fitVConditions(TableSyntaxNode tableSyntaxNode,
             List<Condition> vConditions,
-            int numberOfParametersToUse) throws SyntaxNodeException {
+            int numberOfParametersToUse,
+            IBindingContext bindingContext) throws SyntaxNodeException {
         boolean[][] matrix = new boolean[vConditions.size()][vConditions.size()];
         for (int i = 0; i < vConditions.size(); i++) {
             for (int j = 0; j < vConditions.size(); j++) {
@@ -1404,6 +1405,9 @@ public class DecisionTableHelper {
             for (Integer index : indexes) {
                 conditions.add(vConditions.get(index));
             }
+            
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage("Ambiguous match titles of column to DT conditions.", tableSyntaxNode));
+            
             return conditions;
         }
 
@@ -1478,7 +1482,7 @@ public class DecisionTableHelper {
             }
         }
         
-        List<Condition> fitConditions = fitVConditions(tableSyntaxNode, vConditions, decisionTable.getSignature().getNumberOfParameters() - numberOfHcondition);
+        List<Condition> fitConditions = fitVConditions(tableSyntaxNode, vConditions, decisionTable.getSignature().getNumberOfParameters() - numberOfHcondition, bindingContext);
 
         boolean[] parameterIsUsed = new boolean[numberOfParameters];
         Arrays.fill(parameterIsUsed, false);
