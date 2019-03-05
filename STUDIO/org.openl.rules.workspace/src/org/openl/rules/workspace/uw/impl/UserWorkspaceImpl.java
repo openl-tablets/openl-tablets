@@ -336,24 +336,27 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 Repository desRepo = designRepository;
                 FileData designFileData = rp.getFileData();
 
-                if (designRepository.supports().branches() && local != null) {
-                    BranchRepository branchRepository = (BranchRepository) designRepository;
-                    String repoBranch = branchRepository.getBranch();
-                    String branch = local.getBranch();
-                    if (branch == null) {
-                        log.warn("Unknown branch in repository supporting branches");
-                    } else if (!branch.equals(repoBranch)) {
-                        // We are inside alternative branch. Must change design repo info.
-                        try {
+                try {
+                    if (designRepository.supports().branches() && local != null) {
+                        BranchRepository branchRepository = (BranchRepository) designRepository;
+                        String repoBranch = branchRepository.getBranch();
+                        String branch = local.getBranch();
+                        if (branch == null) {
+                            log.warn("Unknown branch in repository supporting branches");
+                        } else if (!branch.equals(repoBranch)) {
+                            // We are inside alternative branch. Must change design repo info.
                             desRepo = branchRepository.forBranch(branch);
                             // Other branch - other version of file data
                             if (designFileData != null) {
                                 designFileData = desRepo.check(designFileData.getName());
                             }
-                        } catch (IOException e) {
-                            throw new IllegalStateException(e);
                         }
                     }
+                } catch (IOException e) {
+                    log.error("Skip workspace changes for project '{}' because of error: {}", rp.getName(), e.getMessage(), e);
+                    desRepo = designRepository;
+                    designFileData = rp.getFileData();
+                    local = null;
                 }
 
                 userRulesProjects.put(name, new RulesProject(this, localRepository, local, desRepo, designFileData, projectsLockEngine));
