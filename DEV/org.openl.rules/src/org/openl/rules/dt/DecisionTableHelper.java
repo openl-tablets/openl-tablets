@@ -709,7 +709,9 @@ public class DecisionTableHelper {
                         if (bestReturnDefinition == null || !bestMatchedStatement.isStrictMatch()) {
                             bestReturnDefinition = rd; 
                             bestMatchedStatement = matchedDefinition;
-                        } 
+                        } else if (bestReturnDefinition != null) {
+                            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage("Ambiguous match titles to DT return columns.", tableSyntaxNode));
+                        }
                     }
                 }
             }
@@ -1406,7 +1408,9 @@ public class DecisionTableHelper {
                 conditions.add(vConditions.get(index));
             }
             
-            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage("Ambiguous match titles of column to DT conditions.", tableSyntaxNode));
+            if (fits.size() > 1) {
+                bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage("Ambiguous match titles to DT conditions.", tableSyntaxNode));
+            }
             
             return conditions;
         }
