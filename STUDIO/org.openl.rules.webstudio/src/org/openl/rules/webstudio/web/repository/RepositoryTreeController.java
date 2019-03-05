@@ -1702,7 +1702,9 @@ public class RepositoryTreeController {
             if (selectedProject.isOpened()) {
                 closeProjectAndReleaseResources(selectedProject);
                 selectedProject.setBranch(branch);
-                selectedProject.open();
+                if (!selectedProject.isDeleted()) {
+                    selectedProject.open();
+                }
             } else {
                 selectedProject.setBranch(branch);
             }
