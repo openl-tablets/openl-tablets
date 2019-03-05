@@ -1,3 +1,3 @@
-WARN: Ambiguous match titles to DT conditions.
-WARN: Ambiguous match titles to DT conditions.
-WARN: Ambiguous match titles to DT return columns.
+WARN: Ambiguous match titles of columns to DT conditions. Please, use more appropriate titles for condition columns.
+WARN: Ambiguous match titles of columns to DT conditions. Please, use more appropriate titles for condition columns.
+WARN: Ambiguous match titles of columns to DT return columns. Please, use more appropriate titles for return columns.
