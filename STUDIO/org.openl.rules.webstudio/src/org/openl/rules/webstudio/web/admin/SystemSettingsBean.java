@@ -18,6 +18,7 @@ import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
+import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
@@ -49,6 +50,9 @@ public class SystemSettingsBean {
 
     @ManagedProperty(value = "#{designTimeRepository}")
     private DesignTimeRepository designTimeRepository;
+
+    @ManagedProperty(value = "#{repositoryTreeState}")
+    private RepositoryTreeState repositoryTreeState;
 
     private ConfigurationManager configManager;
     private RepositoryConfiguration designRepositoryConfiguration;
@@ -186,6 +190,8 @@ public class SystemSettingsBean {
 
     public void applyChanges() {
         try {
+            repositoryTreeState.invalidateTree();
+
             RepositoryValidators.validate(designRepositoryConfiguration);
             RepositoryValidators.validateConnectionForDesignRepository(designRepositoryConfiguration, designTimeRepository,
                     RepositoryMode.DESIGN);
@@ -252,6 +258,10 @@ public class SystemSettingsBean {
 
     public void setDesignTimeRepository(DesignTimeRepository designTimeRepository) {
         this.designTimeRepository = designTimeRepository;
+    }
+
+    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
+        this.repositoryTreeState = repositoryTreeState;
     }
 
     public void deleteProductionRepository(String configName) {
