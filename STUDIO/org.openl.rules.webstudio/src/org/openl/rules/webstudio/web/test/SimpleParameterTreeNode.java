@@ -74,7 +74,7 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
             List<String> result = new ArrayList<>();
             result.add("");
             for (Object o : domain) {
-                result.add(o.toString());
+                result.add(FormattersManager.format(o));
             }
             return result;
         }
