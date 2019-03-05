@@ -256,8 +256,13 @@ public class CopyBean {
 
         try {
             UserWorkspace userWorkspace = getUserWorkspace();
+            if (!userWorkspace.hasProject(currentProjectName)) {
+                currentProjectName = null;
+                return null;
+            }
+
             return userWorkspace.getProject(currentProjectName, false);
-        } catch (WorkspaceException | ProjectException e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
             return null;
         }
