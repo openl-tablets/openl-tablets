@@ -21,6 +21,7 @@ import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.ParameterRegistry;
 import org.openl.types.IOpenClass;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.vm.SimpleVM;
@@ -71,7 +72,7 @@ public class ParameterTreeBuilder {
      * TODO: Refactor. Not a good way to check if it is possible to instantiate
      */
     public static boolean canConstruct(IOpenClass type) {
-        if (type instanceof SpreadsheetResultOpenClass) {
+        if (type instanceof SpreadsheetResultOpenClass || type instanceof DomainOpenClass) {
             return false;
         }
         if (type.getInstanceClass() == null) {
