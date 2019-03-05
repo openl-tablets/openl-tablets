@@ -328,8 +328,8 @@ public class GitRepositoryTest {
         assertEquals("Delete project1.", deletedProject.getComment());
 
         // Count actual changes in history
-        assertEquals("Actual project changes must be 3. Technical commits for Archive/Restore shouldn't be counted",
-                3,
+        assertEquals("Actual project changes must be 5.",
+                5,
                 repo.listHistory(projectPath).size());
 
         // Erase the project
@@ -341,11 +341,11 @@ public class GitRepositoryTest {
         assertNull("'project1' isn't erased", deletedProject);
 
         // Life after erase
-        assertEquals(3, repo.listHistory(projectPath).size());
+        assertEquals(5, repo.listHistory(projectPath).size());
         // Create new version
         String text = "Reincarnation";
         repo.save(createFileData(projectPath, text), IOUtils.toInputStream(text));
-        assertEquals(4, repo.listHistory(projectPath).size());
+        assertEquals(6, repo.listHistory(projectPath).size());
     }
 
     @Test
