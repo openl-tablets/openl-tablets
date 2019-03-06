@@ -9,8 +9,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -706,7 +708,7 @@ public class DecisionTableHelper {
                         decisionTable.getHeader(),
                         bindingContext);
                     if (matchedDefinition != null) {
-                        if (bestReturnDefinition == null || !bestMatchedStatement.isStrictMatch()) {
+                        if (bestReturnDefinition == null || bestMatchedStatement.getDefinitionMatchType().getPriority() > matchedDefinition.getDefinitionMatchType().getPriority()) {
                             bestReturnDefinition = rd; 
                             bestMatchedStatement = matchedDefinition;
                         } else if (bestReturnDefinition != null) {
@@ -1147,13 +1149,13 @@ public class DecisionTableHelper {
                 }
                 IOpenCast openCast = bindingContext.getCast(type, header.getSignature().getParameterType(i));
                 if (openCast != null && openCast.isImplicit()) {
-                    k = i;
-                    t++;
+                    k1 = i;
+                    t1++;
                     usedParameterWithTypeCastIndexes.add(i);
                 }
                 if (type.equals(header.getSignature().getParameterType(i))) {
-                    k1 = i;
-                    t1++;
+                    k = i;
+                    t++;
                     usedParameterIndexes.add(i);
                 }
             }
@@ -1168,7 +1170,7 @@ public class DecisionTableHelper {
         if (strictMatchOfParameters == set.size()) {
             return new MatchedDefinition(compositeMethod.getMethodBodyBoundNode().getSyntaxNode().getModule().getCode(),
                 ArrayUtils.toPrimitive(strictUsedParameterIndexes.toArray(new Integer[] {})),
-                true);
+                DefinitionMatchType.STRICT);
         }
 
         if (set.size() == parameterMap.keySet().size() || set.size() == parameterWithTypeCastMap.size()) {
@@ -1202,13 +1204,19 @@ public class DecisionTableHelper {
                     sb.replace(start, end + 1, parameterWithTypeCastMap.get(identifierNode.getIdentifier()));
                 }
             }
-            int[] usedIndexes;
             if (set.size() == parameterMap.keySet().size()) {
-                usedIndexes = ArrayUtils.toPrimitive(usedParameterIndexes.toArray(new Integer[] {}));
+                int[] usedIndexes = ArrayUtils.toPrimitive(usedParameterIndexes.toArray(new Integer[] {}));
+                return new MatchedDefinition(sb.toString(), usedIndexes, DefinitionMatchType.PARAM_NAME_CHANGED);
             } else {
-                usedIndexes = ArrayUtils.toPrimitive(usedParameterWithTypeCastIndexes.toArray(new Integer[] {}));
+                int[] usedIndexes = ArrayUtils.toPrimitive(usedParameterWithTypeCastIndexes.toArray(new Integer[] {}));
+                for (Entry<String, String> entry : parameterWithTypeCastMap.entrySet()) {
+                    if (!entry.getKey().equals(entry.getValue())) {
+                        return new MatchedDefinition(sb.toString(), usedIndexes, DefinitionMatchType.PARAM_NAME_CHANGED_AND_IMLICIT_CAST_USED);
+                    }
+                }
+                return new MatchedDefinition(sb.toString(), usedIndexes, DefinitionMatchType.IMPLICIT_CAST_USED);
             }
-            return new MatchedDefinition(sb.toString(), usedIndexes, false);
+
         }
         return null;
     }
@@ -1282,11 +1290,17 @@ public class DecisionTableHelper {
         return true;
     }
     
-    private static void bruteForceConditions(int column, int numberOfParametersToUse, List<Condition> vConditions, boolean[][] matrix, Map<Integer, List<Integer>> columnToIndex, List<Integer> usedIndexes, Set<Integer> usedParameterIndexes, List<List<Integer>> fits) {
+    private static void bruteForceConditions(int column, int numberOfParametersToUse, List<Condition> vConditions, boolean[][] matrix, Map<Integer, List<Integer>> columnToIndex, List<Integer> usedIndexes, Set<Integer> usedParameterIndexes, List<Condition[]> fits) {
         List<Integer> indexes = columnToIndex.get(column);
         if (indexes == null || usedParameterIndexes.size() >= numberOfParametersToUse) {
-            fits.add(new ArrayList<>(usedIndexes));
-            return;
+            List<Condition> conditions = new ArrayList<>();
+            for (Integer index : usedIndexes) {
+                conditions.add(vConditions.get(index));
+            }
+            fits.add(conditions.toArray(new Condition[] {}));
+            if (indexes == null) {
+                return;
+            }
         }
         for (Integer index : indexes) {
             boolean f = true;
@@ -1315,56 +1329,24 @@ public class DecisionTableHelper {
         }
     }
     
-    private static List<List<Integer>> filterByMaxDeclaredAndStrictConditions(List<List<Integer>> fits, List<Condition> vConditions) {
-        int maxDeclaredCount = 0;
-        int maxStrictMatchCount = 0;
-        List<List<Integer>> newFits = new ArrayList<>();
-        for (List<Integer> indexes : fits) {
-            int declaredCount = 0;
-            int strictMatchCount = 0;
-            for (Integer index : indexes) {
-                if (vConditions.get(index).isDeclared()) {
-                    declaredCount++;
-                }
-                if (vConditions.get(index).isStrictMatch()) {
-                    strictMatchCount++;
-                }
-            }
-            if (declaredCount > maxDeclaredCount || declaredCount == maxDeclaredCount && strictMatchCount < maxStrictMatchCount) {
-                maxDeclaredCount = declaredCount;
-                maxStrictMatchCount = strictMatchCount;
+    private static List<Condition[]> filterConditionsByMax(List<Condition[]> fits,
+            Function<Condition[], Long> function) {
+        long max = 0;
+        List<Condition[]> newFits = new ArrayList<>();
+        for (Condition[] conditions : fits) {
+            long current = function.apply(conditions);
+            if (current > max) {
+                max = current;
                 newFits.clear();
-                newFits.add(indexes);
-            } else if (declaredCount == maxDeclaredCount && strictMatchCount == maxStrictMatchCount) {
-                newFits.add(indexes);
+                newFits.add(conditions);
+            } else if (current == max) {
+                newFits.add(conditions);
             }
         }
         return newFits;
     }
     
-    private static List<List<Integer>> filterByMaxParametersIsUsedInConditions(List<List<Integer>> fits,
-            List<Condition> vConditions) {
-        int max = 0;
-        List<List<Integer>> newFits = new ArrayList<>();
-        for (List<Integer> indexes : fits) {
-            Set<Integer> usedParameters = new HashSet<>();
-            for (Integer index : indexes) {
-                for (int p : vConditions.get(index).getParameterIndexes()) {
-                    usedParameters.add(p);
-                }
-            }
-            if (max < usedParameters.size()) {
-                max = usedParameters.size();
-                newFits.clear();
-                newFits.add(indexes);
-            } else if (max == usedParameters.size()) {
-                newFits.add(indexes);
-            }
-        }
-        return newFits;
-    }
-
-    private static List<Condition> fitVConditions(TableSyntaxNode tableSyntaxNode,
+    private static Condition[] fitVConditions(TableSyntaxNode tableSyntaxNode,
             List<Condition> vConditions,
             int numberOfParametersToUse,
             IBindingContext bindingContext) throws SyntaxNodeException {
@@ -1388,7 +1370,7 @@ public class DecisionTableHelper {
                 }
             }
         }
-        List<List<Integer>> fits = new ArrayList<>();
+        List<Condition[]> fits = new ArrayList<>();
         bruteForceConditions(0,
             numberOfParametersToUse,
             vConditions,
@@ -1398,24 +1380,22 @@ public class DecisionTableHelper {
             new HashSet<>(),
             fits);
 
-        fits = filterByMaxDeclaredAndStrictConditions(fits, vConditions);
-        fits = filterByMaxParametersIsUsedInConditions(fits, vConditions);
-
-        if (!fits.isEmpty()) {
-            List<Integer> indexes = fits.get(0);
-            List<Condition> conditions = new ArrayList<>();
-            for (Integer index : indexes) {
-                conditions.add(vConditions.get(index));
-            }
+        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> x.isDeclared()).count());
+        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> DefinitionMatchType.STRICT.equals(x.getDefinitionMatchType())).count());
+        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> DefinitionMatchType.IMPLICIT_CAST_USED.equals(x.getDefinitionMatchType())).count());
+        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> DefinitionMatchType.PARAM_NAME_CHANGED.equals(x.getDefinitionMatchType())).count());
+        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> DefinitionMatchType.PARAM_NAME_CHANGED_AND_IMLICIT_CAST_USED.equals(x.getDefinitionMatchType())).count());
+        fits = filterConditionsByMax(fits, e-> Arrays.stream(e).flatMapToInt(c -> Arrays.stream(c.getParameterIndexes())).distinct().count());
             
+        if (!fits.isEmpty()) {
             if (fits.size() > 1) {
                 bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage("Ambiguous matching of column titles to DT conditions. Use more appropriate titles for condition columns.", tableSyntaxNode));
             }
             
-            return conditions;
+            return fits.get(0);
         }
 
-        return Collections.emptyList();
+        return new Condition[] {};
     }
 
     private static Condition[] findConditionsForSmartDecisionTable(TableSyntaxNode tableSyntaxNode,
@@ -1486,7 +1466,7 @@ public class DecisionTableHelper {
             }
         }
         
-        List<Condition> fitConditions = fitVConditions(tableSyntaxNode, vConditions, decisionTable.getSignature().getNumberOfParameters() - numberOfHcondition, bindingContext);
+        Condition[] fitConditions = fitVConditions(tableSyntaxNode, vConditions, decisionTable.getSignature().getNumberOfParameters() - numberOfHcondition, bindingContext);
 
         boolean[] parameterIsUsed = new boolean[numberOfParameters];
         Arrays.fill(parameterIsUsed, false);
@@ -1509,7 +1489,7 @@ public class DecisionTableHelper {
             throw new OpenLCompilationException("No input parameter found for horizontal condition!");
         }
 
-        Condition[] conditions = new Condition[fitConditions.size() + numberOfHcondition];
+        Condition[] conditions = new Condition[fitConditions.length + numberOfHcondition];
         int j = 0;
         for (Condition condition : fitConditions) {
             conditions[j] = condition;
@@ -1519,7 +1499,7 @@ public class DecisionTableHelper {
         j = 0;
         for (int w = i + 1; w < numberOfParameters; w++) {
             if (!parameterIsUsed[w] && j < numberOfHcondition) {
-                conditions[fitConditions.size() + j] = new Condition(w);
+                conditions[fitConditions.length + j] = new Condition(w);
                 j++;
             }
         }
@@ -1599,7 +1579,7 @@ public class DecisionTableHelper {
                         matchedDefinition.getStatement(),
                         parameterDeclarations,
                         column - 1,
-                        matchedDefinition.isStrictMatch()));
+                        matchedDefinition.getDefinitionMatchType()));
                 }
             }
         }
@@ -1867,16 +1847,33 @@ public class DecisionTableHelper {
         }
     }
     
+    private static enum DefinitionMatchType {
+        STRICT(0),
+        PARAM_NAME_CHANGED(1),
+        IMPLICIT_CAST_USED(2),
+        PARAM_NAME_CHANGED_AND_IMLICIT_CAST_USED(3);
+
+        int priority;
+
+        private DefinitionMatchType(int priority) {
+            this.priority = priority;
+        }
+
+        public int getPriority() {
+            return priority;
+        }
+    }
+    
     private final static class MatchedDefinition {
         String statement;
         int[] usedParameterIndexes;
-        boolean strictMatch;
+        DefinitionMatchType definitionMatchType;
 
-        public MatchedDefinition(String statement, int[] usedParameterIndexes, boolean strictMatch) {
+        public MatchedDefinition(String statement, int[] usedParameterIndexes, DefinitionMatchType definitionMatchType) {
             super();
             this.statement = statement;
             this.usedParameterIndexes = usedParameterIndexes;
-            this.strictMatch = strictMatch;
+            this.definitionMatchType = definitionMatchType;
         }
 
         public String getStatement() {
@@ -1887,8 +1884,8 @@ public class DecisionTableHelper {
             return usedParameterIndexes;
         }
 
-        public boolean isStrictMatch() {
-            return strictMatch;
+        public DefinitionMatchType getDefinitionMatchType() {
+            return definitionMatchType;
         }
     }
 
@@ -1901,7 +1898,7 @@ public class DecisionTableHelper {
         IParameterDeclaration[] parameterDeclarations;
         boolean declared = false;
         CompositeMethod compositeMethod;
-        boolean strictMatch;
+        DefinitionMatchType definitionMatchType;
 
         public Condition(int parameterIndex) {
             this.parameterIndexes = new int[] { parameterIndex };
@@ -1914,13 +1911,13 @@ public class DecisionTableHelper {
             this.column = column;
         }
         
-        public Condition(int[] parameterIndexes, CompositeMethod compositeMethod, String statement, IParameterDeclaration[] parameterDeclarations, int column, boolean strictMatch) {
+        public Condition(int[] parameterIndexes, CompositeMethod compositeMethod, String statement, IParameterDeclaration[] parameterDeclarations, int column, DefinitionMatchType definitionMatchType) {
             this.parameterIndexes = parameterIndexes;
             this.parameterDeclarations = parameterDeclarations;
             this.statement = statement;
             this.declared = true;
             this.compositeMethod = compositeMethod;
-            this.strictMatch = strictMatch;
+            this.definitionMatchType = definitionMatchType;
             this.column = column;
         }
         
@@ -1963,8 +1960,8 @@ public class DecisionTableHelper {
             return column;
         }
         
-        public boolean isStrictMatch() {
-            return strictMatch;
+        public DefinitionMatchType getDefinitionMatchType() {
+            return definitionMatchType;
         }
 
         @Override
@@ -1974,12 +1971,12 @@ public class DecisionTableHelper {
             result = prime * result + column;
             result = prime * result + ((compositeMethod == null) ? 0 : compositeMethod.hashCode());
             result = prime * result + (declared ? 1231 : 1237);
+            result = prime * result + ((definitionMatchType == null) ? 0 : definitionMatchType.hashCode());
             result = prime * result + ((description == null) ? 0 : description.hashCode());
             result = prime * result + Arrays.hashCode(methodsChain);
             result = prime * result + Arrays.hashCode(parameterDeclarations);
             result = prime * result + Arrays.hashCode(parameterIndexes);
             result = prime * result + ((statement == null) ? 0 : statement.hashCode());
-            result = prime * result + (strictMatch ? 1231 : 1237);
             return result;
         }
 
@@ -2001,6 +1998,8 @@ public class DecisionTableHelper {
                 return false;
             if (declared != other.declared)
                 return false;
+            if (definitionMatchType != other.definitionMatchType)
+                return false;
             if (description == null) {
                 if (other.description != null)
                     return false;
@@ -2017,9 +2016,8 @@ public class DecisionTableHelper {
                     return false;
             } else if (!statement.equals(other.statement))
                 return false;
-            if (strictMatch != other.strictMatch)
-                return false;
             return true;
         }
+        
     }
 }
