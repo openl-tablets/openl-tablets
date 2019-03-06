@@ -124,16 +124,16 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
             String d = tableBody.getSource().getCell(tableStructure[j], 0).getStringValue();
             headerTokens.add(d);
             if ("Title".equalsIgnoreCase(d)) {
-                headerIndexes[0] = j;
+                headerIndexes[TITLE_INDEX] = j;
                 k++;
             } else if ("Parameter".equalsIgnoreCase(d)) {
-                headerIndexes[1] = j;
+                headerIndexes[PARAMETER_INDEX] = j;
                 k++;
             } else if ("Expression".equalsIgnoreCase(d)) {
-                headerIndexes[2] = j;
+                headerIndexes[EXPRESSION_INDEX] = j;
                 k++;
             } else if ("Inputs".equalsIgnoreCase(d)) {
-                headerIndexes[3] = j;
+                headerIndexes[INPUTS_INDEX] = j;
                 k++;
             }
             j++;;
@@ -145,18 +145,19 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
     }
     
     private static final int[] DEFAULT_HEADER_INDEXES = new int[] { 0, 1, 2, 3 };
-    private static final int INPUTS_INDEX = 3;
-    private static final int EXPRESSION_INDEX = 2;
-    private static final int PARAMETER_INDEX = 1;
-    private static final int TITLE_INDEX = 0;
+    private static final int INPUTS_INDEX = 0;
+    private static final int EXPRESSION_INDEX = 1;
+    private static final int PARAMETER_INDEX = 2;
+    private static final int TITLE_INDEX = 3;
     
     private static int[] getTableStructure(ILogicalTable originalTable) {
         int w = originalTable.getSource().getWidth();
+        int h = originalTable.getSource().getHeight();
         int i = 0;
         List<Integer> t = new ArrayList<>();
         while (i < w) {
             t.add(i);
-            i = i + originalTable.getSource().getCell(i, 0).getWidth();
+            i = i + originalTable.getSource().getCell(i, h - 1).getWidth();
         }
         return ArrayUtils.toPrimitive(t.toArray(new Integer[] {}));
     }
@@ -168,17 +169,38 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
         int[] tableStructure = getTableStructure(tableBody);
         int w = tableStructure.length;
         if (w != 4) {
-            throw SyntaxNodeExceptionUtils.createError(
-                "Wrong table structure: Expected 4 columns table: <Title> <Parameter> <Expression> <Inputs>.",
-                getTableSyntaxNode());
+            tableBody = tableBody.transpose();
+            tableStructure = getTableStructure(tableBody);
+            w = tableStructure.length;
+            if (w != 4) {
+                throw SyntaxNodeExceptionUtils.createError(
+                    "Wrong table structure: Expected 4 columns table: <Inputs> <Expression> <Parameter> <Title>.",
+                    getTableSyntaxNode());
+            }
         }
-        int h = tableBody.getSource().getHeight();
+        
         int i = 0;
-
-        final int[] headerIndexes = getHeaderIndexes(tableBody, tableStructure);
+        int[] headerIndexes = getHeaderIndexes(tableBody, tableStructure);
         if (headerIndexes != DEFAULT_HEADER_INDEXES) {
             i = tableBody.getSource().getCell(0, 0).getHeight();
-        } 
+        } else {
+            ILogicalTable tableBodyT = tableBody.transpose();
+            int[] tableStructureT = getTableStructure(tableBodyT);
+            if (tableStructureT.length == 4) {
+                int[] headerIndexesT = getHeaderIndexes(tableBodyT, tableStructureT);
+                i = tableBodyT.getSource().getCell(0, 0).getHeight();
+                tableBody = tableBodyT;
+                tableStructure = tableStructureT;
+                headerIndexes = headerIndexesT;
+                w = tableStructureT.length;
+            }
+        }
+
+        int h = tableBody.getSource().getHeight();
+
+        final ILogicalTable tableBody1 = tableBody;
+        final int[] tableStructure1 = tableStructure;
+        final int[] headerIndexes1 = headerIndexes;
         
         SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         while (i < h) {
@@ -212,9 +234,10 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
 
                     List<IParameterDeclaration> localParameterDeclarations = new ArrayList<>();
                     List<IParameterDeclaration> parameterDeclarations = new ArrayList<>();
+                    List<Integer> delta = new ArrayList<>();
                     Set<String> uniqueSet = new HashSet<>();
                     while (j < d) {
-                        IGridTable pCodeTable = tableBody.getSource().getSubtable(tableStructure[headerIndexes[PARAMETER_INDEX]], z + j, 1, 1);
+                        IGridTable pCodeTable = tableBody1.getSource().getSubtable(tableStructure1[headerIndexes1[PARAMETER_INDEX]], z + j, 1, 1);
                         GridCellSourceCodeModule pGridCellSourceCodeModule = new GridCellSourceCodeModule(
                             pCodeTable,
                             cxt);
@@ -231,14 +254,16 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
                             }
                         }
                         parameterDeclarations.add(parameterDeclaration);
+                        delta.add(pCodeTable.getCell(0, 0).getHeight());
                         j = j + pCodeTable.getCell(0, 0).getHeight();
                     }
                     j = 0;
                     int k = 0;
                     uniqueSet = new HashSet<>();
                     String[] titles = new String[parameterDeclarations.size()];
+                    int t = 0;
                     while (j < d) {
-                        IGridTable tCodeTable = tableBody.getSource().getSubtable(tableStructure[headerIndexes[TITLE_INDEX]], z + j, 1, 1);
+                        IGridTable tCodeTable = tableBody1.getSource().getSubtable(tableStructure1[headerIndexes1[TITLE_INDEX]], z + j, 1, 1);
                         String title = tCodeTable.getCell(0, 0).getStringValue();
                         if (StringUtils.isEmpty(title)) { 
                             GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(
@@ -255,7 +280,7 @@ public abstract class ADefinitionTableBoundNode extends ATableBoundNode implemen
                         }
                         titles[k++] = title;
                         uniqueSet.add(title);
-                        j = j + tCodeTable.getCell(0, 0).getHeight();
+                        j = j + delta.get(t++);
                     }
 
                     IMethodSignature newSignature = ((MethodSignature) header.getSignature())
