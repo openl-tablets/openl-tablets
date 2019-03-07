@@ -737,7 +737,7 @@ public class DecisionTableHelper {
                     }
                     if (!bindingContext.isExecutionMode()) {
                         ICell cell1 = originalTable.getSource().getCell(c, 0);
-                        String description = String.format("Parameter %s of return RET1 with expression %s : %s", bestReturnDefinition.getParameterDeclarations()[i]
+                        String description = String.format("Parameter %s of return RET1 with expression %s: %s", bestReturnDefinition.getParameterDeclarations()[i]
                                 .getName(), bestMatchedStatement.getStatement(), bestReturnDefinition
                                 .getParameterDeclarations()[i].getType().getDisplayName(INamedThing.SHORT)); 
                         writeMetaInfo(tableSyntaxNode, cell1, description);

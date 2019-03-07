@@ -139,11 +139,11 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             
             String text;
             if (parameterName != null && conditionName != null && conditionStatement != null) {
-                text = String.format("Parameter %s of condition %s with expression %s : %s", parameterName, conditionName, conditionStatement, conditionType.getDisplayName(INamedThing.SHORT));
+                text = String.format("Parameter %s of condition %s with expression %s: %s", parameterName, conditionName, conditionStatement, conditionType.getDisplayName(INamedThing.SHORT));
             } else if (conditionName != null && conditionStatement != null) {
-                text = String.format("Condition %s with expression %s : %s", conditionName, conditionStatement, conditionType.getDisplayName(INamedThing.SHORT));
+                text = String.format("Condition %s with expression %s: %s", conditionName, conditionStatement, conditionType.getDisplayName(INamedThing.SHORT));
             } else {
-                text = String.format("Condition for %s : %s", conditionStatement, conditionType.getDisplayName(INamedThing.SHORT));
+                text = String.format("Condition for %s: %s", conditionStatement, conditionType.getDisplayName(INamedThing.SHORT));
             }
             SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
                     cellValue.length() - 1,
