@@ -11,7 +11,6 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
@@ -21,8 +20,6 @@ import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletResponse;
 
-import com.thoughtworks.xstream.XStreamException;
-import com.thoughtworks.xstream.io.StreamException;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
@@ -48,7 +45,6 @@ import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
-import org.openl.rules.webstudio.web.ProjectDescriptorTransformer;
 import org.openl.rules.webstudio.web.repository.project.*;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
@@ -69,6 +65,9 @@ import org.openl.util.StringUtils;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.thoughtworks.xstream.XStreamException;
+import com.thoughtworks.xstream.io.StreamException;
 
 /**
  * Repository tree controller. Used for retrieving data for repository tree and
@@ -407,47 +406,6 @@ public class RepositoryTreeController {
             repositoryTreeState.addDeploymentProjectToTree(newProject);
         } catch (Exception e) {
             String msg = "Failed to copy deployment project.";
-            log.error(msg, e);
-            FacesUtils.addErrorMessage(msg, e.getMessage());
-        }
-
-        return null;
-    }
-
-    public String copyProject() {
-        String errorMessage = null;
-        AProject project;
-
-        try {
-            project = userWorkspace.getProject(projectName);
-        } catch (Exception e) {
-            log.error("Cannot obtain rules project '{}'.", projectName, e);
-            FacesUtils.addErrorMessage(e.getMessage());
-            return null;
-        }
-
-        if (project == null) {
-            errorMessage = "No project is selected.";
-        } else if (StringUtils.isBlank(newProjectName)) {
-            errorMessage = "Project name is empty.";
-        } else if (!NameChecker.checkName(newProjectName)) {
-            errorMessage = "Project name '" + newProjectName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
-        } else if (userWorkspace.hasProject(newProjectName)) {
-            errorMessage = "Project '" + newProjectName + "' already exists.";
-        }
-
-        if (errorMessage != null) {
-            FacesUtils.addErrorMessage("Cannot copy project.", errorMessage);
-            return null;
-        }
-
-        try {
-            userWorkspace.copyProject(project, newProjectName, new ProjectDescriptorTransformer(newProjectName));
-            AProject newProject = userWorkspace.getProject(newProjectName);
-            repositoryTreeState.addRulesProjectToTree(newProject);
-            resetStudioModel();
-        } catch (Exception e) {
-            String msg = "Failed to copy project.";
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
