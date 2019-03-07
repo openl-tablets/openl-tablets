@@ -3,12 +3,9 @@ package org.openl.rules.workspace.dtr;
 import java.util.List;
 
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.ResourceTransformer;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 
 /**
@@ -19,20 +16,6 @@ import org.openl.rules.workspace.abstracts.ProjectsContainer;
  *
  */
 public interface DesignTimeRepository extends ProjectsContainer {
-
-    /**
-     * Copies rules project in/into Design Time Repository. <p/> Source project
-     * can be LocalWorkspaceProject, a version of project in the DTR, any other
-     * class that implements Project interface.
-     *
-     *
-     * @param project source rules project
-     * @param name name of new project, must be unique
-     * @param user who is copies project
-     * @param resourceTransformer class to modify resources
-     * @throws RepositoryException if failed
-     */
-    void copyProject(AProject project, String name, WorkspaceUser user, ResourceTransformer resourceTransformer) throws ProjectException;
 
     /**
      * Creates new rules project in the Design Time Repository.

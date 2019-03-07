@@ -10,12 +10,10 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.ResourceTransformer;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.RepositoryException;
@@ -122,30 +120,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
 
         return repo;
-    }
-
-    public void copyProject(AProject project, String name, WorkspaceUser user, ResourceTransformer resourceTransformer) throws ProjectException {
-        if (hasProject(name)) {
-            throw new ProjectException("Project ''{0}'' is already exist in the repository!", null, name);
-        }
-
-        try {
-            AProject newProject = new AProject(getRepository(), rulesLocation + name);
-
-            newProject.setResourceTransformer(resourceTransformer);
-            newProject.update(project, user);
-            newProject.setResourceTransformer(null);
-        } catch (RRepositoryException e) {
-            throw new RepositoryException("Failed to create project ''{0}''!", e, name);
-        } catch (Exception e) {
-            throw new RepositoryException("Failed to copy project ''{0}''!", e, name);
-        } finally {
-            synchronized (projects) {
-                // invalidate cache (rules projects)
-                projects.remove(name);
-                projectsVersions.clear();
-            }
-        }
     }
 
     public AProject createProject(String name) {

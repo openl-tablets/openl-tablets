@@ -1,6 +1,8 @@
 package org.openl.rules.project.abstraction;
 
 public final class Comments {
+    public static final String COPIED_FROM_PREFIX = "Copied from:";
+
     private Comments() {
     }
 
@@ -18,5 +20,13 @@ public final class Comments {
 
     public static String eraseProject(String projectName) {
         return "Erase project " + projectName;
+    }
+
+    public static String copiedFrom(String sourceProjectName) {
+        return COPIED_FROM_PREFIX + " " + sourceProjectName;
+    }
+
+    public static String restoredFrom(String revisionNum) {
+        return "Restored from revision #" + revisionNum;
     }
 }

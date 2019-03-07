@@ -18,9 +18,9 @@ import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.BranchRepository;
@@ -28,7 +28,6 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -94,7 +93,7 @@ public class CopyBean {
 
     public String getComment() {
         if (comment == null) {
-            return Constants.COPIED_FROM_PREFIX + " " + getCurrentProjectName();
+            return Comments.copiedFrom(getCurrentProjectName());
         }
         return comment;
     }

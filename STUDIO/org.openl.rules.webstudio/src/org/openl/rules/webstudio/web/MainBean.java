@@ -11,6 +11,7 @@ import javax.faces.context.FacesContext;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.CommonException;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.ParameterRegistry;
@@ -19,7 +20,6 @@ import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.tableeditor.TableBean;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -84,7 +84,7 @@ public class MainBean {
         RulesProject project = studio.getCurrentProject();
 
         if (project != null && project.isOpenedOtherVersion()) {
-            return Constants.RESTORED_FROM_REVISION_PREFIX + project.getHistoryVersion();
+            return Comments.restoredFrom(project.getHistoryVersion());
         }
 
 

@@ -10,6 +10,7 @@ import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
@@ -339,6 +340,7 @@ public class SmartRedeployController {
                 if (!workspace.hasDDProject(deploymentName)) {
                     // create if absent
                     deployConfiguration = workspace.createDDProject(deploymentName);
+                    deployConfiguration.getFileData().setComment(Comments.createProject(deploymentName));
                 }
             }
 
