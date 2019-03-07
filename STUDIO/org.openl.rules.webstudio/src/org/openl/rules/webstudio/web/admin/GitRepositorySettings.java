@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.eclipse.jgit.lib.Constants;
 import org.openl.config.ConfigurationManager;
+import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.util.StringUtils;
 
@@ -173,27 +174,27 @@ public class GitRepositorySettings extends RepositorySettings {
     }
 
     @Override
-    protected void store(ConfigurationManager configurationManager) {
-        super.store(configurationManager);
+    protected void store(PropertiesHolder propertiesHolder) {
+        super.store(propertiesHolder);
 
-        configurationManager.setProperty(URI, uri);
+        propertiesHolder.setProperty(URI, uri);
 
         if (StringUtils.isEmpty(login)) {
-            configurationManager.removeProperty(LOGIN);
-            configurationManager.removeProperty(PASSWORD);
+            propertiesHolder.removeProperty(LOGIN);
+            propertiesHolder.removeProperty(PASSWORD);
         } else {
-            configurationManager.setProperty(LOGIN, getLogin());
-            configurationManager.setPassword(PASSWORD, getPassword());
+            propertiesHolder.setProperty(LOGIN, getLogin());
+            propertiesHolder.setPassword(PASSWORD, getPassword());
         }
 
-        configurationManager.setProperty(USER_DISPLAY_NAME, userDisplayName);
-        configurationManager.setProperty(USER_EMAIL, userEmail);
-        configurationManager.setProperty(LOCAL_REPOSITORY_PATH, localRepositoryPath);
-        configurationManager.setProperty(BRANCH, branch);
-        configurationManager.setProperty(TAG_PREFIX, tagPrefix);
-        configurationManager.setProperty(LISTENER_TIMER_PERIOD, listenerTimerPeriod);
-        configurationManager.setProperty(COMMENT_PATTERN, commentPattern);
-        configurationManager.setProperty(SETTINGS_PATH, settingsPath);
+        propertiesHolder.setProperty(USER_DISPLAY_NAME, userDisplayName);
+        propertiesHolder.setProperty(USER_EMAIL, userEmail);
+        propertiesHolder.setProperty(LOCAL_REPOSITORY_PATH, localRepositoryPath);
+        propertiesHolder.setProperty(BRANCH, branch);
+        propertiesHolder.setProperty(TAG_PREFIX, tagPrefix);
+        propertiesHolder.setProperty(LISTENER_TIMER_PERIOD, listenerTimerPeriod);
+        propertiesHolder.setProperty(COMMENT_PATTERN, commentPattern);
+        propertiesHolder.setProperty(SETTINGS_PATH, settingsPath);
     }
 
     @Override
