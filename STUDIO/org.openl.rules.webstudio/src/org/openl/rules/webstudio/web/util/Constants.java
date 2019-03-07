@@ -21,8 +21,6 @@ public final class Constants {
     public static final String SESSION_PARAM_PARAMETERS = "parameters";
 
     public static final String RULES_USER_SESSION = "rulesUserSession";
-    public static final String COPIED_FROM_PREFIX = "Copied from:";
-    public static final String RESTORED_FROM_REVISION_PREFIX = "Restored from revision #";
 
     private Constants() {
     }

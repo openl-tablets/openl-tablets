@@ -20,7 +20,6 @@ import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.filter.AllFilter;
 import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.web.repository.tree.*;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -479,7 +478,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public String getProjectReference(AProjectArtefact artefact, ProjectVersion version) {
         if (artefact instanceof RulesProject) {
-            String prefix = Constants.COPIED_FROM_PREFIX;
+            String prefix = Comments.COPIED_FROM_PREFIX;
 
             String comment = version.getVersionComment();
             if (comment != null && comment.startsWith(prefix)) {

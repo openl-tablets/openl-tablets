@@ -72,6 +72,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 .user(getUser())
                 .lockEngine(deploymentsLockEngine)
                 .build();
+        newProject.getFileData().setComment(Comments.copiedFrom(project.getName()));
         newProject.update(project, user);
 
         refresh();
