@@ -18,7 +18,7 @@ import java.util.Map;
  *         <p/>
  *         TODO Separate configuration sets from the manager
  */
-public class ConfigurationManager {
+public class ConfigurationManager implements PropertiesHolder {
     public static String REPO_PASS_KEY = "repository.encode.decode.key";
 
     private final Logger log = LoggerFactory.getLogger(ConfigurationManager.class);
@@ -150,6 +150,7 @@ public class ConfigurationManager {
         return compositeConfiguration.getLong(key, defaultValue);
     }
 
+    @Override
     public Map<String, Object> getProperties() {
         return getProperties(false);
     }
@@ -171,6 +172,7 @@ public class ConfigurationManager {
         return properties;
     }
 
+    @Override
     public void setProperty(String key, Object value) {
         if (key != null && value != null) {
             if (!(value instanceof Collection) && !value.getClass().isArray()) {
@@ -196,6 +198,7 @@ public class ConfigurationManager {
         }
     }
 
+    @Override
     public void removeProperty(String key) {
         getConfigurationToSave().clearProperty(key);
     }
@@ -243,18 +246,24 @@ public class ConfigurationManager {
         return deleted;
     }
 
+    @Override
     public void setPassword(String key, String pass) {
+        setPassword(this, key, pass);
+    }
+
+    static void setPassword(PropertiesHolder propertiesHolder, String key, String pass) {
         try {
-            String repoPassKey = getRepoPassKey();
-            setProperty(key, StringUtils.isEmpty(repoPassKey) ? pass : PassCoder.encode(pass, repoPassKey));
+            String repoPassKey = getRepoPassKey(propertiesHolder);
+            propertiesHolder.setProperty(key, StringUtils.isEmpty(repoPassKey) ? pass : PassCoder.encode(pass, repoPassKey));
         } catch (Exception e) {
+            Logger log = LoggerFactory.getLogger(ConfigurationManager.class);
             log.error("Error when setting password property: {}", key, e);
         }
     }
 
     public String getPassword(String key) {
         try {
-            String repoPassKey = getRepoPassKey();
+            String repoPassKey = getRepoPassKey(this);
             String pass = getStringProperty(key);
             return StringUtils.isEmpty(repoPassKey) ? pass : PassCoder.decode(pass, repoPassKey);
         } catch (Exception e) {
@@ -263,8 +272,9 @@ public class ConfigurationManager {
         }
     }
 
-    private String getRepoPassKey() {
-        return compositeConfiguration.containsKey(REPO_PASS_KEY) ? compositeConfiguration.getString(REPO_PASS_KEY) : "";
+    private static String getRepoPassKey(PropertiesHolder propertiesHolder) {
+        Map<String, Object> properties = propertiesHolder.getProperties();
+        return properties.containsKey(REPO_PASS_KEY) ? (String) properties.get(REPO_PASS_KEY) : "";
     }
 
 }

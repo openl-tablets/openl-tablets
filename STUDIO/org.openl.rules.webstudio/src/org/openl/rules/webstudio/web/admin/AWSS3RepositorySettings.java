@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
 import org.openl.config.ConfigurationManager;
+import org.openl.config.PropertiesHolder;
 
 public class AWSS3RepositorySettings extends RepositorySettings {
     private String bucketName;
@@ -73,14 +74,14 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     }
 
     @Override
-    protected void store(ConfigurationManager configurationManager) {
-        super.store(configurationManager);
+    protected void store(PropertiesHolder propertiesHolder) {
+        super.store(propertiesHolder);
 
-        configurationManager.setProperty(BUCKET_NAME, bucketName);
-        configurationManager.setProperty(REGION_NAME, regionName);
-        configurationManager.setProperty(ACCESS_KEY, accessKey);
-        configurationManager.setProperty(SECRET_KEY, secretKey);
-        configurationManager.setProperty(LISTENER_TIMER_PERIOD, listenerTimerPeriod);
+        propertiesHolder.setProperty(BUCKET_NAME, bucketName);
+        propertiesHolder.setProperty(REGION_NAME, regionName);
+        propertiesHolder.setProperty(ACCESS_KEY, accessKey);
+        propertiesHolder.setProperty(SECRET_KEY, secretKey);
+        propertiesHolder.setProperty(LISTENER_TIMER_PERIOD, listenerTimerPeriod);
     }
 
     @Override

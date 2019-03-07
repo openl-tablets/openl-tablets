@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
 import org.openl.config.ConfigurationManager;
+import org.openl.config.PropertiesHolder;
 
 public abstract class RepositorySettings {
     public static final String VERSION_IN_DEPLOYMENT_NAME = "version-in-deployment-name";
@@ -48,10 +49,10 @@ public abstract class RepositorySettings {
     protected void fixState() {
     }
 
-    protected void store(ConfigurationManager configurationManager) {
-        configurationManager.setProperty(VERSION_IN_DEPLOYMENT_NAME, includeVersionInDeploymentName);
-        configurationManager.setProperty(COMMENT_VALIDATION_PATTERN, commentValidationPattern);
-        configurationManager.setProperty(INVALID_COMMENT_MESSAGE, invalidCommentMessage);
+    protected void store(PropertiesHolder propertiesHolder) {
+        propertiesHolder.setProperty(VERSION_IN_DEPLOYMENT_NAME, includeVersionInDeploymentName);
+        propertiesHolder.setProperty(COMMENT_VALIDATION_PATTERN, commentValidationPattern);
+        propertiesHolder.setProperty(INVALID_COMMENT_MESSAGE, invalidCommentMessage);
     }
 
     protected void onTypeChanged(RepositoryType newRepositoryType) {

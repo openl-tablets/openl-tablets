@@ -7,6 +7,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.openl.config.ConfigurationManager;
+import org.openl.config.InMemoryProperties;
+import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.util.StringUtils;
@@ -93,15 +95,15 @@ public class RepositoryConfiguration {
         settings.fixState();
     }
 
-    private void store() {
-        configManager.setProperty(REPOSITORY_NAME, StringUtils.trimToEmpty(name));
-        configManager.setProperty(REPOSITORY_FACTORY, repositoryType.getFactoryClassName());
-        settings.store(configManager);
+    private void store(PropertiesHolder propertiesHolder) {
+        propertiesHolder.setProperty(REPOSITORY_NAME, StringUtils.trimToEmpty(name));
+        propertiesHolder.setProperty(REPOSITORY_FACTORY, repositoryType.getFactoryClassName());
+        settings.store(propertiesHolder);
     }
 
     void commit() {
         fixState();
-        store();
+        store(configManager);
     }
 
     public String getName() {
@@ -152,7 +154,7 @@ public class RepositoryConfiguration {
     }
 
     public boolean save() {
-        store();
+        store(configManager);
         return configManager.save();
     }
 
@@ -173,8 +175,9 @@ public class RepositoryConfiguration {
     }
 
     public Map<String, Object> getProperties() {
-        store();
-        return configManager.getProperties();
+        InMemoryProperties propertiesHolder = new InMemoryProperties(configManager.getProperties());
+        store(propertiesHolder);
+        return propertiesHolder.getProperties();
     }
 
     public RepositorySettings getSettings() {
