@@ -65,6 +65,9 @@ public class SyntaxNodeExceptionUtils {
         if (filter != null) {
             formattedMessage = filter.format(ex);
         }
+        if (formattedMessage == null) {
+            return ex.getClass().getSimpleName();
+        }
         return formattedMessage;
     }
 }
