@@ -7,7 +7,6 @@ import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -76,23 +75,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
         newProject.update(project, user);
 
         refresh();
-    }
-
-    public void copyProject(AProject project, String name, ResourceTransformer resourceTransformer) throws ProjectException {
-        try {
-            designTimeRepository.copyProject(project, name, user, resourceTransformer);
-        } catch (ProjectException e) {
-            try {
-                if (designTimeRepository.hasProject(name)) {
-                    designTimeRepository.getProject(name).erase(user);
-                }
-            } catch (ProjectException e1) {
-                log.error(e1.getMessage(), e1);
-            }
-            throw e;
-        } finally {
-            refresh();
-        }
     }
 
     public ADeploymentProject createDDProject(String name) throws RepositoryException {
@@ -272,7 +254,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 ADeploymentProject userDProject = userDProjects.get(name);
 
                 if (userDProject == null || ddp.isDeleted() != userDProject.isDeleted()) {
-                    String historyVersion = ddp.getHistoryVersion();
                     userDProject = new ADeploymentProject(user, ddp.getRepository(), ddp.getFileData(), deploymentsLockEngine);
                     if (!userDProject.isOpened()) {
                         // Closed project can't be locked.
@@ -403,8 +384,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
         }
     }
 
-    public boolean removeWorkspaceListener(UserWorkspaceListener listener) {
-        return listeners.remove(listener);
+    public void removeWorkspaceListener(UserWorkspaceListener listener) {
+        listeners.remove(listener);
     }
 
     public void uploadLocalProject(String name) throws ProjectException {

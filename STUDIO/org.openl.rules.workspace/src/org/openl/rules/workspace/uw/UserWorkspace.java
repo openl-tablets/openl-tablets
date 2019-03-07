@@ -6,9 +6,8 @@ import java.util.List;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.ResourceTransformer;
-import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.LockEngine;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -21,8 +20,6 @@ public interface UserWorkspace extends ProjectsContainer {
     void addWorkspaceListener(UserWorkspaceListener listener);
 
     void copyDDProject(ADeploymentProject project, String name) throws ProjectException;
-
-    void copyProject(AProject project, String name, ResourceTransformer resourceTransformer) throws ProjectException;
 
     ADeploymentProject createDDProject(String name) throws RepositoryException;
 
@@ -46,7 +43,7 @@ public interface UserWorkspace extends ProjectsContainer {
 
     void release();
 
-    boolean removeWorkspaceListener(UserWorkspaceListener listener);
+    void removeWorkspaceListener(UserWorkspaceListener listener);
 
     void uploadLocalProject(String name) throws ProjectException;
     
