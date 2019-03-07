@@ -1,7 +1,7 @@
 package org.openl.rules.dt;
 
 import org.openl.OpenL;
-import org.openl.rules.lang.xls.binding.ConditionDefinition;
+import org.openl.rules.lang.xls.binding.DTColumnDefinition;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
@@ -18,7 +18,7 @@ public class ConditionsTableBoundNode extends ADefinitionTableBoundNode {
     }
     
     protected void createAndAddDefinition(String[] titles, IParameterDeclaration[] parameterDeclarations, IOpenMethodHeader header, CompositeMethod compositeMethod) {
-        ConditionDefinition conditionDefinition = new ConditionDefinition(titles,
+        DTColumnDefinition conditionDefinition = new DTColumnDefinition(titles,
             parameterDeclarations,
             header,
             compositeMethod);

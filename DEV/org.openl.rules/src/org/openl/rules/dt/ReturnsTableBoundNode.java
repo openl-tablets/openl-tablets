@@ -1,7 +1,7 @@
 package org.openl.rules.dt;
 
 import org.openl.OpenL;
-import org.openl.rules.lang.xls.binding.ReturnDefinition;
+import org.openl.rules.lang.xls.binding.DTColumnDefinition;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
@@ -21,7 +21,7 @@ public class ReturnsTableBoundNode extends ADefinitionTableBoundNode {
             IParameterDeclaration[] parameterDeclarations,
             IOpenMethodHeader header,
             CompositeMethod compositeMethod) {
-        ReturnDefinition returnDefinition = new ReturnDefinition(titles,
+        DTColumnDefinition returnDefinition = new DTColumnDefinition(titles,
             parameterDeclarations,
             header,
             compositeMethod);

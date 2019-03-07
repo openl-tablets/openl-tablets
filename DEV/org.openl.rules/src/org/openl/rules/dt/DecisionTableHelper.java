@@ -42,8 +42,7 @@ import org.openl.rules.helpers.StringRangeParser;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.lang.xls.binding.ConditionDefinition;
-import org.openl.rules.lang.xls.binding.ReturnDefinition;
+import org.openl.rules.lang.xls.binding.DTColumnDefinition;
 import org.openl.rules.lang.xls.binding.XlsDefinitions;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.load.SimpleSheetLoader;
@@ -693,18 +692,16 @@ public class DecisionTableHelper {
             titles.add(d);
         }
         
-        ReturnDefinition bestReturnDefinition = null;
+        DTColumnDefinition bestReturnDefinition = null;
         MatchedDefinition bestMatchedStatement = null;
         
-        for (ReturnDefinition rd : xlsDefinitions.getReturnDefinitions()) {
+        for (DTColumnDefinition rd : xlsDefinitions.getReturnDefinitions()) {
             if (rd.getTitles().length == titles.size() && Arrays.asList(rd.getTitles()).containsAll(titles)) {
                 IOpenClass decisionTableReturnType = decisionTable.getHeader().getType();
                 IOpenClass definitionReturnType = rd.getCompositeMethod().getType();
                 IOpenCast openCast = bindingContext.getCast(definitionReturnType, decisionTableReturnType);
                 if (openCast != null && openCast.isImplicit()) {
-                    MatchedDefinition matchedDefinition = matchDefinition(rd.getCompositeMethod(),
-                        rd.getParameterDeclarations(),
-                        rd.getHeader(),
+                    MatchedDefinition matchedDefinition = matchByDTColumnDefinition(rd,
                         decisionTable.getHeader(),
                         bindingContext);
                     if (matchedDefinition != null) {
@@ -1101,17 +1098,15 @@ public class DecisionTableHelper {
         }
     }
     
-    private static MatchedDefinition matchDefinition(CompositeMethod compositeMethod,
-            IParameterDeclaration[] definitionParameters,
-            IOpenMethodHeader definitionHeader,
+    private static MatchedDefinition matchByDTColumnDefinition(DTColumnDefinition definition,
             IOpenMethodHeader header,
             IBindingContext bindingContext) {
         List<IdentifierNode> identifierNodes = new ArrayList<>();
-        parseRec(compositeMethod.getMethodBodyBoundNode().getSyntaxNode(), identifierNodes);
+        parseRec(definition.getCompositeMethod().getMethodBodyBoundNode().getSyntaxNode(), identifierNodes);
         Set<String> set = new HashSet<>();
         for (IdentifierNode identifierNode : identifierNodes) {
             boolean found = false;
-            for (IParameterDeclaration parameterDeclaration : definitionParameters) {
+            for (IParameterDeclaration parameterDeclaration : definition.getParameterDeclarations()) {
                 if (identifierNode.getIdentifier().equals(parameterDeclaration.getName())) {
                     found = true;
                     break;
@@ -1130,13 +1125,13 @@ public class DecisionTableHelper {
         List<Integer> usedParameterWithTypeCastIndexes = new ArrayList<>();
         for (String param : set) {
             int j = -1;
-            for (int i = 0; i < definitionHeader.getSignature().getNumberOfParameters(); i++) {
-                if (param.equals(definitionHeader.getSignature().getParameterName(i))) {
+            for (int i = 0; i < definition.getHeader().getSignature().getNumberOfParameters(); i++) {
+                if (param.equals(definition.getHeader().getSignature().getParameterName(i))) {
                     j = i;
                     break;
                 }
             }
-            IOpenClass type = definitionHeader.getSignature().getParameterType(j);
+            IOpenClass type = definition.getHeader().getSignature().getParameterType(j);
             int k = -1;
             int t = 0;
             int k1 = -1;
@@ -1168,14 +1163,14 @@ public class DecisionTableHelper {
         }
 
         if (strictMatchOfParameters == set.size()) {
-            return new MatchedDefinition(compositeMethod.getMethodBodyBoundNode().getSyntaxNode().getModule().getCode(),
+            return new MatchedDefinition(definition.getCompositeMethod().getMethodBodyBoundNode().getSyntaxNode().getModule().getCode(),
                 ArrayUtils.toPrimitive(strictUsedParameterIndexes.toArray(new Integer[] {})),
                 DefinitionMatchType.STRICT);
         }
 
         if (set.size() == parameterMap.keySet().size() || set.size() == parameterWithTypeCastMap.size()) {
             final TextInfo textInfo = new TextInfo(
-                compositeMethod.getMethodBodyBoundNode().getSyntaxNode().getModule().getCode());
+                definition.getCompositeMethod().getMethodBodyBoundNode().getSyntaxNode().getModule().getCode());
             Collections.sort(identifierNodes, new Comparator<IdentifierNode>() {
                 @Override
                 public int compare(IdentifierNode o1, IdentifierNode o2) {
@@ -1193,7 +1188,7 @@ public class DecisionTableHelper {
             });
 
             StringBuilder sb = new StringBuilder(
-                compositeMethod.getMethodBodyBoundNode().getSyntaxNode().getModule().getCode());
+                definition.getCompositeMethod().getMethodBodyBoundNode().getSyntaxNode().getModule().getCode());
             for (IdentifierNode identifierNode : identifierNodes) {
                 int start = identifierNode.getLocation().getStart().getAbsolutePosition(textInfo);
                 int end = identifierNode.getLocation().getEnd().getAbsolutePosition(textInfo);
@@ -1273,13 +1268,13 @@ public class DecisionTableHelper {
     private static boolean isCompatibleConditions(Condition a, Condition b) {
         int c1 = a.getColumn();
         int c2 = a.getColumn();
-        if (a.getParameterDeclarations() != null) {
-            c2 = c2 + a.getParameterDeclarations().length;
+        if (a.isDeclared() && a.getParameterDeclarations() != null) {
+            c2 = c2 + a.getParameterDeclarations().length - 1;
         }
-        int d1 = a.getColumn();
-        int d2 = a.getColumn();
-        if (b.getParameterDeclarations() != null) {
-            d2 = d2 + b.getParameterDeclarations().length;
+        int d1 = b.getColumn();
+        int d2 = b.getColumn();
+        if (b.isDeclared() && b.getParameterDeclarations() != null) {
+            d2 = d2 + b.getParameterDeclarations().length - 1;
         }
         if (c1 <= d1 && d1 <= c2 || c1 <= d2 && d2 <= c2) {
             return false;
@@ -1365,8 +1360,9 @@ public class DecisionTableHelper {
             }
             conditionIndexes.add(i);
             for (int j = i; j < vConditions.size(); j++) {
-                if (i == j || isCompatibleConditions(vConditions.get(i), vConditions.get(j))) {
+                if (i == j || !isCompatibleConditions(vConditions.get(i), vConditions.get(j))) {
                     matrix[i][j] = false;
+                    matrix[j][i] = false;
                 }
             }
         }
@@ -1379,12 +1375,13 @@ public class DecisionTableHelper {
             new ArrayList<>(),
             new HashSet<>(),
             fits);
-
-        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> x.isDeclared()).count());
-        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> DefinitionMatchType.STRICT.equals(x.getDefinitionMatchType())).count());
-        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> DefinitionMatchType.IMPLICIT_CAST_USED.equals(x.getDefinitionMatchType())).count());
-        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> DefinitionMatchType.PARAM_NAME_CHANGED.equals(x.getDefinitionMatchType())).count());
-        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> DefinitionMatchType.PARAM_NAME_CHANGED_AND_IMLICIT_CAST_USED.equals(x.getDefinitionMatchType())).count());
+        
+        //Declared covered columns filter
+        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> x.isDeclared()).mapToLong(x -> x.getParameterDeclarations().length).sum());
+        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> x.isDeclared()).filter(x -> DefinitionMatchType.STRICT.equals(x.getDefinitionMatchType())).mapToLong(x -> x.getParameterDeclarations().length).sum());
+        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> x.isDeclared()).filter(x -> DefinitionMatchType.IMPLICIT_CAST_USED.equals(x.getDefinitionMatchType())).mapToLong(x -> x.getParameterDeclarations().length).sum());
+        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> x.isDeclared()).filter(x -> DefinitionMatchType.PARAM_NAME_CHANGED.equals(x.getDefinitionMatchType())).mapToLong(x -> x.getParameterDeclarations().length).sum());
+        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> x.isDeclared()).filter(x -> DefinitionMatchType.PARAM_NAME_CHANGED_AND_IMLICIT_CAST_USED.equals(x.getDefinitionMatchType())).mapToLong(x -> x.getParameterDeclarations().length).sum());
         fits = filterConditionsByMax(fits, e-> Arrays.stream(e).flatMapToInt(c -> Arrays.stream(c.getParameterIndexes())).distinct().count());
             
         if (!fits.isEmpty()) {
@@ -1513,7 +1510,7 @@ public class DecisionTableHelper {
             XlsDefinitions definitions,
             String title,
             IBindingContext bindingContext) {
-        for (ReturnDefinition returnDefiniton : definitions.getReturnDefinitions()) {
+        for (DTColumnDefinition returnDefiniton : definitions.getReturnDefinitions()) {
             List<String> titles = new ArrayList<>(Arrays.asList(returnDefiniton.getTitles()));
             String d = title;
             int x = column;
@@ -1548,7 +1545,7 @@ public class DecisionTableHelper {
             String title,
             List<Condition> vConditions,
             IBindingContext bindingContext) {
-        for (ConditionDefinition conditionDefinition : definitions.getConditionDefinitions()) {
+        for (DTColumnDefinition conditionDefinition : definitions.getConditionDefinitions()) {
             List<String> titles = new ArrayList<>(Arrays.asList(conditionDefinition.getTitles()));
             String d = title;
             int x = column;
@@ -1568,9 +1565,7 @@ public class DecisionTableHelper {
                 x = x + 1;
             }
             if (titles.isEmpty()) {
-                MatchedDefinition matchedDefinition = matchDefinition(conditionDefinition.getCompositeMethod(),
-                    conditionDefinition.getParameterDeclarations(),
-                    conditionDefinition.getHeader(),
+                MatchedDefinition matchedDefinition = matchByDTColumnDefinition(conditionDefinition,
                     decisionTable.getHeader(),
                     bindingContext);
                 if (matchedDefinition != null) {

@@ -4,15 +4,14 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 
-public class ConditionDefinition {
-
+public class DTColumnDefinition {
     private IParameterDeclaration[] parameterDeclarations;
     private String[] titles;
 
     private IOpenMethodHeader header;
     private CompositeMethod compositeMethod;
-
-    public ConditionDefinition(String[] titles,
+    
+    public DTColumnDefinition(String[] titles,
             IParameterDeclaration[] parameterDeclarations,
             IOpenMethodHeader header,
             CompositeMethod compositeMethod) {
@@ -21,7 +20,7 @@ public class ConditionDefinition {
         this.compositeMethod = compositeMethod;
         this.header = header;
     }
-
+    
     public CompositeMethod getCompositeMethod() {
         return compositeMethod;
     }
