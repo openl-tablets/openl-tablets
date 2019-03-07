@@ -1,9 +1,12 @@
 package org.openl.rules.dt;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -112,8 +115,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     public void removeDebugInformation(IBindingContext cxt) {
     }
     
-    protected abstract void createAndAddDefinition(String[] titles, IParameterDeclaration[] parameterDeclarations, IOpenMethodHeader header, CompositeMethod compositeMethod);
-
+    protected abstract void createAndAddDefinition(Map<String, List<IParameterDeclaration>> parameterDeclarations, IOpenMethodHeader header, CompositeMethod compositeMethod);
     
     private int[] getHeaderIndexes(ILogicalTable tableBody, int[] tableStructure) {
         Set<String> headerTokens = new HashSet<String>();
@@ -231,11 +233,12 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                         throw SyntaxNodeExceptionUtils.createError(String.format("Failed to parse the cell '%s'", pGridCellSourceCodeModule.getCode()), pGridCellSourceCodeModule);
                     } 
                     int j = 0;
-
-                    List<IParameterDeclaration> localParameterDeclarations = new ArrayList<>();
-                    List<IParameterDeclaration> parameterDeclarations = new ArrayList<>();
-                    List<Integer> delta = new ArrayList<>();
-                    Set<String> uniqueSet = new HashSet<>();
+                    int j1 = 0;
+                    Map<String, List<IParameterDeclaration>> parameterDeclarations = new HashMap<>();
+                    List<IParameterDeclaration> parameterDeclarationsForMergedTitle = new ArrayList<>();
+                    Set<String> uniqueSetParameters = new HashSet<>();
+                    Set<String> uniqueSetTitles = new HashSet<>();
+                    String title = null;
                     while (j < d) {
                         IGridTable pCodeTable = tableBody1.getSource().getSubtable(tableStructure1[headerIndexes1[PARAMETER_INDEX]], z + j, 1, 1);
                         GridCellSourceCodeModule pGridCellSourceCodeModule = new GridCellSourceCodeModule(
@@ -243,48 +246,56 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                             cxt);
                         IParameterDeclaration parameterDeclaration = getParameterDeclaration(pGridCellSourceCodeModule,
                             cxt);
+                        parameterDeclarationsForMergedTitle.add(parameterDeclaration);
                         if (parameterDeclaration != null) {
-                            localParameterDeclarations.add(parameterDeclaration);
                             if (parameterDeclaration.getName() != null) {
-                                if (uniqueSet.contains(parameterDeclaration.getName())) {
+                                if (uniqueSetParameters.contains(parameterDeclaration.getName())) {
                                     throw SyntaxNodeExceptionUtils.createError("Parameter '" + parameterDeclaration.getName() + "' has already been defined.",
                                         pGridCellSourceCodeModule);
                                 }
-                                uniqueSet.add(parameterDeclaration.getName());
+                                uniqueSetParameters.add(parameterDeclaration.getName());
                             }
                         }
-                        parameterDeclarations.add(parameterDeclaration);
-                        delta.add(pCodeTable.getCell(0, 0).getHeight());
+                        
+                        if (j1 <= j) {
+                            IGridTable tCodeTable = tableBody1.getSource()
+                                .getSubtable(tableStructure1[headerIndexes1[TITLE_INDEX]], z + j, 1, 1);
+                            title = tCodeTable.getCell(0, 0).getStringValue();
+                            if (StringUtils.isEmpty(title)) {
+                                GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(
+                                    tCodeTable,
+                                    cxt);
+                                throw SyntaxNodeExceptionUtils.createError("Title can't be empty.",
+                                    tGridCellSourceCodeModule);
+                            }
+                            if (uniqueSetTitles.contains(title)) {
+                                GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(
+                                    tCodeTable,
+                                    cxt);
+                                throw SyntaxNodeExceptionUtils.createError(
+                                    "Title '" + title + "' has already been defined.",
+                                    tGridCellSourceCodeModule);
+                            }
+                            uniqueSetTitles.add(title);
+                            j1 = j1 + tCodeTable.getCell(0, 0).getHeight();
+                        }
+                        
                         j = j + pCodeTable.getCell(0, 0).getHeight();
-                    }
-                    j = 0;
-                    int k = 0;
-                    uniqueSet = new HashSet<>();
-                    String[] titles = new String[parameterDeclarations.size()];
-                    int t = 0;
-                    while (j < d) {
-                        IGridTable tCodeTable = tableBody1.getSource().getSubtable(tableStructure1[headerIndexes1[TITLE_INDEX]], z + j, 1, 1);
-                        String title = tCodeTable.getCell(0, 0).getStringValue();
-                        if (StringUtils.isEmpty(title)) { 
-                            GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(
-                                tCodeTable,
-                                cxt); 
-                            throw SyntaxNodeExceptionUtils.createError("Title can't be empty.", tGridCellSourceCodeModule);
+                        if (j1 <= j || j >= d) {
+                            parameterDeclarations.put(title, parameterDeclarationsForMergedTitle);
+                            parameterDeclarationsForMergedTitle = new ArrayList<>();
                         }
-                        if (uniqueSet.contains(title)) {
-                            GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(
-                                tCodeTable,
-                                cxt); 
-                            throw SyntaxNodeExceptionUtils.createError("Title '" + title + "' has already been defined.",
-                                tGridCellSourceCodeModule);
-                        }
-                        titles[k++] = title;
-                        uniqueSet.add(title);
-                        j = j + delta.get(t++);
                     }
-
+                    
+                    IParameterDeclaration[] allParameterDeclarations = parameterDeclarations.values()
+                        .stream()
+                        .flatMap(e -> e.stream())
+                        .filter(e -> e != null)
+                        .collect(Collectors.toList())
+                        .toArray(new IParameterDeclaration[] {});
+                    
                     IMethodSignature newSignature = ((MethodSignature) header.getSignature())
-                        .merge(localParameterDeclarations.toArray(new IParameterDeclaration[] {}));
+                        .merge(allParameterDeclarations);
 
                     GridCellSourceCodeModule expressionCellSourceCodeModule = new GridCellSourceCodeModule(
                         expressionTable,
@@ -297,7 +308,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                         getXlsModuleOpenClass(),
                         cxt);
                     
-                    createAndAddDefinition(titles, parameterDeclarations.toArray(new IParameterDeclaration[] {}), header, compositeMethod);
+                    createAndAddDefinition(parameterDeclarations, header, compositeMethod);
                 }
             });
 

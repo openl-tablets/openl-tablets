@@ -4,8 +4,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openl.types.IOpenClass;
@@ -17,13 +19,11 @@ public class XlsDefinitions {
 
     private static final boolean theSame(DTColumnsDefinition dtColumnDefinition1,
             DTColumnsDefinition dtColumnDefinition2) {
+        
         if (!Objects.equals(dtColumnDefinition1.getType(), dtColumnDefinition2.getType())) {
             return false;
         }
-        if (dtColumnDefinition1.getTitles().length != dtColumnDefinition2.getTitles().length) {
-            return false;
-        }
-        if (dtColumnDefinition1.getNumberOfParameters() != dtColumnDefinition2.getNumberOfParameters()) {
+        if (dtColumnDefinition1.getNumberOfTitles() != dtColumnDefinition2.getNumberOfTitles()) {
             return false;
         }
         if (dtColumnDefinition1.getHeader().getSignature().getNumberOfParameters() != dtColumnDefinition2.getHeader()
@@ -46,13 +46,6 @@ public class XlsDefinitions {
             return false;
         }
 
-        for (int i = 0; i < dtColumnDefinition1.getTitles().length; i++) {
-            String title1 = dtColumnDefinition1.getTitles()[i];
-            String title2 = dtColumnDefinition2.getTitles()[i];
-            if (!Objects.equals(title1, title2)) {
-                return false;
-            }
-        }
         Map<String, IOpenClass> map = new HashMap<>();
         for (int i = 0; i < dtColumnDefinition1.getHeader().getSignature().getNumberOfParameters(); i++) {
             map.put(dtColumnDefinition1.getHeader().getSignature().getParameterName(i),
@@ -64,18 +57,31 @@ public class XlsDefinitions {
                 return false;
             }
         }
-        for (int i = 0; i < dtColumnDefinition1.getNumberOfParameters(); i++) {
-            IParameterDeclaration parameterDeclaration1 = dtColumnDefinition1.getParameterDeclarations()[i];
-            IParameterDeclaration parameterDeclaration2 = dtColumnDefinition2.getParameterDeclarations()[i];
-            if (parameterDeclaration1 == null || parameterDeclaration2 == null) {
-                if (parameterDeclaration1 == null && parameterDeclaration2 == null) {
-                    continue;
-                }
+        
+        Set<String> titles1 = dtColumnDefinition1.getTitles();
+        Set<String> titles2 = dtColumnDefinition1.getTitles();
+        for (String title : titles1) {
+            if (!titles2.contains(title)) {
                 return false;
             }
-            if (!Objects.equals(parameterDeclaration1.getName(), parameterDeclaration2.getName()) || !Objects
-                .equals(parameterDeclaration1.getType(), parameterDeclaration2.getType())) {
+            List<IParameterDeclaration> parameterDeclarations1 = dtColumnDefinition1.getParameterDeclarations(title);
+            List<IParameterDeclaration> parameterDeclarations2 = dtColumnDefinition2.getParameterDeclarations(title);
+            if (parameterDeclarations1.size() != parameterDeclarations2.size()) {
                 return false;
+            }
+            for (int i = 0; i < parameterDeclarations1.size(); i++) {
+                IParameterDeclaration parameterDeclaration1 = parameterDeclarations1.get(0);
+                IParameterDeclaration parameterDeclaration2 = parameterDeclarations2.get(0);
+                if (parameterDeclaration1 == null || parameterDeclaration2 == null) {
+                    if (parameterDeclaration1 == null && parameterDeclaration2 == null) {
+                        continue;
+                    }
+                    return false;
+                }
+                if (!Objects.equals(parameterDeclaration1.getName(), parameterDeclaration2.getName()) || !Objects
+                    .equals(parameterDeclaration1.getType(), parameterDeclaration2.getType())) {
+                    return false;
+                }
             }
         }
 

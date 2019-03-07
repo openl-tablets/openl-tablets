@@ -1,5 +1,8 @@
 package org.openl.rules.dt;
 
+import java.util.List;
+import java.util.Map;
+
 import org.openl.OpenL;
 import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
 import org.openl.rules.lang.xls.binding.DTColumnsDefinitionType;
@@ -18,8 +21,8 @@ public class ConditionsTableBoundNode extends ADtColumnsDefinitionTableBoundNode
         super(tableSyntaxNode, openl, false);
     }
     
-    protected void createAndAddDefinition(String[] titles, IParameterDeclaration[] parameterDeclarations, IOpenMethodHeader header, CompositeMethod compositeMethod) {
-        DTColumnsDefinition conditionDefinition = new DTColumnsDefinition(DTColumnsDefinitionType.CONDITION, titles,
+    protected void createAndAddDefinition(Map<String, List<IParameterDeclaration>> parameterDeclarations, IOpenMethodHeader header, CompositeMethod compositeMethod) {
+        DTColumnsDefinition conditionDefinition = new DTColumnsDefinition(DTColumnsDefinitionType.CONDITION, 
             parameterDeclarations,
             header,
             compositeMethod);

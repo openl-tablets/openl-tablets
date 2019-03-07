@@ -1,5 +1,8 @@
 package org.openl.rules.dt;
 
+import java.util.List;
+import java.util.Map;
+
 import org.openl.OpenL;
 import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
 import org.openl.rules.lang.xls.binding.DTColumnsDefinitionType;
@@ -18,11 +21,10 @@ public class ReturnsTableBoundNode extends ADtColumnsDefinitionTableBoundNode {
         super(tableSyntaxNode, openl, true);
     }
 
-    protected void createAndAddDefinition(String[] titles,
-            IParameterDeclaration[] parameterDeclarations,
+    protected void createAndAddDefinition(Map<String, List<IParameterDeclaration>> parameterDeclarations,
             IOpenMethodHeader header,
             CompositeMethod compositeMethod) {
-        DTColumnsDefinition returnDefinition = new DTColumnsDefinition(DTColumnsDefinitionType.RETURN, titles,
+        DTColumnsDefinition returnDefinition = new DTColumnsDefinition(DTColumnsDefinitionType.RETURN,
             parameterDeclarations,
             header,
             compositeMethod);
