@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.repository;
 
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
+import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
@@ -67,8 +68,8 @@ public class ProductionRepositoryFactoryProxy {
     }
 
     private Repository createFactory(String propertiesFileName) throws RRepositoryException {
-        ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
-        Map<String, Object> properties = configurationManager.getProperties();
+        PropertiesHolder propertiesHolder = configManagerFactory.getConfigurationManager(propertiesFileName);
+        Map<String, Object> properties = propertiesHolder.getProperties();
 
         return RepositoryFactoryInstatiator.newFactory(properties, RepositoryMode.PRODUCTION);
     }

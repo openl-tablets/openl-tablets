@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.admin;
 import java.io.File;
 
 import org.openl.config.ConfigurationManager;
+import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.util.StringUtils;
 
@@ -124,17 +125,17 @@ public class CommonRepositorySettings extends RepositorySettings {
     }
 
     @Override
-    protected void store(ConfigurationManager configurationManager) {
-        super.store(configurationManager);
-        configurationManager.setProperty(REPOSITORY_URI, uri);
+    protected void store(PropertiesHolder propertiesHolder) {
+        super.store(propertiesHolder);
+        propertiesHolder.setProperty(REPOSITORY_URI, uri);
 
         if (!isSecure()) {
-            configurationManager.removeProperty(REPOSITORY_LOGIN);
-            configurationManager.removeProperty(REPOSITORY_PASS);
+            propertiesHolder.removeProperty(REPOSITORY_LOGIN);
+            propertiesHolder.removeProperty(REPOSITORY_PASS);
         } else {
             if (StringUtils.isNotEmpty(password)) {
-                configurationManager.setProperty(REPOSITORY_LOGIN, getLogin());
-                configurationManager.setPassword(REPOSITORY_PASS, getPassword());
+                propertiesHolder.setProperty(REPOSITORY_LOGIN, getLogin());
+                propertiesHolder.setPassword(REPOSITORY_PASS, getPassword());
             }
         }
     }
