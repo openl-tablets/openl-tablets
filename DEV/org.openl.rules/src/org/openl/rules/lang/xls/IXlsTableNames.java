@@ -16,6 +16,7 @@ public interface IXlsTableNames {
     String CONSTANTS = "Constants";
     String SMART_DECISION_TABLE = "SmartRules";
     String CONDITIONS_TABLE = "Conditions";
+    String ACTIONS_TABLE = "Actions";
     String RETURNS_TABLE = "Returns";
     String SIMPLE_DECISION_LOOKUP = "SimpleLookup";
     String SMART_DECISION_LOOKUP = "SmartLookup";

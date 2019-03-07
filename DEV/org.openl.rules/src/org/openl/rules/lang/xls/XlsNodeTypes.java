@@ -34,8 +34,9 @@ public enum XlsNodeTypes {
     XLS_OTHER("xls.other"),
     XLS_PROPERTIES("xls.properties"),
     XLS_CONDITIONS("xls.conditions"),
+    XLS_ACTIONS("xls.actions"),
     XLS_RETURNS("xls.returns"),
-    
+   
     XLS_CONSTANTS("xls.constants");
     
     private final String value;

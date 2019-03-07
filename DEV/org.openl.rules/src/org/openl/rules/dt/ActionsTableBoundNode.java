@@ -12,14 +12,14 @@ import org.openl.types.impl.CompositeMethod;
  * @author Marat Kamalov
  * 
  */
-public class ConditionsTableBoundNode extends ADtColumnsDefinitionTableBoundNode {
+public class ActionsTableBoundNode extends ADtColumnsDefinitionTableBoundNode {
 
-    public ConditionsTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl) {
+    public ActionsTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl) {
         super(tableSyntaxNode, openl, false);
     }
     
     protected void createAndAddDefinition(String[] titles, IParameterDeclaration[] parameterDeclarations, IOpenMethodHeader header, CompositeMethod compositeMethod) {
-        DTColumnsDefinition conditionDefinition = new DTColumnsDefinition(DTColumnsDefinitionType.CONDITION, titles,
+        DTColumnsDefinition conditionDefinition = new DTColumnsDefinition(DTColumnsDefinitionType.ACTION, titles,
             parameterDeclarations,
             header,
             compositeMethod);

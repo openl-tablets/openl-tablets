@@ -50,6 +50,7 @@ import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.datatype.binding.DatatypesSorter;
+import org.openl.rules.dt.ActionsTableBinder;
 import org.openl.rules.dt.ConditionsTableBinder;
 import org.openl.rules.dt.ReturnsTableBinder;
 import org.openl.rules.fuzzy.OpenLFuzzySearch;
@@ -111,6 +112,7 @@ public class XlsBinder implements IOpenBinder {
             { XlsNodeTypes.XLS_COLUMN_MATCH.toString(), ColumnMatchNodeBinder.class.getName() },
             { XlsNodeTypes.XLS_PROPERTIES.toString(), PropertyTableBinder.class.getName() },
             { XlsNodeTypes.XLS_CONDITIONS.toString(), ConditionsTableBinder.class.getName() },
+            { XlsNodeTypes.XLS_ACTIONS.toString(), ActionsTableBinder.class.getName() },
             { XlsNodeTypes.XLS_RETURNS.toString(), ReturnsTableBinder.class.getName() },
             { XlsNodeTypes.XLS_CONSTANTS.toString(), ConstantsTableBinder.class.getName() } };
 

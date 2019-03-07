@@ -6,16 +6,16 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**
- * Binder for returns table.
+ * Binder for conditions table.
  * 
  * @author Marat Kamalov
  * 
  */
-public class ReturnsTableBinder extends ADtColumnsDefinitionTableBinder {
+public class ActionsTableBinder extends ADtColumnsDefinitionTableBinder {
     
-    private static final String DEFAULT_TABLE_NAME_PREFIX = "Returns: ";
+    private static final String DEFAULT_TABLE_NAME_PREFIX = "Actions: ";
     
-    public ReturnsTableBinder() {
+    public ActionsTableBinder() {
         super(DEFAULT_TABLE_NAME_PREFIX);
     }
     
@@ -23,7 +23,7 @@ public class ReturnsTableBinder extends ADtColumnsDefinitionTableBinder {
             XlsModuleOpenClass module,
             OpenL openl,
             IBindingContext bindingContext) {
-        ReturnsTableBoundNode boundNode = new ReturnsTableBoundNode(tsn, openl);
+        ActionsTableBoundNode boundNode = new ActionsTableBoundNode(tsn, openl);
         return boundNode;
     }
 

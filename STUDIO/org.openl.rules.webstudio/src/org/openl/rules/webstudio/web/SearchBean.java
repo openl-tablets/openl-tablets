@@ -40,7 +40,7 @@ public class SearchBean {
         "TBasic", "Column Match",
         "Datatype", "Data",
         "Method", "Test", "Run",
-        "Constants", "Conditions", "Returns",
+        "Constants", "Conditions", "Actions", "Returns",
         "Environment", "Properties",
         "Other"
     };
@@ -50,7 +50,7 @@ public class SearchBean {
         XlsNodeTypes.XLS_TBASIC.toString(), XlsNodeTypes.XLS_COLUMN_MATCH.toString(),
         XlsNodeTypes.XLS_DATATYPE.toString(), XlsNodeTypes.XLS_DATA.toString(),
         XlsNodeTypes.XLS_METHOD.toString(), XlsNodeTypes.XLS_TEST_METHOD.toString(), XlsNodeTypes.XLS_RUN_METHOD.toString(),
-        XlsNodeTypes.XLS_CONSTANTS.toString(), XlsNodeTypes.XLS_CONDITIONS.toString(), XlsNodeTypes.XLS_RETURNS.toString(), 
+        XlsNodeTypes.XLS_CONSTANTS.toString(), XlsNodeTypes.XLS_CONDITIONS.toString(), XlsNodeTypes.XLS_ACTIONS.toString(), XlsNodeTypes.XLS_RETURNS.toString(), 
         XlsNodeTypes.XLS_ENVIRONMENT.toString(), XlsNodeTypes.XLS_PROPERTIES.toString(),
         XlsNodeTypes.XLS_OTHER.toString()
     };

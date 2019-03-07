@@ -135,7 +135,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         IOpenClass openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
         if (openClass instanceof XlsModuleOpenClass) {
             XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
-            this.xlsDefinitions.addAllDefinitions(xlsModuleOpenClass.getXlsDefinitions());
+            this.xlsDefinitions.addAll(xlsModuleOpenClass.getXlsDefinitions());
         }
     }
     

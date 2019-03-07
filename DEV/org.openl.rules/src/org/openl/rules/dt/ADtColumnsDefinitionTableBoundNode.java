@@ -38,13 +38,13 @@ import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
-public abstract class ADefinitionTableBoundNode extends ATableBoundNode implements IMemberBoundNode {
+public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode implements IMemberBoundNode {
     private String tableName;
     private OpenL openl;
     private XlsModuleOpenClass xlsModuleOpenClass;
     private boolean mandatoryParameterName;
 
-    public ADefinitionTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl, boolean mandatoryParameterName) {
+    public ADtColumnsDefinitionTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl, boolean mandatoryParameterName) {
         super(tableSyntaxNode);
         this.openl = openl;
         this.mandatoryParameterName = mandatoryParameterName;

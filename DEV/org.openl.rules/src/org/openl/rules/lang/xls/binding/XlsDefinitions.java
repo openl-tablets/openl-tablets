@@ -6,17 +6,20 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 
 public class XlsDefinitions {
 
-    private Collection<DTColumnDefinition> conditionDefinitions = new LinkedHashSet<>();
-    private Collection<DTColumnDefinition> returnDefinitions = new LinkedHashSet<>();
+    private Collection<DTColumnsDefinition> dtColumnsDefinitions = new LinkedHashSet<>();
 
-    private static final boolean theSame(DTColumnDefinition dtColumnDefinition1,
-            DTColumnDefinition dtColumnDefinition2) {
+    private static final boolean theSame(DTColumnsDefinition dtColumnDefinition1,
+            DTColumnsDefinition dtColumnDefinition2) {
+        if (!Objects.equals(dtColumnDefinition1.getType(), dtColumnDefinition2.getType())) {
+            return false;
+        }
         if (dtColumnDefinition1.getTitles().length != dtColumnDefinition2.getTitles().length) {
             return false;
         }
@@ -28,13 +31,21 @@ public class XlsDefinitions {
             .getNumberOfParameters()) {
             return false;
         }
-        
-        String dtColumnDefinition1Code = dtColumnDefinition1.getCompositeMethod().getMethodBodyBoundNode().getSyntaxNode().getModule().getCode();
-        String dtColumnDefinition2Code = dtColumnDefinition2.getCompositeMethod().getMethodBodyBoundNode().getSyntaxNode().getModule().getCode();
+
+        String dtColumnDefinition1Code = dtColumnDefinition1.getCompositeMethod()
+            .getMethodBodyBoundNode()
+            .getSyntaxNode()
+            .getModule()
+            .getCode();
+        String dtColumnDefinition2Code = dtColumnDefinition2.getCompositeMethod()
+            .getMethodBodyBoundNode()
+            .getSyntaxNode()
+            .getModule()
+            .getCode();
         if (!Objects.equals(dtColumnDefinition1Code, dtColumnDefinition2Code)) {
             return false;
         }
-        
+
         for (int i = 0; i < dtColumnDefinition1.getTitles().length; i++) {
             String title1 = dtColumnDefinition1.getTitles()[i];
             String title2 = dtColumnDefinition2.getTitles()[i];
@@ -71,52 +82,47 @@ public class XlsDefinitions {
         return true;
     }
 
-    public void addConditionDefinition(DTColumnDefinition conditionDefinition) {
-        if (conditionDefinitions.contains(conditionDefinition)) {
+    public void addDtColumnsDefinition(DTColumnsDefinition dtColumnsDefinition) {
+        if (dtColumnsDefinitions.contains(dtColumnsDefinition)) {
             return;
         }
-        for (DTColumnDefinition cd : conditionDefinitions) {
-            if (theSame(cd, conditionDefinition)) {
+        for (DTColumnsDefinition cd : dtColumnsDefinitions) {
+            if (theSame(cd, dtColumnsDefinition)) {
                 return;
             }
         }
-        this.conditionDefinitions.add(conditionDefinition);
+        this.dtColumnsDefinitions.add(dtColumnsDefinition);
     }
 
-    public void addReturnDefinition(DTColumnDefinition returnDefinition) {
-        if (returnDefinitions.contains(returnDefinition)) {
-            return;
-        }
-        for (DTColumnDefinition rd : returnDefinitions) {
-            if (theSame(rd, returnDefinition)) {
-                return;
-            }
-        }
-        this.returnDefinitions.add(returnDefinition);
-    }
-
-    public void addAllConditionDefinitions(Collection<DTColumnDefinition> conditionDefinitions) {
-        for (DTColumnDefinition conditionDefinition : conditionDefinitions) {
-            addConditionDefinition(conditionDefinition);
+    public void addAllDtColumnsDefinitions(Collection<DTColumnsDefinition> dtColumnsDefinitions) {
+        for (DTColumnsDefinition dtColumnsDefinition : dtColumnsDefinitions) {
+            addDtColumnsDefinition(dtColumnsDefinition);
         }
     }
 
-    public void addAllReturnDefinitions(Collection<DTColumnDefinition> returnDefinitions) {
-        for (DTColumnDefinition returnDefinition : returnDefinitions) {
-            addReturnDefinition(returnDefinition);
-        }
+    public Collection<DTColumnsDefinition> getDtColumnsDefinitions() {
+        return Collections.unmodifiableCollection(dtColumnsDefinitions);
     }
 
-    public Collection<DTColumnDefinition> getConditionDefinitions() {
-        return Collections.unmodifiableCollection(conditionDefinitions);
+    public Collection<DTColumnsDefinition> getConditionDefinitions() {
+        return dtColumnsDefinitions.stream()
+            .filter(e -> DTColumnsDefinitionType.CONDITION.equals(e.getType()))
+            .collect(Collectors.toList());
     }
 
-    public Collection<DTColumnDefinition> getReturnDefinitions() {
-        return Collections.unmodifiableCollection(returnDefinitions);
+    public Collection<DTColumnsDefinition> getActionDefinitions() {
+        return dtColumnsDefinitions.stream()
+            .filter(e -> DTColumnsDefinitionType.ACTION.equals(e.getType()))
+            .collect(Collectors.toList());
     }
 
-    public void addAllDefinitions(XlsDefinitions xlsModuleDefinitions) {
-        addAllConditionDefinitions(xlsModuleDefinitions.getConditionDefinitions());
-        addAllReturnDefinitions(xlsModuleDefinitions.getReturnDefinitions());
+    public Collection<DTColumnsDefinition> getReturnDefinitions() {
+        return dtColumnsDefinitions.stream()
+            .filter(e -> DTColumnsDefinitionType.RETURN.equals(e.getType()))
+            .collect(Collectors.toList());
+    }
+
+    public void addAll(XlsDefinitions xlsModuleDefinitions) {
+        addAllDtColumnsDefinitions(xlsModuleDefinitions.dtColumnsDefinitions);
     }
 }

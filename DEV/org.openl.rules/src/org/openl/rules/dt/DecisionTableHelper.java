@@ -42,7 +42,7 @@ import org.openl.rules.helpers.StringRangeParser;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.lang.xls.binding.DTColumnDefinition;
+import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
 import org.openl.rules.lang.xls.binding.XlsDefinitions;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.load.SimpleSheetLoader;
@@ -692,10 +692,10 @@ public class DecisionTableHelper {
             titles.add(d);
         }
         
-        DTColumnDefinition bestReturnDefinition = null;
+        DTColumnsDefinition bestReturnDefinition = null;
         MatchedDefinition bestMatchedStatement = null;
         
-        for (DTColumnDefinition rd : xlsDefinitions.getReturnDefinitions()) {
+        for (DTColumnsDefinition rd : xlsDefinitions.getReturnDefinitions()) {
             if (rd.getTitles().length == titles.size() && Arrays.asList(rd.getTitles()).containsAll(titles)) {
                 IOpenClass decisionTableReturnType = decisionTable.getHeader().getType();
                 IOpenClass definitionReturnType = rd.getCompositeMethod().getType();
@@ -1098,7 +1098,7 @@ public class DecisionTableHelper {
         }
     }
     
-    private static MatchedDefinition matchByDTColumnDefinition(DTColumnDefinition definition,
+    private static MatchedDefinition matchByDTColumnDefinition(DTColumnsDefinition definition,
             IOpenMethodHeader header,
             IBindingContext bindingContext) {
         List<IdentifierNode> identifierNodes = new ArrayList<>();
@@ -1510,7 +1510,7 @@ public class DecisionTableHelper {
             XlsDefinitions definitions,
             String title,
             IBindingContext bindingContext) {
-        for (DTColumnDefinition returnDefiniton : definitions.getReturnDefinitions()) {
+        for (DTColumnsDefinition returnDefiniton : definitions.getReturnDefinitions()) {
             List<String> titles = new ArrayList<>(Arrays.asList(returnDefiniton.getTitles()));
             String d = title;
             int x = column;
@@ -1545,7 +1545,7 @@ public class DecisionTableHelper {
             String title,
             List<Condition> vConditions,
             IBindingContext bindingContext) {
-        for (DTColumnDefinition conditionDefinition : definitions.getConditionDefinitions()) {
+        for (DTColumnsDefinition conditionDefinition : definitions.getConditionDefinitions()) {
             List<String> titles = new ArrayList<>(Arrays.asList(conditionDefinition.getTitles()));
             String d = title;
             int x = column;

@@ -94,7 +94,7 @@ public final class TableSyntaxNodeUtils {
                 || tableType.equals(XlsNodeTypes.XLS_DATA)
                 || tableType.equals(XlsNodeTypes.XLS_METHOD) || tableType.equals(XlsNodeTypes.XLS_TEST_METHOD)
                 || tableType.equals(XlsNodeTypes.XLS_RUN_METHOD) || tableType.equals(XlsNodeTypes.XLS_CONSTANTS) 
-                || tableType.equals(XlsNodeTypes.XLS_CONDITIONS) || tableType.equals(XlsNodeTypes.XLS_RETURNS) 
+                || tableType.equals(XlsNodeTypes.XLS_CONDITIONS) || tableType.equals(XlsNodeTypes.XLS_ACTIONS) || tableType.equals(XlsNodeTypes.XLS_RETURNS) 
                 || tableType.equals(XlsNodeTypes.XLS_ENVIRONMENT)   || tableType.equals(XlsNodeTypes.XLS_PROPERTIES)) {
             String[] tokens = StringUtils.split(resultName.replaceAll(ROUND_BRACKETS_WITH_ANY_TEXT, ""));
             resultName = tokens[tokens.length - 1].trim();

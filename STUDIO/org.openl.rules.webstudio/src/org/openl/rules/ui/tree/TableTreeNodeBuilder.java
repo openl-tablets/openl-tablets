@@ -57,13 +57,14 @@ public class TableTreeNodeBuilder extends BaseTableTreeNodeBuilder {
         nodeKeysMap.put(XlsNodeTypes.XLS_METHOD.toString(), new NodeKey(8, new String[] { "Method", "OpenL Methods", "" }));
         nodeKeysMap.put(XlsNodeTypes.XLS_CONSTANTS.toString(), new NodeKey(9, new String[] { "Constants", "Constants Tables", "" }));
         nodeKeysMap.put(XlsNodeTypes.XLS_CONDITIONS.toString(), new NodeKey(10, new String[] { "Conditions", "Conditions Tables", "" }));
-        nodeKeysMap.put(XlsNodeTypes.XLS_RETURNS.toString(), new NodeKey(11, new String[] { "Returns", "Returns Tables", "" }));
-        nodeKeysMap.put(XlsNodeTypes.XLS_ENVIRONMENT.toString(), new NodeKey(12, new String[] { "Configuration",
+        nodeKeysMap.put(XlsNodeTypes.XLS_ACTIONS.toString(), new NodeKey(11, new String[] { "Actions", "Actions Tables", "" }));
+        nodeKeysMap.put(XlsNodeTypes.XLS_RETURNS.toString(), new NodeKey(12, new String[] { "Returns", "Returns Tables", "" }));
+        nodeKeysMap.put(XlsNodeTypes.XLS_ENVIRONMENT.toString(), new NodeKey(13, new String[] { "Configuration",
                 "Environment table, used to configure OpenL project", "" }));
 
-        nodeKeysMap.put(OTHER_NODE_KEY, new NodeKey(13, new String[] { "Other",
+        nodeKeysMap.put(OTHER_NODE_KEY, new NodeKey(14, new String[] { "Other",
                 "The Tables that do not belong to any known OpenL type", "" }));        
-        nodeKeysMap.put(XlsNodeTypes.XLS_PROPERTIES.toString(), new NodeKey(14, new String[] { "Properties", 
+        nodeKeysMap.put(XlsNodeTypes.XLS_PROPERTIES.toString(), new NodeKey(15, new String[] { "Properties", 
                 "Properties Tables", "" }));
         
     }
