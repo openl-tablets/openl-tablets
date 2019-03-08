@@ -10,7 +10,7 @@
     <c:set var="editable" value="#{editable == null ? false : editable}" />
     
     <script>
-        function toggleStracktrace(stacktrace, summary, a) {
+        function toggleStacktrace(stacktrace, summary, a) {
             var j1 = $j(a).find("div");
             var f = j1.hasClass("stacktrace-hidden")
             $j(".summary-panels").show();
@@ -43,14 +43,12 @@
             
             <h:panelGroup rendered="#{messagesBean.hasLinkToCell}">
                 <ui:param name="linkTitle" value="#{msg[message.severity == 'ERROR' ? 'ws.table.error.edit' : (message.severity == 'WARN' ? 'ws.table.warning.edit' : 'ws.table.info.edit')]}"/>
-
                 <h:panelGroup rendered="#{not empty messagesBean.errorCode}" styleClass="code">
                     <br />
                     <h:outputText value="#{messagesBean.errorCode[0]}" />
                     <h:outputText value=" #{messagesBean.errorCode[1]}" styleClass="codeerror" />
                     <h:outputText value=" #{messagesBean.errorCode[2]}" />
                 </h:panelGroup>
-
                 <h:panelGroup rendered="#{editable}">
                     <h:outputLink title="#{linkTitle}" value="#{studio.url('table')}"
                         onclick="if (!canOverwriteRevision()) return false; ws.nav.go(this.href.replace(/^.+#/, '')); return false;">
@@ -64,7 +62,7 @@
             </h:panelGroup>
 
             <h:panelGroup rendered="#{messagesBean.hasStacktrace}">
-                <h:outputLink onclick="toggleStracktrace(#{rich:element('stacktrace_panel')}, #{rich:element('summary_panel')}, this); return false;" styleClass="stacktrace-links"><div class="stacktrace-hidden"/></h:outputLink>
+                <h:outputLink onclick="toggleStacktrace(#{rich:element('stacktrace_panel')}, #{rich:element('summary_panel')}, this); return false;" styleClass="stacktrace-links"><div class="stacktrace-hidden"/></h:outputLink>
             </h:panelGroup>
         </div>
         </td></tr></table>

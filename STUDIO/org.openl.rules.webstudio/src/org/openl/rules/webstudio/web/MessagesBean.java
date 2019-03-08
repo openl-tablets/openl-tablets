@@ -101,7 +101,7 @@ public class MessagesBean {
 
         // Support the case when cell with error is empty (code == ""). See example in EPBDS-2481 (need to add column Condition).
         // But error message containing link to table entirely must not show "Edit cell containing error" link.
-        return getErrorUri() != null && (StringUtils.isNotBlank(code) || module instanceof StringSourceCodeModule);
+        return getErrorUri() != null && (code != null || module instanceof StringSourceCodeModule);
     }
 
     public String getTableId() {

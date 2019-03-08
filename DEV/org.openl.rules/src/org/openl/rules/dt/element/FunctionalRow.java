@@ -15,7 +15,6 @@ import org.openl.rules.dt.storage.IStorage;
 import org.openl.rules.dt.storage.IStorageBuilder;
 import org.openl.rules.dt.storage.StorageFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.ALogicalTable;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -27,7 +26,12 @@ import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
-import org.openl.types.*;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
+import org.openl.types.IOpenMethodHeader;
+import org.openl.types.IParameterDeclaration;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
@@ -459,13 +463,13 @@ public abstract class FunctionalRow implements IDecisionRow {
                     throw SyntaxNodeExceptionUtils.createError("Cannot compile expression", ex, null, methodSource);
                 }
             } else {
-                String errMsg = "Parameter Cell format: <type> <name>";
-                throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, methodSource);
+                String errMsg = "Parameter cell format: <type> <name>";
+                throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, paramSource);
             }
         } 
 
         if (nodes.length > 2) {
-            String errMsg = "Parameter Cell format: <type> <name>";
+            String errMsg = "Parameter cell format: <type> <name>";
             throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, paramSource);
         }
 
