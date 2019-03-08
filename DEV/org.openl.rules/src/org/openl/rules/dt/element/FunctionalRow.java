@@ -25,7 +25,6 @@ import org.openl.rules.dt.storage.IStorage;
 import org.openl.rules.dt.storage.IStorageBuilder;
 import org.openl.rules.dt.storage.StorageFactory;
 import org.openl.rules.dt.storage.StorageInfo;
-import org.openl.rules.table.ALogicalTable;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -473,13 +472,13 @@ public abstract class FunctionalRow implements IDecisionRow {
                     throw SyntaxNodeExceptionUtils.createError("Cannot compile expression", ex, null, methodSource);
                 }
             } else {
-                String errMsg = "Parameter Cell format: <type> <name>";
-                throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, methodSource);
+                String errMsg = "Parameter cell format: <type> <name>";
+                throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, paramSource);
             }
         } 
 
         if (nodes.length > 2) {
-            String errMsg = "Parameter Cell format: <type> <name>";
+            String errMsg = "Parameter cell format: <type> <name>";
             throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, paramSource);
         }
 
