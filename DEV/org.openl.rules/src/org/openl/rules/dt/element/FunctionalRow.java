@@ -25,6 +25,7 @@ import org.openl.rules.dt.storage.IStorage;
 import org.openl.rules.dt.storage.IStorageBuilder;
 import org.openl.rules.dt.storage.StorageFactory;
 import org.openl.rules.dt.storage.StorageInfo;
+import org.openl.rules.table.ALogicalTable;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -235,6 +236,7 @@ public abstract class FunctionalRow implements IDecisionRow {
                     signature,
                     declaringClass,
                     methodType,
+                    length == 1,
                     openl,
                     bindingContext,
                     i);
@@ -443,6 +445,7 @@ public abstract class FunctionalRow implements IDecisionRow {
             IMethodSignature signature,
             IOpenClass declaringClass,
             IOpenClass methodType,
+                                                          boolean allowEmpty,
             OpenL openl,
             IBindingContext bindingContext,
             int paramNum) throws OpenLCompilationException {
@@ -450,30 +453,34 @@ public abstract class FunctionalRow implements IDecisionRow {
         IdentifierNode[] nodes = Tokenizer.tokenize(paramSource, " \n\r");
 
         if (nodes.length == 0) {
-
-            try {
-                OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, signature, declaringClass);
-                CompositeMethod method = OpenLCellExpressionsCompiler
-                    .makeMethod(openl, methodSource, methodHeader, bindingContext);
-
-                IOpenClass type = method.getBodyType();
-
-                if (type instanceof NullOpenClass) {
-                    String message = "Cannot recognize type of local parameter for expression";
-                    throw SyntaxNodeExceptionUtils.createError(message, null, null, methodSource);
+            if (allowEmpty) {
+                try {
+                    OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, signature, declaringClass);
+                    CompositeMethod method = OpenLCellExpressionsCompiler
+                        .makeMethod(openl, methodSource, methodHeader, bindingContext);
+    
+                    IOpenClass type = method.getBodyType();
+    
+                    if (type instanceof NullOpenClass) {
+                        String message = "Cannot recognize type of local parameter for expression";
+                        throw SyntaxNodeExceptionUtils.createError(message, null, null, methodSource);
+                    }
+    
+                    String paramName = makeParamName();
+    
+                    return new ParameterDeclaration(type, paramName);
+                } catch (Exception | LinkageError ex) {
+                    throw SyntaxNodeExceptionUtils.createError("Cannot compile expression", ex, null, methodSource);
                 }
-
-                String paramName = makeParamName();
-
-                return new ParameterDeclaration(type, paramName);
-            } catch (Exception | LinkageError ex) {
-                throw SyntaxNodeExceptionUtils.createError("Cannot compile expression", ex, null, methodSource);
+            } else {
+                String errMsg = "Parameter Cell format: <type> <name>";
+                throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, methodSource);
             }
-        }
+        } 
 
         if (nodes.length > 2) {
             String errMsg = "Parameter Cell format: <type> <name>";
-            throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, methodSource);
+            throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, paramSource);
         }
 
         String typeCode = nodes[0].getIdentifier();
