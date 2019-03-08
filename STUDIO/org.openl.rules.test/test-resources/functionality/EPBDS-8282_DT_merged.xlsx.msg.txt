@@ -1,1 +1,1 @@
-ERROR: Parameter Cell format: <type> <name>
+ERROR: Parameter cell format: <type> <name>
