@@ -728,21 +728,18 @@ public class DecisionTableHelper {
             String d = cell.getStringValue();
             for (String title : bestReturnDefinition.getTitles()) {
                 if (Objects.equals(d, title)) {
-                    List<IParameterDeclaration> parameterDeclarations = bestReturnDefinition
-                        .getParameterDeclarations(title);
-                    List<String> parameterNames = new ArrayList<>();
+                    List<IParameterDeclaration> localParameters = bestReturnDefinition
+                        .getLocalParameters(title);
+                    List<String> localParameterNames = new ArrayList<>();
                     List<IOpenClass> typeOfColumns = new ArrayList<>();
                     int column = c;
-                    for (IParameterDeclaration parameterDeclaration : parameterDeclarations) {
-                        if (parameterDeclaration != null) {
-                            parameterNames.add(parameterDeclaration.getName());
-                            String value = parameterDeclaration.getType()
-                                .getName() + (parameterDeclaration.getName() != null
-                                                                                     ? " " + parameterDeclaration
-                                                                                         .getName()
-                                                                                     : "");
+                    for (IParameterDeclaration param : localParameters) {
+                        if (param != null) {
+                            localParameterNames.add(param.getName());
+                            String value = param.getType()
+                                .getName() + (param.getName() != null ? " " + param.getName() : "");
                             grid.setCellValue(column, 2, value);
-                            typeOfColumns.add(parameterDeclaration.getType());
+                            typeOfColumns.add(param.getType());
                         } else {
                             typeOfColumns.add(bestReturnDefinition.getCompositeMethod().getType());
                         }
@@ -757,7 +754,7 @@ public class DecisionTableHelper {
                     }
                     if (!bindingContext.isExecutionMode()) {
                         String text = String.format("Parameter %s of return RET1 with expression %s: %s",
-                            DecisionTableMetaInfoReader.toString(parameterNames.toArray(new String[] {}), e -> e),
+                            DecisionTableMetaInfoReader.toString(localParameterNames.toArray(new String[] {}), e -> e),
                             bestMatchedStatement.getStatement(),
                             DecisionTableMetaInfoReader.toString(typeOfColumns.toArray(new IOpenClass[] {}),
                                 e -> e.getDisplayName(INamedThing.SHORT)));
@@ -1018,16 +1015,16 @@ public class DecisionTableHelper {
                 }
             } else { //VCondition and declared by user
                 int firstColumn = column;
-                for (int j = 0; j < conditions[i].getParameterDeclarations().length; j++) {
+                for (int j = 0; j < conditions[i].getColumnParameters().length; j++) {
                     List<String> parameterNames = new ArrayList<>();
                     List<IOpenClass> typeOfColumns = new ArrayList<>();
                     int firstTitleColumn = column;
-                    for (int k = 0; k < conditions[i].getParameterDeclarations()[j].length; k++) {
-                        IParameterDeclaration parameterDeclaration = conditions[i].getParameterDeclarations()[j][k]; 
-                        if (parameterDeclaration != null) {
-                            parameterNames.add(parameterDeclaration.getName());
-                            grid.setCellValue(column, 2, parameterDeclaration.getType().getName() + (parameterDeclaration.getName() != null ? " " + parameterDeclaration.getName() : ""));
-                            typeOfColumns.add(parameterDeclaration.getType());
+                    for (int k = 0; k < conditions[i].getColumnParameters()[j].length; k++) {
+                        IParameterDeclaration param = conditions[i].getColumnParameters()[j][k]; 
+                        if (param != null) {
+                            parameterNames.add(param.getName());
+                            grid.setCellValue(column, 2, param.getType().getName() + (param.getName() != null ? " " + param.getName() : ""));
+                            typeOfColumns.add(param.getType());
                         } else {
                             typeOfColumns.add(conditions[i].getCompositeMethod().getType());
                         }
@@ -1166,15 +1163,14 @@ public class DecisionTableHelper {
         List<IdentifierNode> identifierNodes = new ArrayList<>();
         parseRec(definition.getCompositeMethod().getMethodBodyBoundNode().getSyntaxNode(), identifierNodes);
         Set<String> methodParametersUsedInExpression = new HashSet<>();
+        
+        Map<String, IParameterDeclaration> localParameters = new HashMap<>();
+        for (IParameterDeclaration localParameter : definition.getLocalParameters()) {
+            localParameters.put(localParameter.getName(), localParameter);
+        }
+        
         for (IdentifierNode identifierNode : identifierNodes) {
-            boolean found = false;
-            for (IParameterDeclaration parameterDeclaration : definition.getParameterDeclarations()) {
-                if (identifierNode.getIdentifier().equals(parameterDeclaration.getName())) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
+            if (!localParameters.containsKey(identifierNode.getIdentifier())) {
                 methodParametersUsedInExpression.add(identifierNode.getIdentifier());
             } 
         }
@@ -1223,6 +1219,12 @@ public class DecisionTableHelper {
                 methodParameterWithTypeCastMap.put(param, header.getSignature().getParameterName(k1));
             }
         }
+        
+        Set<String> allMethodParameterNames = new HashSet<>();
+        for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
+            allMethodParameterNames.add(header.getSignature().getParameterName(i));
+        }
+        
 
         if (strictMatchOfParameters == methodParametersUsedInExpression.size()) {
             return new MatchedDefinition(definition.getCompositeMethod().getMethodBodyBoundNode().getSyntaxNode().getModule().getCode(),
@@ -1354,8 +1356,8 @@ public class DecisionTableHelper {
                 usedIndexes.add(index);
                 Condition condition = vConditions.get(index);
                 int d = 1;
-                if (condition.isDeclared() && condition.getParameterDeclarations() != null) {
-                    d = condition.getParameterDeclarations().length;
+                if (condition.isDeclared() && condition.getColumnParameters() != null) {
+                    d = condition.getColumnParameters().length;
                 }
                 Set<Integer> usedParameterIndexesTo = new HashSet<Integer>(usedParameterIndexes);
                 for (int i : condition.getMethodParameterIndexes()) {
@@ -1572,7 +1574,7 @@ public class DecisionTableHelper {
             Set<String> titles = new HashSet<>(returnDefiniton.getTitles());
             String d = title;
             int x = column;
-            while (titles.contains(d) && numberOfColumnsUnderTitle == returnDefiniton.getParameterDeclarations(title).size() && x <= originalTable.getWidth()) {
+            while (titles.contains(d) && numberOfColumnsUnderTitle == returnDefiniton.getLocalParameters(title).size() && x <= originalTable.getWidth()) {
                 titles.remove(d);
                 for (String s : returnDefiniton.getTitles()) {
                     if (s.equals(d)) {
@@ -1608,13 +1610,13 @@ public class DecisionTableHelper {
             Set<String> titles = new HashSet<>(conditionDefinition.getTitles());
             String d = title;
             int x = column;
-            IParameterDeclaration[][] parameterDeclarations = new IParameterDeclaration[conditionDefinition
+            IParameterDeclaration[][] columnParameters = new IParameterDeclaration[conditionDefinition
                 .getNumberOfTitles()][];
-            while (titles.contains(d) && numberOfColumnsUnderTitle == conditionDefinition.getParameterDeclarations(title).size() && x <= originalTable.getWidth()) {
+            while (titles.contains(d) && numberOfColumnsUnderTitle == conditionDefinition.getLocalParameters(title).size() && x <= originalTable.getWidth()) {
                 titles.remove(d);
                 for (String s : conditionDefinition.getTitles()) {
                     if (s.equals(d)) {
-                        parameterDeclarations[x - column] = conditionDefinition.getParameterDeclarations(d).toArray(new IParameterDeclaration[] {});
+                        columnParameters[x - column] = conditionDefinition.getLocalParameters(d).toArray(new IParameterDeclaration[] {});
                         break;
                     }
                 }
@@ -1630,7 +1632,7 @@ public class DecisionTableHelper {
                     vConditions.add(new Condition(matchedDefinition.getUsedMethodParameterIndexes(),
                         conditionDefinition.getCompositeMethod(),
                         matchedDefinition.getStatement(),
-                        parameterDeclarations,
+                        columnParameters,
                         column - 1,
                         matchedDefinition.getDefinitionMatchType()));
                     matched = true;
@@ -1950,7 +1952,7 @@ public class DecisionTableHelper {
         IOpenMethod[] methodsChain;
         int column;
         String statement;
-        IParameterDeclaration[][] parameterDeclarations;
+        IParameterDeclaration[][] columnParameters;
         boolean declared = false;
         CompositeMethod compositeMethod;
         DefinitionMatchType definitionMatchType;
@@ -1968,16 +1970,16 @@ public class DecisionTableHelper {
             this.numberOfUsedColumns = 1;
         }
         
-        public Condition(int[] methodParameterIndexes, CompositeMethod compositeMethod, String statement, IParameterDeclaration[][] parameterDeclarations, int column, DefinitionMatchType definitionMatchType) {
+        public Condition(int[] methodParameterIndexes, CompositeMethod compositeMethod, String statement, IParameterDeclaration[][] columnParameters, int column, DefinitionMatchType definitionMatchType) {
             this.methodParameterIndexes = methodParameterIndexes;
-            this.parameterDeclarations = parameterDeclarations;
+            this.columnParameters = columnParameters;
             this.statement = statement;
             this.declared = true;
             this.compositeMethod = compositeMethod;
             this.definitionMatchType = definitionMatchType;
             this.column = column;
             this.numberOfUsedColumns = 0;
-            for (IParameterDeclaration[] pds : parameterDeclarations) {
+            for (IParameterDeclaration[] pds : columnParameters) {
                 this.numberOfUsedColumns = this.numberOfUsedColumns + pds.length;
             }
         }
@@ -1994,13 +1996,13 @@ public class DecisionTableHelper {
             return statement;
         }
         
-        public IParameterDeclaration[][] getParameterDeclarations() {
-            return parameterDeclarations;
+        public IParameterDeclaration[][] getColumnParameters() {
+            return columnParameters;
         }
         
         public int getNumberOfUsedColumns() {
-            if (parameterDeclarations != null) {
-                return parameterDeclarations.length;
+            if (columnParameters != null) {
+                return columnParameters.length;
             } else {
                 return 1;
             }
@@ -2043,7 +2045,7 @@ public class DecisionTableHelper {
             result = prime * result + ((definitionMatchType == null) ? 0 : definitionMatchType.hashCode());
             result = prime * result + ((description == null) ? 0 : description.hashCode());
             result = prime * result + Arrays.hashCode(methodsChain);
-            result = prime * result + Arrays.deepHashCode(parameterDeclarations);
+            result = prime * result + Arrays.deepHashCode(columnParameters);
             result = prime * result + Arrays.hashCode(methodParameterIndexes);
             result = prime * result + ((statement == null) ? 0 : statement.hashCode());
             return result;
@@ -2076,7 +2078,7 @@ public class DecisionTableHelper {
                 return false;
             if (!Arrays.equals(methodsChain, other.methodsChain))
                 return false;
-            if (!Arrays.deepEquals(parameterDeclarations, other.parameterDeclarations))
+            if (!Arrays.deepEquals(columnParameters, other.columnParameters))
                 return false;
             if (!Arrays.equals(methodParameterIndexes, other.methodParameterIndexes))
                 return false;

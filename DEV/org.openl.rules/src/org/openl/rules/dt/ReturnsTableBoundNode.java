@@ -21,11 +21,11 @@ public class ReturnsTableBoundNode extends ADtColumnsDefinitionTableBoundNode {
         super(tableSyntaxNode, openl);
     }
 
-    protected void createAndAddDefinition(Map<String, List<IParameterDeclaration>> parameterDeclarations,
+    protected void createAndAddDefinition(Map<String, List<IParameterDeclaration>> localParameters,
             IOpenMethodHeader header,
             CompositeMethod compositeMethod) {
         DTColumnsDefinition returnDefinition = new DTColumnsDefinition(DTColumnsDefinitionType.RETURN,
-            parameterDeclarations,
+            localParameters,
             header,
             compositeMethod);
         getXlsModuleOpenClass().getXlsDefinitions().addDtColumnsDefinition(returnDefinition);

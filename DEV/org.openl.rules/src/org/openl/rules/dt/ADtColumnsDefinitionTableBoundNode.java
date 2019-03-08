@@ -233,10 +233,10 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                     } 
                     int j = 0;
                     int j1 = 0;
-                    Map<String, List<IParameterDeclaration>> parameterDeclarations = new HashMap<>();
-                    List<IParameterDeclaration> parameterDeclarationsForMergedTitle = new ArrayList<>();
-                    Set<String> uniqueSetParameters = new HashSet<>();
-                    Set<String> uniqueSetTitles = new HashSet<>();
+                    Map<String, List<IParameterDeclaration>> localParameters = new HashMap<>();
+                    List<IParameterDeclaration> parametersForMergedTitle = new ArrayList<>();
+                    Set<String> uniqueSetOfParameters = new HashSet<>();
+                    Set<String> uniqueSetOfTitles = new HashSet<>();
                     String title = null;
                     IGridTable nullPCodeTable = null;
                     while (j < d) {
@@ -246,14 +246,14 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                             cxt);
                         IParameterDeclaration parameterDeclaration = getParameterDeclaration(pGridCellSourceCodeModule,  
                             cxt);
-                        parameterDeclarationsForMergedTitle.add(parameterDeclaration);
+                        parametersForMergedTitle.add(parameterDeclaration);
                         if (parameterDeclaration != null) {
                             if (parameterDeclaration.getName() != null) {
-                                if (uniqueSetParameters.contains(parameterDeclaration.getName())) {
+                                if (uniqueSetOfParameters.contains(parameterDeclaration.getName())) {
                                     throw SyntaxNodeExceptionUtils.createError("Parameter '" + parameterDeclaration.getName() + "' has already been defined.",
                                         pGridCellSourceCodeModule);
                                 }
-                                uniqueSetParameters.add(parameterDeclaration.getName());
+                                uniqueSetOfParameters.add(parameterDeclaration.getName());
                             }
                         } else {
                             nullPCodeTable = nullPCodeTable == null ? pCodeTable : nullPCodeTable;
@@ -270,7 +270,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                                 throw SyntaxNodeExceptionUtils.createError("Title can't be empty.",
                                     tGridCellSourceCodeModule);
                             }
-                            if (uniqueSetTitles.contains(title)) {
+                            if (uniqueSetOfTitles.contains(title)) {
                                 GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(
                                     tCodeTable,
                                     cxt);
@@ -278,14 +278,14 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                                     "Title '" + title + "' has already been defined.",
                                     tGridCellSourceCodeModule);
                             }
-                            uniqueSetTitles.add(title);
+                            uniqueSetOfTitles.add(title);
                             j1 = j1 + tCodeTable.getCell(0, 0).getHeight();
                         }
                         
                         j = j + pCodeTable.getCell(0, 0).getHeight();
                         if (j1 <= j || j >= d) {
-                            if (parameterDeclarationsForMergedTitle.size() > 1) {
-                                if (parameterDeclarationsForMergedTitle.stream().filter(Objects::isNull).limit(1).count() > 0) {
+                            if (parametersForMergedTitle.size() > 1) {
+                                if (parametersForMergedTitle.stream().filter(Objects::isNull).limit(1).count() > 0) {
                                     GridCellSourceCodeModule eGridCellSourceCodeModule = new GridCellSourceCodeModule(
                                         nullPCodeTable,
                                         cxt);
@@ -294,15 +294,15 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                                 }
                             }
                             
-                            parameterDeclarations.put(title, parameterDeclarationsForMergedTitle);
-                            parameterDeclarationsForMergedTitle = new ArrayList<>();
+                            localParameters.put(title, parametersForMergedTitle);
+                            parametersForMergedTitle = new ArrayList<>();
                         }
                     }
                     
-                    IParameterDeclaration[] allParameterDeclarations = parameterDeclarations.values()
+                    IParameterDeclaration[] allParameterDeclarations = localParameters.values()
                         .stream()
                         .flatMap(e -> e.stream())
-                        .filter(e -> e != null)
+                        .filter(e -> e != null && e.getName() != null)
                         .collect(Collectors.toList())
                         .toArray(new IParameterDeclaration[] {});
                     
@@ -320,7 +320,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                         getXlsModuleOpenClass(),
                         cxt);
                     
-                    createAndAddDefinition(parameterDeclarations, header, compositeMethod);
+                    createAndAddDefinition(localParameters, header, compositeMethod);
                 }
             });
 

@@ -64,8 +64,8 @@ public class XlsDefinitions {
             if (!titles2.contains(title)) {
                 return false;
             }
-            List<IParameterDeclaration> parameterDeclarations1 = dtColumnDefinition1.getParameterDeclarations(title);
-            List<IParameterDeclaration> parameterDeclarations2 = dtColumnDefinition2.getParameterDeclarations(title);
+            List<IParameterDeclaration> parameterDeclarations1 = dtColumnDefinition1.getLocalParameters(title);
+            List<IParameterDeclaration> parameterDeclarations2 = dtColumnDefinition2.getLocalParameters(title);
             if (parameterDeclarations1.size() != parameterDeclarations2.size()) {
                 return false;
             }

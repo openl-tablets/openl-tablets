@@ -21,9 +21,9 @@ public class ConditionsTableBoundNode extends ADtColumnsDefinitionTableBoundNode
         super(tableSyntaxNode, openl);
     }
     
-    protected void createAndAddDefinition(Map<String, List<IParameterDeclaration>> parameterDeclarations, IOpenMethodHeader header, CompositeMethod compositeMethod) {
+    protected void createAndAddDefinition(Map<String, List<IParameterDeclaration>> localParameters, IOpenMethodHeader header, CompositeMethod compositeMethod) {
         DTColumnsDefinition conditionDefinition = new DTColumnsDefinition(DTColumnsDefinitionType.CONDITION, 
-            parameterDeclarations,
+            localParameters,
             header,
             compositeMethod);
         getXlsModuleOpenClass().getXlsDefinitions().addDtColumnsDefinition(conditionDefinition);

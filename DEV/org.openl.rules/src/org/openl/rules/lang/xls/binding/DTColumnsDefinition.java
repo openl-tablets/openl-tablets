@@ -14,16 +14,16 @@ import org.openl.types.impl.CompositeMethod;
 
 public class DTColumnsDefinition {
     
-    private Map<String, List<IParameterDeclaration>> parameterDeclarations;
+    private Map<String, List<IParameterDeclaration>> localParameters;
     private IOpenMethodHeader header;
     private CompositeMethod compositeMethod;
     private DTColumnsDefinitionType type;
     
     public DTColumnsDefinition(DTColumnsDefinitionType type, 
-            Map<String, List<IParameterDeclaration>> parameterDeclarations,
+            Map<String, List<IParameterDeclaration>> localParameters,
             IOpenMethodHeader header,
             CompositeMethod compositeMethod) {
-        this.parameterDeclarations = parameterDeclarations;
+        this.localParameters = localParameters;
         this.compositeMethod = compositeMethod;
         this.header = header;
         this.type = type;
@@ -34,11 +34,11 @@ public class DTColumnsDefinition {
     }
 
     public int getNumberOfTitles() {
-        return parameterDeclarations.size();
+        return localParameters.size();
     }
 
-    public List<IParameterDeclaration> getParameterDeclarations(String title) {
-        List<IParameterDeclaration> value = parameterDeclarations.get(title);
+    public List<IParameterDeclaration> getLocalParameters(String title) {
+        List<IParameterDeclaration> value = localParameters.get(title);
         if (value != null) {
             return Collections.unmodifiableList(value);
         } else {
@@ -46,16 +46,16 @@ public class DTColumnsDefinition {
         }
     }
     
-    public Collection<IParameterDeclaration> getParameterDeclarations() {
-        return parameterDeclarations.values()
+    public Collection<IParameterDeclaration> getLocalParameters() {
+        return localParameters.values()
             .stream()
             .flatMap(e -> e.stream())
-            .filter(e -> e != null)
+            .filter(e -> e != null && e.getName() != null)
             .collect(Collectors.toCollection(ArrayList::new));
     }
     
     public Set<String> getTitles() {
-        return Collections.unmodifiableSet(parameterDeclarations.keySet());
+        return Collections.unmodifiableSet(localParameters.keySet());
     }
 
     public IOpenMethodHeader getHeader() {
