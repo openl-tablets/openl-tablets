@@ -18,7 +18,7 @@ import org.openl.types.impl.CompositeMethod;
 public class ReturnsTableBoundNode extends ADtColumnsDefinitionTableBoundNode {
 
     public ReturnsTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl) {
-        super(tableSyntaxNode, openl, true);
+        super(tableSyntaxNode, openl);
     }
 
     protected void createAndAddDefinition(Map<String, List<IParameterDeclaration>> parameterDeclarations,

@@ -18,7 +18,7 @@ import org.openl.types.impl.CompositeMethod;
 public class ActionsTableBoundNode extends ADtColumnsDefinitionTableBoundNode {
 
     public ActionsTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl) {
-        super(tableSyntaxNode, openl, false);
+        super(tableSyntaxNode, openl);
     }
     
     protected void createAndAddDefinition(Map<String, List<IParameterDeclaration>> parameterDeclarations, IOpenMethodHeader header, CompositeMethod compositeMethod) {

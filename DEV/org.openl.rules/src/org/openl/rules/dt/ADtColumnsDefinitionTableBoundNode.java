@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,12 +46,10 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     private String tableName;
     private OpenL openl;
     private XlsModuleOpenClass xlsModuleOpenClass;
-    private boolean mandatoryParameterName;
 
-    public ADtColumnsDefinitionTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl, boolean mandatoryParameterName) {
+    public ADtColumnsDefinitionTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl) {
         super(tableSyntaxNode);
         this.openl = openl;
-        this.mandatoryParameterName = mandatoryParameterName;
     }
 
     public String getTableName() {
@@ -83,7 +82,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
 
         IdentifierNode[] nodes = Tokenizer.tokenize(paramSource, " \n\r");
 
-        if (nodes.length > 2 || mandatoryParameterName && nodes.length != 2) {
+        if (nodes.length > 2) {
             String errMsg = "Parameter format: <type> <name>";
             throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, paramSource);
         }
@@ -227,10 +226,10 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                                 null),
                             cxt);
                     } catch (CompositeSyntaxNodeException e) {
-                        GridCellSourceCodeModule pGridCellSourceCodeModule = new GridCellSourceCodeModule(
+                        GridCellSourceCodeModule eGridCellSourceCodeModule = new GridCellSourceCodeModule(
                             expressionTable,
                             cxt);
-                        throw SyntaxNodeExceptionUtils.createError(String.format("Failed to parse the cell '%s'", pGridCellSourceCodeModule.getCode()), pGridCellSourceCodeModule);
+                        throw SyntaxNodeExceptionUtils.createError(String.format("Failed to parse the cell '%s'", eGridCellSourceCodeModule.getCode()), eGridCellSourceCodeModule);
                     } 
                     int j = 0;
                     int j1 = 0;
@@ -239,12 +238,13 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                     Set<String> uniqueSetParameters = new HashSet<>();
                     Set<String> uniqueSetTitles = new HashSet<>();
                     String title = null;
+                    IGridTable nullPCodeTable = null;
                     while (j < d) {
                         IGridTable pCodeTable = tableBody1.getSource().getSubtable(tableStructure1[headerIndexes1[PARAMETER_INDEX]], z + j, 1, 1);
                         GridCellSourceCodeModule pGridCellSourceCodeModule = new GridCellSourceCodeModule(
                             pCodeTable,
                             cxt);
-                        IParameterDeclaration parameterDeclaration = getParameterDeclaration(pGridCellSourceCodeModule,
+                        IParameterDeclaration parameterDeclaration = getParameterDeclaration(pGridCellSourceCodeModule,  
                             cxt);
                         parameterDeclarationsForMergedTitle.add(parameterDeclaration);
                         if (parameterDeclaration != null) {
@@ -255,6 +255,8 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                                 }
                                 uniqueSetParameters.add(parameterDeclaration.getName());
                             }
+                        } else {
+                            nullPCodeTable = nullPCodeTable == null ? pCodeTable : nullPCodeTable;
                         }
                         
                         if (j1 <= j) {
@@ -282,6 +284,16 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                         
                         j = j + pCodeTable.getCell(0, 0).getHeight();
                         if (j1 <= j || j >= d) {
+                            if (parameterDeclarationsForMergedTitle.size() > 1) {
+                                if (parameterDeclarationsForMergedTitle.stream().filter(Objects::isNull).limit(1).count() > 0) {
+                                    GridCellSourceCodeModule eGridCellSourceCodeModule = new GridCellSourceCodeModule(
+                                        nullPCodeTable,
+                                        cxt);
+                                    String errMsg = "Parameter cell format: <type> <name>";
+                                    throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, eGridCellSourceCodeModule);
+                                }
+                            }
+                            
                             parameterDeclarations.put(title, parameterDeclarationsForMergedTitle);
                             parameterDeclarationsForMergedTitle = new ArrayList<>();
                         }

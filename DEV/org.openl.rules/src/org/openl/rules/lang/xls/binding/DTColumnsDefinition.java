@@ -47,7 +47,11 @@ public class DTColumnsDefinition {
     }
     
     public Collection<IParameterDeclaration> getParameterDeclarations() {
-        return parameterDeclarations.values().stream().flatMap(e -> e.stream()).collect(Collectors.toCollection(ArrayList::new));
+        return parameterDeclarations.values()
+            .stream()
+            .flatMap(e -> e.stream())
+            .filter(e -> e != null)
+            .collect(Collectors.toCollection(ArrayList::new));
     }
     
     public Set<String> getTitles() {

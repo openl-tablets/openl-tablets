@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
@@ -116,13 +117,32 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     public CellMetaInfo getBodyMetaInfo(int row, int col) {
         return getPreparedMetaInfo(row, col);
     }
+    
+    public static <T> String toString(T[] elements, Function<T, String> func) {
+        if (elements == null) {
+            return null;
+        }
+        if (elements.length == 1) {
+            return func.apply(elements[0]);
+        } else {
+            StringBuilder sb = new StringBuilder();
+            sb.append("[");
+            sb.append(func.apply(elements[0]));
+            for (int i = 1; i < elements.length; i++) {
+                sb.append(", ");
+                sb.append(func.apply(elements[i]));
+            }
+            sb.append("]");
+            return sb.toString();
+        }
+    }
 
     private void saveSimpleRulesMetaInfo(DecisionTable decisionTable, IGridRegion region) {
         for (Map.Entry<CellKey, ConditionDescription> entry : simpleRulesConditionMap.entrySet()) {
-            String parameterName = entry.getValue().getParameterName();
+            String[] parameterNames = entry.getValue().getParameterNames();
             String conditionName = entry.getValue().getConditionName();
             String conditionStatement = entry.getValue().getConditionStatement();
-            IOpenClass conditionType = entry.getValue().getConditionType();
+            IOpenClass[] columnTypes = entry.getValue().getColumnTypes();
             CellKey key = entry.getKey();
             int row = key.getRow();
             int col = key.getColumn();
@@ -138,12 +158,18 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             }
             
             String text;
-            if (parameterName != null && conditionName != null && conditionStatement != null) {
-                text = String.format("Parameter %s of condition %s with expression %s: %s", parameterName, conditionName, conditionStatement, conditionType.getDisplayName(INamedThing.SHORT));
+            String textForColumnTypes = toString(columnTypes, e -> e.getDisplayName(INamedThing.SHORT));
+            if (parameterNames != null && parameterNames.length > 0 && conditionName != null && conditionStatement != null) {
+                if (parameterNames.length > 1) {
+                    String textForParameterNames = toString(parameterNames, e -> e);
+                    text = String.format("Parameters %s of condition %s with expression %s: %s", textForParameterNames, conditionName, conditionStatement, textForColumnTypes);
+                }else {
+                    text = String.format("Parameter %s of condition %s with expression %s: %s", parameterNames[0], conditionName, conditionStatement, textForColumnTypes);
+                }
             } else if (conditionName != null && conditionStatement != null) {
-                text = String.format("Condition %s with expression %s: %s", conditionName, conditionStatement, conditionType.getDisplayName(INamedThing.SHORT));
+                text = String.format("Condition %s with expression %s: %s", conditionName, conditionStatement, textForColumnTypes);
             } else {
-                text = String.format("Condition for %s: %s", conditionStatement, conditionType.getDisplayName(INamedThing.SHORT));
+                text = String.format("Condition for %s: %s", conditionStatement, textForColumnTypes);
             }
             SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
                     cellValue.length() - 1,
@@ -184,8 +210,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
     }
 
-    public void addSimpleRulesCondition(int row, int col, String conditionName, String parameterName, String conditionStatement, IOpenClass conditionType) {
-        simpleRulesConditionMap.put(CellKey.CellKeyFactory.getCellKey(col, row), new ConditionDescription(conditionName, parameterName, conditionStatement, conditionType));
+    public void addSimpleRulesCondition(int row, int col, String conditionNames, String[] parameterNames, String conditionStatement, IOpenClass[] columnTypes) {
+        simpleRulesConditionMap.put(CellKey.CellKeyFactory.getCellKey(col, row), new ConditionDescription(conditionNames, parameterNames, conditionStatement, columnTypes));
     }
 
     public void addSimpleRulesReturn(int row, int col, String description) {
@@ -341,35 +367,35 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     
     private static class ConditionDescription {
         String conditionName;
-        String parameterName;
+        String[] parameterNames;
         String conditionStatement;
-        IOpenClass conditionType;
+        IOpenClass[] columnTypes;
 
         public ConditionDescription(String conditionName,
-                String parameterName,
+                String[] parameterNames,
                 String conditionStatement,
-                IOpenClass conditionType) {
+                IOpenClass[] columnTypes) {
             super();
             this.conditionName = conditionName;
-            this.parameterName = parameterName;
+            this.parameterNames = parameterNames;
             this.conditionStatement = conditionStatement;
-            this.conditionType = conditionType;
+            this.columnTypes = columnTypes;
         }
 
         public String getConditionName() {
             return conditionName;
         }
 
-        public String getParameterName() {
-            return parameterName;
+        public String[] getParameterNames() {
+            return parameterNames;
         }
 
         public String getConditionStatement() {
             return conditionStatement;
         }
 
-        public IOpenClass getConditionType() {
-            return conditionType;
+        public IOpenClass[] getColumnTypes() {
+            return columnTypes;
         }
 
     }

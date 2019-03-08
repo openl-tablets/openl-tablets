@@ -483,7 +483,7 @@ public class DecisionTableHelper {
                 String description = "Return for " + fieldChainSb.toString() + ": " + type
                     .getDisplayName(INamedThing.SHORT);
 
-                writeMetaInfo(tableSyntaxNode, cell, description);
+                writeReturnMetaInfo(tableSyntaxNode, cell, description);
             }
 
             column += mergedColumnsCounts;
@@ -499,7 +499,7 @@ public class DecisionTableHelper {
         }
     }
 
-    private static void writeMetaInfo(TableSyntaxNode tableSyntaxNode, ICell cell, String description) {
+    private static void writeReturnMetaInfo(TableSyntaxNode tableSyntaxNode, ICell cell, String description) {
         MetaInfoReader metaReader = tableSyntaxNode.getMetaInfoReader();
         if (metaReader instanceof DecisionTableMetaInfoReader) {
             DecisionTableMetaInfoReader metaInfoReader = (DecisionTableMetaInfoReader) metaReader;
@@ -726,19 +726,42 @@ public class DecisionTableHelper {
         while (c < originalTable.getSource().getWidth()) {
             ICell cell = originalTable.getSource().getCell(c, 0);
             String d = cell.getStringValue();
-            for (String title : bestReturnDefinition.getTitles()) {   
+            for (String title : bestReturnDefinition.getTitles()) {
                 if (Objects.equals(d, title)) {
-                    List<IParameterDeclaration> parameterDeclarations = bestReturnDefinition.getParameterDeclarations(title);
-                    IParameterDeclaration parameterDeclaration = parameterDeclarations.get(0);
-                    grid.setCellValue(c, 2, parameterDeclaration.getType().getName() + " " + parameterDeclaration.getName());
-                    if (originalTable.getCell(c, 0).getWidth() > 1) {
-                        grid.addMergedRegion(new GridRegion(2, c, 2, c + originalTable.getCell(c, 0).getWidth() - 1));
+                    List<IParameterDeclaration> parameterDeclarations = bestReturnDefinition
+                        .getParameterDeclarations(title);
+                    List<String> parameterNames = new ArrayList<>();
+                    List<IOpenClass> typeOfColumns = new ArrayList<>();
+                    int column = c;
+                    for (IParameterDeclaration parameterDeclaration : parameterDeclarations) {
+                        if (parameterDeclaration != null) {
+                            parameterNames.add(parameterDeclaration.getName());
+                            String value = parameterDeclaration.getType()
+                                .getName() + (parameterDeclaration.getName() != null
+                                                                                     ? " " + parameterDeclaration
+                                                                                         .getName()
+                                                                                     : "");
+                            grid.setCellValue(column, 2, value);
+                            typeOfColumns.add(parameterDeclaration.getType());
+                        } else {
+                            typeOfColumns.add(bestReturnDefinition.getCompositeMethod().getType());
+                        }
+
+                        int h = originalTable.getSource().getCell(column, 0).getHeight();
+                        int w1 = originalTable.getSource().getCell(column, h).getWidth();
+                        if (w1 > 1) {
+                            grid.addMergedRegion(new GridRegion(2, column, 2, column + w1 - 1));
+                        }
+
+                        column = column + w1;
                     }
                     if (!bindingContext.isExecutionMode()) {
-                        ICell cell1 = originalTable.getSource().getCell(c, 0);
-                        String description = String.format("Parameter %s of return RET1 with expression %s: %s", parameterDeclaration
-                                .getName(), bestMatchedStatement.getStatement(), parameterDeclaration.getType().getDisplayName(INamedThing.SHORT)); 
-                        writeMetaInfo(tableSyntaxNode, cell1, description);
+                        String text = String.format("Parameter %s of return RET1 with expression %s: %s",
+                            DecisionTableMetaInfoReader.toString(parameterNames.toArray(new String[] {}), e -> e),
+                            bestMatchedStatement.getStatement(),
+                            DecisionTableMetaInfoReader.toString(typeOfColumns.toArray(new IOpenClass[] {}),
+                                e -> e.getDisplayName(INamedThing.SHORT)));
+                        writeReturnMetaInfo(tableSyntaxNode, cell, text);
                     }
                     break;
                 }
@@ -857,7 +880,7 @@ public class DecisionTableHelper {
                             String description = "Return: " + decisionTable.getHeader().getType().getDisplayName(
                                 INamedThing.SHORT);
     
-                            writeMetaInfo(tableSyntaxNode, cell, description);
+                            writeReturnMetaInfo(tableSyntaxNode, cell, description);
                         }
                     }
     
@@ -975,7 +998,7 @@ public class DecisionTableHelper {
                 grid.setCellValue(column, 2, typeOfValue.getLeft());
                 
                 if (!bindingContext.isExecutionMode() && isThatVCondition) {
-                    writeMetaInfoForVCondition(originalTable, decisionTable, column, null, null, conditionStatement, typeOfValue.getRight());
+                    writeMetaInfoForVCondition(originalTable, decisionTable, column, null, null, conditionStatement, new IOpenClass[] {typeOfValue.getRight()});
                 }
                 
                 // merge columns
@@ -994,32 +1017,37 @@ public class DecisionTableHelper {
                     column++;
                 }
             } else { //VCondition and declared by user
-                IOpenClass typeOfValue;
                 int firstColumn = column;
                 for (int j = 0; j < conditions[i].getParameterDeclarations().length; j++) {
+                    List<String> parameterNames = new ArrayList<>();
+                    List<IOpenClass> typeOfColumns = new ArrayList<>();
+                    int firstTitleColumn = column;
                     for (int k = 0; k < conditions[i].getParameterDeclarations()[j].length; k++) {
                         IParameterDeclaration parameterDeclaration = conditions[i].getParameterDeclarations()[j][k]; 
                         if (parameterDeclaration != null) {
-                            if (parameterDeclaration.getName() != null) {
-                                grid.setCellValue(column, 2, parameterDeclaration.getType().getName() + " " + parameterDeclaration.getName());
-                            } else {
-                                grid.setCellValue(column, 2, parameterDeclaration.getType().getName());
-                            }
-                            typeOfValue = parameterDeclaration.getType();
+                            parameterNames.add(parameterDeclaration.getName());
+                            grid.setCellValue(column, 2, parameterDeclaration.getType().getName() + (parameterDeclaration.getName() != null ? " " + parameterDeclaration.getName() : ""));
+                            typeOfColumns.add(parameterDeclaration.getType());
                         } else {
-                            typeOfValue = conditions[i].getCompositeMethod().getType();
+                            typeOfColumns.add(conditions[i].getCompositeMethod().getType());
                         }
-                        if (originalTable.getCell(column, 0).getWidth() > 1) {
-                            grid.addMergedRegion(new GridRegion(2, column, 2, column + originalTable.getCell(column, 0).getWidth() - 1));
+                        int h = originalTable.getSource().getCell(column, 0).getHeight();
+                        int w1 = originalTable.getSource().getCell(column, h).getWidth();
+                        if (w1 > 1) {
+                            grid.addMergedRegion(new GridRegion(2, column, 2, column + w1 - 1));
                         }
-                        if (!bindingContext.isExecutionMode()) {
-                            if (parameterDeclaration != null) {
-                                writeMetaInfoForVCondition(originalTable, decisionTable, column, conditionName, parameterDeclaration.getName(), conditionStatement, typeOfValue);
-                            }else {
-                                writeMetaInfoForVCondition(originalTable, decisionTable, column, conditionName, null, conditionStatement, typeOfValue);
-                            }
-                        }
-                        column = column + originalTable.getCell(column, 0).getWidth();
+                        
+                        column = column + w1;
+                    }
+                    
+                    if (!bindingContext.isExecutionMode()) {
+                        writeMetaInfoForVCondition(originalTable,
+                            decisionTable,
+                            firstTitleColumn,
+                            conditionName,
+                            parameterNames.toArray(new String[] {}),
+                            conditionStatement,
+                            typeOfColumns.toArray(new IOpenClass[] {}));
                     }
                 }
                 
@@ -1048,9 +1076,9 @@ public class DecisionTableHelper {
             DecisionTable decisionTable,
             int column,
             String conditionName,
-            String parameterName,
+            String[] parameterNames,
             String conditionStatement,
-            IOpenClass typeOfValue) {
+            IOpenClass[] typeOfColumns) {
         MetaInfoReader metaReader = decisionTable.getSyntaxNode().getMetaInfoReader();
         if (metaReader instanceof DecisionTableMetaInfoReader) {
             DecisionTableMetaInfoReader metaInfoReader = (DecisionTableMetaInfoReader) metaReader;
@@ -1058,9 +1086,9 @@ public class DecisionTableHelper {
             metaInfoReader.addSimpleRulesCondition(cell.getAbsoluteRow(),
                 cell.getAbsoluteColumn(),
                 conditionName,
-                parameterName,
+                parameterNames,
                 conditionStatement,
-                typeOfValue);
+                typeOfColumns);
         }
     }
 
@@ -1084,7 +1112,7 @@ public class DecisionTableHelper {
                             (DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey() + (i + 1)).intern(),
                             null,
                             decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()),
-                            decisionTable.getSignature().getParameterType(conditions[i].getParameterIndex()));
+                            new IOpenClass[] {decisionTable.getSignature().getParameterType(conditions[i].getParameterIndex())});
                     }
                 }
                 c = c + cell.getWidth();
@@ -1246,7 +1274,11 @@ public class DecisionTableHelper {
         return new ParameterTokens(tokens.toArray(new Token[] {}), tokenToParameterIndex, tokenToMethodsChain);
     }
     
-    private static boolean matchWithFuzzySearch(ParameterTokens parameterTokens, Token[] returnTypeTokens, String title, int column, int numberOfHcondition, List<Condition> vConditions) {
+    private static boolean matchWithFuzzySearch(ParameterTokens parameterTokens, Token[] returnTypeTokens, String title, int column, int numberOfHcondition, int numberOfColumnsUnderTitle, List<Condition> vConditions) {
+        if (numberOfColumnsUnderTitle != 1) {
+            return false;
+        }
+        
         String tokenizedDescriptionString = OpenLFuzzySearch.toTokenString(title);
         Token[] bestMatchedTokens = OpenLFuzzySearch.openlFuzzyExtract(tokenizedDescriptionString, parameterTokens.getTokens());
         if (bestMatchedTokens.length > 0) {
@@ -1271,15 +1303,10 @@ public class DecisionTableHelper {
     
     private static boolean isCompatibleConditions(Condition a, Condition b) {
         int c1 = a.getColumn();
-        int c2 = a.getColumn();
-        if (a.isDeclared() && a.getParameterDeclarations() != null) {
-            c2 = c2 + a.getParameterDeclarations().length - 1;
-        }
+        int c2 = a.getColumn() + a.getNumberOfUsedColumns() - 1;
         int d1 = b.getColumn();
-        int d2 = b.getColumn();
-        if (b.isDeclared() && b.getParameterDeclarations() != null) {
-            d2 = d2 + b.getParameterDeclarations().length - 1;
-        }
+        int d2 = b.getColumn() + b.getNumberOfUsedColumns() - 1; 
+
         if (c1 <= d1 && d1 <= c2 || c1 <= d2 && d2 <= c2) {
             return false;
         }
@@ -1381,11 +1408,11 @@ public class DecisionTableHelper {
             fits);
         
         //Declared covered columns filter
-        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> x.isDeclared()).mapToLong(x -> x.getParameterDeclarations().length).sum());
-        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> x.isDeclared()).filter(x -> DefinitionMatchType.STRICT.equals(x.getDefinitionMatchType())).mapToLong(x -> x.getParameterDeclarations().length).sum());
-        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> x.isDeclared()).filter(x -> DefinitionMatchType.IMPLICIT_CAST_USED.equals(x.getDefinitionMatchType())).mapToLong(x -> x.getParameterDeclarations().length).sum());
-        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> x.isDeclared()).filter(x -> DefinitionMatchType.PARAM_NAME_CHANGED.equals(x.getDefinitionMatchType())).mapToLong(x -> x.getParameterDeclarations().length).sum());
-        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> x.isDeclared()).filter(x -> DefinitionMatchType.PARAM_NAME_CHANGED_AND_IMLICIT_CAST_USED.equals(x.getDefinitionMatchType())).mapToLong(x -> x.getParameterDeclarations().length).sum());
+        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> x.isDeclared()).mapToLong(x -> x.getNumberOfUsedColumns()).sum());
+        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> x.isDeclared()).filter(x -> DefinitionMatchType.STRICT.equals(x.getDefinitionMatchType())).mapToLong(x -> x.getNumberOfUsedColumns()).sum());
+        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> x.isDeclared()).filter(x -> DefinitionMatchType.IMPLICIT_CAST_USED.equals(x.getDefinitionMatchType())).mapToLong(x -> x.getNumberOfUsedColumns()).sum());
+        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> x.isDeclared()).filter(x -> DefinitionMatchType.PARAM_NAME_CHANGED.equals(x.getDefinitionMatchType())).mapToLong(x -> x.getNumberOfUsedColumns()).sum());
+        fits = filterConditionsByMax(fits, e -> Arrays.stream(e).filter(x -> x.isDeclared()).filter(x -> DefinitionMatchType.PARAM_NAME_CHANGED_AND_IMLICIT_CAST_USED.equals(x.getDefinitionMatchType())).mapToLong(x -> x.getNumberOfUsedColumns()).sum());
         fits = filterConditionsByMax(fits, e-> Arrays.stream(e).flatMapToInt(c -> Arrays.stream(c.getParameterIndexes())).distinct().count());
             
         if (!fits.isEmpty()) {
@@ -1399,6 +1426,17 @@ public class DecisionTableHelper {
         return new Condition[] {};
     }
 
+    private static int getNumberOfColumnsUnderTitle(ILogicalTable originalTable, int column) {
+        int w = originalTable.getCell(column, 0).getWidth();
+        int i = 0;
+        int numberOfColumnsUnderTitle = 0;
+        while (i < w) {
+            i = i + originalTable.getCell(column, 1).getWidth();
+            numberOfColumnsUnderTitle++;
+        }
+        return numberOfColumnsUnderTitle;
+    }
+    
     private static Condition[] findConditionsForSmartDecisionTable(TableSyntaxNode tableSyntaxNode,
             ILogicalTable originalTable,
             DecisionTable decisionTable,
@@ -1438,8 +1476,9 @@ public class DecisionTableHelper {
             }
             String title = originalTable.getCell(column, 0).getStringValue();
 
+            int numberOfColumnsUnderTitle = getNumberOfColumnsUnderTitle(originalTable, column);
+            
             column += 1;
-
             if (column >= originalTable.getWidth()) {
                 break;
             }
@@ -1456,13 +1495,13 @@ public class DecisionTableHelper {
                 }
             }
             
-            if (matchReturnWithDefinitions(decisionTable, originalTable, column, xlsDefinitions, title, bindingContext)) {
+            if (matchReturnWithDefinitions(decisionTable, originalTable, column, xlsDefinitions, title, numberOfColumnsUnderTitle, bindingContext)) {
                 break;
             }
             
-            matchConditionWithDefinitions(decisionTable, originalTable, column, xlsDefinitions, title, vConditions, bindingContext);
-            boolean returnMatched = !matchWithFuzzySearch(parameterTokens, returnTypeTokens, title, column, numberOfHcondition, vConditions); 
-            if (returnMatched) {
+            boolean f1 = matchConditionWithDefinitions(decisionTable, originalTable, column, xlsDefinitions, title, numberOfColumnsUnderTitle, vConditions, bindingContext);
+            boolean f2 = matchWithFuzzySearch(parameterTokens, returnTypeTokens, title, column, numberOfHcondition, numberOfColumnsUnderTitle, vConditions); 
+            if (!f1 && !f2) {
                 break;
             }
         }
@@ -1513,12 +1552,13 @@ public class DecisionTableHelper {
             int column,
             XlsDefinitions definitions,
             String title,
+            int numberOfColumnsUnderTitle,
             IBindingContext bindingContext) {
         for (DTColumnsDefinition returnDefiniton : definitions.getReturnDefinitions()) {
             Set<String> titles = new HashSet<>(returnDefiniton.getTitles());
             String d = title;
             int x = column;
-            while (titles.contains(d) && x <= originalTable.getWidth()) {
+            while (titles.contains(d) && numberOfColumnsUnderTitle == returnDefiniton.getParameterDeclarations(title).size() && x <= originalTable.getWidth()) {
                 titles.remove(d);
                 for (String s : returnDefiniton.getTitles()) {
                     if (s.equals(d)) {
@@ -1526,6 +1566,7 @@ public class DecisionTableHelper {
                     }
                 }
                 d = originalTable.getCell(x, 0).getStringValue();
+                numberOfColumnsUnderTitle = getNumberOfColumnsUnderTitle(originalTable, x);
                 x = x + 1;
             }
             if (titles.isEmpty() && x > originalTable.getWidth()) {
@@ -1540,20 +1581,22 @@ public class DecisionTableHelper {
         return false;
     }
     
-    private static void matchConditionWithDefinitions(DecisionTable decisionTable,
+    private static boolean matchConditionWithDefinitions(DecisionTable decisionTable,
             ILogicalTable originalTable,
             int column,
             XlsDefinitions definitions,
             String title,
+            int numberOfColumnsUnderTitle,
             List<Condition> vConditions,
             IBindingContext bindingContext) {
+        boolean matched = false;
         for (DTColumnsDefinition conditionDefinition : definitions.getConditionDefinitions()) {
             Set<String> titles = new HashSet<>(conditionDefinition.getTitles());
             String d = title;
             int x = column;
             IParameterDeclaration[][] parameterDeclarations = new IParameterDeclaration[conditionDefinition
                 .getNumberOfTitles()][];
-            while (titles.contains(d) && x <= originalTable.getWidth()) {
+            while (titles.contains(d) && numberOfColumnsUnderTitle == conditionDefinition.getParameterDeclarations(title).size() && x <= originalTable.getWidth()) {
                 titles.remove(d);
                 for (String s : conditionDefinition.getTitles()) {
                     if (s.equals(d)) {
@@ -1562,6 +1605,7 @@ public class DecisionTableHelper {
                     }
                 }
                 d = originalTable.getCell(x, 0).getStringValue();
+                numberOfColumnsUnderTitle = getNumberOfColumnsUnderTitle(originalTable, x);
                 x = x + 1;
             }
             if (titles.isEmpty()) {
@@ -1575,9 +1619,11 @@ public class DecisionTableHelper {
                         parameterDeclarations,
                         column - 1,
                         matchedDefinition.getDefinitionMatchType()));
+                    matched = true;
                 }
             }
         }
+        return matched;
     }
 
     /**
@@ -1894,6 +1940,7 @@ public class DecisionTableHelper {
         boolean declared = false;
         CompositeMethod compositeMethod;
         DefinitionMatchType definitionMatchType;
+        int numberOfUsedColumns;
 
         public Condition(int parameterIndex) {
             this.parameterIndexes = new int[] { parameterIndex };
@@ -1904,6 +1951,7 @@ public class DecisionTableHelper {
             this.description = description;
             this.methodsChain = methodsChain;
             this.column = column;
+            this.numberOfUsedColumns = 1;
         }
         
         public Condition(int[] parameterIndexes, CompositeMethod compositeMethod, String statement, IParameterDeclaration[][] parameterDeclarations, int column, DefinitionMatchType definitionMatchType) {
@@ -1914,6 +1962,10 @@ public class DecisionTableHelper {
             this.compositeMethod = compositeMethod;
             this.definitionMatchType = definitionMatchType;
             this.column = column;
+            this.numberOfUsedColumns = 0;
+            for (IParameterDeclaration[] pds : parameterDeclarations) {
+                this.numberOfUsedColumns = this.numberOfUsedColumns + pds.length;
+            }
         }
         
         public CompositeMethod getCompositeMethod() {
@@ -1930,6 +1982,14 @@ public class DecisionTableHelper {
         
         public IParameterDeclaration[][] getParameterDeclarations() {
             return parameterDeclarations;
+        }
+        
+        public int getNumberOfUsedColumns() {
+            if (parameterDeclarations != null) {
+                return parameterDeclarations.length;
+            } else {
+                return 1;
+            }
         }
 
         public String getDescription() {
