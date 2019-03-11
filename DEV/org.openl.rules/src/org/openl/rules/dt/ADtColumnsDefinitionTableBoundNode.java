@@ -285,7 +285,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                         j = j + pCodeTable.getCell(0, 0).getHeight();
                         if (j1 <= j || j >= d) {
                             if (parametersForMergedTitle.size() > 1) {
-                                if (parametersForMergedTitle.stream().filter(Objects::isNull).limit(1).count() > 0) {
+                                if (parametersForMergedTitle.stream().anyMatch(Objects::isNull)) {
                                     GridCellSourceCodeModule eGridCellSourceCodeModule = new GridCellSourceCodeModule(
                                         nullPCodeTable,
                                         cxt);

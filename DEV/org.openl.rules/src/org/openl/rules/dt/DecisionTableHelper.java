@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -305,10 +306,21 @@ public class DecisionTableHelper {
             boolean isSmartDecisionTable,
             boolean isCollectTable,
             IBindingContext bindingContext) throws OpenLCompilationException {
-        Pair<Condition[], Integer> c = writeConditions(tableSyntaxNode,
+        List<DTHeader> dtHeaders = buildDTHeaders(tableSyntaxNode,
+            originalTable,
+            decisionTable,
+            numberOfHcondition,
+            isSmartDecisionTable,
+            isCollectTable,
+            bindingContext);
+
+        List<DTHeader> conditions = dtHeaders.stream().filter(e -> e.isCondition()).collect(Collectors.toList());
+
+        Integer column = writeConditions(tableSyntaxNode,
             grid,
             originalTable,
             decisionTable,
+            conditions,
             numberOfHcondition,
             isSmartDecisionTable,
             isCollectTable,
@@ -318,8 +330,8 @@ public class DecisionTableHelper {
             grid,
             originalTable,
             decisionTable,
-            c.getRight(),
-            c.getLeft(),
+            column,
+            dtHeaders,
             numberOfMergedRows,
             numberOfHcondition > 0,
             isSmartDecisionTable,
@@ -357,7 +369,7 @@ public class DecisionTableHelper {
             DecisionTable decisionTable,
             int firstReturnColumn,
             int numberOfMergedRows,
-            Condition[] conditions,
+            List<DTHeader> headers,
             boolean isSmartDecisionTable,
             boolean isCollectTable,
             int retParameterIndex,
@@ -375,7 +387,7 @@ public class DecisionTableHelper {
         if (isSmartDecisionTable) {
             // Set conditions parameters to compound type. Recursively search is
             // not supported.
-            for (Condition condition : conditions) {
+            for (DTHeader condition : headers) {
                 String descriptionOfCondition = condition.getDescription();
                 try {
                     IOpenMethod bestMatchConditionMethod = findBestMatchOpenMethod(descriptionOfCondition,
@@ -739,8 +751,7 @@ public class DecisionTableHelper {
                         if (param != null) {
                             String paramName = bestMatchedDefinition.getLocalParameterName(param.getName());
                             localParameterNames.add(paramName);
-                            String value = param.getType()
-                                .getName() + (paramName != null ? " " + paramName : "");
+                            String value = param.getType().getName() + (paramName != null ? " " + paramName : "");
                             grid.setCellValue(column, 2, value);
                             typeOfColumns.add(param.getType());
                         } else {
@@ -784,7 +795,7 @@ public class DecisionTableHelper {
             ILogicalTable originalTable,
             DecisionTable decisionTable,
             int firstColumnAfterConditionColumns,
-            Condition[] conditions,
+            List<DTHeader> headers,
             int numberOfMergedRows,
             boolean isLookupTable,
             boolean isSmartDecisionTable,
@@ -838,7 +849,7 @@ public class DecisionTableHelper {
         }
 
         if (!isLookupTable) {
-            if (originalTable.getWidth() > conditions.length) {
+            if (originalTable.getWidth() > headers.size()) {
                 if (!writeReturnWithReturnDefinition(tableSyntaxNode,
                     grid,
                     originalTable,
@@ -860,7 +871,7 @@ public class DecisionTableHelper {
                                 decisionTable,
                                 firstReturnColumn,
                                 numberOfMergedRows,
-                                conditions,
+                                headers,
                                 isSmartDecisionTable,
                                 isCollectTable,
                                 retParameterIndex,
@@ -887,7 +898,7 @@ public class DecisionTableHelper {
                     }
 
                     if (mergeRetCells) {
-                        int mergedColumnsCounts = originalTable.getColumnWidth(conditions.length);
+                        int mergedColumnsCounts = originalTable.getColumnWidth(headers.size());
                         if (mergedColumnsCounts > 1) {
                             for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
                                 grid.addMergedRegion(new GridRegion(row,
@@ -908,43 +919,52 @@ public class DecisionTableHelper {
         }
     }
 
-    private static Pair<Condition[], Integer> writeConditions(TableSyntaxNode tableSyntaxNode,
-            IWritableGrid grid,
+    private static List<DTHeader> buildDTHeaders(TableSyntaxNode tableSyntaxNode,
             ILogicalTable originalTable,
             DecisionTable decisionTable,
             int numberOfHcondition,
             boolean isSmartDecisionTable,
             boolean isCollectTable,
             IBindingContext bindingContext) throws OpenLCompilationException {
-        int numberOfConditions;
-        Condition[] conditions;
         if (isSmartDecisionTable) {
-            conditions = findConditionsForSmartDecisionTable(tableSyntaxNode,
+            return findDTHeadersForSmartDecisionTable(tableSyntaxNode,
                 originalTable,
                 decisionTable,
                 numberOfHcondition,
                 isCollectTable,
                 bindingContext);
-            numberOfConditions = conditions.length;
         } else {
-            numberOfConditions = getNumberOfConditions(decisionTable);
-            conditions = new Condition[numberOfConditions];
+            int numberOfConditions = getNumberOfConditions(decisionTable);
+            List<DTHeader> dtHeaders = new ArrayList<>();
             for (int i = 0; i < numberOfConditions; i++) {
-                conditions[i] = new Condition(i);
+                dtHeaders.add(new DTHeader(i));
             }
+            return dtHeaders;
         }
+    }
 
+    private static int writeConditions(TableSyntaxNode tableSyntaxNode,
+            IWritableGrid grid,
+            ILogicalTable originalTable,
+            DecisionTable decisionTable,
+            List<DTHeader> conditions,
+            int numberOfHcondition,
+            boolean isSmartDecisionTable,
+            boolean isCollectTable,
+            IBindingContext bindingContext) throws OpenLCompilationException {
         int column = 0;
         int vColumnCounter = 0;
         int hColumn = -1;
-
-        for (int i = 0; i < numberOfConditions; i++) {
+        int numberOfConditions = conditions.size();
+        int i = 0;
+        for (DTHeader condition : conditions) {
             if (column >= originalTable.getSource().getWidth()) {
                 String message = "Wrong table structure: Columns count is less than parameters count";
                 throw new OpenLCompilationException(message);
             }
             // write headers
             //
+
             boolean isThatVCondition = i < numberOfConditions - numberOfHcondition;
             boolean lastCondition = i + 1 == numberOfConditions;
             String conditionName;
@@ -968,27 +988,25 @@ public class DecisionTableHelper {
             grid.setCellValue(column, 0, conditionName);
 
             String conditionStatement;
-            if (conditions[i].isDeclared()) {
-                conditionStatement = conditions[i].getStatement();
+            if (condition.isDeclared()) {
+                conditionStatement = condition.getStatement();
             } else {
-                conditionStatement = decisionTable.getSignature()
-                    .getParameterName(conditions[i].getMethodParameterIndex());
-                if (conditions[i].getMethodsChain() != null) {
+                conditionStatement = decisionTable.getSignature().getParameterName(condition.getMethodParameterIndex());
+                if (condition.getMethodsChain() != null) {
                     Pair<String, IOpenClass> c = buildStatementByMethodsChain(
-                        decisionTable.getSignature().getParameterType(conditions[i].getMethodParameterIndex()),
-                        conditions[i].getMethodsChain());
+                        decisionTable.getSignature().getParameterType(condition.getMethodParameterIndex()),
+                        conditions.get(i).getMethodsChain());
                     String chainStatement = c.getLeft();
                     conditionStatement = conditionStatement + "." + chainStatement;
                 }
             }
             grid.setCellValue(column, 1, conditionStatement);
 
-            if (!conditions[i].isDeclared()) {
-                IOpenClass typeOfCondition = decisionTable.getSignature().getParameterTypes()[conditions[i]
+            if (!condition.isDeclared()) {
+                IOpenClass typeOfCondition = decisionTable.getSignature().getParameterTypes()[condition
                     .getMethodParameterIndex()];
-                if (conditions[i].getMethodsChain() != null) {
-                    typeOfCondition = conditions[i].getMethodsChain()[conditions[i].getMethodsChain().length - 1]
-                        .getType();
+                if (condition.getMethodsChain() != null) {
+                    typeOfCondition = condition.getMethodsChain()[condition.getMethodsChain().length - 1].getType();
                 }
 
                 // Set type of condition values(for Ranges and Array)
@@ -1028,21 +1046,21 @@ public class DecisionTableHelper {
                 }
             } else { // VCondition and declared by user
                 int firstColumn = column;
-                for (int j = 0; j < conditions[i].getColumnParameters().length; j++) {
+                for (int j = 0; j < condition.getColumnParameters().length; j++) {
                     List<String> parameterNames = new ArrayList<>();
                     List<IOpenClass> typeOfColumns = new ArrayList<>();
                     int firstTitleColumn = column;
-                    for (int k = 0; k < conditions[i].getColumnParameters()[j].length; k++) {
-                        IParameterDeclaration param = conditions[i].getColumnParameters()[j][k];
+                    for (int k = 0; k < condition.getColumnParameters()[j].length; k++) {
+                        IParameterDeclaration param = condition.getColumnParameters()[j][k];
                         if (param != null) {
-                            String paramName = conditions[i].getMatchedDefinition().getLocalParameterName(param.getName());
+                            String paramName = condition.getMatchedDefinition().getLocalParameterName(param.getName());
                             parameterNames.add(paramName);
                             grid.setCellValue(column,
                                 2,
                                 param.getType().getName() + (paramName != null ? " " + paramName : ""));
                             typeOfColumns.add(param.getType());
                         } else {
-                            typeOfColumns.add(conditions[i].getCompositeMethod().getType());
+                            typeOfColumns.add(condition.getCompositeMethod().getType());
                         }
                         int h = originalTable.getSource().getCell(column, 0).getHeight();
                         int w1 = originalTable.getSource().getCell(column, h).getWidth();
@@ -1071,6 +1089,7 @@ public class DecisionTableHelper {
                     }
                 }
             }
+            i++;
         }
 
         if (!bindingContext.isExecutionMode()) {
@@ -1082,7 +1101,7 @@ public class DecisionTableHelper {
                 hColumn);
         }
 
-        return Pair.of(conditions, column);
+        return column;
     }
 
     private static void writeMetaInfoForVCondition(ILogicalTable originalTable,
@@ -1107,7 +1126,7 @@ public class DecisionTableHelper {
 
     private static void writeMetaInfoForHConditions(ILogicalTable originalTable,
             DecisionTable decisionTable,
-            Condition[] conditions,
+            List<DTHeader> conditions,
             int numberOfHcondition,
             int numberOfConditions,
             int hColumn) {
@@ -1124,9 +1143,9 @@ public class DecisionTableHelper {
                             cell.getAbsoluteColumn(),
                             (DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey() + (i + 1)).intern(),
                             null,
-                            decisionTable.getSignature().getParameterName(conditions[i].getMethodParameterIndex()),
+                            decisionTable.getSignature().getParameterName(conditions.get(i).getMethodParameterIndex()),
                             new IOpenClass[] { decisionTable.getSignature()
-                                .getParameterType(conditions[i].getMethodParameterIndex()) });
+                                .getParameterType(conditions.get(i).getMethodParameterIndex()) });
                     }
                 }
                 c = c + cell.getWidth();
@@ -1152,7 +1171,7 @@ public class DecisionTableHelper {
         Collections.sort(identifierNodes,
             Comparator.<IdentifierNode> comparingInt(e -> e.getLocation().getStart().getAbsolutePosition(textInfo))
                 .reversed());
-        
+
         StringBuilder sb = new StringBuilder(code);
         for (IdentifierNode identifierNode : identifierNodes) {
             int start = identifierNode.getLocation().getStart().getAbsolutePosition(textInfo);
@@ -1238,11 +1257,11 @@ public class DecisionTableHelper {
         for (String paramName : methodParameterNames) {
             if (localParameters.containsKey(paramName)) {
                 int k = 1;
-                String newParamName = "$" + paramName + k;
+                String newParamName = "$" + paramName;
                 while (localParameters.containsKey(newParamName) || renamedLocalParameters
                     .containsValue(newParamName) || methodParameterNames.contains(newParamName)) {
-                    k++;
                     newParamName = "$" + paramName + k;
+                    k++;
                 }
                 renamedLocalParameters.put(paramName, newParamName);
             }
@@ -1253,17 +1272,14 @@ public class DecisionTableHelper {
             .getSyntaxNode()
             .getModule()
             .getCode();
-        
+
         if (strictMatchOfParameters == methodParametersUsedInExpression.size()) {
             return new MatchDefinition(
-                renamedLocalParameters.isEmpty() ? code
-                                                  : replaceIdentifierNodeNamesInCode(code,
-                                                      identifierNodes,
-                                                      renamedLocalParameters),
+                renamedLocalParameters
+                    .isEmpty() ? code : replaceIdentifierNodeNamesInCode(code, identifierNodes, renamedLocalParameters),
                 ArrayUtils.toPrimitive(usedMethodParameterStrictIndexes.toArray(new Integer[] {})),
                 renamedLocalParameters,
-                renamedLocalParameters.isEmpty() ? MatchType.STRICT
-                                                  : MatchType.STRICT_LOCAL_PARAMS_RENAMED);
+                renamedLocalParameters.isEmpty() ? MatchType.STRICT : MatchType.STRICT_LOCAL_PARAMS_RENAMED);
         }
 
         if (methodParametersUsedInExpression.size() == methodParameters.size()) {
@@ -1277,10 +1293,10 @@ public class DecisionTableHelper {
                 usedMethodParameterIndexesArray,
                 renamedLocalParameters,
                 renamedLocalParameters.isEmpty() ? MatchType.METHOD_PARAMS_RENAMED
-                                                  : MatchType.METHOD_LOCAL_PARAMS_RENAMED);
+                                                 : MatchType.METHOD_LOCAL_PARAMS_RENAMED);
 
         }
-        
+
         if (methodParametersUsedInExpression.size() == methodParametersWithCast.size()) {
             String newCode = replaceIdentifierNodeNamesInCode(code,
                 identifierNodes,
@@ -1295,14 +1311,13 @@ public class DecisionTableHelper {
                         usedMethodParameterIndexesArray,
                         renamedLocalParameters,
                         renamedLocalParameters.isEmpty() ? MatchType.METHOD_PARAMS_RENAMED_CASTED
-                                                          : MatchType.METHOD_LOCAL_PARAMS_RENAMED_CASTED);
+                                                         : MatchType.METHOD_LOCAL_PARAMS_RENAMED_CASTED);
                 }
             }
             return new MatchDefinition(newCode,
                 usedMethodParameterIndexesArray,
                 renamedLocalParameters,
-                renamedLocalParameters.isEmpty() ? MatchType.CASTED
-                                                  : MatchType.LOCAL_PARAMS_RENAMED_CASTED);
+                renamedLocalParameters.isEmpty() ? MatchType.CASTED : MatchType.LOCAL_PARAMS_RENAMED_CASTED);
         }
 
         return null;
@@ -1340,7 +1355,7 @@ public class DecisionTableHelper {
             int column,
             int numberOfHcondition,
             int numberOfColumnsUnderTitle,
-            List<Condition> vConditions) {
+            List<DTHeader> dtHeaders) {
         if (numberOfColumnsUnderTitle != 1) {
             return false;
         }
@@ -1359,7 +1374,7 @@ public class DecisionTableHelper {
                 }
             }
             for (int i = 0; i < bestMatchedTokens.length; i++) {
-                vConditions.add(new Condition(parameterTokens.getParameterIndex(bestMatchedTokens[i].getValue()),
+                dtHeaders.add(new DTHeader(parameterTokens.getParameterIndex(bestMatchedTokens[i].getValue()),
                     title,
                     parameterTokens.getMethodsChain(bestMatchedTokens[i].getValue()),
                     column - 1));
@@ -1368,7 +1383,7 @@ public class DecisionTableHelper {
         return true;
     }
 
-    private static boolean isCompatibleConditions(Condition a, Condition b) {
+    private static boolean isCompatibleHeaders(DTHeader a, DTHeader b) {
         int c1 = a.getColumn();
         int c2 = a.getColumn() + a.getNumberOfUsedColumns() - 1;
         int d1 = b.getColumn();
@@ -1384,21 +1399,21 @@ public class DecisionTableHelper {
         return true;
     }
 
-    private static void bruteForceConditions(int column,
+    private static void bruteForceHeaders(int column,
             int numberOfParametersToUse,
-            List<Condition> vConditions,
+            List<DTHeader> vConditions,
             boolean[][] matrix,
             Map<Integer, List<Integer>> columnToIndex,
             List<Integer> usedIndexes,
             Set<Integer> usedParameterIndexes,
-            List<Condition[]> fits) {
+            List<DTHeader[]> fits) {
         List<Integer> indexes = columnToIndex.get(column);
         if (indexes == null || usedParameterIndexes.size() >= numberOfParametersToUse) {
-            List<Condition> conditions = new ArrayList<>();
+            List<DTHeader> headers = new ArrayList<>();
             for (Integer index : usedIndexes) {
-                conditions.add(vConditions.get(index));
+                headers.add(vConditions.get(index));
             }
-            fits.add(conditions.toArray(new Condition[] {}));
+            fits.add(headers.toArray(new DTHeader[] {}));
             if (indexes == null) {
                 return;
             }
@@ -1413,7 +1428,7 @@ public class DecisionTableHelper {
             }
             if (f) {
                 usedIndexes.add(index);
-                Condition condition = vConditions.get(index);
+                DTHeader condition = vConditions.get(index);
                 int d = 1;
                 if (condition.isDeclared() && condition.getColumnParameters() != null) {
                     d = condition.getColumnParameters().length;
@@ -1423,7 +1438,7 @@ public class DecisionTableHelper {
                     usedParameterIndexesTo.add(i);
                 }
                 if (usedParameterIndexesTo.size() <= numberOfParametersToUse) {
-                    bruteForceConditions(column + d,
+                    bruteForceHeaders(column + d,
                         numberOfParametersToUse,
                         vConditions,
                         matrix,
@@ -1437,11 +1452,10 @@ public class DecisionTableHelper {
         }
     }
 
-    private static List<Condition[]> filterConditionsByMax(List<Condition[]> fits,
-            Function<Condition[], Long> function) {
+    private static List<DTHeader[]> filterConditionsByMax(List<DTHeader[]> fits, Function<DTHeader[], Long> function) {
         long max = 0;
-        List<Condition[]> newFits = new ArrayList<>();
-        for (Condition[] conditions : fits) {
+        List<DTHeader[]> newFits = new ArrayList<>();
+        for (DTHeader[] conditions : fits) {
             long current = function.apply(conditions);
             if (current > max) {
                 max = current;
@@ -1453,8 +1467,8 @@ public class DecisionTableHelper {
         }
         return newFits;
     }
-    
-    private static List<Condition[]> filterConditionsByMatchType(List<Condition[]> fits) {
+
+    private static List<DTHeader[]> filterConditionsByMatchType(List<DTHeader[]> fits) {
         MatchType[] matchTypes = MatchType.values();
         Arrays.sort(matchTypes, Comparator.comparingInt(MatchType::getPriority));
         for (MatchType type : matchTypes) {
@@ -1468,35 +1482,35 @@ public class DecisionTableHelper {
         return fits;
     }
 
-    private static Condition[] fitVConditions(TableSyntaxNode tableSyntaxNode,
-            List<Condition> vConditions,
+    private static DTHeader[] fitDtHeaders(TableSyntaxNode tableSyntaxNode,
+            List<DTHeader> dtHeaders,
             int numberOfParametersToUse,
             IBindingContext bindingContext) throws SyntaxNodeException {
-        boolean[][] matrix = new boolean[vConditions.size()][vConditions.size()];
-        for (int i = 0; i < vConditions.size(); i++) {
-            for (int j = 0; j < vConditions.size(); j++) {
+        boolean[][] matrix = new boolean[dtHeaders.size()][dtHeaders.size()];
+        for (int i = 0; i < dtHeaders.size(); i++) {
+            for (int j = 0; j < dtHeaders.size(); j++) {
                 matrix[i][j] = true;
             }
         }
         Map<Integer, List<Integer>> columnToIndex = new HashMap<>();
-        for (int i = 0; i < vConditions.size(); i++) {
-            List<Integer> conditionIndexes = columnToIndex.get(vConditions.get(i).getColumn());
-            if (conditionIndexes == null) {
-                conditionIndexes = new ArrayList<>();
-                columnToIndex.put(vConditions.get(i).getColumn(), conditionIndexes);
+        for (int i = 0; i < dtHeaders.size(); i++) {
+            List<Integer> indexes = columnToIndex.get(dtHeaders.get(i).getColumn());
+            if (indexes == null) {
+                indexes = new ArrayList<>();
+                columnToIndex.put(dtHeaders.get(i).getColumn(), indexes);
             }
-            conditionIndexes.add(i);
-            for (int j = i; j < vConditions.size(); j++) {
-                if (i == j || !isCompatibleConditions(vConditions.get(i), vConditions.get(j))) {
+            indexes.add(i);
+            for (int j = i; j < dtHeaders.size(); j++) {
+                if (i == j || !isCompatibleHeaders(dtHeaders.get(i), dtHeaders.get(j))) {
                     matrix[i][j] = false;
                     matrix[j][i] = false;
                 }
             }
         }
-        List<Condition[]> fits = new ArrayList<>();
-        bruteForceConditions(0,
+        List<DTHeader[]> fits = new ArrayList<>();
+        bruteForceHeaders(0,
             numberOfParametersToUse,
-            vConditions,
+            dtHeaders,
             matrix,
             columnToIndex,
             new ArrayList<>(),
@@ -1520,7 +1534,7 @@ public class DecisionTableHelper {
             return fits.get(0);
         }
 
-        return new Condition[] {};
+        return new DTHeader[] {};
     }
 
     private static int getNumberOfColumnsUnderTitle(ILogicalTable originalTable, int column) {
@@ -1534,7 +1548,7 @@ public class DecisionTableHelper {
         return numberOfColumnsUnderTitle;
     }
 
-    private static Condition[] findConditionsForSmartDecisionTable(TableSyntaxNode tableSyntaxNode,
+    private static List<DTHeader> findDTHeadersForSmartDecisionTable(TableSyntaxNode tableSyntaxNode,
             ILogicalTable originalTable,
             DecisionTable decisionTable,
             int numberOfHcondition,
@@ -1565,7 +1579,7 @@ public class DecisionTableHelper {
         }
 
         XlsDefinitions xlsDefinitions = ((XlsModuleOpenClass) decisionTable.getDeclaringClass()).getXlsDefinitions();
-        List<Condition> vConditions = new ArrayList<>();
+        List<DTHeader> dtHeaders = new ArrayList<>();
 
         while (true) {
             if (originalTable.getCell(column, 0).getHeight() != firstColumnHeight) {
@@ -1608,7 +1622,7 @@ public class DecisionTableHelper {
                 xlsDefinitions,
                 title,
                 numberOfColumnsUnderTitle,
-                vConditions,
+                dtHeaders,
                 bindingContext);
             boolean f2 = matchWithFuzzySearch(parameterTokens,
                 returnTypeTokens,
@@ -1616,22 +1630,22 @@ public class DecisionTableHelper {
                 column,
                 numberOfHcondition,
                 numberOfColumnsUnderTitle,
-                vConditions);
+                dtHeaders);
             if (!f1 && !f2) {
                 break;
             }
         }
 
-        Condition[] fitConditions = fitVConditions(tableSyntaxNode,
-            vConditions,
+        DTHeader[] fit = fitDtHeaders(tableSyntaxNode,
+            dtHeaders,
             decisionTable.getSignature().getNumberOfParameters() - numberOfHcondition,
             bindingContext);
 
         boolean[] parameterIsUsed = new boolean[numberOfParameters];
         Arrays.fill(parameterIsUsed, false);
-        for (Condition condition : fitConditions) {
-            if (!condition.isDeclared()) {
-                parameterIsUsed[condition.getMethodParameterIndex()] = true;
+        for (DTHeader dtHeader : fit) {
+            if (!dtHeader.isDeclared()) {
+                parameterIsUsed[dtHeader.getMethodParameterIndex()] = true;
             }
         }
 
@@ -1648,22 +1662,22 @@ public class DecisionTableHelper {
             throw new OpenLCompilationException("No input parameter found for horizontal condition!");
         }
 
-        Condition[] conditions = new Condition[fitConditions.length + numberOfHcondition];
+        DTHeader[] headers = new DTHeader[fit.length + numberOfHcondition];
         int j = 0;
-        for (Condition condition : fitConditions) {
-            conditions[j] = condition;
+        for (DTHeader dtHeader : fit) {
+            headers[j] = dtHeader;
             j++;
         }
 
         j = 0;
         for (int w = i + 1; w < numberOfParameters; w++) {
             if (!parameterIsUsed[w] && j < numberOfHcondition) {
-                conditions[fitConditions.length + j] = new Condition(w);
+                headers[fit.length + j] = new DTHeader(w);
                 j++;
             }
         }
 
-        return conditions;
+        return Arrays.asList(headers);
     }
 
     private static boolean matchReturnWithDefinitions(DecisionTable decisionTable,
@@ -1707,7 +1721,7 @@ public class DecisionTableHelper {
             XlsDefinitions definitions,
             String title,
             int numberOfColumnsUnderTitle,
-            List<Condition> vConditions,
+            List<DTHeader> dtHeaders,
             IBindingContext bindingContext) {
         boolean matched = false;
         for (DTColumnsDefinition conditionDefinition : definitions.getConditionDefinitions()) {
@@ -1735,7 +1749,7 @@ public class DecisionTableHelper {
                     decisionTable.getHeader(),
                     bindingContext);
                 if (matchedDefinition != null) {
-                    vConditions.add(new Condition(matchedDefinition.getUsedMethodParameterIndexes(),
+                    dtHeaders.add(new DTHeader(matchedDefinition.getUsedMethodParameterIndexes(),
                         conditionDefinition.getCompositeMethod(),
                         matchedDefinition.getStatement(),
                         columnParameters,
@@ -2050,7 +2064,7 @@ public class DecisionTableHelper {
             this.matchType = matchType;
             this.renamedLocalParameters = renamedLocalParameters;
         }
-        
+
         public String getLocalParameterName(String name) {
             if (renamedLocalParameters == null) {
                 return name;
@@ -2072,7 +2086,13 @@ public class DecisionTableHelper {
         }
     }
 
-    private final static class Condition {
+    private enum HeaderType {
+        CONDITION,
+        ACTION,
+        RETURN
+    }
+
+    private final static class DTHeader {
         int[] methodParameterIndexes;
         String description;
         IOpenMethod[] methodsChain;
@@ -2083,12 +2103,13 @@ public class DecisionTableHelper {
         CompositeMethod compositeMethod;
         MatchDefinition matchedDefinition;
         int numberOfUsedColumns;
+        HeaderType type = HeaderType.CONDITION;
 
-        public Condition(int methodParameterIndex) {
+        public DTHeader(int methodParameterIndex) {
             this.methodParameterIndexes = new int[] { methodParameterIndex };
         }
 
-        public Condition(int methodParameterIndex, String description, IOpenMethod[] methodsChain, int column) {
+        public DTHeader(int methodParameterIndex, String description, IOpenMethod[] methodsChain, int column) {
             this.methodParameterIndexes = new int[] { methodParameterIndex };
             this.description = description;
             this.methodsChain = methodsChain;
@@ -2096,7 +2117,7 @@ public class DecisionTableHelper {
             this.numberOfUsedColumns = 1;
         }
 
-        public Condition(int[] methodParameterIndexes,
+        public DTHeader(int[] methodParameterIndexes,
                 CompositeMethod compositeMethod,
                 String statement,
                 IParameterDeclaration[][] columnParameters,
@@ -2113,6 +2134,14 @@ public class DecisionTableHelper {
             for (IParameterDeclaration[] pds : columnParameters) {
                 this.numberOfUsedColumns = this.numberOfUsedColumns + pds.length;
             }
+        }
+
+        public HeaderType getType() {
+            return type;
+        }
+
+        public boolean isCondition() {
+            return HeaderType.CONDITION.equals(type);
         }
 
         public CompositeMethod getCompositeMethod() {
@@ -2191,7 +2220,7 @@ public class DecisionTableHelper {
                 return false;
             if (getClass() != obj.getClass())
                 return false;
-            Condition other = (Condition) obj;
+            DTHeader other = (DTHeader) obj;
             if (column != other.column)
                 return false;
             if (!Arrays.deepEquals(columnParameters, other.columnParameters))
@@ -2226,7 +2255,6 @@ public class DecisionTableHelper {
                 return false;
             return true;
         }
-        
-        
+
     }
 }
