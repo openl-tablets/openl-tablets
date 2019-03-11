@@ -2,23 +2,13 @@ package org.openl.rules.cmatch;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
-
 import org.junit.Test;
-import org.openl.rules.TestHelper;
 import org.openl.rules.TestUtils;
 
 public class Test3 {
-    public interface ITest4 {
-        String runColumnMatch(int i1, int i2, int i3, int i4);
-    }
-
     @Test
     public void test1() {
-        File xlsFile = new File("test/rules/cmatch1/match3-1.xls");
-        TestHelper<ITest4> testHelper = new TestHelper<ITest4>(xlsFile, ITest4.class);
-
-        ITest4 test = testHelper.getInstance();
+        ITest4 test = TestUtils.create("test/rules/cmatch1/match3-1.xls", ITest4.class);
 
         assertEquals("AAA", test.runColumnMatch(10, 0, 0, 0));
         assertEquals("B", test.runColumnMatch(0, 5, 0, 0));
@@ -30,21 +20,17 @@ public class Test3 {
 
     @Test
     public void test2() {
-        TestUtils.assertEx(new Runnable() {
-            public void run() {
-                File xlsFile = new File("test/rules/cmatch1/match3-2.xls");                
-                new TestHelper<ITest4>(xlsFile, ITest4.class);
-            }
-        }, "Sub node are prohibited here!", "cell=B10");
+        TestUtils.assertEx("test/rules/cmatch1/match3-2.xls", "Sub node are prohibited here!", "cell=B10");
     }
 
     @Test
     public void test3() {
-        TestUtils.assertEx(new Runnable() {
-            public void run() {
-                File xlsFile = new File("test/rules/cmatch1/match3-3.xls");                
-                new TestHelper<ITest4>(xlsFile, ITest4.class);
-            }
-        }, "Column operation of special row Total Score must be defined!", "cell=C7");
+        TestUtils.assertEx("test/rules/cmatch1/match3-3.xls",
+            "Column operation of special row Total Score must be defined!",
+            "cell=C7");
+    }
+
+    public interface ITest4 {
+        String runColumnMatch(int i1, int i2, int i3, int i4);
     }
 }

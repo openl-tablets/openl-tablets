@@ -49,16 +49,6 @@ public class TestUtils {
 
     }
 
-    public static void assertEx(Runnable closure, String... errorMessages) {
-        Exception ex = null;
-        try {
-            closure.run();
-        } catch (Exception e) {
-            ex = e;
-        }
-        assertEx(ex, errorMessages);
-    }
-
     public static void assertEx(String sourceFile, String... errorMessages) {
         try {
             RulesEngineFactory<Object> engineFactory = new RulesEngineFactory<>(sourceFile);
