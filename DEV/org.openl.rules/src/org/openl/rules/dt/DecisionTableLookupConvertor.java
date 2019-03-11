@@ -164,7 +164,8 @@ public class DecisionTableLookupConvertor {
     private void processHorizConditionsHeaders(IGridRegion displayRowRegion,
             int firstLookupGridColumn,
             IGrid grid) throws OpenLCompilationException {
-        IGridRegion hcHeadersRegion = new GridRegion(displayRowRegion, IGridRegion.LEFT, firstLookupGridColumn);
+        GridRegion hcHeadersRegion = new GridRegion(displayRowRegion);
+        hcHeadersRegion.setLeft(firstLookupGridColumn);
         IGridTable hcHeaderTable = new GridTable(hcHeadersRegion, grid);
 
         validateHCHeaders(hcHeaderTable);
@@ -173,9 +174,8 @@ public class DecisionTableLookupConvertor {
     private IGridTable getLookupValuesTable(ILogicalTable originaltable, int firstLookupGridColumn, IGrid grid) {
         ILogicalTable valueTable = originaltable.getRows(DISPLAY_ROW + 1);
 
-        IGridRegion lookupValuesRegion = new GridRegion((valueTable.getSource()).getRegion(),
-            IGridRegion.LEFT,
-            firstLookupGridColumn);
+        GridRegion lookupValuesRegion = new GridRegion((valueTable.getSource()).getRegion());
+        lookupValuesRegion.setLeft(firstLookupGridColumn);
 
         return new GridTable(lookupValuesRegion, grid);
     }
