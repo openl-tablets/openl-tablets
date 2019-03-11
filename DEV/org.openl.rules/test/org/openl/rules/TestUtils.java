@@ -2,6 +2,8 @@ package org.openl.rules;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -68,5 +70,28 @@ public class TestUtils {
     public static <T> T create(String sourceFile) {
         RulesEngineFactory<T> engineFactory = new RulesEngineFactory<>(sourceFile);
         return engineFactory.newEngineInstance();
+    }
+
+    public static Object invoke(String sourceFile, String methodName, Object... args) {
+        Object instance = create(sourceFile);
+        return invoke(instance, methodName, args);
+    }
+
+    public static <T> T invoke(Object instance, String methodName, Object... args) {
+        Class<?>[] types;
+        if (args == null) {
+            types = null;
+        } else {
+            types = new Class[args.length];
+            for (int i = 0; i < args.length; i++) {
+                types[i] = args[i].getClass();
+            }
+        }
+        try {
+            Method method = instance.getClass().getMethod(methodName, types);
+            return (T) method.invoke(instance, args);
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }
