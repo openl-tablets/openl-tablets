@@ -3,7 +3,9 @@ package org.openl.rules;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.junit.Assert;
 import org.junit.Ignore;
+import org.openl.rules.runtime.RulesEngineFactory;
 
 @Ignore("Auxiliary class")
 public class TestUtils {
@@ -55,5 +57,26 @@ public class TestUtils {
             ex = e;
         }
         assertEx(ex, errorMessages);
+    }
+
+    public static void assertEx(String sourceFile, String... errorMessages) {
+        try {
+            RulesEngineFactory<Object> engineFactory = new RulesEngineFactory<>(sourceFile);
+            engineFactory.newEngineInstance();
+        } catch (Exception ex) {
+            assertEx(ex, errorMessages);
+            return;
+        }
+        Assert.fail();
+    }
+
+    public static <T> T create(String sourceFile, Class<T> tClass) {
+        RulesEngineFactory<T> engineFactory = new RulesEngineFactory<>(sourceFile, tClass);
+        return engineFactory.newEngineInstance();
+    }
+
+    public static <T> T create(String sourceFile) {
+        RulesEngineFactory<T> engineFactory = new RulesEngineFactory<>(sourceFile);
+        return engineFactory.newEngineInstance();
     }
 }
