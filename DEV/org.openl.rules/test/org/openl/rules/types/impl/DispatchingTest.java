@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
@@ -17,7 +16,7 @@ import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.meta.DoubleValue;
-import org.openl.rules.TestHelper;
+import org.openl.rules.TestUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.enumeration.CountriesEnum;
@@ -34,12 +33,12 @@ public class DispatchingTest {
     private Rules instance;
 
     @Before
-    public void setUp() throws Exception {
-        instance = new TestHelper<Rules>(new File(RULES_SOURCE_FILE), Rules.class).getInstance();
+    public void setUp() {
+        instance = TestUtils.create(RULES_SOURCE_FILE, Rules.class);
     }
 
     @Test
-    public void testSimpleDispatching() throws Exception {
+    public void testSimpleDispatching() {
         IRulesRuntimeContext context = initContext();
         context.setCountry(CountriesEnum.US);
         context.setLang(LanguagesEnum.ENG);
@@ -52,7 +51,7 @@ public class DispatchingTest {
     }
 
     @Test
-    public void testDispatching() throws Exception {
+    public void testDispatching() {
         IRulesRuntimeContext context = initContext();
         context.setCountry(CountriesEnum.US);
         context.setLang(LanguagesEnum.ENG);
@@ -140,7 +139,7 @@ public class DispatchingTest {
         invokeAndCheckForAmbiguous(method);
     }
 
-    public void calcBenchmark() throws Exception {
+    public void calcBenchmark() {
         IRuntimeEnv runtimeEnv = ((IEngineWrapper)instance).getRuntimeEnv();
 
         IRulesRuntimeContext context1 = RulesRuntimeContextFactory.buildRulesRuntimeContext();
@@ -178,19 +177,15 @@ public class DispatchingTest {
             Object o = method.invoke(instance);
             fail(NO_EXCEPTION + o);
         } catch (InvocationTargetException e) {
-            assertEx(e, AMBIGUOUS_METHOD_MESSAGE);
+            assertNotNull(e);
+
+            StringWriter sw = new StringWriter(1024);
+            PrintWriter pw = new PrintWriter(sw, true);
+            e.printStackTrace(pw);
+            pw.close();
+
+            assertTrue(sw.toString().contains(AMBIGUOUS_METHOD_MESSAGE));
         }
-    }
-
-    private void assertEx(Exception ex, String errorMessage) {
-        assertNotNull(ex);
-
-        StringWriter sw = new StringWriter(1024);
-        PrintWriter pw = new PrintWriter(sw, true);
-        ex.printStackTrace(pw);
-        pw.close();
-
-        assertTrue(sw.toString().contains(errorMessage));
     }
 
     private IRulesRuntimeContext initContext() {
@@ -199,7 +194,7 @@ public class DispatchingTest {
         return context;
     }
 
-    public static interface Rules {
+    public interface Rules {
         int getSimplePriority();
 
         String getPriority();
@@ -209,11 +204,5 @@ public class DispatchingTest {
         int getAmbiguousPriority1();
 
         DoubleValue driverRiskScoreOverloadTest2(String driverRisk);
-    }
-
-    public static void main(String args[]) throws Exception {
-        DispatchingTest t = new DispatchingTest();
-        t.setUp();
-        t.calcBenchmark();
     }
 }

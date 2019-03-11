@@ -1,6 +1,5 @@
 package org.openl.rules.helpers;
 
-import java.io.File;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -17,6 +16,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.BigDecimalValue;
@@ -29,7 +29,7 @@ import org.openl.meta.LongValue;
 import org.openl.meta.ObjectValue;
 import org.openl.meta.ShortValue;
 import org.openl.meta.StringValue;
-import org.openl.rules.TestHelper;
+import org.openl.rules.TestUtils;
 import org.openl.util.ArrayTool;
 
 import static org.junit.Assert.*;
@@ -48,7 +48,8 @@ public class RulesUtilsTest {
     private static final String SRC = "test/rules/helpers/RulesUtilsTest.xlsx";
 
     private static TestInterf instance;
-    private static String str;
+
+    private static String str = "Testing string value";
 
     public interface TestInterf {
         LongValue testQuaotientByteValue(ByteValue number, ByteValue divisor);
@@ -774,18 +775,10 @@ public class RulesUtilsTest {
         double testModDoubleType(double number, double divisor);
     }
 
-    @Before
-    public void init() {
+    @BeforeClass
+    public static void init() {
         Locale.setDefault(Locale.US);
-
-        if (instance == null) {
-            File xlsFile = new File(SRC);
-            TestHelper<TestInterf> testHelper;
-            testHelper = new TestHelper<TestInterf>(xlsFile, TestInterf.class);
-            str = "Testing string value";
-
-            instance = testHelper.getInstance();
-        }
+        instance = TestUtils.create(SRC, TestInterf.class);
     }
 
     @Test

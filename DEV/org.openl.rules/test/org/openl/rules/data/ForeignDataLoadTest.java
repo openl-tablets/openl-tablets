@@ -2,23 +2,14 @@ package org.openl.rules.data;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
-
 import org.junit.Test;
-import org.openl.rules.TestHelper;
+import org.openl.rules.TestUtils;
 
 public class ForeignDataLoadTest {
 
-    public interface ITestI {
-        Type2[] getData2();
-    }
-
     @Test
     public void testForeignDataLoad() {
-        File xlsFile = new File("test/rules/data/ForeignDataLoadTest.xls");
-        TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
-
-        ITestI instance = testHelper.getInstance();
+        ITestI instance = TestUtils.create("test/rules/data/ForeignDataLoadTest.xls", ITestI.class);
 
         Type2[] data = instance.getData2();
         assertEquals(4, data.length);
@@ -27,5 +18,9 @@ public class ForeignDataLoadTest {
         assertEquals(0, data[1].getTypes().length);
         assertEquals(2, data[2].getTypes().length);
         assertEquals(1, data[3].getTypes().length);
+    }
+
+    public interface ITestI {
+        Type2[] getData2();
     }
 }

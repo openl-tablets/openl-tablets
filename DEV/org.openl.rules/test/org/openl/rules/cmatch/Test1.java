@@ -1,11 +1,10 @@
 package org.openl.rules.cmatch;
 
 import static org.junit.Assert.assertEquals;
-
-import java.io.File;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
-import org.openl.rules.TestHelper;
+import org.openl.rules.TestUtils;
 import org.openl.rules.cmatch.test.TestEnum;
 import org.openl.rules.cmatch.test.TestObj;
 
@@ -32,10 +31,7 @@ public class Test1 {
 
     @Test
     public void testD() {
-        File xlsFile = new File("test/rules/cmatch1/match1-d.xls");
-        TestHelper<ITestD> testHelper = new TestHelper<ITestD>(xlsFile, ITestD.class);
-
-        ITestD test = testHelper.getInstance();
+        ITestD test = TestUtils.create("test/rules/cmatch1/match1-d.xls", ITestD.class);
 
         assertEquals(1, test.runColumnMatch(1.0));
         assertEquals(1, test.runColumnMatch(1.1));
@@ -47,25 +43,17 @@ public class Test1 {
 
     @Test
     public void testE() {
-        File xlsFile = new File("test/rules/cmatch1/match1-e.xls");
-        TestHelper<ITestE> testHelper;
-        testHelper = new TestHelper<ITestE>(xlsFile, ITestE.class);
-
-        ITestE test = testHelper.getInstance();
+        ITestE test = TestUtils.create("test/rules/cmatch1/match1-e.xls", ITestE.class);
 
         assertEquals("8", test.runColumnMatch(TestEnum.EIGHT));
         assertEquals("5", test.runColumnMatch(TestEnum.FIVE));
         assertEquals("1", test.runColumnMatch(TestEnum.ONE));
-        assertEquals(null, test.runColumnMatch(TestEnum.SEVEN));
+        assertNull(test.runColumnMatch(TestEnum.SEVEN));
     }
 
     @Test
     public void testI() {
-        File xlsFile = new File("test/rules/cmatch1/match1-i.xls");
-        TestHelper<ITestI> testHelper;
-        testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
-
-        ITestI test = testHelper.getInstance();
+        ITestI test = TestUtils.create("test/rules/cmatch1/match1-i.xls", ITestI.class);
 
         assertEquals(1, test.runColumnMatch(-10));
         assertEquals(1, test.runColumnMatch(0));
@@ -79,11 +67,7 @@ public class Test1 {
 
     @Test
     public void testO() {
-        File xlsFile = new File("test/rules/cmatch1/match1-o.xls");
-        TestHelper<ITestO> testHelper;
-        testHelper = new TestHelper<ITestO>(xlsFile, ITestO.class);
-
-        ITestO test = testHelper.getInstance();
+        ITestO test = TestUtils.create("test/rules/cmatch1/match1-o.xls", ITestO.class);
 
         assertEquals("Low", test.runColumnMatch(new TestObj("High", 0)));
         assertEquals("Moderate", test.runColumnMatch(new TestObj("High", 4)));
@@ -100,11 +84,7 @@ public class Test1 {
 
     @Test
     public void testS() {
-        File xlsFile = new File("test/rules/cmatch1/match1-s.xls");
-        TestHelper<ITestS> testHelper;
-        testHelper = new TestHelper<ITestS>(xlsFile, ITestS.class);
-
-        ITestS test = testHelper.getInstance();
+        ITestS test = TestUtils.create("test/rules/cmatch1/match1-s.xls", ITestS.class);
 
         assertEquals(8, test.runColumnMatch("A"));
         assertEquals(7, test.runColumnMatch("B"));

@@ -2,28 +2,18 @@ package org.openl.rules.binding;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
-
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.rules.TestHelper;
+import org.openl.rules.TestUtils;
 
 public class ObscuringTest {
     private static final String SRC = "test/rules/binding/ObscuringTest.xls";
 
     private static TestInterf instance;
 
-    public interface TestInterf {
-        Double localMultiply();
-
-        Double testParameterMultiply();
-    }
-
-    @Before
-    public void init() {
-        if (instance == null) {
-            instance = new TestHelper<TestInterf>(new File(SRC), TestInterf.class).getInstance();
-        }
+    @BeforeClass
+    public static void init() {
+        instance = TestUtils.create(SRC, TestInterf.class);
     }
 
     @Test
@@ -34,6 +24,12 @@ public class ObscuringTest {
     @Test
     public void testSummary() {
         assertEquals("16.5", "" + instance.testParameterMultiply());
+    }
+
+    public interface TestInterf {
+        Double localMultiply();
+
+        Double testParameterMultiply();
     }
 
 }

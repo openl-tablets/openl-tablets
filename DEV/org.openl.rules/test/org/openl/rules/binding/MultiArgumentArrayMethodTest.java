@@ -2,48 +2,18 @@ package org.openl.rules.binding;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.rules.TestHelper;
+import org.openl.rules.TestUtils;
 
 public class MultiArgumentArrayMethodTest {
     private static final String SRC = "test/rules/binding/MultiArgumentArrayMethodTest.xls";
 
     private static MultiArgumentArrayMethodInterf instance;
 
-    public interface MultiArgumentArrayMethodInterf {
-        int callMultiArguments();
-
-        int[] callMultiArgumentsArray();
-
-        int[] callMultiArgumentsArray1();
-
-        int[] callMultiArgumentsArray2();
-
-        int[] callMultiArgumentsArray3();
-
-        int[] callMultiArgumentsArray4();
-
-        int[] callMultiArgumentsArray5();
-
-        int[] callMultiArgumentsArrayWithNullArgument();
-
-        int[] testArrayCall1();
-
-        int[] testArrayCall2();
-
-        void callVoidMethod();
-    }
-
     @BeforeClass
     public static void init() {
-        File xlsFile = new File(SRC);
-        TestHelper<MultiArgumentArrayMethodInterf> testHelper;
-        testHelper = new TestHelper<MultiArgumentArrayMethodInterf>(xlsFile, MultiArgumentArrayMethodInterf.class);
-
-        instance = testHelper.getInstance();
+        instance = TestUtils.create(SRC, MultiArgumentArrayMethodInterf.class);
     }
 
     @Test
@@ -147,5 +117,29 @@ public class MultiArgumentArrayMethodTest {
         // calling method with void return type many times
         //
         instance.callVoidMethod();
+    }
+
+    public interface MultiArgumentArrayMethodInterf {
+        int callMultiArguments();
+
+        int[] callMultiArgumentsArray();
+
+        int[] callMultiArgumentsArray1();
+
+        int[] callMultiArgumentsArray2();
+
+        int[] callMultiArgumentsArray3();
+
+        int[] callMultiArgumentsArray4();
+
+        int[] callMultiArgumentsArray5();
+
+        int[] callMultiArgumentsArrayWithNullArgument();
+
+        int[] testArrayCall1();
+
+        int[] testArrayCall2();
+
+        void callVoidMethod();
     }
 }

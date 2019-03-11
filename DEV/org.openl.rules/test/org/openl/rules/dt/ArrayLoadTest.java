@@ -2,28 +2,23 @@ package org.openl.rules.dt;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
-
 import org.junit.Test;
-import org.openl.rules.TestHelper;
+import org.openl.rules.TestUtils;
 
 public class ArrayLoadTest {
 
-    public interface ITestI {
-        String hello1(int hour);
-    }
-
     @Test
     public void testMultiRowArrayLoad() {
-        File xlsFile = new File("test/rules/dt/MultiRowArrayLoadTest.xls");
-        TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
-
-        ITestI instance = testHelper.getInstance();
+        ITestI instance = TestUtils.create("test/rules/dt/MultiRowArrayLoadTest.xls", ITestI.class);
 
         String s = instance.hello1(0);
         assertEquals("Good night", s);
 
         s = instance.hello1(6);
         assertEquals("Good morning", s);
+    }
+
+    public interface ITestI {
+        String hello1(int hour);
     }
 }

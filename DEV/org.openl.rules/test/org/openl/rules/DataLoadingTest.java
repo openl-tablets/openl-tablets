@@ -1,6 +1,5 @@
 package org.openl.rules;
 
-import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -16,18 +15,9 @@ public class DataLoadingTest {
 
     private static final String SRC = "test/rules/DataLoading.xls";
 
-    public interface ITestI {
-        Date[] getDateSet();
-
-        Calendar[] getCalendarSet();
-    }
-
     @Test
     public void testMethodOverload1() {
-        File xlsFile = new File(SRC);
-        TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
-
-        ITestI instance = testHelper.getInstance();
+        ITestI instance = TestUtils.create(SRC, ITestI.class);
         IRuntimeEnv env = ((IEngineWrapper) instance).getRuntimeEnv();
 
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
@@ -53,6 +43,12 @@ public class DataLoadingTest {
         Calendar c = Calendar.getInstance(Locale.US);
         c.setTime(date);
         return c;
+    }
+
+    public interface ITestI {
+        Date[] getDateSet();
+
+        Calendar[] getCalendarSet();
     }
 
 }

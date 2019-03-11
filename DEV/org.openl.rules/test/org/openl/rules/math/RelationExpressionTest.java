@@ -1,203 +1,173 @@
 package org.openl.rules.math;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
-
-import java.io.File;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.openl.rules.TestHelper;
+import org.openl.rules.TestUtils;
 
 public class RelationExpressionTest {
 
-	private static String SRC = "test/rules/math/RelationExpressionTest.xls";
+    private static String SRC = "test/rules/math/RelationExpressionTest.xls";
 
-	public interface ITest {
-		boolean areEqual1();
+    @Test
+    public void testEqualComparison() {
+        ITest instance = TestUtils.create(SRC, ITest.class);
+        assertTrue(instance.areEqual1());
+        assertTrue(instance.areEqual2());
+        assertTrue(instance.areEqual3());
+        assertTrue(instance.areEqual4());
+        assertTrue(instance.areEqual5());
+        assertTrue(instance.areEqual6());
+    }
 
-		boolean areEqual2();
+    @Test
+    public void testNotEqualComparison() {
+        ITest instance = TestUtils.create(SRC, ITest.class);
+        assertTrue(instance.areNotEqual1());
+        assertTrue(instance.areNotEqual2());
+        assertTrue(instance.areNotEqual3());
+        assertTrue(instance.areNotEqual4());
+        assertTrue(instance.areNotEqual5());
+        assertTrue(instance.areNotEqual6());
+    }
 
-		boolean areEqual3();
+    @Test
+    public void testLessThanComparison() {
+        ITest instance = TestUtils.create(SRC, ITest.class);
+        assertTrue(instance.areLessThan1());
+        assertTrue(instance.areLessThan2());
+        assertTrue(instance.areLessThan3());
+        assertTrue(instance.areLessThan4());
+        assertTrue(instance.areLessThan5());
+        assertTrue(instance.areLessThan6());
+    }
 
-		boolean areEqual4();
+    @Test
+    public void testGreaterThanComparison() {
+        ITest instance = TestUtils.create(SRC, ITest.class);
+        assertTrue(instance.areGreaterThan1());
+        assertTrue(instance.areGreaterThan2());
+        assertTrue(instance.areGreaterThan3());
+        assertTrue(instance.areGreaterThan4());
+        assertTrue(instance.areGreaterThan5());
+        assertTrue(instance.areGreaterThan6());
+    }
 
-		boolean areEqual5();
+    @Test
+    public void testGreaterOrEqualComparison() {
+        ITest instance = TestUtils.create(SRC, ITest.class);
+        assertTrue(instance.areGreaterOrEqual1());
+        assertTrue(instance.areGreaterOrEqual2());
+        assertTrue(instance.areGreaterOrEqual3());
+        assertTrue(instance.areGreaterOrEqual4());
+        assertTrue(instance.areGreaterOrEqual5());
+        assertTrue(instance.areGreaterOrEqual6());
+    }
 
-		boolean areEqual6();
+    @Test
+    public void testLessOrEqualComparison() {
+        ITest instance = TestUtils.create(SRC, ITest.class);
+        assertTrue(instance.areLessOrEqual1());
+        assertTrue(instance.areLessOrEqual2());
+        assertTrue(instance.areLessOrEqual3());
+        assertTrue(instance.areLessOrEqual4());
+        assertTrue(instance.areLessOrEqual5());
+        assertTrue(instance.areLessOrEqual6());
+    }
 
-		boolean areNotEqual1();
+    @Test
+    public void testIndexedEvaluator() {
+        ITest instance = TestUtils.create(SRC, ITest.class);
+        assertEquals(1, instance.testEqualIndexedEvaluator(1.3));
+        assertEquals(2, instance.testEqualIndexedEvaluator(1.12345678901234));
+        assertEquals(3, instance.testEqualIndexedEvaluator(1.1234567890123456789));
+        assertEquals(3, instance.testEqualIndexedEvaluator(1.1234567890123456789 + Math.ulp(1.1234567890123456789)));
+        assertEquals(0, instance.testEqualIndexedEvaluator(1.1234567890123456789 + 0.000000000000001));
 
-		boolean areNotEqual2();
+        assertFalse(instance.testRangeIndexedEvaluator(1.0));
+        assertTrue(instance.testRangeIndexedEvaluator(1.2));
+        assertFalse(instance.testRangeIndexedEvaluator(1.3));
+        assertTrue(instance.testRangeIndexedEvaluator(1.3 - Math.ulp(1.3)));
+    }
 
-		boolean areNotEqual3();
+    public interface ITest {
+        boolean areEqual1();
 
-		boolean areNotEqual4();
+        boolean areEqual2();
 
-		boolean areNotEqual5();
+        boolean areEqual3();
 
-		boolean areNotEqual6();
+        boolean areEqual4();
 
-		boolean areLessThan1();
+        boolean areEqual5();
 
-		boolean areLessThan2();
+        boolean areEqual6();
 
-		boolean areLessThan3();
+        boolean areNotEqual1();
 
-		boolean areLessThan4();
+        boolean areNotEqual2();
 
-		boolean areLessThan5();
+        boolean areNotEqual3();
 
-		boolean areLessThan6();
+        boolean areNotEqual4();
 
-		boolean areGreaterThan1();
+        boolean areNotEqual5();
 
-		boolean areGreaterThan2();
+        boolean areNotEqual6();
 
-		boolean areGreaterThan3();
+        boolean areLessThan1();
 
-		boolean areGreaterThan4();
+        boolean areLessThan2();
 
-		boolean areGreaterThan5();
+        boolean areLessThan3();
 
-		boolean areGreaterThan6();
+        boolean areLessThan4();
 
-		boolean areLessOrEqual1();
+        boolean areLessThan5();
 
-		boolean areLessOrEqual2();
+        boolean areLessThan6();
 
-		boolean areLessOrEqual3();
+        boolean areGreaterThan1();
 
-		boolean areLessOrEqual4();
+        boolean areGreaterThan2();
 
-		boolean areLessOrEqual5();
+        boolean areGreaterThan3();
 
-		boolean areLessOrEqual6();
+        boolean areGreaterThan4();
 
-		boolean areGreaterOrEqual1();
+        boolean areGreaterThan5();
 
-		boolean areGreaterOrEqual2();
+        boolean areGreaterThan6();
 
-		boolean areGreaterOrEqual3();
+        boolean areLessOrEqual1();
 
-		boolean areGreaterOrEqual4();
+        boolean areLessOrEqual2();
 
-		boolean areGreaterOrEqual5();
+        boolean areLessOrEqual3();
 
-		boolean areGreaterOrEqual6();
+        boolean areLessOrEqual4();
 
-		int testEqualIndexedEvaluator(double value);
+        boolean areLessOrEqual5();
 
-		boolean testRangeIndexedEvaluator(double value);
-	}
+        boolean areLessOrEqual6();
 
-	@Test
-	public void testEqualComparison() {
-		File xlsFile = new File(SRC);
-		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-				ITest.class);
+        boolean areGreaterOrEqual1();
 
-		ITest instance = testHelper.getInstance();
-		assertTrue(instance.areEqual1());
-		assertTrue(instance.areEqual2());
-		assertTrue(instance.areEqual3());
-		assertTrue(instance.areEqual4());
-		assertTrue(instance.areEqual5());
-		assertTrue(instance.areEqual6());
-	}
+        boolean areGreaterOrEqual2();
 
-	@Test
-	public void testNotEqualComparison() {
-		File xlsFile = new File(SRC);
-		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-				ITest.class);
+        boolean areGreaterOrEqual3();
 
-		ITest instance = testHelper.getInstance();
-		assertTrue(instance.areNotEqual1());
-		assertTrue(instance.areNotEqual2());
-		assertTrue(instance.areNotEqual3());
-		assertTrue(instance.areNotEqual4());
-		assertTrue(instance.areNotEqual5());
-		assertTrue(instance.areNotEqual6());
-	}
+        boolean areGreaterOrEqual4();
 
-	@Test
-	public void testLessThanComparison() {
-		File xlsFile = new File(SRC);
-		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-				ITest.class);
+        boolean areGreaterOrEqual5();
 
-		ITest instance = testHelper.getInstance();
-		assertTrue(instance.areLessThan1());
-		assertTrue(instance.areLessThan2());
-		assertTrue(instance.areLessThan3());
-		assertTrue(instance.areLessThan4());
-		assertTrue(instance.areLessThan5());
-		assertTrue(instance.areLessThan6());
-	}
+        boolean areGreaterOrEqual6();
 
-	@Test
-	public void testGreaterThanComparison() {
-		File xlsFile = new File(SRC);
-		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-				ITest.class);
+        int testEqualIndexedEvaluator(double value);
 
-		ITest instance = testHelper.getInstance();
-		assertTrue(instance.areGreaterThan1());
-		assertTrue(instance.areGreaterThan2());
-		assertTrue(instance.areGreaterThan3());
-		assertTrue(instance.areGreaterThan4());
-		assertTrue(instance.areGreaterThan5());
-		assertTrue(instance.areGreaterThan6());
-	}
-
-	@Test
-	public void testGreaterOrEqualComparison() {
-		File xlsFile = new File(SRC);
-		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-				ITest.class);
-
-		ITest instance = testHelper.getInstance();
-		assertTrue(instance.areGreaterOrEqual1());
-		assertTrue(instance.areGreaterOrEqual2());
-		assertTrue(instance.areGreaterOrEqual3());
-		assertTrue(instance.areGreaterOrEqual4());
-		assertTrue(instance.areGreaterOrEqual5());
-		assertTrue(instance.areGreaterOrEqual6());
-	}
-
-	@Test
-	public void testLessOrEqualComparison() {
-		File xlsFile = new File(SRC);
-		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-				ITest.class);
-
-		ITest instance = testHelper.getInstance();
-		assertTrue(instance.areLessOrEqual1());
-		assertTrue(instance.areLessOrEqual2());
-		assertTrue(instance.areLessOrEqual3());
-		assertTrue(instance.areLessOrEqual4());
-		assertTrue(instance.areLessOrEqual5());
-		assertTrue(instance.areLessOrEqual6());
-	}
-
-	@Test
-	public void testIndexedEvaluator() {
-		File xlsFile = new File(SRC);
-		TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile,
-				ITest.class);
-
-		ITest instance = testHelper.getInstance();
-		assertEquals(1, instance.testEqualIndexedEvaluator(1.3));
-		assertEquals(2, instance.testEqualIndexedEvaluator(1.12345678901234));
-		assertEquals(3, instance.testEqualIndexedEvaluator(1.1234567890123456789));
-		assertEquals(3, instance.testEqualIndexedEvaluator(1.1234567890123456789 + Math.ulp(1.1234567890123456789)));
-		assertEquals(0, instance.testEqualIndexedEvaluator(1.1234567890123456789 + 0.000000000000001));
-
-		assertFalse(instance.testRangeIndexedEvaluator(1.0));
-		assertTrue(instance.testRangeIndexedEvaluator(1.2));
-		assertFalse(instance.testRangeIndexedEvaluator(1.3));
-		assertTrue(instance.testRangeIndexedEvaluator(1.3 - Math.ulp(1.3)));
-	}
+        boolean testRangeIndexedEvaluator(double value);
+    }
 
 }

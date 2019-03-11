@@ -1,22 +1,17 @@
 package org.openl.rules.overload;
 
-import java.io.File;
-
 import org.junit.Test;
-import org.openl.rules.TestHelper;
+import org.openl.rules.TestUtils;
 
 public class TestMethodOverloadSupportTest {
 
-    public interface ITestI {
-        void driverRiskTest();
-    }
-
     @Test
     public void testMethodOverloadSupport() {
-        File xlsFile = new File("test/rules/overload/TestMethodOverloadSupport.xls");
-        TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
-
-        ITestI instance = testHelper.getInstance();
+        ITestI instance = TestUtils.create("test/rules/overload/TestMethodOverloadSupport.xls", ITestI.class);
         instance.driverRiskTest();
+    }
+
+    public interface ITestI {
+        void driverRiskTest();
     }
 }
