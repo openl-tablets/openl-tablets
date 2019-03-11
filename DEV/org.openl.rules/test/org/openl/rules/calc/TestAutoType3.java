@@ -1,42 +1,30 @@
 package org.openl.rules.calc;
 
-import java.io.File;
-
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.engine.OpenLSystemProperties;
-import org.openl.rules.TestHelper;
+import org.openl.rules.TestUtils;
 
 public class TestAutoType3 {
-    public interface ITestCalc {
-        SpreadsheetResult calc3();
-    }
-    
-    
-    @Before
-    public void before() {
+
+    private static String csr;
+
+    @BeforeClass
+    public static void before() {
+        csr = System.getProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, "");
         System.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, "false");
     }
 
+    @AfterClass
+    public static void after() {
+        System.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, csr);
+    }
 
     @Test
     public void test1() {
-        File xlsFile = new File("test/rules/calc/autotype/autotype-3.xls");
-        TestHelper<ITestCalc> testHelper = null;
-        Exception ex = null;
-        
-        try {
-            testHelper = new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
-            
-		} catch (Exception e) {
-			ex = e;
-		}
-        
-        
-        Assert.assertNotNull(ex);
-        Assert.assertNull(testHelper);
-
-
+        TestUtils.assertEx("test/rules/calc/autotype/autotype-3.xls",
+            "Cannot parse cell value: [=$Col4] to the necessary type",
+            "Spreadsheet Expression Loop:[R1C3, R1C1]");
     }
 }
