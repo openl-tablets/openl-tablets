@@ -700,7 +700,7 @@ public class DecisionTableHelper {
         while (c < originalTable.getSource().getWidth()) {
             ICell cell = originalTable.getSource().getCell(c, 0);
             String d = cell.getStringValue();
-            int numberOfColumnsUnderTitle = getNumberOfColumnsUnderTitle(originalTable, c);
+            int numberOfColumnsUnderTitle = getNumberOfColumnsUnderTitle(originalTable, c, true);
             titles.put(d, numberOfColumnsUnderTitle);
             c = c + cell.getWidth();
         }
@@ -1563,12 +1563,24 @@ public class DecisionTableHelper {
         return new DTHeader[] {};
     }
 
-    private static int getNumberOfColumnsUnderTitle(ILogicalTable originalTable, int column) {
-        int w = originalTable.getCell(column, 0).getWidth();
+    private static int getNumberOfColumnsUnderTitle(ILogicalTable originalTable, int column, boolean sourceTable) {
+        int w;
+        int h;
+        if (sourceTable) {
+            w = originalTable.getSource().getCell(column, 0).getWidth();
+            h = originalTable.getSource().getCell(column, 0).getHeight();
+        } else {
+            w = originalTable.getCell(column, 0).getWidth();
+            h = originalTable.getCell(column, 0).getHeight();
+        }
         int i = 0;
         int numberOfColumnsUnderTitle = 0;
         while (i < w) {
-            i = i + originalTable.getCell(column, 1).getWidth();
+            if (sourceTable) {
+                i = i + originalTable.getSource().getCell(column, h).getWidth();
+            } else {
+                i = i + originalTable.getCell(column, h).getWidth();
+            }
             numberOfColumnsUnderTitle++;
         }
         return numberOfColumnsUnderTitle;
@@ -1613,7 +1625,7 @@ public class DecisionTableHelper {
             }
             String title = originalTable.getCell(column, 0).getStringValue();
 
-            int numberOfColumnsUnderTitle = getNumberOfColumnsUnderTitle(originalTable, column);
+            int numberOfColumnsUnderTitle = getNumberOfColumnsUnderTitle(originalTable, column, false);
 
             column += 1;
             if (column >= originalTable.getWidth()) {
@@ -1726,7 +1738,7 @@ public class DecisionTableHelper {
                     }
                 }
                 d = originalTable.getCell(x, 0).getStringValue();
-                numberOfColumnsUnderTitle = getNumberOfColumnsUnderTitle(originalTable, x);
+                numberOfColumnsUnderTitle = getNumberOfColumnsUnderTitle(originalTable, x, false);
                 x = x + 1;
             }
             if (titles.isEmpty() && x > originalTable.getWidth()) {
@@ -1767,7 +1779,7 @@ public class DecisionTableHelper {
                     }
                 }
                 d = originalTable.getCell(x, 0).getStringValue();
-                numberOfColumnsUnderTitle = getNumberOfColumnsUnderTitle(originalTable, x);
+                numberOfColumnsUnderTitle = getNumberOfColumnsUnderTitle(originalTable, x, false);
                 x = x + 1;
             }
             if (titles.isEmpty()) {
