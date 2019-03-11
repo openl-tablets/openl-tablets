@@ -267,6 +267,7 @@ public class XlsBinder implements IOpenBinder {
             ASelector<ISyntaxNode> constantsSelector = getSelector(XlsNodeTypes.XLS_CONSTANTS);
             ASelector<ISyntaxNode> dataTypeSelector = getSelector(XlsNodeTypes.XLS_DATATYPE);
             ASelector<ISyntaxNode> conditionsSelector = getSelector(XlsNodeTypes.XLS_CONDITIONS);
+            ASelector<ISyntaxNode> actionsSelector = getSelector(XlsNodeTypes.XLS_ACTIONS);
             ASelector<ISyntaxNode> returnsSelector = getSelector(XlsNodeTypes.XLS_RETURNS);
 
             ISelector<ISyntaxNode> notPropertiesAndNotDatatypeAndNotConstantsSelector = propertiesSelector.not()
@@ -311,8 +312,8 @@ public class XlsBinder implements IOpenBinder {
             bindInternal(moduleNode, moduleOpenClass, processedDatatypeNodes, openl, moduleContext);
 
             //Conditions && Returns && Actions
-            TableSyntaxNode[] conditionsNodes = selectNodes(moduleNode, conditionsSelector.or(returnsSelector));
-            bindInternal(moduleNode, moduleOpenClass, conditionsNodes, openl, moduleContext);
+            TableSyntaxNode[] dtHeaderDefinitionsNodes = selectNodes(moduleNode, conditionsSelector.or(returnsSelector).or(actionsSelector));
+            //bindInternal(moduleNode, moduleOpenClass, conditionsNodes, openl, moduleContext);
             
             // Select nodes excluding Properties, Datatype, Spreadsheet, Test,
             // RunMethod tables
@@ -334,7 +335,7 @@ public class XlsBinder implements IOpenBinder {
 
             TableSyntaxNode[] dts = selectTableSyntaxNodes(moduleNode, dtSelector);
 
-            TableSyntaxNode[] commonAndSpreadsheetTables = ArrayUtils.addAll(ArrayUtils.addAll(dts, spreadsheets),
+            TableSyntaxNode[] commonAndSpreadsheetTables = ArrayUtils.addAll(ArrayUtils.addAll(ArrayUtils.addAll(dtHeaderDefinitionsNodes ,dts), spreadsheets),
                 commonTables);
             bindInternal(moduleNode, moduleOpenClass, commonAndSpreadsheetTables, openl, moduleContext);
 

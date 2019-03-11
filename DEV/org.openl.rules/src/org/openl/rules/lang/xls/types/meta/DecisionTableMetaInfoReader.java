@@ -119,7 +119,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     }
     
     public static <T> String toString(T[] elements, Function<T, String> func) {
-        if (elements == null) {
+        if (elements == null || elements.length == 0) {
             return null;
         }
         if (elements.length == 1) {

@@ -695,20 +695,31 @@ public class DecisionTableHelper {
             IBindingContext bindingContext) {
 
         XlsDefinitions xlsDefinitions = ((XlsModuleOpenClass) decisionTable.getDeclaringClass()).getXlsDefinitions();
-        Set<String> titles = new HashSet<>();
+        Map<String, Integer> titles = new HashMap<>();
         int c = firstReturnColumn;
         while (c < originalTable.getSource().getWidth()) {
             ICell cell = originalTable.getSource().getCell(c, 0);
             String d = cell.getStringValue();
+            int numberOfColumnsUnderTitle = getNumberOfColumnsUnderTitle(originalTable, c);
+            titles.put(d, numberOfColumnsUnderTitle);
             c = c + cell.getWidth();
-            titles.add(d);
         }
 
         DTColumnsDefinition bestReturnDefinition = null;
         MatchDefinition bestMatchedDefinition = null;
-
+        
         for (DTColumnsDefinition rd : xlsDefinitions.getReturnDefinitions()) {
-            if (rd.getTitles().size() == titles.size() && rd.getTitles().containsAll(titles)) {
+            if (rd.getTitles().size() == titles.size() && rd.getTitles().containsAll(titles.keySet())) {
+                boolean f = true;
+                for (String title : rd.getTitles()) {
+                    if (rd.getLocalParameters(title).size() != titles.get(title)) {
+                        f = false; 
+                    }
+                }
+                if (!f) {
+                    continue;
+                }
+                
                 IOpenClass decisionTableReturnType = decisionTable.getHeader().getType();
                 IOpenClass definitionReturnType = rd.getCompositeMethod().getType();
                 IOpenCast openCast = bindingContext.getCast(definitionReturnType, decisionTableReturnType);
@@ -1154,13 +1165,28 @@ public class DecisionTableHelper {
         }
     }
 
-    private static void parseRec(ISyntaxNode node, List<IdentifierNode> identifierNodes) {
-        if (node instanceof IdentifierNode) {
-            identifierNodes.add((IdentifierNode) node);
-        }
+    private static boolean parseRec(ISyntaxNode node, boolean chain, List<IdentifierNode> identifierNodes) {
         for (int i = 0; i < node.getNumberOfChildren(); i++) {
-            parseRec(node.getChild(i), identifierNodes);
+            if ( node.getChild(i) instanceof IdentifierNode) {
+                if ("identifier".equals(node.getChild(i).getType())) {
+                    identifierNodes.add((IdentifierNode) node.getChild(i));
+                    if (chain) {
+                        return true;
+                    }
+                }
+            } else {
+                if ("chain".equals(node.getType())) {
+                    if (parseRec(node.getChild(i), true, identifierNodes)) {
+                        return true;
+                    }
+                } else {
+                    if (parseRec(node.getChild(i), chain, identifierNodes)) {
+                        return true;
+                    }
+                }
+            }
         }
+        return false;
     }
 
     @SafeVarargs
@@ -1189,8 +1215,8 @@ public class DecisionTableHelper {
             IOpenMethodHeader header,
             IBindingContext bindingContext) {
         List<IdentifierNode> identifierNodes = new ArrayList<>();
-        parseRec(definition.getCompositeMethod().getMethodBodyBoundNode().getSyntaxNode(), identifierNodes);
-        Set<String> methodParametersUsedInExpression = new HashSet<>();
+        parseRec(definition.getCompositeMethod().getMethodBodyBoundNode().getSyntaxNode(), false, identifierNodes);
+        Set<String> methodParametersUsedInExpression = new HashSet<>(); 
 
         Map<String, IParameterDeclaration> localParameters = new HashMap<>();
         for (IParameterDeclaration localParameter : definition.getLocalParameters()) {
@@ -2024,27 +2050,6 @@ public class DecisionTableHelper {
 
         public Token[] getTokens() {
             return tokens;
-        }
-    }
-
-    private static enum MatchType {
-        STRICT(0),
-        STRICT_LOCAL_PARAMS_RENAMED(1),
-        METHOD_PARAMS_RENAMED(2),
-        METHOD_LOCAL_PARAMS_RENAMED(3),
-        CASTED(4),
-        LOCAL_PARAMS_RENAMED_CASTED(5),
-        METHOD_PARAMS_RENAMED_CASTED(6),
-        METHOD_LOCAL_PARAMS_RENAMED_CASTED(7);
-
-        int priority;
-
-        private MatchType(int priority) {
-            this.priority = priority;
-        }
-
-        public int getPriority() {
-            return priority;
         }
     }
 
