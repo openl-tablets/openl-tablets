@@ -77,6 +77,15 @@ public class TestUtils {
         return invoke(instance, methodName, args);
     }
 
+    public static <T> T invoke(Object instance, String methodName, Class<?>[] types, Object[] args) {
+        try {
+            Method method = instance.getClass().getMethod(methodName, types);
+            return (T) method.invoke(instance, args);
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     public static <T> T invoke(Object instance, String methodName, Object... args) {
         Class<?>[] types;
         if (args == null) {
@@ -87,11 +96,6 @@ public class TestUtils {
                 types[i] = args[i].getClass();
             }
         }
-        try {
-            Method method = instance.getClass().getMethod(methodName, types);
-            return (T) method.invoke(instance, args);
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new IllegalStateException(e);
-        }
+        return invoke(instance, methodName, types, args);
     }
 }

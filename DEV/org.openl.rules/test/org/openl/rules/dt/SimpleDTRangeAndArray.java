@@ -2,137 +2,124 @@ package org.openl.rules.dt;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.openl.meta.DoubleValue;
-import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.rules.vm.SimpleRulesVM;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.types.java.JavaOpenClass;
-import org.openl.vm.SimpleVM.SimpleRuntimeEnv;
+import org.openl.rules.TestUtils;
 
-public class SimpleDTRangeAndArray extends BaseOpenlBuilderHelper {
-    private static final String SRC = "./test/rules/dt/SimpleDTRangeAndArray.xlsx";
+public class SimpleDTRangeAndArray {
+    private static Object instance;
 
-    public SimpleDTRangeAndArray() {
-        super(SRC);
+    @BeforeClass
+    public static void init() {
+        instance = TestUtils.create("test/rules/dt/SimpleDTRangeAndArray.xlsx");
     }
 
     @Test
     public void testArray1() {
-        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("TestArray1",
-            new IOpenClass[] { JavaOpenClass.STRING });
-        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        Object instance = newInstance();
-
-        assertEquals(0, method.invoke(instance, new Object[] { "1234" }, env));
-        assertEquals(5, method.invoke(instance, new Object[] { "-3" }, env));
-        assertEquals(0, method.invoke(instance, new Object[] { "erty" }, env));
+        assertEquals(0, (int) TestUtils.invoke(instance, "TestArray1", "1234"));
+        assertEquals(5, (int) TestUtils.invoke(instance, "TestArray1", "-3"));
+        assertEquals(0, (int) TestUtils.invoke(instance, "TestArray1", "erty"));
     }
 
     @Test
     public void testArray2() {
-        IOpenMethod method = getMethod("TestArray2", new IOpenClass[] { JavaOpenClass.STRING });
-        Object instance = newInstance();
-        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        assertEquals(1, method.invoke(instance, new Object[] { "1234" }, env));
-        assertEquals(12, method.invoke(instance, new Object[] { "werwe" }, env));
-        assertEquals(5, method.invoke(instance, new Object[] { "asda" }, env));
+        assertEquals(1, (int) TestUtils.invoke(instance, "TestArray2", "1234"));
+        assertEquals(12, (int) TestUtils.invoke(instance, "TestArray2", "werwe"));
+        assertEquals(5, (int) TestUtils.invoke(instance, "TestArray2", "asda"));
     }
 
     @Test
     public void testRangeInt() {
-        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("TestRangeInt",
-            new IOpenClass[] { JavaOpenClass.INT });
-        Object instance = newInstance();
-        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        assertEquals(-10, method.invoke(instance, new Object[] { 67 }, env));
-        assertEquals(89, method.invoke(instance, new Object[] { 99 }, env));
-        assertEquals(78, method.invoke(instance, new Object[] { 3 }, env));
+        assertEquals(-10,
+            (int) TestUtils.invoke(instance, "TestRangeInt", new Class[] { int.class }, new Object[] { 67 }));
+        assertEquals(89,
+            (int) TestUtils.invoke(instance, "TestRangeInt", new Class[] { int.class }, new Object[] { 99 }));
+        assertEquals(78,
+            (int) TestUtils.invoke(instance, "TestRangeInt", new Class[] { int.class }, new Object[] { 3 }));
     }
 
     @Test
     public void testRangeDouble1() {
-        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("TestRangeDouble1",
-            new IOpenClass[] { JavaOpenClass.DOUBLE });
-        Object instance = newInstance();
-        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        assertEquals(-10, method.invoke(instance, new Object[] { 150.005d }, env));
-        assertEquals(85, method.invoke(instance, new Object[] { 0d }, env));
-        assertEquals(78, method.invoke(instance, new Object[] { 6000000d }, env));
+        assertEquals(-10,
+            (int) TestUtils
+                .invoke(instance, "TestRangeDouble1", new Class[] { double.class }, new Object[] { 150.005 }));
+        assertEquals(85,
+            (int) TestUtils.invoke(instance, "TestRangeDouble1", new Class[] { double.class }, new Object[] { 0.0 }));
+        assertEquals(78,
+            (int) TestUtils
+                .invoke(instance, "TestRangeDouble1", new Class[] { double.class }, new Object[] { 6000000.0 }));
     }
 
     @Test
     public void simpleLookup2Range() {
-        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("SimpleLookup2Range",
-            new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.getOpenClass(Double.class) });
-        Object instance = newInstance();
-        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        assertEquals(new DoubleValue(0),
-            method.invoke(instance, new Object[] { "DE", 150.005d }, env));
-        assertEquals(new DoubleValue(1),
-            method.invoke(instance, new Object[] { "", 150.005d }, env));
-        assertEquals(new DoubleValue(1),
-            method.invoke(instance, new Object[] { "DE", 2000d }, env));
+        assertEquals(DoubleValue.ZERO, TestUtils.invoke(instance, "SimpleLookup2Range", "DE", 150.005));
+        assertEquals(DoubleValue.ONE, TestUtils.invoke(instance, "SimpleLookup2Range", "", 150.005));
+        assertEquals(DoubleValue.ONE, TestUtils.invoke(instance, "SimpleLookup2Range", "DE", 2000.0));
     }
 
     @Test
     public void simpleLookupRange1() {
-        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("SimpleLookupRange1",
-            new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.getOpenClass(Double.class) });
-        Object instance = newInstance();
-        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        assertEquals(new DoubleValue(0.9),
-            method.invoke(instance, new Object[] { "DE", 25 }, env));
-        assertEquals(new DoubleValue(1), method.invoke(instance, new Object[] { "", 4 }, env));
-        assertEquals(new DoubleValue(0), method.invoke(instance, new Object[] { "DE", 3 }, env));
+        assertEquals(new DoubleValue(0.9), TestUtils.invoke(instance, "SimpleLookupRange1", "DE", 25.0));
+        assertEquals(DoubleValue.ONE, TestUtils.invoke(instance, "SimpleLookupRange1", "", 4.0));
+        assertEquals(DoubleValue.ZERO, TestUtils.invoke(instance, "SimpleLookupRange1", "DE", 3.0));
     }
 
     @Test
     public void simpleLookup3paramRangeArray() {
-        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("SimpleLookup3paramRangeArray",
-            new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.getOpenClass(Double.class), JavaOpenClass.INT });
-        Object instance = newInstance();
-        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        assertEquals(new DoubleValue(0),
-            method.invoke(instance, new Object[] { "DE", 5d, 5 }, env));
+        assertEquals(DoubleValue.ZERO,
+            TestUtils.invoke(instance,
+                "SimpleLookup3paramRangeArray",
+                new Class[] { String.class, Double.class, int.class },
+                new Object[] { "DE", 5d, 5 }));
         assertEquals(new DoubleValue(0.9),
-            method.invoke(instance, new Object[] { "DE", 7d, 3 }, env));
-        assertEquals(new DoubleValue(1),
-            method.invoke(instance, new Object[] { "DE", 10d, 4 }, env));
+            TestUtils.invoke(instance,
+                "SimpleLookup3paramRangeArray",
+                new Class[] { String.class, Double.class, int.class },
+                new Object[] { "DE", 7d, 3 }));
+        assertEquals(DoubleValue.ONE,
+            TestUtils.invoke(instance,
+                "SimpleLookup3paramRangeArray",
+                new Class[] { String.class, Double.class, int.class },
+                new Object[] { "DE", 10d, 4 }));
     }
 
     @Test
     public void simpleLookup4paramTitleRange() {
-        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("SimpleLookup4paramTitleRange",
-            new IOpenClass[] { JavaOpenClass.STRING,
-                    JavaOpenClass.getOpenClass(Double.class),
-                    JavaOpenClass.INT,
-                    JavaOpenClass.INT });
-        Object instance = newInstance();
-        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         assertEquals(new DoubleValue(0.9),
-            method.invoke(instance, new Object[] { "DE", 0d, 7, 3 }, env));
-        assertEquals(new DoubleValue(1),
-            method.invoke(instance, new Object[] { "DE", 0d, 10, 4 }, env));
+            TestUtils.invoke(instance,
+                "SimpleLookup4paramTitleRange",
+                new Class[] { String.class, Double.class, int.class, int.class },
+                new Object[] { "DE", 0d, 7, 3 }));
+        assertEquals(DoubleValue.ONE,
+            TestUtils.invoke(instance,
+                "SimpleLookup4paramTitleRange",
+                new Class[] { String.class, Double.class, int.class, int.class },
+                new Object[] { "DE", 0d, 10, 4 }));
         assertEquals(new DoubleValue(56),
-            method.invoke(instance, new Object[] { "", 1d, 9, 3 }, env));
+            TestUtils.invoke(instance,
+                "SimpleLookup4paramTitleRange",
+                new Class[] { String.class, Double.class, int.class, int.class },
+                new Object[] { "", 1d, 9, 3 }));
     }
 
     @Test
     public void simpleLookup4paramNotEnoughValues() {
-        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("SimpleLookup4paramNotEnoughValues",
-            new IOpenClass[] { JavaOpenClass.STRING,
-                    JavaOpenClass.getOpenClass(Double.class),
-                    JavaOpenClass.INT,
-                    JavaOpenClass.INT });
-        Object instance = newInstance();
-        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         assertEquals(new DoubleValue(0.9),
-            method.invoke(instance, new Object[] { "DE", 0d, 7, 3 }, env));
-        assertEquals(new DoubleValue(1),
-            method.invoke(instance, new Object[] { "DE", 0d, 10, 4 }, env));
+            TestUtils.invoke(instance,
+                "SimpleLookup4paramNotEnoughValues",
+                new Class[] { String.class, Double.class, int.class, int.class },
+                new Object[] { "DE", 0d, 7, 3 }));
+        assertEquals(DoubleValue.ONE,
+            TestUtils.invoke(instance,
+                "SimpleLookup4paramNotEnoughValues",
+                new Class[] { String.class, Double.class, int.class, int.class },
+                new Object[] { "DE", 0d, 10, 4 }));
         assertEquals(new DoubleValue(56),
-            method.invoke(instance, new Object[] { "", 1d, 9, 3 }, env));
+            TestUtils.invoke(instance,
+                "SimpleLookup4paramNotEnoughValues",
+                new Class[] { String.class, Double.class, int.class, int.class },
+                new Object[] { "", 1d, 9, 3 }));
     }
 }
