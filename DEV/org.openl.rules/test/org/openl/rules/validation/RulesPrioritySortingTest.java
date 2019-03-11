@@ -9,6 +9,7 @@ import java.util.Date;
 import org.junit.Test;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.meta.DoubleValue;
+import org.openl.rules.TestUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.runtime.RulesEngineFactory;
@@ -25,11 +26,7 @@ public class RulesPrioritySortingTest {
     @Test
     public void testStartRequestDate() throws Exception {
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
-        RulesEngineFactory<ITestI> engineFactory = new RulesEngineFactory<ITestI>("test/rules/overload/MaxMinOverload.xls", ITestI.class);
-        engineFactory.setExecutionMode(true);
-
-        ITestI instance = engineFactory.newEngineInstance();
-
+        ITestI instance = TestUtils.create("test/rules/overload/MaxMinOverload.xls", ITestI.class);
         IRulesRuntimeContext context = instance.getRuntimeContext();
 
         Object[][] testData = { { "2011-01-15", "2011-02-15", 120.0 }, { "2011-02-15", "2011-01-15", 120.0 },
@@ -55,12 +52,8 @@ public class RulesPrioritySortingTest {
     @Test
     public void testEndRequestDate() throws Exception {
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
-        RulesEngineFactory<ITestI> engineFactory = new RulesEngineFactory<ITestI>("test/rules/overload/MaxMinOverload.xls", ITestI.class);
-        engineFactory.setExecutionMode(true);
-
-        ITestI instance = engineFactory.newEngineInstance();
-
-        IRulesRuntimeContext context = ((IRulesRuntimeContextProvider) instance).getRuntimeContext();
+        ITestI instance = TestUtils.create("test/rules/overload/MaxMinOverload.xls", ITestI.class);
+        IRulesRuntimeContext context = instance.getRuntimeContext();
 
         Object[][] testData = { { "2011-08-15", "2012-01-01",4.0 },{ "2011-08-15", "2009-01-01",2.0 }};
 
@@ -80,12 +73,8 @@ public class RulesPrioritySortingTest {
     @Test
     public void testFilledPropertiesSorting() throws Exception {
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
-        RulesEngineFactory<ITestI> engineFactory = new RulesEngineFactory<ITestI>("test/rules/overload/MaxMinOverload.xls", ITestI.class);
-        engineFactory.setExecutionMode(true);
-
-        ITestI instance = (ITestI)engineFactory.newEngineInstance();
-
-        IRulesRuntimeContext context = ((IRulesRuntimeContextProvider) instance).getRuntimeContext();
+        ITestI instance = TestUtils.create("test/rules/overload/MaxMinOverload.xls", ITestI.class);
+        IRulesRuntimeContext context = instance.getRuntimeContext();
 
         Object[][] testData = { { "2011-08-15", "lobb",4.0 },{ "2011-08-15", "lobb2",7.0 }};
 
