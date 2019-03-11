@@ -50,7 +50,7 @@ public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, 
      *            value: list of columns to extract
      */
     public NestedSpreadsheetConfiguration(Map<Integer, List<ColumnToExtract>> columnsToExtractForLevels) {
-        this.columnsToExtractForLevels = new HashMap<Integer, List<ColumnToExtract>>(columnsToExtractForLevels);
+        this.columnsToExtractForLevels = new HashMap<>(columnsToExtractForLevels);
     }
 
     /**
@@ -59,7 +59,7 @@ public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, 
      * @return list of columns that must be extracted on given level
      */
     public List<ColumnToExtract> getColumnsToExtract(int nestingLevel) {
-        return new ArrayList<ColumnToExtract>(columnsToExtractForLevels.get(nestingLevel));
+        return new ArrayList<>(columnsToExtractForLevels.get(nestingLevel));
     }
 
     /**

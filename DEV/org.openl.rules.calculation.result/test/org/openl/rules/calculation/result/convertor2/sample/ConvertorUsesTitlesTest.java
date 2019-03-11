@@ -23,7 +23,7 @@ public class ConvertorUsesTitlesTest {
     @Test
     public void test1() {
         File xlsFile = new File("test/rules/calc0-1.xls");
-        RulesEngineFactory<ITestCalc> engineFactory = new RulesEngineFactory<ITestCalc>(URLSourceCodeModule.toUrl(xlsFile), ITestCalc.class);
+        RulesEngineFactory<ITestCalc> engineFactory = new RulesEngineFactory<>(URLSourceCodeModule.toUrl(xlsFile), ITestCalc.class);
 
         ITestCalc test = engineFactory.newEngineInstance();
         SpreadsheetResult result = test.calc();
@@ -41,7 +41,7 @@ public class ConvertorUsesTitlesTest {
     @Test
     public void whiteListTest() {
         File xlsFile = new File("test/rules/calc0-1.xls");
-        RulesEngineFactory<ITestCalc> engineFactory = new RulesEngineFactory<ITestCalc>(URLSourceCodeModule.toUrl(xlsFile), ITestCalc.class);
+        RulesEngineFactory<ITestCalc> engineFactory = new RulesEngineFactory<>(URLSourceCodeModule.toUrl(xlsFile), ITestCalc.class);
 
         ITestCalc test = engineFactory.newEngineInstance();
         SpreadsheetResult result = test.calc();
@@ -58,7 +58,7 @@ public class ConvertorUsesTitlesTest {
     @Test
     public void blackListTest() {
         File xlsFile = new File("test/rules/calc0-1.xls");
-        RulesEngineFactory<ITestCalc> engineFactory = new RulesEngineFactory<ITestCalc>(URLSourceCodeModule.toUrl(xlsFile), ITestCalc.class);
+        RulesEngineFactory<ITestCalc> engineFactory = new RulesEngineFactory<>(URLSourceCodeModule.toUrl(xlsFile), ITestCalc.class);
 
         ITestCalc test = engineFactory.newEngineInstance();
         SpreadsheetResult result = test.calc();
