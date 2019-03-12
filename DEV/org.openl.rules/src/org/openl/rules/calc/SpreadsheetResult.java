@@ -1,6 +1,7 @@
 package org.openl.rules.calc;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -223,6 +224,12 @@ public class SpreadsheetResult implements Serializable {
             return getColumnName(col - 1);
 
         Object value = getValue(row - 1, col - 1);
-        return value == null ? "" : String.valueOf(value);
+        if (value == null) {
+            return "";
+        }
+        if (Object.class.isAssignableFrom(value.getClass().getComponentType())) {
+            return Arrays.toString((Object[]) value);
+        }
+        return String.valueOf(value);
     }
 }
