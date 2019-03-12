@@ -1,7 +1,11 @@
 package org.openl.binding.impl.cast;
 
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.binding.ICastFactory;
@@ -360,33 +364,42 @@ public class CastFactory implements ICastFactory {
     }
 
     private IOpenCast findArrayCast(IOpenClass from, IOpenClass to) {
+        if (!to.isArray()) {
+            return null;
+        }
         Class<?> fromClass = from.getInstanceClass();
-        if ((from.isArray() || Object.class.equals(fromClass)) && to.isArray()) {
-            if (to.getInstanceClass().isAssignableFrom(fromClass) && !(to instanceof DomainOpenClass)) { // Improve
-                // for up
-                // cast
-                return getUpCast(fromClass, to.getInstanceClass());
-            }
-            int dimf = 0;
-            IOpenClass f = from;
-            while (f.isArray()) {
-                f = f.getComponentClass();
-                dimf++;
-            }
-            IOpenClass t = to;
-            int dimt = 0;
-            while (t.isArray()) {
-                t = t.getComponentClass();
-                dimt++;
-            }
-            if (dimf == dimt || Object.class.equals(fromClass)) {
-                IOpenCast arrayElementCast = getCast(f, t);
-                if (arrayElementCast == null && Object.class.equals(fromClass)) {
-                    arrayElementCast = new JavaDownCast(t, this);
-                }
-                if (arrayElementCast != null) {
-                    return new ArrayCast(t, arrayElementCast, dimt);
-                }
+        if (to.getInstanceClass().isAssignableFrom(fromClass) && !(to instanceof DomainOpenClass)) {
+            // Improve for up cast
+            return getUpCast(fromClass, to.getInstanceClass());
+        }
+        if (Object.class.equals(fromClass)) {
+            // Special case for casting when:
+            // Object from = new SomeType[x]
+            // SomeType[] to = from
+            return new JavaDownCast(to, this);
+        }
+        if (!from.isArray()) {
+            return null;
+        }
+
+        IOpenClass t = to;
+        int dimt = 0;
+        while (t.isArray()) {
+            t = t.getComponentClass();
+            dimt++;
+        }
+
+        int dimf = 0;
+        IOpenClass f = from;
+        while (f.isArray()) {
+            f = f.getComponentClass();
+            dimf++;
+        }
+
+        if (dimf == dimt) {
+            IOpenCast arrayElementCast = getCast(f, t);
+            if (arrayElementCast != null) {
+                return new ArrayCast(t, arrayElementCast, dimt);
             }
         }
         return null;
