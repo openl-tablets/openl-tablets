@@ -382,25 +382,15 @@ public class CastFactory implements ICastFactory {
             return null;
         }
 
-        IOpenClass t = to;
-        int dimt = 0;
-        while (t.isArray()) {
-            t = t.getComponentClass();
-            dimt++;
+        IOpenClass t = to.getComponentClass();
+        IOpenClass f = from.getComponentClass();
+        if (! f.isArray() && t.isArray()) {
+            // to prevent Obj[] -> Obj[][] because of findOneElementArrayCast
+            return null;
         }
-
-        int dimf = 0;
-        IOpenClass f = from;
-        while (f.isArray()) {
-            f = f.getComponentClass();
-            dimf++;
-        }
-
-        if (dimf == dimt) {
-            IOpenCast arrayElementCast = getCast(f, t);
-            if (arrayElementCast != null) {
-                return new ArrayCast(t, arrayElementCast, dimt);
-            }
+        IOpenCast arrayElementCast = getCast(f, t);
+        if (arrayElementCast != null) {
+            return new ArrayCast(t, arrayElementCast);
         }
         return null;
     }
