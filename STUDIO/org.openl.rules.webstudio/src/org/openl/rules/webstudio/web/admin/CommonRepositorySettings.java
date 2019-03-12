@@ -32,7 +32,10 @@ public class CommonRepositorySettings extends RepositorySettings {
         REPOSITORY_LOGIN = configPrefix + "login";
         REPOSITORY_PASS = configPrefix + "password";
 
+        load(configManager);
+    }
 
+    private void load(ConfigurationManager configManager) {
         if (repositoryType == RepositoryType.LOCAL) {
             defaultLocalUri = configManager.getStringProperty(REPOSITORY_URI);
         }
@@ -85,21 +88,8 @@ public class CommonRepositorySettings extends RepositorySettings {
         this.secure = secure;
     }
 
-    String getDefaultPath(RepositoryType repositoryType) {
-        String type;
-        switch (repositoryMode) {
-            case DESIGN:
-                type = "design";
-                break;
-            case DEPLOY_CONFIG:
-                type = "deploy-config";
-                break;
-            case PRODUCTION:
-                type = "deployment";
-                break;
-            default:
-                throw new UnsupportedOperationException();
-        }
+    private String getDefaultPath(RepositoryType repositoryType) {
+        String type = RepositorySettings.getTypePrefix(repositoryMode);
 
         switch (repositoryType) {
             case LOCAL:
@@ -138,6 +128,14 @@ public class CommonRepositorySettings extends RepositorySettings {
                 propertiesHolder.setPassword(REPOSITORY_PASS, getPassword());
             }
         }
+    }
+
+    @Override
+    protected void revert(ConfigurationManager configurationManager) {
+        super.revert(configurationManager);
+
+        configurationManager.removeProperties(REPOSITORY_URI, REPOSITORY_LOGIN, REPOSITORY_PASS);
+        load(configManager);
     }
 
     @Override

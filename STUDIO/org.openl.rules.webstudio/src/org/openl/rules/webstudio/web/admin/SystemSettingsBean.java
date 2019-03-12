@@ -235,6 +235,11 @@ public class SystemSettingsBean {
     }
 
     public void restoreDefaults() {
+        designRepositoryConfiguration.revert();
+
+        configManager.removeProperty(DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO);
+        deployConfigRepositoryConfiguration.revert();
+
         productionRepositoryEditor.revertChanges();
 
         // We cannot invoke configManager.restoreDefaults(): in this case some 

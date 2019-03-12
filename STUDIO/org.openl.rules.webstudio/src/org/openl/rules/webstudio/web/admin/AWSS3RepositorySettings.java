@@ -16,7 +16,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     private final String SECRET_KEY;
     private final String LISTENER_TIMER_PERIOD;
 
-    public AWSS3RepositorySettings(ConfigurationManager configManager, String configPrefix) {
+    AWSS3RepositorySettings(ConfigurationManager configManager, String configPrefix) {
         super(configManager, configPrefix);
         BUCKET_NAME = configPrefix + "bucket-name";
         REGION_NAME = configPrefix + "region-name";
@@ -24,6 +24,10 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         SECRET_KEY = configPrefix + "secret-key";
         LISTENER_TIMER_PERIOD = configPrefix + "listener-timer-period";
 
+        load(configManager);
+    }
+
+    private void load(ConfigurationManager configManager) {
         bucketName = configManager.getStringProperty(BUCKET_NAME);
         regionName = configManager.getStringProperty(REGION_NAME);
         accessKey = configManager.getStringProperty(ACCESS_KEY);
@@ -82,6 +86,14 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         propertiesHolder.setProperty(ACCESS_KEY, accessKey);
         propertiesHolder.setProperty(SECRET_KEY, secretKey);
         propertiesHolder.setProperty(LISTENER_TIMER_PERIOD, listenerTimerPeriod);
+    }
+
+    @Override
+    protected void revert(ConfigurationManager configurationManager) {
+        super.revert(configurationManager);
+
+        configurationManager.removeProperties(BUCKET_NAME, REGION_NAME, ACCESS_KEY, SECRET_KEY, LISTENER_TIMER_PERIOD);
+        load(configurationManager);
     }
 
     @Override
