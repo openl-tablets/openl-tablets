@@ -13,13 +13,13 @@ import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 
 public class DTColumnsDefinition {
-    
+
     private Map<String, List<IParameterDeclaration>> localParameters;
     private IOpenMethodHeader header;
     private CompositeMethod compositeMethod;
     private DTColumnsDefinitionType type;
-    
-    public DTColumnsDefinition(DTColumnsDefinitionType type, 
+
+    public DTColumnsDefinition(DTColumnsDefinitionType type,
             Map<String, List<IParameterDeclaration>> localParameters,
             IOpenMethodHeader header,
             CompositeMethod compositeMethod) {
@@ -28,7 +28,7 @@ public class DTColumnsDefinition {
         this.header = header;
         this.type = type;
     }
-    
+
     public CompositeMethod getCompositeMethod() {
         return compositeMethod;
     }
@@ -45,7 +45,7 @@ public class DTColumnsDefinition {
             return Collections.emptyList();
         }
     }
-    
+
     public Collection<IParameterDeclaration> getLocalParameters() {
         return localParameters.values()
             .stream()
@@ -53,7 +53,7 @@ public class DTColumnsDefinition {
             .filter(e -> e != null && e.getName() != null)
             .collect(Collectors.toCollection(ArrayList::new));
     }
-    
+
     public Set<String> getTitles() {
         return Collections.unmodifiableSet(localParameters.keySet());
     }
@@ -61,8 +61,21 @@ public class DTColumnsDefinition {
     public IOpenMethodHeader getHeader() {
         return header;
     }
-    
+
     public DTColumnsDefinitionType getType() {
         return type;
     }
+
+    public boolean isCondition() {
+        return DTColumnsDefinitionType.CONDITION.equals(type);
+    }
+
+    public boolean isAction() {
+        return DTColumnsDefinitionType.ACTION.equals(type);
+    }
+
+    public boolean isReturn() {
+        return DTColumnsDefinitionType.RETURN.equals(type);
+    }
+
 }
