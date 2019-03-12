@@ -48,6 +48,9 @@ public class DomainOpenClassAggregateInfo extends JavaArrayAggregateInfo {
         DomainOpenClass domainType = (DomainOpenClass) aggregateType;
 
         String domainName = domainType.getName();
+        if (!domainType.isArray()) {
+            return null;
+        }
 
         // remove on dimension to get component type
         // MyData[][] -> MyData[]

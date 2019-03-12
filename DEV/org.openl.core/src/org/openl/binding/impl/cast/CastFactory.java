@@ -379,9 +379,6 @@ public class CastFactory implements ICastFactory {
                 t = t.getComponentClass();
                 dimt++;
             }
-            if (to instanceof DomainOpenClass) {
-                t = to.getAggregateInfo().getComponentType(to);
-            }
             if (dimf == dimt || Object.class.equals(fromClass)) {
                 IOpenCast arrayElementCast = getCast(f, t);
                 if (arrayElementCast == null && Object.class.equals(fromClass)) {

@@ -42,13 +42,13 @@ public class DomainOpenClassTest {
 		
 		assertEquals(baseClass, domainClass.getBaseClass());
 		
-		assertEquals(JavaOpenClass.STRING, domainClass.getComponentClass());
+		assertEquals(new DomainOpenClass("TestClass", baseClass, domain, null), domainClass.getComponentClass());
 		
 		IOpenClass aggregateDomain = domainClass.getAggregateInfo().getIndexedAggregateType(domainClass, 1);
 		
 		assertEquals("TestClass[][]", aggregateDomain.getName());
 		
-		assertEquals(baseClass, aggregateDomain.getComponentClass());
+		assertEquals(domainClass, aggregateDomain.getComponentClass());
 		
 		assertTrue(aggregateDomain.isArray());
 		
