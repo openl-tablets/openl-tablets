@@ -203,6 +203,13 @@ public class ConfigurationManager implements PropertiesHolder {
         getConfigurationToSave().clearProperty(key);
     }
 
+    public void removeProperties(String... keys) {
+        FileConfiguration config = getConfigurationToSave();
+        for (String key : keys) {
+            config.clearProperty(key);
+        }
+    }
+
     private FileConfiguration getConfigurationToSave() {
         if (configurationToSave == null) {
             configurationToSave = createFileConfiguration(propsLocation, true);
