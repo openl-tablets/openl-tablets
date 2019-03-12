@@ -15,9 +15,6 @@ public class SimpleRowExtractorFactory {
 
 	/**
 	 * Creates an new instance of {@link SimpleRowExtractor}
-	 * 
-	 * @param columnExtractors
-	 * @return
 	 */
 	public static RowExtractor<SimpleStep> newInstance(List<SpreadsheetColumnExtractor<SimpleStep>> columnExtractors) {
 		return new SimpleRowExtractor(columnExtractors);
@@ -31,7 +28,7 @@ public class SimpleRowExtractorFactory {
 	 */
 	static class SimpleRowExtractor extends RowExtractor<SimpleStep> {
 
-		public SimpleRowExtractor(List<SpreadsheetColumnExtractor<SimpleStep>> columnExtractors) {
+		SimpleRowExtractor(List<SpreadsheetColumnExtractor<SimpleStep>> columnExtractors) {
 			super(columnExtractors);
 		}
 

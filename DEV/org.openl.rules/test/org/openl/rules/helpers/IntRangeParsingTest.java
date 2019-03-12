@@ -1,26 +1,12 @@
-/**
- *
- */
 package org.openl.rules.helpers;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
 
 import org.junit.Test;
-import org.openl.rules.TestHelper;
-import org.openl.syntax.exception.CompositeOpenlException;
+import org.openl.rules.TestUtils;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 
-/**
- *
- */
 public class IntRangeParsingTest {
-
-    public interface ITestI {
-        String hello1(int hour);
-    }
 
     @Test
     public void testDollarSymbol() {
@@ -142,13 +128,10 @@ public class IntRangeParsingTest {
 
     @Test
     public void testInvalidIntRangeParsing1() {
-        File xlsFile = new File("test/rules/helpers/IntRangeParsing1.xls");
-        try {
-            TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
-            ITestI instance = testHelper.getInstance();
-            instance.hello1(10);
-        } catch (CompositeOpenlException e) {
-            assertTrue(e.toString().contains("IntRangeParsing1.xls?sheet=hello2&range=C8:D8"));
-        }
+        TestUtils.assertEx("test/rules/helpers/IntRangeParsing1.xls", "IntRangeParsing1.xls?sheet=hello2&range=C8:D8");
+    }
+
+    public interface ITestI {
+        String hello1(int hour);
     }
 }

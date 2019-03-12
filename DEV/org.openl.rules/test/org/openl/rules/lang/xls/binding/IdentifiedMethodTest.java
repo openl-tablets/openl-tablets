@@ -2,13 +2,12 @@ package org.openl.rules.lang.xls.binding;
 
 import static org.junit.Assert.*;
 
-import java.io.File;
 import java.util.Calendar;
 import java.util.List;
 
 import org.junit.Test;
 import org.openl.meta.DoubleValue;
-import org.openl.rules.TestHelper;
+import org.openl.rules.TestUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.table.constraints.Constraint;
@@ -18,20 +17,9 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 
 public class IdentifiedMethodTest {
 
-    public interface ITestI extends IRulesRuntimeContextProvider {
-        DoubleValue driverRiskScoreOverloadTest(String driverRisk);
-
-        DoubleValue driverRiskScoreNoOverloadTest(String driverRisk);
-
-        DoubleValue driverRiskEarlier(String driverRisk);
-    }
-
     @Test
     public void testCallById() {
-        File xlsFile = new File("test/rules/overload/Overload.xls");
-        TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
-
-        ITestI instance = testHelper.getInstance();
+        ITestI instance = TestUtils.create("test/rules/overload/Overload.xls", ITestI.class);
         IRulesRuntimeContext context = instance.getRuntimeContext();
 
         Calendar calendar = Calendar.getInstance();
@@ -79,12 +67,20 @@ public class IdentifiedMethodTest {
             }
         }
         assertNotNull(regexpConstraint);
-        String regex = ((RegexpValueConstraint)regexpConstraint).getRegexp();
+        String regex = ((RegexpValueConstraint) regexpConstraint).getRegexp();
         assertTrue("_name".matches(regex));
         assertTrue("Name".matches(regex));
         assertTrue("name__999".matches(regex));
         assertFalse("9asd".matches(regex));
         assertFalse("name postfix".matches(regex));
         assertFalse("name&9".matches(regex));
+    }
+
+    public interface ITestI extends IRulesRuntimeContextProvider {
+        DoubleValue driverRiskScoreOverloadTest(String driverRisk);
+
+        DoubleValue driverRiskScoreNoOverloadTest(String driverRisk);
+
+        DoubleValue driverRiskEarlier(String driverRisk);
     }
 }

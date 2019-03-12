@@ -1,28 +1,15 @@
 package org.openl.rules.cmatch;
 
 import static org.junit.Assert.assertEquals;
-
-import java.io.File;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
-import org.openl.rules.TestHelper;
 import org.openl.rules.TestUtils;
 
 public class Test2 {
-    public interface ITest2 {
-        int runColumnMatch(int i1, int i2);
-    }
-
-    public interface ITest5 {
-        String runColumnMatch(int i1, int i2, int i3, int i4, int i5);
-    }
-
     @Test
     public void test1() {
-        File xlsFile = new File("test/rules/cmatch1/match2-1.xls");
-        TestHelper<ITest2> testHelper = new TestHelper<ITest2>(xlsFile, ITest2.class);
-
-        ITest2 test = testHelper.getInstance();
+        ITest2 test = TestUtils.create("test/rules/cmatch1/match2-1.xls", ITest2.class);
 
         assertEquals(0, test.runColumnMatch(0, 0));
         assertEquals(0, test.runColumnMatch(0, 1));
@@ -38,10 +25,8 @@ public class Test2 {
 
     @Test
     public void test2() {
-        File xlsFile = new File("test/rules/cmatch1/match2-2.xls");
-        TestHelper<ITest2> testHelper = new TestHelper<ITest2>(xlsFile, ITest2.class);
 
-        ITest2 test = testHelper.getInstance();
+        ITest2 test = TestUtils.create("test/rules/cmatch1/match2-2.xls", ITest2.class);
 
         assertEquals(0, test.runColumnMatch(0, 0));
         assertEquals(1, test.runColumnMatch(0, 1));
@@ -58,15 +43,12 @@ public class Test2 {
 
     @Test
     public void test3() {
-        File xlsFile = new File("test/rules/cmatch1/match2-3.xls");
-        TestHelper<ITest5> testHelper = new TestHelper<ITest5>(xlsFile, ITest5.class);
+        ITest5 test = TestUtils.create("test/rules/cmatch1/match2-3.xls", ITest5.class);
 
-        ITest5 test = testHelper.getInstance();
-
-        assertEquals(null, test.runColumnMatch(0, -1, -1, -1, -1));
+        assertNull(test.runColumnMatch(0, -1, -1, -1, -1));
         assertEquals("0", test.runColumnMatch(0, -1, -1, -1, 0));
-        assertEquals(null, test.runColumnMatch(0, 0, -1, -1, -1));
-        assertEquals(null, test.runColumnMatch(0, 0, 0, -1, -1));
+        assertNull(test.runColumnMatch(0, 0, -1, -1, -1));
+        assertNull(test.runColumnMatch(0, 0, 0, -1, -1));
         assertEquals("2", test.runColumnMatch(0, 0, 0, -1, 2));
         assertEquals("3", test.runColumnMatch(0, 0, 0, 0, -1));
 
@@ -78,31 +60,24 @@ public class Test2 {
 
     @Test
     public void test4() {
-        TestUtils.assertEx(new Runnable() {
-            public void run() {
-                File xlsFile = new File("test/rules/cmatch1/match2-4.xls");
-                new TestHelper<ITest5>(xlsFile, ITest5.class);
-            }
-        }, "All sub nodes must be leaves!", "cell=B7");
+        TestUtils.assertEx("test/rules/cmatch1/match2-4.xls", "All sub nodes must be leaves!", "cell=B7");
     }
 
     @Test
     public void test5() {
-        TestUtils.assertEx(new Runnable() {
-            public void run() {
-                File xlsFile = new File("test/rules/cmatch1/match2-5.xls");
-                new TestHelper<ITest5>(xlsFile, ITest5.class);
-            }
-        }, "All sub nodes must be leaves!", "cell=B7");
+        TestUtils.assertEx("test/rules/cmatch1/match2-5.xls", "All sub nodes must be leaves!", "cell=B7");
     }
 
     @Test
     public void test6() {
-        TestUtils.assertEx(new Runnable() {
-            public void run() {
-                File xlsFile = new File("test/rules/cmatch1/match2-6.xls");
-                new TestHelper<ITest5>(xlsFile, ITest5.class);
-            }
-        }, "Illegal indent!", "cell=B10");
+        TestUtils.assertEx("test/rules/cmatch1/match2-6.xls", "Illegal indent!", "cell=B10");
+    }
+
+    public interface ITest2 {
+        int runColumnMatch(int i1, int i2);
+    }
+
+    public interface ITest5 {
+        String runColumnMatch(int i1, int i2, int i3, int i4, int i5);
     }
 }

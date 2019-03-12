@@ -56,7 +56,6 @@ public class RepositoryConfiguration {
         REPOSITORY_FACTORY = CONFIG_PREFIX + "factory";
         REPOSITORY_NAME = CONFIG_PREFIX + "name";
 
-
         load();
     }
 
@@ -99,6 +98,14 @@ public class RepositoryConfiguration {
         propertiesHolder.setProperty(REPOSITORY_NAME, StringUtils.trimToEmpty(name));
         propertiesHolder.setProperty(REPOSITORY_FACTORY, repositoryType.getFactoryClassName());
         settings.store(propertiesHolder);
+    }
+
+    void revert() {
+        configManager.removeProperty(REPOSITORY_NAME);
+        configManager.removeProperty(REPOSITORY_FACTORY);
+        load();
+
+        settings.revert(configManager);
     }
 
     void commit() {

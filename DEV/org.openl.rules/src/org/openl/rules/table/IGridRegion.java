@@ -14,12 +14,6 @@ import org.openl.util.StringTool;
  *
  */
 public interface IGridRegion {
-
-	short TOP = 0;
-	short LEFT = 1;
-	short BOTTOM = 2;
-	short RIGHT = 3; 
-
     class Tool {
         public static boolean contains(IGridRegion i1, int x, int y) {
             return i1.getLeft() <= x && x <= i1.getRight() && i1.getTop() <= y && y <= i1.getBottom();

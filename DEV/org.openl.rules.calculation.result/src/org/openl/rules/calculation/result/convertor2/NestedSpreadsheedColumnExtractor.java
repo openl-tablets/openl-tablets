@@ -100,7 +100,7 @@ public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor
 
     private <T extends CalculationStep, Q extends CompoundStep> NestedSpreadsheetResultConverter<T, Q> createNextLevelConverter(
             NestedSpreadsheetConfiguration<T, Q> configuration) {
-        return new NestedSpreadsheetResultConverter<T, Q>(nestingLevel + 1, configuration);
+        return new NestedSpreadsheetResultConverter<>(nestingLevel + 1, configuration);
     }
 
     private List<? extends CalculationStep> convertCompoundPremium(SpreadsheetResult result) {

@@ -11,7 +11,7 @@ import org.junit.Test;
 public class SpreadsheetColumnExtractorTest {
 
     private NestedSpreadsheetConfiguration<SimpleStep, CompoundStep> getConfiguration() {
-        return new NestedSpreadsheetConfiguration<SimpleStep, CompoundStep>(new HashMap<Integer, List<ColumnToExtract>>()) {
+        return new NestedSpreadsheetConfiguration<SimpleStep, CompoundStep>(new HashMap<>()) {
             @Override
             protected RowExtractor<CompoundStep> initCompoundRowExtractor(
                     List<SpreadsheetColumnExtractor<CompoundStep>> compoundExtractors) {
@@ -35,7 +35,7 @@ public class SpreadsheetColumnExtractorTest {
     @Test
     public void testSetterName() {
         String ecpectedName1 = "setId";
-        SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<CodeStep>(null,
+        SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<>(null,
             getConfiguration());
         assertEquals(ecpectedName1, extractor.getSetterName("id"));
         assertEquals(ecpectedName1, extractor.getSetterName("ID"));
@@ -50,7 +50,7 @@ public class SpreadsheetColumnExtractorTest {
     public void testColumnExtractor() {
         String testedValue = "valueToExtract";
         ColumnToExtract columnToExtract = new ColumnToExtract("Code", String.class);
-        SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<CodeStep>(columnToExtract,
+        SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<>(columnToExtract,
             getConfiguration());
 
         CodeStep instanceToPopulate = new CodeStep();
@@ -69,7 +69,7 @@ public class SpreadsheetColumnExtractorTest {
     public void testNotExistingColumn() {
         String testedValue = "valueToExtract";
         ColumnToExtract columnToExtract = new ColumnToExtract("Not_Existing_Column", String.class);
-        SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<CodeStep>(columnToExtract,
+        SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<>(columnToExtract,
             getConfiguration());
 
         CodeStep instanceToPopulate = new CodeStep();
@@ -81,7 +81,7 @@ public class SpreadsheetColumnExtractorTest {
     @Test
     public void testExtractingValueOfNotAppropriateType() {
         ColumnToExtract columnToExtract = new ColumnToExtract("Value", Double.class);
-        SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<CodeStep>(columnToExtract,
+        SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<>(columnToExtract,
             getConfiguration());
 
         SimpleStep instanceToPopulate = new SimpleStep();

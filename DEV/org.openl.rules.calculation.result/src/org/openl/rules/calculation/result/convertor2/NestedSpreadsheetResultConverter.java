@@ -93,10 +93,10 @@ public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q exten
 
     @SuppressWarnings("unchecked")
     private CalculationStep processRow(SpreadsheetResult spreadsheetResult, int row) {
-        T step = null;
+        T step;
         List<ColumnToExtract> confCompoundColumns = conf.getColumnsToExtract(currentNestingLevel);
-        List<ColumnToExtract> compoundColumns = new ArrayList<ColumnToExtract>();
-        List<SpreadsheetColumnExtractor<Q>> extractors = new ArrayList<SpreadsheetColumnExtractor<Q>>();
+        List<ColumnToExtract> compoundColumns = new ArrayList<>();
+        List<SpreadsheetColumnExtractor<Q>> extractors = new ArrayList<>();
         
         //Find existed columns in spreadsheetResult
         for (ColumnToExtract column : confCompoundColumns){
@@ -133,17 +133,17 @@ public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q exten
                     column));
                 isNestedRow = true;
             } else {
-                extractors.add(new SpreadsheetColumnExtractor<Q>(column, conf));
+                extractors.add(new SpreadsheetColumnExtractor<>(column, conf));
             }
         }
-        RowExtractor<? extends CalculationStep> rowExtractor = null;
+        RowExtractor<? extends CalculationStep> rowExtractor;
         if (isNestedRow) {
             rowExtractor = conf.initCompoundRowExtractor(extractors);
             rowExtractor.setConf(conf);
         } else {
-            List<SpreadsheetColumnExtractor<T>> simpleExtractors = new ArrayList<SpreadsheetColumnExtractor<T>>();
+            List<SpreadsheetColumnExtractor<T>> simpleExtractors = new ArrayList<>();
             for (ColumnToExtract column : compoundColumns) {
-                simpleExtractors.add(new SpreadsheetColumnExtractor<T>(column, conf));
+                simpleExtractors.add(new SpreadsheetColumnExtractor<>(column, conf));
             }
             rowExtractor = conf.initSimpleRowExtractor(simpleExtractors);
             rowExtractor.setConf(conf);
@@ -154,10 +154,7 @@ public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q exten
     }
 
     private static boolean valueIsNested(Object value) {
-        if ((value instanceof SpreadsheetResult) || (value instanceof SpreadsheetResult[])) {
-            return true;
-        }
-        return false;
+        return (value instanceof SpreadsheetResult) || (value instanceof SpreadsheetResult[]);
     }
 
 }

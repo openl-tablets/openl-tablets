@@ -4,27 +4,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-import java.io.File;
-
-import org.junit.Before;
 import org.junit.Test;
-import org.openl.rules.TestHelper;
+import org.openl.rules.TestUtils;
 
 public class ReturnTypesProxyInterfacesTest {
 
     private static final String EXP_MSG = "Return type of method \"%s\" should be %s";
 
-    private File xlsFile;
-
-    @Before
-    public void setUp() {
-        xlsFile = new File("test/rules/runtime/ReturnTypeValidation.xlsx");
-    }
-
     private <T> T initInstance(Class<T> tClass) {
-        TestHelper<T> testHelper = new TestHelper<>(xlsFile, tClass);
-
-        return testHelper.getInstance();
+        return TestUtils.create("test/rules/runtime/ReturnTypeValidation.xlsx", tClass);
     }
 
     @Test
@@ -34,12 +22,12 @@ public class ReturnTypesProxyInterfacesTest {
 
     @Test
     public void testUpCastReturnType() {
-        assertEquals((Number) 1L, initInstance(UpCastReturnType.class).doSomething("1"));
+        assertEquals(1L, initInstance(UpCastReturnType.class).doSomething("1"));
     }
 
     @Test
     public void testObjectReturnType() {
-        assertEquals((Object) 1L, initInstance(ObjectReturnType.class).doSomething("1"));
+        assertEquals(1L, initInstance(ObjectReturnType.class).doSomething("1"));
     }
 
     @Test
@@ -88,7 +76,7 @@ public class ReturnTypesProxyInterfacesTest {
 
     @Test
     public void testPrimitiveLongArrayReturnType() {
-        final long[] expected = new long[] {1, 2, 3};
+        final long[] expected = new long[] { 1, 2, 3 };
         final long[] actual = initInstance(PrimitiveLongArrayReturnType.class).doArray();
         assertArraysEquals(expected, actual);
     }

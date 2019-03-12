@@ -30,9 +30,9 @@ public abstract class RowExtractor<T extends CalculationStep> {
 
     public RowExtractor(List<SpreadsheetColumnExtractor<T>> columnExtractors) {
         if (columnExtractors == null) {
-            this.columnExtractors = new CopyOnWriteArrayList<SpreadsheetColumnExtractor<T>>();
+            this.columnExtractors = new CopyOnWriteArrayList<>();
         } else {
-            this.columnExtractors = new CopyOnWriteArrayList<SpreadsheetColumnExtractor<T>>(columnExtractors);
+            this.columnExtractors = new CopyOnWriteArrayList<>(columnExtractors);
         }
     }
 

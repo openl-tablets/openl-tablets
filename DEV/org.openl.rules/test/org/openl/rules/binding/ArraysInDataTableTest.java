@@ -1,48 +1,21 @@
 package org.openl.rules.binding;
 
-import java.io.File;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
-import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.rules.TestHelper;
+import org.openl.rules.TestUtils;
 
 public class ArraysInDataTableTest {
     private static final String SRC = "test/rules/binding/ArraysInDataTableTest.xlsx";
 
     private static ArraysInDataTableTestInterf instance;
 
-    public interface ArraysInDataTableTestInterf {
-        int[][] getIntArrays1();
-
-        int[][] getIntArrays2();
-
-        int[][] getIntArrays3();
-
-        Integer[][] getIntegerArrays1();
-
-        Integer[][] getIntegerArrays2();
-
-        Integer[][] getIntegerArrays3();
-
-        String[][] getStringArrays1();
-
-        String[][] getStringArrays2();
-
-        String[][] getStringArrays3();
-
-        BeanA[][] getBeanAArrays1();
-
-        BeanA[][] getBeanAArrays2();
-    }
-
     @BeforeClass
     public static void init() {
-        File xlsFile = new File(SRC);
-        TestHelper<ArraysInDataTableTestInterf> testHelper;
-        testHelper = new TestHelper<ArraysInDataTableTestInterf>(xlsFile, ArraysInDataTableTestInterf.class);
-
-        instance = testHelper.getInstance();
+        instance = TestUtils.create(SRC, ArraysInDataTableTestInterf.class);
     }
 
     @Test
@@ -133,6 +106,30 @@ public class ArraysInDataTableTest {
                 System.out.println();
             }
         }
+    }
+
+    public interface ArraysInDataTableTestInterf {
+        int[][] getIntArrays1();
+
+        int[][] getIntArrays2();
+
+        int[][] getIntArrays3();
+
+        Integer[][] getIntegerArrays1();
+
+        Integer[][] getIntegerArrays2();
+
+        Integer[][] getIntegerArrays3();
+
+        String[][] getStringArrays1();
+
+        String[][] getStringArrays2();
+
+        String[][] getStringArrays3();
+
+        BeanA[][] getBeanAArrays1();
+
+        BeanA[][] getBeanAArrays2();
     }
 
 }

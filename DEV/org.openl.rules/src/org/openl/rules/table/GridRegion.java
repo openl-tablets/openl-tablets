@@ -15,39 +15,10 @@ public class GridRegion implements IGridRegion {
     }
 
     public GridRegion(int top, int left, int bottom, int right) {
-        //TableParts change
-        /*if (bottom < top) {
-            throw new IllegalArgumentException("The bottom row (" + bottom + ") must not be less than the top row("
-                    + top + ").");
-        }
-        if (right < left) {
-            throw new IllegalArgumentException("The right row (" + right + ") must not be less than the left row("
-                    + left + ").");
-        }*/
         this.top = top;
         this.left = left;
         this.bottom = bottom;
         this.right = right;
-    }
-
-    public GridRegion(IGridRegion reg, short side, int coord) {
-        this(reg);
-        switch (side) {
-            case TOP:
-                top = coord;
-                break;
-            case LEFT:
-                left = coord;
-                break;
-            case RIGHT:
-                right = coord;
-                break;
-            case BOTTOM:
-                bottom = coord;
-                break;
-            default:
-                throw new IllegalArgumentException("Wrong IGridRegion side argument: " + side);
-        }
     }
 
     public int getBottom() {
@@ -89,12 +60,10 @@ public class GridRegion implements IGridRegion {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + bottom;
-        result = prime * result + left;
-        result = prime * result + right;
-        result = prime * result + top;
+        int result = bottom;
+        result = 31 * result + left;
+        result = 31 * result + right;
+        result = 31 * result + top;
         return result;
     }
 
@@ -117,20 +86,4 @@ public class GridRegion implements IGridRegion {
             return false;
         return true;
     }
-
-    public static IGridRegion shiftRight(Point start, int shiftRight) {
-        return new GridRegion(start.getRow(),
-                start.getColumn(),
-                start.getRow(),
-                start.getColumn() + shiftRight);
-    }
-
-    public static IGridRegion shiftBottom(Point start, int shiftBottom) {
-        return new GridRegion(start.getRow(),
-                start.getColumn(),
-                start.getRow() + shiftBottom,
-                start.getColumn());
-    }
-
-
 }

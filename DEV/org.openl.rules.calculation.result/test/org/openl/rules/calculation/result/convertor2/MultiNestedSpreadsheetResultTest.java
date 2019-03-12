@@ -26,14 +26,14 @@ public class MultiNestedSpreadsheetResultTest {
         ColumnToExtract c2 = new ColumnToExtract(RES_COLUMN);
         ColumnToExtract c3 = new ColumnToExtract(RES1_COLUMN);
 
-        Map<Integer, List<ColumnToExtract>> columnsToExtract = new HashMap<Integer, List<ColumnToExtract>>();
+        Map<Integer, List<ColumnToExtract>> columnsToExtract = new HashMap<>();
 
-        List<ColumnToExtract> firstLevel = new ArrayList<ColumnToExtract>();
+        List<ColumnToExtract> firstLevel = new ArrayList<>();
         firstLevel.add(c1);
         firstLevel.add(c2);
         firstLevel.add(c3);
 
-        List<ColumnToExtract> secondLevel = new ArrayList<ColumnToExtract>();
+        List<ColumnToExtract> secondLevel = new ArrayList<>();
         secondLevel.add(c1);
         secondLevel.add(c2);
 
@@ -85,7 +85,7 @@ public class MultiNestedSpreadsheetResultTest {
     public void test() {
         SpreadsheetResult res = getMockSpreadsheetResult();
 
-        NestedSpreadsheetResultConverter<CodeStep, CompoundStep> conv = new NestedSpreadsheetResultConverter<CodeStep, CompoundStep>(1,
+        NestedSpreadsheetResultConverter<CodeStep, CompoundStep> conv = new NestedSpreadsheetResultConverter<>(1,
             conf);
         List<CalculationStep> result = conv.process(res);
 
@@ -107,7 +107,7 @@ public class MultiNestedSpreadsheetResultTest {
     @Test
     public void testArraySpr() {
         SpreadsheetResult upperSpr = getMockArraySpreadsheetResult();
-        NestedSpreadsheetResultConverter<CodeStep, CompoundStep> converter = new NestedSpreadsheetResultConverter<CodeStep, CompoundStep>(1,
+        NestedSpreadsheetResultConverter<CodeStep, CompoundStep> converter = new NestedSpreadsheetResultConverter<>(1,
             conf);
         List<CalculationStep> result = converter.process(upperSpr);
 

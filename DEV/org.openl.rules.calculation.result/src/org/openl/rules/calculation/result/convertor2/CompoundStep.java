@@ -38,7 +38,7 @@ public class CompoundStep extends CodeStep {
         this.id = id;
     }
 
-    private List<CalculationStep> steps = new ArrayList<CalculationStep>();
+    private List<CalculationStep> steps = new ArrayList<>();
 
     public CompoundStep() {
     }
@@ -60,7 +60,7 @@ public class CompoundStep extends CodeStep {
      * @return
      */
     public List<CalculationStep> getSteps() {
-        return new ArrayList<CalculationStep>(steps);
+        return new ArrayList<>(steps);
     }
 
     /**
@@ -69,7 +69,7 @@ public class CompoundStep extends CodeStep {
      * @param steps
      */
     public void setSteps(List<CalculationStep> steps) {
-        this.steps = new ArrayList<CalculationStep>(steps);
+        this.steps = new ArrayList<>(steps);
     }
 
 }

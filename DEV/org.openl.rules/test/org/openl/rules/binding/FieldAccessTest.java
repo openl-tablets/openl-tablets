@@ -2,12 +2,10 @@ package org.openl.rules.binding;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.meta.DoubleValue;
-import org.openl.rules.TestHelper;
+import org.openl.rules.TestUtils;
 
 public class FieldAccessTest {
 
@@ -15,18 +13,9 @@ public class FieldAccessTest {
 
     private static FieldAccessInterface instance;
 
-    public interface FieldAccessInterface {
-        DoubleValue test();
-
-        String test1();
-    }
-
     @BeforeClass
     public static void init() {
-        File xlsFile = new File(SRC);
-        TestHelper<FieldAccessInterface> testHelper = new TestHelper<FieldAccessInterface>(xlsFile,
-                FieldAccessInterface.class);
-        instance = testHelper.getInstance();
+        instance = TestUtils.create(SRC, FieldAccessInterface.class);
     }
 
     @Test
@@ -37,6 +26,12 @@ public class FieldAccessTest {
     @Test
     public void test1() {
         assertEquals("John", instance.test1());
+    }
+
+    public interface FieldAccessInterface {
+        DoubleValue test();
+
+        String test1();
     }
 
 }

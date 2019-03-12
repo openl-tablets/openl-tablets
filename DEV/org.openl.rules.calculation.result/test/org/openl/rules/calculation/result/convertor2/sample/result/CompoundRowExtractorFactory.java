@@ -16,9 +16,6 @@ public class CompoundRowExtractorFactory {
 
     /**
      * Creates an new instance of {@link CompoundRowExtractor}
-     * 
-     * @param columnExtractors
-     * @return
      */
     public static RowExtractor<CompoundStep> newInstance(List<SpreadsheetColumnExtractor<CompoundStep>> columnExtractors) {
         return new CompoundRowExtractor(columnExtractors);
@@ -30,7 +27,7 @@ public class CompoundRowExtractorFactory {
      */
     static class CompoundRowExtractor extends RowExtractor<CompoundStep> {
 
-        public CompoundRowExtractor(List<SpreadsheetColumnExtractor<CompoundStep>> columnExtractors) {
+        CompoundRowExtractor(List<SpreadsheetColumnExtractor<CompoundStep>> columnExtractors) {
             super(columnExtractors);
         }
 

@@ -1,31 +1,21 @@
 package org.openl.rules.overload;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import java.io.File;
 import java.util.Calendar;
 
 import org.junit.Test;
 import org.openl.meta.DoubleValue;
-import org.openl.rules.TestHelper;
+import org.openl.rules.TestUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 
 public class OverloadTest {
 
-    public interface ITestI extends IRulesRuntimeContextProvider {
-        DoubleValue driverRiskScoreOverloadTest(String driverRisk);
-
-        DoubleValue driverRiskScoreNoOverloadTest(String driverRisk);
-    }
-
     @Test
     public void testMethodOverload() {
-        File xlsFile = new File("test/rules/overload/Overload.xls");
-        TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
-
-        ITestI instance = testHelper.getInstance();
-        IRulesRuntimeContext context = ((IRulesRuntimeContextProvider) instance).getRuntimeContext();
+        ITestI instance = TestUtils.create("test/rules/overload/Overload.xls", ITestI.class);
+        IRulesRuntimeContext context = instance.getRuntimeContext();
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(2003, 5, 15);
@@ -43,5 +33,11 @@ public class OverloadTest {
 
         DoubleValue res3 = instance.driverRiskScoreNoOverloadTest("High Risk Driver");
         assertEquals(200.0, res3.doubleValue(), 1e-8);
+    }
+
+    public interface ITestI extends IRulesRuntimeContextProvider {
+        DoubleValue driverRiskScoreOverloadTest(String driverRisk);
+
+        DoubleValue driverRiskScoreNoOverloadTest(String driverRisk);
     }
 }

@@ -2,8 +2,12 @@ package org.openl.rules;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
+import org.junit.Assert;
 import org.junit.Ignore;
+import org.openl.rules.runtime.RulesEngineFactory;
 
 @Ignore("Auxiliary class")
 public class TestUtils {
@@ -47,13 +51,51 @@ public class TestUtils {
 
     }
 
-    public static void assertEx(Runnable closure, String... errorMessages) {
-        Exception ex = null;
+    public static void assertEx(String sourceFile, String... errorMessages) {
         try {
-            closure.run();
-        } catch (Exception e) {
-            ex = e;
+            RulesEngineFactory<Object> engineFactory = new RulesEngineFactory<>(sourceFile);
+            engineFactory.newEngineInstance();
+        } catch (Exception ex) {
+            assertEx(ex, errorMessages);
+            return;
         }
-        assertEx(ex, errorMessages);
+        Assert.fail();
+    }
+
+    public static <T> T create(String sourceFile, Class<T> tClass) {
+        RulesEngineFactory<T> engineFactory = new RulesEngineFactory<>(sourceFile, tClass);
+        return engineFactory.newEngineInstance();
+    }
+
+    public static <T> T create(String sourceFile) {
+        RulesEngineFactory<T> engineFactory = new RulesEngineFactory<>(sourceFile);
+        return engineFactory.newEngineInstance();
+    }
+
+    public static Object invoke(String sourceFile, String methodName, Object... args) {
+        Object instance = create(sourceFile);
+        return invoke(instance, methodName, args);
+    }
+
+    public static <T> T invoke(Object instance, String methodName, Class<?>[] types, Object[] args) {
+        try {
+            Method method = instance.getClass().getMethod(methodName, types);
+            return (T) method.invoke(instance, args);
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public static <T> T invoke(Object instance, String methodName, Object... args) {
+        Class<?>[] types;
+        if (args == null) {
+            types = null;
+        } else {
+            types = new Class[args.length];
+            for (int i = 0; i < args.length; i++) {
+                types[i] = args[i].getClass();
+            }
+        }
+        return invoke(instance, methodName, types, args);
     }
 }

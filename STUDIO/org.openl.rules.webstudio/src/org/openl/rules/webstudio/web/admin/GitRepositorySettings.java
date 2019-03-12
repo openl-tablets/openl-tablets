@@ -30,13 +30,13 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String BRANCH;
     private final String TAG_PREFIX;
     private final String LISTENER_TIMER_PERIOD;
+    private final RepositoryMode repositoryMode;
     private final String COMMENT_PATTERN;
     private final String SETTINGS_PATH;
 
-    public GitRepositorySettings(ConfigurationManager configManager,
-            String configPrefix,
-            RepositoryMode repositoryMode) {
+    GitRepositorySettings(ConfigurationManager configManager, String configPrefix, RepositoryMode repositoryMode) {
         super(configManager, configPrefix);
+        this.repositoryMode = repositoryMode;
 
         URI = configPrefix + "uri";
         LOGIN = configPrefix + "login";
@@ -50,20 +50,11 @@ public class GitRepositorySettings extends RepositorySettings {
         COMMENT_PATTERN = "comment-pattern";
         SETTINGS_PATH = "git-settings-path";
 
-        String type;
-        switch (repositoryMode) {
-            case DESIGN:
-                type = "design";
-                break;
-            case DEPLOY_CONFIG:
-                type = "deploy-config";
-                break;
-            case PRODUCTION:
-                type = "deployment";
-                break;
-            default:
-                throw new UnsupportedOperationException();
-        }
+        load(configManager);
+    }
+
+    private void load(ConfigurationManager configManager) {
+        String type = getTypePrefix(repositoryMode);
 
         String localPath = configManager.getStringProperty(LOCAL_REPOSITORY_PATH);
         String defaultLocalPath = localPath != null ?
@@ -195,6 +186,26 @@ public class GitRepositorySettings extends RepositorySettings {
         propertiesHolder.setProperty(LISTENER_TIMER_PERIOD, listenerTimerPeriod);
         propertiesHolder.setProperty(COMMENT_PATTERN, commentPattern);
         propertiesHolder.setProperty(SETTINGS_PATH, settingsPath);
+    }
+
+    @Override
+    protected void revert(ConfigurationManager configurationManager) {
+        super.revert(configurationManager);
+
+        configurationManager.removeProperties(
+                URI,
+                LOGIN,
+                PASSWORD,
+                USER_DISPLAY_NAME,
+                USER_EMAIL,
+                LOCAL_REPOSITORY_PATH,
+                BRANCH,
+                TAG_PREFIX,
+                LISTENER_TIMER_PERIOD,
+                COMMENT_PATTERN,
+                SETTINGS_PATH
+        );
+        load(configurationManager);
     }
 
     @Override

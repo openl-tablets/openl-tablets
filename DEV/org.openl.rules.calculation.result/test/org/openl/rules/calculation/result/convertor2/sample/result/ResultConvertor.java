@@ -24,11 +24,11 @@ import org.openl.rules.calculation.result.convertor2.SpreadsheetColumnExtractor;
 public class ResultConvertor {
 
     /** names of the columns that need to be extracted from SpreadsheetResults **/
-    public static final String CODE_COLUMN = "Code";
-    public static final String FORMULA_COLUMN = "Formula";
-    public static final String VALUE_COLUMN = "Value";
-    public static final String VALUE1_COLUMN = "Value1";
-    public static final String TEXT_COLUMN = "Text";
+    private static final String CODE_COLUMN = "Code";
+    private static final String FORMULA_COLUMN = "Formula";
+    private static final String VALUE_COLUMN = "Value";
+    private static final String VALUE1_COLUMN = "Value1";
+    private static final String TEXT_COLUMN = "Text";
 
     private NestedSpreadsheetResultConverter<SimpleStep, CompoundStep> converter;
 
@@ -39,7 +39,7 @@ public class ResultConvertor {
     private void init() {
     	// columns that should be extracted for all levels
     	//
-        List<ColumnToExtract> columnsToExtract = new ArrayList<ColumnToExtract>();
+        List<ColumnToExtract> columnsToExtract = new ArrayList<>();
         columnsToExtract.add(new ColumnToExtract(CODE_COLUMN, String.class));
         columnsToExtract.add(new ColumnToExtract(FORMULA_COLUMN, Double.class));
         columnsToExtract.add(new ColumnToExtract(VALUE_COLUMN, Double.class));
@@ -47,12 +47,11 @@ public class ResultConvertor {
         
         // add additional column for extraction on vehicle level
         //
-        List<ColumnToExtract> columnsOnVehicleLevel = new ArrayList<ColumnToExtract>();
-        columnsOnVehicleLevel.addAll(columnsToExtract);
+        List<ColumnToExtract> columnsOnVehicleLevel = new ArrayList<>(columnsToExtract);
         columnsOnVehicleLevel.add(new ColumnToExtract(VALUE1_COLUMN, SpreadsheetResult.class));
 
-        /** map of columns that should be extracted on each level of convertion **/
-        Map<Integer, List<ColumnToExtract>> columnsToExtractForLevels = new HashMap<Integer, List<ColumnToExtract>>();
+        /* map of columns that should be extracted on each level of convertion */
+        Map<Integer, List<ColumnToExtract>> columnsToExtractForLevels = new HashMap<>();
         columnsToExtractForLevels.put(1, columnsToExtract);
         columnsToExtractForLevels.put(2, columnsOnVehicleLevel);
         columnsToExtractForLevels.put(3, columnsToExtract);
@@ -77,7 +76,7 @@ public class ResultConvertor {
             }
         };
 
-        converter = new NestedSpreadsheetResultConverter<SimpleStep, CompoundStep>(1, configuration);
+        converter = new NestedSpreadsheetResultConverter<>(1, configuration);
     }
 
     public CompoundStep process(SpreadsheetResult spreadsheetResult) {

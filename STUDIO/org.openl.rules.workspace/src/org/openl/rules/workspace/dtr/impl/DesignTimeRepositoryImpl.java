@@ -38,6 +38,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private Repository deployConfigRepository;
     private String rulesLocation;
     private String deploymentConfigurationLocation;
+    private boolean projectsRefreshNeeded = true;
+
     /**
      * Project Cache
      */
@@ -85,8 +87,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 @Override
                 public void onRepositoryModified() {
                     synchronized (projects) {
-                        projects.clear();
-                        projectsVersions.clear();
+                        projectsRefreshNeeded = true;
                     }
                 }
             });
@@ -162,6 +163,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     public AProject getProject(String name) throws RepositoryException {
         AProject project;
         synchronized (projects) {
+            if (projectsRefreshNeeded) {
+                refreshProjects();
+            }
+
             if (!hasProject(name)) {
                 throw new RepositoryException("Cannot find project ''{0}''!", null, name);
             }
@@ -223,8 +228,25 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     public Collection<AProject> getProjects() {
-        List<AProject> result = new LinkedList<>();
+        List<AProject> result;
 
+        synchronized (projects) {
+            refreshProjects();
+
+            result = new ArrayList<>(projects.values());
+        }
+
+        Collections.sort(result, new Comparator<AProject>() {
+            @Override
+            public int compare(AProject o1, AProject o2) {
+                return o1.getName().compareToIgnoreCase(o2.getName());
+            }
+        });
+
+        return result;
+    }
+
+    private void refreshProjects() {
         Collection<FileData> fileDatas;
         Repository repository = getRepository();
         try {
@@ -238,17 +260,15 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             log.error(ex.getMessage(), ex);
             fileDatas = Collections.emptyList();
         }
-        synchronized (projects) {
-            projects.clear();
-            projectsVersions.clear();
-            for (FileData fileData : fileDatas) {
-                AProject project = new AProject(repository, fileData);
-                // get from the repository
-                result.add(project);
-                projects.put(project.getName(), project);
-            }
+        projects.clear();
+        projectsVersions.clear();
+        for (FileData fileData : fileDatas) {
+            AProject project = new AProject(repository, fileData);
+            // get from the repository
+            projects.put(project.getName(), project);
         }
-        return result;
+
+        projectsRefreshNeeded = false;
     }
 
     public boolean hasDDProject(String name) {
@@ -261,6 +281,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     public boolean hasProject(String name) {
         synchronized (projects) {
+            if (projectsRefreshNeeded) {
+                refreshProjects();
+            }
             return projects.containsKey(name);
         }
     }

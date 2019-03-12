@@ -3,11 +3,9 @@ package org.openl.rules.binding;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.rules.TestHelper;
+import org.openl.rules.TestUtils;
 
 public class MultiCallMethodTest {
 
@@ -15,31 +13,9 @@ public class MultiCallMethodTest {
 
     private static ArrayMethodsInterf instance;
 
-    public interface ArrayMethodsInterf {
-        int start();
-
-        int[] start1();
-
-        int intTest(int a);
-
-        int[] intArrayTest(int[] b);
-
-        String[] personsNames();
-
-        String[] personNamesFromArray();
-
-        int[] test2MethodCalls();
-
-        void TBasicCall();
-    }
-
     @BeforeClass
     public static void init() {
-        File xlsFile = new File(SRC);
-        TestHelper<ArrayMethodsInterf> testHelper;
-        testHelper = new TestHelper<ArrayMethodsInterf>(xlsFile, ArrayMethodsInterf.class);
-
-        instance = testHelper.getInstance();
+        instance = TestUtils.create(SRC, ArrayMethodsInterf.class);
     }
 
     @Test
@@ -85,6 +61,24 @@ public class MultiCallMethodTest {
     @Test
     public void testVoidCallFromTBasic() {
         instance.TBasicCall();
+    }
+
+    public interface ArrayMethodsInterf {
+        int start();
+
+        int[] start1();
+
+        int intTest(int a);
+
+        int[] intArrayTest(int[] b);
+
+        String[] personsNames();
+
+        String[] personNamesFromArray();
+
+        int[] test2MethodCalls();
+
+        void TBasicCall();
     }
 
 }

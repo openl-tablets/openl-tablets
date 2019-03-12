@@ -2,30 +2,13 @@ package org.openl.rules.calc;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.TestUtils;
 
-public class TestAutoType1 {
-
-    private static String csr;
-
-    @BeforeClass
-    public static void before() {
-        csr = System.getProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, "");
-        System.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, "false");
-    }
-
-    @AfterClass
-    public static void after() {
-        System.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, csr);
-    }
-
+public class TestAutoType0 {
     @Test
     public void test1() {
-        ITestCalc test = TestUtils.create("test/rules/calc/autotype/autotype-1.xls", ITestCalc.class);
+        ITestCalc test = TestUtils.create("test/rules/calc/autotype/autotype-0.xls", ITestCalc.class);
         SpreadsheetResult result = test.calc3();
 
         assertEquals(4, result.getHeight());
@@ -58,8 +41,8 @@ public class TestAutoType1 {
 
         assertEquals("G", result.getValue(3, 0));
         assertEquals("H", result.getValue(3, 1));
-        assertEquals(17, result.getValue(3, 2));
-        assertEquals(41, result.getValue(3, 3));
+        assertEquals(17.0, result.getValue(3, 2));
+        assertEquals(41.0, result.getValue(3, 3));
 
     }
 
