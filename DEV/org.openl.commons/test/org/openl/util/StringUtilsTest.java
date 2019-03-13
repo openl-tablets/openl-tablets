@@ -245,4 +245,17 @@ public class StringUtilsTest {
         assertEquals("Returned string is not valid", "муУ", StringUtils.uncapitalize("МуУ"));
     }
 
+    @Test
+    public void testPrint() {
+        assertEquals("", StringUtils.print(null, new StringBuilder(10)).toString());
+        assertEquals("", StringUtils.print("", new StringBuilder(10)).toString());
+        assertEquals("1", StringUtils.print(1, new StringBuilder(10)).toString());
+        assertEquals("2.2", StringUtils.print(2.2, new StringBuilder(10)).toString());
+        assertEquals("NaN", StringUtils.print(Float.NaN, new StringBuilder(10)).toString());
+        assertEquals("[]", StringUtils.print(new int[0], new StringBuilder(10)).toString());
+        assertEquals("[c]", StringUtils.print(new char[] {'c'}, new StringBuilder(10)).toString());
+        assertEquals("[3.0, 5.5]", StringUtils.print(new double[] {3, 5.5}, new StringBuilder(10)).toString());
+        assertEquals("[3, null]", StringUtils.print(new Integer[] {3, null}, new StringBuilder(10)).toString());
+        assertEquals("[null]", StringUtils.print(new Object[1], new StringBuilder(10)).toString());
+    }
 }

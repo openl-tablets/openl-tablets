@@ -1,5 +1,7 @@
 package org.openl.util;
 
+import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -647,8 +649,40 @@ public class StringUtils {
     }
 
     /**
-     * Defines a functor interface implemented by classes that perform a
-     * predicate test on a character.
+     * Print an Object to a printer.
+     * 
+     * @param ary array or Object
+     * @param printer an appendable implementation
+     * @return the same printer instance
+     */
+    public static Appendable print(Object ary, Appendable printer) {
+        if (ary == null) {
+            return printer;
+        }
+        try {
+            if (ary.getClass().isArray()) {
+                int len = Array.getLength(ary);
+
+                printer.append('[');
+
+                for (int i = 0; i < len; i++) {
+                    printer.append(String.valueOf(Array.get(ary, i)));
+                    if (i < len - 1) {
+                        printer.append(", ");
+                    }
+                }
+                printer.append(']');
+            } else {
+                printer.append(String.valueOf(ary));
+            }
+        } catch (IOException ex) {
+            // Ignore
+        }
+        return printer;
+    }
+
+    /**
+     * Defines a functor interface implemented by classes that perform a predicate test on a character.
      * <p>
      * A <code>Predicate</code> is the object equivalent of an <code>if</code>
      * statement. It uses the input object to return a true or false value, and
