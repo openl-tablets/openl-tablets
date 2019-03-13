@@ -1,0 +1,2 @@
+org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy
+org.openl.rules.project.resolving.SimpleXlsResolvingStrategy
