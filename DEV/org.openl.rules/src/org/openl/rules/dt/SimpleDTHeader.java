@@ -28,6 +28,11 @@ class SimpleDTHeader extends DTHeader {
     boolean isCondition() {
         return true;
     }
+    
+    @Override
+    boolean isAction() {
+        return false;
+    }
 
     @Override
     boolean isReturn() {

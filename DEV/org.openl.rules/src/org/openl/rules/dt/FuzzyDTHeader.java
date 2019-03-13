@@ -43,6 +43,11 @@ class FuzzyDTHeader extends DTHeader {
     }
     
     @Override
+    boolean isAction() {
+        return false;
+    }
+    
+    @Override
     int getMethodParameterIndex() {
         if (compoundReturn) {
             throw new IllegalStateException();

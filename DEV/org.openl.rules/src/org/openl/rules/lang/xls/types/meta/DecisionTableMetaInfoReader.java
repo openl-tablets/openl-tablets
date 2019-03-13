@@ -42,7 +42,12 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     /**
      * Map for condition cells in header to parameter index
      */
-    private final Map<CellKey, ConditionDescription> simpleRulesConditionMap = new HashMap<>();
+    private final Map<CellKey, HeaderMetaInfo> simpleRulesConditionMap = new HashMap<>();
+
+    /**
+     * Map for action cells in header to parameter index
+     */
+    private final Map<CellKey, HeaderMetaInfo> simpleRulesActionMap = new HashMap<>();
 
     /**
      * Map for compound return column descriptions in SimpleRules header
@@ -136,49 +141,86 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             return sb.toString();
         }
     }
+    
+    private void setMetaInfo(CellKey key, HeaderMetaInfo headerMetaInfo, IGridRegion region, Function<HeaderMetaInfo, String> headerToString) {
+ 
+        int row = key.getRow();
+        int col = key.getColumn();
+        if (!IGridRegion.Tool.contains(region, col, row)) {
+            return;
+        }
+
+        // SimpleRules or SimpleLookup
+        IGrid grid = getTableSyntaxNode().getGridTable().getGrid();
+        String cellValue = grid.getCell(col, row).getStringValue();
+        if (StringUtils.isBlank(cellValue)) {
+            return;
+        }
+        
+        String text = headerToString.apply(headerMetaInfo);
+        SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
+                cellValue.length() - 1,
+                text,
+                null,
+                NodeType.OTHER);
+        setPreparedMetaInfo(row,
+                col,
+                new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(simpleNodeUsage)));
+    }
+
+    private String buildStringForCondition(HeaderMetaInfo headerMetaInfo) {
+        String[] parameterNames = headerMetaInfo.getParameterNames();
+        String headerName = headerMetaInfo.getConditionName();
+        String statement = headerMetaInfo.getConditionStatement();
+        IOpenClass[] columnTypes = headerMetaInfo.getColumnTypes();
+        
+        String value;
+        String valueForColumnTypes = toString(columnTypes, e -> e.getDisplayName(INamedThing.SHORT));
+        if (parameterNames != null && parameterNames.length > 0 && headerName != null && statement != null) {
+            if (parameterNames.length > 1) {
+                String textForParameterNames = toString(parameterNames, e -> e);
+                value = String.format("Parameters %s of condition %s with expression %s: %s", textForParameterNames, headerName, statement, valueForColumnTypes);
+            }else {
+                value = String.format("Parameter %s of condition %s with expression %s: %s", parameterNames[0], headerName, statement, valueForColumnTypes);
+            }
+        } else if (headerName != null && statement != null) {
+            value = String.format("Condition %s with expression %s: %s", headerName, statement, valueForColumnTypes);
+        } else {
+            value = String.format("Condition for %s: %s", statement, valueForColumnTypes);
+        }
+        return value;
+    }
+
+    private String buildStringForAction(HeaderMetaInfo headerMetaInfo) {
+        String[] parameterNames = headerMetaInfo.getParameterNames();
+        String headerName = headerMetaInfo.getConditionName();
+        String statement = headerMetaInfo.getConditionStatement();
+        IOpenClass[] columnTypes = headerMetaInfo.getColumnTypes();
+        
+        String value;
+        String valueForColumnTypes = toString(columnTypes, e -> e.getDisplayName(INamedThing.SHORT));
+        if (parameterNames != null && parameterNames.length > 0 && headerName != null && statement != null) {
+            if (parameterNames.length > 1) {
+                String textForParameterNames = toString(parameterNames, e -> e);
+                value = String.format("Parameters %s of action %s with expression %s: %s", textForParameterNames, headerName, statement, valueForColumnTypes);
+            }else {
+                value = String.format("Parameter %s of action %s with expression %s: %s", parameterNames[0], headerName, statement, valueForColumnTypes);
+            }
+        } else if (headerName != null && statement != null) {
+            value = String.format("Action %s with expression %s: %s", headerName, statement, valueForColumnTypes);
+        } else {
+            value = String.format("Action for %s: %s", statement, valueForColumnTypes);
+        }
+        return value;
+    }
+
 
     private void saveSimpleRulesMetaInfo(DecisionTable decisionTable, IGridRegion region) {
-        for (Map.Entry<CellKey, ConditionDescription> entry : simpleRulesConditionMap.entrySet()) {
-            String[] parameterNames = entry.getValue().getParameterNames();
-            String conditionName = entry.getValue().getConditionName();
-            String conditionStatement = entry.getValue().getConditionStatement();
-            IOpenClass[] columnTypes = entry.getValue().getColumnTypes();
-            CellKey key = entry.getKey();
-            int row = key.getRow();
-            int col = key.getColumn();
-            if (!IGridRegion.Tool.contains(region, col, row)) {
-                continue;
-            }
-
-            // SimpleRules or SimpleLookup
-            IGrid grid = getTableSyntaxNode().getGridTable().getGrid();
-            String cellValue = grid.getCell(col, row).getStringValue();
-            if (StringUtils.isBlank(cellValue)) {
-                continue;
-            }
-            
-            String text;
-            String textForColumnTypes = toString(columnTypes, e -> e.getDisplayName(INamedThing.SHORT));
-            if (parameterNames != null && parameterNames.length > 0 && conditionName != null && conditionStatement != null) {
-                if (parameterNames.length > 1) {
-                    String textForParameterNames = toString(parameterNames, e -> e);
-                    text = String.format("Parameters %s of condition %s with expression %s: %s", textForParameterNames, conditionName, conditionStatement, textForColumnTypes);
-                }else {
-                    text = String.format("Parameter %s of condition %s with expression %s: %s", parameterNames[0], conditionName, conditionStatement, textForColumnTypes);
-                }
-            } else if (conditionName != null && conditionStatement != null) {
-                text = String.format("Condition %s with expression %s: %s", conditionName, conditionStatement, textForColumnTypes);
-            } else {
-                text = String.format("Condition for %s: %s", conditionStatement, textForColumnTypes);
-            }
-            SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
-                    cellValue.length() - 1,
-                    text,
-                    null,
-                    NodeType.OTHER);
-            setPreparedMetaInfo(row,
-                    col,
-                    new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(simpleNodeUsage)));
+        for (Map.Entry<CellKey, HeaderMetaInfo> entry : simpleRulesConditionMap.entrySet()) {
+            setMetaInfo(entry.getKey(), entry.getValue(), region, this::buildStringForCondition);
+        }
+        for (Map.Entry<CellKey, HeaderMetaInfo> entry : simpleRulesActionMap.entrySet()) {
+            setMetaInfo(entry.getKey(), entry.getValue(), region, this::buildStringForAction);
         }
     }
 
@@ -210,8 +252,12 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
     }
 
-    public void addSimpleRulesCondition(int row, int col, String conditionNames, String[] parameterNames, String conditionStatement, IOpenClass[] columnTypes) {
-        simpleRulesConditionMap.put(CellKey.CellKeyFactory.getCellKey(col, row), new ConditionDescription(conditionNames, parameterNames, conditionStatement, columnTypes));
+    public void addSimpleRulesCondition(int row, int col, String conditionName, String[] parameterNames, String conditionStatement, IOpenClass[] columnTypes) {
+        simpleRulesConditionMap.put(CellKey.CellKeyFactory.getCellKey(col, row), new HeaderMetaInfo(conditionName, parameterNames, conditionStatement, columnTypes));
+    }
+
+    public void addSimpleRulesAction(int row, int col, String actionName, String[] parameterNames, String conditionStatement, IOpenClass[] columnTypes) {
+        simpleRulesActionMap.put(CellKey.CellKeyFactory.getCellKey(col, row), new HeaderMetaInfo(actionName, parameterNames, conditionStatement, columnTypes));
     }
 
     public void addSimpleRulesReturn(int row, int col, String description) {
@@ -365,25 +411,25 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         setPreparedMetaInfo(row, col, metaInfo);
     }
     
-    private static class ConditionDescription {
-        String conditionName;
+    private static class HeaderMetaInfo {
+        String headerName;
         String[] parameterNames;
-        String conditionStatement;
+        String statement;
         IOpenClass[] columnTypes;
 
-        public ConditionDescription(String conditionName,
+        public HeaderMetaInfo(String headerName,
                 String[] parameterNames,
                 String conditionStatement,
                 IOpenClass[] columnTypes) {
             super();
-            this.conditionName = conditionName;
+            this.headerName = headerName;
             this.parameterNames = parameterNames;
-            this.conditionStatement = conditionStatement;
+            this.statement = conditionStatement;
             this.columnTypes = columnTypes;
         }
 
         public String getConditionName() {
-            return conditionName;
+            return headerName;
         }
 
         public String[] getParameterNames() {
@@ -391,7 +437,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
 
         public String getConditionStatement() {
-            return conditionStatement;
+            return statement;
         }
 
         public IOpenClass[] getColumnTypes() {
