@@ -517,7 +517,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void testBranches() throws IOException {
+    public void testBranches() throws IOException, RRepositoryException {
         repo.createBranch("project1", "project1/test1");
         repo.createBranch("project1", "project1/test2");
         List<String> branches = repo.getBranches("project1");
@@ -540,6 +540,25 @@ public class GitRepositoryTest {
         assertTrue(branches.contains("test"));
         assertFalse(branches.contains("project1/test1"));
         assertTrue(branches.contains("project1/test2"));
+
+        // Test that forBranch() fetches new branch if it wasn't cloned before
+        File remote = new File(root, "remote");
+        File temp = new File(root, "temp");
+        try (GitRepository repository = createRepository(remote, temp, Constants.MASTER)) {
+            GitRepository branchRepo = repository.forBranch("project1/test2");
+            assertNotNull(branchRepo.check("rules/project1/file1"));
+        }
+    }
+
+    @Test
+    public void pathToRepoInsteadOfUri() throws RRepositoryException {
+        File local = new File(root, "local");
+        // Will use this path instead of uri. Git accepts that.
+        String remote = new File(root, "remote").getAbsolutePath();
+
+        assertNotNull(createRepository(remote, local, BRANCH));
+        assertNotNull(createRepository(remote + "/", local, BRANCH));
+        assertNotNull(createRepository(new File(remote).toURI().toString(), local, BRANCH));
     }
 
     private GitRepository createRepository(File remote, File local) throws RRepositoryException {
@@ -547,8 +566,12 @@ public class GitRepositoryTest {
     }
 
     private GitRepository createRepository(File remote, File local, String branch) throws RRepositoryException {
+        return createRepository(remote.toURI().toString(), local, branch);
+    }
+
+    private GitRepository createRepository(String remoteUri, File local, String branch) throws RRepositoryException {
         GitRepository repo = new GitRepository();
-        repo.setUri(remote.toURI().toString());
+        repo.setUri(remoteUri);
         repo.setLocalRepositoryPath(local.getAbsolutePath());
         repo.setBranch(branch);
         repo.setTagPrefix(TAG_PREFIX);

@@ -81,8 +81,17 @@ public class TestUtils {
         try {
             Method method = instance.getClass().getMethod(methodName, types);
             return (T) method.invoke(instance, args);
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (IllegalAccessException | NoSuchMethodException e) {
             throw new IllegalStateException(e);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            RuntimeException exc;
+            if (targetException instanceof RuntimeException) {
+                exc = (RuntimeException) targetException;
+            } else {
+                exc = new IllegalStateException(targetException);
+            }
+            throw exc;
         }
     }
 

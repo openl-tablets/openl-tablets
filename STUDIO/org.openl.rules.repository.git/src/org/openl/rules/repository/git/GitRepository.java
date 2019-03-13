@@ -2,6 +2,7 @@ package org.openl.rules.repository.git;
 
 import java.io.*;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.*;
@@ -356,8 +357,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                     .getString(ConfigConstants.CONFIG_REMOTE_SECTION,
                                             Constants.DEFAULT_REMOTE_NAME,
                                             ConfigConstants.CONFIG_KEY_URL);
-                            if (!new URI(uri).equals(new URI(remoteUrl))) {
-                                throw new IOException("Folder '" + local + "' already contains local git repository but is configured for different URI (" + remoteUrl + ").\nDelete it or choose another local path or set correct URL for repository.");
+                            if (!uri.equals(remoteUrl)) {
+                                URI proposedUri = getUri(uri);
+                                URI savedUri = getUri(remoteUrl);
+                                if (!proposedUri.equals(savedUri)) {
+                                    throw new IOException("Folder '" + local + "' already contains local git repository but is configured for different URI (" + remoteUrl + ").\nDelete it or choose another local path or set correct URL for repository.");
+                                }
                             }
                         }
                         shouldClone = false;
@@ -399,8 +404,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 }
                 fetchCommand.call();
 
-                boolean branchExists = git.getRepository().findRef(branch) != null;
-                if (!branchExists) {
+                boolean branchAbsents = git.getRepository().findRef(branch) == null;
+                if (branchAbsents) {
                     git.branchCreate()
                             .setName(branch)
                             .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
@@ -859,6 +864,16 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
                 repository = branchRepos.get(branch);
                 if (repository == null) {
+                    boolean branchAbsents = git.getRepository().findRef(branch) == null;
+                    if (branchAbsents) {
+                        FetchCommand fetchCommand = git.fetch();
+                        if (StringUtils.isNotBlank(login)) {
+                            fetchCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
+                        }
+                        fetchCommand.setRefSpecs(new RefSpec().setSource(Constants.R_HEADS + branch).setDestination(Constants.R_HEADS + branch));
+                        fetchCommand.call();
+                    }
+
                     repository = new GitRepository();
 
                     repository.setUri(uri);
@@ -880,6 +895,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
                     branchRepos.put(branch, repository);
                 }
+            } catch (Exception e) {
+                throw new IOException(e);
             } finally {
                 writeLock.unlock();
             }
@@ -975,6 +992,15 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         File parentFile = file.getParentFile();
         if (!parentFile.mkdirs() && !parentFile.exists()) {
             throw new FileNotFoundException("Can't create the folder " + parentFile.getAbsolutePath());
+        }
+    }
+
+    private URI getUri(String uriOrPath) {
+        try {
+            return new URI(uriOrPath);
+        } catch (URISyntaxException e) {
+            // uri can be a folder path. It's not valid URI but git accepts paths too.
+            return new File(uriOrPath).toURI();
         }
     }
 

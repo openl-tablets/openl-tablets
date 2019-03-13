@@ -4,8 +4,6 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-	<import resource="classpath:project-resolver-beans.xml"/>
-
 	<!-- Folder filter bean -->
 	<bean id="localWorkspaceFolderFilter" class="org.apache.commons.io.filefilter.AndFileFilter">
 		<constructor-arg>
@@ -79,4 +77,6 @@
 		<constructor-arg name="storage"
 			ref="localTemporaryDeploymentsStorage" />
 	</bean>
+
+	<bean id="projectResolver" class="org.openl.rules.project.resolving.ProjectResolver" factory-method="instance"/>
 </beans>
