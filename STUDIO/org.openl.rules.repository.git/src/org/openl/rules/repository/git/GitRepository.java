@@ -404,8 +404,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 }
                 fetchCommand.call();
 
-                boolean branchExists = git.getRepository().findRef(branch) != null;
-                if (!branchExists) {
+                boolean branchAbsents = git.getRepository().findRef(branch) == null;
+                if (branchAbsents) {
                     git.branchCreate()
                             .setName(branch)
                             .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
@@ -864,6 +864,16 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
                 repository = branchRepos.get(branch);
                 if (repository == null) {
+                    boolean branchAbsents = git.getRepository().findRef(branch) == null;
+                    if (branchAbsents) {
+                        FetchCommand fetchCommand = git.fetch();
+                        if (StringUtils.isNotBlank(login)) {
+                            fetchCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider(login, password));
+                        }
+                        fetchCommand.setRefSpecs(new RefSpec().setSource(Constants.R_HEADS + branch).setDestination(Constants.R_HEADS + branch));
+                        fetchCommand.call();
+                    }
+
                     repository = new GitRepository();
 
                     repository.setUri(uri);
@@ -885,6 +895,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
                     branchRepos.put(branch, repository);
                 }
+            } catch (Exception e) {
+                throw new IOException(e);
             } finally {
                 writeLock.unlock();
             }
