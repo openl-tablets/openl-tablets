@@ -19,6 +19,8 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RuleRowHelper;
+import org.openl.rules.fuzzy.OpenLFuzzySearch;
+import org.openl.rules.fuzzy.Token;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -262,20 +264,21 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                         if (j1 <= j) {
                             IGridTable tCodeTable = tableBody1.getSource()
                                 .getSubtable(tableStructure1[headerIndexes1[TITLE_INDEX]], z + j, 1, 1);
-                            title = tCodeTable.getCell(0, 0).getStringValue();
-                            if (StringUtils.isEmpty(title)) {
+                            String title1 = tCodeTable.getCell(0, 0).getStringValue();
+                            if (StringUtils.isEmpty(title1)) {
                                 GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(
                                     tCodeTable,
                                     cxt);
                                 throw SyntaxNodeExceptionUtils.createError("Title can't be empty.",
                                     tGridCellSourceCodeModule);
                             }
+                            title = OpenLFuzzySearch.toTokenString(title1);
                             if (uniqueSetOfTitles.contains(title)) {
                                 GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(
                                     tCodeTable,
                                     cxt);
                                 throw SyntaxNodeExceptionUtils.createError(
-                                    "Title '" + title + "' has already been defined.",
+                                    "Title '" + title1 + "' has already been defined.",
                                     tGridCellSourceCodeModule);
                             }
                             uniqueSetOfTitles.add(title);

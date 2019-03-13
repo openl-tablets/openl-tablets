@@ -725,7 +725,7 @@ public class DecisionTableHelper {
             }
         }
     }
-
+    
     private static boolean writeReturnWithReturnDtHeader(TableSyntaxNode tableSyntaxNode,
             IWritableGrid grid,
             ILogicalTable originalTable,
@@ -738,6 +738,7 @@ public class DecisionTableHelper {
         while (c < originalTable.getSource().getWidth()) {
             ICell cell = originalTable.getSource().getCell(c, 0);
             String d = cell.getStringValue();
+            d = OpenLFuzzySearch.toTokenString(d);
             for (String title : dtColumnsDefinition.getTitles()) {
                 if (Objects.equals(d, title)) {
                     List<IParameterDeclaration> localParameters = dtColumnsDefinition.getLocalParameters(title);
@@ -1236,7 +1237,10 @@ public class DecisionTableHelper {
         }
     }
 
-    private static void parseRec(ISyntaxNode node, MutableBoolean chain, boolean inChain, List<IdentifierNode> identifierNodes) {
+    private static void parseRec(ISyntaxNode node,
+            MutableBoolean chain,
+            boolean inChain,
+            List<IdentifierNode> identifierNodes) {
         for (int i = 0; i < node.getNumberOfChildren(); i++) {
             if (node.getChild(i) instanceof IdentifierNode) {
                 if ("identifier".equals(node.getChild(i).getType())) {
@@ -1295,7 +1299,10 @@ public class DecisionTableHelper {
         }
 
         List<IdentifierNode> identifierNodes = new ArrayList<>();
-        parseRec(definition.getCompositeMethod().getMethodBodyBoundNode().getSyntaxNode(), new MutableBoolean(false), false, identifierNodes);
+        parseRec(definition.getCompositeMethod().getMethodBodyBoundNode().getSyntaxNode(),
+            new MutableBoolean(false),
+            false,
+            identifierNodes);
         Set<String> methodParametersUsedInExpression = new HashSet<>();
 
         Map<String, IParameterDeclaration> localParameters = new HashMap<>();
@@ -1911,6 +1918,7 @@ public class DecisionTableHelper {
         for (DTColumnsDefinition definition : definitions.getDtColumnsDefinitions()) {
             Set<String> titles = new HashSet<>(definition.getTitles());
             String title = originalTable.getCell(column, 0).getStringValue();
+            title = OpenLFuzzySearch.toTokenString(title);
             int numberOfColumnsUnderTitle = numberOfColumnsUnderTitleCounter.get(column);
             int x = column;
             IParameterDeclaration[][] columnParameters = new IParameterDeclaration[definition.getNumberOfTitles()][];
@@ -1927,6 +1935,7 @@ public class DecisionTableHelper {
                 }
                 x = x + 1;
                 title = originalTable.getCell(x, 0).getStringValue();
+                title = OpenLFuzzySearch.toTokenString(title);
                 numberOfColumnsUnderTitle = numberOfColumnsUnderTitleCounter.get(x);
             }
             if (titles.isEmpty()) {
