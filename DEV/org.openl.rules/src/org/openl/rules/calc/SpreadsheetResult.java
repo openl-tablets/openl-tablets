@@ -227,7 +227,8 @@ public class SpreadsheetResult implements Serializable {
         if (value == null) {
             return "";
         }
-        if (Object.class.isAssignableFrom(value.getClass().getComponentType())) {
+        Class<?> componentType = value.getClass().getComponentType();
+        if (componentType!= null && Object.class.isAssignableFrom(componentType)) {
             return Arrays.toString((Object[]) value);
         }
         return String.valueOf(value);
