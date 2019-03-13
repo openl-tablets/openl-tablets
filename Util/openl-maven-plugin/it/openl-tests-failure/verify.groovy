@@ -24,9 +24,9 @@ try {
     assert lines.any { it.contains('Spreadsheets.calcTest#3 field $Value$Increment.$Value$IncA expected: <6> but was <4>') }
 
     // Check GreetingTest 
-    assert lines.any { it.contains('Tests run: 5, Failures: 2, Errors: 0. Time elapsed: < 0.001 sec. <<< FAILURE!') }
-    assert lines.any { it.contains('  Test case: #3. Time elapsed: < 0.001 sec. <<< FAILURE!') }
-    assert lines.any { it.contains('  Test case: #5. Time elapsed: < 0.001 sec. <<< FAILURE!') }
+    assert lines.any { it =~ /Tests run: 5, Failures: 2, Errors: 0. Time elapsed: (< )?0.00\d sec. <<< FAILURE!/ }
+    assert lines.any { it =~ /  Test case: #3. Time elapsed: (< )?0.00\d sec. <<< FAILURE!/ }
+    assert lines.any { it =~ /  Test case: #5. Time elapsed: (< )?0.00\d sec. <<< FAILURE!/ }
 
     assert lines.any { it =~ /Tests run: 4, Failures: 2, Errors: 1. Time elapsed: (< )?0.00\d sec. <<< FAILURE!/ }
     assert lines.any { it =~ /  Test case: #1. Time elapsed: (< )?0.00\d sec. <<< FAILURE!/ }
