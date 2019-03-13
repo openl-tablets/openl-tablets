@@ -1,350 +1,149 @@
 package org.openl.rules.dt.algorithm;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.types.java.JavaOpenClass;
+import org.openl.rules.TestUtils;
 
-public class OptimizedDTRangeConditionsTest extends BaseOpenlBuilderHelper {
-	
-	public static final String SRC = "test/rules/dt/algorithm/OptimizedDTRangeConditions.xls";
-	
-	public OptimizedDTRangeConditionsTest() {
-		super(SRC);
-	}
-	
-	@Test
-	public void testIntRangeClosed() {		
-		IOpenMethod method = getMethod("intRangeClosed", new IOpenClass[]{JavaOpenClass.getOpenClass(Integer.class)});
-		String res0 = (String)invokeMethod(method, new Object[]{Integer.valueOf(0)});
-		assertNull(res0);
-		
-		String res1 = (String)invokeMethod(method, new Object[]{Integer.valueOf(1)});
-		assertEquals("rule1", res1);
-		
-		String res2 = (String)invokeMethod(method, new Object[]{Integer.valueOf(10)});
-		assertEquals("rule1", res2);
-		
-		String res3 = (String)invokeMethod(method, new Object[]{Integer.valueOf(12)});
-		assertEquals("rule1", res3);
-		
-		String res4 = (String)invokeMethod(method, new Object[]{Integer.valueOf(14)});
-		assertNull(res4);
-		
-		String res5 = (String)invokeMethod(method, new Object[]{Integer.valueOf(16)});
-		assertEquals("rule2", res5);
-		
-		String res6 = (String)invokeMethod(method, new Object[]{Integer.valueOf(18)});
-		assertEquals("rule2", res6);
-		
-		String res7 = (String)invokeMethod(method, new Object[]{Integer.valueOf(19)});
-		assertNull(res7);
-		
-		String res8 = (String)invokeMethod(method, new Object[]{Integer.valueOf(21)});
-		assertEquals("rule3", res8);
-		
-		String res9 = (String)invokeMethod(method, new Object[]{Integer.valueOf(26)});
-		assertEquals("rule3", res9);
-		
-		String res10 = (String)invokeMethod(method, new Object[]{Integer.valueOf(27)});
-		assertNull(res10);
-	}
-	
-	@Test
-	public void testIntRangeLeftOpened() {		
-		IOpenMethod method = getMethod("intRangeLeftOpened", new IOpenClass[]{JavaOpenClass.getOpenClass(Integer.class)});
-		String res0 = (String)invokeMethod(method, new Object[]{Integer.valueOf(0)});
-		assertNull(res0);
-		
-		String res1 = (String)invokeMethod(method, new Object[]{Integer.valueOf(1)});
-		assertNull(res1);
-		
-		String res1_1 = (String)invokeMethod(method, new Object[]{Integer.valueOf(2)});
-		assertEquals("rule1", res1_1);
-		
-		String res2 = (String)invokeMethod(method, new Object[]{Integer.valueOf(10)});
-		assertEquals("rule1", res2);
-		
-		String res3 = (String)invokeMethod(method, new Object[]{Integer.valueOf(12)});
-		assertEquals("rule1", res3);
-		
-		String res4 = (String)invokeMethod(method, new Object[]{Integer.valueOf(14)});
-		assertNull(res4);
-		
-		String res5 = (String)invokeMethod(method, new Object[]{Integer.valueOf(16)});
-		assertNull(res5);
-		
-		String res5_1 = (String)invokeMethod(method, new Object[]{Integer.valueOf(17)});
-		assertEquals("rule2", res5_1);
-		
-		String res6 = (String)invokeMethod(method, new Object[]{Integer.valueOf(18)});
-		assertEquals("rule2", res6);
-		
-		String res7 = (String)invokeMethod(method, new Object[]{Integer.valueOf(19)});
-		assertNull(res7);
-		
-		String res8 = (String)invokeMethod(method, new Object[]{Integer.valueOf(21)});
-		assertNull(res8);
-		
-		String res8_1 = (String)invokeMethod(method, new Object[]{Integer.valueOf(22)});
-		assertEquals("rule3", res8_1);
-		
-		String res9 = (String)invokeMethod(method, new Object[]{Integer.valueOf(26)});
-		assertEquals("rule3", res9);
-		
-		String res10 = (String)invokeMethod(method, new Object[]{Integer.valueOf(27)});
-		assertNull(res10);
-	}
-	
-	@Test
-	public void testIntRangeRightOpened() {		
-		IOpenMethod method = getMethod("intRangeRightOpened", new IOpenClass[]{JavaOpenClass.getOpenClass(Integer.class)});
-		String res0 = (String)invokeMethod(method, new Object[]{Integer.valueOf(0)});
-		assertNull(res0);
-		
-		String res1 = (String)invokeMethod(method, new Object[]{Integer.valueOf(1)});
-		assertEquals("rule1", res1);
-		
-		String res2 = (String)invokeMethod(method, new Object[]{Integer.valueOf(10)});
-		assertEquals("rule1", res2);
-		
-		String res3 = (String)invokeMethod(method, new Object[]{Integer.valueOf(12)});
-		assertNull(res3);
-		
-		String res4 = (String)invokeMethod(method, new Object[]{Integer.valueOf(14)});
-		assertNull(res4);
-		
-		String res5 = (String)invokeMethod(method, new Object[]{Integer.valueOf(16)});
-		assertEquals("rule2", res5);
-		
-		String res5_1 = (String)invokeMethod(method, new Object[]{Integer.valueOf(17)});
-		assertEquals("rule2", res5_1);
-		
-		String res6 = (String)invokeMethod(method, new Object[]{Integer.valueOf(18)});
-		assertNull(res6);
-		
-		String res7 = (String)invokeMethod(method, new Object[]{Integer.valueOf(19)});
-		assertNull(res7);
-		
-		String res8 = (String)invokeMethod(method, new Object[]{Integer.valueOf(21)});
-		assertEquals("rule3", res8);
-		
-		String res8_1 = (String)invokeMethod(method, new Object[]{Integer.valueOf(25)});
-		assertEquals("rule3", res8_1);
-		
-		String res9 = (String)invokeMethod(method, new Object[]{Integer.valueOf(26)});
-		assertNull(res9);
-		
-		String res10 = (String)invokeMethod(method, new Object[]{Integer.valueOf(27)});
-		assertNull(res10);
-	}
-	
-	@Test
-	public void testIntRangeOpened() {		
-		IOpenMethod method = getMethod("intRangeOpened", new IOpenClass[]{JavaOpenClass.getOpenClass(Integer.class)});
-		String res0 = (String)invokeMethod(method, new Object[]{Integer.valueOf(0)});
-		assertNull(res0);
-		
-		String res1 = (String)invokeMethod(method, new Object[]{Integer.valueOf(1)});
-		assertNull(res1);
-		
-		String res2 = (String)invokeMethod(method, new Object[]{Integer.valueOf(10)});
-		assertEquals("rule1", res2);
-		
-		String res3 = (String)invokeMethod(method, new Object[]{Integer.valueOf(12)});
-		assertNull(res3);
-		
-		String res4 = (String)invokeMethod(method, new Object[]{Integer.valueOf(14)});
-		assertNull(res4);
-		
-		String res5 = (String)invokeMethod(method, new Object[]{Integer.valueOf(16)});
-		assertNull(res5);
-		
-		String res5_1 = (String)invokeMethod(method, new Object[]{Integer.valueOf(17)});
-		assertEquals("rule2", res5_1);
-		
-		String res6 = (String)invokeMethod(method, new Object[]{Integer.valueOf(18)});
-		assertNull(res6);
-		
-		String res7 = (String)invokeMethod(method, new Object[]{Integer.valueOf(19)});
-		assertNull(res7);
-		
-		String res8 = (String)invokeMethod(method, new Object[]{Integer.valueOf(21)});
-		assertNull(res8);
-		
-		String res8_1 = (String)invokeMethod(method, new Object[]{Integer.valueOf(25)});
-		assertEquals("rule3", res8_1);
-		
-		String res9 = (String)invokeMethod(method, new Object[]{Integer.valueOf(26)});
-		assertNull(res9);
-		
-		String res10 = (String)invokeMethod(method, new Object[]{Integer.valueOf(27)});
-		assertNull(res10);
-	}
-	
-	@Test
-	public void testDoubleRangeClosed() {		
-		IOpenMethod method = getMethod("doubleRangeClosed", new IOpenClass[]{JavaOpenClass.getOpenClass(Double.class)});
-		String res0 = (String)invokeMethod(method, new Object[]{Double.valueOf(0)});
-		assertNull(res0);
-		
-		String res1 = (String)invokeMethod(method, new Object[]{Double.valueOf(1)});
-		assertEquals("rule1", res1);
-		
-		String res2 = (String)invokeMethod(method, new Object[]{Double.valueOf(10)});
-		assertEquals("rule1", res2);
-		
-		String res3 = (String)invokeMethod(method, new Object[]{Double.valueOf(15)});
-		assertEquals("rule1", res3);
-		
-		String res4 = (String)invokeMethod(method, new Object[]{Double.valueOf(15.1)});
-		assertNull(res4);
-		
-		String res5 = (String)invokeMethod(method, new Object[]{Double.valueOf(15.5)});
-		assertEquals("rule2", res5);
-		
-		String res6 = (String)invokeMethod(method, new Object[]{Double.valueOf(15.5555)});
-		assertNull(res6);
-		
-		String res7 = (String)invokeMethod(method, new Object[]{Double.valueOf(16.5555)});
-		assertNull(res7);
-		
-		String res8 = (String)invokeMethod(method, new Object[]{Double.valueOf(16.6)});
-		assertEquals("rule3", res8);
-		
-		String res8_1 = (String)invokeMethod(method, new Object[]{Double.valueOf(17.1)});
-		assertEquals("rule3", res8_1);
-		
-		String res9 = (String)invokeMethod(method, new Object[]{Double.valueOf(17.5)});
-		assertEquals("rule3", res9);
-		
-		String res10 = (String)invokeMethod(method, new Object[]{Double.valueOf(17.5001)});
-		assertNull(res10);
-	}
-	
-	
-	@Test
-	public void testDoubleRangeLeftOpened() {		
-		IOpenMethod method = getMethod("doubleRangeLeftOpened", new IOpenClass[]{JavaOpenClass.getOpenClass(Double.class)});
-		String res0 = (String)invokeMethod(method, new Object[]{Double.valueOf(0)});
-		assertNull(res0);
-		
-		String res1 = (String)invokeMethod(method, new Object[]{Double.valueOf(1)});
-		assertNull(res1);
-		
-		String res2 = (String)invokeMethod(method, new Object[]{Double.valueOf(10)});
-		assertEquals("rule1", res2);
-		
-		String res3 = (String)invokeMethod(method, new Object[]{Double.valueOf(15)});
-		assertEquals("rule1", res3);
-		
-		String res4 = (String)invokeMethod(method, new Object[]{Double.valueOf(15.1)});
-		assertNull(res4);
-		
-		String res5 = (String)invokeMethod(method, new Object[]{Double.valueOf(15.5)});
-		assertEquals("rule2", res5);
-		
-		String res6 = (String)invokeMethod(method, new Object[]{Double.valueOf(15.5555)});
-		assertNull(res6);
-		
-		String res7 = (String)invokeMethod(method, new Object[]{Double.valueOf(16.5555)});
-		assertNull(res7);
-		
-		String res8 = (String)invokeMethod(method, new Object[]{Double.valueOf(16.6)});
-		assertNull(res8);
-		
-		String res8_1 = (String)invokeMethod(method, new Object[]{Double.valueOf(17.1)});
-		assertEquals("rule3", res8_1);
-		
-		String res9 = (String)invokeMethod(method, new Object[]{Double.valueOf(17.5)});
-		assertEquals("rule3", res9);
-		
-		String res10 = (String)invokeMethod(method, new Object[]{Double.valueOf(17.5001)});
-		assertNull(res10);
-	}
-	
-	@Test
-	public void testDoubleRangeRightOpened() {		
-		IOpenMethod method = getMethod("doubleRangeRightOpened", new IOpenClass[]{JavaOpenClass.getOpenClass(Double.class)});
-		String res0 = (String)invokeMethod(method, new Object[]{Double.valueOf(0)});
-		assertNull(res0);
-		
-		String res1 = (String)invokeMethod(method, new Object[]{Double.valueOf(1)});
-		assertEquals("rule1", res1);
-		
-		String res2 = (String)invokeMethod(method, new Object[]{Double.valueOf(10)});
-		assertEquals("rule1", res2);
-		
-		String res3 = (String)invokeMethod(method, new Object[]{Double.valueOf(15)});
-		assertNull(res3);
-		
-		String res4 = (String)invokeMethod(method, new Object[]{Double.valueOf(15.1)});
-		assertNull(res4);
-		
-		String res5 = (String)invokeMethod(method, new Object[]{Double.valueOf(15.5)});
-		assertEquals("rule2", res5);
-		
-		String res6 = (String)invokeMethod(method, new Object[]{Double.valueOf(15.5555)});
-		assertNull(res6);
-		
-		String res7 = (String)invokeMethod(method, new Object[]{Double.valueOf(16.5555)});
-		assertNull(res7);
-		
-		String res8 = (String)invokeMethod(method, new Object[]{Double.valueOf(16.6)});
-		assertEquals("rule3", res8);
-		
-		String res8_1 = (String)invokeMethod(method, new Object[]{Double.valueOf(17.1)});
-		assertEquals("rule3", res8_1);
-		
-		String res9 = (String)invokeMethod(method, new Object[]{Double.valueOf(17.5)});
-		assertNull(res9);
-		
-		String res10 = (String)invokeMethod(method, new Object[]{Double.valueOf(17.5001)});
-		assertNull(res10);
-	}
-	
-	@Test
-	public void testDoubleRangeOpened() {		
-		IOpenMethod method = getMethod("doubleRangeOpened", new IOpenClass[]{JavaOpenClass.getOpenClass(Double.class)});
-		String res0 = (String)invokeMethod(method, new Object[]{Double.valueOf(0)});
-		assertNull(res0);
-		
-		String res1 = (String)invokeMethod(method, new Object[]{Double.valueOf(1)});
-		assertNull(res1);
-		
-		String res2 = (String)invokeMethod(method, new Object[]{Double.valueOf(10)});
-		assertEquals("rule1", res2);
-		
-		String res3 = (String)invokeMethod(method, new Object[]{Double.valueOf(15)});
-		assertNull(res3);
-		
-		String res4 = (String)invokeMethod(method, new Object[]{Double.valueOf(15.1)});
-		assertNull(res4);
-		
-		String res5 = (String)invokeMethod(method, new Object[]{Double.valueOf(15.5)});
-		assertEquals("rule2", res5);
-		
-		String res6 = (String)invokeMethod(method, new Object[]{Double.valueOf(15.5555)});
-		assertNull(res6);
-		
-		String res7 = (String)invokeMethod(method, new Object[]{Double.valueOf(16.5555)});
-		assertNull(res7);
-		
-		String res8 = (String)invokeMethod(method, new Object[]{Double.valueOf(16.6)});
-		assertNull(res8);
-		
-		String res8_1 = (String)invokeMethod(method, new Object[]{Double.valueOf(17.1)});
-		assertEquals("rule3", res8_1);
-		
-		String res9 = (String)invokeMethod(method, new Object[]{Double.valueOf(17.5)});
-		assertNull(res9);
-		
-		String res10 = (String)invokeMethod(method, new Object[]{Double.valueOf(17.5001)});
-		assertNull(res10);
-	}
-	
-	
+public class OptimizedDTRangeConditionsTest {
+
+    private static Object instance;
+
+    @BeforeClass
+    public static void init() {
+        instance = TestUtils.create("test/rules/dt/algorithm/OptimizedDTRangeConditions.xls");
+    }
+
+    @Test
+    public void testIntRangeClosed() {
+        assertNull(TestUtils.invoke(instance, "intRangeClosed", 0));
+        assertEquals("rule1", TestUtils.invoke(instance, "intRangeClosed", 1));
+        assertEquals("rule1", TestUtils.invoke(instance, "intRangeClosed", 10));
+        assertEquals("rule1", TestUtils.invoke(instance, "intRangeClosed", 12));
+        assertNull(TestUtils.invoke(instance, "intRangeClosed", 14));
+        assertEquals("rule2", TestUtils.invoke(instance, "intRangeClosed", 16));
+        assertEquals("rule2", TestUtils.invoke(instance, "intRangeClosed", 18));
+        assertNull(TestUtils.invoke(instance, "intRangeClosed", 19));
+        assertEquals("rule3", TestUtils.invoke(instance, "intRangeClosed", 21));
+        assertEquals("rule3", TestUtils.invoke(instance, "intRangeClosed", 26));
+        assertNull(TestUtils.invoke(instance, "intRangeClosed", 27));
+    }
+
+    @Test
+    public void testIntRangeLeftOpened() {
+        assertNull(TestUtils.invoke(instance, "intRangeLeftOpened", 0));
+        assertNull(TestUtils.invoke(instance, "intRangeLeftOpened", 1));
+        assertEquals("rule1", TestUtils.invoke(instance, "intRangeLeftOpened", 2));
+        assertEquals("rule1", TestUtils.invoke(instance, "intRangeLeftOpened", 10));
+        assertEquals("rule1", TestUtils.invoke(instance, "intRangeLeftOpened", 12));
+        assertNull(TestUtils.invoke(instance, "intRangeLeftOpened", 14));
+        assertNull(TestUtils.invoke(instance, "intRangeLeftOpened", 16));
+        assertEquals("rule2", TestUtils.invoke(instance, "intRangeLeftOpened", 17));
+        assertEquals("rule2", TestUtils.invoke(instance, "intRangeLeftOpened", 18));
+        assertNull(TestUtils.invoke(instance, "intRangeLeftOpened", 19));
+        assertNull(TestUtils.invoke(instance, "intRangeLeftOpened", 21));
+        assertEquals("rule3", TestUtils.invoke(instance, "intRangeLeftOpened", 22));
+        assertEquals("rule3", TestUtils.invoke(instance, "intRangeLeftOpened", 26));
+        assertNull(TestUtils.invoke(instance, "intRangeLeftOpened", 27));
+    }
+
+    @Test
+    public void testIntRangeRightOpened() {
+        assertNull(TestUtils.invoke(instance, "intRangeRightOpened", 0));
+        assertEquals("rule1", TestUtils.invoke(instance, "intRangeRightOpened", 1));
+        assertEquals("rule1", TestUtils.invoke(instance, "intRangeRightOpened", 10));
+        assertNull(TestUtils.invoke(instance, "intRangeRightOpened", 12));
+        assertNull(TestUtils.invoke(instance, "intRangeRightOpened", 14));
+        assertEquals("rule2", TestUtils.invoke(instance, "intRangeRightOpened", 16));
+        assertEquals("rule2", TestUtils.invoke(instance, "intRangeRightOpened", 17));
+        assertNull(TestUtils.invoke(instance, "intRangeRightOpened", 18));
+        assertNull(TestUtils.invoke(instance, "intRangeRightOpened", 19));
+        assertEquals("rule3", TestUtils.invoke(instance, "intRangeRightOpened", 21));
+        assertEquals("rule3", TestUtils.invoke(instance, "intRangeRightOpened", 25));
+        assertNull(TestUtils.invoke(instance, "intRangeRightOpened", 26));
+        assertNull(TestUtils.invoke(instance, "intRangeRightOpened", 27));
+    }
+
+    @Test
+    public void testIntRangeOpened() {
+        assertNull(TestUtils.invoke(instance, "intRangeOpened", 0));
+        assertNull(TestUtils.invoke(instance, "intRangeOpened", 1));
+        assertEquals("rule1", TestUtils.invoke(instance, "intRangeOpened", 10));
+        assertNull(TestUtils.invoke(instance, "intRangeOpened", 12));
+        assertNull(TestUtils.invoke(instance, "intRangeOpened", 14));
+        assertNull(TestUtils.invoke(instance, "intRangeOpened", 16));
+        assertEquals("rule2", TestUtils.invoke(instance, "intRangeOpened", 17));
+        assertNull(TestUtils.invoke(instance, "intRangeOpened", 18));
+        assertNull(TestUtils.invoke(instance, "intRangeOpened", 19));
+        assertNull(TestUtils.invoke(instance, "intRangeOpened", 21));
+        assertEquals("rule3", TestUtils.invoke(instance, "intRangeOpened", 25));
+        assertNull(TestUtils.invoke(instance, "intRangeOpened", 26));
+        assertNull(TestUtils.invoke(instance, "intRangeOpened", 27));
+    }
+
+    @Test
+    public void testDoubleRangeClosed() {
+        assertNull(TestUtils.invoke(instance, "doubleRangeClosed", 0.0));
+        assertEquals("rule1", TestUtils.invoke(instance, "doubleRangeClosed", 1.0));
+        assertEquals("rule1", TestUtils.invoke(instance, "doubleRangeClosed", 10.0));
+        assertEquals("rule1", TestUtils.invoke(instance, "doubleRangeClosed", 15.0));
+        assertNull(TestUtils.invoke(instance, "doubleRangeClosed", 15.1));
+        assertEquals("rule2", TestUtils.invoke(instance, "doubleRangeClosed", 15.5));
+        assertNull(TestUtils.invoke(instance, "doubleRangeClosed", 15.5555));
+        assertNull(TestUtils.invoke(instance, "doubleRangeClosed", 16.5555));
+        assertEquals("rule3", TestUtils.invoke(instance, "doubleRangeClosed", 16.6));
+        assertEquals("rule3", TestUtils.invoke(instance, "doubleRangeClosed", 17.1));
+        assertEquals("rule3", TestUtils.invoke(instance, "doubleRangeClosed", 17.5));
+        assertNull(TestUtils.invoke(instance, "doubleRangeClosed", 17.5001));
+    }
+
+    @Test
+    public void testDoubleRangeLeftOpened() {
+        assertNull(TestUtils.invoke(instance, "doubleRangeLeftOpened", 0.0));
+        assertNull(TestUtils.invoke(instance, "doubleRangeLeftOpened", 1.0));
+        assertEquals("rule1", TestUtils.invoke(instance, "doubleRangeLeftOpened", 10.0));
+        assertEquals("rule1", TestUtils.invoke(instance, "doubleRangeLeftOpened", 15.0));
+        assertNull(TestUtils.invoke(instance, "doubleRangeLeftOpened", 15.1));
+        assertEquals("rule2", TestUtils.invoke(instance, "doubleRangeLeftOpened", 15.5));
+        assertNull(TestUtils.invoke(instance, "doubleRangeLeftOpened", 15.5555));
+        assertNull(TestUtils.invoke(instance, "doubleRangeLeftOpened", 16.5555));
+        assertNull(TestUtils.invoke(instance, "doubleRangeLeftOpened", 16.6));
+        assertEquals("rule3", TestUtils.invoke(instance, "doubleRangeLeftOpened", 17.1));
+        assertEquals("rule3", TestUtils.invoke(instance, "doubleRangeLeftOpened", 17.5));
+        assertNull(TestUtils.invoke(instance, "doubleRangeLeftOpened", 17.5001));
+    }
+
+    @Test
+    public void testDoubleRangeRightOpened() {
+        assertNull(TestUtils.invoke(instance, "doubleRangeRightOpened", 0.0));
+        assertEquals("rule1", TestUtils.invoke(instance, "doubleRangeRightOpened", 1.0));
+        assertEquals("rule1", TestUtils.invoke(instance, "doubleRangeRightOpened", 10.0));
+        assertNull(TestUtils.invoke(instance, "doubleRangeRightOpened", 15.0));
+        assertNull(TestUtils.invoke(instance, "doubleRangeRightOpened", 15.1));
+        assertEquals("rule2", TestUtils.invoke(instance, "doubleRangeRightOpened", 15.5));
+        assertNull(TestUtils.invoke(instance, "doubleRangeRightOpened", 15.5555));
+        assertNull(TestUtils.invoke(instance, "doubleRangeRightOpened", 16.5555));
+        assertEquals("rule3", TestUtils.invoke(instance, "doubleRangeRightOpened", 16.6));
+        assertEquals("rule3", TestUtils.invoke(instance, "doubleRangeRightOpened", 17.1));
+        assertNull(TestUtils.invoke(instance, "doubleRangeRightOpened", 17.5));
+        assertNull(TestUtils.invoke(instance, "doubleRangeRightOpened", 17.5001));
+    }
+
+    @Test
+    public void testDoubleRangeOpened() {
+        assertNull(TestUtils.invoke(instance, "doubleRangeOpened", 0.0));
+        assertNull(TestUtils.invoke(instance, "doubleRangeOpened", 1.0));
+        assertEquals("rule1", TestUtils.invoke(instance, "doubleRangeOpened", 10.0));
+        assertNull(TestUtils.invoke(instance, "doubleRangeOpened", 15.0));
+        assertNull(TestUtils.invoke(instance, "doubleRangeOpened", 15.1));
+        assertEquals("rule2", TestUtils.invoke(instance, "doubleRangeOpened", 15.5));
+        assertNull(TestUtils.invoke(instance, "doubleRangeOpened", 15.5555));
+        assertNull(TestUtils.invoke(instance, "doubleRangeOpened", 16.5555));
+        assertNull(TestUtils.invoke(instance, "doubleRangeOpened", 16.6));
+        assertEquals("rule3", TestUtils.invoke(instance, "doubleRangeOpened", 17.1));
+        assertNull(TestUtils.invoke(instance, "doubleRangeOpened", 17.5));
+        assertNull(TestUtils.invoke(instance, "doubleRangeOpened", 17.5001));
+    }
 }

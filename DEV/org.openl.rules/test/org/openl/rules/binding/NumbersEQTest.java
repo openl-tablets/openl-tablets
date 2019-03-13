@@ -1,35 +1,34 @@
 package org.openl.rules.binding;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.rules.BaseOpenlBuilderHelper;
+import org.openl.rules.TestUtils;
 
 /**
- * Testing following constructions working in rules:
- *  DoubleValue a = new DoubleValue(-5);
- *  DoubleValue b = new DoubleValue(-5);
- *  a==b; - will be true
+ * Testing following constructions working in rules: DoubleValue a = new DoubleValue(-5); DoubleValue b = new
+ * DoubleValue(-5); a==b; - will be true
  * 
  * @author DLiauchuk
  *
  */
-public class NumbersEQTest extends BaseOpenlBuilderHelper {
+public class NumbersEQTest {
     private static final String SRC = "test/rules/binding/NumbersEQTest.xls";
-    
-    public NumbersEQTest() {
-        super(SRC);
+    private static Object instance;
+
+    @BeforeClass
+    public static void init() {
+        instance = TestUtils.create(SRC);
     }
-    
+
     @Test
     public void testDoubleValueEQ() {
-        Boolean result = (Boolean)invokeMethod("testDVEquals");
-        assertTrue(result);
+        assertTrue(TestUtils.invoke(instance, "testDVEquals"));
     }
-    
+
     @Test
     public void testDoubleEQ() {
-        Boolean result = (Boolean)invokeMethod("testDDEquals");
-        assertTrue(result);
+        assertTrue(TestUtils.invoke(instance, "testDDEquals"));
     }
 }

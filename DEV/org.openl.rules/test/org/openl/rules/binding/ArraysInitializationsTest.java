@@ -1,53 +1,45 @@
 package org.openl.rules.binding;
 
-import java.util.Arrays;
+import static org.junit.Assert.assertArrayEquals;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.rules.BaseOpenlBuilderHelper;
+import org.openl.rules.TestUtils;
 
-import static org.junit.Assert.*;
-
-public class ArraysInitializationsTest extends BaseOpenlBuilderHelper {
+public class ArraysInitializationsTest {
 
     private static final String SRC = "test/rules/binding/ArraysInitializationsTest.xls";
+    private static Object instance;
 
-    public ArraysInitializationsTest() {
-        super(SRC);
+    @BeforeClass
+    public static void init() {
+        instance = TestUtils.create(SRC);
     }
 
     @Test
     public void testInitializationJavaStyle() {
-        assertFalse(findTable("Rules Integer[] array()").hasErrors());
-        assertTrue(Arrays.deepEquals((Integer[]) invokeMethod("array"), new Integer[] { 1, 2, 3 }));
-        assertFalse(findTable("Rules Integer[][] arrayTwoDims()").hasErrors());
-        assertTrue(Arrays.deepEquals((Integer[][]) invokeMethod("arrayTwoDims"), new Integer[][] { { 1, 2, 3 },
-                { 4, 5, 6 } }));
+        assertArrayEquals(new Integer[] { 1, 2, 3 }, TestUtils.invoke(instance, "array"));
+        assertArrayEquals(new Integer[][] { { 1, 2, 3 }, { 4, 5, 6 } }, TestUtils.invoke(instance, "arrayTwoDims"));
     }
 
     @Test
     public void testInitializationForLocalVar() {
-        assertFalse(findTable("Method Integer[] localVarArrayInit()").hasErrors());
-        assertTrue(Arrays.deepEquals((Integer[]) invokeMethod("localVarArrayInit"), new Integer[] { 1, 2 }));
-        assertFalse(findTable("Method Integer[][] localVarArrayTwoDimsInit()").hasErrors());
-        assertArrayEquals((Integer[][]) invokeMethod("localVarArrayTwoDimsInit"), new Integer[][] {
-                { 11, 12, 13 }, { 21, 22, 23 } });
+        assertArrayEquals(new Integer[] { 1, 2 }, TestUtils.invoke(instance, "localVarArrayInit"));
+        assertArrayEquals(new Integer[][] { { 11, 12, 13 }, { 21, 22, 23 } },
+            TestUtils.invoke(instance, "localVarArrayTwoDimsInit"));
     }
 
     @Test
     public void testSimpleInitializationForLocalVar() {
-        assertFalse(findTable("Method Integer[] localVarSimpleArrayInit()").hasErrors());
-        assertTrue(Arrays.deepEquals((Integer[]) invokeMethod("localVarSimpleArrayInit"), new Integer[] { 1, 2, 3 }));
-        assertFalse(findTable("Method Integer[][] localVarSimpleArrayTwoDimsInit()").hasErrors());
-        assertTrue(Arrays.deepEquals((Integer[][]) invokeMethod("localVarSimpleArrayTwoDimsInit"), new Integer[][] {
-                { 1, 2, 3 }, { 4, 5, 6 } }));
+        assertArrayEquals(new Integer[] { 1, 2, 3 }, TestUtils.invoke(instance, "localVarSimpleArrayInit"));
+        assertArrayEquals(new Integer[][] { { 1, 2, 3 }, { 4, 5, 6 } },
+            TestUtils.invoke(instance, "localVarSimpleArrayTwoDimsInit"));
     }
 
     @Test
     public void testSimpleInitializationInReturn() {
-        assertFalse(findTable("Method Integer[] simpleArrayInitInReturn()").hasErrors());
-        assertTrue(Arrays.deepEquals((Integer[]) invokeMethod("simpleArrayInitInReturn"), new Integer[] { 1, 2, 3 }));
-        assertFalse(findTable("Method Integer[][] simpleArrayTwoDimsInitInReturn()").hasErrors());
-        assertTrue(Arrays.deepEquals((Integer[][]) invokeMethod("simpleArrayTwoDimsInitInReturn"), new Integer[][] {
-                { 1, 2, 3 }, { 4, 5, 6 } }));
+        assertArrayEquals(new Integer[] { 1, 2, 3 }, TestUtils.invoke(instance, "simpleArrayInitInReturn"));
+        assertArrayEquals(new Integer[][] { { 1, 2, 3 }, { 4, 5, 6 } },
+            TestUtils.invoke(instance, "simpleArrayTwoDimsInitInReturn"));
     }
 }
