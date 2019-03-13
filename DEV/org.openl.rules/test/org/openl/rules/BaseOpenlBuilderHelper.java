@@ -46,12 +46,6 @@ public abstract class BaseOpenlBuilderHelper {
         return compiledOpenClass;
     }
 
-    public Class<?> getClass(String name) throws ClassNotFoundException {
-        Class<?> clazz = getCompiledOpenClass().getClassLoader().loadClass(name);
-        assertNotNull(clazz);
-        return clazz;
-    }
-
     protected TableSyntaxNode findTable(String tableName) {
         TableSyntaxNode result = null;
         for (TableSyntaxNode tsn : getTableSyntaxNodes()) {

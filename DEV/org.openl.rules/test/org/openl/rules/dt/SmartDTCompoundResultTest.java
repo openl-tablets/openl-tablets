@@ -3,206 +3,129 @@ package org.openl.rules.dt;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.rules.vm.SimpleRulesVM;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.types.java.JavaOpenClass;
-import org.openl.vm.SimpleVM.SimpleRuntimeEnv;
+import org.openl.rules.TestUtils;
 
-public class SmartDTCompoundResultTest extends BaseOpenlBuilderHelper {
-    private static final String SRC = "./test/rules/dt/SmartDTCompoundResultTest.xls";
+public class SmartDTCompoundResultTest {
+    private static Object instance;
 
-    public SmartDTCompoundResultTest() {
-        super(SRC);
+    @BeforeClass
+    public static void init() {
+        instance = TestUtils.create("test/rules/dt/SmartDTCompoundResultTest.xls");
     }
-    
+
     @Test
-    public void test1() throws ClassNotFoundException,
-                                        NoSuchMethodException,
-                                        InvocationTargetException,
-                                        IllegalAccessException {
-        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("test1",
-            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class), JavaOpenClass.getOpenClass(String.class) });
-        Object instance = newInstance();
-        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        Object result = method.invoke(instance, new Object[] { new Integer(1) , "XXX"}, env);
-        Class<?> policyClass = getClass("org.openl.generated.beans.Policy");
-        Method getPolicyNumberMethod = policyClass.getMethod("getPolicyNumber");
-        String policyNumber = (String) getPolicyNumberMethod.invoke(result);
+    public void test1() {
+        Object result = TestUtils.invoke(instance, "test1", 1, "XXX");
+        String policyNumber = TestUtils.invoke(result, "getPolicyNumber");
         assertEquals("Policy Number 2", policyNumber);
-        
-        Method getVehicleMethod = policyClass.getMethod("getVehicle");
-        Object vehicle = getVehicleMethod.invoke(result);
+
+        Object vehicle = TestUtils.invoke(result, "getVehicle");
         assertNotNull(vehicle);
-        Method getVehicleNameMethod = vehicle.getClass().getMethod("getVehicleName");
-        String vehicleName = (String) getVehicleNameMethod.invoke(vehicle);
+        String vehicleName = TestUtils.invoke(vehicle, "getVehicleName");
         assertEquals("Vehicle Name 2", vehicleName);
-        
-        Method getOldDriverMethod = vehicle.getClass().getMethod("getOldDriver");
-        Object oldDriver = getOldDriverMethod.invoke(vehicle);
+
+        Object oldDriver = TestUtils.invoke(vehicle, "getOldDriver");
         assertNotNull(oldDriver);
-        
-        Method getDriverNameMethod = oldDriver.getClass().getMethod("getDriverName");
-        String oldDriverName = (String) getDriverNameMethod.invoke(oldDriver);
+
+        String oldDriverName = TestUtils.invoke(oldDriver, "getDriverName");
         assertEquals("XXX", oldDriverName);
     }
-    
+
     @Test
-    public void test2() throws ClassNotFoundException,
-                                        NoSuchMethodException,
-                                        InvocationTargetException,
-                                        IllegalAccessException {
-        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("test2",
-            new IOpenClass[] { JavaOpenClass.getOpenClass(String.class), JavaOpenClass.getOpenClass(Integer.class), JavaOpenClass.getOpenClass(String.class) });
-        Object instance = newInstance();
-        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        Object result = method.invoke(instance, new Object[] { "XXX", new Integer(1), null }, env);
-        Class<?> policyClass = getClass("org.openl.generated.beans.Policy");
-        Method getPolicyNumberMethod = policyClass.getMethod("getPolicyNumber");
-        String policyNumber = (String) getPolicyNumberMethod.invoke(result);
+    public void test2() {
+        Object result = TestUtils.invoke(instance, "test2", "XXX", 1, "");
+        String policyNumber = TestUtils.invoke(result, "getPolicyNumber");
         assertEquals("Policy Number 2", policyNumber);
-        
-        Method getVehicleMethod = policyClass.getMethod("getVehicle");
-        Object vehicle = getVehicleMethod.invoke(result);
+
+        Object vehicle = TestUtils.invoke(result, "getVehicle");
         assertNotNull(vehicle);
-        Method getVehicleNameMethod = vehicle.getClass().getMethod("getVehicleName");
-        String vehicleName = (String) getVehicleNameMethod.invoke(vehicle);
+        String vehicleName = TestUtils.invoke(vehicle, "getVehicleName");
         assertEquals("Vehicle Name 2", vehicleName);
-        
-        Method getNewDriverMethod = vehicle.getClass().getMethod("getNewDriver");
-        Object newDriver = getNewDriverMethod.invoke(vehicle);
+
+        Object newDriver = TestUtils.invoke(vehicle, "getNewDriver");
         assertNotNull(newDriver);
-        
-        Method getDriverNameMethod = newDriver.getClass().getMethod("getDriverName");
-        String newDriverName = (String) getDriverNameMethod.invoke(newDriver);
+
+        String newDriverName = TestUtils.invoke(newDriver, "getDriverName");
         assertEquals("XXX", newDriverName);
-        
-        Method getOldDriverMethod = vehicle.getClass().getMethod("getOldDriver");
-        Object oldDriver = getOldDriverMethod.invoke(vehicle);
+
+        Object oldDriver = TestUtils.invoke(vehicle, "getOldDriver");
         assertNotNull(oldDriver);
 
-        Method getDriverIDMethod = oldDriver.getClass().getMethod("getDriverID");
-        Integer id = (Integer) getDriverIDMethod.invoke(oldDriver);
-        assertEquals(Integer.valueOf(1), id);
-
+        int id = TestUtils.invoke(oldDriver, "getDriverID");
+        assertEquals(1, id);
     }
-    
+
     @Test
-    public void test3() throws ClassNotFoundException,
-                                        NoSuchMethodException,
-                                        InvocationTargetException,
-                                        IllegalAccessException {
-        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("test3",
-            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
-        Object instance = newInstance();
-        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        Object result = method.invoke(instance, new Object[] { new Integer(1) }, env);
-        Class<?> policyClass = getClass("org.openl.generated.beans.Policy");
-        Method getPolicyNumberMethod = policyClass.getMethod("getPolicyNumber");
-        String policyNumber = (String) getPolicyNumberMethod.invoke(result);
+    public void test3() {
+        Object result = TestUtils.invoke(instance, "test3", 1);
+        String policyNumber = TestUtils.invoke(result, "getPolicyNumber");
         assertEquals("Policy Number 2", policyNumber);
-        
-        Method getVehicleMethod = policyClass.getMethod("getVehicle");
-        Object vehicle = getVehicleMethod.invoke(result);
+
+        Object vehicle = TestUtils.invoke(result, "getVehicle");
         assertNotNull(vehicle);
-        Method getVehicleNameMethod = vehicle.getClass().getMethod("getVehicleName");
-        String vehicleName = (String) getVehicleNameMethod.invoke(vehicle);
+        String vehicleName = TestUtils.invoke(vehicle, "getVehicleName");
         assertEquals("Vehicle Name 2", vehicleName);
-        
-        Method getNewDriverMethod = vehicle.getClass().getMethod("getNewDriver");
-        Object newDriver = getNewDriverMethod.invoke(vehicle);
+
+        Object newDriver = TestUtils.invoke(vehicle, "getNewDriver");
         assertNotNull(newDriver);
-        
-        Method getDriverNameMethod = newDriver.getClass().getMethod("getDriverName");
-        String newDriverName = (String) getDriverNameMethod.invoke(newDriver);
+
+        String newDriverName = TestUtils.invoke(newDriver, "getDriverName");
         assertEquals("New Driver Name 2", newDriverName);
-        
-        Method getOldDriverMethod = vehicle.getClass().getMethod("getOldDriver");
-        Object oldDriver = getOldDriverMethod.invoke(vehicle);
+
+        Object oldDriver = TestUtils.invoke(vehicle, "getOldDriver");
         assertNotNull(oldDriver);
 
-        String oldDriverName = (String) getDriverNameMethod.invoke(oldDriver);
+        String oldDriverName = TestUtils.invoke(oldDriver, "getDriverName");
         assertEquals("Old Driver Name 2", oldDriverName);
     }
-    
+
     @Test
-    public void test4() throws ClassNotFoundException,
-                                        NoSuchMethodException,
-                                        InvocationTargetException,
-                                        IllegalAccessException {
-        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("test4",
-            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
-        Object instance = newInstance();
-        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        Object result = method.invoke(instance, new Object[] { new Integer(1) }, env);
-        Class<?> policyClass = getClass("org.openl.generated.beans.Policy");
-        Method getPolicyNumberMethod = policyClass.getMethod("getPolicyNumber");
-        String policyNumber = (String) getPolicyNumberMethod.invoke(result);
+    public void test4() {
+        Object result = TestUtils.invoke(instance, "test4", 1);
+        String policyNumber = TestUtils.invoke(result, "getPolicyNumber");
         assertEquals("Policy Number 2", policyNumber);
-        
-        Method getVehicleMethod = policyClass.getMethod("getVehicle");
-        Object vehicle = getVehicleMethod.invoke(result);
+
+        Object vehicle = TestUtils.invoke(result, "getVehicle");
         assertNotNull(vehicle);
-        Method getVehicleNameMethod = vehicle.getClass().getMethod("getVehicleName");
-        String vehicleName = (String) getVehicleNameMethod.invoke(vehicle);
+        String vehicleName = TestUtils.invoke(vehicle, "getVehicleName");
         assertEquals("Vehicle Name 2", vehicleName);
-        
-        Method getNewDriverMethod = vehicle.getClass().getMethod("getNewDriver");
-        Object newDriver = getNewDriverMethod.invoke(vehicle);
+
+        Object newDriver = TestUtils.invoke(vehicle, "getNewDriver");
         assertNotNull(newDriver);
-        
-        Method getDriverNameMethod = newDriver.getClass().getMethod("getDriverName");
-        String newDriverName = (String) getDriverNameMethod.invoke(newDriver);
+
+        String newDriverName = TestUtils.invoke(newDriver, "getDriverName");
         assertEquals("New Driver Name 2", newDriverName);
-        
-        Method getOldDriverMethod = vehicle.getClass().getMethod("getOldDriver");
-        Object oldDriver = getOldDriverMethod.invoke(vehicle);
+
+        Object oldDriver = TestUtils.invoke(vehicle, "getOldDriver");
         assertNotNull(oldDriver);
 
-        String oldDriverName = (String) getDriverNameMethod.invoke(oldDriver);
+        String oldDriverName = TestUtils.invoke(oldDriver, "getDriverName");
         assertEquals("Old Driver Name 2", oldDriverName);
     }
-    
+
     @Test
-    public void test5() throws ClassNotFoundException,
-                                        NoSuchMethodException,
-                                        InvocationTargetException,
-                                        IllegalAccessException {
-        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("test5",
-            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
-        Object instance = newInstance();
-        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        Object result = method.invoke(instance, new Object[] { new Integer(1) }, env);
-        Class<?> policyClass = getClass("org.openl.generated.beans.Policy");
-        Method getPolicyNumberMethod = policyClass.getMethod("getPolicyNumber");
-        String policyNumber = (String) getPolicyNumberMethod.invoke(result);
+    public void test5() {
+        Object result = TestUtils.invoke(instance, "test5", 1);
+        String policyNumber = TestUtils.invoke(result, "getPolicyNumber");
         assertEquals("Policy Number 2", policyNumber);
-        
-        Method getVehicleMethod = policyClass.getMethod("getVehicle");
-        Object vehicle = getVehicleMethod.invoke(result);
+
+        Object vehicle = TestUtils.invoke(result, "getVehicle");
         assertNotNull(vehicle);
-        Method getVehicleNameMethod = vehicle.getClass().getMethod("getVehicleName");
-        String vehicleName = (String) getVehicleNameMethod.invoke(vehicle);
+        String vehicleName = TestUtils.invoke(vehicle, "getVehicleName");
         assertEquals("Vehicle Name 2", vehicleName);
-        
-        Method getNewDriverMethod = vehicle.getClass().getMethod("getNewDriver");
-        Object newDriver = getNewDriverMethod.invoke(vehicle);
+
+        Object newDriver = TestUtils.invoke(vehicle, "getNewDriver");
         assertNotNull(newDriver);
-        
-        Method getDriverNameMethod = newDriver.getClass().getMethod("getDriverName");
-        String newDriverName = (String) getDriverNameMethod.invoke(newDriver);
+
+        String newDriverName = TestUtils.invoke(newDriver, "getDriverName");
         assertEquals("New Driver Name 2", newDriverName);
-        
-        Method getOldDriverMethod = vehicle.getClass().getMethod("getOldDriver");
-        Object oldDriver = getOldDriverMethod.invoke(vehicle);
+
+        Object oldDriver = TestUtils.invoke(vehicle, "getOldDriver");
         assertNotNull(oldDriver);
 
-        String oldDriverName = (String) getDriverNameMethod.invoke(oldDriver);
+        String oldDriverName = TestUtils.invoke(oldDriver, "getDriverName");
         assertEquals("Old Driver Name 2", oldDriverName);
     }
 }

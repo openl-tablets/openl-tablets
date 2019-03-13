@@ -1,41 +1,24 @@
 package org.openl.rules.dt;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.openl.meta.DoubleValue;
-import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.types.java.JavaOpenClass;
+import org.openl.rules.TestUtils;
 
-public class DTInvokeTest extends BaseOpenlBuilderHelper {
-    
-    public static final String SRC = "test/rules/dt/DTInvokeTest.xls";
-    
-    public DTInvokeTest() {
-        super(SRC);
-    }
-    
+public class DTInvokeTest {
+
     @Test
     public void testInvoking() {
-        String methodName = "getILFactor";
-        
-        IOpenMethod method = getMethod(methodName, new IOpenClass[]{JavaOpenClass.STRING, JavaOpenClass.STRING});
-        
-        DoubleValue res = (DoubleValue)invokeMethod(method, new Object[]{"Comp", "PA"});
-        assertEquals(1, res.intValue());
-        
-        DoubleValue res1 = (DoubleValue)invokeMethod(method, new Object[]{"Coll", "PA"});
-        assertEquals(2, res1.intValue());
-        
-        DoubleValue res2 = (DoubleValue)invokeMethod(method, new Object[]{"Comp", "MH"});
-        assertEquals(3, res2.intValue());
-        
-        DoubleValue res3 = (DoubleValue)invokeMethod(method, new Object[]{"Comp", "TR"});
-        assertEquals(4, res3.intValue());
-        
-        DoubleValue res4 = (DoubleValue)invokeMethod(method, new Object[]{"Any", "GH"});
-        assertEquals(5, res4.intValue());
+        Object instance = TestUtils.create("test/rules/dt/DTInvokeTest.xls");
+        assertEquals(new DoubleValue(1), TestUtils.invoke(instance, "getILFactor", "Comp", "PA"));
+
+        assertEquals(new DoubleValue(2), TestUtils.invoke(instance, "getILFactor", "Coll", "PA"));
+
+        assertEquals(new DoubleValue(3), TestUtils.invoke(instance, "getILFactor", "Comp", "MH"));
+
+        assertEquals(new DoubleValue(4), TestUtils.invoke(instance, "getILFactor", "Comp", "TR"));
+
+        assertEquals(new DoubleValue(5), TestUtils.invoke(instance, "getILFactor", "Any", "GH"));
     }
 }

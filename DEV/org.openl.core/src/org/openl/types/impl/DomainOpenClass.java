@@ -139,11 +139,11 @@ public class DomainOpenClass implements IOpenClass {
     }
 
     public boolean isArray() {
-        return baseClass.isArray();
+        return getName().contains("[]");
     }
 
     public IOpenClass getComponentClass() {
-        return baseClass.getComponentClass();
+        return getAggregateInfo().getComponentType(this);
     }
 
     public Object newInstance(IRuntimeEnv env) {
