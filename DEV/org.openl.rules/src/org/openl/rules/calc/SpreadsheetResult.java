@@ -12,6 +12,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
 import org.openl.types.java.CustomJavaOpenClass;
 import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Serializable bean that handles result of spreadsheet calculation.
@@ -224,13 +225,9 @@ public class SpreadsheetResult implements Serializable {
             return getColumnName(col - 1);
 
         Object value = getValue(row - 1, col - 1);
-        if (value == null) {
-            return "";
-        }
-        Class<?> componentType = value.getClass().getComponentType();
-        if (componentType!= null && Object.class.isAssignableFrom(componentType)) {
-            return Arrays.toString((Object[]) value);
-        }
-        return String.valueOf(value);
+        StringBuilder builder = new StringBuilder(10);
+
+        StringUtils.print(value, builder);
+        return builder.toString();
     }
 }
