@@ -7,11 +7,6 @@ import java.io.File;
 import org.junit.Test;
 
 public class ProjectResolverTest {
-    @Test
-    public void testInitialization() {
-        ProjectResolver resolver = ProjectResolver.instance();
-        assertTrue(resolver.getResolvingStrategies().size() > 0);
-    }
 
     @Test
     public void testStrategySelection() {

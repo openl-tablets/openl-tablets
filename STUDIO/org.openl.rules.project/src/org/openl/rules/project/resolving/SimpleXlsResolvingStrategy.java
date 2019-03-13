@@ -1,5 +1,11 @@
 package org.openl.rules.project.resolving;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
+
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -7,12 +13,6 @@ import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * Resolver for simple OpenL project with only xls file.
@@ -23,7 +23,7 @@ import java.util.TreeMap;
  */
 public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
 
-    private final Logger log = LoggerFactory.getLogger(SimpleXlsResolvingStrategy.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SimpleXlsResolvingStrategy.class);
 
     public boolean isRulesProject(File folder) {
         if (!folder.isDirectory()) {
@@ -31,11 +31,11 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
         }
         for (File f : folder.listFiles()) {
             if (!f.isHidden() && FileTypeHelper.isExcelFile(f.getName())) {
-                log.debug("Project in {} folder has been resolved as simple xls project.", folder.getPath());
+                LOG.debug("Project in {} folder has been resolved as simple xls project.", folder.getPath());
                 return true;
             }
         }
-        log.debug("Simple xls strategy has failed to resolve project folder: there is no excel files in the folder '{}'.",
+        LOG.debug("Simple xls strategy has failed to resolve project folder: there is no excel files in the folder '{}'.",
             folder.getPath());
         return false;
     }
@@ -53,13 +53,11 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
                         Module module = createModule(project, rootPath, name);
                         modules.put(name, module);
                     } else {
-                        if (log.isErrorEnabled()){
-                            log.error("A module with the same name already exists: {}", name);
-                        }
+                        LOG.error("A module with the same name already exists: {}", name);
                     }
                 }
             }
-            project.setModules(new ArrayList<Module>(modules.values()));
+            project.setModules(new ArrayList<>(modules.values()));
             return project;
         } catch (IOException e) {
             throw new ProjectResolvingException(e);

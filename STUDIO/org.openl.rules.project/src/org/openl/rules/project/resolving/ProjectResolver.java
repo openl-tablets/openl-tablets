@@ -3,11 +3,11 @@ package org.openl.rules.project.resolving;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * Resolves all OpenL projects in specified workspace folder
@@ -16,33 +16,21 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class ProjectResolver {
 
+    private static final ProjectResolver INSTANCE = new ProjectResolver();
     private final Logger log = LoggerFactory.getLogger(ProjectResolver.class);
-    private List<ResolvingStrategy> resolvingStrategies;
 
     public static ProjectResolver instance() {
-        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext(
-            "project-resolver-beans.xml");
-        return (ProjectResolver) applicationContext.getBean("projectResolver");
-    }
-
-    List<ResolvingStrategy> getResolvingStrategies() {
-        return resolvingStrategies;
-    }
-
-    public void setResolvingStrategies(List<ResolvingStrategy> resolvingStrategies) {
-        this.resolvingStrategies = resolvingStrategies;
+        return INSTANCE;
     }
 
     /**
      * @param folder Folder to check
-     * @return <code>null</code> if it is not OpenL project and
-     *         {@link ResolvingStrategy} for this project otherwise.
+     * @return <code>null</code> if it is not OpenL project and {@link ResolvingStrategy} for this project otherwise.
      */
     public ResolvingStrategy isRulesProject(File folder) {
-        if (resolvingStrategies == null) {
-            throw new IllegalStateException("Resolving strategies must be set.");
-        }
-        for (ResolvingStrategy strategy : resolvingStrategies) {
+        ServiceLoader<ResolvingStrategy> strategies = ServiceLoader.load(ResolvingStrategy.class);
+
+        for (ResolvingStrategy strategy : strategies) {
             if (strategy.isRulesProject(folder)) {
                 return strategy;
             }
