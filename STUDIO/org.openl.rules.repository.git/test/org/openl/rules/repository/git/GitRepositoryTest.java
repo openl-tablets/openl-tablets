@@ -517,7 +517,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void testBranches() throws IOException {
+    public void testBranches() throws IOException, RRepositoryException {
         repo.createBranch("project1", "project1/test1");
         repo.createBranch("project1", "project1/test2");
         List<String> branches = repo.getBranches("project1");
@@ -540,6 +540,14 @@ public class GitRepositoryTest {
         assertTrue(branches.contains("test"));
         assertFalse(branches.contains("project1/test1"));
         assertTrue(branches.contains("project1/test2"));
+
+        // Test that forBranch() fetches new branch if it wasn't cloned before
+        File remote = new File(root, "remote");
+        File temp = new File(root, "temp");
+        try (GitRepository repository = createRepository(remote, temp, Constants.MASTER)) {
+            GitRepository branchRepo = repository.forBranch("project1/test2");
+            assertNotNull(branchRepo.check("rules/project1/file1"));
+        }
     }
 
     @Test
