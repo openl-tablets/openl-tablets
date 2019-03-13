@@ -542,13 +542,28 @@ public class GitRepositoryTest {
         assertTrue(branches.contains("project1/test2"));
     }
 
+    @Test
+    public void pathToRepoInsteadOfUri() throws RRepositoryException {
+        File local = new File(root, "local");
+        // Will use this path instead of uri. Git accepts that.
+        String remote = new File(root, "remote").getAbsolutePath();
+
+        assertNotNull(createRepository(remote, local, BRANCH));
+        assertNotNull(createRepository(remote + "/", local, BRANCH));
+        assertNotNull(createRepository(new File(remote).toURI().toString(), local, BRANCH));
+    }
+
     private GitRepository createRepository(File remote, File local) throws RRepositoryException {
         return createRepository(remote, local, BRANCH);
     }
 
     private GitRepository createRepository(File remote, File local, String branch) throws RRepositoryException {
+        return createRepository(remote.toURI().toString(), local, branch);
+    }
+
+    private GitRepository createRepository(String remoteUri, File local, String branch) throws RRepositoryException {
         GitRepository repo = new GitRepository();
-        repo.setUri(remote.toURI().toString());
+        repo.setUri(remoteUri);
         repo.setLocalRepositoryPath(local.getAbsolutePath());
         repo.setBranch(branch);
         repo.setTagPrefix(TAG_PREFIX);
