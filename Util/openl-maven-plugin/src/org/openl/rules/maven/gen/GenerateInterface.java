@@ -1,25 +1,16 @@
 package org.openl.rules.maven.gen;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.resource.loader.StringResourceLoader;
-import org.apache.velocity.runtime.resource.util.StringResourceRepository;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.classloader.SimpleBundleClassLoader;
@@ -60,17 +51,11 @@ public class GenerateInterface {
     public static final String GOAL_ALL = "all";
     public static final String GOAL_GENERATE_DATATYPES = "generate datatypes";
     public static final int MSG_ERR = 0;
-    public static final int MSG_WARN = 1;
     public static final int MSG_INFO = 2;
-    public static final int MSG_VERBOSE = 3;
     public static final int MSG_DEBUG = 4;
     private static final String DEFAULT_CLASSPATH = "./bin";
     private Log log;
-    private String testSourceDirectory;
 
-    private Boolean generateUnitTests;
-    private String unitTestTemplatePath;
-    private Boolean overwriteUnitTests;
     private boolean ignoreTestMethods = true;
     private String defaultProjectName;
     private String[] defaultClasspaths = { GenerateInterface.DEFAULT_CLASSPATH };
@@ -96,34 +81,6 @@ public class GenerateInterface {
         return openClass;
     }
 
-    public void setGenerateUnitTests(Boolean generateUnitTests) {
-        this.generateUnitTests = generateUnitTests;
-    }
-
-    public Boolean getGenerateUnitTests() {
-        return generateUnitTests;
-    }
-
-    public void setUnitTestTemplatePath(String unitTestTemplatePath) {
-        this.unitTestTemplatePath = unitTestTemplatePath;
-    }
-
-    public String getUnitTestTemplatePath() {
-        return unitTestTemplatePath;
-    }
-
-    public Boolean getOverwriteUnitTests() {
-        return overwriteUnitTests;
-    }
-
-    public void setOverwriteUnitTests(Boolean overwriteUnitTests) {
-        this.overwriteUnitTests = overwriteUnitTests;
-    }
-
-    public void setTestSourceDirectory(String testSourceDirectory) {
-        this.testSourceDirectory = testSourceDirectory;
-    }
-
     public void setLog(Log log) {
         this.log = log;
     }
@@ -132,77 +89,6 @@ public class GenerateInterface {
         if (createProjectDescriptor && getSrcFile() != null) {
             writeRulesXML();
         }
-        if (generateUnitTests && getTargetClass() != null) {
-            generateTests();
-        }
-    }
-
-    private void generateTests() throws Exception {
-        if (getOpenClass() == null) {
-            setOpenClass(makeOpenClass());
-        }
-        if (log.isInfoEnabled()) {
-            log.info(String.format("Generating unit tests for module '%s'...", getDisplayName()));
-        }
-        VelocityEngine ve = new VelocityEngine();
-        Template template;
-        try {
-            ve.setProperty("resource.loader", "string");
-            ve.setProperty("string.resource.loader.class", StringResourceLoader.class.getName());
-            ve.setProperty("string.resource.loader.repository.static", false);
-            ve.init();
-            if (!ve.resourceExists(unitTestTemplatePath)) {
-                StringResourceRepository repo = (StringResourceRepository) ve
-                    .getApplicationAttribute(StringResourceLoader.REPOSITORY_NAME_DEFAULT);
-                repo.putStringResource(unitTestTemplatePath, getTemplateFromResource(unitTestTemplatePath));
-            }
-
-            template = ve.getTemplate(unitTestTemplatePath);
-        } catch (Exception e) {
-            throw new IllegalStateException("Can't find a template in '" + unitTestTemplatePath + "'.", e);
-        }
-
-        VelocityContext vc = new VelocityContext();
-
-        vc.put("StringUtils", StringUtils.class);
-        vc.put("openlInterfacePackage", getPackageName());
-        vc.put("openlInterfaceClass", getClassName());
-        vc.put("testMethodNames", getTestMethodNames());
-        vc.put("projectRoot", StringEscapeUtils.escapeJava(StringUtils.removeEnd(getResourcesPath(), File.separator)));
-        vc.put("srcFile", StringEscapeUtils.escapeJava(getDisplayName()));
-
-        StringWriter writer = new StringWriter();
-
-        try {
-            template.merge(vc, writer);
-            writeContentToFile(writer.toString(), getOutputFileName(), overwriteUnitTests);
-        } catch (IOException e) {
-            throw new IllegalStateException("Can't generate JUnit class for file '" + getDisplayName() + "'.", e);
-        }
-    }
-
-    private String getClassName() {
-        String targetClass = getTargetClass();
-        int idx = targetClass.lastIndexOf('.');
-        return idx < 0 ? null : targetClass.substring(idx + 1);
-    }
-
-    private String getPackageName() {
-        String targetClass = getTargetClass();
-        int idx = targetClass.lastIndexOf('.');
-        return idx < 0 ? null : targetClass.substring(0, idx);
-    }
-
-    private List<String> getTestMethodNames() {
-        List<String> methodNames = new ArrayList<String>();
-        for (IOpenMethod method : ProjectHelper.allTesters(getOpenClass())) {
-            methodNames.add(method.getName());
-        }
-        return methodNames;
-    }
-
-    private String getOutputFileName() {
-        return testSourceDirectory + "/" + getTargetClass().replace('.', '/') + "Test.java";
     }
 
     private void writeContentToFile(String content, String fileName, boolean override) throws IOException {
@@ -231,16 +117,6 @@ public class GenerateInterface {
                 fw.close();
             }
         }
-    }
-
-    private String getTemplateFromResource(final String templatePath) throws IOException {
-        InputStream inputStream;
-        if (new File(templatePath).exists()) {
-            inputStream = new FileInputStream(templatePath);
-        } else {
-            inputStream = getClass().getClassLoader().getResourceAsStream(templatePath);
-        }
-        return IOUtils.toStringAndClose(inputStream);
     }
 
     protected ProjectDescriptor createNewProject() {

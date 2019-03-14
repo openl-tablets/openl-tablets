@@ -188,24 +188,6 @@ public final class GenerateMojo extends BaseOpenLMojo {
      * only in GenerateInterface. Default value is: true.</td>
      * </tr>
      * <tr>
-     * <td>generateUnitTests</td>
-     * <td>boolean</td>
-     * <td>false</td>
-     * <td>*Overwrites base {@link #generateUnitTests} value</td>
-     * </tr>
-     * <tr>
-     * <td>unitTestTemplatePath</td>
-     * <td>String</td>
-     * <td>false</td>
-     * <td>*Overwrites base {@link #unitTestTemplatePath} value</td>
-     * </tr>
-     * <tr>
-     * <td>overwriteUnitTests</td>
-     * <td>boolean</td>
-     * <td>false</td>
-     * <td>*Overwrites base {@link #overwriteUnitTests} value</td>
-     * </tr>
-     * <tr>
      * <td>generateDataType</td>
      * <td>boolean</td>
      * <td>false</td>
@@ -264,67 +246,6 @@ public final class GenerateMojo extends BaseOpenLMojo {
     @Parameter
     @Deprecated
     private String[] classpaths = { "." };
-
-    /**
-     * If true, JUnit tests for OpenL Tablets Test tables will be generated.
-     * Default value is "false"
-     *
-     * @deprecated Obsolete. Use openl:test goal to run OpenL tests.
-     */
-    @Parameter(defaultValue = "false")
-    @Deprecated
-    private Boolean generateUnitTests;
-
-    /**
-     * Path to Velocity template for generated unit tests. If omitted, default
-     * template will be used. Available in template variables:
-     * <table border="1">
-     * <tr>
-     * <th>Name</th>
-     * <th>Description</th>
-     * </tr>
-     * <tr>
-     * <td>openlInterfacePackage</td>
-     * <td>Package of generated interface class</td>
-     * </tr>
-     * <tr>
-     * <td>openlInterfaceClass</td>
-     * <td>Generated interface class name</td>
-     * </tr>
-     * <tr>
-     * <td>testMethodNames</td>
-     * <td>Available test method names</td>
-     * </tr>
-     * <tr>
-     * <td>projectRoot</td>
-     * <td>Root directory of OpenL project</td>
-     * </tr>
-     * <tr>
-     * <td>srcFile</td>
-     * <td>Reference to the Excel file for which an interface class must be
-     * generated.</td>
-     * </tr>
-     * <tr>
-     * <td>StringUtils</td>
-     * <td>Apache commons utility class</td>
-     * </tr>
-     * </table>
-     *
-     * @deprecated Obsolete. Use openl:test goal to run OpenL tests.
-     */
-    @Parameter(defaultValue = "org/openl/rules/maven/JUnitTestTemplate.vm")
-    @Deprecated
-    private String unitTestTemplatePath;
-
-    /**
-     * If true, existing JUnit tests will be overwritten. If false, only absent
-     * tests will be generated, others will be skipped.
-     *
-     * @deprecated Obsolete. Use openl:test goal to run OpenL tests.
-     */
-    @Parameter(defaultValue = "false")
-    @Deprecated
-    private Boolean overwriteUnitTests;
 
     @Override
     @Deprecated
@@ -466,16 +387,6 @@ public final class GenerateMojo extends BaseOpenLMojo {
         task.setDefaultClasspaths(classpaths);
 
         task.setLog(getLog());
-        task.setTestSourceDirectory(project.getBuild().getTestSourceDirectory());
-        if (task.getGenerateUnitTests() == null) {
-            task.setGenerateUnitTests(generateUnitTests);
-        }
-        if (task.getUnitTestTemplatePath() == null) {
-            task.setUnitTestTemplatePath(unitTestTemplatePath);
-        }
-        if (task.getOverwriteUnitTests() == null) {
-            task.setOverwriteUnitTests(overwriteUnitTests);
-        }
     }
 
     private void initCreateProjectDescriptorState(GenerateInterface task) {

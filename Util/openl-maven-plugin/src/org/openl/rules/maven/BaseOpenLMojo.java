@@ -29,13 +29,6 @@ abstract class BaseOpenLMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.sourceDirectory}/../openl")
     private File sourceDirectory;
 
-    /**
-     * @deprecated Use sourceDirectory instead.
-     */
-    @Deprecated
-    @Parameter
-    private String openlResourcesDirectory;
-
     @Parameter(defaultValue = "${project}", readonly = true)
     protected MavenProject project;
     /**
@@ -45,22 +38,15 @@ abstract class BaseOpenLMojo extends AbstractMojo {
     protected File workspaceFolder;
 
     String getSourceDirectory() {
-        File source;
-        if (openlResourcesDirectory != null) {
-            getLog().warn("<openlResourcesDirectory> parameter has been deprecated. Use <sourceDirectory> instead");
-            source = new File(openlResourcesDirectory);
-        } else {
-            source = sourceDirectory;
-        }
         String path;
         try {
-            path = source.getCanonicalPath();
+            path = sourceDirectory.getCanonicalPath();
         } catch (Exception e) {
             warn("The path to OpenL source directory cannot be converted in canonical form.");
-            path = source.getPath();
+            path = sourceDirectory.getPath();
         }
         info("OpenL source directory: ", path);
-        if (!source.isDirectory() || CollectionUtils.isEmpty(source.list())) {
+        if (!sourceDirectory.isDirectory() || CollectionUtils.isEmpty(sourceDirectory.list())) {
             warn("OpenL source directory is empty.");
         }
         return path;
