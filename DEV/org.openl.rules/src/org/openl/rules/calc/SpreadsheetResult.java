@@ -55,14 +55,16 @@ public class SpreadsheetResult implements Serializable {
 
     static Map<String, Point> buildFieldsCoordinates(String[] columnNames, String[] rowNames) {
         Map<String, Point> fieldsCoordinates = new HashMap<String, Point>();
-        for (int i = 0; i < rowNames.length; i++) {
-            for (int j = 0; j < columnNames.length; j++) {
-                StringBuilder sb = new StringBuilder();
-                sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                    .append(columnNames[j])
-                    .append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
-                    .append(rowNames[i]);
-                fieldsCoordinates.put(sb.toString(), new Point(j, i));
+        if (columnNames != null && rowNames != null) {
+            for (int i = 0; i < rowNames.length; i++) {
+                for (int j = 0; j < columnNames.length; j++) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
+                        .append(columnNames[j])
+                        .append(SpreadsheetStructureBuilder.DOLLAR_SIGN)
+                        .append(rowNames[i]);
+                    fieldsCoordinates.put(sb.toString(), new Point(j, i));
+                }
             }
         }
         return fieldsCoordinates;
