@@ -20,7 +20,6 @@ import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.fuzzy.OpenLFuzzySearch;
-import org.openl.rules.fuzzy.Token;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;

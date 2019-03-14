@@ -1653,20 +1653,20 @@ public class DecisionTableHelper {
         return fits;
     }
 
-    private static boolean isLastDtColumnValid(DTHeader dtHeader, int expected) {
+    private static boolean isLastDtColumnValid(DTHeader dtHeader, int maxColumnCount, int twoColumnsInReturn) {
         if (dtHeader.isReturn()) {
-            return dtHeader.getColumn() + dtHeader.getNumberOfUsedColumns() - 1 == expected - 1;
+            return dtHeader.getColumn() + dtHeader.getNumberOfUsedColumns() == maxColumnCount;
         }
         if (dtHeader.isCondition() || dtHeader.isAction()) {
-            return dtHeader.getColumn() + dtHeader.getNumberOfUsedColumns() - 1 < expected - 1;
+            return dtHeader.getColumn() + dtHeader.getNumberOfUsedColumns() < maxColumnCount - twoColumnsInReturn;
         }
         return true;
     }
 
-    private static List<DTHeader[]> filterBadOnes(ILogicalTable originalTable, List<DTHeader[]> fits) {
-        int columnsCount = originalTable.getWidth();
+    private static List<DTHeader[]> filterBadOnes(ILogicalTable originalTable, List<DTHeader[]> fits, boolean twoColumnsInReturn) {
+        int maxColumnCount = originalTable.getWidth();
         fits = fits.stream()
-            .filter(e -> e.length == 0 || isLastDtColumnValid(e[e.length - 1], columnsCount))
+            .filter(e -> e.length == 0 || isLastDtColumnValid(e[e.length - 1], maxColumnCount, twoColumnsInReturn ? 1 : 0))
             .collect(Collectors.toList());
         return fits;
     }
@@ -1690,6 +1690,7 @@ public class DecisionTableHelper {
             List<DTHeader> dtHeaders,
             List<DTHeader> simpleDtHeaders,
             int numberOfParametersToUse,
+            boolean twoColumnsInReturn,
             IBindingContext bindingContext) throws SyntaxNodeException {
         boolean[][] matrix = new boolean[dtHeaders.size()][dtHeaders.size()];
         for (int i = 0; i < dtHeaders.size(); i++) {
@@ -1721,7 +1722,7 @@ public class DecisionTableHelper {
             new ArrayList<>(),
             new HashSet<>(),
             fits);
-        fits = filterBadOnes(originalTable, fits);
+        fits = filterBadOnes(originalTable, fits, twoColumnsInReturn);
 
         fits.add(simpleDtHeaders.toArray(new DTHeader[] {}));
         fits = filterHeadersByMin(fits, e -> Arrays.stream(e).filter(x -> x instanceof SimpleDTHeader).count());
@@ -1779,6 +1780,8 @@ public class DecisionTableHelper {
         int column = 0;
         int firstColumnHeight = originalTable.getCell(0, 0).getHeight();
 
+        boolean twoColumnsInReturn = isTwoColumnsInReturn(decisionTable, isCollectTable);
+        
         ParameterTokens parameterTokens = buildParameterTokens(decisionTable);
 
         IOpenClass returnCompoudType = null;
@@ -1817,18 +1820,6 @@ public class DecisionTableHelper {
                 break;
             }
 
-            if (isCollectTable && Map.class.isAssignableFrom(decisionTable.getType().getInstanceClass())) { // Collect
-                                                                                                            // with
-                                                                                                            // Map
-                                                                                                            // uses
-                                                                                                            // 2
-                                                                                                            // last
-                                                                                                            // columns
-                if (column + originalTable.getColumnWidth(column) > originalTable.getWidth()) {
-                    break;
-                }
-            }
-
             matchDtColumnsDefinitions(decisionTable,
                 originalTable,
                 column,
@@ -1857,12 +1848,13 @@ public class DecisionTableHelper {
 
             column += 1;
         }
-
+        
         DTHeader[] fit = fitDtHeaders(originalTable,
             tableSyntaxNode,
             dtHeaders,
             simpleDtHeaders,
             decisionTable.getSignature().getNumberOfParameters() - numberOfHcondition,
+            twoColumnsInReturn,
             bindingContext);
 
         boolean[] parameterIsUsed = new boolean[numberOfParameters];
@@ -1906,6 +1898,14 @@ public class DecisionTableHelper {
         }
 
         return Arrays.asList(headers);
+    }
+
+    private static boolean isTwoColumnsInReturn(DecisionTable decisionTable, boolean isCollectTable) {
+        boolean twoColumnsInReturn = false;
+        if (isCollectTable && Map.class.isAssignableFrom(decisionTable.getType().getInstanceClass())) {
+            twoColumnsInReturn = true;
+        }
+        return twoColumnsInReturn;
     }
 
     private static void matchDtColumnsDefinitions(DecisionTable decisionTable,
