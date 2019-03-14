@@ -1287,34 +1287,6 @@ public class DecisionTableHelper {
         return sb.toString();
     }
 
-    private static boolean matchByDTColumnDefinitionLoop1(DTColumnsDefinition definition,
-            IOpenMethodHeader header,
-            Set<String> methodParametersUsedInExpression,
-            Map<String, Integer> paramToIndex,
-            Set<Integer> usedMethodParameterIndexes,
-            IBindingContext bindingContext) {
-        Iterator<String> itr = methodParametersUsedInExpression.iterator();
-        while (itr.hasNext()) {
-            String param = itr.next();
-            int j = paramToIndex.get(param);
-            IOpenClass type = definition.getHeader().getSignature().getParameterType(j);
-            boolean f = false;
-            for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
-                IOpenCast openCast = bindingContext.getCast(header.getSignature().getParameterType(i), type);
-                if (!usedMethodParameterIndexes.contains(i) && param
-                    .equals(header.getSignature().getParameterName(i)) && openCast != null && openCast.isImplicit()) {
-                    if (f) {
-                        return false;
-                    }
-                    f = true;
-                    usedMethodParameterIndexes.add(i);
-
-                }
-            }
-        }
-        return true;
-    }
-
     private static MatchedDefinition matchByDTColumnDefinition(DecisionTable decisionTable,
             DTColumnsDefinition definition,
             IBindingContext bindingContext) {
