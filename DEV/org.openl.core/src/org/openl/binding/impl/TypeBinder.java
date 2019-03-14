@@ -1,9 +1,3 @@
-/*
- * Created on Jul 2, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
@@ -14,43 +8,44 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 
 /**
- * @author snshor
+ * A binder for Type declaration. Like
+ *
+ * <li>List</li>
+ * <li>String[]</li>
+ * <li>int[][][]</li>
+ *
+ * @author Yury Molchan
  *
  */
 public class TypeBinder extends ANodeBinder {
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode,
-     * org.openl.binding.IBindingContext)
-     */
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         ISyntaxNode typeNode = node.getChild(0);
-        int dimension = 0;
 
-        for (; !(typeNode instanceof IdentifierNode); ++dimension) {
-            typeNode = typeNode.getChild(0);
-        }
-
-        String typeName = ((IdentifierNode) typeNode).getIdentifier();
         try {
-            IOpenClass varType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
+            IOpenClass varType = getType(typeNode, bindingContext);
 
+            return new TypeBoundNode(node, varType);
+        } catch (Exception e) {
+            return makeErrorNode(e.getMessage(), node, bindingContext);
+        }
+    }
+
+    private IOpenClass getType(ISyntaxNode node, IBindingContext bindingContext) throws ClassNotFoundException {
+        if (node instanceof IdentifierNode) {
+            String typeName = ((IdentifierNode) node).getIdentifier();
+            IOpenClass varType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
             if (varType == null) {
                 String message = String
                     .format("Can't bind node: '%s'. Can't find type: '%s'.", node.getModule().getCode(), typeName);
-                return makeErrorNode(message, node, bindingContext);
-            }
 
-            if (dimension > 0) {
-                varType = varType.getAggregateInfo().getIndexedAggregateType(varType, dimension);
+                throw new ClassNotFoundException(message);
             }
             BindHelper.checkOnDeprecation(node, bindingContext, varType);
-            return new TypeBoundNode(node, varType);
-        } catch (RuntimeException e) {
-            return makeErrorNode(e.getMessage(), node, bindingContext);
+            return varType;
         }
+        IOpenClass arrayType = getType(node.getChild(0), bindingContext);
+        return arrayType != null ? arrayType.getAggregateInfo().getIndexedAggregateType(arrayType, 1) : null;
     }
 }
