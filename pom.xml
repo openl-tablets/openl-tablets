@@ -1187,18 +1187,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <!-- XMLBeans is a technology for accessing XML by binding it to Java types. -->
-            <dependency>
-                <groupId>org.apache.xmlbeans</groupId>
-                <artifactId>xmlbeans</artifactId>
-                <version>3.0.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>stax</groupId>
-                        <artifactId>stax-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
             <!-- Stax2 API is an extension to basic Stax 1.0 API -->
             <dependency>
                 <groupId>org.codehaus.woodstox</groupId>
