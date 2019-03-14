@@ -1376,10 +1376,10 @@ public class DecisionTableHelper {
         for (String paramName : methodParameterNames) {
             if (localParameters.containsKey(paramName)) {
                 int k = 1;
-                String newParamName = "$" + paramName;
+                String newParamName = "_" + paramName;
                 while (localParameters.containsKey(newParamName) || renamedLocalParameters
                     .containsValue(newParamName) || methodParameterNames.contains(newParamName)) {
-                    newParamName = "$" + paramName + k;
+                    newParamName = "_" + paramName + "_" + k;
                     k++;
                 }
                 renamedLocalParameters.put(paramName, newParamName);
