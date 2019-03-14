@@ -1347,71 +1347,61 @@ public class DecisionTableHelper {
                 }
             }
         }
-        itr = methodParametersUsedInExpression.iterator();
-        while (itr.hasNext()) {
-            String param = itr.next();
-            int j = paramToIndex.get(param);
-            IOpenClass type = definition.getHeader().getSignature().getParameterType(j);
-            boolean f = false;
-            for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
-                IOpenCast openCast = bindingContext.getCast(header.getSignature().getParameterType(i), type);
-                if (!usedMethodParameterIndexes.contains(i) && param
-                    .equals(header.getSignature().getParameterName(i)) && openCast != null && openCast.isImplicit()) {
-                    if (f) {
-                        return null;
-                    }
-                    f = true;
-                    matchType = MatchType.STRICT_CASTED;
-                    usedMethodParameterIndexes.add(i);
-                    String typeName = type.getInstanceClass().getSimpleName();
-                    if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName) == null) {
-                        typeName = type.getJavaName();
-                    }
-                    methodParametersToRename.put(param,
-                        "((" + typeName + ")" + header.getSignature().getParameterName(i) + ")");
 
-                }
-            }
-        }
-        itr = methodParametersUsedInExpression.iterator();
-        while (itr.hasNext()) {
-            String param = itr.next();
-            int j = paramToIndex.get(param);
-            IOpenClass type = definition.getHeader().getSignature().getParameterType(j);
-            boolean f = false;
-            for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
-                if (!usedMethodParameterIndexes.contains(i) && type.equals(header.getSignature().getParameterType(i))) {
-                    if (f) {
-                        return null;
+        MatchType[] matchTypes = { MatchType.STRICT_CASTED,
+                MatchType.METHOD_PARAMS_RENAMED,
+                MatchType.METHOD_PARAMS_RENAMED_CASTED };
+
+        for (MatchType mt : matchTypes) {
+            itr = methodParametersUsedInExpression.iterator();
+            while (itr.hasNext()) {
+                String param = itr.next();
+                int j = paramToIndex.get(param);
+                IOpenClass type = definition.getHeader().getSignature().getParameterType(j);
+                boolean duplicatedMatch = false;
+                for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
+                    boolean predicate = true;
+                    IOpenCast openCast = bindingContext.getCast(header.getSignature().getParameterType(i), type);
+                    switch (mt) {
+                        case METHOD_PARAMS_RENAMED_CASTED:
+                            predicate = openCast != null && openCast.isImplicit();
+                            break;
+                        case STRICT_CASTED:
+                            predicate = openCast != null && openCast.isImplicit() && param
+                                .equals(header.getSignature().getParameterName(i));
+                            break;
+                        case METHOD_PARAMS_RENAMED:
+                            predicate = type.equals(header.getSignature().getParameterType(i));
+                            break;
+                        default:
+                            throw new IllegalStateException();
                     }
-                    f = true;
-                    matchType = MatchType.METHOD_PARAMS_RENAMED;
-                    usedMethodParameterIndexes.add(i);
-                    methodParametersToRename.put(param, header.getSignature().getParameterName(i));
-                }
-            }
-        }
-        itr = methodParametersUsedInExpression.iterator();
-        while (itr.hasNext()) {
-            String param = itr.next();
-            int j = paramToIndex.get(param);
-            IOpenClass type = definition.getHeader().getSignature().getParameterType(j);
-            boolean f = false;
-            for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
-                IOpenCast openCast = bindingContext.getCast(header.getSignature().getParameterType(i), type);
-                if (!usedMethodParameterIndexes.contains(i) && openCast != null && openCast.isImplicit()) {
-                    if (f) {
-                        return null;
+
+                    if (!usedMethodParameterIndexes.contains(i) && predicate) {
+                        if (duplicatedMatch) {
+                            return null;
+                        }
+                        duplicatedMatch = true;
+                        matchType = mt;
+                        usedMethodParameterIndexes.add(i);
+                        String newParam = null;
+                        switch (mt) {
+                            case STRICT_CASTED:
+                            case METHOD_PARAMS_RENAMED_CASTED:
+                                String typeName = type.getInstanceClass().getSimpleName();
+                                if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName) == null) {
+                                    typeName = type.getJavaName();
+                                }
+                                newParam = "((" + typeName + ")" + header.getSignature().getParameterName(i) + ")";
+                                break;
+                            case METHOD_PARAMS_RENAMED:
+                                newParam = header.getSignature().getParameterName(i);
+                                break;
+                            default:
+                                throw new IllegalStateException();
+                        }
+                        methodParametersToRename.put(param, newParam);
                     }
-                    f = true;
-                    matchType = MatchType.METHOD_PARAMS_RENAMED_CASTED;
-                    usedMethodParameterIndexes.add(i);
-                    String typeName = type.getInstanceClass().getSimpleName();
-                    if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName) == null) {
-                        typeName = type.getJavaName();
-                    }
-                    methodParametersToRename.put(param,
-                        "((" + typeName + ")" + header.getSignature().getParameterName(i) + ")");
                 }
             }
         }
@@ -1453,42 +1443,37 @@ public class DecisionTableHelper {
         int[] usedMethodParameterIndexesArray = ArrayUtils
             .toPrimitive(usedMethodParameterIndexes.toArray(new Integer[] {}));
 
-        if (MatchType.STRICT.equals(matchType)) {
-            return new MatchedDefinition(definition,
-                newCode,
-                usedMethodParameterIndexesArray,
-                renamedLocalParameters,
-                renamedLocalParameters.isEmpty() ? MatchType.STRICT : MatchType.STRICT_LOCAL_PARAMS_RENAMED);
+        switch (matchType) {
+            case STRICT:
+                return new MatchedDefinition(definition,
+                    newCode,
+                    usedMethodParameterIndexesArray,
+                    renamedLocalParameters,
+                    renamedLocalParameters.isEmpty() ? MatchType.STRICT : MatchType.STRICT_LOCAL_PARAMS_RENAMED);
+            case STRICT_CASTED:
+                return new MatchedDefinition(definition,
+                    newCode,
+                    usedMethodParameterIndexesArray,
+                    renamedLocalParameters,
+                    renamedLocalParameters.isEmpty() ? MatchType.STRICT_CASTED
+                                                     : MatchType.STRICT_CASTED_LOCAL_PARAMS_RENAMED);
+            case METHOD_PARAMS_RENAMED:
+                return new MatchedDefinition(definition,
+                    newCode,
+                    usedMethodParameterIndexesArray,
+                    renamedLocalParameters,
+                    renamedLocalParameters.isEmpty() ? MatchType.METHOD_PARAMS_RENAMED
+                                                     : MatchType.METHOD_LOCAL_PARAMS_RENAMED);
+            case METHOD_PARAMS_RENAMED_CASTED:
+                return new MatchedDefinition(definition,
+                    newCode,
+                    usedMethodParameterIndexesArray,
+                    renamedLocalParameters,
+                    renamedLocalParameters.isEmpty() ? MatchType.METHOD_PARAMS_RENAMED_CASTED
+                                                     : MatchType.METHOD_LOCAL_PARAMS_RENAMED_CASTED);
+            default:
+                return null;
         }
-        if (MatchType.STRICT_CASTED.equals(matchType)) {
-            return new MatchedDefinition(definition,
-                newCode,
-                usedMethodParameterIndexesArray,
-                renamedLocalParameters,
-                renamedLocalParameters.isEmpty() ? MatchType.STRICT_CASTED
-                                                 : MatchType.STRICT_CASTED_LOCAL_PARAMS_RENAMED);
-        }
-
-        if (MatchType.METHOD_PARAMS_RENAMED.equals(matchType)) {
-            return new MatchedDefinition(definition,
-                newCode,
-                usedMethodParameterIndexesArray,
-                renamedLocalParameters,
-                renamedLocalParameters.isEmpty() ? MatchType.METHOD_PARAMS_RENAMED
-                                                 : MatchType.METHOD_LOCAL_PARAMS_RENAMED);
-
-        }
-
-        if (MatchType.METHOD_PARAMS_RENAMED_CASTED.equals(matchType)) {
-            return new MatchedDefinition(definition,
-                newCode,
-                usedMethodParameterIndexesArray,
-                renamedLocalParameters,
-                renamedLocalParameters.isEmpty() ? MatchType.METHOD_PARAMS_RENAMED_CASTED
-                                                 : MatchType.METHOD_LOCAL_PARAMS_RENAMED_CASTED);
-        }
-
-        return null;
     }
 
     private static ParameterTokens buildParameterTokens(DecisionTable decisionTable) {
@@ -1772,13 +1757,17 @@ public class DecisionTableHelper {
             new HashSet<>(),
             fits);
         fits = fits.stream()
-            .filter(e -> Arrays.stream(e).filter(x -> x instanceof DeclaredDTHeader && x.isReturn()).count() <= 1)
-            .collect(Collectors.toList()); //Only one Return is supported now        
-        
+            .filter(e -> Arrays.stream(e).filter(x -> x.isReturn()).count() <= 1 || Arrays.stream(e)
+                .filter(x -> x.isReturn())
+                .allMatch(x -> x instanceof FuzzyDTHeader))
+            .collect(Collectors.toList()); // Only one column for return if not compound return
+
         fits = filterBadOnes(originalTable, fits, twoColumnsInReturn);
 
         fits.add(simpleDtHeaders.toArray(new DTHeader[] {}));
+        
         fits = filterHeadersByMin(fits, e -> Arrays.stream(e).filter(x -> x instanceof SimpleDTHeader).count());
+        fits = filterHeadersByMin(fits, e -> Arrays.stream(e).filter(x -> x instanceof SimpleReturnDTHeader).count());
 
         // Declared covered columns filter
         fits = filterHeadersByMax(fits,
