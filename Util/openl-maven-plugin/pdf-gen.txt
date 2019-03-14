@@ -1,7 +1,0 @@
-TODO: fully automate pdf generation.
-
-To beautify it:
-1. Install Apache™ FOP: http://xmlgraphics.apache.org/fop/
-2. Run "gen-doc.cmd"
-3. Run the command:
-     <fop_installation_folder>\fop.cmd target/pdf/maven-pdf-plugin.fo target/pdf/openl-maven-plugin-doc.pdf -c fop.xconf
