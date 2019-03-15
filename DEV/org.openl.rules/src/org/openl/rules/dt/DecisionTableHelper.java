@@ -1251,14 +1251,18 @@ public class DecisionTableHelper {
                         chain.setTrue();
                     }
                 }
+            } else if ("chain".equals(node.getChild(i).getType())) {
+                boolean f = chain.booleanValue();
+                parseRec(node.getChild(i), chain, true, identifierNodes);
+                chain.setValue(f);
+            } else if ("function".equals(node.getChild(i).getType())) {
+                MutableBoolean prevChain = chain;
+                boolean prevInChain = inChain;
+                parseRec(node.getChild(i), new MutableBoolean(false), false, identifierNodes);
+                chain = prevChain;
+                inChain = prevInChain;
             } else {
-                if ("chain".equals(node.getType())) {
-                    boolean f = chain.booleanValue();
-                    parseRec(node.getChild(i), chain, true, identifierNodes);
-                    chain.setValue(f);
-                } else {
-                    parseRec(node.getChild(i), chain, inChain, identifierNodes);
-                }
+                parseRec(node.getChild(i), chain, inChain, identifierNodes);
             }
         }
     }
@@ -1725,7 +1729,7 @@ public class DecisionTableHelper {
             int numberOfHcondition,
             boolean twoColumnsInReturn,
             IBindingContext bindingContext) throws SyntaxNodeException {
-        int numberOfVConditionParameters = numberOfParameters - numberOfHcondition; 
+        int numberOfVConditionParameters = numberOfParameters - numberOfHcondition;
         boolean[][] matrix = new boolean[dtHeaders.size()][dtHeaders.size()];
         for (int i = 0; i < dtHeaders.size(); i++) {
             for (int j = 0; j < dtHeaders.size(); j++) {
@@ -1763,7 +1767,7 @@ public class DecisionTableHelper {
             .collect(Collectors.toList()); // Only one column for return if not compound return
 
         fits = filterBadOnes(originalTable, fits, twoColumnsInReturn);
-        
+
         // Declared covered columns filter
         fits = filterHeadersByMax(fits,
             e -> Arrays.stream(e)
@@ -1780,7 +1784,7 @@ public class DecisionTableHelper {
                                                                                                              // condition
                                                                                                              // headers
         }
-        
+
         if (numberOfHcondition == 0) {
             fits = filterHeadersByMax(fits, e -> Arrays.stream(e).anyMatch(x -> x.isReturn()) ? 1l : 0l); // Prefer full
                                                                                                           // matches
@@ -1793,16 +1797,16 @@ public class DecisionTableHelper {
                 .filter(e -> Arrays.stream(e).filter(x -> x.isReturn()).count() == 0)
                 .collect(Collectors.toList());
         }
-        
+
         fits = filterHeadersByMax(fits,
             e -> Arrays.stream(e).flatMapToInt(c -> Arrays.stream(c.getMethodParameterIndexes())).distinct().count());
-        
+
         fits = filterHeadersByMin(fits, e -> Arrays.stream(e).filter(x -> x instanceof SimpleReturnDTHeader).count());
-        
+
         if (numberOfHcondition == 0 && fits.isEmpty()) {
             fits.add(simpleDtHeaders.toArray(new DTHeader[] {}));
         }
-        
+
         if (!fits.isEmpty()) {
             if (fits.size() > 1) {
                 if (isAmbiguousFits(fits, e -> e.isCondition())) {
