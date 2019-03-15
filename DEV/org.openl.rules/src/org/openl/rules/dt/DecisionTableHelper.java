@@ -1358,6 +1358,9 @@ public class DecisionTableHelper {
             itr = methodParametersUsedInExpression.iterator();
             while (itr.hasNext()) {
                 String param = itr.next();
+                if (methodParametersToRename.containsKey(param)) {
+                    continue;
+                }
                 int j = paramToIndex.get(param);
                 IOpenClass type = definition.getHeader().getSignature().getParameterType(j);
                 boolean duplicatedMatch = false;
