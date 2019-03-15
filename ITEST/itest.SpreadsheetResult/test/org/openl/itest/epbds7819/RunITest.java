@@ -14,6 +14,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.jxpath.NodeSet;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -113,8 +114,8 @@ public class RunITest {
         element = (Node) xpath.evaluate(pathToSequence + "/*[@name='logicalTable']", root, XPathConstants.NODE);
         assertNull(element);
 
-        element = (Node) xpath.evaluate(pathToSequence, root, XPathConstants.NODE);
-        assertEquals(3, element.getChildNodes().getLength());
+        NodeList elements = (NodeList) xpath.evaluate(pathToSequence + "/*[local-name()='element']", root, XPathConstants.NODESET);
+        assertEquals(3, elements.getLength());
     }
 
     @Test
