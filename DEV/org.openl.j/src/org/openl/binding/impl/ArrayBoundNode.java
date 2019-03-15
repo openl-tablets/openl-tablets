@@ -1,6 +1,5 @@
 package org.openl.binding.impl;
 
-import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
@@ -51,10 +50,4 @@ public class ArrayBoundNode extends ABoundNode {
     public IOpenClass getType() {
         return arrayType;
     }
-
-    @Override
-    public void updateDependency(BindingDependencies dependencies) {
-        dependencies.addTypeDependency(componentType, this);
-    }
-
 }

@@ -1,6 +1,5 @@
 package org.openl.binding.impl;
 
-import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLRuntimeException;
@@ -75,10 +74,4 @@ public class CastNode extends ABoundNode {
     public boolean isLvalue() {
         return children[0].isLvalue();
     }
-
-    @Override
-    public void updateDependency(BindingDependencies dependencies) {
-        dependencies.addTypeDependency(castedType, this);
-    }
-
 }

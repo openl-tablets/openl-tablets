@@ -119,11 +119,6 @@ public class FieldBoundNode extends ATargetBoundNode {
     }
 
     @Override
-    public void updateAssignFieldDependency(BindingDependencies dependencies) {
-        dependencies.addAssignField(boundField, this);
-    }
-
-    @Override
     public void updateDependency(BindingDependencies dependencies) {
         dependencies.addFieldDependency(boundField, this);
     }

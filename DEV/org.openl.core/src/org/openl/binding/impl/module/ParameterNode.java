@@ -1,6 +1,5 @@
 package org.openl.binding.impl.module;
 
-import org.openl.binding.BindingDependencies;
 import org.openl.binding.impl.ABoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
@@ -34,10 +33,4 @@ public class ParameterNode extends ABoundNode {
     public IOpenClass getType() {
         return type;
     }
-
-    @Override
-    public void updateDependency(BindingDependencies dependencies) {
-        dependencies.addTypeDependency(type, this);
-    }
-
 }

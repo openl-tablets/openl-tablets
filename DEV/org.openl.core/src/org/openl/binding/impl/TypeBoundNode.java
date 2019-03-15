@@ -31,11 +31,6 @@ public class TypeBoundNode extends ABoundNode {
     }
 
     @Override
-    public void updateDependency(BindingDependencies dependencies) {
-        dependencies.addTypeDependency(type, this);
-    }
-
-    @Override
     public boolean isStaticTarget() {
         return true;
     }
