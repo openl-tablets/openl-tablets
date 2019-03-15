@@ -284,6 +284,12 @@ public abstract class ANodeBinder implements INodeBinder {
         return arrayType != null ? arrayType.getAggregateInfo().getIndexedAggregateType(arrayType, 1) : null;
     }
 
+    protected static void assertCountOfChild(String message, ISyntaxNode node, int count) {
+        if (node.getNumberOfChildren() != count) {
+            throw new IllegalStateException(message);
+        }
+    }
+
     /*
      * (non-Javadoc)
      *

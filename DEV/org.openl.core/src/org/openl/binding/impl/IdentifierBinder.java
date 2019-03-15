@@ -1,26 +1,22 @@
-/*
- * Created on May 19, 2003 Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
-import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 
 /**
- * @author snshor
+ *
+ * @author Yury Molchan
  */
 public class IdentifierBinder extends ANodeBinder {
 
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         boolean strictMatch = isStrictMatch(node);
-        String fieldName = ((IdentifierNode) node).getIdentifier();
+        String fieldName = node.getText();
 
         // According to "6.4.2. Obscuring" of Java Language Specification:
         // A simple name may occur in contexts where it may potentially be interpreted as the name of a variable,
@@ -49,7 +45,7 @@ public class IdentifierBinder extends ANodeBinder {
     public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode target) {
 
         try {
-            String fieldName = ((IdentifierNode) node).getIdentifier();
+            String fieldName = node.getText();
 
             try {
                 IOpenClass type = target.getType();
