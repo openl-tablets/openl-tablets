@@ -167,7 +167,9 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     public void finalizeBind(IBindingContext cxt) throws Exception {
         TableSyntaxNode tsn = getTableSyntaxNode();
         ILogicalTable tableBody = tsn.getTableBody();
-
+        if (tableBody == null) {
+            return;
+        }
         int[] tableStructure = getTableStructure(tableBody);
         int w = tableStructure.length;
         if (w != 4) {
