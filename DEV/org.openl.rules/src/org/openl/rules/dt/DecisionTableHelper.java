@@ -1244,13 +1244,11 @@ public class DecisionTableHelper {
             boolean inChain,
             List<IdentifierNode> identifierNodes) {
         for (int i = 0; i < node.getNumberOfChildren(); i++) {
-            if (node.getChild(i) instanceof IdentifierNode) {
-                if ("identifier".equals(node.getChild(i).getType())) {
-                    if (!chain.booleanValue()) {
-                        identifierNodes.add((IdentifierNode) node.getChild(i));
-                        if (inChain) {
-                            chain.setTrue();
-                        }
+            if ("identifier".equals(node.getChild(i).getType())) {
+                if (!chain.booleanValue()) {
+                    identifierNodes.add((IdentifierNode) node.getChild(i));
+                    if (inChain) {
+                        chain.setTrue();
                     }
                 }
             } else {

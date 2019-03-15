@@ -1,29 +1,23 @@
-/*
- * Created on May 13, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.syntax.impl;
 
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.ILiteralNode;
 import org.openl.util.text.TextInterval;
 
 /**
  * @author snshor
  *
  */
-public class LiteralNode extends TerminalNode implements ILiteralNode {
+public class LiteralNode extends TerminalNode {
     
     private String image;
 
-    public LiteralNode(String type, TextInterval location, String image, IOpenSourceCodeModule module) {
+    LiteralNode(String type, TextInterval location, String image, IOpenSourceCodeModule module) {
         super(type, location, module);
         this.image = image;
     }
 
-    public String getImage() {
+    @Override
+    public String getText() {
         return image;
     }
 

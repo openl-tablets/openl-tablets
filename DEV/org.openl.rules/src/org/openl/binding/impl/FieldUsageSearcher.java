@@ -11,7 +11,6 @@ import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
@@ -98,10 +97,8 @@ public final class FieldUsageSearcher {
     }
 
     private static ISyntaxNode getIdentifierSyntaxNode(ISyntaxNode syntaxNode) {
-        if (!(syntaxNode instanceof IdentifierNode)) {
-            if ("function".equals(syntaxNode.getType())) {
-                syntaxNode = syntaxNode.getChild(syntaxNode.getNumberOfChildren() - 1);
-            }
+        if ("function".equals(syntaxNode.getType())) {
+            syntaxNode = syntaxNode.getChild(syntaxNode.getNumberOfChildren() - 1);
         }
         return syntaxNode;
     }

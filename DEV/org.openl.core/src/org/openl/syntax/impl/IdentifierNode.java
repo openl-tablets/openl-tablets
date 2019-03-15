@@ -27,6 +27,11 @@ public class IdentifierNode extends TerminalNode {
     }
 
     @Override
+    public String getText() {
+        return identifier;
+    }
+
+    @Override
     protected void printMySelf(int level, StringBuilder buf) {
         super.printMySelf(level, buf);
         buf.append("=").append(identifier);

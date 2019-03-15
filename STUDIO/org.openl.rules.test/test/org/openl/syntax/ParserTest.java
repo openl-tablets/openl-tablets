@@ -66,9 +66,9 @@ public class ParserTest extends TestCase {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
 
-        ILiteralNode ln = (ILiteralNode) search(pc.getTopNode(), type);
+        ISyntaxNode ln = search(pc.getTopNode(), type);
 
-        Assert.assertEquals(res, ln.getImage());
+        Assert.assertEquals(res, ln.getText());
         Assert.assertEquals(type, ln.getType());
     }
 
@@ -152,7 +152,7 @@ public class ParserTest extends TestCase {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
 
-        ILiteralNode ln = (ILiteralNode) search(pc.getTopNode(), type);
+        ISyntaxNode ln = search(pc.getTopNode(), type);
 
         LiteralBoundNode literalBoundNode = (LiteralBoundNode) binder.bind(ln, null);
         Assert.assertEquals(clazz, literalBoundNode.getType().getInstanceClass());

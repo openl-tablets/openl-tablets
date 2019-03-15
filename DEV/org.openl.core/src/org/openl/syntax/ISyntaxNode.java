@@ -27,6 +27,10 @@ public interface ISyntaxNode {
 
     String getType();
 
+    default String getText() {
+        return null;
+    }
+
     void print(int i, StringBuilder buf);
 
     void setParent(ISyntaxNode node);
