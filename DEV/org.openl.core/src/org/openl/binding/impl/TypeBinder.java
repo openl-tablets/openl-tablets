@@ -4,7 +4,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
-import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 
 /**
@@ -33,8 +32,8 @@ public class TypeBinder extends ANodeBinder {
     }
 
     private IOpenClass getType(ISyntaxNode node, IBindingContext bindingContext) throws ClassNotFoundException {
-        if (node instanceof IdentifierNode) {
-            String typeName = ((IdentifierNode) node).getIdentifier();
+        if (node.getType().equals("type.name")) {
+            String typeName = node.getText();
             IOpenClass varType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
             if (varType == null) {
                 String message = String

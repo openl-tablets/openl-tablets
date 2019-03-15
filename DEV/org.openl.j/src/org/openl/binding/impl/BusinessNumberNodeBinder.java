@@ -7,7 +7,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.impl.LiteralNode;
 
 public abstract class BusinessNumberNodeBinder extends ANodeBinder {
 
@@ -24,10 +23,7 @@ public abstract class BusinessNumberNodeBinder extends ANodeBinder {
      * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext)
      */
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
-
-        assert node instanceof LiteralNode;
-
-        String literal = ((LiteralNode) node).getImage();
+        String literal = node.getText();
 
         // FIXME: System locals are not supportable
         if (literal.charAt(0) == '$') {

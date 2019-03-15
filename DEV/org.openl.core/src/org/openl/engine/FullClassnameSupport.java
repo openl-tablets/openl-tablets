@@ -15,34 +15,25 @@ class FullClassnameSupport {
     private static StringBuilder tryFixChainWithPackage(ISyntaxNode syntaxNode,
             IBindingContext bindingContext) {
         if (syntaxNode instanceof IdentifierNode) {
-            IdentifierNode identifierNode = (IdentifierNode) syntaxNode;
-            return new StringBuilder(identifierNode.getIdentifier());
-        } else {
-            if (syntaxNode instanceof BinaryNode) {
-                BinaryNode binaryNode = (BinaryNode) syntaxNode;
-                if ("chain.suffix.dot.identifier".equals(binaryNode.getType())) {
-                    StringBuilder sb = tryFixChainWithPackage(binaryNode.getChild(0), bindingContext);
+            return new StringBuilder(syntaxNode.getText());
+        } else if ("chain.suffix.dot.identifier".equals(syntaxNode.getType())) {
+                    StringBuilder sb = tryFixChainWithPackage(syntaxNode.getChild(0), bindingContext);
                     if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, sb.toString()) != null) {
                         try {
                             Field field = BinaryNode.class.getDeclaredField("left");
                             field.setAccessible(true);
-                            ISyntaxNode node = binaryNode.getChild(0);
-                            field.set(binaryNode,
+                            ISyntaxNode node = syntaxNode.getChild(0);
+                            field.set(syntaxNode,
                                 new IdentifierNode("identifier",
                                     node.getSourceLocation(),
                                     sb.toString(),
                                     node.getModule()));
-                        } catch (NoSuchFieldException e) {
-                        } catch (IllegalAccessException e) {
+                        } catch (NoSuchFieldException | IllegalAccessException ignored) {
                         }
                     }
                     sb.append(".");
-                    sb.append(tryFixChainWithPackage(binaryNode.getChild(1), bindingContext));
+                    sb.append(tryFixChainWithPackage(syntaxNode.getChild(1), bindingContext));
                     return sb;
-                } else {
-                    throw new OpenlNotCheckedException();
-                }
-            }
         }
         throw new OpenlNotCheckedException();
     }

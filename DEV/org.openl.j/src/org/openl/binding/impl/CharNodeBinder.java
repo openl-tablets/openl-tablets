@@ -7,7 +7,6 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.impl.LiteralNode;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -22,7 +21,7 @@ public class CharNodeBinder extends ANodeBinder {
      * org.openl.binding.IBindingContext)
      */
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
-        String s = ((LiteralNode) node).getImage();
+        String s = node.getText();
         char c = s.charAt(1);
 
         try {

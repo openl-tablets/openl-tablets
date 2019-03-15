@@ -57,10 +57,10 @@ public class LocalVarBinder extends ANodeBinder {
             ISyntaxNode child = node.getChild(i);
 
             if (child instanceof IdentifierNode) {
-                String name = ((IdentifierNode) child).getIdentifier();
+                String name = child.getText();
                 boundNodes.add(createLocalVarDeclarationNode(child, name, null, varType, bindingContext, false));
             } else {
-                String name = ((IdentifierNode) child.getChild(0)).getIdentifier();
+                String name = child.getChild(0).getText();
                 boundNodes.add(createLocalVarDeclarationNode(child,
                     name,
                     child.getChild(1),

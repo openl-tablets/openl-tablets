@@ -56,11 +56,11 @@ public class VarDeclarationNodeBinder extends ANodeBinder {
             ISyntaxNode child = node.getChild(i);
 
             if (child instanceof IdentifierNode) {
-                String name = ((IdentifierNode) child).getIdentifier();
+                String name = child.getText();
                 boundNodes.add(createVarDeclarationNode(child, name, null, varType, bindingContext));
 
             } else {
-                String name = ((IdentifierNode) child.getChild(0)).getIdentifier();
+                String name = child.getChild(0).getText();
                 boundNodes.add(createVarDeclarationNode(child, name, child.getChild(1), varType, bindingContext));
             }
         }
