@@ -1589,7 +1589,7 @@ public class DecisionTableHelper {
     }
 
     private static void bruteForceHeaders(int column,
-            int maxNumberOfParameters,
+            int numberOfVConditionParameters,
             List<DTHeader> dtHeaders,
             boolean[][] matrix,
             Map<Integer, List<Integer>> columnToIndex,
@@ -1597,7 +1597,7 @@ public class DecisionTableHelper {
             Set<Integer> usedParameterIndexes,
             List<DTHeader[]> fits) {
         List<Integer> indexes = columnToIndex.get(column);
-        if (indexes == null || usedParameterIndexes.size() >= maxNumberOfParameters) {
+        if (indexes == null || usedParameterIndexes.size() >= numberOfVConditionParameters) {
             List<DTHeader> fit = new ArrayList<>();
             for (Integer index : usedIndexes) {
                 fit.add(dtHeaders.get(index));
@@ -1622,9 +1622,9 @@ public class DecisionTableHelper {
                 for (int i : dtHeader.getMethodParameterIndexes()) {
                     usedParameterIndexesTo.add(i);
                 }
-                if (usedParameterIndexesTo.size() <= maxNumberOfParameters) {
+                if (usedParameterIndexesTo.size() <= numberOfVConditionParameters) {
                     bruteForceHeaders(column + dtHeader.getNumberOfUsedColumns(),
-                        maxNumberOfParameters,
+                        numberOfVConditionParameters,
                         dtHeaders,
                         matrix,
                         columnToIndex,
@@ -1723,9 +1723,11 @@ public class DecisionTableHelper {
             TableSyntaxNode tableSyntaxNode,
             List<DTHeader> dtHeaders,
             List<DTHeader> simpleDtHeaders,
-            int numberOfParametersToUse,
+            int numberOfParameters,
+            int numberOfHcondition,
             boolean twoColumnsInReturn,
             IBindingContext bindingContext) throws SyntaxNodeException {
+        int numberOfVConditionParameters = numberOfParameters - numberOfHcondition; 
         boolean[][] matrix = new boolean[dtHeaders.size()][dtHeaders.size()];
         for (int i = 0; i < dtHeaders.size(); i++) {
             for (int j = 0; j < dtHeaders.size(); j++) {
@@ -1749,7 +1751,7 @@ public class DecisionTableHelper {
         }
         List<DTHeader[]> fits = new ArrayList<>();
         bruteForceHeaders(0,
-            numberOfParametersToUse,
+            numberOfVConditionParameters,
             dtHeaders,
             matrix,
             columnToIndex,
@@ -1763,12 +1765,7 @@ public class DecisionTableHelper {
             .collect(Collectors.toList()); // Only one column for return if not compound return
 
         fits = filterBadOnes(originalTable, fits, twoColumnsInReturn);
-
-        fits.add(simpleDtHeaders.toArray(new DTHeader[] {}));
         
-        fits = filterHeadersByMin(fits, e -> Arrays.stream(e).filter(x -> x instanceof SimpleDTHeader).count());
-        fits = filterHeadersByMin(fits, e -> Arrays.stream(e).filter(x -> x instanceof SimpleReturnDTHeader).count());
-
         // Declared covered columns filter
         fits = filterHeadersByMax(fits,
             e -> Arrays.stream(e)
@@ -1776,17 +1773,38 @@ public class DecisionTableHelper {
                 .mapToLong(x -> x.getNumberOfUsedColumns())
                 .sum());
         fits = filterHeadersByMatchType(fits);
-        fits = filterHeadersByMax(fits, e -> Arrays.stream(e).anyMatch(x -> x.isCondition()) ? 1l : 0l); // Prefer full
-                                                                                                         // matches with
-                                                                                                         // first
-                                                                                                         // condition
-                                                                                                         // headers
+        if (numberOfHcondition != numberOfParameters) {
+            fits = filterHeadersByMax(fits, e -> Arrays.stream(e).anyMatch(x -> x.isCondition()) ? 1l : 0l); // Prefer
+                                                                                                             // full
+                                                                                                             // matches
+                                                                                                             // with
+                                                                                                             // first
+                                                                                                             // condition
+                                                                                                             // headers
+        }
+        
+        if (numberOfHcondition == 0) {
+            fits = filterHeadersByMax(fits, e -> Arrays.stream(e).anyMatch(x -> x.isReturn()) ? 1l : 0l); // Prefer full
+                                                                                                          // matches
+                                                                                                          // with
+                                                                                                          // last
+                                                                                                          // return
+                                                                                                          // headers
+        } else {
+            fits = fits.stream()
+                .filter(e -> Arrays.stream(e).filter(x -> x.isReturn()).count() == 0)
+                .collect(Collectors.toList());
+        }
+        
         fits = filterHeadersByMax(fits,
             e -> Arrays.stream(e).flatMapToInt(c -> Arrays.stream(c.getMethodParameterIndexes())).distinct().count());
-        fits = filterHeadersByMax(fits, e -> Arrays.stream(e).anyMatch(x -> x.isReturn()) ? 1l : 0l); // Prefer full
-                                                                                                      // matches with
-                                                                                                      // last
-                                                                                                      // return headers
+        
+        fits = filterHeadersByMin(fits, e -> Arrays.stream(e).filter(x -> x instanceof SimpleReturnDTHeader).count());
+        
+        if (numberOfHcondition == 0 && fits.isEmpty()) {
+            fits.add(simpleDtHeaders.toArray(new DTHeader[] {}));
+        }
+        
         if (!fits.isEmpty()) {
             if (fits.size() > 1) {
                 if (isAmbiguousFits(fits, e -> e.isCondition())) {
@@ -1884,7 +1902,7 @@ public class DecisionTableHelper {
                 dtHeaders.add(new SimpleReturnDTHeader(null, title, column));
                 simpleDtHeaders.add(new SimpleReturnDTHeader(null, title, column));
             } else {
-                if (column < numberOfParameters) {
+                if (column < decisionTable.getSignature().getNumberOfParameters() - numberOfHcondition) {
                     simpleDtHeaders.add(new SimpleDTHeader(column,
                         decisionTable.getSignature().getParameterName(column),
                         title,
@@ -1899,7 +1917,8 @@ public class DecisionTableHelper {
             tableSyntaxNode,
             dtHeaders,
             simpleDtHeaders,
-            decisionTable.getSignature().getNumberOfParameters() - numberOfHcondition,
+            decisionTable.getSignature().getNumberOfParameters(),
+            numberOfHcondition,
             twoColumnsInReturn,
             bindingContext);
 
