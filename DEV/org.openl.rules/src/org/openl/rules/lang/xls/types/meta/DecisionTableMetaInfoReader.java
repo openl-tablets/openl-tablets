@@ -1,11 +1,14 @@
 package org.openl.rules.lang.xls.types.meta;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
@@ -31,7 +34,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,28 +124,31 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     public CellMetaInfo getBodyMetaInfo(int row, int col) {
         return getPreparedMetaInfo(row, col);
     }
-    
+
     public static <T> String toString(T[] elements, Function<T, String> func) {
-        if (elements == null || elements.length == 0) {
-            return null;
+        if (elements == null) {
+            return StringUtils.EMPTY;
         }
-        if (elements.length == 1) {
-            return func.apply(elements[0]);
+
+        String value = Arrays.stream(elements)
+            .map(e -> e == null ? "undefined" : func.apply(e))
+            .collect(Collectors.joining(", "));
+
+        if (elements.length > 1) {
+            return "[" + value + "]";
         } else {
-            StringBuilder sb = new StringBuilder();
-            sb.append("[");
-            sb.append(func.apply(elements[0]));
-            for (int i = 1; i < elements.length; i++) {
-                sb.append(", ");
-                sb.append(func.apply(elements[i]));
+            if ("undefined".equals(value)) {
+                return StringUtils.EMPTY;
             }
-            sb.append("]");
-            return sb.toString();
+            return value;
         }
     }
-    
-    private void setMetaInfo(CellKey key, HeaderMetaInfo headerMetaInfo, IGridRegion region, Function<HeaderMetaInfo, String> headerToString) {
- 
+
+    private void setMetaInfo(CellKey key,
+            HeaderMetaInfo headerMetaInfo,
+            IGridRegion region,
+            Function<HeaderMetaInfo, String> headerToString) {
+
         int row = key.getRow();
         int col = key.getColumn();
         if (!IGridRegion.Tool.contains(region, col, row)) {
@@ -156,16 +161,12 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         if (StringUtils.isBlank(cellValue)) {
             return;
         }
-        
+
         String text = headerToString.apply(headerMetaInfo);
-        SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
-                cellValue.length() - 1,
-                text,
-                null,
-                NodeType.OTHER);
+        SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0, cellValue.length() - 1, text, null, NodeType.OTHER);
         setPreparedMetaInfo(row,
-                col,
-                new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(simpleNodeUsage)));
+            col,
+            new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(simpleNodeUsage)));
     }
 
     private String buildStringForCondition(HeaderMetaInfo headerMetaInfo) {
@@ -173,18 +174,26 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         String headerName = headerMetaInfo.getConditionName();
         String statement = headerMetaInfo.getConditionStatement();
         IOpenClass[] columnTypes = headerMetaInfo.getColumnTypes();
-        
+
         String value;
         String valueForColumnTypes = toString(columnTypes, e -> e.getDisplayName(INamedThing.SHORT));
         if (parameterNames != null && parameterNames.length > 0 && headerName != null && statement != null) {
+            String textForParameterNames = toString(parameterNames, e -> e);
             if (parameterNames.length > 1) {
-                String textForParameterNames = toString(parameterNames, e -> e);
-                value = String.format("Parameters %s of condition %s with expression %s: %s", textForParameterNames, headerName, statement, valueForColumnTypes);
-            }else {
-                value = String.format("Parameter %s of condition %s with expression %s: %s", parameterNames[0], headerName, statement, valueForColumnTypes);
+                value = String.format("Parameters %s of condition %s with expression %s: %s",
+                    textForParameterNames,
+                    headerName,
+                    statement,
+                    valueForColumnTypes);
+            } else {
+                value = String.format("Parameter %sof condition %s with expression %s: %s",
+                    textForParameterNames + (StringUtils.isEmpty(textForParameterNames) ? " " : ""),
+                    headerName,
+                    statement,
+                    valueForColumnTypes);
             }
         } else if (headerName != null && statement != null) {
-            value = String.format("Condition %s with expression %s: %s", headerName, statement, valueForColumnTypes);
+            value = String.format("Condition %s for %s: %s", headerName, statement, valueForColumnTypes);
         } else {
             value = String.format("Condition for %s: %s", statement, valueForColumnTypes);
         }
@@ -196,15 +205,23 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         String headerName = headerMetaInfo.getConditionName();
         String statement = headerMetaInfo.getConditionStatement();
         IOpenClass[] columnTypes = headerMetaInfo.getColumnTypes();
-        
+
         String value;
         String valueForColumnTypes = toString(columnTypes, e -> e.getDisplayName(INamedThing.SHORT));
         if (parameterNames != null && parameterNames.length > 0 && headerName != null && statement != null) {
+            String textForParameterNames = toString(parameterNames, e -> e);
             if (parameterNames.length > 1) {
-                String textForParameterNames = toString(parameterNames, e -> e);
-                value = String.format("Parameters %s of action %s with expression %s: %s", textForParameterNames, headerName, statement, valueForColumnTypes);
-            }else {
-                value = String.format("Parameter %s of action %s with expression %s: %s", parameterNames[0], headerName, statement, valueForColumnTypes);
+                value = String.format("Parameters %s of action %s with expression %s: %s",
+                    textForParameterNames,
+                    headerName,
+                    statement,
+                    valueForColumnTypes);
+            } else {
+                value = String.format("Parameter %sof action %s with expression %s: %s",
+                    textForParameterNames + (StringUtils.isEmpty(textForParameterNames) ? " " : ""),
+                    headerName,
+                    statement,
+                    valueForColumnTypes);
             }
         } else if (headerName != null && statement != null) {
             value = String.format("Action %s with expression %s: %s", headerName, statement, valueForColumnTypes);
@@ -213,7 +230,6 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
         return value;
     }
-
 
     private void saveSimpleRulesMetaInfo(DecisionTable decisionTable, IGridRegion region) {
         for (Map.Entry<CellKey, HeaderMetaInfo> entry : simpleRulesConditionMap.entrySet()) {
@@ -235,11 +251,11 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
 
             ICell cell = getTableSyntaxNode().getGridTable().getGrid().getCell(col, row);
             String stringValue = cell.getStringValue();
-            
+
             if (StringUtils.isBlank(stringValue)) {
                 continue;
             }
-            
+
             SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
                 stringValue.length() - 1,
                 entry.getValue(),
@@ -252,12 +268,24 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
     }
 
-    public void addSimpleRulesCondition(int row, int col, String conditionName, String[] parameterNames, String conditionStatement, IOpenClass[] columnTypes) {
-        simpleRulesConditionMap.put(CellKey.CellKeyFactory.getCellKey(col, row), new HeaderMetaInfo(conditionName, parameterNames, conditionStatement, columnTypes));
+    public void addSimpleRulesCondition(int row,
+            int col,
+            String conditionName,
+            String[] parameterNames,
+            String conditionStatement,
+            IOpenClass[] columnTypes) {
+        simpleRulesConditionMap.put(CellKey.CellKeyFactory.getCellKey(col, row),
+            new HeaderMetaInfo(conditionName, parameterNames, conditionStatement, columnTypes));
     }
 
-    public void addSimpleRulesAction(int row, int col, String actionName, String[] parameterNames, String conditionStatement, IOpenClass[] columnTypes) {
-        simpleRulesActionMap.put(CellKey.CellKeyFactory.getCellKey(col, row), new HeaderMetaInfo(actionName, parameterNames, conditionStatement, columnTypes));
+    public void addSimpleRulesAction(int row,
+            int col,
+            String actionName,
+            String[] parameterNames,
+            String conditionStatement,
+            IOpenClass[] columnTypes) {
+        simpleRulesActionMap.put(CellKey.CellKeyFactory.getCellKey(col, row),
+            new HeaderMetaInfo(actionName, parameterNames, conditionStatement, columnTypes));
     }
 
     public void addSimpleRulesReturn(int row, int col, String description) {
@@ -288,11 +316,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                     // Some expression
                     String stringValue = cell.getStringValue();
                     int startIndex = stringValue.indexOf('=') + 1;
-                    List<NodeUsage> nodeUsages = OpenLCellExpressionsCompiler.getNodeUsages(
-                            (CompositeMethod) storageValue,
-                            stringValue.substring(startIndex),
-                            startIndex
-                    );
+                    List<NodeUsage> nodeUsages = OpenLCellExpressionsCompiler
+                        .getNodeUsages((CompositeMethod) storageValue, stringValue.substring(startIndex), startIndex);
                     setPreparedMetaInfo(row, col, new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages));
                     continue;
                 }
@@ -318,10 +343,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         int row = codeCell.getAbsoluteRow();
         int col = codeCell.getAbsoluteColumn();
         if (IGridRegion.Tool.contains(region, col, row)) {
-            List<CellMetaInfo> metaInfoList = OpenLCellExpressionsCompiler.getMetaInfo(
-                    funcRow.getSourceCodeModule(),
-                    funcRow.getMethod()
-            );
+            List<CellMetaInfo> metaInfoList = OpenLCellExpressionsCompiler.getMetaInfo(funcRow.getSourceCodeModule(),
+                funcRow.getMethod());
             // Decision table always contains 1 meta info
             setPreparedMetaInfo(row, col, metaInfoList.get(0));
         }
@@ -362,14 +385,11 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                 IMetaInfo metaInfo = typeForLink.getMetaInfo();
                 if (metaInfo != null) {
                     SimpleNodeUsage nodeUsage = new SimpleNodeUsage(paramNodes[0],
-                            metaInfo.getDisplayName(INamedThing.SHORT),
-                            metaInfo.getSourceUrl(),
-                            NodeType.DATATYPE);
+                        metaInfo.getDisplayName(INamedThing.SHORT),
+                        metaInfo.getSourceUrl(),
+                        NodeType.DATATYPE);
 
-                    return new CellMetaInfo(
-                            JavaOpenClass.STRING,
-                            false,
-                            Collections.singletonList(nodeUsage));
+                    return new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
                 }
             }
         }
@@ -410,7 +430,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
         setPreparedMetaInfo(row, col, metaInfo);
     }
-    
+
     private static class HeaderMetaInfo {
         String headerName;
         String[] parameterNames;

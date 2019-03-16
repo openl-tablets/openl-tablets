@@ -1132,7 +1132,7 @@ public class DecisionTableHelper {
                     writeMetaInfoForVCondition(originalTable,
                         decisionTable,
                         column,
-                        null,
+                        conditionName,
                         null,
                         conditionStatement,
                         new IOpenClass[] { typeOfValue.getRight() });
