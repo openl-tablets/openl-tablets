@@ -10,6 +10,7 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
@@ -33,7 +34,7 @@ public abstract class ANodeBinder implements INodeBinder {
             return binder.bind(node, bindingContext);
         } catch (Exception | LinkageError e) {
             return makeErrorNode(e, node, bindingContext);
-        } 
+        }
     }
 
     protected static boolean hasErrorBoundNode(IBoundNode[] boundNodes) {
@@ -57,7 +58,7 @@ public abstract class ANodeBinder implements INodeBinder {
             return binder.bindTarget(node, bindingContext, targetNode);
         } catch (Exception | LinkageError e) {
             return makeErrorNode(e, node, bindingContext);
-        } 
+        }
     }
 
     public static IBoundNode bindTypeNode(ISyntaxNode node, IBindingContext bindingContext, IOpenClass type) {
@@ -229,7 +230,10 @@ public abstract class ANodeBinder implements INodeBinder {
         return new ErrorBoundNode(node);
     }
 
-    protected static IBoundNode makeErrorNode(String message, Throwable e, ISyntaxNode node, IBindingContext bindingContext) {
+    protected static IBoundNode makeErrorNode(String message,
+            Throwable e,
+            ISyntaxNode node,
+            IBindingContext bindingContext) {
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, node);
         bindingContext.addError(error);
         return new ErrorBoundNode(node);
@@ -243,8 +247,9 @@ public abstract class ANodeBinder implements INodeBinder {
      * @param bindingContext binding context
      * @return node of bound code that contains information about method
      */
-    public static IBoundMethodNode bindMethod(IBoundCode boundCode, IOpenMethodHeader header, IBindingContext bindingContext) {
-
+    public static IBoundMethodNode bindMethod(IBoundCode boundCode,
+            IOpenMethodHeader header,
+            IBindingContext bindingContext) {
 
         try {
             IBoundMethodNode boundMethodNode = (IBoundMethodNode) boundCode.getTopNode();
@@ -265,13 +270,30 @@ public abstract class ANodeBinder implements INodeBinder {
 
     }
 
+    protected static IOpenClass getType(ISyntaxNode node,
+            IBindingContext bindingContext) throws ClassNotFoundException {
+        if (node.getType().equals("type.name")) {
+            String typeName = node.getText();
+            IOpenClass varType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
+            if (varType == null) {
+                throw new ClassNotFoundException("Type '" + typeName + "' is not found");
+            }
+            BindHelper.checkOnDeprecation(node, bindingContext, varType);
+            return varType;
+        }
+        IOpenClass arrayType = getType(node.getChild(0), bindingContext);
+        return arrayType != null ? arrayType.getAggregateInfo().getIndexedAggregateType(arrayType, 1) : null;
+    }
+
     /*
      * (non-Javadoc)
      *
      * @see org.openl.binding.INodeBinder#bindTarget(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext,
      * org.openl.types.IOpenClass)
      */
-    public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode) throws Exception {
+    public IBoundNode bindTarget(ISyntaxNode node,
+            IBindingContext bindingContext,
+            IBoundNode targetNode) throws Exception {
         return makeErrorNode("This node does not support target binding", node, bindingContext);
     }
 

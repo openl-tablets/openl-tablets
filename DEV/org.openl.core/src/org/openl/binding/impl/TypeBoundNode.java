@@ -1,6 +1,5 @@
 package org.openl.binding.impl;
 
-import org.openl.binding.BindingDependencies;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
