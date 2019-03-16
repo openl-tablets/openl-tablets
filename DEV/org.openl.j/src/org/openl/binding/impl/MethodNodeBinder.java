@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
+import org.openl.binding.exception.MethodNotFoundException;
 import org.openl.binding.impl.cast.AutoCastFactory;
 import org.openl.binding.impl.cast.AutoCastReturnType;
 import org.openl.binding.impl.method.MethodSearch;
@@ -108,7 +109,7 @@ public class MethodNodeBinder extends ANodeBinder {
         }
 
         // There are no other variants - so error.
-        return methodNotFoundError(node, bindingContext, methodName, parameterTypes, null);
+        throw new MethodNotFoundException(methodName, parameterTypes);
     }
 
     protected IBoundNode makeArrayParametersMethod(ISyntaxNode methodNode,
@@ -164,7 +165,7 @@ public class MethodNodeBinder extends ANodeBinder {
             }
         }
 
-        return methodNotFoundError(methodNode, bindingContext, methodName, argumentTypes, null);
+        throw new MethodNotFoundException(methodName, argumentTypes);
     }
 
     private void log(String methodName, IOpenClass[] argumentTypes, String bindingType) {
@@ -196,7 +197,7 @@ public class MethodNodeBinder extends ANodeBinder {
         BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
 
         if (methodCaller == null) {
-            return methodNotFoundError(node, bindingContext, methodName, types, type);
+            throw new MethodNotFoundException(methodName, types);
         }
 
         errorNode = validateMethod(node, bindingContext, target, methodCaller);
@@ -218,17 +219,6 @@ public class MethodNodeBinder extends ANodeBinder {
         return null;
     }
 
-
-
-    private IBoundNode methodNotFoundError(ISyntaxNode node, IBindingContext bindingContext, String methodName, IOpenClass[] types, IOpenClass target) {
-        StringBuilder buf = new StringBuilder("Method '");
-        MethodUtil.printMethod(methodName, types, buf);
-        buf.append("' is not found");
-        if (target != null) {
-            buf.append(" in '").append(target.getName()).append("'");
-        }
-        return makeErrorNode(buf.toString(), node, bindingContext);
-    }
 
     private IBoundNode validateNode(ISyntaxNode node, IBindingContext bindingContext) {
         if (node.getNumberOfChildren() < 1) {

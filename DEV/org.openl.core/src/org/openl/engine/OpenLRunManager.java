@@ -80,9 +80,7 @@ public class OpenLRunManager extends OpenLHolder {
         }
 
         if (method == null) {
-            throw new MethodNotFoundException("Can not run method: ",
-                    methodName,
-                    paramTypes == null ? IOpenClass.EMPTY : paramTypes);
+            throw new MethodNotFoundException(methodName, paramTypes);
         }
 
         return method.invoke(target, params, vm.getRuntimeEnv());
