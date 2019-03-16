@@ -223,17 +223,8 @@ public abstract class ANodeBinder implements INodeBinder {
         return new ErrorBoundNode(node);
     }
 
-    protected static IBoundNode makeErrorNode(Throwable e, ISyntaxNode node, IBindingContext bindingContext) {
+    private static IBoundNode makeErrorNode(Throwable e, ISyntaxNode node, IBindingContext bindingContext) {
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, node);
-        bindingContext.addError(error);
-        return new ErrorBoundNode(node);
-    }
-
-    protected static IBoundNode makeErrorNode(String message,
-            Throwable e,
-            ISyntaxNode node,
-            IBindingContext bindingContext) {
-        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, node);
         bindingContext.addError(error);
         return new ErrorBoundNode(node);
     }
@@ -282,6 +273,19 @@ public abstract class ANodeBinder implements INodeBinder {
         }
         IOpenClass arrayType = getType(node.getChild(0), bindingContext);
         return arrayType != null ? arrayType.getAggregateInfo().getIndexedAggregateType(arrayType, 1) : null;
+    }
+
+    protected static void assertNotNull(Object node, String message, Object... messages) {
+        if (node == null) {
+            if (messages == null) {
+                throw new IllegalStateException(message);
+            }
+            StringBuilder msg = new StringBuilder(message);
+            for (Object obj : messages) {
+                msg.append(obj);
+            }
+            throw new IllegalStateException(msg.toString());
+        }
     }
 
     protected static void assertCountOfChild(String message, ISyntaxNode node, int count) {

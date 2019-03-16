@@ -55,11 +55,7 @@ public class PropertyTableBinder extends DataNodeBinder {
         IOpenClass propertiesClass = JavaOpenClass.getOpenClass(TableProperties.class);
         ILogicalTable propTableBody = getTableBody(tsn);
 
-        try {
-            processTable(module, propertyTable, propTableBody, tableName, propertiesClass, cxt, openl, false);
-        } catch (SyntaxNodeException ex) {
-            throw SyntaxNodeExceptionUtils.createError("Table definiton is wrong.", ex, ex.getSyntaxNode());
-        }
+        processTable(module, propertyTable, propTableBody, tableName, propertiesClass, cxt, openl, false);
 
         TableProperties propertiesInstance = ((TableProperties[]) propertyTable.getDataArray())[0];
         propertiesInstance.setPropertiesSection(tsn.getTable().getRows(1)); // Skip header

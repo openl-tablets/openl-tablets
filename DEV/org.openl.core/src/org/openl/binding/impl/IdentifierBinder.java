@@ -33,53 +33,36 @@ public class IdentifierBinder extends ANodeBinder {
 
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fieldName);
 
+        assertNotNull(type, "Field not found: '", fieldName, "'");
         BindHelper.checkOnDeprecation(node, bindingContext, type);
-        if (type != null) {
-            return new TypeBoundNode(node, type);
-        }
-
-        return makeErrorNode("Field not found: '" + fieldName + "'", node, bindingContext);
+        return new TypeBoundNode(node, type);
     }
 
     @Override
     public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode target) {
 
-        try {
-            String fieldName = node.getText();
+        String fieldName = node.getText();
+        IOpenClass type = target.getType();
+        int dims = 0;
+        while (type.isArray() && !"length".equals(fieldName)) { // special case for arr[].length
+            dims++;
+            type = type.getComponentClass();
+        }
+        IOpenField field = bindingContext.findFieldFor(type, fieldName, false);
 
-            try {
-                IOpenClass type = target.getType();
-                int dims = 0;
-                while (type.isArray() && !"length".equals(fieldName)) { // special case for arr[].length
-                    dims++;
-                    type = type.getComponentClass();
-                }
-                IOpenField field = bindingContext.findFieldFor(type, fieldName, false);
+        assertNotNull(field, "Field not found: '", fieldName, "' inside '", type, "' type");
 
-                if (field == null) {
-                    return makeErrorNode("Field not found: '" + fieldName + "' inside '" + type + "' type",
-                        node,
-                        bindingContext);
-                }
+        if (target.isStaticTarget() != field.isStatic()) {
 
-                if (target.isStaticTarget() != field.isStatic()) {
-
-                    if (field.isStatic()) {
-                        BindHelper.processWarn("Access of a static field from non-static object", node, bindingContext);
-                    } else {
-                        return makeErrorNode("Access non-static field from a static object", node, bindingContext);
-                    }
-                }
-
-                BindHelper.checkOnDeprecation(node, bindingContext, field);
-                return new FieldBoundNode(node, field, target, dims);
-
-            } catch (Exception | LinkageError e) {
-                return makeErrorNode(e, node, bindingContext);
+            if (field.isStatic()) {
+                BindHelper.processWarn("Access of a static field from non-static object", node, bindingContext);
+            } else {
+                return makeErrorNode("Access non-static field from a static object", node, bindingContext);
             }
-        } catch (Exception | LinkageError e) {
-            return makeErrorNode(e, node, bindingContext);
-        } 
+        }
+
+        BindHelper.checkOnDeprecation(node, bindingContext, field);
+        return new FieldBoundNode(node, field, target, dims);
     }
 
     private boolean isStrictMatch(ISyntaxNode node) {

@@ -63,8 +63,6 @@ public class StringNodeBinder extends ANodeBinder {
 
         StringBuilder buf = new StringBuilder(len);
 
-        try {
-
             for (int i = 1; i < len - 1; i++) {
                 char c = s.charAt(i);
                 if (c == '\\') {
@@ -114,10 +112,6 @@ public class StringNodeBinder extends ANodeBinder {
                     buf.append(c);
                 }
             } // end for
-
-        } catch (Exception | LinkageError e) {
-            return makeErrorNode(e, node, bindingContext);
-        } 
 
         return new LiteralBoundNode(node, buf.toString(), JavaOpenClass.STRING);
     }
