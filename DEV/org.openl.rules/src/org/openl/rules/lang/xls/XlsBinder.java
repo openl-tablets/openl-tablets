@@ -269,6 +269,8 @@ public class XlsBinder implements IOpenBinder {
             ASelector<ISyntaxNode> conditionsSelector = getSelector(XlsNodeTypes.XLS_CONDITIONS);
             ASelector<ISyntaxNode> actionsSelector = getSelector(XlsNodeTypes.XLS_ACTIONS);
             ASelector<ISyntaxNode> returnsSelector = getSelector(XlsNodeTypes.XLS_RETURNS);
+            
+            ISelector<ISyntaxNode> dtDefinitionSelector = conditionsSelector.or(returnsSelector).or(actionsSelector);
 
             ISelector<ISyntaxNode> notPropertiesAndNotDatatypeAndNotConstantsSelector = propertiesSelector.not()
                 .and(dataTypeSelector.not())
@@ -281,7 +283,8 @@ public class XlsBinder implements IOpenBinder {
 
             ISelector<ISyntaxNode> commonTablesSelector = notPropertiesAndNotDatatypeAndNotConstantsSelector
                 .and(spreadsheetSelector.not()
-                    .and(testMethodSelector.not().and(runMethodSelector.not().and(dtSelector.not().and(conditionsSelector.not().and(returnsSelector.not()))))));
+                    .and(testMethodSelector.not()
+                        .and(runMethodSelector.not().and(dtSelector.not().and(dtDefinitionSelector.not())))));
 
             // Bind property node at first.
             //
@@ -312,7 +315,7 @@ public class XlsBinder implements IOpenBinder {
             bindInternal(moduleNode, moduleOpenClass, processedDatatypeNodes, openl, moduleContext);
 
             //Conditions && Returns && Actions
-            TableSyntaxNode[] dtHeaderDefinitionsNodes = selectNodes(moduleNode, conditionsSelector.or(returnsSelector).or(actionsSelector));
+            TableSyntaxNode[] dtHeaderDefinitionsNodes = selectNodes(moduleNode, dtDefinitionSelector);
             //bindInternal(moduleNode, moduleOpenClass, conditionsNodes, openl, moduleContext);
             
             // Select nodes excluding Properties, Datatype, Spreadsheet, Test,
