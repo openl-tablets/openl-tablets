@@ -20,6 +20,7 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
+import org.openl.types.impl.ArrayLengthOpenField;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenConstructor;
@@ -125,13 +126,18 @@ public class BindHelper {
         }
     }
 
-    public static void checkOnDeprecation(ISyntaxNode node, IBindingContext context, IOpenField filed) {
-        if (filed instanceof JavaOpenField) {
-            Field javaField = ((JavaOpenField) filed).getJavaField();
+    public static void checkOnDeprecation(ISyntaxNode node, IBindingContext context, IOpenField field) {
+        if (field instanceof JavaOpenField) {
+            Field javaField = ((JavaOpenField) field).getJavaField();
             if (isDeprecated(javaField)) {
                 String msg = "DEPRECATED '" + javaField.getName() + "' field will be removed in the next version!";
                 processWarn(msg, node, context);
             }
+        } else if (field instanceof ArrayLengthOpenField) {
+            processWarn(
+                "DEPRECATED 'length' field for arrays will be removed in the next version. Use length() function instead!",
+                node,
+                context);
         }
     }
 

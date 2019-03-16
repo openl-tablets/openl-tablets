@@ -50,15 +50,9 @@ public class IdentifierBinder extends ANodeBinder {
             try {
                 IOpenClass type = target.getType();
                 int dims = 0;
-                while (type.isArray()) {
+                while (type.isArray() && !"length".equals(fieldName)) { // special case for arr[].length
                     dims++;
                     type = type.getComponentClass();
-                }
-                if (dims > 0 && "length".equals(fieldName)) {
-                    // special case for arr[].length
-                    dims = 0;
-                    type = target.getType();
-                    BindHelper.processWarn("DEPRECATED 'length' field for arrays will be removed in the next version. Use length() function instead!", node, bindingContext);
                 }
                 IOpenField field = bindingContext.findFieldFor(type, fieldName, false);
 
