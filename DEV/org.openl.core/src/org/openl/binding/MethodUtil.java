@@ -112,7 +112,7 @@ public class MethodUtil {
     public static StringBuilder printMethod(String name, IOpenClass[] params, StringBuilder buf) {
         startPrintingMethodName(name, buf);
 
-        for (int i = 0; i < params.length; i++) {
+        for (int i = 0; params != null && i < params.length; i++) {
             String type = params[i].getName();
             if (i != 0){
                 buf.append(", ");
@@ -131,7 +131,7 @@ public class MethodUtil {
         startPrintingMethodName(method.getName(), buf);
 
         IMethodSignature signature = method.getSignature();
-        for (int i = 0; i < params.length; i++) {
+        for (int i = 0; params != null && i < params.length; i++) {
             String name = signature.getParameterName(i);
             if (i != 0){
                 buf.append(", ");

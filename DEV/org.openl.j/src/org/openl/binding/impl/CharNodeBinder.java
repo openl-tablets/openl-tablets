@@ -24,7 +24,6 @@ public class CharNodeBinder extends ANodeBinder {
         String s = node.getText();
         char c = s.charAt(1);
 
-        try {
             if (c == '\\') {
                 char nextC = s.charAt(2);
                 switch (nextC) {
@@ -80,10 +79,6 @@ public class CharNodeBinder extends ANodeBinder {
                     }
                 }
             }
-
-        } catch (Exception | LinkageError e) {
-            return makeErrorNode(e, node, bindingContext);
-        } 
 
         return new LiteralBoundNode(node, c, JavaOpenClass.CHAR);
     }

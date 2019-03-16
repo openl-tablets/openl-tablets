@@ -1,9 +1,3 @@
-/*
- * Created on Jun 3, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.exception;
 
 import org.openl.binding.MethodUtil;
@@ -17,12 +11,11 @@ import org.openl.types.IOpenClass;
 public class MethodNotFoundException extends OpenlNotCheckedException {
 
     private static final long serialVersionUID = -6505424809898412642L;
-    
-    private String methodName;
-    private IOpenClass[] params;
 
-    public MethodNotFoundException(String message, String methodName, IOpenClass[] params) {
-        super(message);
+    private final String methodName;
+    private final IOpenClass[] params;
+
+    public MethodNotFoundException(String methodName, IOpenClass... params) {
         this.methodName = methodName;
         this.params = params;
     }
@@ -36,9 +29,9 @@ public class MethodNotFoundException extends OpenlNotCheckedException {
             buffer.append(super.getMessage());
         }
 
-        buffer.append("Method ");
+        buffer.append("Method '");
         MethodUtil.printMethod(methodName, params, buffer);
-        buffer.append(" is not found");
+        buffer.append("' is not found");
 
         return buffer.toString();
     }

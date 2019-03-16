@@ -1,6 +1,5 @@
 package org.openl.binding.impl;
 
-import org.openl.binding.BindingDependencies;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
@@ -28,11 +27,6 @@ public class TypeBoundNode extends ABoundNode {
     @Override
     public IOpenClass getType() {
         return type;
-    }
-
-    @Override
-    public void updateDependency(BindingDependencies dependencies) {
-        dependencies.addTypeDependency(type, this);
     }
 
     @Override

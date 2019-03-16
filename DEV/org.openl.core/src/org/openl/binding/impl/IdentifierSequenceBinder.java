@@ -29,19 +29,14 @@ public class IdentifierSequenceBinder extends ANodeBinder {
     @Override
     public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode target) {
 
-        try {
-            String longName = concatChildren(node);
+        String longName = concatChildren(node);
 
-            IdentifierNode newNode = new IdentifierNode("identifier.nostrict",
-                node.getSourceLocation(),
-                longName,
-                node.getModule());
+        IdentifierNode newNode = new IdentifierNode("identifier.nostrict",
+            node.getSourceLocation(),
+            longName,
+            node.getModule());
 
-            return bindTargetNode(newNode, bindingContext, target);
-
-        } catch (Exception | LinkageError e) {
-            return makeErrorNode("Cannot bind node", e, node, bindingContext);
-        } 
+        return bindTargetNode(newNode, bindingContext, target);
     }
 
     private String concatChildren(ISyntaxNode node) {

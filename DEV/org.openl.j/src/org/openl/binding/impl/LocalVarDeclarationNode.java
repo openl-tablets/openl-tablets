@@ -47,7 +47,6 @@ public class LocalVarDeclarationNode extends ABoundNode {
 
     @Override
     public void updateDependency(BindingDependencies dependencies) {
-        dependencies.addTypeDependency(var.getType(), this);
         dependencies.addFieldDependency(var, this);
     }
 

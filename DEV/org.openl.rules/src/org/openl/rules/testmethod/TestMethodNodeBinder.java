@@ -96,7 +96,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                 }
             });
         if (testedMethods.isEmpty()) {
-            throw new MethodNotFoundException(null, methodName, IOpenClass.EMPTY);
+            throw new MethodNotFoundException(methodName);
         }
 
         IOpenMethodHeader header = new OpenMethodHeader(tableName,

@@ -114,7 +114,7 @@ public class RunITest {
         element = (Node) xpath.evaluate(pathToSequence + "/*[@name='logicalTable']", root, XPathConstants.NODE);
         assertNull(element);
 
-        NodeList elements = (NodeList) xpath.evaluate(pathToSequence + "/*[local-name()='element']", root, XPathConstants.NODESET);
+        NodeList elements = (NodeList) xpath.evaluate(pathToSequence + "/*", root, XPathConstants.NODESET);
         assertEquals(3, elements.getLength());
     }
 
