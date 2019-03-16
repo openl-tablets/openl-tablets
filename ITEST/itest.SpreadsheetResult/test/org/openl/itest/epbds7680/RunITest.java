@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import com.jayway.jsonpath.Configuration;
@@ -114,8 +115,8 @@ public class RunITest {
         assertEquals("xsd:element", element.getNodeName());
         assertEndsWith(":ArrayOfString", element.getAttributes().getNamedItem("type").getTextContent());
 
-        element = (Node) xpath.evaluate(pathToSequence, root, XPathConstants.NODE);
-        assertEquals(3, element.getChildNodes().getLength());
+        NodeList elements = (NodeList) xpath.evaluate(pathToSequence + "/*", root, XPathConstants.NODESET);
+        assertEquals(3, elements.getLength());
     }
 
     @Test
@@ -145,8 +146,8 @@ public class RunITest {
         element = (Node) xpath.evaluate(spreadsheetResultTypePath + "/*[local-name()='rowNames']", root, XPathConstants.NODE);
         assertNotNull(element);
 
-        element = (Node) xpath.evaluate(spreadsheetResultTypePath, root, XPathConstants.NODE);
-        assertEquals(3, element.getChildNodes().getLength());
+        NodeList elements = (NodeList) xpath.evaluate(spreadsheetResultTypePath + "/*", root, XPathConstants.NODESET);
+        assertEquals(3, elements.getLength());
     }
 
     private static void assertEndsWith(String expected, String actual) {

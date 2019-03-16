@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 public class RunITest {
@@ -143,7 +144,8 @@ public class RunITest {
 
         final String pathToSequence = pathToType + "/*[local-name()='sequence']";
         Node sequence = (Node) xpath.evaluate(pathToSequence, root, XPathConstants.NODE);
-        assertEquals(2, sequence.getChildNodes().getLength());
+        NodeList elements = (NodeList) xpath.evaluate(pathToSequence + "/*", root, XPathConstants.NODESET);
+        assertEquals(2, elements.getLength());
 
         Node element = (Node) xpath.evaluate("*[@name='beanBName']", sequence, XPathConstants.NODE);
         assertEquals("xs:element", element.getNodeName());
@@ -169,7 +171,8 @@ public class RunITest {
 
         final String pathToSequence = pathToType + "/*[local-name()='sequence']";
         Node sequence = (Node) xpath.evaluate(pathToSequence, root, XPathConstants.NODE);
-        assertEquals(2, sequence.getChildNodes().getLength());
+        NodeList elements = (NodeList) xpath.evaluate(pathToSequence + "/*", root, XPathConstants.NODESET);
+        assertEquals(2, elements.getLength());
 
         Node element = (Node) xpath.evaluate("*[@name='In']", sequence, XPathConstants.NODE);
         assertEquals("xs:element", element.getNodeName());
@@ -194,7 +197,8 @@ public class RunITest {
 
         final String pathToSequence = pathToType + "/*[local-name()='sequence']";
         Node sequence = (Node) xpath.evaluate(pathToSequence, root, XPathConstants.NODE);
-        assertEquals(2, sequence.getChildNodes().getLength());
+        NodeList elements = (NodeList) xpath.evaluate(pathToSequence + "/*", root, XPathConstants.NODESET);
+        assertEquals(2, elements.getLength());
 
         Node element = (Node) xpath.evaluate("*[@name='numBer']", sequence, XPathConstants.NODE);
         assertEquals("xs:element", element.getNodeName());
@@ -226,7 +230,8 @@ public class RunITest {
 
         final String pathToSequence = pathToType + "/*[local-name()='sequence']";
         Node sequence = (Node) xpath.evaluate(pathToSequence, root, XPathConstants.NODE);
-        assertEquals(2, sequence.getChildNodes().getLength());
+        NodeList elements = (NodeList) xpath.evaluate(pathToSequence + "/*", root, XPathConstants.NODESET);
+        assertEquals(2, elements.getLength());
 
         Node element = (Node) xpath.evaluate("*[@name='NUMBer']", sequence, XPathConstants.NODE);
         assertEquals("xs:element", element.getNodeName());
