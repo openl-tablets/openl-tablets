@@ -33,7 +33,7 @@ public class IdentifierBinder extends ANodeBinder {
 
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fieldName);
 
-        assertNotNull(type, "Field not found: '", fieldName, "'");
+        assertNotNull(type, "Field '", fieldName, "' is not found");
         BindHelper.checkOnDeprecation(node, bindingContext, type);
         return new TypeBoundNode(node, type);
     }
@@ -50,7 +50,7 @@ public class IdentifierBinder extends ANodeBinder {
         }
         IOpenField field = bindingContext.findFieldFor(type, fieldName, false);
 
-        assertNotNull(field, "Field not found: '", fieldName, "' inside '", type, "' type");
+        assertNotNull(field, "Field '", fieldName, "' is not found inside '", type, "' type");
 
         if (target.isStaticTarget() != field.isStatic()) {
 
