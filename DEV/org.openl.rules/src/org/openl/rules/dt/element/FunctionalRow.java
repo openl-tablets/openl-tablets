@@ -477,12 +477,8 @@ public abstract class FunctionalRow implements IDecisionRow {
             throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, paramSource);
         }
 
-        String typeCode = nodes[0].getIdentifier();
-        IOpenClass type = RuleRowHelper.getType(typeCode, bindingContext);
-
-        if (type == null) {
-            throw SyntaxNodeExceptionUtils.createError("Type '" + typeCode + "'is not found", nodes[0]);
-        }
+        String typeCode = nodes[0].getText();
+        IOpenClass type = RuleRowHelper.getType(typeCode, nodes[0], bindingContext);
 
         if (nodes.length == 1) {
             String paramName = makeParamName();

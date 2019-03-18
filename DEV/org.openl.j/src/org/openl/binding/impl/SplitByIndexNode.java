@@ -95,6 +95,10 @@ class SplitByIndexNode extends ABoundNode {
         }
 
         IOpenClass componentType = tempVar.getType();
-        return JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(componentType, 2);
+        // the first dimension
+        componentType = JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(componentType, 1);
+        // the second dimension
+        componentType = JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(componentType, 1);
+        return componentType;
     }
 }

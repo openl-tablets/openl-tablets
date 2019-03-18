@@ -243,44 +243,18 @@ public class SpreadsheetComponentsBuilder {
 
                 typeIdentifierNode = symbolicTypeDefinition.getType();
                 if (typeIdentifierNode != null) {
-                    SyntaxNodeException error = null;
-
-                    String typeIdentifier = typeIdentifierNode.getIdentifier();
-
-                    IOpenClass type = null;
-                    if (typeIdentifier.indexOf('[') > 0) {
-                        // gets the name of the type, remove square brackets for array type declaration.
-                        //
-                        String cleanTypeIdentifier = typeIdentifier.substring(0, typeIdentifier.indexOf("["));
-
-                        IOpenClass componentType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
-                            cleanTypeIdentifier);
-
-                        if (componentType != null) {
-                            // count of []
-                            int typeDimension = typeIdentifier.split("\\[").length - 1;
-                            type = componentType.getAggregateInfo()
-                                .getIndexedAggregateType(componentType, typeDimension);
+                    String typeIdentifier = typeIdentifierNode.getText();
+                    try {
+                        IOpenClass type = RuleRowHelper.getType(typeIdentifier, typeIdentifierNode, bindingContext);
+                        if (headerType == null) {
+                            // initialize header type
+                            //
+                            headerType = type;
+                        } else if (headerType != type) {
+                            addError(SyntaxNodeExceptionUtils.createError("Type redefinition", typeIdentifierNode));
                         }
-
-                    } else {
-                        type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeIdentifier);
-                    }
-
-                    if (type == null) {
-                        // error case, can`t find type.
-                        //
-                        String message = "Type is not found: " + typeIdentifier;
-                        error = SyntaxNodeExceptionUtils.createError(message, typeIdentifierNode);
-                    } else if (headerType == null) {
-                        // initialize header type
-                        //
-                        headerType = type;
-                    } else if (headerType != type) {
-                        error = SyntaxNodeExceptionUtils.createError("Type redefinition", typeIdentifierNode);
-                    }
-                    if (error != null) {
-                        addError(error);
+                    } catch (SyntaxNodeException e) {
+                        addError(e);
                     }
                 }
             }
