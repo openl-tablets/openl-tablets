@@ -142,9 +142,6 @@ public class RuleRowHelper {
     public static IOpenClass getType(String typeCode, IBindingContext bindingContext) {
 
         if (typeCode.endsWith("[]")) {
-            // FIXME: refactor, use
-            // JavaClassGeneratorHelper#getDimension(String)
-            //
             int dims = 0;
             String baseCode = typeCode;
             while (baseCode.endsWith("[]")) {
