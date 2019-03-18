@@ -28,7 +28,7 @@ class TransformIndexNode extends ABoundNode {
         this.transformer = transformer;
         IOpenClass componentType = transformer.getType();
         this.componentClass = componentType.getInstanceClass();
-        this.resultType = JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(componentType);
+        this.resultType = componentType.getAggregateInfo().getIndexedAggregateType(componentType);
     }
 
     @Override
