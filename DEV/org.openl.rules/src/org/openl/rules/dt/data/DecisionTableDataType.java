@@ -34,8 +34,8 @@ public class DecisionTableDataType extends ComponentOpenClass {
                 addField(new DecisionRowField((IDecisionRow) condOrAction, dataType, this));
             }
         }
-        addField(new DecisionRowNumberField(this));
-        addField(new DecisionRowNameField(this, dtable != null ? dtable.getRuleRow() : null));
+        addField(new DecisionRuleIdField(this));
+        addField(new DecisionRuleNameField(this, dtable != null ? dtable.getRuleRow() : null));
     }
     
 }

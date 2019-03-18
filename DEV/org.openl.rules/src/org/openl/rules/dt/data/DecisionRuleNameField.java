@@ -9,12 +9,12 @@ import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
-public class DecisionRowNameField  implements IOpenField {
+public class DecisionRuleNameField implements IOpenField {
 
     private DecisionTableDataType decisionTableDataType;
     private RuleRow ruleRow;
     
-    DecisionRowNameField(DecisionTableDataType decisionTableDataType, RuleRow ruleRow) {
+    DecisionRuleNameField(DecisionTableDataType decisionTableDataType, RuleRow ruleRow) {
         this.decisionTableDataType = decisionTableDataType;
         this.ruleRow = ruleRow;
     }
@@ -62,7 +62,7 @@ public class DecisionRowNameField  implements IOpenField {
     }
 
     public String getName() {
-        return SpreadsheetStructureBuilder.DOLLAR_SIGN + "rule";
+        return SpreadsheetStructureBuilder.DOLLAR_SIGN + "Rule";
     }
 
 }

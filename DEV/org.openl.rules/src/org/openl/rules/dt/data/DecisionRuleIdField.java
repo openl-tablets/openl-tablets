@@ -7,11 +7,11 @@ import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
-public class DecisionRowNumberField  implements IOpenField {
+public class DecisionRuleIdField  implements IOpenField {
 
     private DecisionTableDataType decisionTableDataType;
 
-    DecisionRowNumberField(DecisionTableDataType decisionTableDataType) {
+    DecisionRuleIdField(DecisionTableDataType decisionTableDataType) {
         this.decisionTableDataType = decisionTableDataType;
     }
 
@@ -57,7 +57,7 @@ public class DecisionRowNumberField  implements IOpenField {
     }
 
     public String getName() {
-        return SpreadsheetStructureBuilder.DOLLAR_SIGN + "ruleId";
+        return SpreadsheetStructureBuilder.DOLLAR_SIGN + "RuleId";
     }
 
 }
