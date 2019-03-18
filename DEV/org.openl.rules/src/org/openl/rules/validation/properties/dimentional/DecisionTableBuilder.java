@@ -68,7 +68,7 @@ public class DecisionTableBuilder {
 
         // add new income parameters
         //
-        for (Map.Entry<String, IOpenClass> param : TableSyntaxNodeDispatcherBuilder.incomeParams.entrySet()) {
+        for (Map.Entry<String, IOpenClass> param : TableSyntaxNodeDispatcherBuilder.INCOME_PARAMS.entrySet()) {
             if (prependComma) {
                 builder.append(',');
             }

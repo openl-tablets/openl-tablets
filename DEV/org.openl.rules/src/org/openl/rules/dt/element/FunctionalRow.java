@@ -50,6 +50,8 @@ public abstract class FunctionalRow implements IDecisionRow {
     private int row;
 
     protected CompositeMethod method;
+    
+    protected IOpenClass ruleExecutionType;
 
     private IParameterDeclaration[] params;
     protected IStorage<?>[] storage;
@@ -178,8 +180,10 @@ public abstract class FunctionalRow implements IDecisionRow {
             OpenL openl,
             IBindingContext bindingContext,
             RuleRow ruleRow,
+            IOpenClass ruleExecutionType,
             TableSyntaxNode tableSyntaxNode) throws Exception {
-
+        this.ruleExecutionType = ruleExecutionType;
+        
         method = generateMethod(signature, openl, bindingContext, methodType);
 
         OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext, tableSyntaxNode);

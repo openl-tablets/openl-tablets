@@ -50,7 +50,7 @@ public class MethodSignature implements IMethodSignature {
     
     @Override
     public String toString() {
-        return StringUtils.join(parameters, ",");
+        return StringUtils.join(parameters, ", ");
     }
 
     private static IParameterDeclaration[] merge(IParameterDeclaration[] array1, IParameterDeclaration[] array2) {

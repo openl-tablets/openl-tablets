@@ -12,7 +12,12 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.types.*;
+import org.openl.types.IDynamicObject;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
+import org.openl.types.IOpenMethodHeader;
+import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
@@ -24,7 +29,6 @@ public class Action extends FunctionalRow implements IAction {
 
     private static final String EXTRA_RET = "e$x$t$r$a$R$e$t";
     private boolean isSingleReturnParam = false;
-    private IOpenClass ruleExecutionType;
     private IOpenClass returnType;
     private ActionType actionType;
 
@@ -134,8 +138,7 @@ public class Action extends FunctionalRow implements IAction {
             }
         }
         
-        prepare(methodType, signature, openl, bindingContext, ruleRow, tableSyntaxNode);
-        this.ruleExecutionType = ruleExecutionType;
+        prepare(methodType, signature, openl, bindingContext, ruleRow, ruleExecutionType, tableSyntaxNode);
 
         IParameterDeclaration[] params = getParams();
         CompositeMethod method = getMethod();

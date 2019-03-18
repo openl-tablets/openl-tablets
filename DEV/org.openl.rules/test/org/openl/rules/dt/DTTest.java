@@ -691,6 +691,22 @@ public class DTTest {
     }
 
     @Test
+    public void driverPremium102() {
+        Object result = TestUtils.invoke(instance, "DriverPremium102", "Young Driver", "Married");
+        assertEquals("R1: 700", result);
+        result =  TestUtils.invoke(instance, "DriverPremium102", "Young Driver", "Single");
+        assertEquals("R2: 720", result);
+        result =  TestUtils.invoke(instance, "DriverPremium102", "Senior Driver", "Married");
+        assertEquals("R3: 300", result);
+        result =  TestUtils.invoke(instance, "DriverPremium102", "Senior Driver", "Single");
+        assertEquals("R4: 350", result);
+        result =  TestUtils.invoke(instance, "DriverPremium102", "Standard Driver", "");
+        assertEquals("R5: 500", result);
+        result =  TestUtils.invoke(instance, "DriverPremium102", "", "");
+        assertNull(result);
+    }
+
+    @Test
     public void driverPremium3() {
         Object result = TestUtils.invoke(instance, "DriverPremium3", "Young Driver", "Married");
         assertEquals(new DoubleValue(700), result);
@@ -822,5 +838,29 @@ public class DTTest {
         assertEquals(new DoubleValue(130030), result);
         result =  TestUtils.invoke(instance, "CarPrice3", "", "", "", "");
         assertNull(result);
+    }
+    
+    @Test
+    public void greeting102() {
+        Object result = TestUtils.invoke(instance, "Greeting102", 0);
+        assertEquals("Good Morning, World! ruleNumber:0", result);
+        result = TestUtils.invoke(instance, "Greeting102", 11);
+        assertEquals("Good Morning, World! ruleNumber:0", result);
+        result = TestUtils.invoke(instance, "Greeting102", 12);
+        assertEquals("Good Afternoon, World! ruleNumber:1", result);
+        result = TestUtils.invoke(instance, "Greeting102", 15);
+        assertEquals("Good Afternoon, World! ruleNumber:1", result);
+        result = TestUtils.invoke(instance, "Greeting102", 17);
+        assertEquals("Good Afternoon, World! ruleNumber:1", result);
+        result = TestUtils.invoke(instance, "Greeting102", 18);
+        assertEquals("Good Evening, World! ruleNumber:2", result);
+        result = TestUtils.invoke(instance, "Greeting102", 20);
+        assertEquals("Good Evening, World! ruleNumber:2", result);
+        result = TestUtils.invoke(instance, "Greeting102", 21);
+        assertEquals("Good Evening, World! ruleNumber:2", result);
+        result = TestUtils.invoke(instance, "Greeting102", 22);
+        assertEquals("Good Night, World! ruleNumber:3", result);
+        result = TestUtils.invoke(instance, "Greeting102", 23);
+        assertEquals("Good Night, World! ruleNumber:3", result);
     }
 }

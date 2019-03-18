@@ -7,10 +7,12 @@ import org.openl.binding.ILocalVar;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
+import org.openl.rules.dt.data.RuleExecutionObject;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.types.IDynamicObject;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -24,8 +26,8 @@ public class Condition extends FunctionalRow implements ICondition {
     private IMethodCaller evaluator;
     private IConditionEvaluator conditionEvaluator;
 
-    public Condition(String name, int row, ILogicalTable decisionTable, DTScale.RowScale scale) {
-        super(name, row, decisionTable, scale);
+    public Condition(String name, int row, ILogicalTable table, DTScale.RowScale scale) {
+        super(name, row, table, scale);
     }
 
     public IConditionEvaluator getConditionEvaluator() {
@@ -51,9 +53,12 @@ public class Condition extends FunctionalRow implements ICondition {
     public void setEvaluator(IMethodCaller evaluator) {
         this.evaluator = evaluator;
     }
-
+    
     public DecisionValue calculateCondition(int ruleN, Object target, Object[] dtParams, IRuntimeEnv env) {
-
+        if (target instanceof IDynamicObject) {
+            target = new RuleExecutionObject(ruleExecutionType, (IDynamicObject) target, ruleN);
+        }
+        
         if (isEmpty(ruleN)) {
             return DecisionValue.NxA_VALUE;
         }

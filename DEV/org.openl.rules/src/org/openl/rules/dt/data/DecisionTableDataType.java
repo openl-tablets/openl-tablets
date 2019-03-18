@@ -26,12 +26,16 @@ import org.openl.rules.dt.element.IDecisionRow;
 
 public class DecisionTableDataType extends ComponentOpenClass {
 
-    public DecisionTableDataType(DecisionTable dtable, String name, OpenL openl) {
+    public DecisionTableDataType(DecisionTable dtable, String name, OpenL openl, boolean skipConditionRows) {
         super(name, openl);
-        for (IBaseCondition condOrAction : dtable.getConditionRows()) {
-            ConditionOrActionDataType dataType = new ConditionOrActionDataType(condOrAction, this.getOpenl());
-            addField(new DecisionRowField((IDecisionRow) condOrAction, dataType, this));
+        if (!skipConditionRows && dtable != null) {
+            for (IBaseCondition condOrAction : dtable.getConditionRows()) {
+                ConditionOrActionDataType dataType = new ConditionOrActionDataType(condOrAction, this.getOpenl());
+                addField(new DecisionRowField((IDecisionRow) condOrAction, dataType, this));
+            }
         }
+        addField(new DecisionRowNumberField(this));
+        addField(new DecisionRowNameField(this, dtable != null ? dtable.getRuleRow() : null));
     }
-
+    
 }

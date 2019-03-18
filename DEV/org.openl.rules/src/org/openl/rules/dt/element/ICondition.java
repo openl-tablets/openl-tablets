@@ -18,4 +18,5 @@ public interface ICondition extends IBaseCondition, IDecisionRow {
     void setEvaluator(IMethodCaller iMethodCaller);
 
     boolean isDependentOnAnyParams();
+    
 }

@@ -147,10 +147,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
 
         this.conditionRows = conditionRows;
         this.actionRows = actionRows;
-
-        if (!bindingContext.isExecutionMode()) {
-            this.ruleRow = ruleRow;
-        }
+        this.ruleRow = ruleRow;
         this.columns = columns;
 
         prepare(getHeader(), openl, componentOpenClass, bindingContext);
@@ -186,16 +183,9 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
             OpenL openl,
             ComponentOpenClass module,
             IBindingContext bindingContext) throws Exception {
+        IAlgorithmBuilder algorithmBuilder = new DecisionTableAlgorithmBuilder(this, header, openl);
+        algorithm = algorithmBuilder.prepareAndBuildAlgorithm(bindingContext);
 
-        algorithm = getAlgorithmBuilder(header, openl, module, bindingContext).prepareAndBuildAlgorithm();
-
-    }
-
-    private IAlgorithmBuilder getAlgorithmBuilder(IOpenMethodHeader header,
-            OpenL openl,
-            ComponentOpenClass module,
-            IBindingContext bindingContext) {
-        return new DecisionTableAlgorithmBuilder(this, header, openl, bindingContext);
     }
 
     @Override

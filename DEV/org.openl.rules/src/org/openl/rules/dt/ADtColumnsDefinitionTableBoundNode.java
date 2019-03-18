@@ -15,10 +15,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RuleRowHelper;
+import org.openl.rules.dt.data.DecisionTableDataType;
 import org.openl.rules.fuzzy.OpenLFuzzySearch;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -206,6 +208,9 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         final int[] tableStructure1 = tableStructure;
         final int[] headerIndexes1 = headerIndexes;
         
+        DecisionTableDataType ruleExecutionType = new DecisionTableDataType(null, "DecisionTableDataType", openl, false);
+        IBindingContext dtHeaderBindingContext = new ComponentBindingContext(cxt, ruleExecutionType);
+        
         SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         while (i < h) {
             String signatureCode1 = tableBody.getSource().getCell(tableStructure[headerIndexes[INPUTS_INDEX]], i).getStringValue();
@@ -227,7 +232,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                                 JavaOpenClass.VOID.getName() + " " + RandomStringUtils
                                     .random(16, true, false) + "(" + signatureCode + ")",
                                 null),
-                            cxt);
+                            dtHeaderBindingContext);
                     } catch (CompositeSyntaxNodeException e) {
                         GridCellSourceCodeModule eGridCellSourceCodeModule = new GridCellSourceCodeModule(
                             expressionTable,
@@ -322,7 +327,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                         header.getName(),
                         newSignature,
                         getXlsModuleOpenClass(),
-                        cxt);
+                        dtHeaderBindingContext);
                     
                     createAndAddDefinition(localParameters, header, compositeMethod);
                 }

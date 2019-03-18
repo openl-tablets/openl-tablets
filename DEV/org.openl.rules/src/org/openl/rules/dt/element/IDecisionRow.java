@@ -36,6 +36,7 @@ public interface IDecisionRow extends IBaseDecisionRow {
             OpenL openl,
             IBindingContext bindingContext,
             RuleRow ruleRow,
+            IOpenClass ruleExecutionType,
             TableSyntaxNode tableSyntaxNode) throws Exception;
 
     void loadValues(Object[] dest, int offset, int ruleN, Object target, Object[] tableParams, IRuntimeEnv env);

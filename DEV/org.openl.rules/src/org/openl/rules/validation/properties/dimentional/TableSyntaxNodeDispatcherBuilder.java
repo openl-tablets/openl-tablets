@@ -58,8 +58,10 @@ import org.slf4j.LoggerFactory;
  */
 class TableSyntaxNodeDispatcherBuilder {
 
+    private final Logger log = LoggerFactory.getLogger(TableSyntaxNodeDispatcherBuilder.class);
+    
     // LinkedHashMap to save the sequence of params
-    static final LinkedHashMap<String, IOpenClass> incomeParams;
+    static final LinkedHashMap<String, IOpenClass> INCOME_PARAMS;
     static final String AUXILIARY_METHOD_DELIMETER = "$";
     private static final String ARGUMENT_PREFIX_IN_SIGNATURE = "arg_";
 
@@ -69,18 +71,17 @@ class TableSyntaxNodeDispatcherBuilder {
      *
      */
     static {
-        incomeParams = new LinkedHashMap<>();
+        INCOME_PARAMS = new LinkedHashMap<>();
         Method[] methods = IRulesRuntimeContext.class.getDeclaredMethods();
         for (Method method : methods) {
             String methodName = method.getName();
             if (methodName.startsWith("get") && !belongsToExcluded(methodName)) {
                 String fieldName = methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
-                incomeParams.put(fieldName, JavaOpenClass.getOpenClass(method.getReturnType()));
+                INCOME_PARAMS.put(fieldName, JavaOpenClass.getOpenClass(method.getReturnType()));
             }
         }
     }
-
-    private final Logger log = LoggerFactory.getLogger(TableSyntaxNodeDispatcherBuilder.class);
+    
     private RulesModuleBindingContext moduleContext;
     private XlsModuleOpenClass moduleOpenClass;
     private MatchingOpenMethodDispatcher dispatcher;
@@ -299,7 +300,7 @@ class TableSyntaxNodeDispatcherBuilder {
                 getDispatcherParameterNameForOriginalParameter(originalSignature.getParameterName(j)),
                 originalSignature.getParameterType(j));
         }
-        updatedIncomeParams.putAll(incomeParams);
+        updatedIncomeParams.putAll(INCOME_PARAMS);
         return updatedIncomeParams;
     }
 
