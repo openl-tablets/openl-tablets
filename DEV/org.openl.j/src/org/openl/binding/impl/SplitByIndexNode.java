@@ -64,7 +64,7 @@ class SplitByIndexNode extends ABoundNode {
         int size = list2d.size();
 
         IOpenClass componentType = tempVar.getType();
-        IOpenClass arrayType = JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(componentType, 1);
+        IOpenClass arrayType = JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(componentType);
 
         Object result = Array.newInstance(arrayType.getInstanceClass(), size);
 
@@ -91,10 +91,14 @@ class SplitByIndexNode extends ABoundNode {
         IOpenClass containerType = targetNode.getType();
         if (containerType.isArray()) {
             IAggregateInfo info = containerType.getAggregateInfo();
-            return info.getIndexedAggregateType(containerType, 1);
+            return info.getIndexedAggregateType(containerType);
         }
 
         IOpenClass componentType = tempVar.getType();
-        return JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(componentType, 2);
+        // the first dimension
+        componentType = JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(componentType);
+        // the second dimension
+        componentType = JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(componentType);
+        return componentType;
     }
 }

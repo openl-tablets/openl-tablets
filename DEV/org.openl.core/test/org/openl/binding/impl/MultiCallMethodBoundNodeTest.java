@@ -34,6 +34,6 @@ public class MultiCallMethodBoundNodeTest {
 		
 		MultiCallMethodBoundNode boundNode = new MultiCallMethodBoundNode(null, null, methodCaller, Collections.singletonList(2));
 		
-		assertEquals(JavaOpenClass.STRING.getAggregateInfo().getIndexedAggregateType(JavaOpenClass.STRING, 1), boundNode.getType());
+		assertEquals(JavaOpenClass.STRING.getAggregateInfo().getIndexedAggregateType(JavaOpenClass.STRING), boundNode.getType());
 	}
 }

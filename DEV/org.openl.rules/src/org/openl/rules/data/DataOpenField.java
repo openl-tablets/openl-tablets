@@ -19,7 +19,7 @@ public class DataOpenField extends AOpenField implements IUriMember {
         super(table.getDataModel().getName(), table.getDataModel()
             .getType()
             .getAggregateInfo()
-            .getIndexedAggregateType(table.getDataModel().getType(), 1));
+            .getIndexedAggregateType(table.getDataModel().getType()));
         
         this.table = table;
         this.uri = table.getTableSyntaxNode().getTable().getSource().getUri();

@@ -1,10 +1,7 @@
 package org.openl.types;
 
-import java.lang.reflect.Array;
-
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaArrayAggregateInfo;
-import org.openl.types.java.JavaOpenClass;
 
 /**
  * Aggregate info for {@link DomainOpenClass} for creating aggregate and
@@ -21,23 +18,9 @@ public class DomainOpenClassAggregateInfo extends JavaArrayAggregateInfo {
      * Overriden to create aggregate type based on the domain restrictions
      */
     @Override
-    public IOpenClass getIndexedAggregateType(IOpenClass componentType, int dim) {
-        DomainOpenClass domainType = (DomainOpenClass) componentType;
-        int[] dims = new int[dim];
-        Class<?> type = domainType.getInstanceClass();
-        Class<?> clazz = Array.newInstance(type, dims).getClass();
-        JavaOpenClass openClass = JavaOpenClass.getOpenClass(clazz);
-
-        String domainName = domainType.getName();
-
-        StringBuilder buf = new StringBuilder();
-        buf.append(domainName);
-        for (int i = 0; i < dim; i++) {
-            buf.append("[]");
-        }
-        String name = buf.toString();
-
-        return new DomainOpenClass(name, openClass, domainType.getDomain(), domainType.getMetaInfo());
+    public IOpenClass getIndexedAggregateType(IOpenClass componentType) {
+        IOpenClass openClass = getArrayType(componentType);
+        return new DomainOpenClass(componentType.getName()+"[]", openClass, componentType.getDomain(), componentType.getMetaInfo());
     }
 
     /**

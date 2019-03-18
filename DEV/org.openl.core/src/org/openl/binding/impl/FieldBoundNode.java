@@ -106,8 +106,8 @@ public class FieldBoundNode extends ATargetBoundNode {
     public IOpenClass getType() {
         if (returnType == null) {
             returnType = boundField.getType();
-            if (dims > 0) {
-                returnType = returnType.getAggregateInfo().getIndexedAggregateType(returnType, dims);
+            for (int i = 0; i < dims; i++) {
+                returnType = returnType.getAggregateInfo().getIndexedAggregateType(returnType);
             }
         }
         return returnType;

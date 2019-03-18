@@ -33,7 +33,7 @@ public class DomainOpenClassTest {
 	
 	@Test
 	public void testArray() {
-		IOpenClass baseClass = JavaOpenClass.STRING.getAggregateInfo().getIndexedAggregateType(JavaOpenClass.STRING, 1);
+		IOpenClass baseClass = JavaOpenClass.STRING.getAggregateInfo().getIndexedAggregateType(JavaOpenClass.STRING);
 		IDomain<String> domain = new StringDomain(new String[]{"Value1", "Value2"}); 
 		DomainOpenClass domainClass = new DomainOpenClass("TestClass[]", baseClass, domain, null);
 		assertEquals(DomainOpenClassAggregateInfo.DOMAIN_AGGREGATE, domainClass.getAggregateInfo());
@@ -44,7 +44,7 @@ public class DomainOpenClassTest {
 		
 		assertEquals(new DomainOpenClass("TestClass", baseClass, domain, null), domainClass.getComponentClass());
 		
-		IOpenClass aggregateDomain = domainClass.getAggregateInfo().getIndexedAggregateType(domainClass, 1);
+		IOpenClass aggregateDomain = domainClass.getAggregateInfo().getIndexedAggregateType(domainClass);
 		
 		assertEquals("TestClass[][]", aggregateDomain.getName());
 		

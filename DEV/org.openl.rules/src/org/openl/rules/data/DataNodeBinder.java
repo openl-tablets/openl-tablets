@@ -79,15 +79,9 @@ public class DataNodeBinder extends AXlsTableBinder {
             throw SyntaxNodeExceptionUtils.createError("Data table format: Data <typename> <tablename>", source);
         }
 
-        String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
-        String tableName = parsedHeader[TABLE_NAME_INDEX].getIdentifier();
-
-        IOpenClass tableType = RuleRowHelper.getType(typeName, bindingContext);
-
-        if (tableType == null) {
-            String message = String.format("Type is not found: '%s'", typeName);
-            throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TYPE_INDEX]);
-        }
+        String typeName = parsedHeader[TYPE_INDEX].getText();
+        String tableName = parsedHeader[TABLE_NAME_INDEX].getText();
+        IOpenClass tableType = RuleRowHelper.getType(typeName, parsedHeader[TYPE_INDEX], bindingContext);
 
         // Check that table type loaded properly.
         //

@@ -42,6 +42,7 @@ import org.openl.rules.table.SingleCellGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -139,25 +140,17 @@ public class RuleRowHelper {
         return arrayValues;
     }
 
-    public static IOpenClass getType(String typeCode, IBindingContext bindingContext) {
-
+    public static IOpenClass getType(String typeCode, ISyntaxNode node, IBindingContext bindingContext) throws SyntaxNodeException {
         if (typeCode.endsWith("[]")) {
-            int dims = 0;
-            String baseCode = typeCode;
-            while (baseCode.endsWith("[]")) {
-                baseCode = baseCode.substring(0, baseCode.length() - 2);
-                dims++;
-            }
-            IOpenClass baseType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, baseCode);
-
-            if (baseType == null) {
-                return null;
-            }
-
-            return baseType.getAggregateInfo().getIndexedAggregateType(baseType, dims);
+            String baseCode = typeCode.substring(0, typeCode.length() - 2);
+            IOpenClass type = getType(baseCode, node, bindingContext);
+            return type.getAggregateInfo().getIndexedAggregateType(type);
         }
-
-        return bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeCode);
+        IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeCode);
+        if (type == null) {
+            throw SyntaxNodeExceptionUtils.createError("Type '" + typeCode + "'is not found", node);
+        }
+        return type;
     }
 
     public static Object loadSingleParam(IOpenClass paramType,
