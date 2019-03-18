@@ -40,13 +40,16 @@ public class JavaInterfaceGenerator {
         StringBuilder buf = new StringBuilder(1000);
 
         // Add comment
-        buf.append(JavaClassGeneratorHelper.getCommentText("This class has been generated."));
+        buf.append(String.format("/*\n * %s \n*/\n\n", "This class has been generated."));
 
         // Add packages
-        buf.append(JavaClassGeneratorHelper.getPackageText(targetPackageName));
+
+        if (targetPackageName != null) {
+            buf.append(String.format("package %s;\n\n", targetPackageName));
+        }
 
         // Add interface declaration
-        buf.append(JavaClassGeneratorHelper.getInterfaceDeclaration(targetClassName));
+        buf.append(String.format("\npublic interface %s", targetClassName));
 
         buf.append(" {\n");
 
