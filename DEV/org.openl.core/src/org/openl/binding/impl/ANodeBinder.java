@@ -272,7 +272,7 @@ public abstract class ANodeBinder implements INodeBinder {
             return varType;
         }
         IOpenClass arrayType = getType(node.getChild(0), bindingContext);
-        return arrayType != null ? arrayType.getAggregateInfo().getIndexedAggregateType(arrayType, 1) : null;
+        return arrayType != null ? arrayType.getAggregateInfo().getIndexedAggregateType(arrayType) : null;
     }
 
     protected static void assertNotNull(Object node, String message, Object... messages) {

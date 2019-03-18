@@ -77,7 +77,7 @@ public class FieldDescriptionTest {
 
         // Create the IOpenClass for the drivers[]
         //
-        IOpenClass driversClass = DynamicArrayAggregateInfo.aggregateInfo.getIndexedAggregateType(driverClass, 1);
+        IOpenClass driversClass = DynamicArrayAggregateInfo.aggregateInfo.getIndexedAggregateType(driverClass);
 
         // Create the field that belongs to the policy and contains drivers
         //

@@ -144,7 +144,7 @@ public class RuleRowHelper {
         if (typeCode.endsWith("[]")) {
             String baseCode = typeCode.substring(0, typeCode.length() - 2);
             IOpenClass type = getType(baseCode, node, bindingContext);
-            return type.getAggregateInfo().getIndexedAggregateType(type, 1);
+            return type.getAggregateInfo().getIndexedAggregateType(type);
         }
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeCode);
         if (type == null) {

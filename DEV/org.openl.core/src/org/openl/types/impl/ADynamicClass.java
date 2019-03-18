@@ -1,9 +1,3 @@
-/*
- * Created on Jul 24, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.types.impl;
 
 import java.lang.reflect.Constructor;
@@ -29,16 +23,11 @@ import org.openl.types.java.JavaOpenMethod;
  */
 public abstract class ADynamicClass extends AOpenClass {    
 
-    // TODO fix it
-    private static final int MAX_DIM = 5;
-
-    private String name = "<anonymous class>";
+    private final String name;
 
     protected Map<String, IOpenField> fieldMap;
 
     protected Class<?> instanceClass;
-
-    private IOpenClass[] arrayTypes = new IOpenClass[MAX_DIM];
 
     public ADynamicClass(String name, Class<?> instanceClass) {
         this.name = name;
@@ -183,9 +172,5 @@ public abstract class ADynamicClass extends AOpenClass {
 
     public Iterable<IOpenClass> superClasses() {
         return Collections.emptyList();
-    }
-    
-    protected IOpenClass[] getArrayTypes() {
-        return arrayTypes;
     }
 }

@@ -68,8 +68,8 @@ public class JavaMapAggregateInfo implements IAggregateInfo {
     }
 
     @Override
-    public IOpenClass getIndexedAggregateType(IOpenClass componentType, int dim) {
-        return AAggregateInfo.getArrayType(componentType, dim);
+    public IOpenClass getIndexedAggregateType(IOpenClass componentType) {
+        return AAggregateInfo.getArrayType(componentType);
     }
 
     @Override

@@ -397,7 +397,7 @@ public class MethodSearch {
                 if (NullOpenClass.isAnyNull(varArgType)) {
                     args[i] = varArgType;
                 } else {
-                    args[i] = varArgType.getAggregateInfo().getIndexedAggregateType(varArgType, 1);
+                    args[i] = varArgType.getAggregateInfo().getIndexedAggregateType(varArgType);
                 }
 
                 IMethodCaller matchedMethod = findCastingMethod(name, args, casts, filtered);
@@ -432,9 +432,9 @@ public class MethodSearch {
                 if (NullOpenClass.isAnyNull(varArgType)) {
                     args[i] = varArgType;
                 } else {
-                    args[i] = varArgType.getAggregateInfo().getIndexedAggregateType(varArgType, 1);
+                    args[i] = varArgType.getAggregateInfo().getIndexedAggregateType(varArgType);
                 }
-                args[i] = varArgType.getAggregateInfo().getIndexedAggregateType(varArgType, 1);
+                args[i] = varArgType.getAggregateInfo().getIndexedAggregateType(varArgType);
 
                 IMethodCaller matchedMethod = findCastingMethod(name, args, casts, filtered);
                 if (matchedMethod != null) {

@@ -25,15 +25,12 @@ public abstract class AAggregateInfo implements IAggregateInfo {
         return getIndex(aggregateType, JavaOpenClass.INT);
     }
 
-    public IOpenClass getIndexedAggregateType(IOpenClass componentType, int dim) {
-        return getArrayType(componentType, dim);
+    public IOpenClass getIndexedAggregateType(IOpenClass componentType) {
+        return getArrayType(componentType);
     }
 
-    public static IOpenClass getArrayType(IOpenClass componentType, int dim) {
-        int[] dims = new int[dim];
-
-        Object ary = Array.newInstance(componentType.getInstanceClass(), dims);
-
+    public static IOpenClass getArrayType(IOpenClass componentType) {
+        Object ary = Array.newInstance(componentType.getInstanceClass(), 0);
         return JavaOpenClass.getOpenClass(ary.getClass());
     }
 

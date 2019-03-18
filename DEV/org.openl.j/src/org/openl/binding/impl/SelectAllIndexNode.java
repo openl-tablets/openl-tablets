@@ -52,6 +52,6 @@ class SelectAllIndexNode extends ABoundNode {
         }
 
         IOpenClass varType = tempVar.getType();
-        return JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(varType, 1);
+        return JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(varType);
     }
 }

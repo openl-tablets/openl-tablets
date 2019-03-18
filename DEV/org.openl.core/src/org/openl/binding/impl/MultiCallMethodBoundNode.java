@@ -8,7 +8,6 @@ import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
-import org.openl.types.java.JavaArrayAggregateInfo;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -46,7 +45,7 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
         if (!JavaOpenClass.VOID.equals(returnType)) {
             arrayClass = returnType.getInstanceClass();
             // create an array type.
-            returnType = returnType.getAggregateInfo().getIndexedAggregateType(returnType, 1);
+            returnType = returnType.getAggregateInfo().getIndexedAggregateType(returnType);
         }
 
         this.arrayArgArguments = new int[arrayArgArgumentList.size()];

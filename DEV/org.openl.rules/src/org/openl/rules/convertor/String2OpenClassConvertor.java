@@ -31,7 +31,7 @@ class String2OpenClassConvertor implements IString2DataConvertor<IOpenClass>, IS
         }
 
         if (data.endsWith(ARRAY_SUFFIX)) {
-            openClass = openClass.getAggregateInfo().getIndexedAggregateType(openClass, 1);
+            openClass = openClass.getAggregateInfo().getIndexedAggregateType(openClass);
         }
         return openClass;
     }

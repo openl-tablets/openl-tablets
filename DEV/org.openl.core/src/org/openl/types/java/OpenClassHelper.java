@@ -15,7 +15,7 @@ public class OpenClassHelper {
             if (classToFind.isArray()) {
                 IOpenClass componentType = findType(classToFind.getComponentType(), internalTypes);
                 if (componentType != null) {
-                    result = componentType.getAggregateInfo().getIndexedAggregateType(componentType, 1);
+                    result = componentType.getAggregateInfo().getIndexedAggregateType(componentType);
                 }
             } else {
                 result = findType(classToFind, internalTypes);

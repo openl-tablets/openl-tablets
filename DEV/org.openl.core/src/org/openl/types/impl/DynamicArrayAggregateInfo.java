@@ -56,29 +56,8 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
     }
 
     @Override
-    public IOpenClass getIndexedAggregateType(IOpenClass componentType, int dim) {
-        if (dim == 0) {
-            return componentType;
-        }
-
-        if (componentType instanceof ComponentTypeArrayOpenClass)
-        {
-        	return getIndexedAggregateType(componentType.getComponentClass(), dim+1);
-        }	
-        
-        IOpenClass[] arrayTypes = ((ADynamicClass) componentType).getArrayTypes();
-
-        synchronized (arrayTypes) {
-            if (arrayTypes[dim - 1] != null) {
-                return arrayTypes[dim - 1];
-            }
-
-            for (int i = 0; i < arrayTypes.length; i++) {
-            	arrayTypes[i] = componentType = new ComponentTypeArrayOpenClass(componentType);
-            }
-
-            return arrayTypes[dim - 1];
-        }
+    public IOpenClass getIndexedAggregateType(IOpenClass componentType) {
+        return new ComponentTypeArrayOpenClass(componentType);
 
     }
 

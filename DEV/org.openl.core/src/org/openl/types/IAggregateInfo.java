@@ -1,9 +1,3 @@
-/*
- * Created on Jul 10, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.types;
 
 import java.util.Iterator;
@@ -32,7 +26,7 @@ public interface IAggregateInfo {
      */
     IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType);
 
-    IOpenClass getIndexedAggregateType(IOpenClass componentType, int dims);
+    IOpenClass getIndexedAggregateType(IOpenClass componentType);
 
     Iterator<Object> getIterator(Object aggregate);
 
