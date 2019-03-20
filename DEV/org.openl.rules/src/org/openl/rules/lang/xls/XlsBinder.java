@@ -53,7 +53,7 @@ import org.openl.rules.datatype.binding.DatatypesSorter;
 import org.openl.rules.dt.ActionsTableBinder;
 import org.openl.rules.dt.ConditionsTableBinder;
 import org.openl.rules.dt.ReturnsTableBinder;
-import org.openl.rules.fuzzy.OpenLFuzzySearch;
+import org.openl.rules.fuzzy.OpenLFuzzyUtils;
 import org.openl.rules.lang.xls.binding.AExecutableNodeBinder;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
@@ -363,7 +363,7 @@ public class XlsBinder implements IOpenBinder {
 
             return topNode;
         } finally {
-            OpenLFuzzySearch.clearCaches();
+            OpenLFuzzyUtils.clearCaches();
         }
     }
 

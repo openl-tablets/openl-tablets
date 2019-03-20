@@ -12,13 +12,14 @@ class DeclaredDTHeader extends DTHeader {
             CompositeMethod compositeMethod,
             IParameterDeclaration[][] columnParameters,
             int column,
+            int width,
             MatchedDefinition matchedDefinition) {
-        super(methodParameterIndexes, null, column);
+        super(methodParameterIndexes, null, column, width);
         this.columnParameters = columnParameters;
         this.compositeMethod = compositeMethod;
         this.matchedDefinition = matchedDefinition;
     }
-    
+
     @Override
     boolean isReturn() {
         return matchedDefinition.getDtColumnsDefinition().isReturn();
@@ -51,8 +52,4 @@ class DeclaredDTHeader extends DTHeader {
         return matchedDefinition;
     }
     
-    @Override
-    int getNumberOfUsedColumns() {
-        return matchedDefinition.getDtColumnsDefinition().getNumberOfTitles();
-    }
 }

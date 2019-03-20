@@ -9,13 +9,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 
-public final class OpenLFuzzySearch {
+public final class OpenLFuzzyUtils {
 
     private static final double ACCEPTABLE_SIMILARITY_VALUE = 0.85;
     private static final int DEEP_LEVEL = 5;
@@ -58,12 +61,12 @@ public final class OpenLFuzzySearch {
                     if (!method.isStatic() && method.getSignature().getNumberOfParameters() == 1 && method.getName()
                         .startsWith("set")) {
                         String fieldName = method.getName().substring(3);
-                        IOpenField openField = openClass.getField(fieldName, false); //Support only Java Beans
+                        IOpenField openField = openClass.getField(fieldName, false); // Support only Java Beans
                         if (openField == null) {
                             continue;
                         }
-                        
-                        String t = OpenLFuzzySearch.toTokenString(fieldName);
+
+                        String t = OpenLFuzzyUtils.toTokenString(fieldName);
 
                         LinkedList<IOpenMethod> m = null;
                         for (Entry<Token, LinkedList<IOpenMethod>> entry : map.entrySet()) {
@@ -187,11 +190,11 @@ public final class OpenLFuzzySearch {
                 }
                 if (g) {
                     String fieldName = method.getName().substring(3);
-                    IOpenField openField = openClass.getField(fieldName, false); //Support only Java Beans
+                    IOpenField openField = openClass.getField(fieldName, false); // Support only Java Beans
                     if (openField == null) {
                         continue;
                     }
-                    String t = OpenLFuzzySearch.toTokenString(fieldName);
+                    String t = OpenLFuzzyUtils.toTokenString(fieldName);
                     LinkedList<IOpenMethod> methods = new LinkedList<IOpenMethod>();
                     methods.add(method);
                     LinkedList<LinkedList<IOpenMethod>> x = null;
@@ -348,6 +351,8 @@ public final class OpenLFuzzySearch {
             tokensList[i] = tokens[i].getValue().split(" ");
         }
 
+        List<Pair<String, String>> similarity = new ArrayList<>();
+
         String[] sortedSourceTokens = new String[sourceTokens.length];
         System.arraycopy(sourceTokens, 0, sortedSourceTokens, 0, sourceTokens.length);
         Arrays.sort(sortedSourceTokens);
@@ -360,9 +365,21 @@ public final class OpenLFuzzySearch {
             int l = 0;
             int r = 0;
             int c = 0;
+            List<String> source1 = new ArrayList<>();
+            List<String> target1 = new ArrayList<>();
             while (l < sortedSourceTokens.length && r < sortedTokens.length) {
                 double d = StringUtils.getJaroWinklerDistance(sortedSourceTokens[l], sortedTokens[r]);
                 if (d > ACCEPTABLE_SIMILARITY_VALUE) {
+                    for (String s : sortedSourceTokens) {
+                        if (Objects.equals(s, sortedSourceTokens[l])) {
+                            source1.add(sortedSourceTokens[l]);
+                        }
+                    }
+                    for (String s : sortedTokens) {
+                        if (Objects.equals(s, sortedTokens[r])) {
+                            target1.add(sortedTokens[r]);
+                        }
+                    }
                     l++;
                     r++;
                     c++;
@@ -378,6 +395,9 @@ public final class OpenLFuzzySearch {
                 max = c;
             }
             f[i] = c;
+
+            similarity.add(Pair.of(source1.stream().collect(Collectors.joining(StringUtils.SPACE)),
+                target1.stream().collect(Collectors.joining(StringUtils.SPACE))));
         }
 
         if (max == 0) {
@@ -418,15 +438,16 @@ public final class OpenLFuzzySearch {
             int bestL = Integer.MAX_VALUE;
             for (int i = 0; i < tokensList.length; i++) {
                 if (f[i] == max && tokensList[i].length - f[i] == min) {
-                    int d = StringUtils.getFuzzyDistance(tokens[i].getValue(), source, Locale.ENGLISH);
+                    Pair<String, String> pair = similarity.get(i);
+                    int d = StringUtils.getFuzzyDistance(pair.getRight(), pair.getLeft(), Locale.ENGLISH);
                     if (d > best) {
                         best = d;
-                        bestL = StringUtils.getLevenshteinDistance(tokens[i].getValue(), source);
+                        bestL = StringUtils.getLevenshteinDistance(pair.getRight(), pair.getLeft());
                         ret.clear();
                         ret.add(tokens[i]);
                     } else {
                         if (d == best) {
-                            int l = StringUtils.getLevenshteinDistance(tokens[i].getValue(), source);
+                            int l = StringUtils.getLevenshteinDistance(pair.getRight(), pair.getLeft());
                             if (l < bestL) {
                                 bestL = l;
                                 ret.clear();
@@ -445,5 +466,4 @@ public final class OpenLFuzzySearch {
         }
         return new Token[] {};
     }
-
 }

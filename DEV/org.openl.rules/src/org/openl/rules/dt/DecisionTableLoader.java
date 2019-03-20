@@ -113,23 +113,27 @@ public class DecisionTableLoader {
             throw SyntaxNodeExceptionUtils.createError(EMPTY_BODY, tableSyntaxNode);
         }
 
-        // preprocess simple decision tables (without conditions and return headers)
+        // preprocess decision tables (without conditions and return headers)
         // add virtual headers to the table body.
         //
-        try {
-            tableBody = preprocessSimpleDecisionTable(tableSyntaxNode, decisionTable, tableBody, bindingContext);
-        } catch (OpenLCompilationException e) {
-            throw SyntaxNodeExceptionUtils
-                .createError("Can't create a header for a Simple Rules or Lookup Table", e, tableSyntaxNode);
+        if (DecisionTableHelper.isSmartDecisionTable(tableSyntaxNode) || DecisionTableHelper
+            .isSimpleDecisionTable(tableSyntaxNode) || DecisionTableHelper
+                .isSimpleLookupTable(tableSyntaxNode) || DecisionTableHelper.isSmartLookupTable(tableSyntaxNode)) {
+            try {
+                tableBody = DecisionTableHelper
+                    .preprocessDecisionTableWithoutHeaders(tableSyntaxNode, decisionTable, tableBody, bindingContext);
+            } catch (OpenLCompilationException e) {
+                throw SyntaxNodeExceptionUtils
+                    .createError("Can't create a header for a Simple Rules or Lookup Table", e, tableSyntaxNode);
+            }
         }
-
         ILogicalTable toParse = tableBody;
 
         // process lookup decision table.
         //
 
-        int nHConditions = countHConditions(tableBody);
-        int nVConditions = countVConditions(tableBody);
+        int nHConditions = DecisionTableHelper.countHConditionsByHeaders(tableBody);
+        int nVConditions = DecisionTableHelper.countVConditionsByHeaders(tableBody);
         if (nHConditions > 0) {
             try {
                 DecisionTableLookupConvertor dtlc = new DecisionTableLookupConvertor();
@@ -211,8 +215,9 @@ public class DecisionTableLoader {
     private void putTableForBusinessView(TableSyntaxNode tableSyntaxNode) {
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
 
-        if (DecisionTableHelper.isSimpleDecisionTableOrSmartDecisionTable(tableSyntaxNode) || DecisionTableHelper
-            .isSimpleLookupTable(tableSyntaxNode)) {
+        if (DecisionTableHelper.isSmartDecisionTable(tableSyntaxNode) || DecisionTableHelper
+            .isSimpleDecisionTable(tableSyntaxNode) || DecisionTableHelper
+                .isSimpleLookupTable(tableSyntaxNode) || DecisionTableHelper.isSmartLookupTable(tableSyntaxNode)) {
             // if DT is simple, its body doesn`t contain conditions and return headers.
             // so put the body as it is.
             tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
@@ -230,63 +235,6 @@ public class DecisionTableLoader {
             tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, businessView);
         }
 
-    }
-
-    private int getNumberOfHConditions(ILogicalTable tableBody) {
-        int h = tableBody.getSource().getWidth();
-        int d = tableBody.getSource().getCell(0, 0).getHeight();
-        int k = 0;
-        int i = 0;
-        while (i < d) {
-            i = i + tableBody.getSource().getCell(h - 1, i).getHeight();
-            k++;
-        }
-        return k;
-    }
-
-    /**
-     * Adds conditions and return headers to simple Decision table body.<br>
-     * Supports simple Decision Table and simple lookup Decision Table.
-     * 
-     * @param tableSyntaxNode
-     * @param decisionTable method description for simple Decision Table.
-     * @param tableBody original simple Decision Table body
-     * @return table body with added conditions and return headers.
-     */
-    private ILogicalTable preprocessSimpleDecisionTable(TableSyntaxNode tableSyntaxNode,
-            DecisionTable decisionTable,
-            ILogicalTable tableBody,
-            IBindingContext bindingContext) throws OpenLCompilationException {
-
-        if (DecisionTableHelper.isSimpleDecisionTableOrSmartDecisionTable(tableSyntaxNode)) {
-            tableBody = DecisionTableHelper.preprocessSimpleDecisionTable(tableSyntaxNode,
-                decisionTable,
-                tableBody,
-                0,
-                tableBody.getSource().getCell(0, 0).getHeight(),
-                DecisionTableHelper.isSmartDecisionTable(tableSyntaxNode),
-                DecisionTableHelper.isCollectDecisionTable(tableSyntaxNode),
-                bindingContext);
-        } else if (DecisionTableHelper.isSimpleLookupTable(tableSyntaxNode)) {
-            tableBody = DecisionTableHelper.preprocessSimpleDecisionTable(tableSyntaxNode,
-                decisionTable,
-                tableBody,
-                getNumberOfHConditions(tableBody),
-                tableBody.getSource().getCell(0, 0).getHeight(),
-                DecisionTableHelper.isSmartSimpleLookupTable(tableSyntaxNode),
-                DecisionTableHelper.isCollectDecisionTable(tableSyntaxNode),
-                bindingContext);
-        }
-
-        return tableBody;
-    }
-
-    private int countHConditions(ILogicalTable tableBody) {
-        return DecisionTableHelper.countHConditions(tableBody);
-    }
-
-    private int countVConditions(ILogicalTable tableBody) {
-        return DecisionTableHelper.countVConditions(tableBody);
     }
 
     private String getHeaderStr(int row, ILogicalTable table) {

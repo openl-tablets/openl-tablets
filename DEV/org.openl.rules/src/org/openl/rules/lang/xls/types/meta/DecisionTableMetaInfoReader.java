@@ -187,7 +187,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                     valueForColumnTypes);
             } else {
                 value = String.format("Parameter %sof condition %s with expression %s: %s",
-                    textForParameterNames + (StringUtils.isEmpty(textForParameterNames) ? " " : ""),
+                    textForParameterNames + (StringUtils.isEmpty(textForParameterNames) ? StringUtils.EMPTY : StringUtils.SPACE),
                     headerName,
                     statement,
                     valueForColumnTypes);
@@ -218,7 +218,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                     valueForColumnTypes);
             } else {
                 value = String.format("Parameter %sof action %s with expression %s: %s",
-                    textForParameterNames + (StringUtils.isEmpty(textForParameterNames) ? " " : ""),
+                    textForParameterNames + (StringUtils.isEmpty(textForParameterNames) ? StringUtils.EMPTY : StringUtils.SPACE),
                     headerName,
                     statement,
                     valueForColumnTypes);

@@ -6,11 +6,13 @@ abstract class DTHeader {
     int[] methodParameterIndexes;
     int column;
     String statement;
+    int width;
 
-    DTHeader(int[] methodParameterIndexes, String statement, int column) {
+    DTHeader(int[] methodParameterIndexes, String statement, int column, int width) {
         this.methodParameterIndexes = methodParameterIndexes;
         this.statement = statement;
         this.column = column;
+        this.width = width;
     }
 
     abstract boolean isCondition();
@@ -19,7 +21,9 @@ abstract class DTHeader {
 
     abstract boolean isReturn();
 
-    abstract int getNumberOfUsedColumns();
+    int getWidth() {
+        return width;
+    }
 
     String getStatement() {
         return statement;
@@ -54,7 +58,7 @@ abstract class DTHeader {
     public String toString() {
         return "DTHeader [type=" + getTypeString() + " methodParameterIndexes=" + Arrays
             .toString(
-                methodParameterIndexes) + ", column=" + column + ", numberOfUsedColumns=" + getNumberOfUsedColumns() + " statement=" + statement + "]";
+                methodParameterIndexes) + ", column=" + column + ", width=" + getWidth() + " statement=" + statement + "]";
     }
 
 }

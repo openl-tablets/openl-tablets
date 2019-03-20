@@ -1,14 +1,21 @@
 package org.openl.rules.dt;
 
 class SimpleDTHeader extends DTHeader {
-
+    
+    int row;
     boolean horizontal;
     String title;
     
-    SimpleDTHeader(int methodParameterIndex, String statement, String title, int column, boolean horizontal) {
-        super(new int[] { methodParameterIndex }, statement, column);
+    SimpleDTHeader(int methodParameterIndex, String statement, String title, int column, int width) {
+        super(new int[] { methodParameterIndex }, statement, column, width);
         this.title = title;
-        this.horizontal = horizontal;
+        this.horizontal = false;
+    }
+    
+    SimpleDTHeader(int methodParameterIndex, String statement, int column, int row) {
+        super(new int[] { methodParameterIndex }, statement, column, 1);
+        this.horizontal = true;
+        this.row = row;
     }
     
     public String getTitle() {
@@ -18,10 +25,9 @@ class SimpleDTHeader extends DTHeader {
     public boolean isHorizontal() {
         return horizontal;
     }
-
-    @Override
-    int getNumberOfUsedColumns() {
-        return 1;
+    
+    public int getRow() {
+        return row;
     }
 
     @Override

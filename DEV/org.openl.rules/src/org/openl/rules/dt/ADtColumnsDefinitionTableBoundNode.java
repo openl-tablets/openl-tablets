@@ -21,7 +21,7 @@ import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.data.DecisionTableDataType;
-import org.openl.rules.fuzzy.OpenLFuzzySearch;
+import org.openl.rules.fuzzy.OpenLFuzzyUtils;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -274,7 +274,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                                 throw SyntaxNodeExceptionUtils.createError("Title can't be empty.",
                                     tGridCellSourceCodeModule);
                             }
-                            title = OpenLFuzzySearch.toTokenString(title1);
+                            title = OpenLFuzzyUtils.toTokenString(title1);
                             if (uniqueSetOfTitles.contains(title)) {
                                 GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(
                                     tCodeTable,

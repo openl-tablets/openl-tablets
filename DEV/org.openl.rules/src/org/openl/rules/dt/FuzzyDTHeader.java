@@ -12,8 +12,9 @@ class FuzzyDTHeader extends DTHeader {
             String title,
             IOpenMethod[] methodsChain,
             int column,
+            int width,
             boolean compoundReturn) {
-        super(new int[] { methodParameterIndex }, statement, column);
+        super(new int[] { methodParameterIndex }, statement, column, width);
         this.methodsChain = methodsChain;
         this.compoundReturn = compoundReturn;
         this.title = title;
@@ -21,11 +22,6 @@ class FuzzyDTHeader extends DTHeader {
     
     public String getTitle() {
         return title;
-    }
-
-    @Override
-    int getNumberOfUsedColumns() {
-        return 1;
     }
 
     @Override
