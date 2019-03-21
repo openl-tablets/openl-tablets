@@ -3,11 +3,7 @@ package org.openl.rules.project.model;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +16,7 @@ public class ProjectDescriptor {
     private String name;
     private String comment;
     private File projectFolder;
-    private List<Module> modules;
+    private List<Module> modules = Collections.emptyList();
     private List<PathEntry> classpath;
     private List<Property> properties;
 
@@ -97,7 +93,7 @@ public class ProjectDescriptor {
     }
 
     public void setModules(List<Module> modules) {
-        this.modules = new ArrayList<>(modules);
+        this.modules = modules == null ? Collections.emptyList() : new ArrayList<>(modules);
     }
 
     public List<PathEntry> getClasspath() {
@@ -120,7 +116,7 @@ public class ProjectDescriptor {
             return new URL[] {};
         }
         Set<String> classpaths = processClasspathPathPatterns();
-        ArrayList<URL> urls = new ArrayList<URL>(classpaths.size());
+        ArrayList<URL> urls = new ArrayList<>(classpaths.size());
 
         for (String clspth : classpaths) {
             URL url;
@@ -141,7 +137,7 @@ public class ProjectDescriptor {
     }
 
     private Set<String> processClasspathPathPatterns() {
-        Set<String> processedClasspath = new HashSet<String>(classpath.size());
+        Set<String> processedClasspath = new HashSet<>(classpath.size());
         for (PathEntry pathEntry : classpath) {
             String path = pathEntry.getPath().replace('\\', '/').trim();
             if (path.contains("*") || path.contains("?")) {
@@ -171,14 +167,16 @@ public class ProjectDescriptor {
 
     private void check(File folder, Collection<String> matched, String pathPattern, File rootFolder) {
         File[] files = folder.listFiles();
-        for (File file : files) {
-            if (file.isDirectory()) {
-                check(file, matched, pathPattern, rootFolder);
-            } else {
-                String relativePath = file.getAbsolutePath().substring(rootFolder.getAbsolutePath().length() + 1);
-                relativePath = relativePath.replace('\\', '/');
-                if (new AntPathMatcher().match(pathPattern, relativePath)) {
-                    matched.add(relativePath);
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    check(file, matched, pathPattern, rootFolder);
+                } else {
+                    String relativePath = file.getAbsolutePath().substring(rootFolder.getAbsolutePath().length() + 1);
+                    relativePath = relativePath.replace('\\', '/');
+                    if (new AntPathMatcher().match(pathPattern, relativePath)) {
+                        matched.add(relativePath);
+                    }
                 }
             }
         }
