@@ -93,7 +93,7 @@ public class ProjectDescriptor {
     }
 
     public void setModules(List<Module> modules) {
-        this.modules = modules == null ? Collections.emptyList() : new ArrayList<>(modules);
+        this.modules = modules == null ? Collections.<Module>emptyList() : new ArrayList<>(modules);
     }
 
     public List<PathEntry> getClasspath() {
