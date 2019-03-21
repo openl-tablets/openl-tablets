@@ -123,6 +123,11 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
      */
     protected abstract void initNodeTypes(NodeTypeManager ntm) throws RepositoryException;
 
+    /**
+     * @deprecated Correct implementation shouldn't rely on finalize() method, it's a bad practice. Close repository
+     * yourself when it's not needed, don't rely on JVM.
+     */
+    @Deprecated
     @Override
     protected void finalize() throws Throwable {
         try {

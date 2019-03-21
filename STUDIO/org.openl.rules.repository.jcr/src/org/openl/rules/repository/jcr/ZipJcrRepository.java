@@ -557,16 +557,19 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     @Override
     public void close() {
         setListener(null);
-        try {
-            Workspace workspace = session.getWorkspace();
-            ObservationManager manager = workspace.getObservationManager();
-            manager.removeEventListener(this);
-        } catch (RepositoryException e) {
-            log.debug("release", e);
-        }
+        // Session can be null if failed to initialize repository. But this method can still be called during finalization.
+        if (session != null) {
+            try {
+                Workspace workspace = session.getWorkspace();
+                ObservationManager manager = workspace.getObservationManager();
+                manager.removeEventListener(this);
+            } catch (RepositoryException e) {
+                log.debug("release", e);
+            }
 
-        if (session.isLive()) {
-            session.logout();
+            if (session.isLive()) {
+                session.logout();
+            }
         }
     }
 }
