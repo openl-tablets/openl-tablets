@@ -372,7 +372,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             for (int j = info.fromCondition; j <= info.toCondition; j++) {
                 IConditionEvaluator eval = evaluators[j];
                 ConditionToEvaluatorHolder pair = new ConditionToEvaluatorHolder(table.getCondition(j), eval);
-                if (eval instanceof EqualsIndexedEvaluator) {
+                if (eval instanceof EqualsIndexedEvaluator || eval instanceof ContainsInArrayIndexedEvaluator) {
                     eqEvalToConds.add(pair);
                 } else {
                     evalToConds.add(pair);
