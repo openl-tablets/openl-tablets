@@ -6,8 +6,6 @@ package org.openl.rules.dt.algorithm;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
@@ -19,13 +17,7 @@ import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.IBaseCondition;
-import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
-import org.openl.rules.dt.algorithm.evaluator.ContainsInArrayIndexedEvaluator;
-import org.openl.rules.dt.algorithm.evaluator.ContainsInOrNotInArrayIndexedEvaluator;
-import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
-import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
-import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
-import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.*;
 import org.openl.rules.dt.data.ConditionOrActionParameterField;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.IRuleIndex;
@@ -194,6 +186,7 @@ import org.openl.vm.Tracer;
  * @author sshor
  */
 public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm {
+
     /**
      * There is one evaluator per condition in DT
      */
@@ -367,49 +360,14 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         if (table.getNumberOfConditions() <= info.fromCondition || info.fromCondition > info.toCondition) {
             return new ConditionToEvaluatorHolder[0];
         } else {
-            List<ConditionToEvaluatorHolder> eqEvalToConds = new ArrayList<>(evaluators.length);
             List<ConditionToEvaluatorHolder> evalToConds = new ArrayList<>(evaluators.length);
             for (int j = info.fromCondition; j <= info.toCondition; j++) {
                 IConditionEvaluator eval = evaluators[j];
-                ConditionToEvaluatorHolder pair = new ConditionToEvaluatorHolder(table.getCondition(j), eval);
-                if (eval instanceof EqualsIndexedEvaluator || eval instanceof ContainsInArrayIndexedEvaluator) {
-                    eqEvalToConds.add(pair);
-                } else {
-                    evalToConds.add(pair);
-                }
+                ConditionToEvaluatorHolder pair = new ConditionToEvaluatorHolder(table.getCondition(j), eval, info);
+                evalToConds.add(pair);
             }
             Collections.sort(evalToConds);
-            ConditionToEvaluatorHolder[] result = new ConditionToEvaluatorHolder[eqEvalToConds.size() + evalToConds
-                .size()];
-            for (int i = 0, j = eqEvalToConds.size(); i < evalToConds.size(); i++, j++) {
-                result[j] = evalToConds.get(i);
-            }
-            if (eqEvalToConds.isEmpty()) {
-                return result;
-            }
-            // order equals condition by unique key count
-            if (eqEvalToConds.size() == 1) {
-                result[0] = eqEvalToConds.get(0);
-                return result;
-            }
-            Map<Integer, List<ConditionToEvaluatorHolder>> orderedEvals = new TreeMap<>();
-            for (ConditionToEvaluatorHolder pair : eqEvalToConds) {
-                int uniqueKeysCount = pair.getEvaluator().countUniqueKeys(pair.getCondition(), info.makeRuleIterator());
-                List<ConditionToEvaluatorHolder> conds = orderedEvals.get(uniqueKeysCount);
-                if (conds == null) {
-                    conds = new ArrayList<>();
-                    orderedEvals.put(uniqueKeysCount, conds);
-                }
-                conds.add(pair);
-            }
-
-            int i = 0;
-            for (List<ConditionToEvaluatorHolder> conditions : orderedEvals.values()) {
-                for (ConditionToEvaluatorHolder pair : conditions) {
-                    result[i++] = pair;
-                }
-            }
-            return result;
+            return evalToConds.toArray(new ConditionToEvaluatorHolder[0]);
         }
     }
 
@@ -606,18 +564,21 @@ private static final class ConditionEvaluatorDecoratorAsNotIndexed implements IC
 
         @Override
         public int getPriority() {
-            return 100;
+            return IConditionEvaluator.DECORATOR_CONDITION_PRIORITY;
         }
     }
 
     private static class ConditionToEvaluatorHolder implements Comparable<ConditionToEvaluatorHolder> {
 
+        private final IndexInfo localInfo;
+        private int uniqueKeysSize = - 1;
         private final ICondition condition;
         private IConditionEvaluator evaluator;
 
-        ConditionToEvaluatorHolder(ICondition condition, IConditionEvaluator evaluator) {
+        ConditionToEvaluatorHolder(ICondition condition, IConditionEvaluator evaluator, IndexInfo localInfo) {
             this.condition = condition;
             this.evaluator = evaluator;
+            this.localInfo = localInfo;
         }
 
         public ICondition getCondition() {
@@ -646,7 +607,17 @@ private static final class ConditionEvaluatorDecoratorAsNotIndexed implements IC
 
         @Override
         public int compareTo(ConditionToEvaluatorHolder o) {
+            if (this.evaluator instanceof EqualsIndexedEvaluator && o.evaluator instanceof EqualsIndexedEvaluator) {
+                return Integer.compare(this.getUniqueKeysSize(), o.getUniqueKeysSize());
+            }
             return Integer.compare(this.evaluator.getPriority(), o.evaluator.getPriority());
+        }
+
+        private int getUniqueKeysSize() {
+            if (uniqueKeysSize < 0) {
+                uniqueKeysSize = evaluator.countUniqueKeys(condition, localInfo.makeRuleIterator());
+            }
+            return uniqueKeysSize;
         }
     }
 }

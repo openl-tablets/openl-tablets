@@ -186,6 +186,6 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
 
     @Override
     public int getPriority() {
-        return 0;
+        return IConditionEvaluator.ARRAY_CONDITION_PRIORITY;
     }
 }

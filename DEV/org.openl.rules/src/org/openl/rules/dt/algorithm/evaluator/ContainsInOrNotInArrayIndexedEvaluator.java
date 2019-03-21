@@ -227,6 +227,6 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
 
     @Override
     public int getPriority() {
-        return 10;
+        return IConditionEvaluator.ARRAY_CONDITION_PRIORITY;
     }
 }

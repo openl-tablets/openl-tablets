@@ -122,7 +122,7 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
 
     @Override
     public int getPriority() {
-        return 90;
+        return IConditionEvaluator.RANGE_CONDITION_PRIORITY;
     }
 
     protected static class RangeIndexNodeAdaptor implements IRangeAdaptor<IndexNode, Comparable<?>> {

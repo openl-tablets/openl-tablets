@@ -58,6 +58,6 @@ public class DefaultConditionEvaluator implements IConditionEvaluator {
 
     @Override
     public int getPriority() {
-        return 100;
+        return IConditionEvaluator.DEFAULT_CONDITION_PRIORITY;
     }
 }

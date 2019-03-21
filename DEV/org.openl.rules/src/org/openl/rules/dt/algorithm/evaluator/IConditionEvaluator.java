@@ -17,6 +17,13 @@ import org.openl.vm.IRuntimeEnv;
  */
 public interface IConditionEvaluator extends IBaseConditionEvaluator {
 
+    int EQUALS_CONDITION_PRIORITY = 0;
+    int ARRAY_CONDITION_PRIORITY = 10;
+    int RANGE_CONDITION_PRIORITY = 90;
+
+    int DEFAULT_CONDITION_PRIORITY = 100;
+    int DECORATOR_CONDITION_PRIORITY = 100;
+
     IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env);
 
     IRuleIndex makeIndex(ICondition cond, IIntIterator it);

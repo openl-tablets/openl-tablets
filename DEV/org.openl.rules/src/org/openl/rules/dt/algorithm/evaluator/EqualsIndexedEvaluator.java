@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -168,6 +167,6 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
 
     @Override
     public int getPriority() {
-        return 0;
+        return IConditionEvaluator.EQUALS_CONDITION_PRIORITY;
     }
 }
