@@ -344,8 +344,13 @@ public class GitRepositoryTest {
         assertEquals(5, repo.listHistory(projectPath).size());
         // Create new version
         String text = "Reincarnation";
-        repo.save(createFileData(projectPath, text), IOUtils.toInputStream(text));
+        repo.save(createFileData(projectPath + "/folder/reincarnate", text), IOUtils.toInputStream(text));
         assertEquals(6, repo.listHistory(projectPath).size());
+
+        // manually add the file with name ".archived". It shouldn't prevent to delete the project
+        repo.save(createFileData(projectPath + "/" + GitRepository.DELETED_MARKER_FILE, ""), IOUtils.toInputStream(""));
+        assertTrue("'project1' wasn't deleted", repo.delete(projectData));
+        assertTrue("'project1' isn't deleted", repo.check(projectPath).isDeleted());
     }
 
     @Test
