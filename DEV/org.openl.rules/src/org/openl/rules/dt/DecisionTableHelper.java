@@ -18,7 +18,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -285,10 +284,7 @@ public class DecisionTableHelper {
             IWritableGrid grid,
             IBindingContext bindingContext) throws OpenLCompilationException {
         List<DTHeader> dtHeaders;
-        int numberOfHcondition = 0;
-        if (isLookup(tableSyntaxNode)) {
-            numberOfHcondition = getNumberOfHConditions(originalTable);
-        }
+        int numberOfHcondition = isLookup(tableSyntaxNode) ? getNumberOfHConditions(originalTable) : 0;
 
         if (isSmart(tableSyntaxNode)) {
             dtHeaders = getDTHeadersForSmartDecisionTable(tableSyntaxNode,
@@ -304,32 +300,11 @@ public class DecisionTableHelper {
                 bindingContext);
         }
 
-        List<DTHeader> conditions = dtHeaders.stream()
-            .filter(e -> e.isCondition())
-            .collect(collectingAndThen(toList(), Collections::unmodifiableList));
+        writeConditions(decisionTable, originalTable, grid, dtHeaders, numberOfHcondition, bindingContext);
 
-        writeConditions(decisionTable, originalTable, grid, conditions, numberOfHcondition, bindingContext);
+        writeActions(decisionTable, originalTable, grid, dtHeaders, bindingContext);
 
-        List<DTHeader> actions = dtHeaders.stream()
-            .filter(e -> e.isAction())
-            .collect(collectingAndThen(toList(), Collections::unmodifiableList));
-
-        writeActions(decisionTable, originalTable, grid, actions, bindingContext);
-
-        int column = dtHeaders.stream()
-            .filter(e -> e.isCondition() || e.isAction())
-            .mapToInt(e -> e.getColumn() + e.getWidth())
-            .max()
-            .orElse(0);
-
-        writeReturn(tableSyntaxNode,
-            decisionTable,
-            originalTable,
-            grid,
-            dtHeaders,
-            column,
-            numberOfHcondition,
-            bindingContext);
+        writeReturn(tableSyntaxNode, decisionTable, originalTable, grid, dtHeaders, numberOfHcondition, bindingContext);
     }
 
     private static boolean isCompoundReturnType(IOpenClass compoundType) {
@@ -767,10 +742,15 @@ public class DecisionTableHelper {
             DecisionTable decisionTable,
             ILogicalTable originalTable,
             IWritableGrid grid,
-            List<DTHeader> headers,
-            int firstColumnAfterConditionColumns,
+            List<DTHeader> dtHeaders,
             int numberOfHConditions,
             IBindingContext bindingContext) throws OpenLCompilationException {
+        int firstColumnAfterConditionColumns = dtHeaders.stream()
+            .filter(e -> e.isCondition() || e.isAction())
+            .mapToInt(e -> e.getColumn() + e.getWidth())
+            .max()
+            .orElse(0);
+
         // write return column
         //
         int firstReturnColumn = firstColumnAfterConditionColumns;
@@ -820,7 +800,7 @@ public class DecisionTableHelper {
         }
 
         if (numberOfHConditions == 0) {
-            if (!DecisionTableHelper.isSmart(tableSyntaxNode) && originalTable.getWidth() < headers.size()) {
+            if (!DecisionTableHelper.isSmart(tableSyntaxNode) && originalTable.getWidth() < dtHeaders.size()) {
                 // if the physical number of columns for conditions is equals or
                 // more than whole width of the table,
                 // means there is no return column.
@@ -828,7 +808,7 @@ public class DecisionTableHelper {
                 throw new OpenLCompilationException("Wrong table structure: There is no column for return values");
             }
 
-            DeclaredDTHeader returnDtHeader = headers.stream()
+            DeclaredDTHeader returnDtHeader = dtHeaders.stream()
                 .filter(e -> (e instanceof DeclaredDTHeader) && e.isReturn())
                 .map(e -> (DeclaredDTHeader) e)
                 .findAny()
@@ -856,7 +836,7 @@ public class DecisionTableHelper {
                             decisionTable,
                             firstReturnColumn,
                             numberOfMergedRows,
-                            headers,
+                            dtHeaders,
                             retParameterIndex,
                             compoundType,
                             bindingContext);
@@ -989,8 +969,12 @@ public class DecisionTableHelper {
     private static void writeActions(DecisionTable decisionTable,
             ILogicalTable originalTable,
             IWritableGrid grid,
-            List<DTHeader> actions,
+            List<DTHeader> dtHeaders,
             IBindingContext bindingContext) throws OpenLCompilationException {
+        List<DTHeader> actions = dtHeaders.stream()
+            .filter(e -> e.isAction())
+            .collect(collectingAndThen(toList(), Collections::unmodifiableList));
+
         int i = 0;
         for (DTHeader action : actions) {
             if (action.getColumn() >= originalTable.getSource().getWidth()) {
@@ -1012,9 +996,14 @@ public class DecisionTableHelper {
     private static void writeConditions(DecisionTable decisionTable,
             ILogicalTable originalTable,
             IWritableGrid grid,
-            List<DTHeader> conditions,
+            List<DTHeader> dtHeaders,
             int numberOfHcondition,
             IBindingContext bindingContext) throws OpenLCompilationException {
+
+        List<DTHeader> conditions = dtHeaders.stream()
+            .filter(e -> e.isCondition())
+            .collect(collectingAndThen(toList(), Collections::unmodifiableList));
+
         int numOfVCondition = 0;
         int numOfHCondition = 0;
         for (DTHeader condition : conditions) {
