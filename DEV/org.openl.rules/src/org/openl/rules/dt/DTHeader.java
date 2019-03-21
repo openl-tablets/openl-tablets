@@ -17,6 +17,8 @@ abstract class DTHeader {
 
     abstract boolean isCondition();
 
+    abstract boolean isHCondition();
+    
     abstract boolean isAction();
 
     abstract boolean isReturn();

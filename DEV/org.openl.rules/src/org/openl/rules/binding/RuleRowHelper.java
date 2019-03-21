@@ -567,9 +567,9 @@ public class RuleRowHelper {
             String paramName,
             String ruleName,
             OpenlToolAdaptor openlAdaptor,
-            boolean indexed) throws SyntaxNodeException {
+            boolean loadSingleParamOnly) throws SyntaxNodeException {
 
-        if (!indexed) {
+        if (!loadSingleParamOnly) {
             return loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
         }
 

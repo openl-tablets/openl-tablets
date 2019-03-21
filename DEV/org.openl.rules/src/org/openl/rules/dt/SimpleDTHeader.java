@@ -22,12 +22,13 @@ class SimpleDTHeader extends DTHeader {
         return title;
     }
     
-    public boolean isHorizontal() {
-        return horizontal;
-    }
-    
     public int getRow() {
         return row;
+    }
+    
+    @Override
+    boolean isHCondition() {
+        return horizontal;
     }
 
     @Override

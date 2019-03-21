@@ -31,6 +31,11 @@ class DeclaredDTHeader extends DTHeader {
     }
     
     @Override
+    boolean isHCondition() {
+        return false;
+    }
+    
+    @Override
     boolean isAction() {
         return matchedDefinition.getDtColumnsDefinition().isAction();
     }

@@ -4,25 +4,39 @@ import java.util.regex.Pattern;
 
 public final class CharRangeParser extends ARangeParser<Character> {
 
-    private static final CharRangeParser INSTANCE = new CharRangeParser();
-
+    private static class CharRangeParserHolder {
+        private static final CharRangeParser INSTANCE = new CharRangeParser();
+    }
+    
     private final RangeParser[] parsers;
-
+    private final Pattern[] patterns;
+    
+    private final static String MIN_MAX_PATTERN = "\\s*(\\S)\\s*([-;…]|\\.{3}|\\.{2})\\s*(\\S)\\s*";
+    private final static String BRACKETS_PATTERN = "\\s*([\\[(])\\s*(\\S)\\s*(?:[-;…]|\\.{3}|\\.{2})\\s*(\\S)\\s*([])])\\s*";
+    private final static String VERBAL_PATTERN = "\\s*(\\S)\\s*(\\+|and more|or less)\\s*";
+    private final static String MORE_LESS_PATTERN = "\\s*(<|>|>=|<=|less than|more than)\\s*(\\S)\\s*";
+    private final static String RANGE_MORE_LESS_PATTERN = "\\s*(<=?|>=?)\\s*(\\S)\\s*(<=?|>=?)\\s*(\\S)\\s*";
+    private final static String SIMPLE_PATTERN = "\\s*(\\S)\\s*";
+    
     private CharRangeParser() {
         CharacterRangeBoundAdapter adapter = new CharacterRangeBoundAdapter();
-        parsers = new RangeParser[] {
-                new MinMaxParser<>(Pattern.compile("\\s*(\\S)\\s*([-…]|\\.\\.\\.?)\\s*(\\S)\\s*"), adapter),
-                new BracketsParser<>(Pattern.compile("\\s*([\\[(])\\s*(\\S)\\s*(?:;|\\.\\.)\\s*(\\S)\\s*([])])\\s*"),
-                    adapter),
-                new VerbalParser<>(Pattern.compile("\\s*(\\S)\\s*(\\+|and more|or less)\\s*"), adapter),
-                new MoreLessParser<>(Pattern.compile("\\s*(<|>|>=|<=|less than|more than)\\s*(\\S)\\s*"), adapter),
-                new RangeWithMoreLessParser<>(Pattern.compile("\\s*(<=?|>=?)\\s*(\\S)\\s*(<=?|>=?)\\s*(\\S)\\s*"),
-                    adapter),
-                new SimpleParser<>(Pattern.compile("\\s*(\\S)\\s*"), adapter) };
+        patterns = new Pattern[] { Pattern.compile(BRACKETS_PATTERN),
+                Pattern.compile(MIN_MAX_PATTERN),
+                Pattern.compile(VERBAL_PATTERN),
+                Pattern.compile(MORE_LESS_PATTERN),
+                Pattern.compile(RANGE_MORE_LESS_PATTERN),
+                Pattern.compile(SIMPLE_PATTERN) };
+
+        parsers = new RangeParser[] { new BracketsParser<>(patterns[0], adapter),
+                new MinMaxParser<>(patterns[1], adapter),
+                new VerbalParser<>(patterns[2], adapter),
+                new MoreLessParser<>(patterns[3], adapter),
+                new RangeWithMoreLessParser<>(patterns[4], adapter),
+                new SimpleParser<>(patterns[5], adapter) };
     }
 
     public static CharRangeParser getInstance() {
-        return INSTANCE;
+        return CharRangeParserHolder.INSTANCE;
     }
 
     @Override

@@ -85,11 +85,13 @@ public class StringTool {
                     }
                 }
             }
-            result = resultList.toArray(new String[0]);
+            result = resultList.toArray(EMPTY_STRING_ARRAY);
         } else {
             result = tokens;
         }
 
         return result;
     }
+    
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
 }

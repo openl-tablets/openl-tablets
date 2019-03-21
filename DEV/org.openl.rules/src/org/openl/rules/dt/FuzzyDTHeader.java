@@ -28,6 +28,11 @@ class FuzzyDTHeader extends DTHeader {
     boolean isCondition() {
         return !compoundReturn;
     }
+    
+    @Override
+    boolean isHCondition() {
+        return false;
+    }
 
     @Override
     boolean isReturn() {

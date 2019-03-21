@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.openl.meta.StringValue;
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 import org.openl.rules.helpers.ARangeParser.ParseStruct;
-import org.openl.util.StringUtils;
 
 @XmlRootElement
 public class StringRange {

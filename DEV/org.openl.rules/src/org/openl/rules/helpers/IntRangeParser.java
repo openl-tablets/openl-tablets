@@ -14,15 +14,15 @@ public class IntRangeParser {
 
     private static final IntRangeParser INSTANCE = new IntRangeParser();
 
-    protected final RangeParser PARSERS[] = {
-            new SimpleRangeParser(),
+    private final static String INT_PATTERN = "\\$?(-?\\d+[,\\d]+\\d+)([KMB]?)";
+
+    protected final RangeParser PARSERS[] = { new SimpleRangeParser(),
             new RangeWithBracketsParser(),
             new PrefixRangeParser(),
             new SuffixRangeParser(),
             new NumberParser(),
             new RangeWithMoreLessSymbolsParser(),
-            new VerboseRangeParser()
-    };
+            new VerboseRangeParser() };
 
     protected IntRangeParser() {
     }
@@ -53,7 +53,7 @@ public class IntRangeParser {
 
     private static final class NumberParser extends BaseRangeParser {
         // Just a simple number like "$-55,000K" (minus 55000 thousands)
-        private static final Pattern PATTERN = Pattern.compile("\\$?(-?[,\\d]+)([KMB]?)");
+        private static final Pattern PATTERN = Pattern.compile(INT_PATTERN);
 
         @Override
         public RangeWithBounds parse(String range) {
@@ -75,7 +75,7 @@ public class IntRangeParser {
 
     private static final class PrefixRangeParser extends BaseRangeParser {
         // <= 123M
-        private static final Pattern PATTERN = Pattern.compile("(<=?|>=?|less than|more than)\\s*\\$?(-?[,\\d]+)([KMB]?)");
+        private static final Pattern PATTERN = Pattern.compile("(<=?|>=?|less than|more than)\\s*" + INT_PATTERN);
 
         @Override
         public RangeWithBounds parse(String range) {
@@ -93,30 +93,30 @@ public class IntRangeParser {
                 maxNumber = number;
                 maxMultiplier = multiplier;
                 return new RangeWithBounds(getMin(value),
-                        value,
-                        RangeWithBounds.BoundType.INCLUDING,
-                        RangeWithBounds.BoundType.EXCLUDING);
+                    value,
+                    RangeWithBounds.BoundType.INCLUDING,
+                    RangeWithBounds.BoundType.EXCLUDING);
             } else if ("<=".equals(prefix)) {
                 maxNumber = number;
                 maxMultiplier = multiplier;
                 return new RangeWithBounds(getMin(value),
-                        value,
-                        RangeWithBounds.BoundType.INCLUDING,
-                        RangeWithBounds.BoundType.INCLUDING);
+                    value,
+                    RangeWithBounds.BoundType.INCLUDING,
+                    RangeWithBounds.BoundType.INCLUDING);
             } else if (">".equals(prefix) || "more than".equals(prefix)) {
                 minNumber = number;
                 minMultiplier = multiplier;
                 return new RangeWithBounds(value,
-                        getMax(value),
-                        RangeWithBounds.BoundType.EXCLUDING,
-                        RangeWithBounds.BoundType.INCLUDING);
+                    getMax(value),
+                    RangeWithBounds.BoundType.EXCLUDING,
+                    RangeWithBounds.BoundType.INCLUDING);
             } else if (">=".equals(prefix)) {
                 minNumber = number;
                 minMultiplier = multiplier;
                 return new RangeWithBounds(value,
-                        getMax(value),
-                        RangeWithBounds.BoundType.INCLUDING,
-                        RangeWithBounds.BoundType.INCLUDING);
+                    getMax(value),
+                    RangeWithBounds.BoundType.INCLUDING,
+                    RangeWithBounds.BoundType.INCLUDING);
             }
 
             // Shouldn't occur if regular expression is correct
@@ -126,7 +126,7 @@ public class IntRangeParser {
 
     private static final class SuffixRangeParser extends BaseRangeParser {
         // 34+
-        private static final Pattern PATTERN = Pattern.compile("\\$?(-?[,\\d]+)([KMB]?)\\s*(\\+|and more|or less)");
+        private static final Pattern PATTERN = Pattern.compile(INT_PATTERN + "\\s*(\\+|and more|or less)");
 
         @Override
         public RangeWithBounds parse(String range) {
@@ -144,25 +144,24 @@ public class IntRangeParser {
                 maxNumber = number;
                 maxMultiplier = multiplier;
                 return new RangeWithBounds(getMin(value),
-                        value,
-                        RangeWithBounds.BoundType.INCLUDING,
-                        RangeWithBounds.BoundType.INCLUDING);
+                    value,
+                    RangeWithBounds.BoundType.INCLUDING,
+                    RangeWithBounds.BoundType.INCLUDING);
             } else {
                 minNumber = number;
                 minMultiplier = multiplier;
                 return new RangeWithBounds(value,
-                        getMax(value),
-                        RangeWithBounds.BoundType.INCLUDING,
-                        RangeWithBounds.BoundType.INCLUDING);
+                    getMax(value),
+                    RangeWithBounds.BoundType.INCLUDING,
+                    RangeWithBounds.BoundType.INCLUDING);
             }
         }
     }
 
     private static final class SimpleRangeParser extends BaseRangeParser {
         // 34 - 123
-        private static final Pattern PATTERN = Pattern.compile(
-                "\\$?(-?[,\\d]+)([KMB]?)\\s*([-;…]|\\.\\.\\.?)\\s*\\$?(-?[,\\d]+)([KMB]?)"
-        );
+        private static final Pattern PATTERN = Pattern
+            .compile(INT_PATTERN + "\\s*([-;…]|\\.{3}|\\.{2}?)\\s*" + INT_PATTERN);
 
         @Override
         public RangeWithBounds parse(String range) {
@@ -179,9 +178,8 @@ public class IntRangeParser {
             maxMultiplier = matcher.group(5);
             int max = parseIntWithMultiplier(maxNumber, maxMultiplier);
 
-            RangeWithBounds.BoundType boundType = "…".equals(separator) || "...".equals(separator) ?
-                                                  RangeWithBounds.BoundType.EXCLUDING :
-                                                  RangeWithBounds.BoundType.INCLUDING;
+            RangeWithBounds.BoundType boundType = "…".equals(separator) || "..."
+                .equals(separator) ? RangeWithBounds.BoundType.EXCLUDING : RangeWithBounds.BoundType.INCLUDING;
 
             return new RangeWithBounds(min, max, boundType, boundType);
         }
@@ -189,9 +187,8 @@ public class IntRangeParser {
 
     private static final class RangeWithBracketsParser extends BaseRangeParser {
         // [34 - 123)
-        private static final Pattern PATTERN = Pattern.compile(
-                "([\\[\\(])\\s*\\$?(-?[,\\d]+)([KMB]?)\\s*([-;…]|\\.\\.\\.?)\\s*\\$?(-?[,\\d]+)([KMB]?)\\s*([\\]\\)])"
-        );
+        private static final Pattern PATTERN = Pattern
+            .compile("([\\[\\(])\\s*" + INT_PATTERN + "\\s*([-;…]|\\.{3}|\\.{2}?)\\s*" + INT_PATTERN + "\\s*([\\]\\)])");
 
         @Override
         public RangeWithBounds parse(String range) {
@@ -207,10 +204,10 @@ public class IntRangeParser {
             maxMultiplier = matcher.group(6);
             int max = parseIntWithMultiplier(maxNumber, maxMultiplier);
 
-            RangeWithBounds.BoundType minBound = "[".equals(matcher.group(1)) ? RangeWithBounds.BoundType.INCLUDING :
-                                                  RangeWithBounds.BoundType.EXCLUDING;
-            RangeWithBounds.BoundType maxBound = "]".equals(matcher.group(7)) ? RangeWithBounds.BoundType.INCLUDING :
-                                                   RangeWithBounds.BoundType.EXCLUDING;
+            RangeWithBounds.BoundType minBound = "[".equals(matcher.group(1)) ? RangeWithBounds.BoundType.INCLUDING
+                                                                              : RangeWithBounds.BoundType.EXCLUDING;
+            RangeWithBounds.BoundType maxBound = "]".equals(matcher.group(7)) ? RangeWithBounds.BoundType.INCLUDING
+                                                                              : RangeWithBounds.BoundType.EXCLUDING;
 
             return new RangeWithBounds(min, max, minBound, maxBound);
         }
@@ -218,9 +215,8 @@ public class IntRangeParser {
 
     private static final class RangeWithMoreLessSymbolsParser extends BaseRangeParser {
         // >= 5 <= 100
-        private static final Pattern PATTERN = Pattern.compile(
-                "(<=?|>=?)\\s*\\$?(-?[,\\d]+)([KMB]?)\\s*(<=?|>=?)\\s*\\$?(-?[,\\d]+)([KMB]?)"
-        );
+        private static final Pattern PATTERN = Pattern
+            .compile("(<=?|>=?)\\s*" + INT_PATTERN + "\\s*(<=?|>=?)\\s*" + INT_PATTERN);
 
         @Override
         public RangeWithBounds parse(String range) {
@@ -247,8 +243,7 @@ public class IntRangeParser {
     private static final class VerboseRangeParser extends BaseRangeParser {
         // more than 5 less than 100
         private static final Pattern PATTERN = Pattern.compile(
-                "(less than|more than)?\\s*\\$?(-?[,\\d]+)([KMB]?)\\s*(and more|or less)?\\s*(less than|more than)?\\s*\\$?(-?[,\\d]+)([KMB]?)\\s*(and more|or less)?"
-        );
+            "(less than|more than)?\\s*" + INT_PATTERN + "\\s*(and more|or less)?\\s*(less than|more than)?\\s*" + INT_PATTERN + "\\s*(and more|or less)?");
 
         @Override
         public RangeWithBounds parse(String range) {
@@ -284,9 +279,9 @@ public class IntRangeParser {
 
         private String replaceVerboseToSymbol(String bound) {
             return bound.replace("less than", "<")
-                    .replace("more than", ">")
-                    .replace("or less", "<=")
-                    .replace("and more", ">=");
+                .replace("more than", ">")
+                .replace("or less", "<=")
+                .replace("and more", ">=");
         }
 
         private String mergeBoundParts(String part1, String part2) {

@@ -17,7 +17,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -35,10 +34,10 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.constants.ConstantOpenField;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.fuzzy.OpenLFuzzyUtils;
 import org.openl.rules.fuzzy.Token;
 import org.openl.rules.helpers.CharRange;
-import org.openl.rules.helpers.CharRangeParser;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.DoubleRangeParser;
 import org.openl.rules.helpers.IntRange;
@@ -78,6 +77,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.StringTool;
 import org.openl.util.text.TextInfo;
 
 public class DecisionTableHelper {
@@ -107,7 +107,6 @@ public class DecisionTableHelper {
     private static final List<Class<?>> CHAR_TYPES = Arrays.asList(char.class, java.lang.Character.class);
     private static final List<Class<?>> STRINGS_TYPES = Arrays.asList(java.lang.String.class,
         org.openl.meta.StringValue.class);
-    private static final Pattern MAYBE_INT_ARRAY_PATTERN = Pattern.compile("\\s*(\\d+,)*\\d+\\s*");
 
     /**
      * Check if table is vertical.<br>
@@ -738,6 +737,9 @@ public class DecisionTableHelper {
         return true;
     }
 
+    private static final String KEY_RET_PARAM_NAME = "$RET_Key";
+    private static final String VALUE_RET_PARAM_NAME = "$RET";
+
     private static void writeReturn(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             ILogicalTable originalTable,
@@ -745,27 +747,26 @@ public class DecisionTableHelper {
             List<DTHeader> dtHeaders,
             int numberOfHConditions,
             IBindingContext bindingContext) throws OpenLCompilationException {
-        int firstColumnAfterConditionColumns = dtHeaders.stream()
+        int firstReturnColumn = dtHeaders.stream()
             .filter(e -> e.isCondition() || e.isAction())
             .mapToInt(e -> e.getColumn() + e.getWidth())
             .max()
             .orElse(0);
-
+        int numberOfMergedRows = originalTable.getSource().getCell(0, 0).getHeight();
+        int retParameterIndex = 0;
         // write return column
         //
-        int firstReturnColumn = firstColumnAfterConditionColumns;
-        int retParameterIndex = 0;
-        int numberOfMergedRows = originalTable.getSource().getCell(0, 0).getHeight();
         if (DecisionTableHelper.isCollect(tableSyntaxNode)) {
             validateCollectSyntaxNode(tableSyntaxNode, decisionTable, originalTable, bindingContext);
 
             if (Map.class.isAssignableFrom(decisionTable.getType().getInstanceClass())) {
                 grid.setCellValue(firstReturnColumn, 0, KEY1_COLUMN_NAME);
                 if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
-                    grid.setCellValue(firstReturnColumn, 1, "keyRet");
+                    grid.setCellValue(firstReturnColumn, 1, KEY_RET_PARAM_NAME);
                     grid.setCellValue(firstReturnColumn,
                         2,
-                        tableSyntaxNode.getHeader().getCollectParameters()[retParameterIndex] + " " + "keyRet");
+                        tableSyntaxNode.getHeader()
+                            .getCollectParameters()[retParameterIndex] + " " + KEY_RET_PARAM_NAME);
                     retParameterIndex++;
                 }
                 int mergedColumnsCounts = originalTable.getSource()
@@ -776,13 +777,13 @@ public class DecisionTableHelper {
 
             grid.setCellValue(firstReturnColumn, 0, CRET1_COLUMN_NAME);
             if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
-                grid.setCellValue(firstReturnColumn, 1, "extraRet");
+                grid.setCellValue(firstReturnColumn, 1, VALUE_RET_PARAM_NAME);
                 grid.setCellValue(firstReturnColumn,
                     2,
-                    tableSyntaxNode.getHeader().getCollectParameters()[retParameterIndex] + " " + "extraRet");
+                    tableSyntaxNode.getHeader().getCollectParameters()[retParameterIndex] + " " + VALUE_RET_PARAM_NAME);
             } else {
                 if (decisionTable.getType().isArray()) {
-                    grid.setCellValue(firstReturnColumn, 1, "extraRet");
+                    grid.setCellValue(firstReturnColumn, 1, VALUE_RET_PARAM_NAME);
                     String componentClassName = decisionTable.getType().getComponentClass().getName();
                     if (decisionTable.getType().getAggregateInfo() != null) {
                         IOpenClass componentOpenClass = decisionTable.getType()
@@ -792,7 +793,7 @@ public class DecisionTableHelper {
                             componentClassName = componentOpenClass.getName();
                         }
                     }
-                    grid.setCellValue(firstReturnColumn, 2, componentClassName + " " + "extraRet");
+                    grid.setCellValue(firstReturnColumn, 2, componentClassName + " " + VALUE_RET_PARAM_NAME);
                 }
             }
         } else {
@@ -990,7 +991,7 @@ public class DecisionTableHelper {
     }
 
     private static boolean isVCondition(DTHeader condition) {
-        return !((condition instanceof SimpleDTHeader) && ((SimpleDTHeader) condition).isHorizontal());
+        return condition.isCondition() && !condition.isHCondition();
     }
 
     private static void writeConditions(DecisionTable decisionTable,
@@ -1006,6 +1007,13 @@ public class DecisionTableHelper {
 
         int numOfVCondition = 0;
         int numOfHCondition = 0;
+
+        int firstColumnForHConditions = dtHeaders.stream()
+            .filter(e -> e.isCondition() && !e.isHCondition() || e.isAction())
+            .mapToInt(e -> e.getColumn() + e.getWidth())
+            .max()
+            .orElse(0);
+
         for (DTHeader condition : conditions) {
             int column = condition.getColumn();
             if (column >= originalTable.getSource().getWidth()) {
@@ -1050,6 +1058,7 @@ public class DecisionTableHelper {
                     condition,
                     numOfVCondition == conditions.size(),
                     numOfHCondition,
+                    firstColumnForHConditions,
                     bindingContext);
                 grid.setCellValue(column, 2, typeOfValue.getLeft());
 
@@ -1848,16 +1857,11 @@ public class DecisionTableHelper {
         int column = 0;
         int ret = -1;
         while (column < w) {
-            int h = 0;
-            int k = 0;
-            while (h < firstColumnHeight) {
-                h = h + originalTable.getSource().getCell(column, h).getHeight();
-                k++;
-            }
-            if (k != numberOfHcondition) {
+            int rowsCount = calculateRowsCount(originalTable, column, firstColumnHeight);
+            if (rowsCount != numberOfHcondition) {
                 ret = -1;
             }
-            if (k > 1 && k == numberOfHcondition && ret < 0) {
+            if (rowsCount > 1 && rowsCount == numberOfHcondition && ret < 0) {
                 ret = column;
             }
             column = column + originalTable.getSource().getCell(column, 0).getWidth();
@@ -2073,6 +2077,30 @@ public class DecisionTableHelper {
         }
     }
 
+    private static Pair<Boolean, String[]> parsableAsArray(String src, Class<?> clazz, IBindingContext bindingContext) {
+        String[] values = StringTool.splitAndEscape(src,
+            RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR,
+            RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
+        try {
+            for (String value : values) {
+                String2DataConvertorFactory.parse(clazz, value, bindingContext);
+            }
+        } catch (Exception e) {
+            return Pair.of(false, values);
+        }
+        return Pair.of(true, values);
+    }
+
+    private static int calculateRowsCount(ILogicalTable originalTable, int column, int height) {
+        int h = 0;
+        int k = 0;
+        while (h < height && h < originalTable.getSource().getHeight()) {
+            h = h + originalTable.getSource().getCell(column, h).getHeight();
+            k++;
+        }
+        return k;
+    }
+
     /**
      * Check type of condition values. If condition values are complex(Range, Array) then types of complex values will
      * be returned
@@ -2089,6 +2117,7 @@ public class DecisionTableHelper {
             DTHeader condition,
             boolean lastCondition,
             int numOfHCondition,
+            int firstColumnForHConditions,
             IBindingContext bindingContext) {
         int column = condition.getColumn();
 
@@ -2102,17 +2131,24 @@ public class DecisionTableHelper {
 
         ILogicalTable decisionValues;
         int width;
+        int skip;
         if (isVCondition(condition)) {
             decisionValues = LogicalTableHelper.logicalTable(originalTable.getSource().getColumn(column));
             width = decisionValues.getHeight();
+            int firstColumnHeight = originalTable.getSource().getCell(0, 0).getHeight();
+            skip = calculateRowsCount(originalTable, column, firstColumnHeight);
         } else {
             decisionValues = LogicalTableHelper.logicalTable(originalTable.getSource().getRow(numOfHCondition - 1));
             width = decisionValues.getWidth();
+            skip = firstColumnForHConditions;
         }
 
-        for (int valueNum = 1; valueNum < width; valueNum++) {
-            ILogicalTable cellValue;
+        boolean allRangePattern = true;
+        boolean allCanBeNotRangePattern = true;
+        boolean zeroStartedNumbersFound = false;
 
+        for (int valueNum = skip; valueNum < width; valueNum++) {
+            ILogicalTable cellValue;
             if (isVCondition(condition)) {
                 cellValue = decisionValues.getRow(valueNum);
             } else {
@@ -2136,58 +2172,66 @@ public class DecisionTableHelper {
             }
 
             /* try to create range by values **/
-            if (INT_TYPES.contains(type.getInstanceClass())) {
-                try {
-                    boolean f = false;
-                    if (MAYBE_INT_ARRAY_PATTERN.matcher(value).matches()) {
-                        f = true;
+            try {
+                if (INT_TYPES.contains(type.getInstanceClass())) {
+                    boolean f = IntRangeParser.getInstance().parse(value) != null;
+                    if (!f) {
+                        allRangePattern = false;
                     }
-                    if (IntRangeParser.getInstance().parse(value) != null && !f) {
+                    Pair<Boolean, String[]> g = parsableAsArray(value, type.getInstanceClass(), bindingContext);
+                    if (g.getKey() && !zeroStartedNumbersFound) { // If array element starts with 0 and can be range and
+                        // array for all elements then use Range by default. But if
+                        // no zero started elements then default String[]
+                        zeroStartedNumbersFound = Arrays.stream(g.getRight())
+                            .anyMatch(e -> e != null && e.length() > 1 && e.startsWith("0"));
+                    }
+                    if (f && !g.getKey()) {
                         return Pair.of(IntRange.class.getSimpleName(), JavaOpenClass.getOpenClass(IntRange.class));
                     }
-                } catch (Exception e) {
-                    continue;
-                }
-            } else if (DOUBLE_TYPES.contains(type.getInstanceClass())) {
-                try {
-                    boolean f = true;
-                    try {
-                        Double.parseDouble(value);
-                    } catch (NumberFormatException e) {
-                        f = false;
+                } else if (DOUBLE_TYPES.contains(type.getInstanceClass())) {
+                    boolean f = DoubleRangeParser.getInstance().parse(value) != null;
+                    if (!f) {
+                        allRangePattern = false;
                     }
-                    if (DoubleRangeParser.getInstance().parse(value) != null && !f) {
+                    Pair<Boolean, String[]> g = parsableAsArray(value, type.getInstanceClass(), bindingContext);
+                    if (g.getKey() && !zeroStartedNumbersFound) {
+                        zeroStartedNumbersFound = Arrays.stream(g.getRight())
+                            .anyMatch(e -> e != null && e.length() > 1 && e.startsWith("0"));
+                    }
+                    if (f && !g.getKey()) {
                         return Pair.of(DoubleRange.class.getSimpleName(),
                             JavaOpenClass.getOpenClass(DoubleRange.class));
                     }
-                } catch (Exception e) {
-                    continue;
-                }
-            } else if (CHAR_TYPES.contains(type.getInstanceClass())) {
-                try {
-                    boolean f = true;
-                    try {
-                        CharRangeParser.getInstance().parse(value);
-                    } catch (Exception e) {
-                        f = false;
-                    }
-                    if (f && value.length() != 1) {
+                } else if (CHAR_TYPES.contains(type.getInstanceClass())) {
+                    if (!parsableAsArray(value, type.getInstanceClass(), bindingContext).getKey()) {
                         return Pair.of(CharRange.class.getSimpleName(), JavaOpenClass.getOpenClass(CharRange.class));
                     }
-                } catch (Exception e) {
-                    continue;
-                }
-            } else if (STRINGS_TYPES.contains(type.getInstanceClass())) {
-                try {
-                    if (StringRangeParser.getInstance().isStringRange(value)) {
-                        return Pair.of(StringRange.class.getSimpleName(),
-                            JavaOpenClass.getOpenClass(StringRange.class));
+                } else if (STRINGS_TYPES.contains(type.getInstanceClass())) {
+                    if (!StringRangeParser.getInstance().isStringRange(value)) {
+                        allRangePattern = false;
+                        break;
                     }
-                } catch (Exception ignored) {
-                    // OK
+                    if (!StringRangeParser.getInstance().canBeNotStringRange(value)) {
+                        allCanBeNotRangePattern = false;
+                    }
                 }
+            } catch (Exception e) {
+                continue;
             }
         }
+
+        if (INT_TYPES.contains(type.getInstanceClass()) && allRangePattern && zeroStartedNumbersFound) {
+            return Pair.of(IntRange.class.getSimpleName(), JavaOpenClass.getOpenClass(IntRange.class));
+        }
+
+        if (DOUBLE_TYPES.contains(type.getInstanceClass()) && allRangePattern && zeroStartedNumbersFound) {
+            return Pair.of(DoubleRange.class.getSimpleName(), JavaOpenClass.getOpenClass(DoubleRange.class));
+        }
+
+        if (STRINGS_TYPES.contains(type.getInstanceClass()) && allRangePattern && !allCanBeNotRangePattern) {
+            return Pair.of(StringRange.class.getSimpleName(), JavaOpenClass.getOpenClass(StringRange.class));
+        }
+
         if (!type.isArray()) {
             return Pair.of(type.getName() + "[]", JavaOpenClass.getArrayType(type, 1));
         } else {
