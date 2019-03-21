@@ -29,7 +29,7 @@
                         <id>assembly-zip</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>attached</goal>
+                            <goal>single</goal>
                         </goals>
                         <configuration>
                             <finalName>openl-tablets-demo-${project.version}</finalName>
