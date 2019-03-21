@@ -43,6 +43,7 @@ public class CommonRepositorySettings extends RepositorySettings {
         uri = configManager.getStringProperty(REPOSITORY_URI);
         login = configManager.getStringProperty(REPOSITORY_LOGIN);
         password = configManager.getPassword(REPOSITORY_PASS);
+        fixState();
     }
 
     public String getPath() {
@@ -120,8 +121,8 @@ public class CommonRepositorySettings extends RepositorySettings {
         propertiesHolder.setProperty(REPOSITORY_URI, uri);
 
         if (!isSecure()) {
-            propertiesHolder.removeProperty(REPOSITORY_LOGIN);
-            propertiesHolder.removeProperty(REPOSITORY_PASS);
+            propertiesHolder.setProperty(REPOSITORY_LOGIN, "");
+            propertiesHolder.setPassword(REPOSITORY_PASS, "");
         } else {
             if (StringUtils.isNotEmpty(password)) {
                 propertiesHolder.setProperty(REPOSITORY_LOGIN, getLogin());
