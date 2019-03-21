@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openl.OpenClassUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
@@ -26,7 +25,6 @@ public class ProjectDescriptor {
     private List<Property> properties;
 
     private List<ProjectDependencyDescriptor> dependencies;
-    private ClassLoader classLoader;
     private String propertiesFileNamePattern;
     private String propertiesFileNameProcessor;
 
@@ -183,16 +181,6 @@ public class ProjectDescriptor {
                     matched.add(relativePath);
                 }
             }
-        }
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        try {
-            OpenClassUtil.releaseClassLoader(classLoader);
-        } catch (Throwable ignore) {
-        } finally {
-            super.finalize();
         }
     }
 
