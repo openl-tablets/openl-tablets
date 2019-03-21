@@ -3,6 +3,7 @@ package org.openl.rules.repository.git;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.*;
@@ -10,6 +11,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Repository;
@@ -418,6 +420,27 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             monitor = new ChangesMonitor(new GitRevisionGetter(), listenerTimerPeriod);
         } catch (Exception e) {
+            Throwable cause = ExceptionUtils.getRootCause(e);
+            if (cause == null) {
+                cause = e;
+            }
+
+            // Unknown host
+            if (cause instanceof UnknownHostException) {
+                String error = "Invalid URL " + uri;
+                throw new RRepositoryException(error, new IllegalArgumentException(error));
+            }
+
+            // 301 Moved permanently
+            // TODO: Remove it when migrate to the latest version of JGit. JGit handles 301 status codes correctly after
+            //  version 4.9 but it requires java 8.
+            String message = cause.getMessage();
+            if (message != null && message.endsWith("301 Moved Permanently")) {
+                String error = "Invalid URL " + uri;
+                throw new RRepositoryException(error, new IllegalArgumentException(error));
+            }
+
+            // Other cases
             throw new RRepositoryException(e.getMessage(), e);
         } finally {
             writeLock.unlock();
