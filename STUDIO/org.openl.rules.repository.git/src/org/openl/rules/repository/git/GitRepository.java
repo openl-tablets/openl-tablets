@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GitRepository implements FolderRepository, BranchRepository, Closeable, RRepositoryFactory {
-    private static final String DELETED_MARKER_FILE = ".archived";
+    static final String DELETED_MARKER_FILE = ".archived";
 
     private final Logger log = LoggerFactory.getLogger(GitRepository.class);
 
