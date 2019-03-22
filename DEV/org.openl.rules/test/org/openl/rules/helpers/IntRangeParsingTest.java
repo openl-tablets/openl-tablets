@@ -1,7 +1,9 @@
 package org.openl.rules.helpers;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.openl.rules.TestUtils;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
@@ -19,6 +21,8 @@ public class IntRangeParsingTest {
 
     @Test
     public void testBrackets() {
+        assertEquals(new IntRange(0, 6), new IntRange("[0..6 ]"));
+        assertEquals(new IntRange(0, 6), new IntRange("[0..6 ]"));
         assertEquals(new IntRange(13, 200), new IntRange("[13; 200]"));
         assertEquals(new IntRange(11, 31), new IntRange("(10 .. 32)"));
         assertEquals(new IntRange(3, 4), new IntRange("(2;4]"));
@@ -26,6 +30,41 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(-10, -1), new IntRange("[-10;0)"));
         assertEquals(new IntRange(-10, 1), new IntRange("[-10-2)"));
         assertEquals(new IntRange(-9, 2), new IntRange("(-10 - 2]"));
+    }
+    
+    private void checkWrong(String x){
+        try {
+            IntRangeParser.getInstance().parse(x);
+            Assert.fail();
+        } catch (Exception e) {
+        }
+    }
+    
+    @Test
+    public void testFails() {
+        checkWrong(",");
+        checkWrong(",1");
+        checkWrong("1,");
+        checkWrong("1,1,");
+        checkWrong(",1,1");
+        
+        checkWrong("[,1,1 .. 1]");
+        checkWrong("[1,1 .. 1,]");
+        checkWrong("[1,1 .. ,1]");
+        checkWrong("[,1 .. 1]");
+        checkWrong("[1, .. 1]");
+        
+        checkWrong(">,1");
+        checkWrong("<1,");
+        checkWrong("<,1,1,");
+        checkWrong("<1,1,");
+        checkWrong("<,1,1");
+
+        checkWrong(",1,1 .. 1");
+        checkWrong("1,1 .. 1,");
+        checkWrong("1,1 .. ,1");
+        checkWrong(",1 .. 1");
+        checkWrong("1, .. 1");
     }
 
     @Test
@@ -55,6 +94,7 @@ public class IntRangeParsingTest {
 
     @Test
     public void testMinMaxFormat() {
+        assertEquals(new IntRange(3, 15), new IntRange("3..15"));
         assertEquals(new IntRange(1, 2), new IntRange("1-2"));
         assertEquals(new IntRange(13, 200), new IntRange("13 .. 200"));
         assertEquals(new IntRange(14, 99), new IntRange("13 ... 100"));

@@ -2,10 +2,12 @@ package org.openl.rules.helpers;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.openl.util.RangeWithBounds.BoundType;
 
@@ -17,6 +19,7 @@ public class DoubleRangeParsingTest {
 
     @Test
     public void testBrackets() {
+        assertTrue(new DoubleRange("(2; 3.01)").contains(3));
         assertTrue(new DoubleRange("(2;3.01)").contains(3));
         assertFalse(new DoubleRange("(2;3.01)").contains(2));
         assertTrue(new DoubleRange("[2 .. 3.01)").contains(2));
@@ -26,6 +29,66 @@ public class DoubleRangeParsingTest {
 
         assertEquals(new DoubleRange("( 1.0002 - 6 ]"), new DoubleRange(1.0002, 6, BoundType.EXCLUDING,
                 BoundType.INCLUDING));
+    }
+    
+    private void checkWrong(String x){
+        try {
+            IntRangeParser.getInstance().parse(x);
+            Assert.fail();
+        } catch (Exception e) {
+        }
+    }
+    
+    @Test
+    public void testFails() {
+        checkWrong(",");
+        checkWrong(",1");
+        checkWrong("1,");
+        checkWrong("1,1,");
+        checkWrong(",1,1");
+        
+        checkWrong("[,1,1 .. 1]");
+        checkWrong("[1,1 .. 1,]");
+        checkWrong("[1,1 .. ,1]");
+        checkWrong("[,1 .. 1]");
+        checkWrong("[1, .. 1]");
+        
+        checkWrong(">,1");
+        checkWrong("<1,");
+        checkWrong("<,1,1,");
+        checkWrong("<1,1,");
+        checkWrong("<,1,1");
+
+        checkWrong(",1,1 .. 1");
+        checkWrong("1,1 .. 1,");
+        checkWrong("1,1 .. ,1");
+        checkWrong(",1 .. 1");
+        checkWrong("1, .. 1");
+        
+        
+        checkWrong("1.0.0");
+        checkWrong(",1.0");
+        checkWrong("1.0,");
+        checkWrong("1,1.0,");
+        checkWrong(",1.0,1.0");
+        
+        checkWrong("[,1.0,1.0 .. 1]");
+        checkWrong("[1,1.0 .. 1.0,]");
+        checkWrong("[1,1.0 .. ,1]");
+        checkWrong("[,1.0 .. 1]");
+        checkWrong("[1, .. 1.0]");
+        
+        checkWrong(">,1.0");
+        checkWrong("<1,");
+        checkWrong("<,1.0,1,");
+        checkWrong("<1,1.0,");
+        checkWrong("<,1,1.0");
+
+        checkWrong(",1,1.0 .. 1.0");
+        checkWrong("1,1.0 .. 1.0,");
+        checkWrong("1,1.0 .. ,1");
+        checkWrong(",1.0 .. 1");
+        checkWrong("1, .. 1.0");
     }
 
     @Test

@@ -14,7 +14,7 @@ public class IntRangeParser {
 
     private static final IntRangeParser INSTANCE = new IntRangeParser();
 
-    private final static String INT_PATTERN = "\\$?(-?\\d+[,\\d]+\\d+)([KMB]?)";
+    private final static String INT_PATTERN = "\\$?(-?(?:\\d+,)*\\d+)([KMB]?)";
 
     protected final RangeParser PARSERS[] = { new SimpleRangeParser(),
             new RangeWithBracketsParser(),

@@ -14,7 +14,7 @@ public class DoubleRangeParser {
 
     private static final DoubleRangeParser INSTANCE = new DoubleRangeParser();
 
-    private static final String DOUBLE_PATTERN = "\\$?(-?\\d+[,\\d]+\\d+\\.?\\d*)([KMB]?)";
+    private static final String DOUBLE_PATTERN = "\\$?(-?(?:\\d+,)*\\d+\\.?\\d*)([KMB]?)";
 
     protected final RangeParser PARSERS[] = { new SimpleRangeParser(),
             new RangeWithBracketsParser(),
