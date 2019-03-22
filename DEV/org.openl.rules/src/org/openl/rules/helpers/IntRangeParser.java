@@ -14,7 +14,7 @@ public class IntRangeParser {
 
     private static final IntRangeParser INSTANCE = new IntRangeParser();
 
-    private final static String INT_PATTERN = "\\$?(-?(?:\\d+,)*\\d+)([KMB]?)";
+    private final static String INT_PATTERN = "\\$?(-?(?:\\d{1,10},){0,10}\\d{1,10})([KMB]?)";
 
     protected final RangeParser PARSERS[] = { new SimpleRangeParser(),
             new RangeWithBracketsParser(),
@@ -31,23 +31,26 @@ public class IntRangeParser {
         return INSTANCE;
     }
 
+    private final static int MAX_RANGE_POSSIBLE_LENGTH = 50;
+
     public RangeWithBounds parse(String range) {
-        try {
-            range = range.trim();
-            for (RangeParser parser : PARSERS) {
-                RangeWithBounds value;
+        if (range != null && range.length() <= MAX_RANGE_POSSIBLE_LENGTH) {
+            try {
+                range = range.trim();
+                for (RangeParser parser : PARSERS) {
+                    RangeWithBounds value;
 
-                value = parser.parse(range);
-                if (value != null) {
-                    return value;
+                    value = parser.parse(range);
+                    if (value != null) {
+                        return value;
+                    }
                 }
+            } catch (RuntimeException e) {
+                // Shouldn't occur. But if occurs, log exception and fallback to grammar parser
+                Logger log = LoggerFactory.getLogger(RangeWithBounds.class);
+                log.error(e.getMessage(), e);
             }
-        } catch (RuntimeException e) {
-            // Shouldn't occur. But if occurs, log exception and fallback to grammar parser
-            Logger log = LoggerFactory.getLogger(RangeWithBounds.class);
-            log.error(e.getMessage(), e);
         }
-
         return FALLBACK_PARSER.parse(range);
     }
 
@@ -187,8 +190,8 @@ public class IntRangeParser {
 
     private static final class RangeWithBracketsParser extends BaseRangeParser {
         // [34 - 123)
-        private static final Pattern PATTERN = Pattern
-            .compile("([\\[\\(])\\s*" + INT_PATTERN + "\\s*([-;…]|\\.{3}|\\.{2}?)\\s*" + INT_PATTERN + "\\s*([\\]\\)])");
+        private static final Pattern PATTERN = Pattern.compile(
+            "([\\[\\(])\\s*" + INT_PATTERN + "\\s*([-;…]|\\.{3}|\\.{2}?)\\s*" + INT_PATTERN + "\\s*([\\]\\)])");
 
         @Override
         public RangeWithBounds parse(String range) {

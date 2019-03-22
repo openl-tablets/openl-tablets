@@ -14,7 +14,7 @@ public class DoubleRangeParser {
 
     private static final DoubleRangeParser INSTANCE = new DoubleRangeParser();
 
-    private static final String DOUBLE_PATTERN = "\\$?(-?(?:\\d+,)*\\d+\\.?\\d*)([KMB]?)";
+    private static final String DOUBLE_PATTERN = "\\$?(-?(?:\\d{1,30},){0,30}\\d{1,30}\\.?\\d*)([KMB]?)";
 
     protected final RangeParser PARSERS[] = { new SimpleRangeParser(),
             new RangeWithBracketsParser(),
@@ -31,23 +31,26 @@ public class DoubleRangeParser {
         return INSTANCE;
     }
 
+    private final static int MAX_RANGE_POSSIBLE_LENGTH = 100;
+
     public RangeWithBounds parse(String range) {
-        try {
-            range = range.trim();
-            for (RangeParser parser : PARSERS) {
-                RangeWithBounds value;
+        if (range != null && range.length() <= MAX_RANGE_POSSIBLE_LENGTH) {
+            try {
+                range = range.trim();
+                for (RangeParser parser : PARSERS) {
+                    RangeWithBounds value;
 
-                value = parser.parse(range);
-                if (value != null) {
-                    return value;
+                    value = parser.parse(range);
+                    if (value != null) {
+                        return value;
+                    }
                 }
+            } catch (RuntimeException e) {
+                // Shouldn't occur. But if occurs, log exception and fallback to grammar parser
+                Logger log = LoggerFactory.getLogger(RangeWithBounds.class);
+                log.error(e.getMessage(), e);
             }
-        } catch (RuntimeException e) {
-            // Shouldn't occur. But if occurs, log exception and fallback to grammar parser
-            Logger log = LoggerFactory.getLogger(RangeWithBounds.class);
-            log.error(e.getMessage(), e);
         }
-
         return FALLBACK_PARSER.parse(range);
     }
 
