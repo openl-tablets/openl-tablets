@@ -5,6 +5,7 @@ package org.openl.rules.dt.algorithm;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.openl.binding.BindingDependencies;
@@ -22,6 +23,7 @@ import org.openl.rules.dt.data.ConditionOrActionParameterField;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.IRuleIndex;
 import org.openl.rules.dt.type.*;
+import org.openl.rules.helpers.DateRange;
 import org.openl.rules.helpers.StringRange;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -218,6 +220,11 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 return CharRangeAdaptor.getInstance();
             }
         }
+        if (isMethodTypeDate(methodType)) {
+            if (isParameterDateRange(paramType)) {
+                return DateRangeAdaptor.getInstance();
+            }
+        }
         if (isMethodTypeString(methodType)) {
             if (isParameterStringRange(paramType)) {
                 return StringRangeAdaptor.getInstance();
@@ -242,6 +249,10 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         return StringRange.class.equals(paramType.getInstanceClass());
     }
 
+    private static boolean isParameterDateRange(IOpenClass paramType) {
+        return DateRange.class.equals(paramType.getInstanceClass());
+    }
+
     private static boolean isMethodTypeNumber(IOpenClass methodType) {
         return ClassUtils.isAssignable(methodType.getInstanceClass(), Number.class);
     }
@@ -252,6 +263,10 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
     private static boolean isMethodTypeString(IOpenClass methodType) {
         return ClassUtils.isAssignable(methodType.getInstanceClass(), CharSequence.class);
+    }
+
+    private static boolean isMethodTypeDate(IOpenClass methodType) {
+        return ClassUtils.isAssignable(methodType.getInstanceClass(), Date.class);
     }
 
     // TODO to do - fix _NO_PARAM_ issue
@@ -505,7 +520,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         return iterator;
     }
 
-private static final class ConditionEvaluatorDecoratorAsNotIndexed implements IConditionEvaluator {
+    private static final class ConditionEvaluatorDecoratorAsNotIndexed implements IConditionEvaluator {
 
         IConditionEvaluator decorate;
 
