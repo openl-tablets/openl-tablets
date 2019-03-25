@@ -3,18 +3,7 @@ package org.openl.rules.dt;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -38,6 +27,8 @@ import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.fuzzy.OpenLFuzzyUtils;
 import org.openl.rules.fuzzy.Token;
 import org.openl.rules.helpers.CharRange;
+import org.openl.rules.helpers.DateRange;
+import org.openl.rules.helpers.DateRangeParser;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.DoubleRangeParser;
 import org.openl.rules.helpers.IntRange;
@@ -106,6 +97,12 @@ public class DecisionTableHelper {
     private static final List<Class<?>> CHAR_TYPES = Arrays.asList(char.class, java.lang.Character.class);
     private static final List<Class<?>> STRINGS_TYPES = Arrays.asList(java.lang.String.class,
         org.openl.meta.StringValue.class);
+    private static final List<Class<?>> DATE_TYPES = Collections.singletonList(Date.class);
+    private static final List<Class<?>> RANGES_TYPES = Arrays.asList(IntRange.class,
+            DoubleRange.class,
+            CharRange.class,
+            StringRange.class,
+            DateRange.class);
 
     /**
      * Check if table is vertical.<br>
@@ -2138,11 +2135,7 @@ public class DecisionTableHelper {
             }
 
             ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, value);
-            if (constantOpenField != null && (IntRange.class
-                .equals(constantOpenField.getType().getInstanceClass()) || DoubleRange.class
-                    .equals(constantOpenField.getType().getInstanceClass()) || CharRange.class
-                        .equals(constantOpenField.getType().getInstanceClass()) || StringRange.class
-                            .equals(constantOpenField.getType().getInstanceClass()))) {
+            if (constantOpenField != null && RANGES_TYPES.contains(constantOpenField.getType().getInstanceClass())) {
                 return Pair.of(constantOpenField.getType().getInstanceClass().getSimpleName(),
                     constantOpenField.getType());
             }
@@ -2182,6 +2175,15 @@ public class DecisionTableHelper {
                     if (!parsableAsArray(value, type.getInstanceClass(), bindingContext).getKey()) {
                         return Pair.of(CharRange.class.getSimpleName(), JavaOpenClass.getOpenClass(CharRange.class));
                     }
+                } else if (DATE_TYPES.contains(type.getInstanceClass())) {
+                    Object o = cellValue.getSource().getCell(0, 0).getObjectValue();
+                    if (!DateRangeParser.getInstance().isDateRange(value) && !(o instanceof Date)) {
+                        allRangePattern = false;
+                        break;
+                    }
+                    if (!DateRangeParser.getInstance().canBeNotDateRange(value) && !(o instanceof Date)) {
+                        allCanBeNotRangePattern = false;
+                    }
                 } else if (STRINGS_TYPES.contains(type.getInstanceClass())) {
                     if (!StringRangeParser.getInstance().isStringRange(value)) {
                         allRangePattern = false;
@@ -2202,6 +2204,10 @@ public class DecisionTableHelper {
 
         if (DOUBLE_TYPES.contains(type.getInstanceClass()) && allRangePattern && zeroStartedNumbersFound) {
             return Pair.of(DoubleRange.class.getSimpleName(), JavaOpenClass.getOpenClass(DoubleRange.class));
+        }
+
+        if (DATE_TYPES.contains(type.getInstanceClass()) && allRangePattern && !allCanBeNotRangePattern) {
+            return Pair.of(DateRange.class.getSimpleName(), JavaOpenClass.getOpenClass(DateRange.class));
         }
 
         if (STRINGS_TYPES.contains(type.getInstanceClass()) && allRangePattern && !allCanBeNotRangePattern) {

@@ -58,7 +58,8 @@ public class OpenLBuilder extends AOpenLBuilder {
             org.openl.rules.helpers.IntRange.class.getName(),
             org.openl.rules.helpers.DoubleRange.class.getName(),
             org.openl.rules.helpers.CharRange.class.getName(),
-            org.openl.rules.helpers.StringRange.class.getName()};
+            org.openl.rules.helpers.StringRange.class.getName(),
+            org.openl.rules.helpers.DateRange.class.getName()};
 
     @Override
     public OpenL build(String category) throws OpenConfigurationException {

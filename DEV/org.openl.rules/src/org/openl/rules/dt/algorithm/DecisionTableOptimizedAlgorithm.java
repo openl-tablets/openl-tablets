@@ -5,6 +5,7 @@ package org.openl.rules.dt.algorithm;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.openl.binding.BindingDependencies;
@@ -22,6 +23,7 @@ import org.openl.rules.dt.data.ConditionOrActionParameterField;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.IRuleIndex;
 import org.openl.rules.dt.type.*;
+import org.openl.rules.helpers.DateRange;
 import org.openl.rules.helpers.StringRange;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -187,6 +189,8 @@ import org.openl.vm.Tracer;
  */
 public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm {
 
+    private static final int MAX_INDEXED_ARRAY_SIZE = 1;
+
     /**
      * There is one evaluator per condition in DT
      */
@@ -218,6 +222,11 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 return CharRangeAdaptor.getInstance();
             }
         }
+        if (isMethodTypeDate(methodType)) {
+            if (isParameterDateRange(paramType)) {
+                return DateRangeAdaptor.getInstance();
+            }
+        }
         if (isMethodTypeString(methodType)) {
             if (isParameterStringRange(paramType)) {
                 return StringRangeAdaptor.getInstance();
@@ -242,6 +251,10 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         return StringRange.class.equals(paramType.getInstanceClass());
     }
 
+    private static boolean isParameterDateRange(IOpenClass paramType) {
+        return DateRange.class.equals(paramType.getInstanceClass());
+    }
+
     private static boolean isMethodTypeNumber(IOpenClass methodType) {
         return ClassUtils.isAssignable(methodType.getInstanceClass(), Number.class);
     }
@@ -252,6 +265,10 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
     private static boolean isMethodTypeString(IOpenClass methodType) {
         return ClassUtils.isAssignable(methodType.getInstanceClass(), CharSequence.class);
+    }
+
+    private static boolean isMethodTypeDate(IOpenClass methodType) {
+        return ClassUtils.isAssignable(methodType.getInstanceClass(), Date.class);
     }
 
     // TODO to do - fix _NO_PARAM_ issue
@@ -363,7 +380,16 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             List<ConditionToEvaluatorHolder> evalToConds = new ArrayList<>(evaluators.length);
             for (int j = info.fromCondition; j <= info.toCondition; j++) {
                 IConditionEvaluator eval = evaluators[j];
-                ConditionToEvaluatorHolder pair = new ConditionToEvaluatorHolder(table.getCondition(j), eval, info);
+                ICondition condition = table.getCondition(j);
+                if (eval instanceof ContainsInArrayIndexedEvaluator) {
+                    int maxArrayLength = ((ContainsInArrayIndexedEvaluator) eval)
+                            .getMaxArrayLength(condition, info.makeRuleIterator());
+                    if (maxArrayLength > MAX_INDEXED_ARRAY_SIZE) {
+                        //make condition as not indexed
+                        eval = new ConditionEvaluatorDecoratorAsNotIndexed(eval);
+                    }
+                }
+                ConditionToEvaluatorHolder pair = new ConditionToEvaluatorHolder(condition, eval, info);
                 evalToConds.add(pair);
             }
             Collections.sort(evalToConds);
@@ -505,7 +531,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         return iterator;
     }
 
-private static final class ConditionEvaluatorDecoratorAsNotIndexed implements IConditionEvaluator {
+    private static final class ConditionEvaluatorDecoratorAsNotIndexed implements IConditionEvaluator {
 
         IConditionEvaluator decorate;
 
@@ -607,10 +633,15 @@ private static final class ConditionEvaluatorDecoratorAsNotIndexed implements IC
 
         @Override
         public int compareTo(ConditionToEvaluatorHolder o) {
-            if (this.evaluator instanceof EqualsIndexedEvaluator && o.evaluator instanceof EqualsIndexedEvaluator) {
+            if (this.isEqualsIndex() && o.isEqualsIndex()) {
                 return Integer.compare(this.getUniqueKeysSize(), o.getUniqueKeysSize());
             }
             return Integer.compare(this.evaluator.getPriority(), o.evaluator.getPriority());
+        }
+
+        private boolean isEqualsIndex() {
+            return this.evaluator instanceof EqualsIndexedEvaluator
+                    || this.evaluator instanceof ContainsInArrayIndexedEvaluator;
         }
 
         private int getUniqueKeysSize() {
