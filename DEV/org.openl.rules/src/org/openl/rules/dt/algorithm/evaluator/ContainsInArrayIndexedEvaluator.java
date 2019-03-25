@@ -44,10 +44,9 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
     }
 
     public IIntSelector getSelector(ICondition condition, Object target, Object[] params, IRuntimeEnv env) {
-
         Object value = condition.getEvaluator().invoke(target, params, env);
 
-        return new ContainsInArraySelector(condition, value, target, params, env);
+        return new ContainsInArraySelector(condition, value);
     }
 
     public boolean isIndexed() {
