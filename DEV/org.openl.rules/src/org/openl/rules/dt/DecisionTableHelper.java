@@ -99,6 +99,11 @@ public class DecisionTableHelper {
     private static final List<Class<?>> STRINGS_TYPES = Arrays.asList(java.lang.String.class,
         org.openl.meta.StringValue.class);
     private static final List<Class<?>> DATE_TYPES = Collections.singletonList(Date.class);
+    private static final List<Class<?>> RANGES_TYPES = Arrays.asList(IntRange.class,
+            DoubleRange.class,
+            CharRange.class,
+            StringRange.class,
+            DateRange.class);
 
     /**
      * Check if table is vertical.<br>
@@ -2154,12 +2159,7 @@ public class DecisionTableHelper {
             }
 
             ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, value);
-            if (constantOpenField != null && (IntRange.class
-                .equals(constantOpenField.getType().getInstanceClass()) || DoubleRange.class
-                    .equals(constantOpenField.getType().getInstanceClass()) || CharRange.class
-                        .equals(constantOpenField.getType().getInstanceClass()) || StringRange.class
-                            .equals(constantOpenField.getType().getInstanceClass())  || DateRange.class
-                                .equals(constantOpenField.getType().getInstanceClass()))) {
+            if (constantOpenField != null && RANGES_TYPES.contains(constantOpenField.getType().getInstanceClass())) {
                 return Pair.of(constantOpenField.getType().getInstanceClass().getSimpleName(),
                     constantOpenField.getType());
             }

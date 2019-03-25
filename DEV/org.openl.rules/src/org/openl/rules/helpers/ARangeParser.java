@@ -170,7 +170,7 @@ public abstract class ARangeParser<T> {
         }
     }
 
-    private static abstract class AParser<T> implements RangeParser {
+    private static abstract class AParser<T> implements RangeParser<T> {
 
         private final Pattern pattern;
         final RangeBoundAdapter<T> adapter;
@@ -201,8 +201,8 @@ public abstract class ARangeParser<T> {
         T getMaxRightBound();
     }
 
-    interface RangeParser {
-        ParseStruct parse(String range);
+    interface RangeParser<T> {
+        ParseStruct<T> parse(String range);
     }
 
     public static final class ParseStruct<T> {
