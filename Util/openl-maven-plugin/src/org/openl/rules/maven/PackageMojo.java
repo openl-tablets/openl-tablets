@@ -10,8 +10,13 @@ import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.*;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
@@ -25,7 +30,7 @@ import org.openl.util.StringUtils;
  * @author Yury Molchan
  * @since 5.19.1
  */
-@Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.RUNTIME, requiresDependencyCollection = ResolutionScope.RUNTIME)
 public final class PackageMojo extends BaseOpenLMojo {
 
     private static final String RULES_XML = "rules.xml";
@@ -65,21 +70,18 @@ public final class PackageMojo extends BaseOpenLMojo {
     private String classpathFolder;
 
     /**
-     * Classifier to add to the artifact generated. If given, the artifact will be
-     * attached as a supplemental artifact. If not given this will create the main
-     * artifact which is the default behavior. If you try to do that a second time
-     * without using a classifier the build will fail.
+     * Classifier to add to the artifact generated. If given, the artifact will be attached as a supplemental artifact.
+     * If not given this will create the main artifact which is the default behavior. If you try to do that a second
+     * time without using a classifier the build will fail.
      */
     @Parameter
     private String classifier;
 
     /**
-     * An allowed quantity of dependencies which can be included into the ZIP
-     * archive. Usually OpenL rules require a few dependencies like: domain models
-     * (Java beans) or some utils (e.g. JSON parsing). So the quantity of required
-     * dependencies does not exceed 3 usually. In case incorrect declaring of
-     * transitive dependencies, the size of the ZIP package increases dramatically.
-     * This parameter allows to prevent such situation by failing packaging.
+     * An allowed quantity of dependencies which can be included into the ZIP archive. Usually OpenL rules require a few
+     * dependencies like: domain models (Java beans) or some utils (e.g. JSON parsing). So the quantity of required
+     * dependencies does not exceed 3 usually. In case incorrect declaring of transitive dependencies, the size of the
+     * ZIP package increases dramatically. This parameter allows to prevent such situation by failing packaging.
      */
     @Parameter(defaultValue = "3", required = true)
     private int dependenciesThreshold;
@@ -102,7 +104,8 @@ public final class PackageMojo extends BaseOpenLMojo {
         boolean mainArtifactExists = dependencyLib != null && dependencyLib.isFile();
         if (mainArtifactExists && StringUtils.isBlank(classifier) && Arrays.asList(types).contains(packaging)) {
             error("The main artifact have been attached already.");
-            error("You have to use classifier to attach supplemental artifacts to the project instead of replacing them.");
+            error(
+                "You have to use classifier to attach supplemental artifacts to the project instead of replacing them.");
             throw new MojoFailureException("It is not possible to replace the main artifact.");
         }
         Set<Artifact> dependencies = getDependencies();
@@ -134,7 +137,8 @@ public final class PackageMojo extends BaseOpenLMojo {
             arch.setIncludeEmptyDirs(false);
             addFile(arch, openLSourceDir, RULES_XML);
             addFile(arch, openLSourceDir, RULES_DEPLOY_XML);
-            arch.addFileSet(fileSet(openLSourceDir).includeEmptyDirs(false).exclude(new String[] { RULES_XML, RULES_DEPLOY_XML }));
+            arch.addFileSet(
+                fileSet(openLSourceDir).includeEmptyDirs(false).exclude(new String[] { RULES_XML, RULES_DEPLOY_XML }));
 
             if (dependencyLib != null && dependencyLib.isFile()) {
                 arch.addFile(dependencyLib, classpathFolder + finalName + ".jar");
@@ -158,43 +162,54 @@ public final class PackageMojo extends BaseOpenLMojo {
     }
 
     private Set<Artifact> getDependencies() {
-        Set<Artifact> artifacts = project.getArtifacts();
+        HashSet<String> allowed = getAllowedDependencies();
 
-        HashSet<String> skipped = new HashSet<>();
         Set<Artifact> dependencies = new HashSet<>();
+        for (Artifact artifact : project.getArtifacts()) {
+            String groupId = artifact.getGroupId();
+            String type = artifact.getType();
+            String scope = artifact.getScope();
+            if (skipToProcess(groupId, type, scope)) {
+                debug("SKIP : ", artifact);
+                continue;
+            }
+            List<String> dependencyTrail = artifact.getDependencyTrail();
+            if (dependencyTrail.size() < 2) {
+                debug("SKIP : ", artifact, " (by dependency depth)");
+                continue; // skip, unexpected size of dependencies
+            }
 
-        for (Artifact artifact : artifacts) {
-            collectToSkip(skipped, artifact);
-        }
-        for (Artifact artifact : artifacts) {
-            if (skipped.contains(ArtifactUtils.versionlessKey(artifact))) {
-                debug("SKIP: ", artifact);
-            } else {
+            String tr = dependencyTrail.get(1);
+            String key = tr.substring(0, tr.indexOf(':', tr.indexOf(':') + 1));
+            if (allowed.contains(key)) {
                 debug("ADD : ", artifact);
                 dependencies.add(artifact);
             }
         }
+
         return dependencies;
     }
 
-    private void collectToSkip(HashSet<String> skipped, Artifact artifact) {
-        boolean skip = false;
-        String scope = artifact.getScope();
-        // There is no need to add to OpenL project other zipped projects or provided dependencies.
-        if (Artifact.SCOPE_PROVIDED.equals(scope) || OPENL_ARTIFACT_TYPE.equals(artifact.getType())) {
-            skipped.add(ArtifactUtils.versionlessKey(artifact));
-            return;
-        }
-        List<String> trail = artifact.getDependencyTrail();
-        for (String tr : trail) {
-            if (tr.startsWith("org.openl.rules:") || tr.startsWith("org.openl:") || tr.startsWith("org.slf4j:")) {
-                skip = true;
-            }
-            if (skip) {
-                String key = tr.substring(0, tr.indexOf(':', tr.indexOf(':') + 1));
-                skipped.add(key);
+    private HashSet<String> getAllowedDependencies() {
+        HashSet<String> allowed = new HashSet<>();
+        for (Dependency dep : project.getDependencies()) {
+            String groupId = dep.getGroupId();
+            String artifactId = dep.getArtifactId();
+            String type = dep.getType();
+            String scope = dep.getScope();
+            if (skipToProcess(groupId, type, scope)) {
+                debug("SKIP : ", dep);
+            } else {
+                allowed.add(ArtifactUtils.versionlessKey(groupId, artifactId));
             }
         }
+        return allowed;
+    }
+
+    private boolean skipToProcess(String groupId, String type, String scope) {
+        boolean runtimeScope = Artifact.SCOPE_RUNTIME.equals(scope) || Artifact.SCOPE_COMPILE.equals(scope);
+        return !runtimeScope || groupId.equals("org.openl.rules") || groupId.equals("org.openl") || groupId
+            .equals("org.slf4j") || OPENL_ARTIFACT_TYPE.equals(type);
     }
 
     private void addFile(Archiver arch, File folder, String fileName) {
