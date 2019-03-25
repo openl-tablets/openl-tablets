@@ -189,6 +189,8 @@ import org.openl.vm.Tracer;
  */
 public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm {
 
+    private static final int MAX_INDEXED_ARRAY_SIZE = 1;
+
     /**
      * There is one evaluator per condition in DT
      */
@@ -378,7 +380,16 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             List<ConditionToEvaluatorHolder> evalToConds = new ArrayList<>(evaluators.length);
             for (int j = info.fromCondition; j <= info.toCondition; j++) {
                 IConditionEvaluator eval = evaluators[j];
-                ConditionToEvaluatorHolder pair = new ConditionToEvaluatorHolder(table.getCondition(j), eval, info);
+                ICondition condition = table.getCondition(j);
+                if (eval instanceof ContainsInArrayIndexedEvaluator) {
+                    int maxArrayLength = ((ContainsInArrayIndexedEvaluator) eval)
+                            .getMaxArrayLength(condition, info.makeRuleIterator());
+                    if (maxArrayLength > MAX_INDEXED_ARRAY_SIZE) {
+                        //make condition as not indexed
+                        eval = new ConditionEvaluatorDecoratorAsNotIndexed(eval);
+                    }
+                }
+                ConditionToEvaluatorHolder pair = new ConditionToEvaluatorHolder(condition, eval, info);
                 evalToConds.add(pair);
             }
             Collections.sort(evalToConds);
@@ -622,10 +633,15 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
         @Override
         public int compareTo(ConditionToEvaluatorHolder o) {
-            if (this.evaluator instanceof EqualsIndexedEvaluator && o.evaluator instanceof EqualsIndexedEvaluator) {
+            if (this.isEqualsIndex() && o.isEqualsIndex()) {
                 return Integer.compare(this.getUniqueKeysSize(), o.getUniqueKeysSize());
             }
             return Integer.compare(this.evaluator.getPriority(), o.evaluator.getPriority());
+        }
+
+        private boolean isEqualsIndex() {
+            return this.evaluator instanceof EqualsIndexedEvaluator
+                    || this.evaluator instanceof ContainsInArrayIndexedEvaluator;
         }
 
         private int getUniqueKeysSize() {

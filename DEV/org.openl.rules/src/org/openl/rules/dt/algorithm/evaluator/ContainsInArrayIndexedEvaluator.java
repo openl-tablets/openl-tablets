@@ -33,6 +33,9 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator implements IConditionEvaluator {
 
+    private int uniqueKeysSize = -1;
+    private int maxArrayLength = -1;
+
     public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
         IParameterDeclaration[] cparams = condition.getParams();
 
@@ -131,6 +134,20 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
 
     @Override
     public int countUniqueKeys(ICondition condition, IIntIterator it) {
+        if (uniqueKeysSize < 0) {
+            countUniqueKeysAndMaxArrayLength(condition, it);
+        }
+        return uniqueKeysSize;
+    }
+
+    public int getMaxArrayLength(ICondition condition, IIntIterator it) {
+        if (maxArrayLength < 0) {
+            countUniqueKeysAndMaxArrayLength(condition, it);
+        }
+        return maxArrayLength;
+    }
+
+    private void countUniqueKeysAndMaxArrayLength(ICondition condition, IIntIterator it) {
         Set<Object> uniqueVals = null;
         while (it.hasNext()) {
             int i = it.nextInt();
@@ -139,6 +156,7 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
             }
             Object values = condition.getParamValue(0, i);
             int length = Array.getLength(values);
+            maxArrayLength = Math.max(length, maxArrayLength);
             for (int j = 0; j < length; j++) {
                 Object val = Array.get(values, j);
                 if (uniqueVals == null) {
@@ -155,7 +173,7 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
                 uniqueVals.add(val);
             }
         }
-        return uniqueVals == null ? 0 : uniqueVals.size();
+        uniqueKeysSize = uniqueVals == null ? 0 : uniqueVals.size();
     }
 
     protected IDomain<Object> indexedDomain(IBaseCondition condition) {
