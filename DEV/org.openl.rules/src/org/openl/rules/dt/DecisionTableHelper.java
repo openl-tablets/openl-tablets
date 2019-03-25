@@ -84,7 +84,6 @@ public class DecisionTableHelper {
 
     private final static String RET1_COLUMN_NAME = DecisionTableColumnHeaders.RETURN.getHeaderKey() + "1";
     private final static String CRET1_COLUMN_NAME = DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + "1";
-    private final static String KEY1_COLUMN_NAME = DecisionTableColumnHeaders.KEY.getHeaderKey() + "1";
     private static final List<Class<?>> INT_TYPES = Arrays.asList(byte.class,
         short.class,
         int.class,
@@ -282,28 +281,25 @@ public class DecisionTableHelper {
             ILogicalTable originalTable,
             IWritableGrid grid,
             IBindingContext bindingContext) throws OpenLCompilationException {
-        List<DTHeader> dtHeaders;
         int numberOfHcondition = isLookup(tableSyntaxNode) ? getNumberOfHConditions(originalTable) : 0;
 
-        if (isSmart(tableSyntaxNode)) {
-            dtHeaders = getDTHeadersForSmartDecisionTable(tableSyntaxNode,
-                decisionTable,
-                originalTable,
-                numberOfHcondition,
-                bindingContext);
-        } else {
-            dtHeaders = getDTHeadersForSimpleDecisionTable(tableSyntaxNode,
-                decisionTable,
-                originalTable,
-                numberOfHcondition,
-                bindingContext);
-        }
+        List<DTHeader> dtHeaders = getDTHeaders(tableSyntaxNode,
+            decisionTable,
+            originalTable,
+            numberOfHcondition,
+            bindingContext);
 
         writeConditions(decisionTable, originalTable, grid, dtHeaders, numberOfHcondition, bindingContext);
 
         writeActions(decisionTable, originalTable, grid, dtHeaders, bindingContext);
 
-        writeReturn(tableSyntaxNode, decisionTable, originalTable, grid, dtHeaders, numberOfHcondition, bindingContext);
+        writeReturns(tableSyntaxNode,
+            decisionTable,
+            originalTable,
+            grid,
+            dtHeaders,
+            numberOfHcondition,
+            bindingContext);
     }
 
     private static boolean isCompoundReturnType(IOpenClass compoundType) {
@@ -330,162 +326,6 @@ public class DecisionTableHelper {
         }
     }
 
-    private static void writeCompoundReturnColumns(TableSyntaxNode tableSyntaxNode,
-            IWritableGrid grid,
-            ILogicalTable originalTable,
-            DecisionTable decisionTable,
-            int firstReturnColumn,
-            int numberOfMergedRows,
-            List<DTHeader> headers,
-            int retParameterIndex,
-            IOpenClass compoundType,
-            IBindingContext bindingContext) throws OpenLCompilationException {
-
-        validateCompoundReturnType(compoundType);
-        int compoundReturnColumnsCount = calculateReturnColumnsCount(originalTable,
-            firstReturnColumn,
-            numberOfMergedRows);
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(compoundType.getName()).append(" ret = new ").append(compoundType.getName()).append("();");
-
-        if (DecisionTableHelper.isSmart(tableSyntaxNode)) {
-            // Set conditions parameters to compound type. Recursively search is
-            // not supported.
-            for (DTHeader condition : headers) {
-                if (condition
-                    .isCondition() && (condition instanceof SimpleDTHeader || condition instanceof FuzzyDTHeader)) {
-                    String condtionTitle;
-                    if (condition instanceof SimpleDTHeader) {
-                        condtionTitle = ((SimpleDTHeader) condition).getTitle();
-                    } else {
-                        condtionTitle = ((FuzzyDTHeader) condition).getTitle();
-                    }
-                    try {
-                        IOpenMethod bestMatchedConditionMethod = findBestMatchOpenMethod(condtionTitle,
-                            compoundType,
-                            decisionTable.getSignature().getParameterType(condition.getMethodParameterIndex()),
-                            bindingContext,
-                            true);
-                        sb.append("ret.");
-                        sb.append(bestMatchedConditionMethod.getName());
-                        sb.append("(");
-                        sb.append(String.valueOf(
-                            decisionTable.getSignature().getParameterName(condition.getMethodParameterIndex())));
-                        sb.append(");");
-                    } catch (OpenLCompilationException e) {
-                    }
-                }
-            }
-        }
-
-        Set<String> generatedNames = new HashSet<>();
-        while (generatedNames.size() < compoundReturnColumnsCount) {
-            generatedNames.add(RandomStringUtils.random(8, true, false));
-        }
-        String[] compoundColumnParamNames = generatedNames.toArray(new String[] {});
-        int column = firstReturnColumn;
-        Map<String, Map<IOpenMethod, String>> variables = new HashMap<>();
-        for (int i = 0; i < compoundReturnColumnsCount; i++) {
-            StringBuilder fieldChainSb = null;
-            IOpenClass type = compoundType;
-            int h = 0;
-            String currentVariable = "ret";
-            int previoush = h;
-            while (h < numberOfMergedRows) {
-                String title = originalTable.getSource().getCell(column, h).getStringValue();
-
-                previoush = h;
-                h = h + originalTable.getSource().getCell(column, h).getHeight();
-
-                IOpenMethod[] m = null;
-
-                if (h < numberOfMergedRows) {
-                    IOpenMethod bestMatchMethod = findBestMatchOpenMethod(title, type, null, bindingContext, false);
-                    if (bestMatchMethod != null) {
-                        m = new IOpenMethod[] { bestMatchMethod };
-                    }
-                }
-                if (m == null) {
-                    m = findBestMatchOpenMethodRecursivelyForReturnType(title, type);
-                }
-
-                if (!bindingContext.isExecutionMode()) {
-                    if (fieldChainSb == null) {
-                        fieldChainSb = new StringBuilder();
-                    } else {
-                        fieldChainSb.append(".");
-                    }
-                    fieldChainSb.append(buildStatementByMethodsChain(type, m).getLeft());
-                }
-
-                for (int j = 0; j < m.length; j++) {
-                    String var = null;
-                    type = m[j].getSignature().getParameterType(0);
-                    if (h < numberOfMergedRows || j < m.length - 1) {
-                        Map<IOpenMethod, String> vm = variables.get(currentVariable);
-                        if (vm == null || vm.get(m[j]) == null) {
-                            var = RandomStringUtils.random(8, true, false);
-                            while (generatedNames.contains(var)) { // Prevent
-                                                                   // variable
-                                                                   // duplication
-                                var = RandomStringUtils.random(8, true, false);
-                            }
-                            generatedNames.add(var);
-                            sb.append(type.getName())
-                                .append(" ")
-                                .append(var)
-                                .append(" = new ")
-                                .append(type.getName())
-                                .append("();");
-                            vm = new HashMap<>();
-                            vm.put(m[j], var);
-                            variables.put(currentVariable, vm);
-                        } else {
-                            var = vm.get(m[j]);
-                        }
-                    }
-                    sb.append(currentVariable).append(".");
-                    sb.append(m[j].getName());
-                    sb.append("(");
-                    if (h < numberOfMergedRows || j < m.length - 1) {
-                        sb.append(var);
-                        currentVariable = var;
-                    } else {
-                        sb.append(compoundColumnParamNames[i]);
-                    }
-                    sb.append(");");
-                }
-            }
-
-            grid.setCellValue(column, 2, type.getName() + " " + compoundColumnParamNames[i]);
-
-            int mergedColumnsCounts = originalTable.getSource().getCell(column, numberOfMergedRows).getWidth();
-            if (mergedColumnsCounts > 1) {
-                grid.addMergedRegion(new GridRegion(2, column, 2, column + mergedColumnsCounts - 1));
-            }
-
-            if (!bindingContext.isExecutionMode()) {
-                ICell cell = originalTable.getSource().getCell(column, previoush);
-                String description = "Return for " + fieldChainSb.toString() + ": " + type
-                    .getDisplayName(INamedThing.SHORT);
-
-                writeReturnMetaInfo(tableSyntaxNode, cell, description);
-            }
-
-            column += mergedColumnsCounts;
-        }
-
-        sb.append("ret;");
-        grid.setCellValue(firstReturnColumn, 1, sb.toString());
-
-        if (firstReturnColumn < column - 1) {
-            for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1; row++) {
-                grid.addMergedRegion(new GridRegion(row, firstReturnColumn, row, column - 1));
-            }
-        }
-    }
-
     private static void writeReturnMetaInfo(TableSyntaxNode tableSyntaxNode, ICell cell, String description) {
         MetaInfoReader metaReader = tableSyntaxNode.getMetaInfoReader();
         if (metaReader instanceof DecisionTableMetaInfoReader) {
@@ -496,13 +336,13 @@ public class DecisionTableHelper {
 
     private static IOpenClass getCompoundReturnType(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
-            int retParameterIndex,
             IBindingContext bindingContext) throws OpenLCompilationException {
         IOpenClass compoundType;
-        if (DecisionTableHelper.isCollect(tableSyntaxNode)) {
+        if (isCollect(tableSyntaxNode)) {
             if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
                 compoundType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
-                    tableSyntaxNode.getHeader().getCollectParameters()[retParameterIndex]);
+                    tableSyntaxNode.getHeader()
+                        .getCollectParameters()[tableSyntaxNode.getHeader().getCollectParameters().length - 1]);
             } else {
                 if (decisionTable.getType().isArray()) {
                     compoundType = decisionTable.getType().getComponentClass();
@@ -531,22 +371,6 @@ public class DecisionTableHelper {
             }
         }
         return Pair.of(fieldChainSb.toString(), type);
-    }
-
-    private static int calculateReturnColumnsCount(ILogicalTable originalTable,
-            int firstReturnColumn,
-            int numberOfMergedRows) {
-        IGridTable gt = originalTable.getSource().getRow(numberOfMergedRows);
-        int w = gt.getWidth();
-        int w0 = 0;
-        int i = 0;
-        while (i < w) {
-            if (i >= firstReturnColumn) {
-                w0++;
-            }
-            i = i + gt.getCell(i, 0).getWidth();
-        }
-        return w0;
     }
 
     private static IOpenMethod findBestMatchOpenMethod(String title,
@@ -601,35 +425,6 @@ public class DecisionTableHelper {
         return openMethod;
     }
 
-    private static IOpenMethod[] findBestMatchOpenMethodRecursivelyForReturnType(String title,
-            IOpenClass openClass) throws OpenLCompilationException {
-        Map<Token, IOpenMethod[][]> openClassFuzzyTokens = OpenLFuzzyUtils
-            .tokensMapToOpenClassSetterMethodsRecursively(openClass);
-
-        String tokenizedTitleString = OpenLFuzzyUtils.toTokenString(title);
-        Token[] fuzzyBestMatches = OpenLFuzzyUtils.openlFuzzyExtract(tokenizedTitleString,
-            openClassFuzzyTokens.keySet().toArray(new Token[] {}));
-
-        if (fuzzyBestMatches.length == 0) {
-            throw new OpenLCompilationException(
-                String.format("No field match in the return type for the title '%s'.", title));
-        }
-        if (fuzzyBestMatches.length > 1) {
-            throw new OpenLCompilationException(
-                String.format("More than one field match in the return type for the title '%s'.", title));
-        }
-        if (openClassFuzzyTokens
-            .get(fuzzyBestMatches[0]) == null || openClassFuzzyTokens.get(fuzzyBestMatches[0]).length == 0) {
-            throw new OpenLCompilationException(
-                String.format("No field match in the return type for the title '%s'.", title));
-        }
-        if (openClassFuzzyTokens.get(fuzzyBestMatches[0]).length > 1) {
-            throw new OpenLCompilationException(
-                String.format("More than one field match in the return type for the title '%s'.", title));
-        }
-        return openClassFuzzyTokens.get(fuzzyBestMatches[0])[0];
-    }
-
     private static void validateCollectSyntaxNode(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             ILogicalTable originalTable,
@@ -675,15 +470,16 @@ public class DecisionTableHelper {
         }
     }
 
-    private static boolean writeReturnWithReturnDtHeader(TableSyntaxNode tableSyntaxNode,
-            IWritableGrid grid,
+    private static void writeReturnWithReturnDtHeader(TableSyntaxNode tableSyntaxNode,
             ILogicalTable originalTable,
-            int firstReturnColumn,
-            DeclaredDTHeader dtHeader,
+            IWritableGrid grid,
+            DeclaredDTHeader declaredReturn,
+            String header,
             IBindingContext bindingContext) {
-        grid.setCellValue(firstReturnColumn, 1, dtHeader.getStatement());
-        DTColumnsDefinition dtColumnsDefinition = dtHeader.getMatchedDefinition().getDtColumnsDefinition();
-        int c = firstReturnColumn;
+        grid.setCellValue(declaredReturn.getColumn(), 0, header);
+        grid.setCellValue(declaredReturn.getColumn(), 1, declaredReturn.getStatement());
+        DTColumnsDefinition dtColumnsDefinition = declaredReturn.getMatchedDefinition().getDtColumnsDefinition();
+        int c = declaredReturn.getColumn();
         while (c < originalTable.getSource().getWidth()) {
             ICell cell = originalTable.getSource().getCell(c, 0);
             String d = cell.getStringValue();
@@ -696,13 +492,14 @@ public class DecisionTableHelper {
                     int column = c;
                     for (IParameterDeclaration param : localParameters) {
                         if (param != null) {
-                            String paramName = dtHeader.getMatchedDefinition().getLocalParameterName(param.getName());
+                            String paramName = declaredReturn.getMatchedDefinition()
+                                .getLocalParameterName(param.getName());
                             localParameterNames.add(paramName);
                             String value = param.getType().getName() + (paramName != null ? " " + paramName : "");
                             grid.setCellValue(column, 2, value);
                             typeOfColumns.add(param.getType());
                         } else {
-                            typeOfColumns.add(dtHeader.getCompositeMethod().getType());
+                            typeOfColumns.add(declaredReturn.getCompositeMethod().getType());
                         }
 
                         int h = originalTable.getSource().getCell(column, 0).getHeight();
@@ -714,9 +511,9 @@ public class DecisionTableHelper {
                         column = column + w1;
                     }
                     if (!bindingContext.isExecutionMode()) {
-                        String text = String.format("Parameter %s of return RET1 with expression %s: %s",
+                        String text = String.format("Parameter %s of return " + header + " with expression %s: %s",
                             DecisionTableMetaInfoReader.toString(localParameterNames.toArray(new String[] {}), e -> e),
-                            dtHeader.getStatement(),
+                            declaredReturn.getStatement(),
                             DecisionTableMetaInfoReader.toString(typeOfColumns.toArray(new IOpenClass[] {}),
                                 e -> e.getDisplayName(INamedThing.SHORT)));
                         writeReturnMetaInfo(tableSyntaxNode, cell, text);
@@ -727,189 +524,289 @@ public class DecisionTableHelper {
             c = c + cell.getWidth();
         }
 
-        if (originalTable.getSource().getWidth() - firstReturnColumn > 1) {
+        if (originalTable.getSource().getWidth() - declaredReturn.getColumn() > 1) {
             for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1; row++) {
                 grid.addMergedRegion(
-                    new GridRegion(row, firstReturnColumn, row, originalTable.getSource().getWidth() - 1));
+                    new GridRegion(row, declaredReturn.getColumn(), row, originalTable.getSource().getWidth() - 1));
             }
         }
-
-        return true;
     }
 
-    private static final String KEY_RET_PARAM_NAME = "$RET_Key";
-    private static final String VALUE_RET_PARAM_NAME = "$RET";
+    private static String FUZZY_RET_VARIABLE_NAME = "R$E$T$U$R$N";
 
-    private static void writeReturn(TableSyntaxNode tableSyntaxNode,
+    private static void writeFuzzyReturns(TableSyntaxNode tableSyntaxNode,
+            DecisionTable decisionTable,
+            ILogicalTable originalTable,
+            IWritableGrid grid,
+            List<DTHeader> dtHeaders,
+            IOpenClass compoundType,
+            String header,
+            IBindingContext bindingContext) throws OpenLCompilationException {
+        validateCompoundReturnType(compoundType);
+
+        final List<FuzzyDTHeader> fuzzyReturns = dtHeaders.stream()
+            .filter(e -> (e instanceof FuzzyDTHeader) && e.isReturn())
+            .map(e -> (FuzzyDTHeader) e)
+            .collect(toList());
+
+        assert (!fuzzyReturns.isEmpty());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(compoundType.getName())
+            .append(" ")
+            .append(FUZZY_RET_VARIABLE_NAME)
+            .append(" = new ")
+            .append(compoundType.getName())
+            .append("();");
+
+        // Set conditions parameters to compound type. Recursively search is
+        // not supported.
+        for (DTHeader condition : dtHeaders) {
+            if (condition
+                .isCondition() && (condition instanceof SimpleDTHeader || condition instanceof FuzzyDTHeader)) {
+                String condtionTitle;
+                if (condition instanceof SimpleDTHeader) {
+                    condtionTitle = ((SimpleDTHeader) condition).getTitle();
+                } else {
+                    condtionTitle = ((FuzzyDTHeader) condition).getTitle();
+                }
+                try {
+                    IOpenMethod bestMatchedConditionMethod = findBestMatchOpenMethod(condtionTitle,
+                        compoundType,
+                        decisionTable.getSignature().getParameterType(condition.getMethodParameterIndex()),
+                        bindingContext,
+                        true);
+                    sb.append(FUZZY_RET_VARIABLE_NAME).append(".");
+                    sb.append(bestMatchedConditionMethod.getName());
+                    sb.append("(");
+                    sb.append(String
+                        .valueOf(decisionTable.getSignature().getParameterName(condition.getMethodParameterIndex())));
+                    sb.append(");");
+                } catch (OpenLCompilationException e) {
+                }
+            }
+        }
+        Set<String> generatedNames = new HashSet<>();
+        while (generatedNames.size() < fuzzyReturns.size()) {
+            generatedNames.add(RandomStringUtils.random(8, true, false));
+        }
+        String[] compoundColumnParamNames = generatedNames.toArray(new String[] {});
+        Map<String, Map<IOpenMethod, String>> variables = new HashMap<>();
+        int i = 0;
+        for (FuzzyDTHeader fuzzyDTHeader : fuzzyReturns) {
+            IOpenClass type = compoundType;
+            String currentVariable = FUZZY_RET_VARIABLE_NAME;
+            IOpenMethod[] m = fuzzyDTHeader.getMethodsChain();
+            for (int j = 0; j < m.length; j++) {
+                String var = null;
+                type = m[j].getSignature().getParameterType(0);
+                if (j < m.length - 1) {
+                    Map<IOpenMethod, String> vm = variables.get(currentVariable);
+                    if (vm == null || vm.get(m[j]) == null) {
+                        var = RandomStringUtils.random(8, true, false);
+                        while (generatedNames.contains(var)) { // Prevent
+                                                               // variable
+                                                               // duplication
+                            var = RandomStringUtils.random(8, true, false);
+                        }
+                        generatedNames.add(var);
+                        sb.append(type.getName())
+                            .append(" ")
+                            .append(var)
+                            .append(" = new ")
+                            .append(type.getName())
+                            .append("();");
+                        vm = new HashMap<>();
+                        vm.put(m[j], var);
+                        variables.put(currentVariable, vm);
+                    } else {
+                        var = vm.get(m[j]);
+                    }
+                }
+                sb.append(currentVariable).append(".");
+                sb.append(m[j].getName());
+                sb.append("(");
+                if (j < m.length - 1) {
+                    sb.append(var);
+                    currentVariable = var;
+                } else {
+                    sb.append(compoundColumnParamNames[i]);
+                }
+                sb.append(");");
+            }
+
+            grid.setCellValue(fuzzyDTHeader.getColumn(), 2, type.getName() + " " + compoundColumnParamNames[i]);
+
+            if (fuzzyDTHeader.getWidth() > 1) {
+                grid.addMergedRegion(new GridRegion(2,
+                    fuzzyDTHeader.getColumn(),
+                    2,
+                    fuzzyDTHeader.getColumn() + fuzzyDTHeader.getWidth() - 1));
+            }
+
+            if (!bindingContext.isExecutionMode()) {
+                int lastRowInHeader = getLastRowHeader(originalTable,
+                    fuzzyDTHeader.getColumn(),
+                    originalTable.getCell(0, 0).getHeight());
+                ICell cell = originalTable.getSource().getCell(fuzzyDTHeader.getColumn(), lastRowInHeader);
+                String statement = buildStatementByMethodsChain(compoundType, fuzzyDTHeader.getMethodsChain()).getKey();
+                String description = "Return for " + compoundType.getDisplayName(
+                    INamedThing.SHORT) + "." + statement + ": " + type.getDisplayName(INamedThing.SHORT);
+
+                writeReturnMetaInfo(tableSyntaxNode, cell, description);
+            }
+            i++;
+        }
+        sb.append(FUZZY_RET_VARIABLE_NAME).append(";");
+        grid.setCellValue(fuzzyReturns.get(0).getColumn(), 0, header);
+        grid.setCellValue(fuzzyReturns.get(0).getColumn(), 1, sb.toString());
+        int j = fuzzyReturns.size() - 1;
+        if (fuzzyReturns.get(j).getColumn() + fuzzyReturns.get(j).getWidth() - fuzzyReturns.get(0).getColumn() > 1) {
+            for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1; row++) {
+                grid.addMergedRegion(new GridRegion(row,
+                    fuzzyReturns.get(0).getColumn(),
+                    row,
+                    fuzzyReturns.get(j).getColumn() + fuzzyReturns.get(j).getWidth() - 1));
+            }
+        }
+    }
+
+    private static void writeSimpleDTReturnHeader(TableSyntaxNode tableSyntaxNode,
+            DecisionTable decisionTable,
+            ILogicalTable originalTable,
+            IWritableGrid grid,
+            SimpleReturnDTHeader simpleReturnDTHeader,
+            String header,
+            int collectParameterIndex,
+            IBindingContext bindingContext) {
+        grid.setCellValue(simpleReturnDTHeader.getColumn(), 0, header);
+
+        if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
+            grid.setCellValue(simpleReturnDTHeader.getColumn(),
+                2,
+                tableSyntaxNode.getHeader().getCollectParameters()[collectParameterIndex]);
+        }
+
+        if (!bindingContext.isExecutionMode()) {
+            ICell cell = originalTable.getSource().getCell(simpleReturnDTHeader.getColumn(), 0);
+            String description = "Return: " + decisionTable.getHeader().getType().getDisplayName(INamedThing.SHORT);
+
+            writeReturnMetaInfo(tableSyntaxNode, cell, description);
+        }
+
+        if (simpleReturnDTHeader.getWidth() > 1) {
+            for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
+                grid.addMergedRegion(new GridRegion(row,
+                    simpleReturnDTHeader.getColumn(),
+                    row,
+                    simpleReturnDTHeader.getColumn() + simpleReturnDTHeader.getWidth() - 1));
+            }
+        }
+    }
+
+    private static void writeReturns(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             ILogicalTable originalTable,
             IWritableGrid grid,
             List<DTHeader> dtHeaders,
             int numberOfHConditions,
             IBindingContext bindingContext) throws OpenLCompilationException {
-        int firstReturnColumn = dtHeaders.stream()
-            .filter(e -> e.isCondition() || e.isAction())
-            .mapToInt(e -> e.getColumn() + e.getWidth())
-            .max()
-            .orElse(0);
-        int numberOfMergedRows = originalTable.getSource().getCell(0, 0).getHeight();
-        int retParameterIndex = 0;
-        // write return column
-        //
-        if (DecisionTableHelper.isCollect(tableSyntaxNode)) {
+        boolean isCollect = isCollect(tableSyntaxNode);
+
+        if (isCollect) {
             validateCollectSyntaxNode(tableSyntaxNode, decisionTable, originalTable, bindingContext);
-
-            if (Map.class.isAssignableFrom(decisionTable.getType().getInstanceClass())) {
-                grid.setCellValue(firstReturnColumn, 0, KEY1_COLUMN_NAME);
-                if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
-                    grid.setCellValue(firstReturnColumn, 1, KEY_RET_PARAM_NAME);
-                    grid.setCellValue(firstReturnColumn,
-                        2,
-                        tableSyntaxNode.getHeader()
-                            .getCollectParameters()[retParameterIndex] + " " + KEY_RET_PARAM_NAME);
-                    retParameterIndex++;
-                }
-                int mergedColumnsCounts = originalTable.getSource()
-                    .getCell(firstReturnColumn, numberOfMergedRows)
-                    .getWidth();
-                firstReturnColumn = firstReturnColumn + mergedColumnsCounts;
-            }
-
-            grid.setCellValue(firstReturnColumn, 0, CRET1_COLUMN_NAME);
-            if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
-                grid.setCellValue(firstReturnColumn, 1, VALUE_RET_PARAM_NAME);
-                grid.setCellValue(firstReturnColumn,
-                    2,
-                    tableSyntaxNode.getHeader().getCollectParameters()[retParameterIndex] + " " + VALUE_RET_PARAM_NAME);
-            } else {
-                if (decisionTable.getType().isArray()) {
-                    grid.setCellValue(firstReturnColumn, 1, VALUE_RET_PARAM_NAME);
-                    String componentClassName = decisionTable.getType().getComponentClass().getName();
-                    if (decisionTable.getType().getAggregateInfo() != null) {
-                        IOpenClass componentOpenClass = decisionTable.getType()
-                            .getAggregateInfo()
-                            .getComponentType(decisionTable.getType());
-                        if (componentOpenClass != null) {
-                            componentClassName = componentOpenClass.getName();
-                        }
-                    }
-                    grid.setCellValue(firstReturnColumn, 2, componentClassName + " " + VALUE_RET_PARAM_NAME);
-                }
-            }
-        } else {
-            grid.setCellValue(firstReturnColumn, 0, RET1_COLUMN_NAME);
         }
 
-        if (numberOfHConditions == 0) {
-            if (!DecisionTableHelper.isSmart(tableSyntaxNode) && originalTable.getWidth() < dtHeaders.size()) {
-                // if the physical number of columns for conditions is equals or
-                // more than whole width of the table,
-                // means there is no return column.
-                //
-                throw new OpenLCompilationException("Wrong table structure: There is no column for return values");
-            }
+        if (isLookup(tableSyntaxNode)) {
+            int firstReturnColumn = dtHeaders.stream()
+                .filter(e -> e.isCondition() || e.isAction())
+                .mapToInt(e -> e.getColumn() + e.getWidth())
+                .max()
+                .orElse(0);
+            grid.setCellValue(firstReturnColumn, 0, isCollect ? CRET1_COLUMN_NAME : RET1_COLUMN_NAME);
+            return;
+        }
 
-            DeclaredDTHeader returnDtHeader = dtHeaders.stream()
-                .filter(e -> (e instanceof DeclaredDTHeader) && e.isReturn())
-                .map(e -> (DeclaredDTHeader) e)
-                .findAny()
-                .orElse(null);
+        if (dtHeaders.stream()
+            .filter(e -> e.isReturn())
+            .anyMatch(e -> e.getColumn() + e.getWidth() - 1 >= originalTable.getSource().getWidth())) {
+            throw new OpenLCompilationException("Wrong table structure: There is no column for return values");
+        }
 
-            if (returnDtHeader != null) {
-                writeReturnWithReturnDtHeader(tableSyntaxNode,
-                    grid,
-                    originalTable,
-                    firstReturnColumn,
-                    returnDtHeader,
-                    bindingContext);
+        int retNum = 1;
+
+        final List<DeclaredDTHeader> declaredReturns = dtHeaders.stream()
+            .filter(e -> (e instanceof DeclaredDTHeader) && e.isReturn())
+            .map(e -> (DeclaredDTHeader) e)
+            .collect(toList());
+        for (DeclaredDTHeader declaredDTHeader : declaredReturns) {
+            writeReturnWithReturnDtHeader(tableSyntaxNode,
+                originalTable,
+                grid,
+                declaredDTHeader,
+                isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + retNum
+                          : DecisionTableColumnHeaders.RETURN.getHeaderKey() + retNum,
+                bindingContext);
+            retNum++;
+        }
+
+        final List<SimpleReturnDTHeader> simpleReturns = dtHeaders.stream()
+            .filter(e -> e instanceof SimpleReturnDTHeader)
+            .map(e -> (SimpleReturnDTHeader) e)
+            .collect(toList());
+        int i = 0;
+        int collectParameterIndex = 0;
+        for (SimpleReturnDTHeader simpleReturn : simpleReturns) {
+            boolean isKey = false;
+            String header;
+            if (isCollect && tableSyntaxNode.getHeader().getCollectParameters().length > 1 && (i == 0) && Map.class
+                .isAssignableFrom(decisionTable.getType().getInstanceClass())) {
+                header = DecisionTableColumnHeaders.KEY.getHeaderKey() + retNum;
+                isKey = true;
             } else {
-                IOpenClass compoundType = getCompoundReturnType(tableSyntaxNode,
-                    decisionTable,
-                    retParameterIndex,
-                    bindingContext);
-                boolean mergeRetCells = true;
-                if (isCompoundReturnType(compoundType)) {
-                    try {
-                        mergeRetCells = false;
-                        writeCompoundReturnColumns(tableSyntaxNode,
-                            grid,
-                            originalTable,
-                            decisionTable,
-                            firstReturnColumn,
-                            numberOfMergedRows,
-                            dtHeaders,
-                            retParameterIndex,
-                            compoundType,
-                            bindingContext);
-                    } catch (OpenLCompilationException e) {
-                        if (calculateReturnColumnsCount(originalTable, firstReturnColumn, numberOfMergedRows) == 1) {
-                            mergeRetCells = true;
-                        } else {
-                            throw e;
-                        }
-                    }
-                } else {
-                    if (!bindingContext.isExecutionMode()) {
-                        ICell cell = originalTable.getSource().getCell(firstReturnColumn, 0);
-                        String description = "Return: " + decisionTable.getHeader()
-                            .getType()
-                            .getDisplayName(INamedThing.SHORT);
-
-                        writeReturnMetaInfo(tableSyntaxNode, cell, description);
-                    }
-                }
-
-                if (mergeRetCells) {
-                    int mergedColumnsCounts = originalTable.getColumnWidth(originalTable.getWidth() - 1);
-                    if (mergedColumnsCounts > 1) {
-                        for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
-                            grid.addMergedRegion(new GridRegion(row,
-                                firstReturnColumn,
-                                row,
-                                firstReturnColumn + mergedColumnsCounts - 1));
-                        }
-                    }
-                }
+                header = isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + retNum
+                                   : DecisionTableColumnHeaders.RETURN.getHeaderKey() + retNum;
             }
+            writeSimpleDTReturnHeader(tableSyntaxNode,
+                decisionTable,
+                originalTable,
+                grid,
+                simpleReturn,
+                header,
+                collectParameterIndex,
+                bindingContext);
+            retNum++;
+            i++;
+            if (isKey) {
+                collectParameterIndex++;
+            }
+        }
+
+        if (dtHeaders.stream().anyMatch((e -> (e instanceof FuzzyDTHeader) && e.isReturn()))) {
+            IOpenClass compoundType = getCompoundReturnType(tableSyntaxNode, decisionTable, bindingContext);
+
+            writeFuzzyReturns(tableSyntaxNode,
+                decisionTable,
+                originalTable,
+                grid,
+                dtHeaders,
+                compoundType,
+                isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + retNum
+                          : DecisionTableColumnHeaders.RETURN.getHeaderKey() + retNum,
+                bindingContext);
+            retNum++;
         }
     }
 
-    private static List<DTHeader> getDTHeadersForSimpleDecisionTable(TableSyntaxNode tableSyntaxNode,
-            DecisionTable decisionTable,
+    private static void writeDeclaredDtHeader(DecisionTable decisionTable,
             ILogicalTable originalTable,
-            int numberOfHcondition,
-            IBindingContext bindingContext) throws OpenLCompilationException {
-        int numberOfParameters = decisionTable.getSignature().getNumberOfParameters();
-        List<DTHeader> dtHeaders = new ArrayList<>();
-        int column = 0;
-        int j = 0;
-        for (int i = 0; i < numberOfParameters; i++) {
-            if (i < numberOfParameters - numberOfHcondition) {
-                int w = originalTable.getSource().getCell(column, 0).getWidth();
-                dtHeaders.add(new SimpleDTHeader(i, decisionTable.getSignature().getParameterName(i), null, column, w));
-                column = column + w;
-            } else {
-                dtHeaders.add(new SimpleDTHeader(i, decisionTable.getSignature().getParameterName(i), column, j));
-                j++;
-                column++;
-            }
-        }
-        if (numberOfHcondition == 0) {
-            int w = originalTable.getSource().getCell(column, 0).getWidth();
-            dtHeaders.add(new SimpleReturnDTHeader(null, null, column, w));
-        }
-        return Collections.unmodifiableList(dtHeaders);
-    }
-
-    private static void writeDeclaredDtHeader(IWritableGrid grid,
-            ILogicalTable originalTable,
-            DecisionTable decisionTable,
+            IWritableGrid grid,
             DeclaredDTHeader dtHeader,
-            String nameOfColumn,
+            String header,
             IBindingContext bindingContext) {
         int column = dtHeader.getColumn();
 
-        grid.setCellValue(column, 0, nameOfColumn);
+        grid.setCellValue(column, 0, header);
         grid.setCellValue(column, 1, dtHeader.getStatement());
 
         int firstColumn = column;
@@ -944,7 +841,7 @@ public class DecisionTableHelper {
                     writeMetaInfoForAction(originalTable,
                         decisionTable,
                         firstTitleColumn,
-                        nameOfColumn,
+                        header,
                         parameterNames.toArray(new String[] {}),
                         dtHeader.getStatement(),
                         typeOfColumns.toArray(new IOpenClass[] {}));
@@ -952,7 +849,7 @@ public class DecisionTableHelper {
                     writeMetaInfoForVCondition(originalTable,
                         decisionTable,
                         firstTitleColumn,
-                        nameOfColumn,
+                        header,
                         parameterNames.toArray(new String[] {}),
                         dtHeader.getStatement(),
                         typeOfColumns.toArray(new IOpenClass[] {}));
@@ -985,7 +882,7 @@ public class DecisionTableHelper {
 
             DeclaredDTHeader declaredAction = (DeclaredDTHeader) action;
             String actionName = (DecisionTableColumnHeaders.ACTION.getHeaderKey() + (i + 1)).intern();
-            writeDeclaredDtHeader(grid, originalTable, decisionTable, declaredAction, actionName, bindingContext);
+            writeDeclaredDtHeader(decisionTable, originalTable, grid, declaredAction, actionName, bindingContext);
             i++;
         }
     }
@@ -1016,8 +913,12 @@ public class DecisionTableHelper {
 
         for (DTHeader condition : conditions) {
             int column = condition.getColumn();
-            if (column >= originalTable.getSource().getWidth()) {
+            if (column > originalTable.getSource().getWidth()) {
                 String message = "Wrong table structure: Columns count is less than parameters count";
+                throw new OpenLCompilationException(message);
+            }
+            if (column == originalTable.getSource().getWidth()) {
+                String message = "Wrong table structure: There is no column for return values";
                 throw new OpenLCompilationException(message);
             }
             // write headers
@@ -1042,9 +943,9 @@ public class DecisionTableHelper {
             }
 
             if (condition instanceof DeclaredDTHeader) {
-                writeDeclaredDtHeader(grid,
+                writeDeclaredDtHeader(decisionTable,
                     originalTable,
-                    decisionTable,
+                    grid,
                     (DeclaredDTHeader) condition,
                     conditionName,
                     bindingContext);
@@ -1436,7 +1337,8 @@ public class DecisionTableHelper {
             int w,
             int h,
             StringBuilder sb,
-            int sourceTableColumn) {
+            int sourceTableColumn,
+            boolean onlyReturns) {
         String d = gridTable.getCell(w, h).getStringValue();
         int w0 = gridTable.getCell(w, h).getWidth();
         int h0 = gridTable.getCell(w, h).getHeight();
@@ -1463,7 +1365,8 @@ public class DecisionTableHelper {
                     w2,
                     h + h0,
                     sb,
-                    sourceTableColumn);
+                    sourceTableColumn,
+                    onlyReturns);
                 w2 = w2 + w1;
             }
         } else {
@@ -1486,31 +1389,32 @@ public class DecisionTableHelper {
                     }
                 }
             }
+            if (!onlyReturns) {
+                Token[] bestMatchedTokens = OpenLFuzzyUtils.openlFuzzyExtract(tokenizedTitleString,
+                    parameterTokens.getTokens());
 
-            Token[] bestMatchedTokens = OpenLFuzzyUtils.openlFuzzyExtract(tokenizedTitleString,
-                parameterTokens.getTokens());
+                for (Token token : bestMatchedTokens) {
+                    int paramIndex = parameterTokens.getParameterIndex(token.getValue());
+                    IOpenMethod[] methodsChain = parameterTokens.getMethodsChain(token.getValue());
+                    StringBuilder conditionStatement = new StringBuilder(
+                        decisionTable.getSignature().getParameterName(paramIndex));
+                    if (methodsChain != null) {
+                        Pair<String, IOpenClass> c = buildStatementByMethodsChain(
+                            decisionTable.getSignature().getParameterType(paramIndex),
+                            methodsChain);
+                        String chainStatement = c.getLeft();
+                        conditionStatement.append(".");
+                        conditionStatement.append(chainStatement);
+                    }
 
-            for (Token token : bestMatchedTokens) {
-                int paramIndex = parameterTokens.getParameterIndex(token.getValue());
-                IOpenMethod[] methodsChain = parameterTokens.getMethodsChain(token.getValue());
-                StringBuilder conditionStatement = new StringBuilder(
-                    decisionTable.getSignature().getParameterName(paramIndex));
-                if (methodsChain != null) {
-                    Pair<String, IOpenClass> c = buildStatementByMethodsChain(
-                        decisionTable.getSignature().getParameterType(paramIndex),
-                        methodsChain);
-                    String chainStatement = c.getLeft();
-                    conditionStatement.append(".");
-                    conditionStatement.append(chainStatement);
+                    dtHeaders.add(new FuzzyDTHeader(paramIndex,
+                        conditionStatement.toString(),
+                        sb.toString(),
+                        parameterTokens.getMethodsChain(token.getValue()),
+                        sourceTableColumn + w,
+                        w0,
+                        false));
                 }
-
-                dtHeaders.add(new FuzzyDTHeader(paramIndex,
-                    conditionStatement.toString(),
-                    sb.toString(),
-                    parameterTokens.getMethodsChain(token.getValue()),
-                    sourceTableColumn + w,
-                    w0,
-                    false));
             }
         }
         sb.delete(prev, sb.length());
@@ -1524,7 +1428,13 @@ public class DecisionTableHelper {
             int column,
             int numberOfHcondition,
             List<DTHeader> dtHeaders,
-            int firstColumnHeight) {
+            int firstColumnHeight,
+            boolean onlyReturns) {
+        if (onlyReturns) {
+            if (returnTokens == null || returnTypeFuzzyTokens == null) {
+                return;
+            }
+        }
         int w = originalTable.getSource().getCell(column, 0).getWidth();
         IGridTable gt = originalTable.getSource().getSubtable(column, 0, w, firstColumnHeight);
         matchWithFuzzySearchRec(decisionTable,
@@ -1539,7 +1449,8 @@ public class DecisionTableHelper {
             0,
             0,
             new StringBuilder(),
-            column);
+            column,
+            onlyReturns);
     }
 
     private static boolean isCompatibleHeaders(DTHeader a, DTHeader b) {
@@ -1735,6 +1646,20 @@ public class DecisionTableHelper {
         return false;
     }
 
+    private static boolean allFuzzyReturnsGoesInLine(List<FuzzyDTHeader> fuzzyDTHeaders) {
+        if (fuzzyDTHeaders.isEmpty()) {
+            return true;
+        }
+        int column = -1;
+        for (FuzzyDTHeader fuzzyDTHeader : fuzzyDTHeaders) {
+            if (column > 0 && column != fuzzyDTHeader.getColumn()) {
+                return false;
+            }
+            column = fuzzyDTHeader.getColumn() + fuzzyDTHeader.getWidth();
+        }
+        return true;
+    }
+
     private static List<DTHeader> fitDtHeaders(TableSyntaxNode tableSyntaxNode,
             ILogicalTable originalTable,
             List<DTHeader> dtHeaders,
@@ -1775,14 +1700,11 @@ public class DecisionTableHelper {
             new HashSet<>(),
             fits);
         fits = fits.stream()
-            .filter(e -> e.stream().filter(x -> x.isReturn()).count() <= 1 || e.stream()
-                .filter(x -> x.isReturn())
-                .allMatch(x -> x instanceof FuzzyDTHeader))
-            .collect(toList()); // Only one
-                                // column for
-                                // return if not
-                                // compound
-                                // return
+            .filter(e -> allFuzzyReturnsGoesInLine(e.stream()
+                .filter(x -> (x instanceof FuzzyDTHeader) && x.isReturn())
+                .map(x -> (FuzzyDTHeader) x)
+                .collect(toList())))
+            .collect(toList()); // All fuzzy returns goes one by one
 
         fits = filterWithWrongStructure(originalTable, fits, twoColumnsForReturn);
         fits = filterFuzzyReturnForTheSameField(fits);
@@ -1813,7 +1735,12 @@ public class DecisionTableHelper {
                                                                                                     // return
                                                                                                     // headers
         } else {
-            fits = fits.stream().filter(e -> e.stream().filter(x -> x.isReturn()).count() == 0).collect(toList());
+            fits = fits.stream().filter(e -> e.stream().filter(x -> x.isReturn()).count() == 0).collect(toList()); // Lookup
+                                                                                                                   // table
+                                                                                                                   // with
+                                                                                                                   // no
+                                                                                                                   // returns
+                                                                                                                   // columns
         }
 
         fits = filterHeadersByMax(fits,
@@ -1869,11 +1796,36 @@ public class DecisionTableHelper {
         return ret;
     }
 
-    private static List<DTHeader> getDTHeadersForSmartDecisionTable(TableSyntaxNode tableSyntaxNode,
+    private static void matchWithSimpleDTHeader(DecisionTable decisionTable,
+            ILogicalTable originalTable,
+            int numberOfHcondition,
+            int column,
+            int simpleCondition,
+            List<DTHeader> dtHeaders,
+            List<DTHeader> simpleDtHeaders) {
+        String title = originalTable.getSource().getCell(column, 0).getStringValue();
+        int width = originalTable.getSource().getCell(column, 0).getWidth();
+        if (column + width >= originalTable.getSource().getWidth() - 1 && numberOfHcondition == 0) {
+            dtHeaders.add(new SimpleReturnDTHeader(null, title, column, width));
+            simpleDtHeaders.add(new SimpleReturnDTHeader(null, title, column, width));
+        } else {
+            if (simpleCondition < decisionTable.getSignature().getNumberOfParameters() - numberOfHcondition) {
+                simpleDtHeaders.add(new SimpleDTHeader(simpleCondition,
+                    decisionTable.getSignature().getParameterName(simpleCondition),
+                    title,
+                    column,
+                    width));
+            }
+        }
+    }
+
+    private static List<DTHeader> getDTHeaders(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             ILogicalTable originalTable,
             int numberOfHcondition,
             IBindingContext bindingContext) throws OpenLCompilationException {
+        boolean isSmart = isSmart(tableSyntaxNode);
+
         int numberOfParameters = decisionTable.getSignature().getNumberOfParameters();
         boolean twoColumnsForReturn = isTwoColumnsForReturn(tableSyntaxNode, decisionTable);
 
@@ -1896,10 +1848,10 @@ public class DecisionTableHelper {
             }
         } else {
             try {
-                IOpenClass returnCompoudType = getCompoundReturnType(tableSyntaxNode, decisionTable, 0, bindingContext);
-                if (isCompoundReturnType(returnCompoudType)) {
+                IOpenClass returnCompoundType = getCompoundReturnType(tableSyntaxNode, decisionTable, bindingContext);
+                if (isCompoundReturnType(returnCompoundType)) {
                     returnTypeFuzzyTokens = OpenLFuzzyUtils
-                        .tokensMapToOpenClassSetterMethodsRecursively(returnCompoudType);
+                        .tokensMapToOpenClassSetterMethodsRecursively(returnCompoundType);
                     returnTokens = returnTypeFuzzyTokens.keySet().toArray(new Token[] {});
                 }
             } catch (OpenLCompilationException e) {
@@ -1915,41 +1867,56 @@ public class DecisionTableHelper {
         int i = 0;
         int column = 0;
         while (column < lastColumn) {
-            matchWithDtColumnsDefinitions(decisionTable,
-                originalTable,
-                column,
-                xlsDefinitions,
-                numberOfColumnsUnderTitleCounter,
-                dtHeaders,
-                firstColumnHeight,
-                bindingContext);
-
-            matchWithFuzzySearch(decisionTable,
-                originalTable,
-                parameterTokens,
-                returnTypeFuzzyTokens,
-                returnTokens,
-                column,
-                numberOfHcondition,
-                dtHeaders,
-                firstColumnHeight);
-
-            String title = originalTable.getSource().getCell(column, 0).getStringValue();
-            int sourceCellWidth = originalTable.getSource().getCell(column, 0).getWidth();
-            if (column + sourceCellWidth >= originalTable.getSource().getWidth() - 1 && numberOfHcondition == 0) {
-                dtHeaders.add(new SimpleReturnDTHeader(null, title, column, sourceCellWidth));
-                simpleDtHeaders.add(new SimpleReturnDTHeader(null, title, column, sourceCellWidth));
+            int w = originalTable.getSource().getCell(column, 0).getWidth();
+            if (isSmart) {
+                matchWithDtColumnsDefinitions(decisionTable,
+                    originalTable,
+                    column,
+                    xlsDefinitions,
+                    numberOfColumnsUnderTitleCounter,
+                    dtHeaders,
+                    firstColumnHeight,
+                    bindingContext);
+                matchWithFuzzySearch(decisionTable,
+                    originalTable,
+                    parameterTokens,
+                    returnTypeFuzzyTokens,
+                    returnTokens,
+                    column,
+                    numberOfHcondition,
+                    dtHeaders,
+                    firstColumnHeight,
+                    false);
+                matchWithSimpleDTHeader(decisionTable,
+                    originalTable,
+                    numberOfHcondition,
+                    column,
+                    i,
+                    dtHeaders,
+                    simpleDtHeaders);
             } else {
-                if (i < decisionTable.getSignature().getNumberOfParameters() - numberOfHcondition) {
-                    simpleDtHeaders.add(new SimpleDTHeader(i,
-                        decisionTable.getSignature().getParameterName(i),
-                        title,
+                if (numberOfHcondition == 0 && i >= numberOfParameters) {
+                    matchWithFuzzySearch(decisionTable,
+                        originalTable,
+                        parameterTokens,
+                        returnTypeFuzzyTokens,
+                        returnTokens,
                         column,
-                        sourceCellWidth));
+                        numberOfHcondition,
+                        dtHeaders,
+                        firstColumnHeight,
+                        true);
+                }
+                if (i < numberOfParameters - numberOfHcondition) {
+                    dtHeaders
+                        .add(new SimpleDTHeader(i, decisionTable.getSignature().getParameterName(i), null, column, w));
+                } else if (numberOfHcondition == 0) {
+                    dtHeaders.add(new SimpleReturnDTHeader(null, null, column, w));
                 }
             }
+
+            column = column + w;
             i++;
-            column = column + sourceCellWidth;
         }
 
         List<DTHeader> fit = fitDtHeaders(tableSyntaxNode,
@@ -2018,8 +1985,7 @@ public class DecisionTableHelper {
 
     private static boolean isTwoColumnsForReturn(TableSyntaxNode tableSyntaxNode, DecisionTable decisionTable) {
         boolean twoColumnsForReturn = false;
-        if (DecisionTableHelper.isCollect(tableSyntaxNode) && Map.class
-            .isAssignableFrom(decisionTable.getType().getInstanceClass())) {
+        if (isCollect(tableSyntaxNode) && Map.class.isAssignableFrom(decisionTable.getType().getInstanceClass())) {
             twoColumnsForReturn = true;
         }
         return twoColumnsForReturn;
@@ -2099,6 +2065,16 @@ public class DecisionTableHelper {
             k++;
         }
         return k;
+    }
+
+    private static int getLastRowHeader(ILogicalTable originalTable, int column, int height) {
+        int h = 0;
+        int hLast = 0;
+        while (h < height && h < originalTable.getSource().getHeight()) {
+            hLast = h;
+            h = h + originalTable.getSource().getCell(column, h).getHeight();
+        }
+        return hLast;
     }
 
     /**
