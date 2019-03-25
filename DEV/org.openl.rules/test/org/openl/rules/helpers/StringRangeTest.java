@@ -232,6 +232,12 @@ public class StringRangeTest {
         assertFalse(range.contains(null));
     }
 
+    @Test
+    public void testNegative() {
+        StringRange range = new StringRange("00F-00Z");
+        assertFalse(range.contains("Z"));
+    }
+
     private void assertInclude(StringRange range, String... args) {
         assertNotNull(range);
         assertTrue(args.length > 0);
