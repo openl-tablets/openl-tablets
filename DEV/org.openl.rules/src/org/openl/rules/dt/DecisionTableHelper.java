@@ -98,11 +98,8 @@ public class DecisionTableHelper {
     private static final List<Class<?>> STRINGS_TYPES = Arrays.asList(java.lang.String.class,
         org.openl.meta.StringValue.class);
     private static final List<Class<?>> DATE_TYPES = Collections.singletonList(Date.class);
-    private static final List<Class<?>> RANGES_TYPES = Arrays.asList(IntRange.class,
-            DoubleRange.class,
-            CharRange.class,
-            StringRange.class,
-            DateRange.class);
+    private static final List<Class<?>> RANGES_TYPES = Arrays
+        .asList(IntRange.class, DoubleRange.class, CharRange.class, StringRange.class, DateRange.class);
 
     /**
      * Check if table is vertical.<br>
@@ -521,7 +518,7 @@ public class DecisionTableHelper {
             c = c + cell.getWidth();
         }
 
-        if (originalTable.getSource().getWidth() - declaredReturn.getColumn() > 1) {
+        if (declaredReturn.getWidth() > 1) {
             for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1; row++) {
                 grid.addMergedRegion(
                     new GridRegion(row, declaredReturn.getColumn(), row, originalTable.getSource().getWidth() - 1));
@@ -1802,17 +1799,18 @@ public class DecisionTableHelper {
             List<DTHeader> simpleDtHeaders) {
         String title = originalTable.getSource().getCell(column, 0).getStringValue();
         int width = originalTable.getSource().getCell(column, 0).getWidth();
-        if (column + width >= originalTable.getSource().getWidth() - 1 && numberOfHcondition == 0) {
-            dtHeaders.add(new SimpleReturnDTHeader(null, title, column, width));
+
+        if (simpleCondition < decisionTable.getSignature().getNumberOfParameters() - numberOfHcondition) {
+            simpleDtHeaders.add(new SimpleDTHeader(simpleCondition,
+                decisionTable.getSignature().getParameterName(simpleCondition),
+                title,
+                column,
+                width));
+        } else if (numberOfHcondition == 0) {
             simpleDtHeaders.add(new SimpleReturnDTHeader(null, title, column, width));
-        } else {
-            if (simpleCondition < decisionTable.getSignature().getNumberOfParameters() - numberOfHcondition) {
-                simpleDtHeaders.add(new SimpleDTHeader(simpleCondition,
-                    decisionTable.getSignature().getParameterName(simpleCondition),
-                    title,
-                    column,
-                    width));
-            }
+        }
+        if (numberOfHcondition == 0) {
+            dtHeaders.add(new SimpleReturnDTHeader(null, title, column, width));
         }
     }
 
