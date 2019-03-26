@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.base.INamedThing;
@@ -125,25 +125,6 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         return getPreparedMetaInfo(row, col);
     }
 
-    public static <T> String toString(T[] elements, Function<T, String> func) {
-        if (elements == null) {
-            return StringUtils.EMPTY;
-        }
-
-        String value = Arrays.stream(elements)
-            .map(e -> e == null ? "undefined" : func.apply(e))
-            .collect(Collectors.joining(", "));
-
-        if (elements.length > 1) {
-            return "[" + value + "]";
-        } else {
-            if ("undefined".equals(value)) {
-                return StringUtils.EMPTY;
-            }
-            return value;
-        }
-    }
-
     private void setMetaInfo(CellKey key,
             HeaderMetaInfo headerMetaInfo,
             IGridRegion region,
@@ -171,64 +152,83 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
 
     private String buildStringForCondition(HeaderMetaInfo headerMetaInfo) {
         String[] parameterNames = headerMetaInfo.getParameterNames();
-        String headerName = headerMetaInfo.getConditionName();
+        String header = headerMetaInfo.getHeader();
         String statement = headerMetaInfo.getConditionStatement();
         IOpenClass[] columnTypes = headerMetaInfo.getColumnTypes();
 
-        String value;
-        String valueForColumnTypes = toString(columnTypes, e -> e.getDisplayName(INamedThing.SHORT));
-        if (parameterNames != null && parameterNames.length > 0 && headerName != null && statement != null) {
-            String textForParameterNames = toString(parameterNames, e -> e);
-            if (parameterNames.length > 1) {
-                value = String.format("Parameters %s of condition %s with expression %s: %s",
-                    textForParameterNames,
-                    headerName,
-                    statement,
-                    valueForColumnTypes);
-            } else {
-                value = String.format("Parameter %sof condition %s with expression %s: %s",
-                    textForParameterNames + (StringUtils.isEmpty(textForParameterNames) ? StringUtils.EMPTY : StringUtils.SPACE),
-                    headerName,
-                    statement,
-                    valueForColumnTypes);
+        StringBuilder sb = new StringBuilder();
+        sb.append("Condition: ").append(header);
+        if (!StringUtils.isEmpty(statement)) {
+            if (sb.length() > 0) {
+                sb.append("\n");
             }
-        } else if (headerName != null && statement != null) {
-            value = String.format("Condition %s for %s: %s", headerName, statement, valueForColumnTypes);
-        } else {
-            value = String.format("Condition for %s: %s", statement, valueForColumnTypes);
+            sb.append("Expression: ").append(statement);
         }
-        return value;
+        if (!StringUtils.isEmpty(headerMetaInfo.getAdditionalDetails())) {
+            if (sb.length() > 0) {
+                sb.append("\n");
+            }
+            sb.append(headerMetaInfo.getAdditionalDetails());
+        }
+        appendParameters(sb, parameterNames, columnTypes);
+        return sb.toString();
+    }
+
+    public static void appendParameters(StringBuilder sb, String[] parameterNames, IOpenClass[] columnTypes) {
+        if (columnTypes == null || columnTypes.length == 0) {
+            return;
+        }
+        int i = 0;
+        if (sb.length() > 0) {
+            sb.append("\n");
+        }
+        if (columnTypes.length > 1) {
+            if (parameterNames != null && parameterNames.length > 0 && Arrays.stream(parameterNames)
+                .allMatch(Objects::nonNull)) {
+                sb.append("Parameters: ");
+            } else {
+                sb.append("Types: ");
+            }
+        } else {
+            if (parameterNames != null && parameterNames.length > 0) {
+                sb.append("Parameter: ");
+            } else {
+                sb.append("Type: ");
+            }
+        }
+        for (IOpenClass type : columnTypes) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append(type.getDisplayName(INamedThing.SHORT));
+            if (parameterNames != null && parameterNames[i] != null) {
+                sb.append(StringUtils.SPACE).append(parameterNames[i]);
+            }
+            i++;
+        }
     }
 
     private String buildStringForAction(HeaderMetaInfo headerMetaInfo) {
         String[] parameterNames = headerMetaInfo.getParameterNames();
-        String headerName = headerMetaInfo.getConditionName();
+        String header = headerMetaInfo.getHeader();
         String statement = headerMetaInfo.getConditionStatement();
         IOpenClass[] columnTypes = headerMetaInfo.getColumnTypes();
-
-        String value;
-        String valueForColumnTypes = toString(columnTypes, e -> e.getDisplayName(INamedThing.SHORT));
-        if (parameterNames != null && parameterNames.length > 0 && headerName != null && statement != null) {
-            String textForParameterNames = toString(parameterNames, e -> e);
-            if (parameterNames.length > 1) {
-                value = String.format("Parameters %s of action %s with expression %s: %s",
-                    textForParameterNames,
-                    headerName,
-                    statement,
-                    valueForColumnTypes);
-            } else {
-                value = String.format("Parameter %sof action %s with expression %s: %s",
-                    textForParameterNames + (StringUtils.isEmpty(textForParameterNames) ? StringUtils.EMPTY : StringUtils.SPACE),
-                    headerName,
-                    statement,
-                    valueForColumnTypes);
+        StringBuilder sb = new StringBuilder();
+        sb.append("Action: ").append(header);
+        if (!StringUtils.isEmpty(statement)) {
+            if (sb.length() > 0) {
+                sb.append("\n");
             }
-        } else if (headerName != null && statement != null) {
-            value = String.format("Action %s with expression %s: %s", headerName, statement, valueForColumnTypes);
-        } else {
-            value = String.format("Action for %s: %s", statement, valueForColumnTypes);
+            sb.append("Expression: ").append(statement);
         }
-        return value;
+        if (!StringUtils.isEmpty(headerMetaInfo.getAdditionalDetails())) {
+            if (sb.length() > 0) {
+                sb.append("\n");
+            }
+            sb.append(headerMetaInfo.getAdditionalDetails());
+        }
+        appendParameters(sb, parameterNames, columnTypes);
+        return sb.toString();
     }
 
     private void saveSimpleRulesMetaInfo(DecisionTable decisionTable, IGridRegion region) {
@@ -270,22 +270,24 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
 
     public void addSimpleRulesCondition(int row,
             int col,
-            String conditionName,
+            String header,
             String[] parameterNames,
             String conditionStatement,
-            IOpenClass[] columnTypes) {
+            IOpenClass[] columnTypes,
+            String additionalDetails) {
         simpleRulesConditionMap.put(CellKey.CellKeyFactory.getCellKey(col, row),
-            new HeaderMetaInfo(conditionName, parameterNames, conditionStatement, columnTypes));
+            new HeaderMetaInfo(header, parameterNames, conditionStatement, columnTypes, additionalDetails));
     }
 
     public void addSimpleRulesAction(int row,
             int col,
-            String actionName,
+            String header,
             String[] parameterNames,
             String conditionStatement,
-            IOpenClass[] columnTypes) {
+            IOpenClass[] columnTypes,
+            String additionalInfo) {
         simpleRulesActionMap.put(CellKey.CellKeyFactory.getCellKey(col, row),
-            new HeaderMetaInfo(actionName, parameterNames, conditionStatement, columnTypes));
+            new HeaderMetaInfo(header, parameterNames, conditionStatement, columnTypes, additionalInfo));
     }
 
     public void addSimpleRulesReturn(int row, int col, String description) {
@@ -432,24 +434,31 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     }
 
     private static class HeaderMetaInfo {
-        String headerName;
+        String header;
         String[] parameterNames;
         String statement;
         IOpenClass[] columnTypes;
+        String additionalDetails;
 
         public HeaderMetaInfo(String headerName,
                 String[] parameterNames,
                 String conditionStatement,
-                IOpenClass[] columnTypes) {
+                IOpenClass[] columnTypes,
+                String additionalDetails) {
             super();
-            this.headerName = headerName;
+            this.header = headerName;
             this.parameterNames = parameterNames;
             this.statement = conditionStatement;
             this.columnTypes = columnTypes;
+            this.additionalDetails = additionalDetails;
         }
-
-        public String getConditionName() {
-            return headerName;
+        
+        public String getAdditionalDetails() {
+            return additionalDetails;
+        }
+        
+        public String getHeader() {
+            return header;
         }
 
         public String[] getParameterNames() {

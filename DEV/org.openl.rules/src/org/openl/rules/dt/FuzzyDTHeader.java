@@ -6,6 +6,8 @@ class FuzzyDTHeader extends DTHeader {
     IOpenMethod[] methodsChain;
     boolean compoundReturn;
     String title;
+    IOpenMethod[] methodChainForCompoundReturn;
+    String statementForCompoundReturn;
 
     FuzzyDTHeader(int methodParameterIndex,
             String statement,
@@ -13,13 +15,25 @@ class FuzzyDTHeader extends DTHeader {
             IOpenMethod[] methodsChain,
             int column,
             int width,
+            String statementForCompoundReturn,
+            IOpenMethod[] methodChainForCompoundReturn,
             boolean compoundReturn) {
         super(new int[] { methodParameterIndex }, statement, column, width);
         this.methodsChain = methodsChain;
         this.compoundReturn = compoundReturn;
         this.title = title;
+        this.methodChainForCompoundReturn = methodChainForCompoundReturn;
+        this.statementForCompoundReturn = statementForCompoundReturn;
+    }
+
+    public String getStatementForCompoundReturn() {
+        return statementForCompoundReturn;
     }
     
+    public IOpenMethod[] getMethodChainForCompoundReturn() {
+        return methodChainForCompoundReturn;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -28,7 +42,7 @@ class FuzzyDTHeader extends DTHeader {
     boolean isCondition() {
         return !compoundReturn;
     }
-    
+
     @Override
     boolean isHCondition() {
         return false;
@@ -42,12 +56,12 @@ class FuzzyDTHeader extends DTHeader {
     IOpenMethod[] getMethodsChain() {
         return methodsChain;
     }
-    
+
     @Override
     boolean isAction() {
         return false;
     }
-    
+
     @Override
     int getMethodParameterIndex() {
         if (compoundReturn) {
@@ -55,9 +69,9 @@ class FuzzyDTHeader extends DTHeader {
         }
         return super.getMethodParameterIndex();
     }
-    
+
     private final static int[] RETURN_INDEXES = new int[] {};
-    
+
     @Override
     int[] getMethodParameterIndexes() {
         if (compoundReturn) {
