@@ -695,66 +695,59 @@ public class DecisionTableHelper {
 
         int retNum = 1;
         int cretNum = 1;
-
-        final List<DeclaredDTHeader> declaredReturns = dtHeaders.stream()
-            .filter(e -> (e instanceof DeclaredDTHeader) && e.isReturn())
-            .map(e -> (DeclaredDTHeader) e)
-            .collect(toList());
-        for (DeclaredDTHeader declaredDTHeader : declaredReturns) {
-            writeReturnWithReturnDtHeader(tableSyntaxNode,
-                originalTable,
-                grid,
-                declaredDTHeader,
-                isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + cretNum++
-                          : DecisionTableColumnHeaders.RETURN.getHeaderKey() + retNum++,
-                bindingContext);
-        }
-
-        final List<SimpleReturnDTHeader> simpleReturns = dtHeaders.stream()
-            .filter(e -> e instanceof SimpleReturnDTHeader)
-            .map(e -> (SimpleReturnDTHeader) e)
-            .collect(toList());
         int i = 0;
         int collectParameterIndex = 0;
         int keyNum = 1;
-        for (SimpleReturnDTHeader simpleReturn : simpleReturns) {
-            boolean isKey = false;
-            String header;
-            if (isCollect && tableSyntaxNode.getHeader().getCollectParameters().length > 1 && (i == 0) && Map.class
-                .isAssignableFrom(decisionTable.getType().getInstanceClass())) {
-                header = DecisionTableColumnHeaders.KEY.getHeaderKey() + keyNum++;
-                isKey = true;
-            } else {
-                header = isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + cretNum++
-                                   : DecisionTableColumnHeaders.RETURN.getHeaderKey() + retNum++;
-            }
-            writeSimpleDTReturnHeader(tableSyntaxNode,
-                decisionTable,
-                originalTable,
-                grid,
-                simpleReturn,
-                header,
-                collectParameterIndex,
-                bindingContext);
-            i++;
-            if (isKey) {
-                collectParameterIndex++;
-            }
-        }
+        boolean skipFuzzyReturns = false;
+        for (DTHeader dtHeader : dtHeaders) {
+            if (dtHeader.isReturn()) {
+                if (dtHeader instanceof DeclaredDTHeader) {
+                    writeReturnWithReturnDtHeader(tableSyntaxNode,
+                        originalTable,
+                        grid,
+                        (DeclaredDTHeader) dtHeader,
+                        isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + cretNum++
+                                  : DecisionTableColumnHeaders.RETURN.getHeaderKey() + retNum++,
+                        bindingContext);
+                } else if (dtHeader instanceof SimpleReturnDTHeader) {
+                    boolean isKey = false;
+                    String header;
+                    if (isCollect && tableSyntaxNode.getHeader()
+                        .getCollectParameters().length > 1 && (i == 0) && Map.class
+                            .isAssignableFrom(decisionTable.getType().getInstanceClass())) {
+                        header = DecisionTableColumnHeaders.KEY.getHeaderKey() + keyNum++;
+                        isKey = true;
+                    } else {
+                        header = isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + cretNum++
+                                           : DecisionTableColumnHeaders.RETURN.getHeaderKey() + retNum++;
+                    }
+                    writeSimpleDTReturnHeader(tableSyntaxNode,
+                        decisionTable,
+                        originalTable,
+                        grid,
+                        (SimpleReturnDTHeader) dtHeader,
+                        header,
+                        collectParameterIndex,
+                        bindingContext);
+                    i++;
+                    if (isKey) {
+                        collectParameterIndex++;
+                    }
+                } else if (dtHeader instanceof FuzzyDTHeader && !skipFuzzyReturns) {
+                    IOpenClass compoundType = getCompoundReturnType(tableSyntaxNode, decisionTable, bindingContext);
 
-        if (dtHeaders.stream().anyMatch((e -> (e instanceof FuzzyDTHeader) && e.isReturn()))) {
-            IOpenClass compoundType = getCompoundReturnType(tableSyntaxNode, decisionTable, bindingContext);
-
-            writeFuzzyReturns(tableSyntaxNode,
-                decisionTable,
-                originalTable,
-                grid,
-                dtHeaders,
-                compoundType,
-                isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + retNum
-                          : DecisionTableColumnHeaders.RETURN.getHeaderKey() + retNum,
-                bindingContext);
-            retNum++;
+                    writeFuzzyReturns(tableSyntaxNode,
+                        decisionTable,
+                        originalTable,
+                        grid,
+                        dtHeaders,
+                        compoundType,
+                        isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + retNum++
+                                  : DecisionTableColumnHeaders.RETURN.getHeaderKey() + retNum++,
+                        bindingContext);
+                    skipFuzzyReturns = true;
+                }
+            }
         }
     }
 
