@@ -340,20 +340,15 @@ public class DependentParametersOptimizedAlgorithm {
             String[] ret = new String[3];
             if (binaryOpNode.getSyntaxNode().getType().endsWith("ge")) {
                 ret[1] = ">=";
-            }
-            if (binaryOpNode.getSyntaxNode().getType().endsWith("gt")) {
+            } else if (binaryOpNode.getSyntaxNode().getType().endsWith("gt")) {
                 ret[1] = ">";
-            }
-            if (binaryOpNode.getSyntaxNode().getType().endsWith("le")) {
+            } else if (binaryOpNode.getSyntaxNode().getType().endsWith("le")) {
                 ret[1] = "<=";
-            }
-            if (binaryOpNode.getSyntaxNode().getType().endsWith("lt")) {
+            } else if (binaryOpNode.getSyntaxNode().getType().endsWith("lt")) {
                 ret[1] = "<";
-            }
-            if (binaryOpNode.getSyntaxNode().getType().endsWith("eq")) {
+            } else if (binaryOpNode.getSyntaxNode().getType().endsWith("eq")) {
                 ret[1] = "==";
-            }
-            if (ret[1] == null) {
+            } else {
                 return null;
             }
             FieldBoundNode fieldBoundNode0 = (FieldBoundNode) children[0];
@@ -403,7 +398,11 @@ public class DependentParametersOptimizedAlgorithm {
                             BinaryOpNode binaryOpNode1 = (BinaryOpNode) children[1];
                             String[] ret0 = parseBinaryOpExpression(binaryOpNode0);
                             String[] ret1 = parseBinaryOpExpression(binaryOpNode1);
+
                             if (ret0 != null && ret1 != null) {
+                                if ("==".equals(ret0[1]) || "==".equals(ret1[1])) {
+                                    return null;
+                                }
                                 String[][] ret = new String[2][];
                                 ret[0] = ret0;
                                 ret[1] = ret1;
@@ -446,8 +445,9 @@ public class DependentParametersOptimizedAlgorithm {
                 }
             case 2:
                 String[][] parsedValuesTwoParameters = twoParameterExpressionParse(condition);
-                if (parsedValuesTwoParameters == null)
+                if (parsedValuesTwoParameters == null) {
                     return null;
+                }
                 return makeTwoParameterRangeFactory(parsedValuesTwoParameters[0][0],
                     parsedValuesTwoParameters[0][1],
                     parsedValuesTwoParameters[0][2],
