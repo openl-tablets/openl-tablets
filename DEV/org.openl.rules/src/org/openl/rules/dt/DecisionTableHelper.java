@@ -604,7 +604,7 @@ public class DecisionTableHelper {
                 sb1.append("Return: ").append(header);
 
                 if (!StringUtils.isEmpty(statement)) {
-                    sb1.append("\n").append("Value for return: _res_.").append(statement);
+                    sb1.append("\n").append("Value for: _res_.").append(statement);
                 }
                 DecisionTableMetaInfoReader.appendParameters(sb1, null, new IOpenClass[] { type });
 
