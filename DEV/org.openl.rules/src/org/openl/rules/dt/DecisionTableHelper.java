@@ -604,7 +604,7 @@ public class DecisionTableHelper {
                 sb1.append("Return: ").append(header);
 
                 if (!StringUtils.isEmpty(statement)) {
-                    sb1.append("\n").append("Matched to: _res_.").append(statement);
+                    sb1.append("\n").append("Result value for: _res_.").append(statement);
                 }
                 DecisionTableMetaInfoReader.appendParameters(sb1, null, new IOpenClass[] { type });
 
@@ -932,7 +932,7 @@ public class DecisionTableHelper {
                             null,
                             condition.getStatement(),
                             new IOpenClass[] { typeOfValue.getRight() },
-                            condition instanceof FuzzyDTHeader ? "Matched to return: _res_." + ((FuzzyDTHeader) condition)
+                            condition instanceof FuzzyDTHeader ? "Result value for: _res_." + ((FuzzyDTHeader) condition)
                                 .getStatementForCompoundReturn() : null);
                     }
                     if (condition.getWidth() > 1) {
