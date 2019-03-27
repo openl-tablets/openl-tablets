@@ -425,10 +425,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     private void setPreparedMetaInfo(int row, int col, IOpenClass type, boolean multiValue) {
         CellMetaInfo metaInfo = new CellMetaInfo(type, multiValue);
         CellMetaInfo previous = preparedMetaInfos[row - top][col - left];
-        if (previous != null) {
-            if (previous.getUsedNodes() != null) {
-                metaInfo.setUsedNodes(previous.getUsedNodes());
-            }
+        if (previous != null && previous.getUsedNodes() != null) {
+            metaInfo.setUsedNodes(previous.getUsedNodes());
         }
         setPreparedMetaInfo(row, col, metaInfo);
     }

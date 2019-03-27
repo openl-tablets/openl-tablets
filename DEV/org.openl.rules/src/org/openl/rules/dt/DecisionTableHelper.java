@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.ToLongFunction;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -70,7 +70,6 @@ import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
@@ -83,10 +82,10 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringTool;
 import org.openl.util.text.TextInfo;
 
-public class DecisionTableHelper {
+public final class DecisionTableHelper {
 
-    private final static String RET1_COLUMN_NAME = DecisionTableColumnHeaders.RETURN.getHeaderKey() + "1";
-    private final static String CRET1_COLUMN_NAME = DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + "1";
+    private static final String RET1_COLUMN_NAME = DecisionTableColumnHeaders.RETURN.getHeaderKey() + "1";
+    private static final String CRET1_COLUMN_NAME = DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + "1";
     private static final List<Class<?>> INT_TYPES = Arrays.asList(byte.class,
         short.class,
         int.class,
@@ -112,6 +111,9 @@ public class DecisionTableHelper {
     private static final List<Class<?>> DATE_TYPES = Collections.singletonList(Date.class);
     private static final List<Class<?>> RANGES_TYPES = Arrays
         .asList(IntRange.class, DoubleRange.class, CharRange.class, StringRange.class, DateRange.class);
+
+    private DecisionTableHelper() {
+    }
 
     /**
      * Check if table is vertical.<br>
@@ -305,13 +307,7 @@ public class DecisionTableHelper {
 
         writeActions(decisionTable, originalTable, grid, dtHeaders, bindingContext);
 
-        writeReturns(tableSyntaxNode,
-            decisionTable,
-            originalTable,
-            grid,
-            dtHeaders,
-            numberOfHcondition,
-            bindingContext);
+        writeReturns(tableSyntaxNode, decisionTable, originalTable, grid, dtHeaders, bindingContext);
     }
 
     private static boolean isCompoundReturnType(IOpenClass compoundType) {
@@ -348,7 +344,7 @@ public class DecisionTableHelper {
 
     private static IOpenClass getCompoundReturnType(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
-            IBindingContext bindingContext) throws OpenLCompilationException {
+            IBindingContext bindingContext) {
         IOpenClass compoundType;
         if (isCollect(tableSyntaxNode)) {
             if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
@@ -387,7 +383,6 @@ public class DecisionTableHelper {
 
     private static void validateCollectSyntaxNode(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
-            ILogicalTable originalTable,
             IBindingContext bindingContext) throws OpenLCompilationException {
         int parametersCount = tableSyntaxNode.getHeader().getCollectParameters().length;
         IOpenClass type = decisionTable.getType();
@@ -497,10 +492,9 @@ public class DecisionTableHelper {
         }
     }
 
-    private static String FUZZY_RET_VARIABLE_NAME = "R$E$T$U$R$N";
+    private static final String FUZZY_RET_VARIABLE_NAME = "R$E$T$U$R$N";
 
     private static void writeFuzzyReturns(TableSyntaxNode tableSyntaxNode,
-            DecisionTable decisionTable,
             ILogicalTable originalTable,
             IWritableGrid grid,
             List<DTHeader> dtHeaders,
@@ -677,12 +671,11 @@ public class DecisionTableHelper {
             ILogicalTable originalTable,
             IWritableGrid grid,
             List<DTHeader> dtHeaders,
-            int numberOfHConditions,
             IBindingContext bindingContext) throws OpenLCompilationException {
         boolean isCollect = isCollect(tableSyntaxNode);
 
         if (isCollect) {
-            validateCollectSyntaxNode(tableSyntaxNode, decisionTable, originalTable, bindingContext);
+            validateCollectSyntaxNode(tableSyntaxNode, decisionTable, bindingContext);
         }
 
         if (isLookup(tableSyntaxNode)) {
@@ -696,7 +689,7 @@ public class DecisionTableHelper {
         }
 
         if (dtHeaders.stream()
-            .filter(e -> e.isReturn())
+            .filter(DTHeader::isReturn)
             .anyMatch(e -> e.getColumn() + e.getWidth() - 1 >= originalTable.getSource().getWidth())) {
             throw new OpenLCompilationException("Wrong table structure: There is no column for return values");
         }
@@ -747,7 +740,6 @@ public class DecisionTableHelper {
                         bindingContext);
 
                     writeFuzzyReturns(tableSyntaxNode,
-                        decisionTable,
                         originalTable,
                         grid,
                         dtHeaders,
@@ -864,7 +856,7 @@ public class DecisionTableHelper {
             IBindingContext bindingContext) throws OpenLCompilationException {
 
         List<DTHeader> conditions = dtHeaders.stream()
-            .filter(e -> e.isCondition())
+            .filter(DTHeader::isCondition)
             .collect(collectingAndThen(toList(), Collections::unmodifiableList));
 
         int numOfVCondition = 0;
@@ -922,7 +914,6 @@ public class DecisionTableHelper {
                 Pair<String, IOpenClass> typeOfValue = getTypeForConditionColumn(decisionTable,
                     originalTable,
                     condition,
-                    numOfVCondition == conditions.size(),
                     numOfHCondition,
                     firstColumnForHConditions,
                     bindingContext);
@@ -1014,17 +1005,15 @@ public class DecisionTableHelper {
             while (column < originalTable.getSource().getWidth()) {
                 ICell cell = originalTable.getSource().getCell(column, j);
                 String cellValue = cell.getStringValue();
-                if (cellValue != null) {
-                    if (metaInfoReader instanceof DecisionTableMetaInfoReader) {
-                        ((DecisionTableMetaInfoReader) metaInfoReader).addSimpleRulesCondition(cell.getAbsoluteRow(),
-                            cell.getAbsoluteColumn(),
-                            (DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey() + (j + 1)).intern(),
-                            null,
-                            decisionTable.getSignature().getParameterName(condition.getMethodParameterIndex()),
-                            new IOpenClass[] { decisionTable.getSignature()
-                                .getParameterType(condition.getMethodParameterIndex()) },
-                            null);
-                    }
+                if (cellValue != null && metaInfoReader instanceof DecisionTableMetaInfoReader) {
+                    ((DecisionTableMetaInfoReader) metaInfoReader).addSimpleRulesCondition(cell.getAbsoluteRow(),
+                        cell.getAbsoluteColumn(),
+                        (DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey() + (j + 1)).intern(),
+                        null,
+                        decisionTable.getSignature().getParameterName(condition.getMethodParameterIndex()),
+                        new IOpenClass[] {
+                                decisionTable.getSignature().getParameterType(condition.getMethodParameterIndex()) },
+                        null);
                 }
                 column = column + cell.getWidth();
             }
@@ -1049,11 +1038,7 @@ public class DecisionTableHelper {
                 parseRec(node.getChild(i), chain, true, identifierNodes);
                 chain.setValue(f);
             } else if ("function".equals(node.getChild(i).getType())) {
-                MutableBoolean prevChain = chain;
-                boolean prevInChain = inChain;
                 parseRec(node.getChild(i), new MutableBoolean(false), false, identifierNodes);
-                chain = prevChain;
-                inChain = prevInChain;
             } else {
                 parseRec(node.getChild(i), chain, inChain, identifierNodes);
             }
@@ -1432,10 +1417,8 @@ public class DecisionTableHelper {
             int firstColumnHeight,
             IBindingContext bindingContext,
             boolean onlyReturns) {
-        if (onlyReturns) {
-            if (returnTokens == null || returnTypeFuzzyTokens == null) {
-                return;
-            }
+        if (onlyReturns && (returnTokens == null || returnTypeFuzzyTokens == null)) {
+            return;
         }
         int w = originalTable.getSource().getCell(column, 0).getWidth();
         IGridTable gt = originalTable.getSource().getSubtable(column, 0, w, firstColumnHeight);
@@ -1518,7 +1501,7 @@ public class DecisionTableHelper {
             if (f) {
                 usedIndexes.add(index);
                 DTHeader dtHeader = dtHeaders.get(index);
-                Set<Integer> usedParameterIndexesTo = new HashSet<Integer>(usedParameterIndexes);
+                Set<Integer> usedParameterIndexesTo = new HashSet<>(usedParameterIndexes);
                 for (int i : dtHeader.getMethodParameterIndexes()) {
                     usedParameterIndexesTo.add(i);
                 }
@@ -1538,11 +1521,11 @@ public class DecisionTableHelper {
     }
 
     private static List<List<DTHeader>> filterHeadersByMax(List<List<DTHeader>> fits,
-            Function<List<DTHeader>, Long> function) {
+            ToLongFunction<List<DTHeader>> function) {
         long max = Long.MIN_VALUE;
         List<List<DTHeader>> newFits = new ArrayList<>();
         for (List<DTHeader> fit : fits) {
-            long current = function.apply(fit);
+            long current = function.applyAsLong(fit);
             if (current > max) {
                 max = current;
                 newFits.clear();
@@ -1555,11 +1538,11 @@ public class DecisionTableHelper {
     }
 
     private static List<List<DTHeader>> filterHeadersByMin(List<List<DTHeader>> fits,
-            Function<List<DTHeader>, Long> function) {
+            ToLongFunction<List<DTHeader>> function) {
         long min = Long.MAX_VALUE;
         List<List<DTHeader>> newFits = new ArrayList<>();
         for (List<DTHeader> fit : fits) {
-            long current = function.apply(fit);
+            long current = function.applyAsLong(fit);
             if (current < min) {
                 min = current;
                 newFits.clear();
@@ -1580,8 +1563,7 @@ public class DecisionTableHelper {
                     .filter(x -> x instanceof DeclaredDTHeader)
                     .map(x -> (DeclaredDTHeader) x)
                     .filter(x -> type.equals(x.getMatchedDefinition().getMatchType()))
-                    .mapToLong(
-                        x -> ((DeclaredDTHeader) x).getMatchedDefinition().getDtColumnsDefinition().getNumberOfTitles())
+                    .mapToLong(x -> x.getMatchedDefinition().getDtColumnsDefinition().getNumberOfTitles())
                     .sum());
         }
         return fits;
@@ -1619,13 +1601,12 @@ public class DecisionTableHelper {
     private static boolean fuzzyReturnUsesTheSameField(List<DTHeader> fit) {
         for (DTHeader f1 : fit) {
             for (DTHeader f2 : fit) {
-                if (f1 != f2) {
-                    if (f1 instanceof FuzzyDTHeader && f2 instanceof FuzzyDTHeader && f1.isReturn() && f2.isReturn()) {
-                        FuzzyDTHeader g1 = (FuzzyDTHeader) f1;
-                        FuzzyDTHeader g2 = (FuzzyDTHeader) f2;
-                        return g1.getMethodsChain() == g2.getMethodsChain(); // Implementation uses arrays from
-                                                                             // ParameterTokens. == can be used.
-                    }
+                if (f1 != f2 && (f1 instanceof FuzzyDTHeader && f2 instanceof FuzzyDTHeader && f1.isReturn() && f2
+                    .isReturn())) {
+                    FuzzyDTHeader g1 = (FuzzyDTHeader) f1;
+                    FuzzyDTHeader g2 = (FuzzyDTHeader) f2;
+                    return g1.getMethodsChain() == g2.getMethodsChain(); // Implementation uses arrays from
+                                                                         // ParameterTokens. == can be used.
                 }
             }
         }
@@ -1640,9 +1621,9 @@ public class DecisionTableHelper {
         if (fits.size() <= 1) {
             return false;
         }
-        DTHeader[] dtHeaders0 = fits.get(0).stream().filter(e -> predicate.test(e)).toArray(DTHeader[]::new);
+        DTHeader[] dtHeaders0 = fits.get(0).stream().filter(predicate::test).toArray(DTHeader[]::new);
         for (int i = 1; i < fits.size(); i++) {
-            DTHeader[] dtHeaders1 = fits.get(i).stream().filter(e -> predicate.test(e)).toArray(DTHeader[]::new);
+            DTHeader[] dtHeaders1 = fits.get(i).stream().filter(predicate::test).toArray(DTHeader[]::new);
             if (!Arrays.equals(dtHeaders0, dtHeaders1)) {
                 return true;
             }
@@ -1671,7 +1652,7 @@ public class DecisionTableHelper {
             int numberOfParameters,
             int numberOfHcondition,
             boolean twoColumnsForReturn,
-            IBindingContext bindingContext) throws SyntaxNodeException {
+            IBindingContext bindingContext) {
         int numberOfParametersForVCondition = numberOfParameters - numberOfHcondition;
         boolean[][] matrix = new boolean[dtHeaders.size()][dtHeaders.size()];
         for (int i = 0; i < dtHeaders.size(); i++) {
@@ -1722,29 +1703,29 @@ public class DecisionTableHelper {
                 .sum());
         fits = filterHeadersByMatchType(fits);
         if (numberOfHcondition != numberOfParameters) {
-            fits = filterHeadersByMax(fits, e -> e.stream().anyMatch(x -> x.isCondition()) ? 1l : 0l); // Prefer
-                                                                                                       // full
-                                                                                                       // matches
-                                                                                                       // with
-                                                                                                       // first
-                                                                                                       // condition
-                                                                                                       // headers
+            fits = filterHeadersByMax(fits, e -> e.stream().anyMatch(DTHeader::isCondition) ? 1l : 0l); // Prefer
+                                                                                                        // full
+                                                                                                        // matches
+                                                                                                        // with
+                                                                                                        // first
+                                                                                                        // condition
+                                                                                                        // headers
         }
 
         if (numberOfHcondition == 0) {
-            fits = filterHeadersByMax(fits, e -> e.stream().anyMatch(x -> x.isReturn()) ? 1l : 0l); // Prefer full
-                                                                                                    // matches
-                                                                                                    // with
-                                                                                                    // last
-                                                                                                    // return
-                                                                                                    // headers
+            fits = filterHeadersByMax(fits, e -> e.stream().anyMatch(DTHeader::isReturn) ? 1l : 0l); // Prefer full
+                                                                                                     // matches
+                                                                                                     // with
+                                                                                                     // last
+                                                                                                     // return
+                                                                                                     // headers
         } else {
-            fits = fits.stream().filter(e -> e.stream().filter(x -> x.isReturn()).count() == 0).collect(toList()); // Lookup
-                                                                                                                   // table
-                                                                                                                   // with
-                                                                                                                   // no
-                                                                                                                   // returns
-                                                                                                                   // columns
+            fits = fits.stream().filter(e -> e.stream().filter(DTHeader::isReturn).count() == 0).collect(toList()); // Lookup
+                                                                                                                    // table
+                                                                                                                    // with
+                                                                                                                    // no
+                                                                                                                    // returns
+                                                                                                                    // columns
         }
 
         fits = filterHeadersByMax(fits,
@@ -1758,17 +1739,17 @@ public class DecisionTableHelper {
 
         if (!fits.isEmpty()) {
             if (fits.size() > 1) {
-                if (isAmbiguousFits(fits, e -> e.isCondition())) {
+                if (isAmbiguousFits(fits, DTHeader::isCondition)) {
                     bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
                         "Ambiguous matching of column titles to DT conditions. Use more appropriate titles for condition columns.",
                         tableSyntaxNode));
                 }
-                if (isAmbiguousFits(fits, e -> e.isAction())) {
+                if (isAmbiguousFits(fits, DTHeader::isAction)) {
                     bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
                         "Ambiguous matching of column titles to DT action columns. Use more appropriate titles for action columns.",
                         tableSyntaxNode));
                 }
-                if (isAmbiguousFits(fits, e -> e.isReturn())) {
+                if (isAmbiguousFits(fits, DTHeader::isReturn)) {
                     bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
                         "Ambiguous matching of column titles to DT return columns. Use more appropriate titles for return columns.",
                         tableSyntaxNode));
@@ -1853,16 +1834,13 @@ public class DecisionTableHelper {
                 lastColumn = firstColumnForHCondition;
             }
         } else {
-            try {
-                returnCompoundType = getCompoundReturnType(tableSyntaxNode, decisionTable, bindingContext);
-                if (isCompoundReturnType(returnCompoundType)) {
-                    returnTypeFuzzyTokens = OpenLFuzzyUtils
-                        .tokensMapToOpenClassSetterMethodsRecursively(returnCompoundType);
-                    returnTokens = returnTypeFuzzyTokens.keySet().toArray(new Token[] {});
-                } else {
-                    returnCompoundType = null;
-                }
-            } catch (OpenLCompilationException e) {
+            returnCompoundType = getCompoundReturnType(tableSyntaxNode, decisionTable, bindingContext);
+            if (isCompoundReturnType(returnCompoundType)) {
+                returnTypeFuzzyTokens = OpenLFuzzyUtils
+                    .tokensMapToOpenClassSetterMethodsRecursively(returnCompoundType);
+                returnTokens = returnTypeFuzzyTokens.keySet().toArray(new Token[] {});
+            } else {
+                returnCompoundType = null;
             }
         }
 
@@ -2103,7 +2081,6 @@ public class DecisionTableHelper {
     private static Pair<String, IOpenClass> getTypeForConditionColumn(DecisionTable decisionTable,
             ILogicalTable originalTable,
             DTHeader condition,
-            boolean lastCondition,
             int numOfHCondition,
             int firstColumnForHConditions,
             IBindingContext bindingContext) {
@@ -2209,7 +2186,6 @@ public class DecisionTableHelper {
                     }
                 }
             } catch (Exception e) {
-                continue;
             }
         }
 
@@ -2334,7 +2310,7 @@ public class DecisionTableHelper {
         return new XlsSheetGridModel(mockSheetSource);
     }
 
-    private final static class ParameterTokens {
+    private static final class ParameterTokens {
         Token[] tokens;
         Map<String, Integer> tokensToParameterIndex;
         Map<String, IOpenMethod[]> tokenToMethodsChain;

@@ -30,6 +30,7 @@ public class DecisionTableBoundNode extends AMethodBasedNode {
         return new DecisionTable(getHeader(), this);
     }
 
+    @Override
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
         if (!bindingContext.isExecutionMode()) {
             getTableSyntaxNode().setMetaInfoReader(new DecisionTableMetaInfoReader(this));
