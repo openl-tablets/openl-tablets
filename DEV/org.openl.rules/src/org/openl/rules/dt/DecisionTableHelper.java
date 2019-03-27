@@ -28,6 +28,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
@@ -501,10 +502,10 @@ public class DecisionTableHelper {
             ILogicalTable originalTable,
             IWritableGrid grid,
             List<DTHeader> dtHeaders,
-            IOpenClass compoundType,
+            IOpenClass compoundReturnType,
             String header,
             IBindingContext bindingContext) throws OpenLCompilationException {
-        validateCompoundReturnType(compoundType);
+        validateCompoundReturnType(compoundReturnType);
 
         final List<FuzzyDTHeader> fuzzyReturns = dtHeaders.stream()
             .filter(e -> (e instanceof FuzzyDTHeader) && e.isReturn())
@@ -514,11 +515,11 @@ public class DecisionTableHelper {
         assert (!fuzzyReturns.isEmpty());
 
         StringBuilder sb = new StringBuilder();
-        sb.append(compoundType.getName())
+        sb.append(compoundReturnType.getName())
             .append(" ")
             .append(FUZZY_RET_VARIABLE_NAME)
             .append(" = new ")
-            .append(compoundType.getName())
+            .append(compoundReturnType.getName())
             .append("();");
 
         // Set conditions parameters to compound type. Recursively search is
@@ -544,7 +545,7 @@ public class DecisionTableHelper {
         Map<String, Map<IOpenMethod, String>> variables = new HashMap<>();
         int i = 0;
         for (FuzzyDTHeader fuzzyDTHeader : fuzzyReturns) {
-            IOpenClass type = compoundType;
+            IOpenClass type = compoundReturnType;
             String currentVariable = FUZZY_RET_VARIABLE_NAME;
             IOpenMethod[] m = fuzzyDTHeader.getMethodsChain();
             for (int j = 0; j < m.length; j++) {
@@ -599,12 +600,17 @@ public class DecisionTableHelper {
                     fuzzyDTHeader.getColumn(),
                     originalTable.getCell(0, 0).getHeight());
                 ICell cell = originalTable.getSource().getCell(fuzzyDTHeader.getColumn(), lastRowInHeader);
-                String statement = buildStatementByMethodsChain(compoundType, fuzzyDTHeader.getMethodsChain()).getKey();
+                String statement = buildStatementByMethodsChain(compoundReturnType, fuzzyDTHeader.getMethodsChain())
+                    .getKey();
                 StringBuilder sb1 = new StringBuilder();
                 sb1.append("Return: ").append(header);
 
                 if (!StringUtils.isEmpty(statement)) {
-                    sb1.append("\n").append("Value for: _res_.").append(statement);
+                    sb1.append("\n")
+                        .append("Value for: ")
+                        .append(compoundReturnType.getDisplayName(INamedThing.SHORT))
+                        .append(".")
+                        .append(statement);
                 }
                 DecisionTableMetaInfoReader.appendParameters(sb1, null, new IOpenClass[] { type });
 
@@ -734,14 +740,16 @@ public class DecisionTableHelper {
                         collectParameterIndex++;
                     }
                 } else if (dtHeader instanceof FuzzyDTHeader && !skipFuzzyReturns) {
-                    IOpenClass compoundType = getCompoundReturnType(tableSyntaxNode, decisionTable, bindingContext);
+                    IOpenClass compoundReturnType = getCompoundReturnType(tableSyntaxNode,
+                        decisionTable,
+                        bindingContext);
 
                     writeFuzzyReturns(tableSyntaxNode,
                         decisionTable,
                         originalTable,
                         grid,
                         dtHeaders,
-                        compoundType,
+                        compoundReturnType,
                         isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + retNum++
                                   : DecisionTableColumnHeaders.RETURN.getHeaderKey() + retNum++,
                         bindingContext);
@@ -866,6 +874,8 @@ public class DecisionTableHelper {
             .max()
             .orElse(0);
 
+        IOpenClass compoundReturnType = getCompoundReturnType(tableSyntaxNode, decisionTable, bindingContext);
+
         for (DTHeader condition : conditions) {
             int column = condition.getColumn();
             if (column > originalTable.getSource().getWidth()) {
@@ -925,8 +935,10 @@ public class DecisionTableHelper {
                             null,
                             condition.getStatement(),
                             new IOpenClass[] { typeOfValue.getRight() },
-                            condition instanceof FuzzyDTHeader ? "Value for return: _res_." + ((FuzzyDTHeader) condition)
-                                .getStatementForCompoundReturn() : null);
+                            (condition instanceof FuzzyDTHeader) && !StringUtils.isEmpty(((FuzzyDTHeader) condition)
+                                .getStatementForCompoundReturn()) ? "Value for return: " + compoundReturnType
+                                    .getDisplayName(INamedThing.SHORT) + "." + ((FuzzyDTHeader) condition)
+                                        .getStatementForCompoundReturn() : null);
                     }
                     if (condition.getWidth() > 1) {
                         for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
