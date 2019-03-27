@@ -162,7 +162,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             if (sb.length() > 0) {
                 sb.append("\n");
             }
-            sb.append("Expression: ").append(statement);
+            sb.append("Expression: ").append(statement.replaceAll("\n", StringUtils.SPACE));
         }
         if (!StringUtils.isEmpty(headerMetaInfo.getAdditionalDetails())) {
             if (sb.length() > 0) {
@@ -219,7 +219,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             if (sb.length() > 0) {
                 sb.append("\n");
             }
-            sb.append("Expression: ").append(statement);
+            sb.append("Expression: ").append(statement.replaceAll("\n", StringUtils.SPACE));
         }
         if (!StringUtils.isEmpty(headerMetaInfo.getAdditionalDetails())) {
             if (sb.length() > 0) {
@@ -272,26 +272,26 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             int col,
             String header,
             String[] parameterNames,
-            String conditionStatement,
+            String statement,
             IOpenClass[] columnTypes,
             String additionalDetails) {
         simpleRulesConditionMap.put(CellKey.CellKeyFactory.getCellKey(col, row),
-            new HeaderMetaInfo(header, parameterNames, conditionStatement, columnTypes, additionalDetails));
+            new HeaderMetaInfo(header, parameterNames, statement, columnTypes, additionalDetails));
     }
 
     public void addSimpleRulesAction(int row,
             int col,
             String header,
             String[] parameterNames,
-            String conditionStatement,
+            String statement,
             IOpenClass[] columnTypes,
             String additionalInfo) {
         simpleRulesActionMap.put(CellKey.CellKeyFactory.getCellKey(col, row),
-            new HeaderMetaInfo(header, parameterNames, conditionStatement, columnTypes, additionalInfo));
+            new HeaderMetaInfo(header, parameterNames, statement, columnTypes, additionalInfo));
     }
 
-    public void addSimpleRulesReturn(int row, int col, String description) {
-        simpleRulesReturnDescriptions.put(CellKey.CellKeyFactory.getCellKey(col, row), description);
+    public void addSimpleRulesReturn(int row, int col, String details) {
+        simpleRulesReturnDescriptions.put(CellKey.CellKeyFactory.getCellKey(col, row), details);
     }
 
     private void saveValueMetaInfo(FunctionalRow funcRow, IGridRegion region) {
@@ -452,11 +452,11 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             this.columnTypes = columnTypes;
             this.additionalDetails = additionalDetails;
         }
-        
+
         public String getAdditionalDetails() {
             return additionalDetails;
         }
-        
+
         public String getHeader() {
             return header;
         }

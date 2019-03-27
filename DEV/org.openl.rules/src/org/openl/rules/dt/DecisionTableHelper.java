@@ -474,7 +474,9 @@ public class DecisionTableHelper {
                         StringBuilder sb = new StringBuilder();
                         sb.append("Return: ").append(header);
                         if (!StringUtils.isEmpty(declaredReturn.getStatement())) {
-                            sb.append("\n").append("Expression: ").append(declaredReturn.getStatement());
+                            sb.append("\n")
+                                .append("Expression: ")
+                                .append(declaredReturn.getStatement().replaceAll("\n", StringUtils.SPACE));
                         }
                         DecisionTableMetaInfoReader.appendParameters(sb,
                             localParameterNames.toArray(new String[] {}),
@@ -936,7 +938,7 @@ public class DecisionTableHelper {
                             condition.getStatement(),
                             new IOpenClass[] { typeOfValue.getRight() },
                             (condition instanceof FuzzyDTHeader) && !StringUtils.isEmpty(((FuzzyDTHeader) condition)
-                                .getStatementForCompoundReturn()) ? "Value for return: " + compoundReturnType
+                                .getStatementForCompoundReturn()) ? "Expression: value for " + compoundReturnType
                                     .getDisplayName(INamedThing.SHORT) + "." + ((FuzzyDTHeader) condition)
                                         .getStatementForCompoundReturn() : null);
                     }
