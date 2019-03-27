@@ -1,9 +1,8 @@
 package org.openl.rules.dt.index;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.algorithm.evaluator.ARangeIndexEvaluator.IndexNode;
 import org.openl.rules.dt.type.IRangeAdaptor;
@@ -18,23 +17,16 @@ public class RangeDescIndex extends RangeAscIndex {
     }
 
     @Override
-    protected Set<Integer> retrieveRuleSet(int idx) {
+    protected Pair<Integer, Integer> retrieveIndexRange(int idx) {
         if (idx >= 0) {
-            return getRulesStartFrom(idx + 1);
+            return Pair.of(idx + 1, index.size());
         } else {
             int insertionPoint = -(idx + 1);
             if (insertionPoint < index.size()) {
-                return getRulesStartFrom(insertionPoint);
+                return Pair.of(insertionPoint, index.size());
             }
         }
         return null;
     }
 
-    private Set<Integer> getRulesStartFrom(int startIdx) {
-        Set<Integer> result = new HashSet<>();
-        for (int i = startIdx; i < index.size(); i++) {
-            result.addAll(index.get(i).getRules());
-        }
-        return result;
-    }
 }

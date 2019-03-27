@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.RangeIndexDecisionTableRuleNode;
@@ -18,7 +19,7 @@ public class RangeAscIndex implements IRuleIndex {
     private final DecisionTableRuleNode emptyNodeStub = new DecisionTableRuleNodeBuilder().makeNode();
     private final DecisionTableRuleNode nextNode;
     private final IRangeAdaptor<IndexNode, ?> adaptor;
-    private Set<Integer> emptyRules;
+    private final Set<Integer> emptyRules;
 
     public RangeAscIndex(DecisionTableRuleNode nextNode,
             List<IndexNode> index,
@@ -35,41 +36,28 @@ public class RangeAscIndex implements IRuleIndex {
         this.emptyRules = Collections.unmodifiableSet(emptyRuleSet);
     }
 
-    private Set<Integer> findRules(Object value) {
+    private Pair<Integer, Integer> findIndexRange(Object value) {
         if (value == null || index.isEmpty()) {
             // there is no values in index to compare => no reason to search
-            return new HashSet<>(emptyRules);
+            return null;
         }
         // Converts value for binary search in index
         // Because different subclasses of Number are not comparable.
         value = adaptor.adaptValueType(value);
         int idx = Collections.binarySearch(index, (IndexNode) value);
-        Set<Integer> rules = retrieveRuleSet(idx);
-        if (rules == null) {
-            return new HashSet<>(emptyRules);
-        }
-        rules.addAll(emptyRules);
-        return rules;
+        return retrieveIndexRange(idx);
     }
 
-    protected Set<Integer> retrieveRuleSet(int idx) {
+    protected Pair<Integer, Integer> retrieveIndexRange(int idx) {
         if (idx >= 0) {
-            return getRulesTillTo(idx);
+            return Pair.of(0, idx + 1);
         } else {
             int insertionPoint = -(idx + 1);
             if (insertionPoint <= index.size() && insertionPoint > 0) {
-                return getRulesTillTo(insertionPoint - 1);
+                return Pair.of(0, insertionPoint);
             }
         }
         return null;
-    }
-
-    private Set<Integer> getRulesTillTo(int endIdx) {
-        Set<Integer> result = new HashSet<>();
-        for (int i = 0; i <= endIdx; i++) {
-            result.addAll(index.get(i).getRules());
-        }
-        return result;
     }
 
     @Override
@@ -79,19 +67,41 @@ public class RangeAscIndex implements IRuleIndex {
 
     Set<Integer> findRules(Object value, DecisionTableRuleNode prevResult) {
         if (!(prevResult instanceof RangeIndexDecisionTableRuleNode)) {
-            return findRules(value);
+            Pair<Integer, Integer> range = findIndexRange(value);
+            Set<Integer> result = new HashSet<>(emptyRules);
+            if (range != null) {
+                for (int i = range.getLeft(); i < range.getRight(); i++) {
+                    result.addAll(index.get(i).getRules());
+                }
+            }
+            return result;
         }
         Set<Integer> prevRes = ((RangeIndexDecisionTableRuleNode) prevResult).getRuleSet();
         if (prevRes.isEmpty()) {
             return prevRes;
         }
-        Set<Integer> result = findRules(value);
-        if (result.size() <= prevRes.size()) {
-            result.retainAll(prevRes);
-            return result;
+        Pair<Integer, Integer> range = findIndexRange(value);
+        Set<Integer> result = new HashSet<>();
+        retainAll(emptyRules, prevRes, result);
+        if (range != null) {
+            for (int i = range.getLeft(); i < range.getRight(); i++) {
+                retainAll(index.get(i).getRules(), prevRes, result);
+            }
         }
-        prevRes.retainAll(result);
-        return prevRes;
+        return result;
+    }
+
+    private void retainAll(Set<Integer> a, Set<Integer> b, Set<Integer> result) {
+        if (a.size() > b.size()) {
+            Set<Integer> tmp = a;
+            a = b;
+            b = tmp;
+        }
+        for (Integer ruleN : a) {
+            if (b.contains(ruleN)) {
+                result.add(ruleN);
+            }
+        }
     }
 
     @Override

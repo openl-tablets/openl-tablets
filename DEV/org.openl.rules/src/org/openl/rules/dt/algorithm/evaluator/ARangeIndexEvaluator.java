@@ -103,7 +103,7 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
             IndexNode node = nodes.get(i);
             rules.add(node.getRuleN());
             if (i == length - 1 || node.compareTo(nodes.get(i + 1)) != 0) {
-                result.add(new IndexNode(node.getValue(), new ArrayList<>(rules)));
+                result.add(new IndexNode(node.getValue(), new HashSet<>(rules)));
                 rules.clear();
             }
         }
@@ -163,7 +163,7 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
 
     public static class IndexNode implements Comparable<IndexNode> {
         private final Comparable<Object> value;
-        private List<Integer> rules;
+        private Set<Integer> rules;
         private Integer ruleN;
 
         IndexNode(Comparable<Object> value, int ruleN) {
@@ -171,9 +171,9 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
             this.ruleN = ruleN;
         }
 
-        IndexNode(Comparable<Object> value, List<Integer> rules) {
+        IndexNode(Comparable<Object> value, HashSet<Integer> rules) {
             this.value = value;
-            this.rules = Collections.unmodifiableList(rules);
+            this.rules = Collections.unmodifiableSet(rules);
         }
 
         IndexNode(Comparable<Object> value) {
@@ -188,7 +188,7 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
             return ruleN;
         }
 
-        public List<Integer> getRules() {
+        public Set<Integer> getRules() {
             return rules;
         }
 
