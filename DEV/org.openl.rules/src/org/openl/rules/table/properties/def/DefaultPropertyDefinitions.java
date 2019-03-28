@@ -491,7 +491,7 @@ public class DefaultPropertyDefinitions
 		definitions[34].setPrimaryKey(false);
 		definitions[34].setSecurityFilter("no");
 		definitions[34].setSystem(false);
-		definitions[34].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_SPREADSHEET});
+		definitions[34].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[34].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 		definitions[35] = new TablePropertyDefinition();
 		definitions[35].setDefaultValue("false");
