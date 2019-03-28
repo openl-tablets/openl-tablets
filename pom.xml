@@ -79,8 +79,8 @@
         <org.springsecurity.version>4.2.8.RELEASE</org.springsecurity.version>
         <org.hibernate.version>4.3.11.Final</org.hibernate.version>
         <org.mojarra.version>2.1.19</org.mojarra.version>
-        <asm.version>4.2</asm.version>
-        <cglib.version>3.1</cglib.version>
+        <asm.version>7.1</asm.version>
+        <cglib.version>3.2.10</cglib.version>
 
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
         <org.apache.cxf.version>3.1.17</org.apache.cxf.version>

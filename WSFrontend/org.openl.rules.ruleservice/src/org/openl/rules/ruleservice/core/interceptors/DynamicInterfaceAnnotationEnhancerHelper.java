@@ -25,7 +25,7 @@ public class DynamicInterfaceAnnotationEnhancerHelper {
         private Class<?> templateClass;
 
         public DynamicInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0, Class<?> templateClass) {
-            super(Opcodes.ASM4, arg0);
+            super(Opcodes.ASM5, arg0);
             this.templateClass = templateClass;
             
         }

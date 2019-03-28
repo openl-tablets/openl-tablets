@@ -46,7 +46,7 @@ public class JAXWSEnhancerHelper {
         JAXWSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
                 Class<?> originalClass,
                 OpenLService service) {
-            super(Opcodes.ASM4, arg0);
+            super(Opcodes.ASM5, arg0);
             this.originalClass = originalClass;
             this.service = service;
         }

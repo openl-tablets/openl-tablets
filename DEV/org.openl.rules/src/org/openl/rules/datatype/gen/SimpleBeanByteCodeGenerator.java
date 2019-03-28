@@ -26,7 +26,7 @@ class SimpleBeanByteCodeGenerator extends POJOByteCodeGenerator {
 
     private void add_args(ClassWriter classWriter, Map<String, FieldDescription> beanFields) {
         Type OBJECT_TYPE = Type.getType(Object.class);
-        Type beanType = Type.getType(getBeanNameWithPackage());
+        Type beanType = Type.getType(getBeanNameDescriptor());
 
         Method _args = Method.getMethod("java.lang.Object[] _args()");
         GeneratorAdapter ag = new GeneratorAdapter(Opcodes.ACC_PUBLIC, _args, null, null, classWriter);
