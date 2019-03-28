@@ -41,7 +41,7 @@ public abstract class RuleServiceInstantiationFactoryHelper {
          * @param methods Methods where to change return type.
          */
         public RuleserviceInterceptorsSupportClassVisitor(ClassVisitor visitor, Collection<Method> methodsWithReturnTypeNeedsChange, Collection<Method> methodsWithServiceExtraMethodAnnotation) {
-            super(Opcodes.ASM4, visitor);
+            super(Opcodes.ASM5, visitor);
             this.methodsWithReturnTypeNeedsChange = methodsWithReturnTypeNeedsChange;
             this.methodsWithServiceExtraMethodAnnotation = methodsWithServiceExtraMethodAnnotation;
         }

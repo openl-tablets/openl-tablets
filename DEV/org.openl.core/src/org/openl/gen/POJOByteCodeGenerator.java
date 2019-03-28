@@ -73,7 +73,7 @@ public class POJOByteCodeGenerator {
 
     private void visitClassDescription(ClassWriter classWriter) {
         String parent = Type.getInternalName(parentClass);
-        classWriter.visit(Opcodes.V1_6,
+        classWriter.visit(Opcodes.V1_8,
             Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER,
             beanNameWithPackage,
             null,
@@ -148,7 +148,7 @@ public class POJOByteCodeGenerator {
         return beanFields;
     }
 
-    protected String getBeanNameWithPackage() {
-        return beanNameWithPackage;
+    protected String getBeanNameDescriptor() {
+        return 'L' + beanNameWithPackage + ';';
     }
 }

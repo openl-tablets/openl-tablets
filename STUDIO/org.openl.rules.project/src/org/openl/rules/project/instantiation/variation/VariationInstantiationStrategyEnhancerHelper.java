@@ -229,7 +229,7 @@ public final class VariationInstantiationStrategyEnhancerHelper {
         private String className;
 
         public UndecoratingClassWriter(ClassVisitor delegatedClassVisitor, String className) {
-            super(Opcodes.ASM4, delegatedClassVisitor);
+            super(Opcodes.ASM5, delegatedClassVisitor);
             this.className = className;
         }
 

@@ -65,7 +65,7 @@ public class JAXRSEnhancerHelper {
                                                      Class<?> originalClass,
                                                      ClassLoader classLoader,
                                                      OpenLService service) {
-            super(Opcodes.ASM4, arg0);
+            super(Opcodes.ASM5, arg0);
             this.originalClass = originalClass;
             this.classLoader = classLoader;
             this.service = service;

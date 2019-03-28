@@ -63,7 +63,7 @@ public class InterfaceTransformer {
      * @param classVisitor Visitor to consume writing instructions.
      */
     public void accept(ClassVisitor classVisitor) {
-        classVisitor.visit(Opcodes.V1_7,
+        classVisitor.visit(Opcodes.V1_8,
             InterfaceGenerator.PUBLIC_ABSTRACT_INTERFACE,
             className.replace('.', '/'),
             null,
