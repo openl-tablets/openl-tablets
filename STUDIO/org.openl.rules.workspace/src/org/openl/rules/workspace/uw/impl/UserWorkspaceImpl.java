@@ -13,6 +13,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.RepositoryException;
+import org.openl.rules.workspace.dtr.impl.MappedFileData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
@@ -388,11 +389,15 @@ public class UserWorkspaceImpl implements UserWorkspace {
         listeners.remove(listener);
     }
 
-    public void uploadLocalProject(String name) throws ProjectException {
+    public void uploadLocalProject(String name, String projectFolder) throws ProjectException {
         try {
             AProject createdProject = createProject(name);
             AProject project = localWorkspace.getProject(name);
             project.refresh();
+            if (designTimeRepository.getRepository().supports().mappedFolders()) {
+                FileData fileData = createdProject.getFileData();
+                createdProject.setFileData(new MappedFileData(fileData.getName(), projectFolder + name));
+            }
             createdProject.update(project, user);
             refreshRulesProjects();
         } catch (ProjectException e) {

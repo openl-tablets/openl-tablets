@@ -22,6 +22,13 @@ public class Features {
     }
 
     /**
+     * If true, repository can be casted to {@link MappedFolderRepository}
+     */
+    public boolean mappedFolders() {
+        return repository instanceof MappedFolderRepository;
+    }
+
+    /**
      * If true, repository can be casted to {@link BranchRepository}
      */
     public boolean branches() {

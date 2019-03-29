@@ -16,15 +16,21 @@ public abstract class AProjectCreator {
     private final Logger log = LoggerFactory.getLogger(AProjectCreator.class);
 
     private String projectName;
+    private String projectFolder;
     private UserWorkspace userWorkspace;
 
-    public AProjectCreator(String projectName, UserWorkspace userWorkspace) {
+    public AProjectCreator(String projectName, String projectFolder, UserWorkspace userWorkspace) {
         this.projectName = projectName;
+        this.projectFolder = projectFolder;
         this.userWorkspace = userWorkspace;
     }
 
     protected String getProjectName() {
         return projectName;
+    }
+
+    public String getProjectFolder() {
+        return projectFolder;
     }
 
     protected UserWorkspace getUserWorkspace() {

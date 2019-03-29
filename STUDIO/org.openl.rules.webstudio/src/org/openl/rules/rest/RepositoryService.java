@@ -287,6 +287,9 @@ public class RepositoryService {
                 if (!isGranted(Privileges.CREATE_PROJECTS)) {
                     return Response.status(Status.FORBIDDEN).entity("Doesn't have CREATE PROJECTS privilege").build();
                 }
+                if (getRepository().supports().mappedFolders()) {
+                    throw new UnsupportedOperationException("Can't create a project for repository with non-flat folder structure");
+                }
             }
 
             String fileName = getFileName(name);
@@ -319,7 +322,7 @@ public class RepositoryService {
             }
             userWorkspace.getProject(name).unlock();
             return Response.created(new URI(uri + "/" + StringTool.encodeURL(save.getVersion()))).build();
-        } catch (IOException | URISyntaxException ex) {
+        } catch (IOException | URISyntaxException | RuntimeException ex) {
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } catch (ProjectException ex) {
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();

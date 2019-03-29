@@ -109,6 +109,7 @@ public class RepositoryTreeController {
     private WebStudio studio = WebStudioUtils.getWebStudio(true);
 
     private String projectName;
+    private String projectFolder = "";
     private String newProjectTemplate;
     private String folderName;
     private List<ProjectFile> uploadedFiles = new ArrayList<>();
@@ -471,8 +472,7 @@ public class RepositoryTreeController {
             return null;
         }
 
-        ExcelFilesProjectCreator projectCreator = new ExcelFilesProjectCreator(projectName,
-            userWorkspace,
+        ExcelFilesProjectCreator projectCreator = new ExcelFilesProjectCreator(projectName, projectFolder, userWorkspace,
             zipFilter,
             templateFiles);
         String creationMessage = projectCreator.createRulesProject();
@@ -1072,6 +1072,10 @@ public class RepositoryTreeController {
         return projectName;
     }
 
+    public String getProjectFolder() {
+        return projectFolder;
+    }
+
     private ProjectVersion getProjectVersion() {
         AProject project = repositoryTreeState.getSelectedProject();
 
@@ -1276,6 +1280,14 @@ public class RepositoryTreeController {
         projectName = StringUtils.trim(newProjectName);
     }
 
+    public void setProjectFolder(String projectFolder) {
+        String folder = StringUtils.trimToEmpty(projectFolder).replace('\\', '/');
+        if (!folder.isEmpty() && !folder.endsWith("/")) {
+            folder += '/';
+        }
+        this.projectFolder = folder;
+    }
+
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
         this.repositoryTreeState = repositoryTreeState;
     }
@@ -1356,7 +1368,13 @@ public class RepositoryTreeController {
         } else if (uploadedFiles == null || uploadedFiles.isEmpty()) {
             FacesUtils.addErrorMessage("There are no uploaded files.");
         } else {
-            errorMessage = new ProjectUploader(uploadedFiles, projectName, userWorkspace, zipFilter, zipCharsetDetector).uploadProject();
+            errorMessage = new ProjectUploader(uploadedFiles,
+                    projectName,
+                    projectFolder,
+                    userWorkspace,
+                    zipFilter,
+                    zipCharsetDetector
+            ).uploadProject();
             if (errorMessage != null) {
                 FacesUtils.addErrorMessage(errorMessage);
             } else
@@ -1379,6 +1397,7 @@ public class RepositoryTreeController {
     private void clearForm() {
         this.setFileName(null);
         this.setProjectName(null);
+        this.setProjectFolder("");
         this.uploadedFiles.clear();
     }
 
@@ -1486,8 +1505,7 @@ public class RepositoryTreeController {
             ProjectFile uploadedItem = getLastUploadedFile();
             if (uploadedItem != null) {
                 ProjectUploader projectUploader = new ProjectUploader(uploadedItem,
-                    projectName,
-                    userWorkspace,
+                    projectName, projectFolder, userWorkspace,
                     zipFilter,
                     zipCharsetDetector);
                 errorMessage = validateProjectName();
@@ -1639,6 +1657,15 @@ public class RepositoryTreeController {
     public boolean isSupportsBranches() {
         try {
             return userWorkspace.getDesignTimeRepository().getRepository().supports().branches();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public boolean isSupportsMappedFolders() {
+        try {
+            return userWorkspace.getDesignTimeRepository().getRepository().supports().mappedFolders();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;

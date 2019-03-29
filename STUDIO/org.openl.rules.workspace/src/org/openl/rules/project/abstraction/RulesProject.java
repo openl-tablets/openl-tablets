@@ -12,6 +12,7 @@ import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.workspace.dtr.impl.MappedFileData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,14 @@ public class RulesProject extends UserWorkspaceProject {
     public void save(CommonUser user) throws ProjectException {
         AProject designProject = new AProject(designRepository, designFolderName);
         AProject localProject = new AProject(localRepository, localFolderName);
-        designProject.getFileData().setComment(getFileData().getComment());
+
+        FileData fileData = getFileData();
+        if (fileData instanceof MappedFileData) {
+            String internalPath = ((MappedFileData) fileData).getInternalPath();
+            designProject.setFileData(new MappedFileData(designFolderName, internalPath));
+        }
+
+        designProject.getFileData().setComment(fileData.getComment());
         designProject.update(localProject, user);
         String version = designProject.getFileData().getVersion();
         setLastHistoryVersion(version);

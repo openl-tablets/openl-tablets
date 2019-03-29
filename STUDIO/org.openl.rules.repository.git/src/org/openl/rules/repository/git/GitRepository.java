@@ -737,6 +737,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             String relativeFolder = folderData.getName();
 
+            List<String> changedFiles = new ArrayList<>();
+
             // Add new files and update existing ones
             List<File> savedFiles = new ArrayList<>();
             for (FileChange change : files) {
@@ -755,12 +757,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 }
 
                 git.add().addFilepattern(change.getName()).call();
+                changedFiles.add(change.getName());
             }
 
             // Remove absent files
             String basePath = new File(localRepositoryPath).getAbsolutePath();
             File folder = new File(localRepositoryPath, relativeFolder);
-            removeAbsentFiles(basePath, folder, savedFiles);
+            removeAbsentFiles(basePath, folder, savedFiles, changedFiles);
 
             CommitCommand commitCommand = git.commit()
                     .setMessage(StringUtils.trimToEmpty(folderData.getComment()))
@@ -777,7 +780,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 // webservices redeployment without actually changing projects.
                 commit = commitCommand.setAllowEmpty(true).call();
             } else {
-                commit = commitCommand.setOnly(relativeFolder).call();
+                for (String fileName : changedFiles) {
+                    commitCommand.setOnly(fileName);
+                }
+                commit = commitCommand.call();
             }
 
             addTagToCommit(commit);
@@ -991,13 +997,16 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private void removeAbsentFiles(String baseAbsolutePath, File directory, Collection<File> toSave) throws GitAPIException {
+    private void removeAbsentFiles(String baseAbsolutePath,
+            File directory,
+            Collection<File> toSave,
+            List<String> changedFiles) throws GitAPIException {
         File[] found = directory.listFiles();
 
         if (found != null) {
             for (File file : found) {
                 if (file.isDirectory()) {
-                    removeAbsentFiles(baseAbsolutePath, file, toSave);
+                    removeAbsentFiles(baseAbsolutePath, file, toSave, changedFiles);
                 } else {
                     if (!toSave.contains(file)) {
                         String relativePath = file.getAbsolutePath().substring(baseAbsolutePath.length()).replace('\\', '/');
@@ -1005,6 +1014,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                             relativePath = relativePath.substring(1);
                         }
                         git.rm().addFilepattern(relativePath).call();
+                        changedFiles.add(relativePath);
                     }
                 }
             }

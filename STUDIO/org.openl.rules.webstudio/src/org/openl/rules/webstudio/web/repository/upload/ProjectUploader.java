@@ -13,12 +13,19 @@ import java.util.List;
 
 public class ProjectUploader {
     private String projectName;
+    private String projectFolder;
     private UserWorkspace userWorkspace;
     private PathFilter zipFilter;
     private List<ProjectFile> uploadedFiles;
     private final ZipCharsetDetector zipCharsetDetector;
 
-    public ProjectUploader(ProjectFile uploadedFile, String projectName, UserWorkspace userWorkspace, PathFilter zipFilter, ZipCharsetDetector zipCharsetDetector) {
+    public ProjectUploader(ProjectFile uploadedFile,
+            String projectName,
+            String projectFolder,
+            UserWorkspace userWorkspace,
+            PathFilter zipFilter,
+            ZipCharsetDetector zipCharsetDetector) {
+        this.projectFolder = projectFolder;
         this.zipCharsetDetector = zipCharsetDetector;
         this.uploadedFiles = new ArrayList<>();
         this.uploadedFiles.add(uploadedFile);
@@ -28,9 +35,15 @@ public class ProjectUploader {
         this.zipFilter = zipFilter;
     }
 
-    public ProjectUploader(List<ProjectFile> uploadedFiles, String projectName, UserWorkspace userWorkspace, PathFilter zipFilter, ZipCharsetDetector zipCharsetDetector) {
+    public ProjectUploader(List<ProjectFile> uploadedFiles,
+            String projectName,
+            String projectFolder,
+            UserWorkspace userWorkspace,
+            PathFilter zipFilter,
+            ZipCharsetDetector zipCharsetDetector) {
         this.uploadedFiles = uploadedFiles;
         this.projectName = projectName;
+        this.projectFolder = projectFolder;
         this.userWorkspace = userWorkspace;
         this.zipFilter = zipFilter;
         this.zipCharsetDetector = zipCharsetDetector;
@@ -47,9 +60,13 @@ public class ProjectUploader {
             String fileName = file.getName();
             if (FileTypeHelper.isZipFile(fileName)) {
                 // Create project creator for the single zip file
-                projectCreator = new ZipFileProjectCreator(fileName, file.getInput(), projectName, userWorkspace, zipFilter, zipCharsetDetector);
+                projectCreator = new ZipFileProjectCreator(fileName, file.getInput(), projectName,
+                        projectFolder,
+                        userWorkspace, zipFilter, zipCharsetDetector);
             } else {
-                projectCreator = new ExcelFilesProjectCreator(projectName, userWorkspace, zipFilter, uploadedFiles.toArray(new ProjectFile[0]));
+                projectCreator = new ExcelFilesProjectCreator(projectName,
+                        projectFolder,
+                        userWorkspace, zipFilter, uploadedFiles.toArray(new ProjectFile[0]));
             }
             errorMessage = projectCreator.createRulesProject();
         } catch (IOException e) {

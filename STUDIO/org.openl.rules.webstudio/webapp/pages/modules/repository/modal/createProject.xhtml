@@ -84,6 +84,16 @@
                                     onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtTemplates')});" />
                             </td>
                         </tr>
+                        <ui:fragment rendered="#{repositoryTreeController.supportsMappedFolders}">
+                        <tr>
+                            <td class="label" style="width: 65px">
+                                <h:outputLabel for="projectFolderTemplate" value="Project Folder" />
+                            </td>
+                            <td><h:inputText id="projectFolderTemplate" size="35"
+                                    value="#{repositoryTreeController.projectFolder}"/>
+                            </td>
+                        </tr>
+                        </ui:fragment>
                     </table>
 
                     <h:inputHidden id="projectTemplate" value="#{repositoryTreeController.newProjectTemplate}" />
@@ -110,6 +120,12 @@
                             maxlength="70"
                             value="#{repositoryTreeController.projectName}"
                             onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtFiles')});" />
+
+                        <h:outputLabel for="projectFolderExcel" value="Project Folder"
+                                       rendered="#{repositoryTreeController.supportsMappedFolders}"/>
+                        <h:inputText id="projectFolderExcel" size="35"
+                                     value="#{repositoryTreeController.projectFolder}"
+                                     rendered="#{repositoryTreeController.supportsMappedFolders}"/>
                     </h:panelGrid>
 
                     <footer>
@@ -132,14 +148,20 @@
                                 execute="@none"
                                 render="projectName"
                                 oncomplete="enableCreateButton(#{rich:element('uploadProjectForm:projectName')}.value.trim().length > 0, #{rich:element('sbtZips')});" />
-                        </rich:fileUpload>
+                    </rich:fileUpload>
 
                     <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
-                        <h:inputText id="projectName" size="35"
+                    <h:inputText id="projectName" size="35"
                             maxlength="70"
                             value="#{repositoryTreeController.projectName}"
                             onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtZips')});" />
-                    </h:panelGrid>
+
+                    <h:outputLabel for="projectFolderZip" value="Project Folder"
+                                   rendered="#{repositoryTreeController.supportsMappedFolders}"/>
+                    <h:inputText id="projectFolderZip" size="35"
+                                 value="#{repositoryTreeController.projectFolder}"
+                                 rendered="#{repositoryTreeController.supportsMappedFolders}"/>
+                </h:panelGrid>
 
                 <footer>
                     <h:commandButton id="sbtZips" value="Create" action="#{repositoryTreeController.upload}"
@@ -152,34 +174,40 @@
             <rich:tab header="Workspace">
                 <h:form id="uploadWorkspaceProjectForm" prependId="false" style="padding-top: 6px">
                     <div style="max-height: 286px; overflow:auto">
-                    <h:panelGrid style="width: 100%" id="uploadPrjFromLocalDiv">
-                        <rich:dataTable value="#{localUpload.projects4Upload}"
-                            rendered="#{not empty localUpload.projects4Upload}"
-                            var="item" styleClass="table" id="uploadPrjFromLocalTable" style="width: 98%">
-                            <f:facet name="header">
-                                <rich:columnGroup>
-                                    <rich:column>
-                                        <h:selectBooleanCheckbox id="selectAll" title="Select/Deselect All'" value="#{localUpload.selectAll}"
-                                        onclick="changeStatus(this);"/>
-                                    </rich:column>
-                                    <rich:column>
-                                        <h:outputText value="Name" />
-                                    </rich:column>
-                                </rich:columnGroup>
-                            </f:facet>
+                        <h:panelGrid style="width: 100%" id="uploadPrjFromLocalDiv">
+                            <rich:dataTable value="#{localUpload.projects4Upload}"
+                                rendered="#{not empty localUpload.projects4Upload}"
+                                var="item" styleClass="table" id="uploadPrjFromLocalTable" style="width: 98%">
+                                <f:facet name="header">
+                                    <rich:columnGroup>
+                                        <rich:column>
+                                            <h:selectBooleanCheckbox id="selectAll" title="Select/Deselect All'" value="#{localUpload.selectAll}"
+                                            onclick="changeStatus(this);"/>
+                                        </rich:column>
+                                        <rich:column>
+                                            <h:outputText value="Name" />
+                                        </rich:column>
+                                    </rich:columnGroup>
+                                </f:facet>
 
-                            <rich:column style="text-align: center; width: 20px;">
-                                <h:selectBooleanCheckbox value="#{item.selected}" onclick="changeAllProjectCheck(this)" />
-                            </rich:column>
-                            <rich:column>
-                                <h:outputText value="#{item.projectName}" />
-                            </rich:column>
-                        </rich:dataTable>
-                    </h:panelGrid>
-                    <h:panelGrid id="uploadPrjFromLocalMessageDiv">
-	                    <h:outputText value="All projects are already in repository"
-	                        rendered="#{empty localUpload.projects4Upload}" />
-                    </h:panelGrid>
+                                <rich:column style="text-align: center; width: 20px;">
+                                    <h:selectBooleanCheckbox value="#{item.selected}" onclick="changeAllProjectCheck(this)" />
+                                </rich:column>
+                                <rich:column>
+                                    <h:outputText value="#{item.projectName}" />
+                                </rich:column>
+                            </rich:dataTable>
+                        </h:panelGrid>
+                        <h:panelGrid id="uploadPrjFromLocalMessageDiv">
+                            <h:outputText value="All projects are already in repository"
+                                rendered="#{empty localUpload.projects4Upload}" />
+                        </h:panelGrid>
+                        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
+                                     rendered="#{repositoryTreeController.supportsMappedFolders}">
+                            <h:outputLabel for="projectFolderLocal" value="Project Folder"/>
+                            <h:inputText id="projectFolderLocal" size="35"
+                                         value="#{localUpload.projectFolder}"/>
+                        </h:panelGrid>
                     </div>
 
                     <h:panelGroup id="localUploadButtonPanel">

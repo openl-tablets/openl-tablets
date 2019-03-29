@@ -16,8 +16,12 @@ public class ZipRulesProjectBuilder extends RulesProjectBuilder {
     private final PathFilter filter;
     private final RootFolderExtractor folderExtractor;
 
-    public ZipRulesProjectBuilder(UserWorkspace workspace, String projectName, PathFilter filter, RootFolderExtractor folderExtractor) throws ProjectException {
-        super(workspace, projectName);
+    public ZipRulesProjectBuilder(UserWorkspace workspace,
+            String projectName,
+            String projectFolder,
+            PathFilter filter,
+            RootFolderExtractor folderExtractor) throws ProjectException {
+        super(workspace, projectName, projectFolder);
         this.filter = filter;
         this.folderExtractor = folderExtractor;
     }
