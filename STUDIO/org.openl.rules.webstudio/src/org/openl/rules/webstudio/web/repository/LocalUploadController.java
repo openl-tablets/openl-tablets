@@ -10,6 +10,7 @@ import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,18 +62,20 @@ public class LocalUploadController {
 
     private List<UploadBean> uploadBeans;
 
+    private String projectFolder = "";
+
     private void createProject(File baseFolder, RulesUserSession rulesUserSession) throws ProjectException,
             WorkspaceException, FileNotFoundException {
         if (!baseFolder.isDirectory()) {
             throw new FileNotFoundException(baseFolder.getName());
         }
 
-        rulesUserSession.getUserWorkspace().uploadLocalProject(baseFolder.getName());
+        rulesUserSession.getUserWorkspace().uploadLocalProject(baseFolder.getName(), projectFolder);
     }
 
     public List<UploadBean> getProjects4Upload() {
         if (uploadBeans == null) {
-            uploadBeans = new ArrayList<UploadBean>();
+            uploadBeans = new ArrayList<>();
             RulesUserSession userRules = getRules();
             WebStudio webStudio = WebStudioUtils.getWebStudio();
             if (webStudio != null && userRules != null) {
@@ -105,6 +108,18 @@ public class LocalUploadController {
             }
         }
         return uploadBeans;
+    }
+
+    public String getProjectFolder() {
+        return projectFolder;
+    }
+
+    public void setProjectFolder(String projectFolder) {
+        String folder = StringUtils.trimToEmpty(projectFolder).replace('\\', '/');
+        if (!folder.isEmpty() && !folder.endsWith("/")) {
+            folder += '/';
+        }
+        this.projectFolder = folder;
     }
 
     private static Comparator<File> fileNameComparator = new Comparator<File>() {

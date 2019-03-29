@@ -5,8 +5,11 @@ import java.io.InputStream;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.*;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.WorkspaceUser;
+import org.openl.rules.workspace.dtr.impl.MappedFileData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +18,11 @@ public class RulesProjectBuilder {
     private final Logger log = LoggerFactory.getLogger(RulesProjectBuilder.class);
     private final RulesProject project;
     private final UserWorkspace workspace;
+    private final String internalPath;
 
-    public RulesProjectBuilder(UserWorkspace workspace, String projectName) throws ProjectException {
+    public RulesProjectBuilder(UserWorkspace workspace, String projectName, String projectFolder) throws ProjectException {
         this.workspace = workspace;
+        internalPath = projectFolder + projectName;
         synchronized (this.workspace) {
             // TODO: workspace.createProject() should return RulesProject instance initialized with LockEngine
             AProject createdProject = workspace.createProject(projectName);
@@ -77,6 +82,11 @@ public class RulesProjectBuilder {
 
     public void save() throws ProjectException {
         WorkspaceUser user = workspace.getUser();
+        Repository designRepository = project.getDesignRepository();
+        if (designRepository.supports().mappedFolders()) {
+            project.setFileData(new MappedFileData(project.getDesignFolderName(), internalPath));
+        }
+
         // Override comment to avoid reusing of comment from previous version (we create a new project but it can contain
         // unerasable history for example in Git).
         project.getFileData().setComment(Comments.createProject(project.getName()));

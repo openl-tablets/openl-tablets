@@ -13,15 +13,19 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
     private ProjectFile[] files;
     private PathFilter pathFilter;
 
-    public ExcelFilesProjectCreator(String projectName, UserWorkspace userWorkspace, PathFilter pathFilter, ProjectFile... files) {
-        super(projectName, userWorkspace);
+    public ExcelFilesProjectCreator(String projectName,
+            String projectFolder,
+            UserWorkspace userWorkspace,
+            PathFilter pathFilter,
+            ProjectFile... files) {
+        super(projectName, projectFolder, userWorkspace);
         this.pathFilter = pathFilter;
         this.files = files;
     }
 
     @Override
     protected RulesProjectBuilder getProjectBuilder() throws ProjectException {
-        RulesProjectBuilder projectBuilder = new RulesProjectBuilder(getUserWorkspace(), getProjectName());
+        RulesProjectBuilder projectBuilder = new RulesProjectBuilder(getUserWorkspace(), getProjectName(), getProjectFolder());
 
         if (files != null) {
             for (ProjectFile file : files) {
