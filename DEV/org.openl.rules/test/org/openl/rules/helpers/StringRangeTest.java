@@ -238,6 +238,11 @@ public class StringRangeTest {
         assertFalse(range.contains("Z"));
     }
 
+    @Test(expected = RuntimeException.class)
+    public void testParseException() {
+        new StringRange(null);
+    }
+
     private void assertInclude(StringRange range, String... args) {
         assertNotNull(range);
         assertTrue(args.length > 0);
