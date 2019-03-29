@@ -61,28 +61,23 @@ public class TestUnit extends BaseTestUnit {
     public List<ComparedResult> getResultParams() {
         List<ComparedResult> params = new ArrayList<>();
 
-        if (expectedError == null && getActualError() == null) {
-            List<ComparedResult> results = getComparisonResults();
-            // Don't modify original ComparedResult!
-            // TODO: Investigate why we need to wrap actual value and expected value with ParameterWithValueDeclaration
-            for (ComparedResult comparedResult : results) {
-                ComparedResult copy = new ComparedResult();
-                copy.setFieldName(comparedResult.getFieldName());
-                copy.setActualValue(new ParameterWithValueDeclaration(comparedResult.getFieldName(), comparedResult.getActualValue()));
-                copy.setExpectedValue(new ParameterWithValueDeclaration(comparedResult.getFieldName(), comparedResult.getExpectedValue()));
-                copy.setStatus(comparedResult.getStatus());
-                params.add(copy);
-            }
-            return params;
+        // Don't modify original ComparedResult!
+        // TODO: Investigate why we need to wrap actual value and expected value with ParameterWithValueDeclaration
+        for (ComparedResult comparedResult : getComparisonResults()) {
+            ComparedResult copy = new ComparedResult(comparedResult.getFieldName(),
+                    buildParameterDeclaration(comparedResult.getFieldName(), "expectedResult", comparedResult.getExpectedValue()),
+                    buildParameterDeclaration(comparedResult.getFieldName(), "actualResult", comparedResult.getActualValue()),
+                    comparedResult.getStatus());
+            params.add(copy);
         }
-
-        ComparedResult result = new ComparedResult();
-        result.setStatus(getResultStatus());
-        result.setActualValue(new ParameterWithValueDeclaration("actualResult", getActualResult()));
-        result.setExpectedValue(new ParameterWithValueDeclaration("expectedResult", getExpectedResult()));
-        params.add(result);
-
         return params;
+    }
+
+    private ParameterWithValueDeclaration buildParameterDeclaration(String fieldName, String defaultName, Object value) {
+        if (fieldName == null) {
+            fieldName = defaultName;
+        }
+        return new ParameterWithValueDeclaration(fieldName, value);
     }
 
     @Override

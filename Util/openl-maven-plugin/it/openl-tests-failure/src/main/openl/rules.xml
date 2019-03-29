@@ -13,6 +13,10 @@
             <name>Spreadsheets</name>
             <rules-root path="rules/Spreadsheets.xls"/>
         </module>
+        <module>
+            <name>EPBDS-8339</name>
+            <rules-root path="rules/EPBDS-8339.xlsx"/>
+        </module>
     </modules>
     <classpath>
         <entry path="lib/*.jar"/>
