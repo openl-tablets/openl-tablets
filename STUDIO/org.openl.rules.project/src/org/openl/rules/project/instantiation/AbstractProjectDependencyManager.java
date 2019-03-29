@@ -156,7 +156,7 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
     private List<ClassLoader> oldClassLoaders = new ArrayList<ClassLoader>();
 
     public synchronized void reset(IDependency dependency){
-        String dependencyName = dependency.getNode().getIdentifier();
+        final String dependencyName = dependency.getNode().getIdentifier();
         for (ProjectDescriptor projectDescriptor : getProjectDescriptors()){
             String projectDependencyName = ProjectExternalDependenciesHelper.buildDependencyNameForProjectName(
                 projectDescriptor.getName());
@@ -171,15 +171,6 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
                 }
                 classLoaders.remove(projectDescriptor.getName());
                 break;
-            }
-            for (Module module : projectDescriptor.getModules()){
-                if (module.getName().equals(dependencyName)){
-                    ClassLoader classLoader = classLoaders.get(projectDescriptor.getName());
-                    if (classLoader != null){
-                        oldClassLoaders.add(classLoader);
-                    }
-                    classLoaders.remove(projectDescriptor.getName());
-                }
             }
         }
         
@@ -224,15 +215,6 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         for (IDependencyLoader dependencyLoader : getDependencyLoaders()) {
             ((SimpleProjectDependencyLoader) dependencyLoader).reset();
         }
-    }
-
-    public void replaceClassLoader(ProjectDescriptor project, ClassLoader classLoader) {
-        ClassLoader oldClassloader = classLoaders.get(project.getName());
-        if (oldClassloader != null && oldClassloader != classLoader) {
-            oldClassLoaders.add(oldClassloader);
-        }
-
-        classLoaders.put(project.getName(), classLoader);
     }
 
 }

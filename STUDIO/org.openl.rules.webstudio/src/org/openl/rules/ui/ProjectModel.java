@@ -1038,14 +1038,6 @@ public class ProjectModel {
 
             compiledOpenClass = instantiationStrategy.compile();
 
-            if (reloadType == ReloadType.FORCED) {
-                // EPBDS-6193: After instantiationStrategy.forcedReset() classloader is cleared (not closed). But after
-                // instantiationStrategy.compile() the new one is created. We need to save the latter inside dependency
-                // manager, otherwise newly created classloader will not be closed when the project is deleted.
-                // TODO Classloader must be created, handled and cleared by dependency manager only, not in the ProjectModel
-                webStudioWorkspaceDependencyManager.replaceClassLoader(moduleInfo.getProject(), instantiationStrategy.getClassLoader());
-            }
-
             for (CompiledDependency dependency : webStudioWorkspaceDependencyManager.getCompiledDependencies()) {
                 if (!dependency.getDependencyName().equals(moduleName)) {
                     XlsMetaInfo metaInfo = (XlsMetaInfo) dependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
