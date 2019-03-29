@@ -84,4 +84,9 @@ public class CharRangeParsingTest {
         }
     }
 
+    @Test(expected = RuntimeException.class)
+    public void testParseException() {
+        new StringRange(null);
+    }
+
 }

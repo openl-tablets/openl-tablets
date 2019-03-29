@@ -16,16 +16,18 @@ public abstract class ARangeParser<T> {
 
     @SuppressWarnings("unchecked")
     public ParseStruct<T> parse(String range) {
-        for (RangeParser parser : getRangeParsers()) {
-            try {
-                ParseStruct res = parser.parse(range);
-                if (res != null) {
-                    return res;
+        if (range != null) {
+            for (RangeParser parser : getRangeParsers()) {
+                try {
+                    ParseStruct res = parser.parse(range);
+                    if (res != null) {
+                        return res;
+                    }
+                } catch (RuntimeException e) {
+                    // should not be happened
+                    Logger log = LoggerFactory.getLogger(getClass());
+                    log.error(e.getMessage(), e);
                 }
-            } catch (RuntimeException e) {
-                // should not be happened
-                Logger log = LoggerFactory.getLogger(getClass());
-                log.error(e.getMessage(), e);
             }
         }
         throw new RuntimeException("Invalid Range: " + range);
