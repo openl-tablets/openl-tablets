@@ -67,7 +67,7 @@ public class StringTool {
     public static String[] splitAndEscape(String src, String splitSymbol, String escapeSymbol) {
         String[] result;
         String[] tokens = src.split(splitSymbol);
-        List<String> resultList = new ArrayList<String>();
+        List<String> resultList = new ArrayList<>();
         StringBuilder buf = new StringBuilder();
         if (escapeSymbol != null) {
             for (int i = 0; i < tokens.length; i++) {

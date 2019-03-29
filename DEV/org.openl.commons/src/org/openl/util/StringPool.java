@@ -14,7 +14,7 @@ import java.util.WeakHashMap;
  *
  */
 public final class StringPool {
-    static final WeakHashMap<String, WeakReference<String>> stringPool = new WeakHashMap<String, WeakReference<String>>(5000);
+    static final WeakHashMap<String, WeakReference<String>> STRING_POOL = new WeakHashMap<>(5000);
 
     /**
      * No instantiation.
@@ -33,7 +33,7 @@ public final class StringPool {
         if (value == null) {
             return null;
         }
-        WeakReference<String> ref = stringPool.get(value);
+        WeakReference<String> ref = STRING_POOL.get(value);
         // Return from the pool if the value exists.
         if (ref != null) {
             String cached = ref.get();
@@ -41,8 +41,8 @@ public final class StringPool {
                 return cached;
         }
 
-        synchronized (stringPool) {
-            ref = stringPool.put(value, new WeakReference<String>(value));
+        synchronized (STRING_POOL) {
+            ref = STRING_POOL.put(value, new WeakReference<String>(value));
             // Return the placed value if it is absent in the pool.
             if (ref == null) {
                 return value;
@@ -54,7 +54,7 @@ public final class StringPool {
 
             // Another thread has placed the value the first, so we have to
             // restore this value in the pool.
-            stringPool.put(cached, ref);
+            STRING_POOL.put(cached, ref);
             return cached;
         }
     }

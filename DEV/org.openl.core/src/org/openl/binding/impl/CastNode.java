@@ -16,8 +16,6 @@ public class CastNode extends ABoundNode {
     IOpenCast cast;
     IOpenClass castedType;
 
-    // protected IBoundNode bnode;
-
     /**
      * @param syntaxNode
      * @param children
@@ -25,7 +23,6 @@ public class CastNode extends ABoundNode {
     public CastNode(ISyntaxNode castSyntaxNode, IBoundNode bnode, IOpenCast cast, IOpenClass castedType) {
         super(castSyntaxNode == null ? bnode.getSyntaxNode() : castSyntaxNode, new IBoundNode[] { bnode });
         this.cast = cast;
-        // this.bnode = bnode;
         this.castedType = castedType;
     }
 

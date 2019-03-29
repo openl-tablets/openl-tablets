@@ -157,7 +157,7 @@ public class BindingContext implements IBindingContext {
     private static final SyntaxNodeException[] NO_ERRORS = {};
 
     public SyntaxNodeException[] getErrors() {
-        return errors.size() == 0 ? NO_ERRORS : errors.toArray(new SyntaxNodeException[0]);
+        return errors.isEmpty() ? NO_ERRORS : errors.toArray(new SyntaxNodeException[0]);
     }
 
     public int getLocalVarFrameSize() {
@@ -238,7 +238,7 @@ public class BindingContext implements IBindingContext {
 
     public IOpenField findRange(String namespace,
             String rangeStartName,
-            String rangeEndName) throws AmbiguousVarException, FieldNotFoundException {
+            String rangeEndName) throws FieldNotFoundException {
         throw new FieldNotFoundException("Range:", rangeStartName + ":" + rangeEndName, null);
     }
 

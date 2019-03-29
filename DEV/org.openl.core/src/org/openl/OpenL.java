@@ -71,7 +71,7 @@ public class OpenL {
      * @throws OpenConfigurationException
      */
     //TODO: Do not use this method! Should be removed!    
-    public static synchronized OpenL getInstance(String name) throws OpenConfigurationException {
+    public static synchronized OpenL getInstance(String name) {
         return getInstance(name, new UserContext(config.getClassLoader(), DEFAULT_USER_HOME));
     }
     
@@ -88,7 +88,7 @@ public class OpenL {
      * @throws OpenConfigurationException
      */
     public static synchronized OpenL getInstance(String name,
-            IUserContext userContext) throws OpenConfigurationException {
+            IUserContext userContext) {
         IOpenLBuilder builder = config.getBuilder(name, userContext);
         return getInstance(name, userContext, builder);
     }

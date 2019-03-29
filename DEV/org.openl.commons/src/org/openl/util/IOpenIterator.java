@@ -7,7 +7,6 @@
 package org.openl.util;
 
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * @author snshor

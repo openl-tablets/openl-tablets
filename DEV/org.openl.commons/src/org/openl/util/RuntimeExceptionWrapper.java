@@ -12,11 +12,11 @@ package org.openl.util;
  */
 public class RuntimeExceptionWrapper {
 
-    static public RuntimeException wrap(String msg, Throwable cause) {
+    public static RuntimeException wrap(String msg, Throwable cause) {
         return new RuntimeException(msg, cause);
     }
 
-    static public RuntimeException wrap(Throwable cause) {
+    public static RuntimeException wrap(Throwable cause) {
         if (cause instanceof RuntimeException) {
             return (RuntimeException) cause;
         }

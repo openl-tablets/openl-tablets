@@ -57,9 +57,9 @@ public class NicePrinterAdaptor {
     static Class<?>[] primitiveClasses = { Integer.class, Double.class, Boolean.class, Character.class, Float.class,
             Byte.class, Long.class, Short.class, String.class, Date.class };
 
-    static final public Comparator<Map.Entry<Object, Object>> mapComparator = new MapEntryComparator<Object, Object>();
+    public static final Comparator<Map.Entry<Object, Object>> mapComparator = new MapEntryComparator<Object, Object>();
 
-    static public boolean isPrimitiveClass(Class<?> c) {
+    public static boolean isPrimitiveClass(Class<?> c) {
 
         for (int i = 0; i < primitiveClasses.length; i++) {
             if (primitiveClasses[i] == c) {
@@ -70,7 +70,7 @@ public class NicePrinterAdaptor {
         return false;
     }
 
-    static public String shortTypeName(String classname) {
+    public static String shortTypeName(String classname) {
 
         int idx = classname.lastIndexOf('.');
 
@@ -79,11 +79,9 @@ public class NicePrinterAdaptor {
 
     public Object getProperty(Object obj, String propertyName) {
         try {
-            Method m = obj.getClass().getMethod(ClassUtils.getter(propertyName), new Class[0]);
-
-            String res = (String) m.invoke(obj, new Object[0]);
-            return res;
-        } catch (Throwable t) {
+            Method m = obj.getClass().getMethod(ClassUtils.getter(propertyName));
+            return (String) m.invoke(obj);
+        } catch (Exception t) {
             return null;
         }
     }
@@ -147,7 +145,7 @@ public class NicePrinterAdaptor {
         Map.Entry<Object, Object>[] entries = new Map.Entry[len];
         Iterator<Map.Entry<Object, Object>> it = map.entrySet().iterator();
         for (int i = 0; it.hasNext(); i++) {
-            entries[i] = (Map.Entry<Object, Object>) it.next();
+            entries[i] = it.next();
         }
 
         if (mapEntryComparator == null) {

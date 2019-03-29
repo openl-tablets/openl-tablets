@@ -24,9 +24,7 @@ public class BiMap<K, T> {
     }
 
     public synchronized T put(K key, T value) {
-
         objIdMap.put(value, key);
-        T old = idObjMap.put(key, value);
-        return old;
+        return idObjMap.put(key, value);
     }
 }

@@ -26,7 +26,7 @@ public class PathTool {
                 continue;
             }
             if (pp1[i].equals("..")) {
-                if (result.size() == 0 || result.get(result.size() - 1).equals("..")) {
+                if (result.isEmpty() || result.get(result.size() - 1).equals("..")) {
                 } else {
                     result.remove(result.size() - 1);
                     continue;
@@ -64,7 +64,7 @@ public class PathTool {
 
     }
 
-    static public String[] splitPath(String path) {
+    public static String[] splitPath(String path) {
         if (path.indexOf('/') >= 0) {
             return StringTool.tokenize(path, "/");
         }

@@ -56,11 +56,6 @@ public class EnumDomain<T> implements IDomain<T> {
     public EnumDomain<T> and(EnumDomain<T> sd) {
         checkOperand(sd);
 
-        // if (!bits.intersects(sd.bits))
-        // {
-        // return enum.empty();
-        // }
-
         if (bits.equals(sd.bits)) {
             return this;
         }
@@ -91,7 +86,7 @@ public class EnumDomain<T> implements IDomain<T> {
     @Override
     @SuppressWarnings("unchecked")
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof EnumDomain)) {
+        if (!(obj instanceof EnumDomain)) {
             return false;
         }
 

@@ -19,7 +19,7 @@ public class Enum<T> {
 
     public Enum(T[] objs) {
         this.allObjects = objs;
-        indexMap = new HashMap<T, Integer>(objs.length);
+        indexMap = new HashMap<>(objs.length);
 
         for (int i = 0; i < objs.length; i++) {
             indexMap.put(objs[i], Integer.valueOf(i));

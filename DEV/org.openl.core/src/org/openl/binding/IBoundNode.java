@@ -6,7 +6,6 @@
 
 package org.openl.binding;
 
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
@@ -18,9 +17,9 @@ public interface IBoundNode {
 
     IBoundNode[] EMPTY = new IBoundNode[0];
 
-    void assign(Object value, IRuntimeEnv env) throws OpenLRuntimeException;
+    void assign(Object value, IRuntimeEnv env);
 
-    Object evaluate(IRuntimeEnv env) throws OpenLRuntimeException;
+    Object evaluate(IRuntimeEnv env);
 
     IBoundNode[] getChildren();
 

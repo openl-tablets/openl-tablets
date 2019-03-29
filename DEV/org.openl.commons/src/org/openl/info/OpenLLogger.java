@@ -17,14 +17,15 @@ import org.slf4j.LoggerFactory;
 
 abstract class OpenLLogger {
     private final Logger logger;
+    
     {
         String name = getName();
         logger = LoggerFactory.getLogger("OpenL." + name);
     }
 
-    abstract protected String getName();
+    protected abstract String getName();
 
-    final public void log() {
+    public final void log() {
         if (logger.isInfoEnabled()) {
             try {
                 discover();
@@ -34,28 +35,28 @@ abstract class OpenLLogger {
         }
     }
 
-    final protected void log(String text) {
+    protected final void log(String text) {
         logger.info(text);
     }
 
-    final protected void log(String text, String... args) {
+    protected final void log(String text, String... args) {
         logger.info(text, args);
     }
 
-    final protected void log(String text, String arg1) {
+    protected final void log(String text, String arg1) {
         logger.info(text, arg1);
     }
 
-    final protected void log(String text, String arg1, String arg2) {
+    protected final void log(String text, String arg1, String arg2) {
         logger.info(text, arg1, arg2);
     }
 
-    final protected void log(String text, Object arg1) {
+    protected final void log(String text, Object arg1) {
         logSimpleObject(text, arg1);
         logComplexObject(arg1);
     }
 
-    final protected void log(String text, Object arg1, Object arg2) {
+    protected final void log(String text, Object arg1, Object arg2) {
         logSimpleObject(text, arg1, arg2);
         logComplexObject(arg2);
     }
@@ -131,7 +132,7 @@ abstract class OpenLLogger {
     }
 
     private boolean isSimpleType(Object o) {
-        boolean isSimple = o == null
+        return o == null
                 || o instanceof Number
                 || o instanceof CharSequence
                 || o instanceof Class<?>
@@ -148,6 +149,5 @@ abstract class OpenLLogger {
                 || o.getClass().isPrimitive()
                 || o.getClass().getName().startsWith("java")
                 || o.getClass().getName().startsWith("org.apache.naming");
-        return isSimple;
     }
 }

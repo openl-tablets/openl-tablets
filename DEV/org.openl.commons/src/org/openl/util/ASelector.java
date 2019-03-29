@@ -29,7 +29,7 @@ public abstract class ASelector<T> implements ISelector<T> {
      * 
      * @author snshor Base class for binary boolean operators
      */
-    static abstract class BoolBinSelector<T> extends ASelector<T> {
+    abstract static class BoolBinSelector<T> extends ASelector<T> {
         ISelector<T> sel1;
         ISelector<T> sel2;
 
@@ -41,11 +41,11 @@ public abstract class ASelector<T> implements ISelector<T> {
         @Override
         protected boolean equalsSelector(ASelector<T> sel) {
             BoolBinSelector<?> x = null;
-            if (sel != null && sel instanceof BoolBinSelector<?>) {
+            if (sel instanceof BoolBinSelector<?>) {
                 x = (BoolBinSelector<?>) sel;
-
-            } else
+            } else {
                 return false;
+            }
             return sel1.equals(x.sel1) && sel2.equals(x.sel2);
         }
 

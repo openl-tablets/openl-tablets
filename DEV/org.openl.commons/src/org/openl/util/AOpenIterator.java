@@ -56,7 +56,7 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
 
     }
 
-    static abstract class IteratorWrapper<T, C> extends AOpenIterator<C> {
+    abstract static class IteratorWrapper<T, C> extends AOpenIterator<C> {
         protected Iterator<T> it;
 
         IteratorWrapper(Iterator<T> it) {
@@ -132,14 +132,14 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
         return (IOpenIterator<T>) EMPTY;
     }
 
-    static public <X> IOpenIterator<X> reverse(Iterator<X> it) {
+    public static <X> IOpenIterator<X> reverse(Iterator<X> it) {
         if (it instanceof IOpenIterator<?>) {
             return ((IOpenIterator<X>) it).reverse();
         }
         throw new UnsupportedOperationException();
     }
 
-    static public <X> IOpenIterator<X> select(Iterator<X> it, ISelector<X> is) {
+    public static <X> IOpenIterator<X> select(Iterator<X> it, ISelector<X> is) {
         return new SelectIterator<X>(it, is);
     }
 

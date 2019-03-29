@@ -39,30 +39,30 @@ public final class FileTool {
 
         int stepsToCommonParent = pfDir.length - 1 - lastEqual;
 
-        String path = ".";
+        StringBuilder path = new StringBuilder(".");
 
         for (int i = 0; i < stepsToCommonParent; ++i) {
             if (i == 0) {
-                path = "..";
+                path = new StringBuilder("..");
             } else {
-                path += "/..";
+                path.append("/..");
             }
         }
 
         stepsToCommonParent = pfTarget.length - 1 - lastEqual;
 
         for (int i = 0; i < stepsToCommonParent; i++) {
-            path += "/" + pfTarget[lastEqual + i + 1].getName();
+            path.append("/").append(pfTarget[lastEqual + i + 1].getName());
         }
 
-        return new File(path);
+        return new File(path.toString());
 
     }
 
     static File[] parents(File f) throws IOException {
 
         f = f.getCanonicalFile();
-        List<File> v = new ArrayList<File>();
+        List<File> v = new ArrayList<>();
         v.add(f);
 
         while ((f = f.getParentFile()) != null) {

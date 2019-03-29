@@ -29,11 +29,11 @@ public abstract class ABoundNode implements IBoundNode {
         this.children = children != null && children.length == 0 ? EMPTY : children;
     }
 
-    public void assign(Object value, IRuntimeEnv env) throws OpenLRuntimeException {
+    public void assign(Object value, IRuntimeEnv env) {
         throw new UnsupportedOperationException();
     }
 
-    final public Object evaluate(IRuntimeEnv env) throws OpenLRuntimeException {
+    public final Object evaluate(IRuntimeEnv env) {
         try {
             return evaluateRuntime(env);
         } catch (OpenLRuntimeException ore) {
@@ -51,8 +51,7 @@ public abstract class ABoundNode implements IBoundNode {
         return NullOpenClass.the;
     }
 
-    public Object[] evaluateChildren(IRuntimeEnv env) throws OpenLRuntimeException {
-
+    public Object[] evaluateChildren(IRuntimeEnv env) {
         if (children == null) {
             return null;
         }

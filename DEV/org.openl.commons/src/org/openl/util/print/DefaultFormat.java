@@ -23,8 +23,11 @@ import org.openl.util.OpenIterator;
  * @author snshor
  * 
  */
-public class DefaultFormat {
+public final class DefaultFormat {
 
+    private DefaultFormat() {
+    }
+    
     public static StringBuilder format(Object obj, StringBuilder buf) {
         if (obj == null) {
             return buf.append("null");

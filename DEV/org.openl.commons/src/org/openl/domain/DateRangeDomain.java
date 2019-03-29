@@ -109,7 +109,6 @@ public class DateRangeDomain implements IDomain<Date> {
     }
 
     public IType getElementType() {
-        // TODO Auto-generated method stub
         return null;
     }
 

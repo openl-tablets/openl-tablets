@@ -11,7 +11,7 @@ import com.sun.faces.facelets.tag.AbstractTagLibrary;
  */
 public class AcegiTaglib extends AbstractTagLibrary {
 
-    private final static String NAMESPACE = "http://rules.openl.org/taglibs/acegi";
+    private static final String NAMESPACE = "http://rules.openl.org/taglibs/acegi";
 
     public AcegiTaglib() {
         super(NAMESPACE);

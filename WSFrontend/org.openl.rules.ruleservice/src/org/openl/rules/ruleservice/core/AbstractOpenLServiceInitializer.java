@@ -9,12 +9,10 @@ public abstract class AbstractOpenLServiceInitializer implements OpenLServiceIni
     public void ensureInitialization(OpenLService openLService) throws RuleServiceInstantiationException {
         if (!initializated) {
             synchronized (this) {
-                if (!initializated) {
-                    if (!initializationStarted) {
-                        initializationStarted = true;
-                        init(openLService);
-                        initializated = true;
-                    }
+                if (!initializated && !initializationStarted) {
+                    initializationStarted = true;
+                    init(openLService);
+                    initializated = true;
                 }
             }
         }

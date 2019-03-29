@@ -499,17 +499,17 @@ public class MathUtils {
         if (quotient < 0) {
             intPart--;
         }
-        return (int) (number - intPart * divisor);
+        return number - intPart * divisor;
     }
 
     public static long mod(long number, long divisor) {
         long quotient = quotient(number, divisor);
 
-        long intPart = (long) quotient;
+        long intPart = quotient;
         if (quotient < 0) {
             intPart--;
         }
-        return (long) (number - intPart * divisor);
+        return number - intPart * divisor;
     }
 
     public static float mod(float number, float divisor) {
@@ -519,7 +519,7 @@ public class MathUtils {
         if (quotient < 0) {
             intPart--;
         }
-        return (float) (number - intPart * divisor);
+        return number - intPart * divisor;
     }
 
     public static double mod(double number, double divisor) {
@@ -529,7 +529,7 @@ public class MathUtils {
         if (quotient < 0) {
             intPart--;
         }
-        return (double) (number - intPart * divisor);
+        return number - intPart * divisor;
     }
 
     // MOD for wrapper types
@@ -616,7 +616,7 @@ public class MathUtils {
     }
 
     public static long quotient(long number, long divisor) {
-        return (long) (number / divisor);
+        return number / divisor;
     }
 
     public static long quotient(float number, float divisor) {

@@ -61,7 +61,7 @@ public class AlgoritmNodesCompiler {
     }
 
     private List<RuntimeOperation> compileNestedNodes(List<AlgorithmTreeNode> nodesToProcess) throws Exception {
-        final List<RuntimeOperation> emittedOperations = new ArrayList<RuntimeOperation>();
+        final List<RuntimeOperation> emittedOperations = new ArrayList<>();
         SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         // process nodes by groups of linked nodes
         for (int i = 0, linkedNodesGroupSize; i < nodesToProcess.size(); i += linkedNodesGroupSize) {
@@ -74,12 +74,7 @@ public class AlgoritmNodesCompiler {
             linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToProcess, i);
 
             final List<AlgorithmTreeNode> nodesToCompile = nodesToProcess.subList(i, i + linkedNodesGroupSize);
-            syntaxNodeExceptionCollector.run(new Runnable() {
-                @Override
-                public void run() throws Exception {
-                    emittedOperations.addAll(compileLinkedNodesGroup(nodesToCompile));
-                }
-            });
+            syntaxNodeExceptionCollector.run(() -> emittedOperations.addAll(compileLinkedNodesGroup(nodesToCompile)));
         }
         
         syntaxNodeExceptionCollector.throwIfAny("Compilation fails!");
@@ -90,7 +85,7 @@ public class AlgoritmNodesCompiler {
     private List<RuntimeOperation> compileLinkedNodesGroup(List<AlgorithmTreeNode> nodesToCompile) throws Exception {
         assert nodesToCompile.size() > 0;
 
-        List<RuntimeOperation> emittedOperations = new ArrayList<RuntimeOperation>();
+        List<RuntimeOperation> emittedOperations = new ArrayList<>();
 
         ConversionRuleBean conversionRule = ConversionRulesController.getInstance().getConvertionRule(nodesToCompile);
 
@@ -120,7 +115,7 @@ public class AlgoritmNodesCompiler {
         // apply user defined label to the first emitted operation
         // label can be defined only for the first operation in the group
         List<StringValue> userDefinedLabels = nodesToCompile.get(0).getLabels();
-        if (!userDefinedLabels.isEmpty() && emittedOperations.size() > 0) {
+        if (!userDefinedLabels.isEmpty() && !emittedOperations.isEmpty()) {
             for (StringValue userDefinedLabel : userDefinedLabels) {
                 currentCompileContext.setLabel(userDefinedLabel.getValue(), emittedOperations.get(0));
             }
@@ -179,7 +174,7 @@ public class AlgoritmNodesCompiler {
 
     private List<RuntimeOperation> processConversionStep(List<AlgorithmTreeNode> nodesToCompile,
             ConversionRuleStep conversionStep) throws Exception {
-        assert nodesToCompile.size() > 0;
+        assert !nodesToCompile.isEmpty();
         assert conversionStep != null;
 
         String label = null;
@@ -202,7 +197,7 @@ public class AlgoritmNodesCompiler {
             }
         }
 
-        if (emittedOperations.size() > 0 && label != null) {
+        if (!emittedOperations.isEmpty() && label != null) {
             // register internal generated label label
             currentCompileContext.registerNewLabel(label, nodesToCompile.get(0));
             currentCompileContext.setLabel(label, emittedOperations.get(0));
@@ -227,7 +222,7 @@ public class AlgoritmNodesCompiler {
         @Override
         public List<RuntimeOperation> getOperations(List<AlgorithmTreeNode> nodesToCompile,
                                                     ConversionRuleStep conversionStep) throws Exception {
-            List<RuntimeOperation> emittedOperations = new ArrayList<RuntimeOperation>();
+            List<RuntimeOperation> emittedOperations = new ArrayList<>();
             RuntimeOperation emittedOperation = operationFactory.createOperation(nodesToCompile, conversionStep);
             emittedOperations.add(emittedOperation);
             return emittedOperations;
@@ -244,7 +239,7 @@ public class AlgoritmNodesCompiler {
         @Override
         public List<RuntimeOperation> getOperations(List<AlgorithmTreeNode> nodesToCompile,
                                                     ConversionRuleStep conversionStep) throws Exception {
-            List<RuntimeOperation> emittedOperations = new ArrayList<RuntimeOperation>();
+            List<RuntimeOperation> emittedOperations = new ArrayList<>();
             List<AlgorithmTreeNode> nodesToProcess;
             nodesToProcess = AlgorithmCompilerTool.getNestedInstructionsBlock(nodesToCompile, conversionStep
                     .getOperationParam1());

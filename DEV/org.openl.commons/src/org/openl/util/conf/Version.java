@@ -81,9 +81,9 @@ public class Version implements Comparable<Version> {
 
     }
 
-    static final public int MAJOR = 0, MINOR = 1, VARIANT = 2, BUILD = 3;
+    public static final int MAJOR = 0, MINOR = 1, VARIANT = 2, BUILD = 3;
 
-    static public final String JAVA_VERSION_PATTERN = ".._";
+    public static final String JAVA_VERSION_PATTERN = ".._";
 
     int[] version = new int[] { -1, -1, -1, -1 };
 
@@ -137,7 +137,7 @@ public class Version implements Comparable<Version> {
         return parseVersion(s, idx, pattern);
     }
 
-    static public Version extractVersion(String s, String pattern) throws Exception {
+    public static Version extractVersion(String s, String pattern) throws Exception {
         return extractVersion(s, new StandardVersionStartPatternFinder(), pattern);
     }
 
@@ -162,7 +162,7 @@ public class Version implements Comparable<Version> {
         }
     }
 
-    static public int findVersionStart(String s, String pattern) {
+    public static int findVersionStart(String s, String pattern) {
         return findVersionStart(s, new StandardVersionStartPatternFinder(), pattern);
     }
 
@@ -233,7 +233,7 @@ public class Version implements Comparable<Version> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof Version)) {
+        if (!(obj instanceof Version)) {
             return false;
         }
         Version v = (Version) obj;

@@ -15,7 +15,7 @@ public class EnumUtils {
     }
 
     public static String[] getNames(Object[] constants) {
-        List<String> names = new ArrayList<String>();
+        List<String> names = new ArrayList<>();
         for (Object constant : constants) {
             if (constant != null) {
                 names.add(getName((Enum<?>) constant));
@@ -25,7 +25,7 @@ public class EnumUtils {
     }
 
     public static String[] getValues(Object[] constants) {
-        List<String> values = new ArrayList<String>();
+        List<String> values = new ArrayList<>();
         for (Object constant : constants) {
             values.add(((Enum<?>) constant).toString());
         }
@@ -39,7 +39,7 @@ public class EnumUtils {
 
     public static String[] getValues(Class<?> enumClass) {
         Object[] constants = getEnumConstants(enumClass);
-        List<String> values = new ArrayList<String>();
+        List<String> values = new ArrayList<>();
         for (Object constant : constants) {
             values.add(((Enum<?>) constant).toString());
         }

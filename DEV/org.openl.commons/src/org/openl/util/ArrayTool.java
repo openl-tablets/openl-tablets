@@ -204,7 +204,7 @@ public class ArrayTool {
     }
 
     public static String[] intersection(String[] ary1, String[] ary2) {
-        List<String> v = new ArrayList<String>();
+        List<String> v = new ArrayList<>();
         for (int j = 0; j < ary2.length; ++j) {
             if (contains(ary1, ary2[j])) {
                 v.add(ary2[j]);

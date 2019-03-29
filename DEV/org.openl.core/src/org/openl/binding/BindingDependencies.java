@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ExecutableMethod;
@@ -19,14 +18,14 @@ public class BindingDependencies {
     /**
      * All methods.
      */
-    private HashMap<IOpenMethod, IBoundNode> methods = new HashMap<IOpenMethod, IBoundNode>();
+    private HashMap<IOpenMethod, IBoundNode> methods = new HashMap<>();
     
     /**
      * Dependencies to executable Openl rules.
      */
-    private HashMap<ExecutableMethod, IBoundNode> rulesMethods = new HashMap<ExecutableMethod, IBoundNode>();
+    private HashMap<ExecutableMethod, IBoundNode> rulesMethods = new HashMap<>();
     
-    private HashMap<IBoundNode, IOpenField> fields = new HashMap<IBoundNode, IOpenField>();
+    private HashMap<IBoundNode, IOpenField> fields = new HashMap<>();
 
 
     public void addAssign(IBoundNode target, IBoundNode node) {

@@ -27,17 +27,17 @@ public class NicePrinter {
 
     int printedID = 0;
 
-    static public String getTypeName(Object obj) {
+    public static String getTypeName(Object obj) {
         return obj.getClass().getName();
     }
 
-    static public String print(Object obj) {
+    public static String print(Object obj) {
         StringBuilder buf = new StringBuilder(100);
         print(obj, buf);
         return buf.toString();
     }
 
-    static public void print(Object obj, StringBuilder buf) {
+    public static void print(Object obj, StringBuilder buf) {
         NicePrinter np = new NicePrinter(buf);
         np.print(obj, new NicePrinterAdaptor());
     }
@@ -85,7 +85,7 @@ public class NicePrinter {
 
         int newID = printedID++;
 
-        printedObjects.put(obj, new Integer(newID));
+        printedObjects.put(obj, newID);
 
         if (obj instanceof Enum) {
             adaptor.printPrimitive(obj, this);

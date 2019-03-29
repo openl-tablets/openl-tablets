@@ -154,21 +154,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         for (int i = 0; i < tableHeight; i++) {
             final int index = i;
-            syntaxNodeExceptionCollector.run(new Runnable() {
-                @Override
-                public void run() throws Exception {
-                    ILogicalTable row = dataTable.getRow(index);
-                    boolean firstField = (index == 0);
-                    processRow(row, cxt, fields, firstField);
-                }
-            });
+            syntaxNodeExceptionCollector.run(() -> processRow(dataTable.getRow(index), cxt, fields, (index == 0)));
         }
-        syntaxNodeExceptionCollector.run(new Runnable() {
-            @Override
-            public void run() throws Exception {
-                checkInheritedFieldsDuplication(cxt);
-            }
-        });
+        syntaxNodeExceptionCollector.run(() -> checkInheritedFieldsDuplication(cxt));
 
         syntaxNodeExceptionCollector.throwIfAny();
 
@@ -185,11 +173,11 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     beanClass = ClassUtils.defineClass(beanName, byteCode, classLoader);
                     dataType.setBytecode(byteCode);
                     log.debug("bean {} is using generated at runtime", beanName);
-                }  catch (ByteCodeGenerationException genE) {
+                } catch (ByteCodeGenerationException genE) {
                     throw SyntaxNodeExceptionUtils.createError(
-                            String.format("Can't generate a Java bean for datatype %s. %s", beanName, genE.getMessage()),
-                            genE,
-                            tableSyntaxNode);
+                        String.format("Can't generate a Java bean for datatype %s. %s", beanName, genE.getMessage()),
+                        genE,
+                        tableSyntaxNode);
                 } catch (Exception e2) {
                     throw SyntaxNodeExceptionUtils.createError("Can't generate a Java bean for datatype " + beanName,
                         tableSyntaxNode);
@@ -262,7 +250,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             String name = ClassUtils.capitalize(fieldName); // According to JavaBeans v1.01
             Method getterMethod;
             try {
-                getterMethod = beanClass.getMethod("get"+name);
+                getterMethod = beanClass.getMethod("get" + name);
             } catch (NoSuchMethodException e) {
                 String errorMessage = String.format(
                     "Datatype '%s' validation is failed on missed method 'get%s'. Please, regenerate your datatype classes.",
@@ -270,7 +258,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     name);
                 name = StringUtils.capitalize(fieldName); // Try old solution (before 5.21.7)
                 try {
-                    getterMethod = beanClass.getMethod("get"+name);
+                    getterMethod = beanClass.getMethod("get" + name);
                 } catch (NoSuchMethodException e1) {
                     throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
                 }
@@ -278,9 +266,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             }
             if (!getterMethod.getReturnType().getName().equals(fieldDescription.getTypeName())) {
                 String errorMessage = String.format(
-                        "Datatype '%s' validation is failed on method 'get%s' with unexpected return type. Please, regenerate your datatype classes.",
-                        beanName,
-                        name);
+                    "Datatype '%s' validation is failed on method 'get%s' with unexpected return type. Please, regenerate your datatype classes.",
+                    beanName,
+                    name);
                 throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
             }
 
@@ -399,7 +387,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         ICell cell = getCellSource(row, cxt, 2).getCell();
                         MetaInfoReader metaInfoReader = tableSyntaxNode.getMetaInfoReader();
                         if (metaInfoReader instanceof BaseMetaInfoReader) {
-                            SimpleNodeUsage nodeUsage = RuleRowHelper.createConstantNodeUsage(defaultValue, constantOpenField);
+                            SimpleNodeUsage nodeUsage = RuleRowHelper.createConstantNodeUsage(defaultValue,
+                                constantOpenField);
                             ((BaseMetaInfoReader) metaInfoReader).addConstant(cell, nodeUsage);
                         }
                     }
@@ -560,23 +549,21 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         if (superClass != null) {
             SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
             for (final Entry<String, IOpenField> field : dataType.getDeclaredFields().entrySet()) {
-                syntaxNodeExceptionCollector.run(new Runnable() {
-                    @Override
-                    public void run() throws Exception {
-                        IOpenField fieldInParent = superClass.getField(field.getKey());
-                        if (fieldInParent != null) {
-                            if (fieldInParent.getType().getInstanceClass().equals(
-                                field.getValue().getType().getInstanceClass())) {
-                                BindHelper
-                                    .processWarn(String.format("Field [%s] has been already defined in class \"%s\"",
-                                        field.getKey(),
-                                        fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
-                            } else {
-                                throw SyntaxNodeExceptionUtils.createError(String.format(
-                                    "Field [%s] has been already defined in class \"%s\" with another type",
+                syntaxNodeExceptionCollector.run(() -> {
+                    IOpenField fieldInParent = superClass.getField(field.getKey());
+                    if (fieldInParent != null) {
+                        if (fieldInParent.getType()
+                            .getInstanceClass()
+                            .equals(field.getValue().getType().getInstanceClass())) {
+                            BindHelper.processWarn(String.format("Field [%s] has been already defined in class \"%s\"",
+                                field.getKey(),
+                                fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
+                        } else {
+                            throw SyntaxNodeExceptionUtils.createError(
+                                String.format("Field [%s] has been already defined in class \"%s\" with another type",
                                     field.getKey(),
-                                    fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode);
-                            }
+                                    fieldInParent.getDeclaringClass().getDisplayName(0)),
+                                tableSyntaxNode);
                         }
                     }
                 });

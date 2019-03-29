@@ -190,9 +190,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
         SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         for (int i = 0; i < tableHeight; i++) {
             final int index = i;
-            syntaxNodeExceptionCollector.run(() -> {
-                processRow(dataTable.getRow(index), cxt);
-            });
+            syntaxNodeExceptionCollector.run(() -> processRow(dataTable.getRow(index), cxt));
         }
         syntaxNodeExceptionCollector.throwIfAny();
     }

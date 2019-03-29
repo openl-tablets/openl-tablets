@@ -1,7 +1,10 @@
 package org.openl.util;
 
-public class FileTypeHelper {
+public final class FileTypeHelper {
 
+    private FileTypeHelper() {
+    }
+    
     public static boolean isExcelFile(String fileName) {
         if (fileName == null) {
             return false;

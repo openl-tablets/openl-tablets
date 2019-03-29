@@ -10,7 +10,7 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class BinaryOpNode extends MethodBoundNode {
-    static public Object evaluateBinaryMethod(IRuntimeEnv env, Object[] pars, IMethodCaller boundMethod) {
+    public static Object evaluateBinaryMethod(IRuntimeEnv env, Object[] pars, IMethodCaller boundMethod) {
 
         if (boundMethod.getMethod().getSignature().getParameterTypes().length == 2) {
             return boundMethod.invoke(null, pars, env);
@@ -35,9 +35,9 @@ public class BinaryOpNode extends MethodBoundNode {
     protected Object evaluateRuntime(IRuntimeEnv env) {
         Object[] pars = evaluateChildren(env);
 
-        if (useBinaryMethod)
+        if (useBinaryMethod) {
         	return boundMethod.invoke(null, pars, env);
-        
+        }
         return boundMethod.invoke(pars[0], new Object[] { pars[1] }, env);
 
     }

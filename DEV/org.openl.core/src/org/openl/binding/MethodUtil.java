@@ -23,11 +23,7 @@ import org.openl.util.print.DefaultFormat;
  */
 public class MethodUtil {
 
-    private static final IConvertor<IOpenClass, String> DEFAULT_TYPE_CONVERTER = new IConvertor<IOpenClass, String>() {
-        @Override public String convert(IOpenClass type) {
-            return printType(type);
-        }
-    };
+    private static final IConvertor<IOpenClass, String> DEFAULT_TYPE_CONVERTER = (e) -> printType(e);
 
     public static String printType(IOpenClass type) {
         return type.getDisplayName(INamedThing.SHORT);
@@ -41,11 +37,7 @@ public class MethodUtil {
 
     public static String printSignature(IOpenMethodHeader methodHeader, final int mode) {
         StringBuilder buf = new StringBuilder(100);
-        IConvertor<IOpenClass, String> typeConverter = new IConvertor<IOpenClass, String>() {
-            @Override public String convert(IOpenClass type) {
-                return type.getDisplayName(mode);
-            }
-        };
+        IConvertor<IOpenClass, String> typeConverter = (e) -> e.getDisplayName(mode);
         printMethod(methodHeader, buf, typeConverter);
 
         return buf.toString();
@@ -66,15 +58,15 @@ public class MethodUtil {
                 buf.append(", ");
             }
 
-            if (type != null){
+            if (type != null) {
                 buf.append(type);
             }
 
-            if (type != null && name != null){
+            if (type != null && name != null) {
                 buf.append(' ');
             }
 
-            if (name != null){
+            if (name != null) {
                 buf.append(name);
             }
         }
@@ -91,11 +83,11 @@ public class MethodUtil {
 
         for (int i = 0; i < params.length; i++) {
             String type = params[i].getName();
-            if (i != 0){
+            if (i != 0) {
                 buf.append(", ");
             }
 
-            if (type != null){
+            if (type != null) {
                 buf.append(type);
             }
 
@@ -114,11 +106,11 @@ public class MethodUtil {
 
         for (int i = 0; params != null && i < params.length; i++) {
             String type = params[i].getName();
-            if (i != 0){
+            if (i != 0) {
                 buf.append(", ");
             }
 
-            if (type != null){
+            if (type != null) {
                 buf.append(type);
             }
         }
@@ -133,15 +125,15 @@ public class MethodUtil {
         IMethodSignature signature = method.getSignature();
         for (int i = 0; params != null && i < params.length; i++) {
             String name = signature.getParameterName(i);
-            if (i != 0){
+            if (i != 0) {
                 buf.append(", ");
             }
 
-            if (name != null){
+            if (name != null) {
                 buf.append(name);
             }
 
-            if (params[i] != null){
+            if (params[i] != null) {
                 buf.append(" = ");
                 DefaultFormat.format(params[i], buf);
             }
@@ -151,11 +143,11 @@ public class MethodUtil {
 
         return buf.toString();
     }
-    
+
     private static void startPrintingMethodName(String name, StringBuilder buf) {
         buf.append(name).append('(');
     }
-    
+
     private static void endPrintingMethodName(StringBuilder buf) {
         buf.append(')');
     }
@@ -167,7 +159,7 @@ public class MethodUtil {
             Class<?>[] signatureParams = method.getParameterTypes();
             if (methodName.equals(method.getName()) && signatureParams.length == argTypes.length) {
                 if (isAssignable(argTypes, signatureParams)) {
-                    method = MethodUtils.getAccessibleMethod(method);//kills inherited methods
+                    method = MethodUtils.getAccessibleMethod(method);// kills inherited methods
                     if (method != null) {
                         if (resultMethod != null) {
                             resultMethod = getCloserMethod(resultMethod, method, argTypes);
@@ -180,6 +172,7 @@ public class MethodUtil {
         }
         return resultMethod;
     }
+
     private static boolean isAssignable(Class<?>[] classArray, Class<?>[] toClassArray) {
         for (int i = 0; i < classArray.length; i++) {
             Class<?> from = classArray[i];
@@ -190,6 +183,7 @@ public class MethodUtil {
         }
         return true;
     }
+
     private static Method getCloserMethod(Method firstMethod, Method secondMethod, Class<?>[] argTypes) {
         int firstTransfCount = getTransformationsCount(firstMethod.getParameterTypes(), argTypes);
         if (firstTransfCount < 0) {
@@ -207,8 +201,8 @@ public class MethodUtil {
      * 
      * @param signatureToCheck Signature to check
      * @param argTypes Types of existing arguments.
-     * @return <code>-1</code> if signature to check is not suitable for
-     *         specified args and transformations count otherwise.
+     * @return <code>-1</code> if signature to check is not suitable for specified args and transformations count
+     *         otherwise.
      */
     private static int getTransformationsCount(Class<?>[] signatureToCheck, Class<?>[] argTypes) {
         if (!isAssignable(argTypes, signatureToCheck)) {

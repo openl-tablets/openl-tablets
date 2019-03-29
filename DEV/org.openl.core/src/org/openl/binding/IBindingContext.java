@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.OpenL;
-import org.openl.binding.exception.AmbiguousMethodException;
-import org.openl.binding.exception.AmbiguousVarException;
-import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
@@ -24,11 +21,11 @@ import org.openl.types.IOpenField;
 public interface IBindingContext extends ICastFactory {
 
     Collection<OpenLMessage> getMessages();
-    
+
     void addMessage(OpenLMessage message);
-    
+
     void addMessages(Collection<OpenLMessage> messages);
-    
+
     void addError(SyntaxNodeException error);
 
     /**
@@ -40,14 +37,13 @@ public interface IBindingContext extends ICastFactory {
      */
     void addType(String namespace, IOpenClass type) throws Exception;
 
-    ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException;
+    ILocalVar addVar(String namespace, String name, IOpenClass type);
 
     INodeBinder findBinder(ISyntaxNode node);
 
     /**
-     * This method is implemented by default by calling type.getFiled(fieldName,
-     * strictMatch), but some context may override it to provide dynamic mapping
-     * functionality
+     * This method is implemented by default by calling type.getFiled(fieldName, strictMatch), but some context may
+     * override it to provide dynamic mapping functionality
      * 
      * @param type
      * @param fieldName
@@ -56,27 +52,22 @@ public interface IBindingContext extends ICastFactory {
      */
     IOpenField findFieldFor(IOpenClass type, String fieldName, boolean strictMatch);
 
-    IMethodCaller findMethodCaller(String namespace,
-            String name,
-            IOpenClass[] parTypes) throws AmbiguousMethodException;
+    IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes);
 
     IOpenClass findType(String namespace, String typeName);
 
     /**
      * @see {@link IOpenClass#getField(String, boolean)}
      */
-    IOpenField findVar(String namespace, String vname, boolean strictMatch) throws AmbiguousVarException;
+    IOpenField findVar(String namespace, String vname, boolean strictMatch);
 
     /**
-     * @return reference to the variable holding a range object. The specifics
-     *         of the range object is that it is defined by a pair of the
-     *         variables called start and end. There is no common range
-     *         interface, the details must be contained in the implementation of
-     *         a particular range type
+     * @return reference to the variable holding a range object. The specifics of the range object is that it is defined
+     *         by a pair of the variables called start and end. There is no common range interface, the details must be
+     *         contained in the implementation of a particular range type
      */
 
-    IOpenField findRange(String namespace, String rangeStartName, String rangeEndName) throws AmbiguousVarException,
-                                                                                       OpenLCompilationException;
+    IOpenField findRange(String namespace, String rangeStartName, String rangeEndName) throws OpenLCompilationException;
 
     IOpenCast getCast(IOpenClass from, IOpenClass to);
 
@@ -89,7 +80,7 @@ public interface IBindingContext extends ICastFactory {
     IOpenClass getReturnType();
 
     List<SyntaxNodeException> popErrors();
-    
+
     Collection<OpenLMessage> popMessages();
 
     void popLocalVarContext();
@@ -98,7 +89,7 @@ public interface IBindingContext extends ICastFactory {
      * Used for doing temporary processing within current context
      */
     void pushErrors();
-    
+
     void pushMessages();
 
     void pushLocalVarContext();
@@ -106,7 +97,7 @@ public interface IBindingContext extends ICastFactory {
     void setReturnType(IOpenClass type);
 
     void setExecutionMode(boolean executionMode);
-    
+
     /**
      * @return <code>true</code> if it is execution mode binding.
      */

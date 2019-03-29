@@ -36,7 +36,7 @@ public class BeanNicePrinterAdaptor extends NicePrinterAdaptor {
         } catch (Exception ex) {
             return Collections.emptyMap();
         }
-        Map<String, Object> fieldMap = new HashMap<String, Object>();
+        Map<String, Object> fieldMap = new HashMap<>();
         for (PropertyDescriptor descriptor : propertyDescriptors) {
             try {
                 String propertyName = descriptor.getDisplayName();

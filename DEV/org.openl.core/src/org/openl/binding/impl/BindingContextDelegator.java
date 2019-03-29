@@ -9,9 +9,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.INodeBinder;
-import org.openl.binding.exception.AmbiguousMethodException;
-import org.openl.binding.exception.AmbiguousVarException;
-import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
@@ -35,7 +32,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
 
     public IOpenField findRange(String namespace,
             String rangeStartName,
-            String rangeEndName) throws AmbiguousVarException, OpenLCompilationException {
+            String rangeEndName) throws OpenLCompilationException {
         return delegate.findRange(namespace, rangeStartName, rangeEndName);
     }
 
@@ -47,7 +44,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         throw new UnsupportedOperationException();
     }
 
-    public ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException {
+    public ILocalVar addVar(String namespace, String name, IOpenClass type) {
         return delegate.addVar(namespace, name, type);
     }
 
@@ -61,7 +58,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
 
     public IMethodCaller findMethodCaller(String namespace,
             String name,
-            IOpenClass[] parTypes) throws AmbiguousMethodException {
+            IOpenClass[] parTypes) {
         return delegate.findMethodCaller(namespace, name, parTypes);
     }
 
@@ -69,7 +66,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         return delegate.findType(namespace, typeName);
     }
 
-    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField findVar(String namespace, String name, boolean strictMatch) {
         return delegate.findVar(namespace, name, strictMatch);
     }
 

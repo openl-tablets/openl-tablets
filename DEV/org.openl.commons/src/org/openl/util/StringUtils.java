@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -95,12 +96,7 @@ public class StringUtils {
      * @return an array of parsed Strings, {@code null} if null String input
      */
     public static String[] split(final String str) {
-        return splitWorker(str, new Predicate() {
-            @Override
-            public boolean evaluate(char ch) {
-                return Character.isWhitespace(ch);
-            }
-        }, false);
+        return splitWorker(str, Character::isWhitespace, false);
     }
 
     private static String[] splitWorker(final String str, final Predicate tester, boolean trim) {
@@ -341,13 +337,7 @@ public class StringUtils {
      * @see String#equals(Object)
      */
     public static boolean equals(final String str1, final String str2) {
-        if (str1 == str2) {
-            return true;
-        }
-        if (str1 == null || str2 == null) {
-            return false;
-        }
-        return str1.equals(str2);
+        return Objects.equals(str1, str2);
     }
 
     /**
