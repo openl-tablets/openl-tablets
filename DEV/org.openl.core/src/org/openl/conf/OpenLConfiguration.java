@@ -13,7 +13,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.INodeBinder;
-import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.NotExistNodeBinder;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -51,9 +50,9 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     private Map<String, IOpenFactoryConfiguration> openFactories = null;
 
-    public synchronized void addOpenFactory(IOpenFactoryConfiguration opfc) throws OpenConfigurationException {
+    public synchronized void addOpenFactory(IOpenFactoryConfiguration opfc) {
         if (openFactories == null) {
-            openFactories = new HashMap<String, IOpenFactoryConfiguration>();
+            openFactories = new HashMap<>();
         }
 
         if (opfc.getName() == null) {
@@ -89,7 +88,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         if (typeCastFactory != null) {
             javaCastComponents.addAll(typeCastFactory.getJavaCastComponents());
         }
-        if (parent != null && parent instanceof OpenLConfiguration) {
+        if (parent instanceof OpenLConfiguration) {
             javaCastComponents.addAll(((OpenLConfiguration) parent).getAllJavaCastComponents());
         }
         return javaCastComponents;
@@ -147,7 +146,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return configurationContext;
     }
 
-    public synchronized IGrammar getGrammar() throws OpenConfigurationException {
+    public synchronized IGrammar getGrammar() {
         if (grammarFactory == null) {
             return parent.getGrammar();
         } else {
@@ -162,7 +161,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     public IMethodCaller getMethodCaller(String namespace,
             String name,
             IOpenClass[] params,
-            ICastFactory casts) throws AmbiguousMethodException {
+            ICastFactory casts) {
 
         IOpenMethod[] mcs = getMethods(namespace, name);
 
@@ -175,35 +174,35 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         IOpenMethod[] pmcs = parent == null ? new IOpenMethod[] {} : parent.getMethods(namespace, name);
 
         // Shadowing
-        Map<MethodKey, Collection<IOpenMethod>> methods = new HashMap<MethodKey, Collection<IOpenMethod>>();
+        Map<MethodKey, Collection<IOpenMethod>> methods = new HashMap<>();
         for (IOpenMethod method : pmcs) {
             MethodKey mk = new MethodKey(method);
             Collection<IOpenMethod> callers = methods.get(mk);
             if (callers == null) {
-                callers = new ArrayList<IOpenMethod>();
+                callers = new ArrayList<>();
                 methods.put(mk, callers);
             }
             callers.add(method);
         }
 
-        Set<MethodKey> usedKeys = new HashSet<MethodKey>();
+        Set<MethodKey> usedKeys = new HashSet<>();
         for (IOpenMethod method : mcs) {
             MethodKey mk = new MethodKey(method);
             Collection<IOpenMethod> callers = methods.get(mk);
             if (callers == null) {
                 usedKeys.add(mk);
-                callers = new ArrayList<IOpenMethod>();
+                callers = new ArrayList<>();
                 methods.put(mk, callers);
             }
             if (!usedKeys.contains(mk)) {
                 usedKeys.add(mk);
-                callers = new ArrayList<IOpenMethod>();
+                callers = new ArrayList<>();
                 methods.put(mk, callers);
             }
             callers.add(method);
         }
 
-        Collection<IOpenMethod> openMethods = new ArrayList<IOpenMethod>();
+        Collection<IOpenMethod> openMethods = new ArrayList<>();
         for (Collection<IOpenMethod> m : methods.values()) {
             openMethods.addAll(m);
         }
@@ -222,14 +221,10 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return parent == null ? NotExistNodeBinder.the : parent.getNodeBinder(node);
     }
 
-    Map<String, Map<String, IOpenClass>> cache = new HashMap<String, Map<String, IOpenClass>>();
+    Map<String, Map<String, IOpenClass>> cache = new HashMap<>();
 
     public IOpenClass getType(String namespace, String name) {
-        Map<String, IOpenClass> namespaceCache = cache.get(namespace);
-        if (namespaceCache == null) {
-            namespaceCache = new HashMap<String, IOpenClass>();
-            cache.put(namespace, namespaceCache);
-        }
+        Map<String, IOpenClass> namespaceCache = cache.computeIfAbsent(namespace, e -> new HashMap<>());
         if (namespaceCache.containsKey(name)) {
             return namespaceCache.get(name);
         }
@@ -317,11 +312,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         } else if (parent == null) {
             throw new OpenConfigurationException("Bindings are not set", getUri(), null);
         }
-
-        // Methods and casts are optional
-        // else if (parent == null)
-        // throw new OpenConfigurationException("Methods are not set", getUri(),
-        // null);
 
         if (methodFactory != null) {
             methodFactory.validate(cxt);

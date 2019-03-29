@@ -85,7 +85,7 @@ public class OpenLSourceManager extends OpenLHolder {
     }
 
     private Collection<IDependency> getDependencies(IDependencyManager dependencyManager, IDependency[] dependencies) {
-        Set<IDependency> result = new LinkedHashSet<IDependency>();
+        Set<IDependency> result = new LinkedHashSet<>();
         if (dependencyManager == null) {
             result.addAll(Arrays.asList(dependencies));
             return result;
@@ -163,7 +163,7 @@ public class OpenLSourceManager extends OpenLHolder {
                 dependencies.addAll(externalDependencies);
             }
 
-            Set<CompiledDependency> compiledDependencies = new LinkedHashSet<CompiledDependency>();
+            Set<CompiledDependency> compiledDependencies = new LinkedHashSet<>();
 
             if (CollectionUtils.isNotEmpty(dependencies)) {
                 if (dependencyManager != null) {

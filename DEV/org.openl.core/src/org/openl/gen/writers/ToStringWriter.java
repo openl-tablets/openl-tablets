@@ -1,5 +1,6 @@
 package org.openl.gen.writers;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,39 +17,41 @@ import org.openl.gen.FieldDescription;
  * @author Yury Molchan
  */
 public class ToStringWriter extends MethodWriter {
-    private static Map<String, String> PRIMITIVE_DESCRIPTORS = new HashMap<String, String>(8, 1) {
-        {
-            put(byte.class, 'I');
-            put(short.class, 'I');
-            put(int.class, 'I');
-            put(char.class, 'C');
-            put(boolean.class, 'Z');
-            put(long.class, 'J');
-            put(float.class, 'F');
-            put(double.class, 'D');
-        }
+    private static final Map<String, String> PRIMITIVE_DESCRIPTORS = Collections
+        .unmodifiableMap(new HashMap<String, String>(8, 1) {
+            {
+                put(byte.class, 'I');
+                put(short.class, 'I');
+                put(int.class, 'I');
+                put(char.class, 'C');
+                put(boolean.class, 'Z');
+                put(long.class, 'J');
+                put(float.class, 'F');
+                put(double.class, 'D');
+            }
 
-        private void put(Class<?> clazz, char type) {
-            put(clazz.getName(), "(" + type + ")Ljava/lang/StringBuilder;");
-        }
-    };
+            private void put(Class<?> clazz, char type) {
+                put(clazz.getName(), "(" + type + ")Ljava/lang/StringBuilder;");
+            }
+        });
 
-    private static Map<String, String> ARRAY_OF_PRIMITIVES_DESCRIPTORS = new HashMap<String, String>(8, 1) {
-        {
-            put(byte[].class);
-            put(short[].class);
-            put(int[].class);
-            put(char[].class);
-            put(boolean[].class);
-            put(long[].class);
-            put(float[].class);
-            put(double[].class);
-        }
+    private static final Map<String, String> ARRAY_OF_PRIMITIVES_DESCRIPTORS = Collections
+        .unmodifiableMap(new HashMap<String, String>(8, 1) {
+            {
+                put(byte[].class);
+                put(short[].class);
+                put(int[].class);
+                put(char[].class);
+                put(boolean[].class);
+                put(long[].class);
+                put(float[].class);
+                put(double[].class);
+            }
 
-        private void put(Class<?> clazz) {
-            put(clazz.getName(), "(" + clazz.getName() + ")Ljava/lang/String;");
-        }
-    };
+            private void put(Class<?> clazz) {
+                put(clazz.getName(), "(" + clazz.getName() + ")Ljava/lang/String;");
+            }
+        });
 
     /**
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>

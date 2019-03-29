@@ -49,7 +49,7 @@ public class JavaTypeConfiguration extends AConfigurationElement implements ITyp
      *
      * @see org.openl.newconf.IConfigurationElement#validate(org.openl.newconf.IConfigurationContext)
      */
-    public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
+    public void validate(IConfigurableResourceContext cxt) {
         Class<?> c = ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
         ClassFactory.validateSuper(c, ITypeLibrary.class, getUri());
         ClassFactory.validateHaveNewInstance(c, getUri());

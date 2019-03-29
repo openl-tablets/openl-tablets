@@ -20,18 +20,18 @@ public class NameSpacedTypeConfiguration extends AConfigurationElement {
 
     private String namespace;
 
-    private List<ITypeFactoryConfigurationElement> factories = new ArrayList<ITypeFactoryConfigurationElement>();
+    private List<ITypeFactoryConfigurationElement> factories = new ArrayList<>();
 
     public void addConfiguration(ITypeFactoryConfigurationElement factory) {
         factories.add(factory);
-    }    
+    }
 
     public String getNamespace() {
         return namespace;
     }
 
-    public IOpenClass getType(String name, IConfigurableResourceContext cxt) throws  AmbiguousTypeException {
-        List<IOpenClass> foundTypes = new ArrayList<IOpenClass>(2);
+    public IOpenClass getType(String name, IConfigurableResourceContext cxt) {
+        List<IOpenClass> foundTypes = new ArrayList<>(2);
 
         for (ITypeFactoryConfigurationElement confElem : factories) {
             IOpenClass type = confElem.getLibrary(cxt).getType(name);
@@ -54,7 +54,7 @@ public class NameSpacedTypeConfiguration extends AConfigurationElement {
         namespace = string;
     }
 
-    public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
+    public void validate(IConfigurableResourceContext cxt) {
         for (ITypeFactoryConfigurationElement confElem : factories) {
             confElem.validate(cxt);
         }

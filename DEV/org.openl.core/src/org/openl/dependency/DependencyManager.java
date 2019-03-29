@@ -13,7 +13,7 @@ public abstract class DependencyManager implements IDependencyManager {
     private boolean executionMode;
     private Map<String, Object> externalParameters;
     
-    private Map<String, CompiledDependency> compiledDependencies = new HashMap<String, CompiledDependency>();  
+    private Map<String, CompiledDependency> compiledDependencies = new HashMap<>();  
     
     public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
 

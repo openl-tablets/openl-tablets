@@ -64,12 +64,12 @@ public class MethodBindingContext extends BindingContextDelegator {
      *      java.lang.String, org.openl.types.IOpenClass)
      */
     @Override
-    public ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException {
+    public ILocalVar addVar(String namespace, String name, IOpenClass type) {
         return localFrame.addVar(namespace, name, type);
     }
 
     @Override
-    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField findVar(String namespace, String name, boolean strictMatch) {
         IOpenField var = localFrame.findLocalVar(namespace, name);
 
         if (var != null) {

@@ -14,7 +14,7 @@ import org.openl.OpenL;
  */
 public interface IOpenLBuilder {
 
-    OpenL build(String category) throws OpenConfigurationException;
+    OpenL build(String category);
 
     void setContexts(IConfigurableResourceContext resourceContext,
             IUserContext userEnvironmentContext);

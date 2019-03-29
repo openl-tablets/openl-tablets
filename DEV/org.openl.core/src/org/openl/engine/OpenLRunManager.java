@@ -20,8 +20,7 @@ import org.openl.util.CollectionUtils;
 import java.util.List;
 
 /**
- * Class that defines OpenL engine manager implementation for evaluate/run
- * operations.
+ * Class that defines OpenL engine manager implementation for evaluate/run operations.
  * 
  */
 public class OpenLRunManager extends OpenLHolder {
@@ -52,8 +51,10 @@ public class OpenLRunManager extends OpenLHolder {
      * @throws MethodNotFoundException
      * @throws SyntaxNodeException
      */
-    public Object runMethod(IOpenSourceCodeModule source, final String methodName, IOpenClass[] paramTypes, Object[] params)
-            throws OpenLRuntimeException, MethodNotFoundException, SyntaxNodeException {
+    public Object runMethod(IOpenSourceCodeModule source,
+            final String methodName,
+            IOpenClass[] paramTypes,
+            Object[] params) {
 
         IOpenClass openClass = compileManager.compileModule(source, false, null);
         IOpenVM vm = getOpenL().getVm();
@@ -66,12 +67,7 @@ public class OpenLRunManager extends OpenLHolder {
             method = openClass.getMethod(methodName, paramTypes);
         } else {
             List<IOpenMethod> list = CollectionUtils.findAll(openClass.getMethods(),
-                    new CollectionUtils.Predicate<IOpenMethod>() {
-                        @Override
-                        public boolean evaluate(IOpenMethod method11) {
-                            return methodName.equals(method11.getName());
-                        }
-                    });
+                method11 -> methodName.equals(method11.getName()));
             if (list.size() > 1) {
                 throw new AmbiguousMethodException(methodName, IOpenClass.EMPTY, list);
             } else if (list.size() == 1) {
@@ -93,7 +89,7 @@ public class OpenLRunManager extends OpenLHolder {
      * @return result of script execution
      * @throws OpenLRuntimeException
      */
-    public Object runScript(IOpenSourceCodeModule source) throws OpenLRuntimeException {
+    public Object runScript(IOpenSourceCodeModule source) {
 
         return run(source, SourceType.METHOD_BODY);
     }
@@ -106,7 +102,7 @@ public class OpenLRunManager extends OpenLHolder {
      * @return result of execution
      * @throws OpenLRuntimeException
      */
-    public Object run(IOpenSourceCodeModule source, SourceType sourceType) throws OpenLRuntimeException {
+    public Object run(IOpenSourceCodeModule source, SourceType sourceType) {
 
         ProcessedCode processedCode = sourceManager.processSource(source, sourceType, null);
 

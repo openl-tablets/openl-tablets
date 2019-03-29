@@ -20,7 +20,7 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
     private static final Class<?>[] DEF_CONSTR_PARAMS = {};
 
     public static final Map<String, Class<?>> DEFAULT_COLLECTIONS_INTERFACES;
-    private static final Map<String, Class<?>> boxed = new HashMap<String, Class<?>>(8);
+    private static final Map<String, Class<?>> boxed = new HashMap<>(8);
 
     static {
         boxed.put(Byte.class.getName(), byte.class);
@@ -32,7 +32,7 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
         boxed.put(Float.class.getName(), float.class);
         boxed.put(Double.class.getName(), double.class);
 
-        Map<String, Class<?>> defaultInterfaceCollections = new HashMap<String, Class<?>>(6);
+        Map<String, Class<?>> defaultInterfaceCollections = new HashMap<>(6);
         defaultInterfaceCollections.put(Collection.class.getName(), ArrayList.class);
         defaultInterfaceCollections.put(List.class.getName(), ArrayList.class);
         defaultInterfaceCollections.put(Set.class.getName(), HashSet.class);

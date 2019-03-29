@@ -44,7 +44,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * Key: type name.<br>
      * Value: {@link IOpenClass} for datatype.
      */
-    private ConcurrentHashMap<String, IOpenClass> internalTypes = new ConcurrentHashMap<String, IOpenClass>();
+    private ConcurrentHashMap<String, IOpenClass> internalTypes = new ConcurrentHashMap<>();
     private Collection<IOpenClass> types = Collections.unmodifiableCollection(internalTypes.values());
 
     /**
@@ -54,9 +54,9 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * ones in {@link CompiledOpenClass}. Check if there are errors: {@link CompiledOpenClass#hasErrors()}
      * 
      */
-    private Set<CompiledDependency> usingModules = new HashSet<CompiledDependency>();
+    private Set<CompiledDependency> usingModules = new HashSet<>();
 
-    private List<Exception> errors = new ArrayList<Exception>();
+    private List<Exception> errors = new ArrayList<>();
 
     private volatile Map<String, IOpenField> dependencyFields = null;
 
@@ -67,12 +67,11 @@ public class ModuleOpenClass extends ComponentOpenClass {
     /**
      * Populate current module fields with data from dependent modules.
      */
-    protected void initDependencies() throws OpenLCompilationException {
+    protected void initDependencies() {
         for (CompiledDependency dependency : usingModules) {
             // commented as there is no need to add each datatype to upper module.
             // as now it`s will be impossible to validate from which module the datatype is.
             //
-            // addTypes(dependency);
             addDependencyTypes(dependency);
             addMethods(dependency);
             addFields(dependency);
@@ -162,7 +161,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
     @Override
     public Map<String, IOpenField> getFields() {
-        Map<String, IOpenField> fields = new HashMap<String, IOpenField>();
+        Map<String, IOpenField> fields = new HashMap<>();
 
         // get fields from dependencies
         //
@@ -195,7 +194,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     public void setDependencies(Set<CompiledDependency> moduleDependencies) {
         if (moduleDependencies != null) {
-            this.usingModules = new HashSet<CompiledDependency>(moduleDependencies);
+            this.usingModules = new HashSet<>(moduleDependencies);
         }
     }
 

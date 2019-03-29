@@ -30,8 +30,8 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
                                            Map<String, FieldDescription> parentFields,
                                            Map<String, FieldDescription> allFields) {
         super(beanNameWithPackage, parentClass, beanFields);
-        this.parentFields = new LinkedHashMap<String, FieldDescription>(parentFields);
-        this.allFields = new LinkedHashMap<String, FieldDescription>(allFields);
+        this.parentFields = new LinkedHashMap<>(parentFields);
+        this.allFields = new LinkedHashMap<>(allFields);
     }
 
     public void write(ClassWriter classWriter) {

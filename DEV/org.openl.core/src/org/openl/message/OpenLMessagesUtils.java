@@ -15,6 +15,9 @@ import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.util.CollectionUtils;
 
 public class OpenLMessagesUtils {
+    
+    private OpenLMessagesUtils() {
+    }
 
     public static OpenLMessage newErrorMessage(String summary) {
         return new OpenLMessage(summary, Severity.ERROR);
@@ -26,7 +29,7 @@ public class OpenLMessagesUtils {
 
     public static Collection<OpenLMessage> newErrorMessages(OpenLCompilationException[] errors) {
         if (errors != null) {
-            Collection<OpenLMessage> messages = new ArrayList<OpenLMessage>();
+            Collection<OpenLMessage> messages = new ArrayList<>();
             for (OpenLCompilationException error : errors) {
                 OpenLMessage message = newErrorMessage(error);
                 messages.add(message);
@@ -41,7 +44,7 @@ public class OpenLMessagesUtils {
     }
 
     public static Collection<OpenLMessage> newMessages(OpenLException[] exceptions) {
-        Collection<OpenLMessage> messages = new ArrayList<OpenLMessage>();
+        Collection<OpenLMessage> messages = new ArrayList<>();
 
         if (CollectionUtils.isNotEmpty(exceptions)) {
             for (OpenLException error : exceptions) {
@@ -58,7 +61,7 @@ public class OpenLMessagesUtils {
     }
 
     public static List<OpenLMessage> newErrorMessages(Throwable exception) {
-        List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
+        List<OpenLMessage> messages = new ArrayList<>();
 
         if (exception instanceof CompositeSyntaxNodeException) {
             CompositeSyntaxNodeException compositeException = (CompositeSyntaxNodeException) exception;
@@ -82,14 +85,14 @@ public class OpenLMessagesUtils {
     }
 
     private static Map<Severity, Collection<OpenLMessage>> groupMessagesBySeverity(Collection<OpenLMessage> messages) {
-        Map<Severity, Collection<OpenLMessage>> groupedMessagesMap = new HashMap<Severity, Collection<OpenLMessage>>();
+        Map<Severity, Collection<OpenLMessage>> groupedMessagesMap = new HashMap<>();
 
         for (OpenLMessage message : messages) {
             Severity severity = message.getSeverity();
             Collection<OpenLMessage> groupedMessages = groupedMessagesMap.get(severity);
 
             if (groupedMessages == null) {
-                groupedMessages = new ArrayList<OpenLMessage>();
+                groupedMessages = new ArrayList<>();
                 groupedMessagesMap.put(severity, groupedMessages);
             }
 

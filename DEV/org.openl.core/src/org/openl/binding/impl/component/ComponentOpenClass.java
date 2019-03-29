@@ -71,7 +71,7 @@ public class ComponentOpenClass extends ADynamicClass {
     }
     
     private class DefaultInitializer implements IOpenMethod {
-        List<IBoundNode> boundNodes = new ArrayList<IBoundNode>();
+        List<IBoundNode> boundNodes = new ArrayList<>();
 
         public void addNode(IBoundNode node) {
             boundNodes.add(node);

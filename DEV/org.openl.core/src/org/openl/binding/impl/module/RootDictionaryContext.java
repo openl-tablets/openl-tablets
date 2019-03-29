@@ -74,7 +74,7 @@ public class RootDictionaryContext implements VariableInContextFinder {
 
     protected int maxDepthLevel;
 
-    protected HashMap<String, List<IOpenField>> fields = new HashMap<String, List<IOpenField>>();
+    protected HashMap<String, List<IOpenField>> fields = new HashMap<>();
 
     public RootDictionaryContext(IOpenField[] roots, int maxDepthLevel) {
         this.roots = roots;
@@ -88,7 +88,7 @@ public class RootDictionaryContext implements VariableInContextFinder {
         List<IOpenField> ff = fields.get(name);
 
         if (ff == null) {
-            ff = new ArrayList<IOpenField>();
+            ff = new ArrayList<>();
             ff.add(contextField);
             fields.put(name, ff);
             return;

@@ -18,7 +18,10 @@ import org.openl.types.impl.CompositeMethod;
  * Helper class that encapsulates several OpenL engine methods.
  * 
  */
-public class OpenLManager {
+public final class OpenLManager {
+    
+    private OpenLManager() {
+    }
 
     /**
      * Makes open class that describes a type.
@@ -189,7 +192,7 @@ public class OpenLManager {
      * @return result of script execution
      * @throws OpenLRuntimeException
      */
-    public static Object runScript(OpenL openl, IOpenSourceCodeModule source) throws OpenLRuntimeException {
+    public static Object runScript(OpenL openl, IOpenSourceCodeModule source) {
 
         OpenLRunManager runManager = new OpenLRunManager(openl);
 
@@ -213,7 +216,7 @@ public class OpenLManager {
             IOpenSourceCodeModule source,
             String methodName,
             IOpenClass[] paramTypes,
-            Object[] params) throws OpenLRuntimeException, MethodNotFoundException, SyntaxNodeException {
+            Object[] params) throws SyntaxNodeException {
 
         OpenLRunManager runManager = new OpenLRunManager(openl);
 
@@ -230,7 +233,7 @@ public class OpenLManager {
      * @return result of execution
      * @throws OpenLRuntimeException
      */
-    public static Object run(OpenL openl, IOpenSourceCodeModule source, SourceType sourceType) throws OpenLRuntimeException {
+    public static Object run(OpenL openl, IOpenSourceCodeModule source, SourceType sourceType) {
 
         OpenLRunManager runManager = new OpenLRunManager(openl);
 

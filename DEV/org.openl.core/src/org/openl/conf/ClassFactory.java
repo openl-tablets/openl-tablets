@@ -37,7 +37,10 @@ public class ClassFactory extends AConfigurationElement {
             Log.debug("Potential problem loading class: {0}", ex, name);
             throw RuntimeExceptionWrapper.wrap(ex);
         } catch (UnsupportedClassVersionError e) {
-            Log.error("Can't load the class \"{0}\" compiled using newer version of JDK than current JRE ({1})", e, name, System.getProperty("java.version"));
+            Log.error("Can't load the class \"{0}\" compiled using newer version of JDK than current JRE ({1})",
+                e,
+                name,
+                System.getProperty("java.version"));
             throw RuntimeExceptionWrapper.wrap(e);
         } catch (Throwable t) {
             Log.error("Can't load class: " + name, t);
@@ -53,8 +56,7 @@ public class ClassFactory extends AConfigurationElement {
         }
     }
 
-    public static Object newInstance(String classname, IConfigurableResourceContext cxt, String uri)
-            throws OpenConfigurationException {
+    public static Object newInstance(String classname, IConfigurableResourceContext cxt, String uri) {
         try {
             return cxt.getClassLoader().loadClass(classname).newInstance();
         } catch (Throwable t) {
@@ -62,8 +64,7 @@ public class ClassFactory extends AConfigurationElement {
         }
     }
 
-    static public Class<?> validateClassExistsAndPublic(String className, ClassLoader cl, String uri)
-            throws OpenConfigurationException {
+    public static Class<?> validateClassExistsAndPublic(String className, ClassLoader cl, String uri) {
         Class<?> c;
         try {
             c = cl.loadClass(className);
@@ -79,35 +80,37 @@ public class ClassFactory extends AConfigurationElement {
 
     }
 
-    static public Constructor<?> validateHasConstructor(Class<?> clazz, Class<?>[] params, String uri)
-            throws OpenConfigurationException {
+    public static Constructor<?> validateHasConstructor(Class<?> clazz, Class<?>[] params, String uri) {
         Constructor<?> c;
         try {
             c = clazz.getConstructor(params);
 
         } catch (Throwable t) {
             String methodString = MethodUtil.printMethod("", params);
-            throw new OpenConfigurationException("Class " + clazz.getName() + " does not have a constructor "
-                    + methodString, uri, t);
+            throw new OpenConfigurationException(
+                "Class " + clazz.getName() + " does not have a constructor " + methodString,
+                uri,
+                t);
         }
 
         if (!Modifier.isPublic(c.getModifiers())) {
-            throw new OpenConfigurationException("Constructor " + clazz.getName() + MethodUtil.printMethod("", params)
-                    + " must be public ", uri, null);
+            throw new OpenConfigurationException(
+                "Constructor " + clazz.getName() + MethodUtil.printMethod("", params) + " must be public ",
+                uri,
+                null);
         }
         return c;
     }
 
-    static public Method validateHasMethod(Class<?> clazz, String methodName, Class<?>[] params, String uri)
-            throws OpenConfigurationException {
+    public static Method validateHasMethod(Class<?> clazz, String methodName, Class<?>[] params, String uri) {
         Method m;
         try {
             m = clazz.getMethod(methodName, params);
-
         } catch (Throwable t) {
             String methodString = MethodUtil.printMethod(methodName, params);
-            throw new OpenConfigurationException(
-                    "Class " + clazz.getName() + " does not have a method " + methodString, uri, t);
+            throw new OpenConfigurationException("Class " + clazz.getName() + " does not have a method " + methodString,
+                uri,
+                t);
         }
 
         if (!Modifier.isPublic(m.getModifiers())) {
@@ -116,7 +119,7 @@ public class ClassFactory extends AConfigurationElement {
         return m;
     }
 
-    static public void validateHaveNewInstance(Class<?> clazz, String uri) throws OpenConfigurationException {
+    public static void validateHaveNewInstance(Class<?> clazz, String uri) throws OpenConfigurationException {
         if (Modifier.isAbstract(clazz.getModifiers())) {
             throw new OpenConfigurationException(clazz.getName() + " must not be abstract ", uri, null);
         }
@@ -125,7 +128,8 @@ public class ClassFactory extends AConfigurationElement {
             Constructor<?> constr = clazz.getConstructor(NO_PARAMS);
             if (!Modifier.isPublic(constr.getModifiers())) {
                 throw new OpenConfigurationException("Default constructor of " + clazz.getName() + " must be public",
-                        uri, null);
+                    uri,
+                    null);
             }
         } catch (OpenConfigurationException ex) {
             throw ex;
@@ -134,11 +138,14 @@ public class ClassFactory extends AConfigurationElement {
         }
     }
 
-    static public void validateSuper(Class<?> clazz, Class<?> superClazz, String uri) throws OpenConfigurationException {
+    public static void validateSuper(Class<?> clazz,
+            Class<?> superClazz,
+            String uri) throws OpenConfigurationException {
         if (!superClazz.isAssignableFrom(clazz)) {
             String verb = superClazz.isInterface() ? "implement" : "extend";
             throw new OpenConfigurationException(clazz.getName() + " does not " + verb + " " + superClazz.getName(),
-                    uri, null);
+                uri,
+                null);
         }
 
     }

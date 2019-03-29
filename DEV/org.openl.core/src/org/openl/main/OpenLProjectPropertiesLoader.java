@@ -25,15 +25,15 @@ import org.openl.util.StringTool;
  */
 public class OpenLProjectPropertiesLoader {
 
-    static final public String OPENL_PROPERTIES_FNAME = "openl.project.classpath.properties";
+    public static final String OPENL_PROPERTIES_FNAME = "openl.project.classpath.properties";
 
-    static final public String OPENL_CLASSPATH_PROPERTY = "openl.project.classpath";
-    
+    public static final String OPENL_CLASSPATH_PROPERTY = "openl.project.classpath";
+
     public static final String OPENL_CLASSPATH_SEPARATOR_PROPERTY = "openl.project.classpath.separator";
 
     public static final String DISPLAY_NAME_SUFFIX = ".display.name";
 
-    static public String getOpenLPropertiesFolder(String projectHome) {
+    public static String getOpenLPropertiesFolder(String projectHome) {
         return projectHome + "/build";
     }
 
@@ -59,8 +59,9 @@ public class OpenLProjectPropertiesLoader {
     }
 
     public static void main(String[] args) throws IOException {
-        String[] x = makeClasspath(".", System.getProperty("java.class.path"),
-                ".*apache.ant.*|.*apache.commons.*|.*apache.tomcat.*|.*javacc.*");
+        String[] x = makeClasspath(".",
+            System.getProperty("java.class.path"),
+            ".*apache.ant.*|.*apache.commons.*|.*apache.tomcat.*|.*javacc.*");
         Arrays.sort(x);
         for (int i = 0; i < x.length; i++) {
             System.out.println(x[i]);
@@ -101,7 +102,7 @@ public class OpenLProjectPropertiesLoader {
         return p.getProperty(OPENL_CLASSPATH_PROPERTY);
 
     }
-    
+
     public String loadExistingClasspathSeparator(String projectHome) {
         Properties p = loadProjectProperties(projectHome);
         if (p == null) {
@@ -148,7 +149,6 @@ public class OpenLProjectPropertiesLoader {
             Object x = p.get(element.getKey());
             if (x == null) {
                 p.put(element.getKey(), element.getValue());
-                // newProps = true;
             } else if (!x.equals(element.getValue())) {
                 newProps = true;
             }

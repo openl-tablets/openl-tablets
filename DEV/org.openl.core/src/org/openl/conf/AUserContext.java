@@ -21,7 +21,7 @@ public abstract class AUserContext implements IUserContext {
             return true;
         }
 
-        if (obj == null || !(obj instanceof IUserContext)) {
+        if (!(obj instanceof IUserContext)) {
             return false;
         }
         IUserContext c = (IUserContext) obj;

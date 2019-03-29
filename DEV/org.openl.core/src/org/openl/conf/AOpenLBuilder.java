@@ -15,7 +15,7 @@ import org.openl.vm.SimpleVM;
 
 public abstract class AOpenLBuilder extends BaseOpenLBuilder {
 
-    public OpenL build(String openl) throws OpenConfigurationException {
+    public OpenL build(String openl) {
         OpenL op = new OpenL();
         op.setName(openl);
         try {

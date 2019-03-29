@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 
@@ -22,7 +21,7 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
 
     String namespace;
 
-    ArrayList<IMethodFactoryConfigurationElement> factories = new ArrayList<IMethodFactoryConfigurationElement>();
+    ArrayList<IMethodFactoryConfigurationElement> factories = new ArrayList<>();
 
     public void addJavalib(JavaLibraryConfiguration factory) {
         factories.add(factory);
@@ -39,9 +38,9 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
     }
 
     public IOpenMethod[] getMethods(String name,
-            IConfigurableResourceContext cxt) throws AmbiguousMethodException {
+            IConfigurableResourceContext cxt) {
 
-        List<IOpenMethod> methods = new LinkedList<IOpenMethod>();
+        List<IOpenMethod> methods = new LinkedList<>();
         for (IMethodFactoryConfigurationElement factory : factories) {
             Iterable<IOpenMethod> itr = factory.getLibrary(cxt).methods(name);
             for (IOpenMethod method : itr) {
@@ -66,7 +65,7 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
         namespace = string;
     }
 
-    public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
+    public void validate(IConfigurableResourceContext cxt) {
         for (IMethodFactoryConfigurationElement factory : factories) {
             factory.validate(cxt);
         }

@@ -6,7 +6,6 @@
 
 package org.openl.conf;
 
-import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.util.CategorizedMap;
@@ -30,7 +29,7 @@ public class LibraryFactoryConfiguration extends AConfigurationElement implement
      *      java.lang.String, org.openl.types.IOpenClass[],
      *      org.openl.binding.ICastFactory)
      */
-    public IOpenMethod[] getMethods(String namespace, String name, IConfigurableResourceContext cxt) throws AmbiguousMethodException {
+    public IOpenMethod[] getMethods(String namespace, String name, IConfigurableResourceContext cxt) {
         NameSpacedLibraryConfiguration lib = (NameSpacedLibraryConfiguration) map.get(namespace);
         return lib == null ? new IOpenMethod[]{} : lib.getMethods(name, cxt);
     }
@@ -40,7 +39,7 @@ public class LibraryFactoryConfiguration extends AConfigurationElement implement
         return lib == null ? null : lib.getField(name, cxt, strictMatch);
     }
 
-    public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
+    public void validate(IConfigurableResourceContext cxt) {
         for (Object lib : map.values()) {
             ((NameSpacedLibraryConfiguration) lib).validate(cxt);
         }

@@ -25,7 +25,7 @@ public abstract class DefaultBeanByteCodeWriter implements BeanByteCodeWriter {
     public DefaultBeanByteCodeWriter(String beanNameWithPackage, Class<?> parentClass, Map<String, FieldDescription> beanFields) {
         this.beanNameWithPackage = beanNameWithPackage;
         this.parentClass = parentClass;
-        this.beanFields = new LinkedHashMap<String, FieldDescription>(beanFields);
+        this.beanFields = new LinkedHashMap<>(beanFields);
     }
 
     protected int getConstantForVarInsn(FieldDescription field) {

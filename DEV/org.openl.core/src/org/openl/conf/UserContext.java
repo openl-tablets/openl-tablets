@@ -15,8 +15,7 @@ import java.util.Map;
 import org.openl.OpenL;
 
 /**
- * The class is designed as immutable, but not immutable because contains
- * ClassLoader.
+ * The class is designed as immutable, but not immutable because contains ClassLoader.
  * 
  * @author snshor
  * 
@@ -64,15 +63,15 @@ public final class UserContext extends AUserContext {
         return sb.toString();
     }
 
-    private Map<String, IOpenLConfiguration> configurations = new HashMap<String, IOpenLConfiguration>();
+    private Map<String, IOpenLConfiguration> configurations = new HashMap<>();
 
-    private Map<String, OpenL> openls = new HashMap<String, OpenL>();
+    private Map<String, OpenL> openls = new HashMap<>();
 
     public OpenL getOpenL(String name) {
         return openls.get(name);
     }
 
-    public void registerOpenL(String name, OpenL opl) throws OpenConfigurationException {
+    public void registerOpenL(String name, OpenL opl) {
         OpenL openl = openls.get(name);
         if (openl != null) {
             throw new OpenConfigurationException("The openl " + name + " already exists", null, null);
@@ -80,11 +79,11 @@ public final class UserContext extends AUserContext {
         openls.put(name, opl);
     }
 
-    public IOpenLConfiguration getOpenLConfiguration(String name) throws OpenConfigurationException {
+    public IOpenLConfiguration getOpenLConfiguration(String name) {
         return configurations.get(name);
     }
 
-    public void registerOpenLConfiguration(String name, IOpenLConfiguration oplc) throws OpenConfigurationException {
+    public void registerOpenLConfiguration(String name, IOpenLConfiguration oplc) {
         IOpenLConfiguration configuration = configurations.get(name);
         if (configuration != null) {
             throw new OpenConfigurationException("The configuration " + name + " already exists", null, null);

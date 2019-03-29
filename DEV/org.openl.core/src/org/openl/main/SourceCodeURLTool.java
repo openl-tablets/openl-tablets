@@ -20,11 +20,14 @@ import org.slf4j.LoggerFactory;
 /**
  * @author snshor
  */
-public class SourceCodeURLTool implements SourceCodeURLConstants {
+public final class SourceCodeURLTool implements SourceCodeURLConstants {
 
+    private SourceCodeURLTool() {
+    }
+    
     private static final Pattern NEW_LINE = Pattern.compile("[\r\n]+");
 
-    static public String makeSourceLocationURL(ILocation location, IOpenSourceCodeModule module) {
+    public static String makeSourceLocationURL(ILocation location, IOpenSourceCodeModule module) {
         final Logger log = LoggerFactory.getLogger(SourceCodeURLTool.class);
 
         if (module != null && StringUtils.isEmpty(module.getUri())) {

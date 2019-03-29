@@ -21,12 +21,12 @@ public interface IUserContext {
 
     String getUserHome();
 
-    public IOpenLConfiguration getOpenLConfiguration(String name) throws OpenConfigurationException;
+    public IOpenLConfiguration getOpenLConfiguration(String name);
 
-    public void registerOpenLConfiguration(String name, IOpenLConfiguration oplc) throws OpenConfigurationException;
+    public void registerOpenLConfiguration(String name, IOpenLConfiguration oplc);
 
     public OpenL getOpenL(String name);
 
-    public void registerOpenL(String name, OpenL opl) throws OpenConfigurationException;
+    public void registerOpenL(String name, OpenL opl);
 
 }

@@ -66,7 +66,7 @@ public class NodeBinderFactoryConfiguration extends AConfigurationElement {
         return factory == null ? null : (INodeBinder) factory.getResource(cxt);
     }
 
-    public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
+    public void validate(IConfigurableResourceContext cxt) {
         for (Object factory : map.values()) {
             ((SingleBinderFactory) factory).validate(cxt);
         }

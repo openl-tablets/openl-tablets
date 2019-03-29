@@ -16,7 +16,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
     private String[] libraries = new String[]{};
 
     @Override
-    public OpenL build(String category) throws OpenConfigurationException {
+    public OpenL build(String category) {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         ClassLoader userEnvitonmentContextClassLoader = getUserEnvironmentContext().getUserClassLoader();
         try {

@@ -18,7 +18,7 @@ public class OpenConfigurationException extends RuntimeException {
      *
      */
     private static final long serialVersionUID = 3292629986027365336L;
-    private String uri;
+    private final String uri;
 
     public OpenConfigurationException(String msg, String uri, Throwable t) {
         super(msg, t);

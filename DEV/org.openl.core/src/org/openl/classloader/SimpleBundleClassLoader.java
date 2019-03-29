@@ -73,7 +73,6 @@ public class SimpleBundleClassLoader extends OpenLBundleClassLoader {
                         clazz = bundleClassLoader.loadClass(name);
                     }
                 }
-                // Class<?> clazz = findLoadedClass(name);
                 if (clazz != null) {
                     return clazz;
                 }

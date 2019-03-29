@@ -14,10 +14,6 @@ public abstract class MethodWriter extends DefaultBeanByteCodeWriter {
         super(beanNameWithPackage, null, allFields);        
     }
 
-    protected String getBeanNameWithPackage() {
-        return super.getBeanNameWithPackage();
-    }
-
     protected Map<String, FieldDescription> getAllFields() {
         return getBeanFields();
     }

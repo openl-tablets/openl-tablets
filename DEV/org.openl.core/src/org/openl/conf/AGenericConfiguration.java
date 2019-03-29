@@ -20,11 +20,11 @@ import org.openl.util.RuntimeExceptionWrapper;
  */
 public abstract class AGenericConfiguration extends AConfigurationElement {
 
-    static public class StringProperty {
+    public static class StringProperty {
         String name;
         String value;
 
-       public String getName() {
+        public String getName() {
             return name;
         }
 
@@ -56,7 +56,7 @@ public abstract class AGenericConfiguration extends AConfigurationElement {
 
     public void addProperty(StringProperty prop) {
         if (properties == null) {
-            properties = new ArrayList<StringProperty>();
+            properties = new ArrayList<>();
         }
         properties.add(prop);
     }
@@ -65,38 +65,40 @@ public abstract class AGenericConfiguration extends AConfigurationElement {
 
         try {
 
-            Class<?> implementingClass = ClassFactory.validateClassExistsAndPublic(implementingClassName, cxt
-                    .getClassLoader(), getUri());
+            Class<?> implementingClass = ClassFactory
+                .validateClassExistsAndPublic(implementingClassName, cxt.getClassLoader(), getUri());
 
             Object res = ClassFactory.newInstance(implementingClass, getUri());
 
             if (classResourse != null) {
-                Class<?> resourceClass = ClassFactory.validateClassExistsAndPublic(classResourse, cxt.getClassLoader(),
-                        getUri());
-                Method m = ClassFactory.validateHasMethod(implementingClass, "setClassResource",
-                        new Class[] { Class.class }, getUri());
-                m.invoke(res, new Object[] { resourceClass });
+                Class<?> resourceClass = ClassFactory
+                    .validateClassExistsAndPublic(classResourse, cxt.getClassLoader(), getUri());
+                Method m = ClassFactory
+                    .validateHasMethod(implementingClass, "setClassResource", new Class[] { Class.class }, getUri());
+                m.invoke(res, resourceClass);
             }
 
             if (fileResource != null) {
                 File f = new File(fileResource);
-                Method m = ClassFactory.validateHasMethod(implementingClass, "setFile", new Class[] { File.class },
-                        getUri());
-                m.invoke(res, new Object[] { f });
+                Method m = ClassFactory
+                    .validateHasMethod(implementingClass, "setFile", new Class[] { File.class }, getUri());
+                m.invoke(res, f);
             }
 
             if (urlResource != null) {
                 URL url = new URL(urlResource);
-                Method m = ClassFactory.validateHasMethod(implementingClass, "setURL", new Class[] { File.class },
-                        getUri());
-                m.invoke(res, new Object[] { url });
+                Method m = ClassFactory
+                    .validateHasMethod(implementingClass, "setURL", new Class[] { File.class }, getUri());
+                m.invoke(res, url);
             }
 
             if (properties != null) {
-                Method m = ClassFactory.validateHasMethod(implementingClass, "setProperty", new Class[] { String.class,
-                        String.class }, getUri());
+                Method m = ClassFactory.validateHasMethod(implementingClass,
+                    "setProperty",
+                    new Class[] { String.class, String.class },
+                    getUri());
                 for (StringProperty prop : properties) {
-                    m.invoke(res, new Object[] { prop.getName(), prop.getValue() });
+                    m.invoke(res, prop.getName(), prop.getValue());
                 }
             }
 
@@ -125,16 +127,16 @@ public abstract class AGenericConfiguration extends AConfigurationElement {
      *
      * @see org.openl.conf.IConfigurationElement#validate(org.openl.conf.IConfigurableResourceContext)
      */
-    public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
-        Class<?> implementingClass = ClassFactory.validateClassExistsAndPublic(implementingClassName, cxt
-                .getClassLoader(), getUri());
+    public void validate(IConfigurableResourceContext cxt) {
+        Class<?> implementingClass = ClassFactory
+            .validateClassExistsAndPublic(implementingClassName, cxt.getClassLoader(), getUri());
         ClassFactory.validateSuper(implementingClass, getImplementingClass(), getUri());
         ClassFactory.validateHaveNewInstance(implementingClass, getUri());
 
         if (classResourse != null) {
             ClassFactory.validateClassExistsAndPublic(classResourse, cxt.getClassLoader(), getUri());
             ClassFactory
-                    .validateHasMethod(implementingClass, "setClassResource", new Class[] { Class.class }, getUri());
+                .validateHasMethod(implementingClass, "setClassResource", new Class[] { Class.class }, getUri());
         }
 
         if (fileResource != null) {
@@ -156,33 +158,12 @@ public abstract class AGenericConfiguration extends AConfigurationElement {
         }
 
         if (properties != null) {
-            ClassFactory.validateHasMethod(implementingClass, "setProperty",
-                    new Class[] { String.class, String.class }, getUri());
+            ClassFactory.validateHasMethod(implementingClass,
+                "setProperty",
+                new Class[] { String.class, String.class },
+                getUri());
         }
 
     }
-
-    // TODO check if we can use Ant attributes
-
-    // static public class Attribute
-    // {
-    //
-    // String name;
-    // String value;
-    // String typeClass;
-    //
-    // Object guessType()
-    // {
-    // if (value == null)
-    // return null;
-    //
-    // if (value.equals(""))
-    // return String.class;
-    //
-    // if
-    //
-    // }
-    // }
-    //
 
 }

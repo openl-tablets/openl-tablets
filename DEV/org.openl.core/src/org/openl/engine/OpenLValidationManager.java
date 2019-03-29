@@ -56,7 +56,7 @@ public class OpenLValidationManager extends OpenLHolder {
      */
     public List<ValidationResult> validate(IOpenClass openClass) {
         if (isValidationEnabled()) {
-            List<ValidationResult> results = new ArrayList<ValidationResult>();
+            List<ValidationResult> results = new ArrayList<>();
 
             ICompileContext context = getOpenL().getCompileContext();
 

@@ -19,7 +19,7 @@ import org.openl.types.IOpenField;
 
 /**
  * Binding context for different Openl components.<br>
- * Handles {@link ComponentOpenClass} for which binding is performed.<br> 
+ * Handles {@link ComponentOpenClass} for which binding is performed.<br>
  * And a map of internal types that are found during binding.<br>
  * 
  * Was created by extracting functionality from {@link ModuleBindingContext} of 20192 revision.
@@ -28,13 +28,11 @@ import org.openl.types.IOpenField;
  *
  */
 public class ComponentBindingContext extends BindingContextDelegator {
-	
-	//private final Log log = LogFactory.getLog(ComponentBindingContext.class); 
-    
+
     private ComponentOpenClass componentOpenClass;
-    
+
     private Map<String, IOpenClass> internalTypes = null;
-    
+
     public ComponentBindingContext(IBindingContext delegate, ComponentOpenClass componentOpenClass) {
         super(delegate);
         this.componentOpenClass = componentOpenClass;
@@ -55,20 +53,22 @@ public class ComponentBindingContext extends BindingContextDelegator {
     public ComponentOpenClass getComponentOpenClass() {
         return componentOpenClass;
     }
-    
+
     @Override
     public synchronized void addType(String namespace, IOpenClass type) throws OpenLCompilationException {
         add(namespace, type.getName(), type);
     }
 
-    protected synchronized void add(String namespace, String typeName, IOpenClass type) throws OpenLCompilationException {
+    protected synchronized void add(String namespace,
+            String typeName,
+            IOpenClass type) throws OpenLCompilationException {
         if (internalTypes == null) {
             internalTypes = new HashMap<>();
         }
         String nameWithNamespace = buildTypeName(namespace, typeName);
         if (internalTypes.containsKey(nameWithNamespace)) {
             IOpenClass openClass = internalTypes.get(nameWithNamespace);
-            if (openClass == type){
+            if (openClass == type) {
                 return;
             }
             if (openClass.getPackageName().equals(type.getPackageName())) {
@@ -80,25 +80,21 @@ public class ComponentBindingContext extends BindingContextDelegator {
     }
 
     @Override
-    public ILocalVar addVar(String namespace, String name, IOpenClass type)
-            throws DuplicatedVarException {
+    public ILocalVar addVar(String namespace, String name, IOpenClass type) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public IMethodCaller findMethodCaller(String namespace, String methodName,
-            IOpenClass[] parTypes) throws AmbiguousMethodException {
+    public IMethodCaller findMethodCaller(String namespace, String methodName, IOpenClass[] parTypes) {
 
         IMethodCaller imc = null;
         if (ISyntaxConstants.THIS_NAMESPACE.equals(namespace)) {
-            imc = MethodSearch.findMethod(methodName, parTypes, this,
-                componentOpenClass);
+            imc = MethodSearch.findMethod(methodName, parTypes, this, componentOpenClass);
         }
 
-        return imc != null ? imc : super.findMethodCaller(namespace,
-                methodName, parTypes);
+        return imc != null ? imc : super.findMethodCaller(namespace, methodName, parTypes);
     }
-    
+
     @Override
     public IOpenClass findType(String namespace, String typeName) {
         String key = buildTypeName(namespace, typeName);
@@ -108,18 +104,17 @@ public class ComponentBindingContext extends BindingContextDelegator {
                 return ioc;
             }
         }
-        
+
         IOpenClass type = componentOpenClass.findType(typeName);
-        if (type != null){
+        if (type != null) {
             return type;
         }
-        
+
         return super.findType(namespace, typeName);
     }
-    
+
     @Override
-    public IOpenField findVar(String namespace, String name, boolean strictMatch)
-            throws AmbiguousVarException {
+    public IOpenField findVar(String namespace, String name, boolean strictMatch) {
         IOpenField res = null;
         if (namespace.equals(ISyntaxConstants.THIS_NAMESPACE)) {
             res = componentOpenClass.getField(name, strictMatch);

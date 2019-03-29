@@ -19,9 +19,9 @@ import org.openl.util.StringUtils;
  */
 public class JavaImportTypeConfiguration extends AConfigurationElement implements ITypeFactoryConfigurationElement {
     
-    private List<String> classes = new ArrayList<String>();
+    private List<String> classes = new ArrayList<>();
 
-    private List<String> packages = new ArrayList<String>();
+    private List<String> packages = new ArrayList<>();
 
     private ITypeLibrary library = null;
     
@@ -50,7 +50,7 @@ public class JavaImportTypeConfiguration extends AConfigurationElement implement
         return library;
     }
 
-    public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
+    public void validate(IConfigurableResourceContext cxt) {
     }
 
 }

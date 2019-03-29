@@ -5,7 +5,7 @@ import org.openl.types.java.JavaLongNameTypeLibrary;
 
 public class JavaLongNameTypeConfiguration extends AConfigurationElement implements ITypeFactoryConfigurationElement {
 
-    public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
+    public void validate(IConfigurableResourceContext cxt) {
         // TODO Auto-generated method stub
 
     }
