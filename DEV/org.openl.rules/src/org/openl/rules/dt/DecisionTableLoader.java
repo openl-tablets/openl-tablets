@@ -42,8 +42,8 @@ public class DecisionTableLoader {
 
     private DTInfo info;
 
-    private List<IBaseCondition> conditions = new ArrayList<IBaseCondition>();
-    private List<IBaseAction> actions = new ArrayList<IBaseAction>();
+    private List<IBaseCondition> conditions = new ArrayList<>();
+    private List<IBaseAction> actions = new ArrayList<>();
     private boolean hasReturnAction = false;
     private boolean hasCollectReturnAction = false;
     private boolean hasCollectReturnKeyAction = false;

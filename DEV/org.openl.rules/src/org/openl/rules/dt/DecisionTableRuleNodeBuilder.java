@@ -8,11 +8,11 @@ public class DecisionTableRuleNodeBuilder {
     private List<Integer> rules;
 
     public DecisionTableRuleNodeBuilder() {
-        this.rules = new ArrayList<Integer>();
+        this.rules = new ArrayList<>();
     }
 
     public DecisionTableRuleNodeBuilder(DecisionTableRuleNodeBuilder emptyBuilder) {
-        this.rules = new ArrayList<Integer>(emptyBuilder.rules);
+        this.rules = new ArrayList<>(emptyBuilder.rules);
     }
 
     public void addRule(int rule) {

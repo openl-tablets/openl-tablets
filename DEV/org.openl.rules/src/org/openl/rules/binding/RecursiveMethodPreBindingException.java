@@ -6,9 +6,6 @@ public class RecursiveMethodPreBindingException extends OpenlNotCheckedException
 
     private static final long serialVersionUID = -514314877350252563L;
 
-    public RecursiveMethodPreBindingException() {
-    }
-
     @Override
     public String getMessage() {
         StringBuilder buf = new StringBuilder();

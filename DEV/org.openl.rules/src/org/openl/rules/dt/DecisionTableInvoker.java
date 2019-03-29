@@ -32,7 +32,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
         IIntIterator rulesIntIterator = algorithm.checkedRules(target, params, env);
 
         boolean atLeastOneRuleFired = false;
-        List<Integer> r = new ArrayList<Integer>();
+        List<Integer> r = new ArrayList<>();
         while (rulesIntIterator.hasNext()) {
             atLeastOneRuleFired = true;
             r.add(rulesIntIterator.nextInt());

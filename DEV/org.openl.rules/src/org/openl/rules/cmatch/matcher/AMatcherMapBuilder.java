@@ -9,7 +9,7 @@ public abstract class AMatcherMapBuilder<M extends IMatcher> implements IMatcher
     private final Map<Class<?>, M> map;
 
     public AMatcherMapBuilder() {
-        map = new HashMap<Class<?>, M>();
+        map = new HashMap<>();
     }
 
     public IMatcher getInstanceIfSupports(IOpenClass type) {

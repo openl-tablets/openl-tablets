@@ -58,8 +58,7 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
             headerTokenLength = nameOfAlgorithm.getStartPosition() + name.length() + 1;
         }
 
-        SubTextSourceCodeModule codeModule = new SubTextSourceCodeModule(src, headerTokenLength);
-        return codeModule;
+        return new SubTextSourceCodeModule(src, headerTokenLength);
     }
 
     @Override

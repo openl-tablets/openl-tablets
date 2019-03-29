@@ -11,7 +11,7 @@ public class SpreadsheetHeaderDefinition {
     private int column;
 
     private IOpenClass type;
-    private List<SymbolicTypeDefinition> vars = new ArrayList<SymbolicTypeDefinition>();
+    private List<SymbolicTypeDefinition> vars = new ArrayList<>();
 
     public SpreadsheetHeaderDefinition(int row, int column) {
         this.row = row;

@@ -150,7 +150,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         this.ruleRow = ruleRow;
         this.columns = columns;
 
-        prepare(getHeader(), openl, componentOpenClass, bindingContext);
+        prepare(getHeader(), openl, bindingContext);
     }
 
     public BindingDependencies getDependencies() {
@@ -181,7 +181,6 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
 
     private void prepare(IOpenMethodHeader header,
             OpenL openl,
-            ComponentOpenClass module,
             IBindingContext bindingContext) throws Exception {
         IAlgorithmBuilder algorithmBuilder = new DecisionTableAlgorithmBuilder(this, header, openl);
         algorithm = algorithmBuilder.prepareAndBuildAlgorithm(bindingContext);

@@ -27,15 +27,15 @@ public class DatatypeArrayMultiRowElementContext {
                 Pair<Integer, Object> prevIndex = a.get(getRow() - 1);
                 if (prevIndex != null && prevIndex.getRight() == target) {
                     if (isRowValueIsTheSameAsPrevious()) {
-                        index = new ImmutablePair<Integer, Object>(prevIndex.getLeft(), target);
+                        index = new ImmutablePair<>(prevIndex.getLeft(), target);
                     } else {
-                        index = new ImmutablePair<Integer, Object>(prevIndex.getLeft() + 1, target);
+                        index = new ImmutablePair<>(prevIndex.getLeft() + 1, target);
                     }
                 } else {
-                    index = new ImmutablePair<Integer, Object>(0, target);
+                    index = new ImmutablePair<>(0, target);
                 }
             } else {
-                index = new ImmutablePair<Integer, Object>(0, target);
+                index = new ImmutablePair<>(0, target);
             }
         }
         a.put(getRow(), index);

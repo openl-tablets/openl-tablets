@@ -62,7 +62,7 @@ public class DecisionTableLookupConvertor {
 
         IGridTable lookupValuesTable = getLookupValuesTable(table, firstLookupGridColumn, grid);
 
-        Integer lookupValuesTableHeight = getlookupValuesTableHeight(table, firstLookupGridColumn, grid);
+        Integer lookupValuesTableHeight = getlookupValuesTableHeight(table, grid);
 
         isMultiplier(lookupValuesTable);
 
@@ -180,7 +180,7 @@ public class DecisionTableLookupConvertor {
         return new GridTable(lookupValuesRegion, grid);
     }
 
-    private Integer getlookupValuesTableHeight(ILogicalTable originaltable, int firstLookupGridColumn, IGrid grid) {
+    private Integer getlookupValuesTableHeight(ILogicalTable originaltable, IGrid grid) {
         String stringValue = originaltable.getCell(0, 0).getStringValue();
         if (stringValue == null) {
             stringValue = "";
@@ -329,7 +329,7 @@ public class DecisionTableLookupConvertor {
     }
 
     private void validateLookupSection() throws OpenLCompilationException {
-        if (hcHeaders.size() == 0) {
+        if (hcHeaders.isEmpty()) {
             String message = String.format("Lookup Table must have at least one Horizontal Condition (%s1)",
                 DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey());
             throw new OpenLCompilationException(message);

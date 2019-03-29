@@ -20,7 +20,7 @@ public class ArgumentsHelper {
     public ArgumentsHelper(IMethodSignature methodSignature) {
         this.methodSignature = methodSignature;
 
-        argTypes = new HashMap<String, Argument>();
+        argTypes = new HashMap<>();
 
         initSimpleArgs();
     }
@@ -67,10 +67,8 @@ public class ArgumentsHelper {
         }
 
         String[] possibleNames = argNames.toArray(new String[argNames.size()]);
-        DomainOpenClass domainClass = new DomainOpenClass("names", JavaOpenClass.STRING, new EnumDomain<String>(
+        return new DomainOpenClass("names", JavaOpenClass.STRING, new EnumDomain<String>(
                 possibleNames), null);
-
-        return domainClass;
     }
 
     public Argument getTypeByName(String argName) {

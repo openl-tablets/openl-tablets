@@ -23,7 +23,7 @@ public class MatchNode {
     private Object[] checkValues;
 
     public MatchNode(int rowIndex) {
-        children = new LinkedList<MatchNode>();
+        children = new LinkedList<>();
         this.rowIndex = rowIndex;
     }
 

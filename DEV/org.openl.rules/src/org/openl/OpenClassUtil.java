@@ -4,7 +4,10 @@ import org.openl.classloader.ClassLoaderUtils;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.types.java.JavaOpenClassCache;
 
-public class OpenClassUtil {
+public final class OpenClassUtil {
+
+    private OpenClassUtil() {
+    }
 
     public static void release(CompiledOpenClass compiledOpenClass) {
         if (compiledOpenClass != null) {

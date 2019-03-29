@@ -397,17 +397,8 @@ public class SpreadsheetStructureBuilder {
     }
 
     private IBindingContext getColumnContext(int columnIndex, int rowIndex, IBindingContext rowBindingContext) {
-        Map<Integer, IBindingContext> contexts = colContexts.get(columnIndex);
-        if (contexts == null) {
-            contexts = new HashMap<>();
-            colContexts.put(columnIndex, contexts);
-        }
-        IBindingContext context = contexts.get(rowIndex);
-        if (context == null) {
-            context = makeColumnContext(columnIndex, rowBindingContext);
-            contexts.put(rowIndex, context);
-        }
-        return context;
+        Map<Integer, IBindingContext> contexts = colContexts.computeIfAbsent(columnIndex, e -> new HashMap<>());
+        return contexts.computeIfAbsent(rowIndex, e -> makeColumnContext(columnIndex, rowBindingContext));
     }
 
     private IBindingContext makeColumnContext(int columnIndex, IBindingContext rowBindingContext) {

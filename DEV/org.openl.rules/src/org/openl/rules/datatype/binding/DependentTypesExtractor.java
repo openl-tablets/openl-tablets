@@ -47,7 +47,7 @@ class DependentTypesExtractor {
             tableHeight = dataPart.getHeight();
         }
 
-        Set<String> dependencies = new LinkedHashSet<String>();
+        Set<String> dependencies = new LinkedHashSet<>();
         if (isAliasDatatype(node)){
             //Alias datatype doens't have dependencies
             return dependencies;

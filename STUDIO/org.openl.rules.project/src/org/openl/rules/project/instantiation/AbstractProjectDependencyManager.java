@@ -28,7 +28,7 @@ import org.openl.syntax.impl.IdentifierNode;
 
 public abstract class AbstractProjectDependencyManager extends DependencyManager {
 
-    private LinkedHashSet<DependencyReference> dependencyReferences = new LinkedHashSet<DependencyReference>();
+    private LinkedHashSet<DependencyReference> dependencyReferences = new LinkedHashSet<>();
 
     public LinkedHashSet<DependencyReference> getDependencyReferences() {
         return dependencyReferences;
@@ -120,8 +120,8 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         throw exception;
     }
 
-    private Deque<String> moduleCompilationStack = new ArrayDeque<String>();
-    private Map<String, ClassLoader> classLoaders = new HashMap<String, ClassLoader>();
+    private Deque<String> moduleCompilationStack = new ArrayDeque<>();
+    private Map<String, ClassLoader> classLoaders = new HashMap<>();
 
     public Deque<String> getCompilationStack() {
         return moduleCompilationStack;
@@ -153,8 +153,9 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         return classLoader;
     }
     
-    private List<ClassLoader> oldClassLoaders = new ArrayList<ClassLoader>();
+    private List<ClassLoader> oldClassLoaders = new ArrayList<>();
 
+    @Override
     public synchronized void reset(IDependency dependency){
         final String dependencyName = dependency.getNode().getIdentifier();
         for (ProjectDescriptor projectDescriptor : getProjectDescriptors()){
@@ -174,8 +175,8 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
             }
         }
         
-        List<DependencyReference> dependenciesToReset = new ArrayList<DependencyReference>();
-        List<DependencyReference> dependenciesRefernciesToClear = new ArrayList<DependencyReference>();
+        List<DependencyReference> dependenciesToReset = new ArrayList<>();
+        List<DependencyReference> dependenciesRefernciesToClear = new ArrayList<>();
         for (DependencyReference dependencyReference : getDependencyReferences()){
             if (dependencyReference.getReference().equals(dependencyName)){
                 dependenciesToReset.add(dependencyReference);
@@ -202,6 +203,7 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         }
     }
     
+    @Override
     public synchronized void resetAll(){
         for (ClassLoader classLoader : oldClassLoaders){
             OpenClassUtil.releaseClassLoader(classLoader);

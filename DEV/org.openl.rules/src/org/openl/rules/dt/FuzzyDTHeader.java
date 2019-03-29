@@ -70,7 +70,7 @@ class FuzzyDTHeader extends DTHeader {
         return super.getMethodParameterIndex();
     }
 
-    private final static int[] RETURN_INDEXES = new int[] {};
+    private static final int[] RETURN_INDEXES = new int[] {};
 
     @Override
     int[] getMethodParameterIndexes() {

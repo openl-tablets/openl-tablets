@@ -31,7 +31,7 @@ public class ColumnMatchBuilder {
         this.tsn = tsn;
     }
 
-    public void build(ILogicalTable tableBody) throws Exception {
+    public void build(ILogicalTable tableBody) throws SyntaxNodeException {
         if (tableBody.getHeight() < 4) {
             throw SyntaxNodeExceptionUtils.createError("Unsufficient rows. At least 4 are expected!", null, tsn);
         }
@@ -61,7 +61,7 @@ public class ColumnMatchBuilder {
         int dataRowsCount = leftRows.getHeight();
 
         // init rows
-        List<TableRow> rows = new ArrayList<TableRow>(dataRowsCount);
+        List<TableRow> rows = new ArrayList<>(dataRowsCount);
         for (int i = 0; i < dataRowsCount; i++) {
             rows.add(new TableRow());
         }
@@ -124,8 +124,8 @@ public class ColumnMatchBuilder {
     }    
 
     private void prepareColumns(ILogicalTable tableBody) throws SyntaxNodeException {
-        columns = new ArrayList<TableColumn>();
-        Set<String> addedIds = new HashSet<String>();
+        columns = new ArrayList<>();
+        Set<String> addedIds = new HashSet<>();
 
         ILogicalTable ids = tableBody.getRow(0);
 

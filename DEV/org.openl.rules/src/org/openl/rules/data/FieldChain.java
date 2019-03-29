@@ -1,5 +1,8 @@
 package org.openl.rules.data;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -40,24 +43,13 @@ public class FieldChain extends AOpenField {
     }
 
     private static String makeNames(IOpenField[] fields) {
-
-        String name = fields[0].getName();
-
-        for (int i = 1; i < fields.length; i++) {
-            name += "." + fields[i].getName();
-        }
-
-        return name;
+        return Arrays.stream(fields).map(IOpenField::getName).collect(Collectors.joining("."));
     }
 
     private static String makeNamesByTokens(IdentifierNode[] fieldAccessorChainTokens) {
-        String name = fieldAccessorChainTokens[0].getIdentifier();
-
-        for (int i = 1; i < fieldAccessorChainTokens.length; i++) {
-            name += "." + fieldAccessorChainTokens[i].getIdentifier();
-        }
-
-        return name;
+        return Arrays.stream(fieldAccessorChainTokens)
+            .map(IdentifierNode::getIdentifier)
+            .collect(Collectors.joining("."));
     }
 
     @Override
@@ -102,7 +94,7 @@ public class FieldChain extends AOpenField {
 
         fields[fields.length - 1].set(target, value, env);
     }
-    
+
     public IOpenField[] getFields() {
         return fields.clone();
     }

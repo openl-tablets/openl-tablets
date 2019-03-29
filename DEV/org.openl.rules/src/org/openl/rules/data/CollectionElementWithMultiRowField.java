@@ -141,6 +141,7 @@ public class CollectionElementWithMultiRowField extends AOpenField {
         }
     }
 
+    @Override
     public boolean isWritable() {
         return true;
     }

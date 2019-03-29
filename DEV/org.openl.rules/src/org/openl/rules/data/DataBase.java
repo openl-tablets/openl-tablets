@@ -22,7 +22,7 @@ import org.openl.rules.table.ILogicalTable;
  */
 public class DataBase implements IDataBase {
 
-    private Map<String, ITable> tables = new HashMap<String, ITable>();
+    private Map<String, ITable> tables = new HashMap<>();
 
     private final Object lock = new Object();
 
@@ -64,7 +64,7 @@ public class DataBase implements IDataBase {
     
     public Set<ITable> getTables(){
         synchronized (lock) {
-            Set<ITable> ret = new HashSet<ITable>();
+            Set<ITable> ret = new HashSet<>();
             for (ITable table : this.tables.values()) {
                 ret.add(table);
             }

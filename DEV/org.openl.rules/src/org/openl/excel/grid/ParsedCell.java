@@ -10,7 +10,7 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsUtil;
 
 public class ParsedCell implements ICell {
-    private final static Object NOT_DEFINED = new Object();
+    private static final Object NOT_DEFINED = new Object();
     private final int row;
     private final int column;
     private final ParsedGrid grid;

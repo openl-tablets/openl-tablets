@@ -23,8 +23,7 @@ public class ConditionsTableBinder extends ADtColumnsDefinitionTableBinder {
             XlsModuleOpenClass module,
             OpenL openl,
             IBindingContext bindingContext) {
-        ConditionsTableBoundNode boundNode = new ConditionsTableBoundNode(tsn, openl);
-        return boundNode;
+        return new ConditionsTableBoundNode(tsn, openl);
     }
 
 }

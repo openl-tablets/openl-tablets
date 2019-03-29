@@ -25,7 +25,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
 
     private List<ProjectDescriptor> projects;
 
-    private final List<String> moduleNames = new ArrayList<String>();
+    private final List<String> moduleNames = new ArrayList<>();
 
     private Collection<ProjectDescriptor> projectDescriptors = null;
     
@@ -76,9 +76,9 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
 
     private synchronized void initDependencyLoaders() {
         if (projectDescriptors == null && dependencyLoaders == null) {
-            dependencyLoaders = new ArrayList<IDependencyLoader>();
-            projectDescriptors = new ArrayList<ProjectDescriptor>();
-            dependencyNames = new HashSet<String>();
+            dependencyLoaders = new ArrayList<>();
+            projectDescriptors = new ArrayList<>();
+            dependencyNames = new HashSet<>();
             for (ProjectDescriptor project : projects) {
                 try {
                     Collection<Module> modulesOfProject = project.getModules();
@@ -106,7 +106,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
     }
 
     public Collection<CompiledDependency> getCompiledDependencies() {
-        Collection<CompiledDependency> dependencies = new ArrayList<CompiledDependency>();
+        Collection<CompiledDependency> dependencies = new ArrayList<>();
 
         for (IDependencyLoader dependencyLoader : getDependencyLoaders()) {
             CompiledDependency compiledDependency = ((WebStudioDependencyLoader) dependencyLoader).getCompiledDependency();

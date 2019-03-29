@@ -102,7 +102,7 @@ public class CellsHeaderExtractor {
     
     public Set<String> getDependentSignatureSpreadsheetTypes() {
         if (dependentSpreadsheetTypes == null) {
-            dependentSpreadsheetTypes = new HashSet<String>();
+            dependentSpreadsheetTypes = new HashSet<>();
             dependentSpreadsheetTypes.addAll(getSignatureDependencies(spreadsheetSignature));
         }
         return dependentSpreadsheetTypes;
@@ -110,7 +110,7 @@ public class CellsHeaderExtractor {
 
     // package scope just for tests
     static List<String> getSignatureDependencies(String signature) {
-        List<String> dependentSpreadsheets = new ArrayList<String>();
+        List<String> dependentSpreadsheets = new ArrayList<>();
 
         Matcher matcher = CSR_IN_RETURN_PATTERN.matcher(signature);
         if (matcher.matches()) {

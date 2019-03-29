@@ -121,6 +121,7 @@ public class ThisCollectionElementField extends AOpenField {
         map.put(mapKey, value);
     }
 
+    @Override
     public boolean isWritable() {
         return true;
     }

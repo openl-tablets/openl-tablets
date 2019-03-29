@@ -40,9 +40,9 @@ import org.slf4j.LoggerFactory;
  */
 public class RulesModuleBindingContext extends ModuleBindingContext {
 
-    public static String MODULE_PROPERTIES_KEY = "Properties:Module";
-    public static String CATEGORY_PROPERTIES_KEY = "Properties:Category:";
-    private Map<String, TableSyntaxNode> bindedTables = new HashMap<String, TableSyntaxNode>();
+    public static final String MODULE_PROPERTIES_KEY = "Properties:Module";
+    public static final String CATEGORY_PROPERTIES_KEY = "Properties:Category:";
+    private Map<String, TableSyntaxNode> bindedTables = new HashMap<>();
 
     /**
      * Internal OpenL service methods.
@@ -53,7 +53,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     public RulesModuleBindingContext(IBindingContext delegate, ModuleOpenClass module) {
         super(delegate, module);
-        internalMethods = new ArrayList<IOpenMethod>();
+        internalMethods = new ArrayList<>();
         internalMethods.add(new CurrentRuntimeContextMethod());
         internalMethods.add(new EmptyRuntimeContextMethod());
         internalMethods.add(new RestoreRuntimeContextMethod());
@@ -72,8 +72,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     /**
-     * @return <code>true</code> if key TableSyntaxNode with specified key has
-     *         already been registered.
+     * @return <code>true</code> if key TableSyntaxNode with specified key has already been registered.
      */
     public boolean isTableSyntaxNodeExist(String key) {
         return this.bindedTables.containsKey(key);
@@ -84,32 +83,19 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     @Override
-    public IMethodCaller findMethodCaller(String namespace,
-            final String methodName,
-            IOpenClass[] parTypes) throws AmbiguousMethodException {
+    public IMethodCaller findMethodCaller(String namespace, final String methodName, IOpenClass[] parTypes) {
         Iterable<IOpenMethod> select = CollectionUtils.findAll(preBinderMethods.values(),
-            new CollectionUtils.Predicate<IOpenMethod>() {
-                @Override
-                public boolean evaluate(IOpenMethod method) {
-                    return methodName.equals(method.getName());
-                }
-            });
+            e -> methodName.equals(e.getName()));
         IMethodCaller method = null;
         try {
             method = MethodSearch.findMethod(methodName, parTypes, this, select);
             if (method != null) {
                 RecursiveOpenMethodPreBinder openMethodBinder = extractOpenMethodPrebinder(method);
-                method = null;
                 if (openMethodBinder.isPreBinding()) {
                     method = super.findMethodCaller(namespace, methodName, parTypes);
                     if (method == null) {
                         Iterable<IOpenMethod> internalselect = CollectionUtils.findAll(internalMethods,
-                            new CollectionUtils.Predicate<IOpenMethod>() {
-                                @Override
-                                public boolean evaluate(IOpenMethod method) {
-                                    return methodName.equals(method.getName());
-                                }
-                            });
+                            e -> methodName.equals(e.getName()));
                         method = MethodSearch.findMethod(methodName, parTypes, this, internalselect);
                     }
                     if (method != null) {
@@ -124,7 +110,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             List<IOpenMethod> methods = e.getMatchingMethods();
             for (IOpenMethod m : methods) {
                 RecursiveOpenMethodPreBinder openMethodBinder = extractOpenMethodPrebinder(m);
-                if (!openMethodBinder.isPreBinding()) {
+                if (openMethodBinder != null && !openMethodBinder.isPreBinding()) {
                     openMethodBinder.preBind();
                     preBinderMethods.remove(openMethodBinder.getHeader());
                 }
@@ -133,29 +119,21 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         method = super.findMethodCaller(namespace, methodName, parTypes);
         if (method == null) {
             Iterable<IOpenMethod> internalselect = CollectionUtils.findAll(internalMethods,
-                new CollectionUtils.Predicate<IOpenMethod>() {
-                    @Override
-                    public boolean evaluate(IOpenMethod method) {
-                        return methodName.equals(method.getName());
-                    }
-                });
+                e -> methodName.equals(e.getName()));
             method = MethodSearch.findMethod(methodName, parTypes, this, internalselect);
         }
         return method;
     }
 
     private RecursiveOpenMethodPreBinder extractOpenMethodPrebinder(IMethodCaller method) {
-        RecursiveOpenMethodPreBinder openMethodBinder = null;
         if (method instanceof RecursiveOpenMethodPreBinder) {
-            openMethodBinder = (RecursiveOpenMethodPreBinder) method;
+            return (RecursiveOpenMethodPreBinder) method;
+        } else if (method instanceof CastingMethodCaller) {
+            return (RecursiveOpenMethodPreBinder) ((CastingMethodCaller) method).getMethod();
+        } else if (method instanceof VarArgsOpenMethod) {
+            return (RecursiveOpenMethodPreBinder) ((VarArgsOpenMethod) method).getDelegate();
         }
-        if (method instanceof CastingMethodCaller) {
-            openMethodBinder = (RecursiveOpenMethodPreBinder) ((CastingMethodCaller) method).getMethod();
-        }
-        if (method instanceof VarArgsOpenMethod) {
-            openMethodBinder = (RecursiveOpenMethodPreBinder) ((VarArgsOpenMethod) method).getDelegate();
-        }
-        return openMethodBinder;
+        throw new IllegalStateException();
     }
 
     protected synchronized void add(String namespace,
@@ -178,24 +156,23 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     @Override
     public IOpenClass findType(String namespace, String typeName) {
-        if (OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams())) {
-            if (typeName.startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName
+        if (OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams()) && typeName
+            .startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName
                 .length() > Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()) {
-                String sprMethodName = typeName.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
-                IOpenMethod method = preBinderMethods.get(sprMethodName);
-                if (method != null) {
-                    RecursiveOpenMethodPreBinder openMethodBinder = (RecursiveOpenMethodPreBinder) method;
-                    if (openMethodBinder.isPreBinding()) {
-                        IOpenClass type = super.findType(namespace, typeName);
-                        if (type != null) {
-                            return type;
-                        } else {
-                            throw new RecursiveMethodPreBindingException();
-                        }
+            String sprMethodName = typeName.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
+            IOpenMethod method = preBinderMethods.get(sprMethodName);
+            if (method != null) {
+                RecursiveOpenMethodPreBinder openMethodBinder = (RecursiveOpenMethodPreBinder) method;
+                if (openMethodBinder.isPreBinding()) {
+                    IOpenClass type = super.findType(namespace, typeName);
+                    if (type != null) {
+                        return type;
+                    } else {
+                        throw new RecursiveMethodPreBindingException();
                     }
-                    openMethodBinder.preBind();
-                    preBinderMethods.remove(openMethodBinder.getHeader());
                 }
+                openMethodBinder.preBind();
+                preBinderMethods.remove(openMethodBinder.getHeader());
             }
         }
         return super.findType(namespace, typeName);
@@ -214,8 +191,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
     }
 
-    public final static class CurrentRuntimeContextMethod implements IOpenMethod {
-        public final static String CURRENT_CONTEXT_METHOD_NAME = "getContext";
+    public static final class CurrentRuntimeContextMethod implements IOpenMethod {
+        public static final String CURRENT_CONTEXT_METHOD_NAME = "getContext";
 
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             IRulesRuntimeContext context = (IRulesRuntimeContext) env.getContext();
@@ -267,7 +244,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     public static final class EmptyRuntimeContextMethod implements IOpenMethod {
-        public final static String EMPTY_CONTEXT_METHOD_NAME = "emptyContext";
+        public static final String EMPTY_CONTEXT_METHOD_NAME = "emptyContext";
 
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             return RulesRuntimeContextFactory.buildRulesRuntimeContext();
@@ -312,7 +289,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     public static final class RestoreRuntimeContextMethod implements IOpenMethod {
-        public final static String RESTORE_CONTEXT_METHOD_NAME = "restoreContext";
+        public static final String RESTORE_CONTEXT_METHOD_NAME = "restoreContext";
 
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             if (env.isContextManagingSupported()) {
@@ -362,8 +339,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
     }
 
-    public final static class SetRuntimeContextMethod implements IOpenMethod {
-        public final static String SET_CONTEXT_METHOD_NAME = "setContext";
+    public static final class SetRuntimeContextMethod implements IOpenMethod {
+        public static final String SET_CONTEXT_METHOD_NAME = "setContext";
 
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             if (env.isContextManagingSupported()) {
@@ -417,7 +394,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     public static final class ModifyRuntimeContextMethod implements IOpenMethod {
-        public final static String MODIFY_CONTEXT_METHOD_NAME = "modifyContext";
+        public static final String MODIFY_CONTEXT_METHOD_NAME = "modifyContext";
 
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             if (env.isContextManagingSupported()) {

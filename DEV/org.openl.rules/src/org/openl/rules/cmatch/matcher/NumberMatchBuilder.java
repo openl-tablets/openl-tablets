@@ -8,9 +8,7 @@ public class NumberMatchBuilder extends AMatcherMapBuilder<NumberMatchMatcher> {
     public NumberMatchBuilder() {
         add(new NumberMatchMatcher(Integer.class, IntRange.class), int.class);
         add(new NumberMatchMatcher(Double.class, DoubleRange.class), double.class);
-        // ???
         add(new NumberMatchMatcher(Long.class, IntRange.class), long.class);
-        // ???
         add(new NumberMatchMatcher(Float.class, DoubleRange.class), float.class);
     }
 

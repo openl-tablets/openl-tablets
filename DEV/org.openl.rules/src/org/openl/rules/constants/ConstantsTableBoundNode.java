@@ -50,7 +50,6 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
     }
 
     public void addTo(ModuleOpenClass openClass) {
-        // TableSyntaxNode tsn = getTableSyntaxNode();
     }
 
     public TableSyntaxNode getTableSyntaxNode() {
@@ -191,12 +190,8 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
         SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         for (int i = 0; i < tableHeight; i++) {
             final int index = i;
-            syntaxNodeExceptionCollector.run(new Runnable() {
-                @Override
-                public void run() throws Exception {
-                    ILogicalTable row = dataTable.getRow(index);
-                    processRow(row, cxt);
-                }
+            syntaxNodeExceptionCollector.run(() -> {
+                processRow(dataTable.getRow(index), cxt);
             });
         }
         syntaxNodeExceptionCollector.throwIfAny();

@@ -111,7 +111,7 @@ public class OpenLCellExpressionsCompiler {
             return Collections.emptyList();
         }
 
-        List<NodeUsage> nodeUsages = new ArrayList<NodeUsage>(MethodUsagesSearcher.findAllMethods(method.getMethodBodyBoundNode(),
+        List<NodeUsage> nodeUsages = new ArrayList<>(MethodUsagesSearcher.findAllMethods(method.getMethodBodyBoundNode(),
                 sourceString, startIndex));
         FieldUsageSearcher.findAllFields(nodeUsages,
                 method.getMethodBodyBoundNode(),

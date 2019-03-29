@@ -1,7 +1,6 @@
 package org.openl.rules.calc;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.impl.CastToWiderType;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -20,8 +19,7 @@ public class SpreadsheetContext extends ComponentBindingContext {
     }
 
     @Override
-    public IOpenField findRange(String namespace, String rangeStartName, String rangeEndName) throws AmbiguousVarException,
-                                                                                             OpenLCompilationException {
+    public IOpenField findRange(String namespace, String rangeStartName, String rangeEndName) throws OpenLCompilationException {
 
         String key = namespace + ":" + rangeStartName + ":" + rangeEndName;
         IOpenField fstart = findVar(namespace, rangeStartName, true);

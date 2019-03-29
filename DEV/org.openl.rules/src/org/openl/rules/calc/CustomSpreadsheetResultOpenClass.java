@@ -67,7 +67,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
     public synchronized Iterable<IOpenClass> superClasses() {
         if (superClasses == null) {
             Class<?>[] interfaces = SpreadsheetResult.class.getInterfaces();
-            List<IOpenClass> superClasses = new ArrayList<IOpenClass>(interfaces.length + 1);
+            List<IOpenClass> superClasses = new ArrayList<>(interfaces.length + 1);
             for (Class<?> interf : interfaces) {
                 superClasses.add(JavaOpenClass.getOpenClass(interf));
             }
@@ -81,13 +81,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
             String[] rowTitles,
             String[] columnTitles,
             Collection<IOpenField> fields) {
-        List<String> nRowNames = new ArrayList<String>(Arrays.asList(this.rowNames));
-        Set<String> existedRowNamesSet = new HashSet<String>(Arrays.asList(this.rowNames));
-        List<String> nColumnNames = new ArrayList<String>(Arrays.asList(this.columnNames));
-        Set<String> existedColumnNamesSet = new HashSet<String>(Arrays.asList(this.columnNames));
+        List<String> nRowNames = new ArrayList<>(Arrays.asList(this.rowNames));
+        Set<String> existedRowNamesSet = new HashSet<>(Arrays.asList(this.rowNames));
+        List<String> nColumnNames = new ArrayList<>(Arrays.asList(this.columnNames));
+        Set<String> existedColumnNamesSet = new HashSet<>(Arrays.asList(this.columnNames));
 
-        List<String> nRowTitles = new ArrayList<String>(Arrays.asList(this.rowTitles));
-        List<String> nColumnTitles = new ArrayList<String>(Arrays.asList(this.columnTitles));
+        List<String> nRowTitles = new ArrayList<>(Arrays.asList(this.rowTitles));
+        List<String> nColumnTitles = new ArrayList<>(Arrays.asList(this.columnTitles));
 
         boolean fieldCoordinatesRequresUpdate = false;
 
@@ -108,7 +108,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
         }
 
         if (fieldCoordinatesRequresUpdate) {
-            Set<String> newFieldNames = new HashSet<String>();
+            Set<String> newFieldNames = new HashSet<>();
             for (int i = 0; i < nRowNames.size(); i++) {
                 for (int j = this.columnNames.length; j < nColumnNames.size(); j++) {
                     StringBuilder sb = new StringBuilder();
@@ -189,7 +189,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
 
     private void validate(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
             Collection<IOpenField> values) {
-        List<String> errorMessages = new ArrayList<String>();
+        List<String> errorMessages = new ArrayList<>();
         for (IOpenField field : values) {
             IOpenField existedField = customSpreadsheetResultOpenClass.getField(field.getName());
             if (!existedField.getType().isAssignableFrom(field.getType())) {

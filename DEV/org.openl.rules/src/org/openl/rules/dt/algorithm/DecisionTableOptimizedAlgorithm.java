@@ -217,20 +217,14 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             }
         }
 
-        if (isMethodTypeChar(methodType)) {
-            if (isParameterCharRange(paramType)) {
-                return CharRangeAdaptor.getInstance();
-            }
+        if (isMethodTypeChar(methodType) && isParameterCharRange(paramType)) {
+            return CharRangeAdaptor.getInstance();
         }
-        if (isMethodTypeDate(methodType)) {
-            if (isParameterDateRange(paramType)) {
-                return DateRangeAdaptor.getInstance();
-            }
+        if (isMethodTypeDate(methodType) && isParameterDateRange(paramType)) {
+            return DateRangeAdaptor.getInstance();
         }
-        if (isMethodTypeString(methodType)) {
-            if (isParameterStringRange(paramType)) {
-                return StringRangeAdaptor.getInstance();
-            }
+        if (isMethodTypeString(methodType) && isParameterStringRange(paramType)) {
+            return StringRangeAdaptor.getInstance();
         }
         return null;
     }

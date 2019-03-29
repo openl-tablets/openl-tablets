@@ -34,7 +34,6 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IAggregateInfo;
@@ -153,12 +152,9 @@ public class SpreadsheetComponentsBuilder {
                     .getColumn(0)
                     .getSource();
                 IOpenSourceCodeModule source = new GridCellSourceCodeModule(rowNameForHeader, bindingContext);
-                SpreadsheetHeaderDefinition header = rowHeaders.get(i);
-
-                if (header == null) {
-                    header = new SpreadsheetHeaderDefinition(i, -1);
-                    rowHeaders.put(i, header);
-                }
+                int j = i;
+                SpreadsheetHeaderDefinition header = rowHeaders.computeIfAbsent(i,
+                    e -> new SpreadsheetHeaderDefinition(j, -1));
                 parseHeader(header, source);
             }
         }
@@ -173,12 +169,8 @@ public class SpreadsheetComponentsBuilder {
                     .getRow(0)
                     .getSource();
                 GridCellSourceCodeModule source = new GridCellSourceCodeModule(columnNameForHeader, bindingContext);
-                SpreadsheetHeaderDefinition header = columnHeaders.get(i);
-
-                if (header == null) {
-                    header = new SpreadsheetHeaderDefinition(-1, i);
-                    columnHeaders.put(i, header);
-                }
+                int j = i;
+                SpreadsheetHeaderDefinition header = columnHeaders.computeIfAbsent(i, e -> new SpreadsheetHeaderDefinition(-1, j));
                 parseHeader(header, source);
             }
         }
@@ -527,10 +519,7 @@ public class SpreadsheetComponentsBuilder {
     }
 
     private boolean isCalculateAllCellsInSpreadsheet(Spreadsheet spreadsheet) {
-        if (Boolean.FALSE.equals(spreadsheet.getMethodProperties().getCalculateAllCells())) {
-            return false;
-        }
-        return true;
+        return !Boolean.FALSE.equals(spreadsheet.getMethodProperties().getCalculateAllCells());
     }
 
     private String getSignature(TableSyntaxNode table) {

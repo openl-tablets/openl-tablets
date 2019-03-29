@@ -14,6 +14,8 @@ import org.openl.meta.number.Formulas;
 @Deprecated
 @OperatorsNamespace
 public class WholeNumberDivideOperators {
+    private static final String DIVISION_BY_ZERO = "Division by zero";
+
     public static byte divide(byte x, byte y) {
         return (byte) (x / y);
     }
@@ -80,10 +82,8 @@ public class WholeNumberDivideOperators {
             return null;
         }
 
-        if (value1 == null) {
-            if (value2 != null && value2.doubleValue() != 0) {
-                return new ByteValue(value1, value2, divide(ByteValue.ONE, value2).getValue(), Formulas.DIVIDE);
-            }
+        if (value1 == null && value2.doubleValue() != 0) {
+            return new ByteValue(value1, value2, divide(ByteValue.ONE, value2).getValue(), Formulas.DIVIDE);
         }
 
         if (value2 == null) {
@@ -91,7 +91,7 @@ public class WholeNumberDivideOperators {
         }
 
         if (value2.doubleValue() == 0) {
-            throw new OpenLRuntimeException("Division by zero");
+            throw new OpenLRuntimeException(DIVISION_BY_ZERO);
         }
 
         return new ByteValue(value1, value2, divide(value1.getValue(), value2.getValue()), Formulas.DIVIDE);
@@ -102,10 +102,8 @@ public class WholeNumberDivideOperators {
             return null;
         }
 
-        if (value1 == null) {
-            if (value2 != null && value2.doubleValue() != 0) {
-                return new ShortValue(value1, value2, divide(ShortValue.ONE, value2).getValue(), Formulas.DIVIDE);
-            }
+        if (value1 == null && value2.doubleValue() != 0) {
+            return new ShortValue(value1, value2, divide(ShortValue.ONE, value2).getValue(), Formulas.DIVIDE);
         }
 
         if (value2 == null) {
@@ -113,7 +111,7 @@ public class WholeNumberDivideOperators {
         }
 
         if (value2.doubleValue() == 0) {
-            throw new OpenLRuntimeException("Division by zero");
+            throw new OpenLRuntimeException(DIVISION_BY_ZERO);
         }
 
         return new ShortValue(value1, value2, divide(value1.getValue(), value2.getValue()), Formulas.DIVIDE);
@@ -124,10 +122,8 @@ public class WholeNumberDivideOperators {
             return null;
         }
 
-        if (value1 == null) {
-            if (value2 != null && value2.doubleValue() != 0) {
-                return new IntValue(value1, value2, divide(IntValue.ONE, value2).getValue(), Formulas.DIVIDE);
-            }
+        if (value1 == null && value2.doubleValue() != 0) {
+            return new IntValue(value1, value2, divide(IntValue.ONE, value2).getValue(), Formulas.DIVIDE);
         }
 
         if (value2 == null) {
@@ -135,7 +131,7 @@ public class WholeNumberDivideOperators {
         }
 
         if (value2.doubleValue() == 0) {
-            throw new OpenLRuntimeException("Division by zero");
+            throw new OpenLRuntimeException(DIVISION_BY_ZERO);
         }
 
         return new IntValue(value1, value2, divide(value1.getValue(), value2.getValue()), Formulas.DIVIDE);
@@ -146,10 +142,8 @@ public class WholeNumberDivideOperators {
             return null;
         }
 
-        if (value1 == null) {
-            if (value2 != null && value2.doubleValue() != 0) {
-                return new LongValue(value1, value2, divide(LongValue.ONE, value2).getValue(), Formulas.DIVIDE);
-            }
+        if (value1 == null && value2.doubleValue() != 0) {
+            return new LongValue(value1, value2, divide(LongValue.ONE, value2).getValue(), Formulas.DIVIDE);
         }
 
         if (value2 == null) {
@@ -157,7 +151,7 @@ public class WholeNumberDivideOperators {
         }
 
         if (value2.doubleValue() == 0) {
-            throw new OpenLRuntimeException("Division by zero");
+            throw new OpenLRuntimeException(DIVISION_BY_ZERO);
         }
 
         return new LongValue(value1, value2, divide(value1.getValue(), value2.getValue()), Formulas.DIVIDE);
@@ -168,13 +162,8 @@ public class WholeNumberDivideOperators {
             return null;
         }
 
-        if (value1 == null) {
-            if (value2 != null && value2.doubleValue() != 0) {
-                return new BigIntegerValue(value1,
-                    value2,
-                    divide(BigIntegerValue.ONE, value2).getValue(),
-                    Formulas.DIVIDE);
-            }
+        if (value1 == null && value2.doubleValue() != 0) {
+            return new BigIntegerValue(value1, value2, divide(BigIntegerValue.ONE, value2).getValue(), Formulas.DIVIDE);
         }
 
         if (value2 == null) {
@@ -182,7 +171,7 @@ public class WholeNumberDivideOperators {
         }
 
         if (value2.doubleValue() == 0) {
-            throw new OpenLRuntimeException("Division by zero");
+            throw new OpenLRuntimeException(DIVISION_BY_ZERO);
         }
 
         return new BigIntegerValue(value1, value2, divide(value1.getValue(), value2.getValue()), Formulas.DIVIDE);

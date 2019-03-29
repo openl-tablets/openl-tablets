@@ -32,6 +32,7 @@ public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundN
         return table;
     }
 
+    @Override
     public IOpenClass getType() {
         return field.getType();
     }

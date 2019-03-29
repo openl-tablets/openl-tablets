@@ -90,10 +90,8 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
             for (int j = 0; j < length; j++) {
 
                 Object value = Array.get(values, j);
-                if (comparatorBasedMap) {
-                    if (!(value instanceof Comparable<?>)) {
-                        throw new IllegalArgumentException("Invalid state! Index based on comparable interface!");
-                    }
+                if (comparatorBasedMap && !(value instanceof Comparable<?>)) {
+                    throw new IllegalArgumentException("Invalid state! Index based on comparable interface!");
                 }
                 if (map == null) {
                     if (NumberUtils.isFloatPointNumber(value)) {
@@ -111,13 +109,8 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
                     }
                 }
 
-                DecisionTableRuleNodeBuilder builder = map.get(value);
-
-                if (builder == null) {
-                    builder = new DecisionTableRuleNodeBuilder(emptyBuilder);
-                    map.put(value, builder);
-                }
-
+                DecisionTableRuleNodeBuilder builder = map.computeIfAbsent(value,
+                    e -> new DecisionTableRuleNodeBuilder(emptyBuilder));
                 builder.addRule(i);
             }
         }
@@ -178,8 +171,8 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
 
     protected IDomain<Object> indexedDomain(IBaseCondition condition) {
         int len = condition.getNumberOfRules();
-        ArrayList<Object> list = new ArrayList<Object>(len);
-        HashSet<Object> set = new HashSet<Object>(len);
+        ArrayList<Object> list = new ArrayList<>(len);
+        HashSet<Object> set = new HashSet<>(len);
 
         for (int ruleN = 0; ruleN < len; ruleN++) {
             if (condition.isEmpty(ruleN))

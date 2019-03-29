@@ -7,7 +7,7 @@ public class TableRow {
     private final Map<String, SubValue[]> id2values;
 
     public TableRow() {
-        id2values = new LinkedHashMap<String, SubValue[]>();
+        id2values = new LinkedHashMap<>();
     }
 
     public void add(String columnId, SubValue[] values) {
