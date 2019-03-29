@@ -493,7 +493,57 @@ public final class DecisionTableHelper {
         }
     }
 
-    private static final String FUZZY_RET_VARIABLE_NAME = "R$E$T$U$R$N";
+    private static final String FUZZY_RET_VARIABLE_NAME = "$R$E$T$U$R$N";
+
+    private static IOpenClass writeReturnStatement(IOpenClass type,
+            IOpenMethod[] methodChain,
+            Set<String> generatedNames,
+            Map<String, Map<IOpenMethod, String>> variables,
+            String insertStatement,
+            StringBuilder sb) {
+        if (methodChain == null) {
+            return type;
+        }
+        String currentVariable = FUZZY_RET_VARIABLE_NAME;
+        for (int j = 0; j < methodChain.length; j++) {
+            String var = null;
+            type = methodChain[j].getSignature().getParameterType(0);
+            if (j < methodChain.length - 1) {
+                Map<IOpenMethod, String> vm = variables.get(currentVariable);
+                if (vm == null || vm.get(methodChain[j]) == null) {
+                    var = RandomStringUtils.random(8, true, false);
+                    while (generatedNames.contains(var)) { // Prevent
+                                                           // variable
+                                                           // duplication
+                        var = RandomStringUtils.random(8, true, false);
+                    }
+                    generatedNames.add(var);
+                    sb.append(type.getName())
+                        .append(" ")
+                        .append(var)
+                        .append(" = new ")
+                        .append(type.getName())
+                        .append("();");
+                    vm = new HashMap<>();
+                    vm.put(methodChain[j], var);
+                    variables.put(currentVariable, vm);
+                } else {
+                    var = vm.get(methodChain[j]);
+                }
+            }
+            sb.append(currentVariable).append(".");
+            sb.append(methodChain[j].getName());
+            sb.append("(");
+            if (j < methodChain.length - 1) {
+                sb.append(var);
+                currentVariable = var;
+            } else {
+                sb.append(insertStatement);
+            }
+            sb.append(");");
+        }
+        return type;
+    }
 
     private static void writeFuzzyReturns(TableSyntaxNode tableSyntaxNode,
             ILogicalTable originalTable,
@@ -519,69 +569,33 @@ public final class DecisionTableHelper {
             .append(compoundReturnType.getName())
             .append("();");
 
-        // Set conditions parameters to compound type. Recursively search is
-        // not supported.
-        for (DTHeader condition : dtHeaders) {
-            if (condition.isCondition() && condition instanceof FuzzyDTHeader) {
-                FuzzyDTHeader fuzzyDTHeader = (FuzzyDTHeader) condition;
-                IOpenMethod[] methodChainForCompoundReturn = fuzzyDTHeader.getMethodChainForCompoundReturn();
-                if (methodChainForCompoundReturn != null && methodChainForCompoundReturn.length == 1) {
-                    sb.append(FUZZY_RET_VARIABLE_NAME).append(".");
-                    sb.append(methodChainForCompoundReturn[0].getName());
-                    sb.append("(");
-                    sb.append(condition.getStatement());
-                    sb.append(");");
-                }
-            }
-        }
         Set<String> generatedNames = new HashSet<>();
         while (generatedNames.size() < fuzzyReturns.size()) {
             generatedNames.add(RandomStringUtils.random(8, true, false));
         }
         String[] compoundColumnParamNames = generatedNames.toArray(new String[] {});
         Map<String, Map<IOpenMethod, String>> variables = new HashMap<>();
+
+        for (DTHeader condition : dtHeaders) {
+            if (condition.isCondition() && condition instanceof FuzzyDTHeader) {
+                FuzzyDTHeader fuzzyDTHeader = (FuzzyDTHeader) condition;
+                writeReturnStatement(compoundReturnType,
+                    fuzzyDTHeader.getMethodChainForCompoundReturn(),
+                    generatedNames,
+                    variables,
+                    fuzzyDTHeader.getStatement(),
+                    sb);
+            }
+        }
+
         int i = 0;
         for (FuzzyDTHeader fuzzyDTHeader : fuzzyReturns) {
-            IOpenClass type = compoundReturnType;
-            String currentVariable = FUZZY_RET_VARIABLE_NAME;
-            IOpenMethod[] m = fuzzyDTHeader.getMethodsChain();
-            for (int j = 0; j < m.length; j++) {
-                String var = null;
-                type = m[j].getSignature().getParameterType(0);
-                if (j < m.length - 1) {
-                    Map<IOpenMethod, String> vm = variables.get(currentVariable);
-                    if (vm == null || vm.get(m[j]) == null) {
-                        var = RandomStringUtils.random(8, true, false);
-                        while (generatedNames.contains(var)) { // Prevent
-                                                               // variable
-                                                               // duplication
-                            var = RandomStringUtils.random(8, true, false);
-                        }
-                        generatedNames.add(var);
-                        sb.append(type.getName())
-                            .append(" ")
-                            .append(var)
-                            .append(" = new ")
-                            .append(type.getName())
-                            .append("();");
-                        vm = new HashMap<>();
-                        vm.put(m[j], var);
-                        variables.put(currentVariable, vm);
-                    } else {
-                        var = vm.get(m[j]);
-                    }
-                }
-                sb.append(currentVariable).append(".");
-                sb.append(m[j].getName());
-                sb.append("(");
-                if (j < m.length - 1) {
-                    sb.append(var);
-                    currentVariable = var;
-                } else {
-                    sb.append(compoundColumnParamNames[i]);
-                }
-                sb.append(");");
-            }
+            IOpenClass type = writeReturnStatement(compoundReturnType,
+                fuzzyDTHeader.getMethodsChain(),
+                generatedNames,
+                variables,
+                compoundColumnParamNames[i],
+                sb);
 
             grid.setCellValue(fuzzyDTHeader.getColumn(), 2, type.getName() + " " + compoundColumnParamNames[i]);
 
