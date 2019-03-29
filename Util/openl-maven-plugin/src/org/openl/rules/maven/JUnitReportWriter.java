@@ -190,8 +190,7 @@ class JUnitReportWriter {
         for (ComparedResult comparisonResult : comparisonResults) {
             if (comparisonResult.getStatus() != TR_OK) {
                 summaryBuilder.append('\n');
-                if (comparisonResult.getFieldName().equals(ThisField.THIS)) {
-
+                if (comparisonResult.getFieldName() == null || ThisField.THIS.equals(comparisonResult.getFieldName())) {
                     summaryBuilder.append("Expected: <")
                         .append(comparisonResult.getExpectedValue())
                         .append("> but was <")

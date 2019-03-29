@@ -6,6 +6,7 @@ import static org.openl.rules.testmethod.TestStatus.TR_OK;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.message.OpenLMessage;
@@ -95,21 +96,51 @@ public class BaseTestUnit implements ITestUnit {
         if (actualError != null) {
             Throwable rootCause = ExceptionUtils.getRootCause(actualError);
             if (rootCause instanceof OpenLUserRuntimeException) {
-                String actualMessage = rootCause.getMessage();
-                return actualMessage.equals(expectedError == null ? "" : expectedError) ? TR_OK : TR_NEQ;
+                return compareMessageAndGetResult(expectedError, rootCause.getMessage(), expectedResult);
             } else {
+                ComparedResult results = new ComparedResult(null,
+                        expectedError == null ? expectedResult : expectedError,
+                        rootCause == null ? actualResult : rootCause.getMessage(),
+                        TR_EXCEPTION);
+
+                comparisonResults.add(results);
                 return TR_EXCEPTION;
             }
         } else {
             if (expectedError != null) {
+                ComparedResult results = new ComparedResult(null,
+                        expectedError,
+                        actualResult,
+                        TR_NEQ);
+
+                comparisonResults.add(results);
                 return TR_NEQ;
             } else {
-                return isEqual(expectedResult, actualResult) ? TR_OK : TR_NEQ;
+                return compareAndGetResult(expectedResult, actualResult);
             }
         }
     }
 
-    private boolean isEqual(Object expectedResult, Object actualResult) {
+    private TestStatus compareMessageAndGetResult(String expectedError, String actualError, Object expectedResult) {
+        Object expectedValue;
+        boolean isEqual;
+        if (expectedResult == null) {
+            expectedValue = expectedError;
+            isEqual = Objects.equals(expectedError == null ? "" : expectedError, actualError);
+        } else {
+            isEqual = false;
+            expectedValue = expectedResult;
+        }
+        if (writeFailuresOnly() && isEqual) {
+            return TR_OK;
+        }
+        TestStatus status = isEqual ? TR_OK : TR_NEQ;
+        ComparedResult results = new ComparedResult(null, expectedValue, actualError, status);
+        comparisonResults.add(results);
+        return status;
+    }
+
+    private TestStatus compareAndGetResult(Object expectedResult, Object actualResult) {
         boolean success = true;
 
         for (IOpenField field : test.getFields()) {
@@ -117,7 +148,7 @@ public class BaseTestUnit implements ITestUnit {
             Object expectedFieldValue = getFieldValueOrNull(expectedResult, field);
             success &= isFieldEqual(field, expectedFieldValue, actualFieldValue);
         }
-        return success;
+        return success ? TR_OK : TR_NEQ;
     }
 
     private boolean isFieldEqual(IOpenField field, Object expectedFieldValue, Object actualFieldValue) {
@@ -134,14 +165,11 @@ public class BaseTestUnit implements ITestUnit {
         final boolean equal = comparator.isEqual(expectedFieldValue, actualFieldValue);
 
         if (writeFailuresOnly() && equal) {
-            return equal;
+            return true;
         }
 
-        ComparedResult fieldComparisonResults = new ComparedResult();
-        fieldComparisonResults.setFieldName(field.getName());
-        fieldComparisonResults.setActualValue(actualFieldValue);
-        fieldComparisonResults.setExpectedValue(expectedFieldValue);
-        fieldComparisonResults.setStatus(equal ? TestStatus.TR_OK : TestStatus.TR_NEQ);
+        TestStatus status = equal ? TR_OK : TR_NEQ;
+        ComparedResult fieldComparisonResults = new ComparedResult(field.getName(), expectedFieldValue, actualFieldValue, status);
         comparisonResults.add(fieldComparisonResults);
 
         return equal;

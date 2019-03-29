@@ -412,7 +412,7 @@ public final class TestMojo extends BaseOpenLMojo {
                     int rowNum = 0;
                     for (ComparedResult comparisonResult : comparisonResults) {
                         if (comparisonResult.getStatus() != TR_OK) {
-                            if (comparisonResult.getFieldName().equals(ThisField.THIS)) {
+                            if (comparisonResult.getFieldName() == null || ThisField.THIS.equals(comparisonResult.getFieldName())) {
                                 info("    Expected: <" + comparisonResult
                                     .getExpectedValue() + "> but was: <" + comparisonResult.getActualValue() + ">");
                                 summaryBuilder.append(" expected: <")
