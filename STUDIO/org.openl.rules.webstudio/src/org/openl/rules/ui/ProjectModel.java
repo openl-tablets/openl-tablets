@@ -29,8 +29,12 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
-import org.openl.rules.lang.xls.*;
+import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
+import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.XlsWorkbookListener;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule.ModificationChecker;
+import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.load.LazyWorkbookLoaderFactory;
 import org.openl.rules.lang.xls.load.WorkbookLoaders;
@@ -1033,14 +1037,6 @@ public class ProjectModel {
             final String moduleName = moduleInfo.getName();
 
             compiledOpenClass = instantiationStrategy.compile();
-
-            if (reloadType == ReloadType.FORCED) {
-                // EPBDS-6193: After instantiationStrategy.forcedReset() classloader is cleared (not closed). But after
-                // instantiationStrategy.compile() the new one is created. We need to save the latter inside dependency
-                // manager, otherwise newly created classloader will not be closed when the project is deleted.
-                // TODO Classloader must be created, handled and cleared by dependency manager only, not in the ProjectModel
-                webStudioWorkspaceDependencyManager.replaceClassLoader(moduleInfo.getProject(), instantiationStrategy.getClassLoader());
-            }
 
             for (CompiledDependency dependency : webStudioWorkspaceDependencyManager.getCompiledDependencies()) {
                 if (!dependency.getDependencyName().equals(moduleName)) {
