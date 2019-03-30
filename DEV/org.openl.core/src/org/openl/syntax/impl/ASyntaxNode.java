@@ -24,9 +24,7 @@ public abstract class ASyntaxNode implements ISyntaxNode {
 
     private ILocation location;
 
-    public ASyntaxNode(String type,
-            ILocation location,
-            IOpenSourceCodeModule module) {
+    public ASyntaxNode(String type, ILocation location, IOpenSourceCodeModule module) {
         this.type = type;
         this.location = location;
         this.module = module;

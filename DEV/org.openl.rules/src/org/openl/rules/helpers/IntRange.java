@@ -116,7 +116,7 @@ public class IntRange extends IntRangeDomain implements INumberRange {
     public static IntRange cast(BigDecimal x, IntRange y) {
         return new IntRange(x.intValue());
     }
-    
+
     public static IntRange cast(ByteValue x, IntRange y) {
         return new IntRange(x.intValue());
     }

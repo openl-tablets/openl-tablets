@@ -14,7 +14,7 @@ public class AlgorithmNodeBinder extends AExecutableNodeBinder {
             OpenL openl,
             OpenMethodHeader header,
             XlsModuleOpenClass module) {
-    
+
         return new AlgorithmBoundNode(tableSyntaxNode, openl, header, module);
     }
 }

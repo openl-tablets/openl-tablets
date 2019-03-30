@@ -20,7 +20,7 @@ public interface ICell {
      * @return Absolute column index inside the sheet.
      */
     int getAbsoluteColumn();
-    
+
     /**
      * @return Absolute region of cell inside the sheet.
      */
@@ -31,14 +31,14 @@ public interface ICell {
     int getHeight();
 
     ICellStyle getStyle();
-    
+
     Object getObjectValue();
 
     String getStringValue();
 
     // TODO: move this method to ICellStyle
     ICellFont getFont();
-    
+
     /**
      * 
      * @return grid region, if cell belongs to any merged region. In other cases <code>null</code>.
@@ -53,25 +53,25 @@ public interface ICell {
     int getType();
 
     String getUri();
-    
-    
+
     // used for optimized access
-    
+
     /**
-     *  @return true if the cell has ability to provide fast access to the native value(cached)
-     *  If cell has not such an ability, the native methods should not be used
+     * @return true if the cell has ability to provide fast access to the native value(cached) If cell has not such an
+     *         ability, the native methods should not be used
      */
-    
+
     boolean hasNativeType();
-    
-    
+
     /**
      * @return IGrid.CELL_TYPE... constant, in case of CELL_TYPE_FORMULA returns cached value type
      */
     int getNativeType();
-    
+
     double getNativeNumber();
+
     boolean getNativeBoolean();
+
     Date getNativeDate();
 
     ICellComment getComment();

@@ -56,8 +56,9 @@ public class StyleIndexHandler extends DefaultHandler {
         } else if ("f".equals(localName)) {
             sharedFormulaIndex = attributes.getValue("si");
             sharedFormulaRef = attributes.getValue("ref");
-            if (IGridRegion.Tool.contains(tableRegion, current.getColumn(), current.getRow()) ||
-                    sharedFormulaIndex != null && sharedFormulaRef != null) {
+            if (IGridRegion.Tool.contains(tableRegion,
+                current.getColumn(),
+                current.getRow()) || sharedFormulaIndex != null && sharedFormulaRef != null) {
                 readFormula = true;
             }
         }
@@ -76,7 +77,7 @@ public class StyleIndexHandler extends DefaultHandler {
             readFormula = false;
             if (sharedFormulaIndex != null && sharedFormulaRef != null) {
                 sharedFormulas.put(sharedFormulaIndex,
-                        new SharedFormulaDefinition(formula.toString(), sharedFormulaRef));
+                    new SharedFormulaDefinition(formula.toString(), sharedFormulaRef));
             }
             if (IGridRegion.Tool.contains(tableRegion, current.getColumn(), current.getRow())) {
                 try {
@@ -105,13 +106,11 @@ public class StyleIndexHandler extends DefaultHandler {
         CellRangeAddress ref = CellRangeAddress.valueOf(formulaDefinition.getRef());
 
         SharedFormula sf = new SharedFormula(SpreadsheetVersion.EXCEL2007);
-        Ptg[] parsedTokens = FormulaParser.parse(formulaDefinition.getValue(),
-                formulaParsingWorkbook,
-                FormulaType.CELL,
-                sheetIndex,
-                current.getRow());
+        Ptg[] parsedTokens = FormulaParser.parse(formulaDefinition
+            .getValue(), formulaParsingWorkbook, FormulaType.CELL, sheetIndex, current.getRow());
         Ptg[] convertedTokens = sf.convertSharedFormulas(parsedTokens,
-                current.getRow() - ref.getFirstRow(), current.getColumn() - ref.getFirstColumn());
+            current.getRow() - ref.getFirstRow(),
+            current.getColumn() - ref.getFirstColumn());
         // Formulas with links to other workbooks aren't supported
         return FormulaRenderer.toFormulaString(null, convertedTokens);
     }

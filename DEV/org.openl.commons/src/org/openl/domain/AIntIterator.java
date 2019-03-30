@@ -11,7 +11,7 @@ import org.openl.util.AOpenIterator;
  */
 public abstract class AIntIterator extends AOpenIterator<Integer> implements IIntIterator {
 
-	@Override
+    @Override
     public Integer next() {
         return nextInt();
     }
@@ -20,6 +20,5 @@ public abstract class AIntIterator extends AOpenIterator<Integer> implements IIn
     public IIntIterator select(IIntSelector selector) {
         return new IIntSelector.IntSelectIterator(this, selector);
     }
-    
-    
+
 }

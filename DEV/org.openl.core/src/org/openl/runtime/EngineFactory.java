@@ -14,10 +14,9 @@ import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
 
 /**
- * Class EngineFactory creates {@link Proxy} based wrappers around OpenL
- * classes. Each wrapper implements interface T and interface
- * {@link IEngineWrapper}. If OpenL IOpenClass does not have methods matching
- * interface T it will produce an error. <br/>
+ * Class EngineFactory creates {@link Proxy} based wrappers around OpenL classes. Each wrapper implements interface T
+ * and interface {@link IEngineWrapper}. If OpenL IOpenClass does not have methods matching interface T it will produce
+ * an error. <br/>
  * 
  * NOTE: OpenL fieldValues will be exposed as get<Field> methods
  * 
@@ -56,7 +55,9 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
         super(openlName, source);
     }
 
-    public EngineFactory(String openlName, IOpenSourceCodeModule sourceCode, IUserContext userContext,
+    public EngineFactory(String openlName,
+            IOpenSourceCodeModule sourceCode,
+            IUserContext userContext,
             Class<T> interfaceClass) {
         super(openlName, sourceCode, userContext);
         if (interfaceClass == null) {

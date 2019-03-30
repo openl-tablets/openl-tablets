@@ -3,66 +3,71 @@ package org.openl.rules.table.properties.expressions.match;
 import org.openl.util.StringUtils;
 
 public abstract class AMatchingExpression implements IMatchingExpression {
-    
+
     private String contextAttribute;
     private String operation;
     private String operationName;
     private IMatchingExpression contextAttributeExpression;
-    
+
     @Override
     public IMatchingExpression getContextAttributeExpression() {
         return contextAttributeExpression;
     }
-    
+
     public AMatchingExpression(String operationName, IMatchingExpression matchingExpression) {
         this.operationName = operationName;
-              
+
         if (matchingExpression == null) {
             throw new IllegalArgumentException("Parameter 'contextAttributeExpression' can not be null");
         }
-        this.contextAttributeExpression = matchingExpression;       
+        this.contextAttributeExpression = matchingExpression;
     }
-    
+
     public AMatchingExpression(String operationName, String operation, String contextAttribute) {
         this.operationName = operationName;
         this.operation = operation;
-        
+
         if (contextAttribute == null) {
             throw new IllegalArgumentException("Parameter 'contextAttribute' can not be null");
         }
-        this.contextAttribute = contextAttribute;       
+        this.contextAttribute = contextAttribute;
     }
-    
+
     public AMatchingExpression(String contextAttribute) {
         if (contextAttribute == null) {
             throw new IllegalArgumentException("Parameter 'contextAttribute' can not be null");
         }
         this.contextAttribute = contextAttribute;
     }
-    
+
     @Override
     public String getCodeExpression(String param) {
         if (StringUtils.isNotEmpty(param)) {
-            return new StringBuilder(64).append(param).append(' ').append(getOperation()).append(' ').append(contextAttribute).toString();
+            return new StringBuilder(64).append(param)
+                .append(' ')
+                .append(getOperation())
+                .append(' ')
+                .append(contextAttribute)
+                .toString();
         }
         return null;
     }
-    
+
     @Override
     public String getContextAttribute() {
-        if (!isContextAttributeExpression()){
+        if (!isContextAttributeExpression()) {
             return contextAttribute;
-        }else{
+        } else {
             return getContextAttributeExpression().getContextAttribute();
         }
     }
-    
-    public String getOperation() {        
+
+    public String getOperation() {
         return operation;
     }
 
     @Override
-    public String getOperationName() {        
+    public String getOperationName() {
         return operationName;
     }
 

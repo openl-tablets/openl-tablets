@@ -9,7 +9,7 @@ package org.openl.meta.number;
  */
 public enum NumberOperations {
     COPY("COPY"),
-    MAX("max"), 
+    MAX("max"),
     MAX_IN_ARRAY("max"),
     MIN("min"),
     MIN_IN_ARRAY("min"),
@@ -17,29 +17,29 @@ public enum NumberOperations {
     POW("pow"),
     ABS("abs"),
     AVG("average"),
-    SUM("sum"), 
-    MEDIAN("median"), 
-    PRODUCT("product"), 
-    QUOTIENT("quotient"), 
-    MOD("mod"), 
+    SUM("sum"),
+    MEDIAN("median"),
+    PRODUCT("product"),
+    QUOTIENT("quotient"),
+    MOD("mod"),
     NEGATIVE("negative"),
     INC("inc"),
     POSITIVE("positive"),
     DEC("dec"),
     SMALL("small"),
     BIG("big");
-    
+
     private String description;
-    
+
     private NumberOperations(String description) {
         this.description = description;
     }
-    
+
     @Override
     public String toString() {
         return description;
     }
-    
+
     public String getName() {
         return name().toLowerCase();
     }

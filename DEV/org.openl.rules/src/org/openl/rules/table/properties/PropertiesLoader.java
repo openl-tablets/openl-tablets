@@ -20,8 +20,8 @@ import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 /**
- * Loads all kinds of properties to tsn. At first load all properties defined in
- * source table. Then load category, module and default properties.
+ * Loads all kinds of properties to tsn. At first load all properties defined in source table. Then load category,
+ * module and default properties.
  * 
  * @author DLiauchuk
  * 
@@ -46,8 +46,7 @@ public class PropertiesLoader {
      * Load properties from source table as data table.
      * 
      * @param tableSyntaxNode Tsn to load properties.
-     * @throws Exception when there problems loading properties with data table
-     *             mechanism.
+     * @throws Exception when there problems loading properties with data table mechanism.
      */
     private void loadPropertiesAsDataTable(TableSyntaxNode tableSyntaxNode) throws Exception {
 
@@ -74,7 +73,8 @@ public class PropertiesLoader {
             String tableType = tableSyntaxNode.getType();
             Set<String> propertyNamesToCheck = propertiesInstance.getTableProperties().keySet();
 
-            PropertiesChecker.checkProperties(bindingContext, propertyNamesToCheck, tableSyntaxNode, InheritanceLevel.TABLE);
+            PropertiesChecker
+                .checkProperties(bindingContext, propertyNamesToCheck, tableSyntaxNode, InheritanceLevel.TABLE);
 
             propertiesInstance.setCurrentTableType(tableType);
 
@@ -91,7 +91,8 @@ public class PropertiesLoader {
 
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
         String category = getCategory(tableSyntaxNode);
-        TableSyntaxNode categoryPropertiesTsn = bindingContext.getTableSyntaxNode(RulesModuleBindingContext.CATEGORY_PROPERTIES_KEY + category);
+        TableSyntaxNode categoryPropertiesTsn = bindingContext
+            .getTableSyntaxNode(RulesModuleBindingContext.CATEGORY_PROPERTIES_KEY + category);
 
         if (categoryPropertiesTsn != null) {
             ITableProperties categoryProperties = categoryPropertiesTsn.getTableProperties();
@@ -120,7 +121,8 @@ public class PropertiesLoader {
     private void loadModuleProperties(TableSyntaxNode tableSyntaxNode) {
 
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
-        TableSyntaxNode modulePropertiesTsn = bindingContext.getTableSyntaxNode(RulesModuleBindingContext.MODULE_PROPERTIES_KEY);
+        TableSyntaxNode modulePropertiesTsn = bindingContext
+            .getTableSyntaxNode(RulesModuleBindingContext.MODULE_PROPERTIES_KEY);
 
         if (tableProperties != null && modulePropertiesTsn != null) {
             ITableProperties moduleProperties = modulePropertiesTsn.getTableProperties();
@@ -179,7 +181,8 @@ public class PropertiesLoader {
     private void loadExternalProperties(TableSyntaxNode tsn) {
 
         ITableProperties tableProperties = tsn.getTableProperties();
-        TableSyntaxNode modulePropertiesTsn = bindingContext.getTableSyntaxNode(RulesModuleBindingContext.MODULE_PROPERTIES_KEY);
+        TableSyntaxNode modulePropertiesTsn = bindingContext
+            .getTableSyntaxNode(RulesModuleBindingContext.MODULE_PROPERTIES_KEY);
         ITableProperties moduleProperties = null;
         if (tableProperties != null && modulePropertiesTsn != null) {
             moduleProperties = modulePropertiesTsn.getTableProperties();
@@ -187,7 +190,8 @@ public class PropertiesLoader {
 
         Map<String, Object> externalParams = bindingContext.getExternalParams();
 
-        if (externalParams != null && externalParams.containsKey(EXTERNAL_MODULE_PROPERTIES_KEY) && externalParams.get(EXTERNAL_MODULE_PROPERTIES_KEY) instanceof ITableProperties) {
+        if (externalParams != null && externalParams.containsKey(EXTERNAL_MODULE_PROPERTIES_KEY) && externalParams
+            .get(EXTERNAL_MODULE_PROPERTIES_KEY) instanceof ITableProperties) {
 
             if (tsn.getTableProperties() == null) {
                 createTableProperties(tsn);
@@ -198,7 +202,8 @@ public class PropertiesLoader {
             if (moduleProperties != null) {
                 for (String key : externalProperties.getAllProperties().keySet()) {
                     if (moduleProperties.getAllProperties().keySet().contains(key)) {
-                        bindingContext.addMessage(OpenLMessagesUtils.newErrorMessage("Property '" + key + "' has already defined via external properties! Remove it from module properties."));
+                        bindingContext.addMessage(OpenLMessagesUtils.newErrorMessage(
+                            "Property '" + key + "' has already defined via external properties! Remove it from module properties."));
                     }
                 }
             }

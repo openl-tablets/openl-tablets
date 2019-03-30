@@ -17,7 +17,7 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
     // To make class serializable, change synchronization
 
     private static volatile AlgorithmTableParserManager INSTANCE;
-    
+
     private static Object synchObjectForInstance = new Object();
 
     private final IAlgorithmTableParserManager rulesWrapperInstance;
@@ -49,9 +49,10 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
         URL sourceFile = AlgorithmTableParserManager.class.getResource("AlgorithmTableSpecification.xls");
 
         RulesEngineFactory<IAlgorithmTableParserManager> engineFactory = new RulesEngineFactory<IAlgorithmTableParserManager>(
-                sourceFile, IAlgorithmTableParserManager.class);
+            sourceFile,
+            IAlgorithmTableParserManager.class);
         engineFactory.setExecutionMode(true);
-        
+
         rulesWrapperInstance = (IAlgorithmTableParserManager) engineFactory.makeInstance();
     }
 
@@ -80,8 +81,7 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.rules.tbasic.ITableParserManager#
-     *      getStructuredAlgorithmSpecification()
+     * @see org.openl.rules.tbasic.ITableParserManager# getStructuredAlgorithmSpecification()
      */
     @Override
     public TableParserSpecificationBean[] getAlgorithmSpecification() {

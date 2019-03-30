@@ -55,8 +55,16 @@ public class NicePrinterAdaptor {
 
     }
 
-    static Class<?>[] primitiveClasses = { Integer.class, Double.class, Boolean.class, Character.class, Float.class,
-            Byte.class, Long.class, Short.class, String.class, Date.class };
+    static Class<?>[] primitiveClasses = { Integer.class,
+            Double.class,
+            Boolean.class,
+            Character.class,
+            Float.class,
+            Byte.class,
+            Long.class,
+            Short.class,
+            String.class,
+            Date.class };
 
     public static final Comparator<Map.Entry<Object, Object>> mapComparator = new MapEntryComparator<Object, Object>();
 

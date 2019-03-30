@@ -22,11 +22,10 @@ import com.rits.cloning.Cloner;
 import com.rits.cloning.IInstantiationStrategy;
 
 /**
- * Extension for {@link Cloner}. To add OpenL classes to prevent cloning
- * instances of them.
+ * Extension for {@link Cloner}. To add OpenL classes to prevent cloning instances of them.
  *
- * TODO: should be analyzed variations of tracing different rules. Check if we
- * have issues with mutatation of listed below OpenL not cloned classes.
+ * TODO: should be analyzed variations of tracing different rules. Check if we have issues with mutatation of listed
+ * below OpenL not cloned classes.
  *
  * @author DLiauchuk
  *
@@ -40,22 +39,20 @@ public class OpenLArgumentsCloner extends Cloner {
 
     private void dontCloneClasses() {
         /*
-         * Always cloning them degrades the performance very much. It becomes
-         * impossible to open the trace.
+         * Always cloning them degrades the performance very much. It becomes impossible to open the trace.
          */
         registerImmutable(ByteValue.class);
         registerImmutable(ShortValue.class);
         registerImmutable(IntValue.class);
         registerImmutable(LongValue.class);
         registerImmutable(FloatValue.class);
-        //registerImmutable(DoubleValue.class); EPBDS-6604 DoubleValue is not immutable
+        // registerImmutable(DoubleValue.class); EPBDS-6604 DoubleValue is not immutable
         registerImmutable(BigIntegerValue.class);
         registerImmutable(BigDecimalValue.class);
         registerImmutable(StringValue.class);
         dontClone(ValueMetaInfo.class);
         /*
-         * to avoid cloning generated at runtime custom SpreadsheetResult
-         * children classes
+         * to avoid cloning generated at runtime custom SpreadsheetResult children classes
          */
         dontCloneInstanceOf(SpreadsheetResult.class);
         dontCloneInstanceOf(Logger.class);

@@ -30,7 +30,7 @@ public class MergeCellsAction implements IUndoableGridTableAction {
                 removedRegions.add(reg);
             }
         }
-        for(IGridRegion regionToRemove :removedRegions){
+        for (IGridRegion regionToRemove : removedRegions) {
             grid.removeMergedRegion(regionToRemove);
         }
         grid.addMergedRegion(region);

@@ -15,7 +15,6 @@ import org.openl.ie.tools.FastVector;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
 
-
 /**
  * A generic implementation of the Subject interface.
  */
@@ -58,6 +57,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
         }
 
     } // ~UndoAttachObserver
+
     /**
      * Undo Class for detach Observers.
      */
@@ -97,6 +97,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
         }
 
     } // ~UndoDetachObserver
+
     /**
      * Undo Class for Subject.
      */
@@ -315,11 +316,9 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
             }
 
             /*
-             * public boolean interestedIn(EventOfInterest event) {
-             * switch(_event_type) { case EventOfInterest.MAX: return
-             * event.isMaxEvent(); case EventOfInterest.MIN: return
-             * event.isMinEvent(); case EventOfInterest.VALUE: return
-             * event.isValueEvent(); case EventOfInterest.REMOVE: return
+             * public boolean interestedIn(EventOfInterest event) { switch(_event_type) { case EventOfInterest.MAX:
+             * return event.isMaxEvent(); case EventOfInterest.MIN: return event.isMinEvent(); case
+             * EventOfInterest.VALUE: return event.isValueEvent(); case EventOfInterest.REMOVE: return
              * event.isRemoveEvent(); } return true; }
              */
             @Override

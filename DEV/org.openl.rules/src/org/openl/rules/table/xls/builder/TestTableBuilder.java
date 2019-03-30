@@ -16,10 +16,9 @@ import org.openl.types.impl.ExecutableMethod;
 import org.openl.util.StringUtils;
 
 /**
- * The class is responsible for creating test method tables in excel sheets.
- * Given all necessary data (parameter names and titles, result column
- * description, table being tested and testmethod name) it just creates a new
- * table in the given sheet.
+ * The class is responsible for creating test method tables in excel sheets. Given all necessary data (parameter names
+ * and titles, result column description, table being tested and testmethod name) it just creates a new table in the
+ * given sheet.
  *
  * @author Aliaksandr Antonik
  * @author Andrei Astrouski
@@ -56,19 +55,19 @@ public class TestTableBuilder extends TableBuilder {
             throw new IllegalArgumentException("Syntax node is not executable node");
         }
         IOpenMember member = executableTsn.getMember();
-        if (member != null) {            
+        if (member != null) {
             // as node is executable it will be instance of ExecutableRulesMethod
-            return (ExecutableMethod) member;                        
+            return (ExecutableMethod) member;
         }
         return null;
     }
 
     /**
-     * Returns table header. 
+     * Returns table header.
      *
      * @param executableNode Executable node
-     * @param technicalName Technical name of the table. If <code>null</code> or empty
-     * we get default technical name. It is building with table name and postfix 'Test'. 
+     * @param technicalName Technical name of the table. If <code>null</code> or empty we get default technical name. It
+     *            is building with table name and postfix 'Test'.
      * @return table header
      */
     public static String getHeader(TableSyntaxNode executableNode, String technicalName) {
@@ -89,23 +88,22 @@ public class TestTableBuilder extends TableBuilder {
     /**
      * 
      * @param executableMethod
-     * @return Default technical name for new test table. It is build 
-     * from <code>ExecutableRulesMethod</code> name and postfix 'Test'.
-     */    
+     * @return Default technical name for new test table. It is build from <code>ExecutableRulesMethod</code> name and
+     *         postfix 'Test'.
+     */
     private static String getDefaultTechnicalName(ExecutableMethod executableMethod) {
         String tableName = executableMethod.getName();
         return tableName + TESTMETHOD_NAME_POSTFIX;
     }
-    
+
     /**
-     * Gets the default technical name for new test table.
-     * At first we get the executable method from <code>TableSyntaxNode</code> and if it is not <code>null</code>
-     * calls {@link #getDefaultTechnicalName(ExecutableMethod)}.
+     * Gets the default technical name for new test table. At first we get the executable method from
+     * <code>TableSyntaxNode</code> and if it is not <code>null</code> calls
+     * {@link #getDefaultTechnicalName(ExecutableMethod)}.
      * 
-     * @param executableNode <code>TableSyntaxNode</code> that is executable (see {@link Executable})from which we 
-     * tries to get the <code>ExecutableRulesMethod</code>.
-     * @return Default technical name for new test table. It is build 
-     * from table name and postfix 'Test'.
+     * @param executableNode <code>TableSyntaxNode</code> that is executable (see {@link Executable})from which we tries
+     *            to get the <code>ExecutableRulesMethod</code>.
+     * @return Default technical name for new test table. It is build from table name and postfix 'Test'.
      */
     public static String getDefaultTechnicalName(TableSyntaxNode executableNode) {
         String result = null;
@@ -123,7 +121,7 @@ public class TestTableBuilder extends TableBuilder {
      * @return table parameters
      */
     public static Map<String, String> getParams(TableSyntaxNode executableNode) {
-    	ExecutableMethod executableMethod = getExecutableMethod(executableNode);
+        ExecutableMethod executableMethod = getExecutableMethod(executableNode);
         if (executableMethod != null) {
             Map<String, String> params = new LinkedHashMap<>();
             IMethodSignature tableHeaderSignature = executableMethod.getHeader().getSignature();
@@ -168,8 +166,7 @@ public class TestTableBuilder extends TableBuilder {
      * @param resultTitle result parameter title
      *
      * @throws IllegalArgumentException if params is null
-     * @throws IllegalStateException if method is called without prior
-     *             <code>beginTable()</code> call
+     * @throws IllegalStateException if method is called without prior <code>beginTable()</code> call
      */
     public void writeParams(Map<String, String> params, String resultTitle) {
         if (params == null) {
@@ -179,8 +176,8 @@ public class TestTableBuilder extends TableBuilder {
             throw new IllegalStateException("beginTable() has to be called");
         }
         if (!params.containsKey(TestMethodHelper.EXPECTED_RESULT_NAME)) {
-            params.put(TestMethodHelper.EXPECTED_RESULT_NAME, StringUtils.isBlank(resultTitle) ? RESULT_PARAM_TITLE
-                                                                                               : resultTitle);
+            params.put(TestMethodHelper.EXPECTED_RESULT_NAME,
+                StringUtils.isBlank(resultTitle) ? RESULT_PARAM_TITLE : resultTitle);
         }
         int column = 0;
         Set<String> names = params.keySet();

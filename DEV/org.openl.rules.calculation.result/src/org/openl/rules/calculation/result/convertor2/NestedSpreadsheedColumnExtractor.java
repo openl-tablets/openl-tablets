@@ -16,8 +16,7 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calculation.result.convertor2.ConvertationMetadata.NestedType;
 
 /**
- * Column extractor for nesting spreadsheet values(e.g. SpreadsheetResult or
- * SpreadsheetResult[])
+ * Column extractor for nesting spreadsheet values(e.g. SpreadsheetResult or SpreadsheetResult[])
  * 
  * @author DLiauchuk
  * 
@@ -45,9 +44,8 @@ public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor
     }
 
     /**
-     * Overrides the parent method. Analyze the 'from' object if it is a
-     * {@link SpreadsheetResult} or an array of it. According to this converts
-     * and stores the data to object 'to'.
+     * Overrides the parent method. Analyze the 'from' object if it is a {@link SpreadsheetResult} or an array of it.
+     * According to this converts and stores the data to object 'to'.
      */
     @SuppressWarnings("unchecked")
     @Override
@@ -87,8 +85,7 @@ public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor
     }
 
     /**
-     * Override this method for your purpose, if there is a need in additional
-     * processing of converted result
+     * Override this method for your purpose, if there is a need in additional processing of converted result
      * 
      * @param compoundStep already converted result to {@link CompoundStep}
      */

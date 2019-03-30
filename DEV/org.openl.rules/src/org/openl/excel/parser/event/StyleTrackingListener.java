@@ -42,7 +42,8 @@ public class StyleTrackingListener implements HSSFListener {
         }
 
         String format;
-        if (formatIndex >= HSSFDataFormat.getNumberOfBuiltinBuiltinFormats() || customFormats.get(formatIndex) != null) {
+        if (formatIndex >= HSSFDataFormat.getNumberOfBuiltinBuiltinFormats() || customFormats
+            .get(formatIndex) != null) {
             format = customFormats.get(formatIndex).getFormatString();
         } else {
             format = HSSFDataFormat.getBuiltinFormat((short) formatIndex);
@@ -74,7 +75,7 @@ public class StyleTrackingListener implements HSSFListener {
         return extendedFormats;
     }
 
-    Map<Integer,FormatRecord> getCustomFormats() {
+    Map<Integer, FormatRecord> getCustomFormats() {
         return customFormats;
     }
 

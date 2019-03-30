@@ -12,8 +12,7 @@ import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 
 /**
- * Builds dispatcher decision table for each
- * {@link MatchingOpenMethodDispatcher} in ModuleOpenClass.
+ * Builds dispatcher decision table for each {@link MatchingOpenMethodDispatcher} in ModuleOpenClass.
  *
  * @author DLiauchuk
  *
@@ -24,6 +23,7 @@ public class DispatcherTablesBuilder {
 
     /**
      * Checks whether the specified TableSyntaxNode is auto generated gap/overlap table or not.
+     * 
      * @param tsn TableSyntaxNode to check.
      * @return <code>true</code> if table is dispatcher table.
      */
@@ -38,19 +38,18 @@ public class DispatcherTablesBuilder {
     private XlsModuleOpenClass moduleOpenClass;
     private RulesModuleBindingContext moduleContext;
 
-    public DispatcherTablesBuilder(XlsModuleOpenClass moduleOpenClass,
-            RulesModuleBindingContext moduleContext) {
+    public DispatcherTablesBuilder(XlsModuleOpenClass moduleOpenClass, RulesModuleBindingContext moduleContext) {
         this.moduleContext = moduleContext;
         this.moduleOpenClass = moduleOpenClass;
     }
 
     /**
-     * Builds dispatcher tables for every group of overloaded methods.
-     * As a result new {@link TableSyntaxNode} objects appears in module.
+     * Builds dispatcher tables for every group of overloaded methods. As a result new {@link TableSyntaxNode} objects
+     * appears in module.
      */
     public void build() {
         for (MatchingOpenMethodDispatcher dispatcher : getAllMethodDispatchers()) {
-           build(dispatcher);
+            build(dispatcher);
         }
     }
 
@@ -62,7 +61,7 @@ public class DispatcherTablesBuilder {
         }
     }
 
-    private List<MatchingOpenMethodDispatcher> getAllMethodDispatchers(){
+    private List<MatchingOpenMethodDispatcher> getAllMethodDispatchers() {
         List<MatchingOpenMethodDispatcher> dispatchers = new ArrayList<>();
         for (IOpenMethod method : moduleOpenClass.getMethods()) {
             if (method instanceof MatchingOpenMethodDispatcher) {

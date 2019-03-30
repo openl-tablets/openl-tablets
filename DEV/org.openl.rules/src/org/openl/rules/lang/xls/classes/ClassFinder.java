@@ -11,7 +11,7 @@ import java.util.*;
  * This class is used to find a classes in file system.
  *
  * @author NSamatov
- */ 
+ */
 public class ClassFinder {
     private final Logger log = LoggerFactory.getLogger(ClassFinder.class);
 
@@ -30,8 +30,7 @@ public class ClassFinder {
     }
 
     /**
-     * Scans all classes accessible from the context class loader which belong
-     * to the given package.
+     * Scans all classes accessible from the context class loader which belong to the given package.
      *
      * @param packageName The package
      * @return The classes
@@ -41,8 +40,7 @@ public class ClassFinder {
     }
 
     /**
-     * Scans all classes accessible from the given class loader which belong to
-     * the given package.
+     * Scans all classes accessible from the given class loader which belong to the given package.
      *
      * @param packageName The package
      * @param classLoader Class Loader

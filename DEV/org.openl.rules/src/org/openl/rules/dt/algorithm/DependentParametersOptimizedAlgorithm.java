@@ -614,6 +614,7 @@ class DependentParametersOptimizedAlgorithm {
         String opposite;
         boolean lessThan;
         Bound incBound;
+
         private RelationType(String func, String opposite, boolean lessThan, Bound incBound) {
             this.func = func;
             this.opposite = opposite;
@@ -710,6 +711,7 @@ class DependentParametersOptimizedAlgorithm {
         String regex;
         int numberOfparams;
         int minDelta, maxDelta;
+
         public RangeEvaluatorFactory(String regex, int numberOfparams, int minDelta, int maxDelta) {
             super();
             this.regex = regex;

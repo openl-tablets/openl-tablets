@@ -79,9 +79,8 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
     }
 
     /**
-     * Is method has an "id" property that will be used to generate additional
-     * method with name specified in property sutable for direct call of rule
-     * avoiding the method dispatching mechanism.
+     * Is method has an "id" property that will be used to generate additional method with name specified in property
+     * sutable for direct call of rule avoiding the method dispatching mechanism.
      *
      * @return <code>true</code> if "id" property is specified.
      */
@@ -195,7 +194,10 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         }
     }
 
-    protected void addTypeError(IBindingContext bindingContext, IOpenClass type, ILocation location, IOpenSourceCodeModule syntaxNode) {
+    protected void addTypeError(IBindingContext bindingContext,
+            IOpenClass type,
+            ILocation location,
+            IOpenSourceCodeModule syntaxNode) {
         String message = String.format("Type '%s' was defined with errors", type.getName());
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, null, location, syntaxNode);
         getTableSyntaxNode().addError(error);
@@ -205,7 +207,10 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
     public int getSignatureStartIndex() {
         ICell cell = getTableSyntaxNode().getGridTable().getCell(0, 0);
         TextInfo tableHeaderText = new TextInfo(cell.getStringValue());
-        return getTableSyntaxNode().getHeader().getHeaderToken().getLocation().getEnd().getAbsolutePosition(
-            tableHeaderText);
+        return getTableSyntaxNode().getHeader()
+            .getHeaderToken()
+            .getLocation()
+            .getEnd()
+            .getAbsolutePosition(tableHeaderText);
     }
 }

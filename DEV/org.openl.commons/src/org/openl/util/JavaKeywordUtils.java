@@ -58,8 +58,8 @@ public class JavaKeywordUtils {
         JAVA_KEYWORDS.add("native");
         JAVA_KEYWORDS.add("while");
     }
-    
-    public static boolean isJavaKeyword(String s){
+
+    public static boolean isJavaKeyword(String s) {
         return JAVA_KEYWORDS.contains(s);
     }
 }

@@ -37,15 +37,15 @@ public abstract class RowExtractor<T extends CalculationStep> {
     }
 
     private NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> conf;
-    
+
     public NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> getConf() {
         return conf;
     }
-    
+
     public void setConf(NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> conf) {
         this.conf = conf;
     }
-    
+
     /**
      * Creates the instance describing the row.
      * 
@@ -61,8 +61,8 @@ public abstract class RowExtractor<T extends CalculationStep> {
     protected abstract T afterExtract(T step);
 
     /**
-     * Extract the given row from the given spreadsheet result and populates the
-     * row instance see {@link #makeRowInstance()}
+     * Extract the given row from the given spreadsheet result and populates the row instance see
+     * {@link #makeRowInstance()}
      * 
      * @param spreadsheetResult from which the row will be extracted
      * @param rowIndex index of the row for extraction

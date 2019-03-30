@@ -1,6 +1,6 @@
 package org.openl.rules.activiti;
 
-public class ResourceNotFoundException extends RuntimeException{
+public class ResourceNotFoundException extends RuntimeException {
 
     private static final long serialVersionUID = -4082777458792876576L;
 
@@ -20,4 +20,3 @@ public class ResourceNotFoundException extends RuntimeException{
         super(cause);
     }
 }
-

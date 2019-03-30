@@ -9,59 +9,59 @@ import org.openl.vm.IRuntimeEnv;
 
 public class MethodDelegator implements IOpenMethod {
 
-	protected IMethodCaller methodCaller;
-	
-	public MethodDelegator(IMethodCaller methodCaller) {
-		this.methodCaller = methodCaller;
-	}
-	
-	@Override
+    protected IMethodCaller methodCaller;
+
+    public MethodDelegator(IMethodCaller methodCaller) {
+        this.methodCaller = methodCaller;
+    }
+
+    @Override
     public IMethodSignature getSignature() {
-		return methodCaller.getMethod().getSignature();
-	}
+        return methodCaller.getMethod().getSignature();
+    }
 
-	@Override
+    @Override
     public IOpenClass getDeclaringClass() {
-		return methodCaller.getMethod().getDeclaringClass();
-	}
+        return methodCaller.getMethod().getDeclaringClass();
+    }
 
-	@Override
+    @Override
     public IMemberMetaInfo getInfo() {
-		return methodCaller.getMethod().getInfo();
-	}
+        return methodCaller.getMethod().getInfo();
+    }
 
-	@Override
+    @Override
     public IOpenClass getType() {
-		return methodCaller.getMethod().getType();
-	}
+        return methodCaller.getMethod().getType();
+    }
 
-	@Override
+    @Override
     public boolean isStatic() {
-		return methodCaller.getMethod().isStatic();
-	}
+        return methodCaller.getMethod().isStatic();
+    }
 
-	@Override
+    @Override
     public String getDisplayName(int mode) {
-		return methodCaller.getMethod().getDisplayName(mode);
-	}
+        return methodCaller.getMethod().getDisplayName(mode);
+    }
 
-	@Override
+    @Override
     public String getName() {
-		return methodCaller.getMethod().getName();
-	}
+        return methodCaller.getMethod().getName();
+    }
 
-	@Override
+    @Override
     public IOpenMethod getMethod() {
-		return methodCaller.getMethod();
-	}
+        return methodCaller.getMethod();
+    }
 
-	@Override
+    @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-		return methodCaller.invoke(target, params, env);
-	}
-	
-	@Override
-	public boolean isConstructor() {
-	    return methodCaller.getMethod().isConstructor();
-	}
+        return methodCaller.invoke(target, params, env);
+    }
+
+    @Override
+    public boolean isConstructor() {
+        return methodCaller.getMethod().isConstructor();
+    }
 }

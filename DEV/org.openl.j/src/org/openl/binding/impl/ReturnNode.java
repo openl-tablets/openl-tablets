@@ -38,5 +38,4 @@ public class ReturnNode extends ABoundNode {
         return children.length == 0 ? NullOpenClass.the : children[0].getType();
     }
 
-
 }

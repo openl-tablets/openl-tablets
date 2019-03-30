@@ -7,7 +7,7 @@ import org.openl.util.StringUtils;
 public class XlsCellEnumArrayWriter extends AXlsCellWriter {
 
     public XlsCellEnumArrayWriter(XlsSheetGridModel xlsSheetGridModel) {
-        super(xlsSheetGridModel);       
+        super(xlsSheetGridModel);
     }
 
     @Override

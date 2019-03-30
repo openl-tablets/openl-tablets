@@ -17,10 +17,10 @@ import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
 
 public class CompositeMethod extends ExecutableMethod {
-    
+
     private IBoundMethodNode methodBodyBoundNode;
     private Boolean invokable;
-    
+
     /**
      * Invoker for current method.
      */
@@ -34,7 +34,7 @@ public class CompositeMethod extends ExecutableMethod {
     public IOpenClass getBodyType() {
         return methodBodyBoundNode.getType();
     }
-   
+
     public IBoundMethodNode getMethodBodyBoundNode() {
         return methodBodyBoundNode;
     }
@@ -68,31 +68,31 @@ public class CompositeMethod extends ExecutableMethod {
     public void setMethodBodyBoundNode(IBoundMethodNode node) {
         methodBodyBoundNode = node;
     }
-        
+
     public void updateDependency(BindingDependencies dependencies) {
         dependencies.visit(getMethodBodyBoundNode());
     }
 
-	@Override
+    @Override
     public BindingDependencies getDependencies() {
-		BindingDependencies dependencies = new BindingDependencies();
-		updateDependency(dependencies);
-		return dependencies;
-	}
-	
-	@Override
+        BindingDependencies dependencies = new BindingDependencies();
+        updateDependency(dependencies);
+        return dependencies;
+    }
+
+    @Override
     public Map<String, Object> getProperties() {
-		return null;
-	}
+        return null;
+    }
 
-	@Override
+    @Override
     public ISyntaxNode getSyntaxNode() {
-		return null;
-	}
+        return null;
+    }
 
-	@Override
+    @Override
     public String getSourceUrl() {
-		return null;
-	}
-  
+        return null;
+    }
+
 }

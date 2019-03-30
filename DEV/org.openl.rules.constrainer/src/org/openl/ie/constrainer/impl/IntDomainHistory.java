@@ -30,6 +30,7 @@ public final class IntDomainHistory implements java.io.Serializable {
         protected int _type_mask;
         IntDomainHistory _history;
         int _removeIndex, _numberOfRemoves;
+
         static IntEventDomain getEvent(IntDomainHistory history) {
             IntEventDomain ev = (IntEventDomain) _factory.getElement();
             ev.init(history);

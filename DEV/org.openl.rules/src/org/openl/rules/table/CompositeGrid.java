@@ -9,10 +9,8 @@ import java.util.HashSet;
 import org.openl.rules.table.properties.PropertiesHelper;
 
 /**
- * An {@link IGrid} implementation that composes several {@link IGridTable}
- * together.<br>
- * It is possible to compose from top to bottom and from left to right by
- * {@link #vertical} flag.<br>
+ * An {@link IGrid} implementation that composes several {@link IGridTable} together.<br>
+ * It is possible to compose from top to bottom and from left to right by {@link #vertical} flag.<br>
  * Tables are composing one by one, without gaps.<br>
  * 
  * @author snshor
@@ -23,8 +21,8 @@ public class CompositeGrid extends AGrid {
     private IGridTable[] gridTables;
 
     /**
-     * Regions on current grid, to which each grid table belongs to. So, the
-     * first gridTable belongs to first mappedRegion
+     * Regions on current grid, to which each grid table belongs to. So, the first gridTable belongs to first
+     * mappedRegion
      * 
      */
     private IGridRegion[] mappedRegions;
@@ -32,9 +30,8 @@ public class CompositeGrid extends AGrid {
     private IGridRegion[] mergedRegions;
 
     /**
-     * Indicates in which direction we are going to compose the tables. If true,
-     * we are going to compose up to down. If false, we are going to compose
-     * from left to right.
+     * Indicates in which direction we are going to compose the tables. If true, we are going to compose up to down. If
+     * false, we are going to compose from left to right.
      */
     private boolean vertical;
 
@@ -70,41 +67,49 @@ public class CompositeGrid extends AGrid {
     public ICell getCell(int column, int row) {
         if (!vertical) { // Merge header for horizontal table parts
             Transform t = transform(0, 0);
-            if (t == null){
+            if (t == null) {
                 return null;
             }
             ICell delegate = t.grid().getCell(t.getCol(), t.getRow());
-            if (row < delegate.getHeight()){
+            if (row < delegate.getHeight()) {
                 IGridRegion reg = getRegionContaining(0, 0);
                 IGridRegion region = null;
-                if (reg != null){
-                    region = new GridRegion(reg.getTop(), reg.getLeft(), reg.getBottom(),
-                            reg.getLeft() + getWidth() - 1);
-                }else{
-                    region = new GridRegion(row, column, row,
-                            column + getWidth() - 1);
+                if (reg != null) {
+                    region = new GridRegion(reg.getTop(),
+                        reg.getLeft(),
+                        reg.getBottom(),
+                        reg.getLeft() + getWidth() - 1);
+                } else {
+                    region = new GridRegion(row, column, row, column + getWidth() - 1);
                 }
                 return new CompositeCell(column, row, region, delegate);
-            }else{
-                Transform t1 = transform(0, delegate.getHeight());//Properties parsing and merge
-                if (t1 != null){
+            } else {
+                Transform t1 = transform(0, delegate.getHeight());// Properties parsing and merge
+                if (t1 != null) {
                     ICell delegate1 = t1.grid().getCell(t1.getCol(), t1.getRow());
-                    if (row < delegate.getHeight() + delegate1.getHeight() && PropertiesHelper.PROPERTIES_HEADER.equals(delegate1.getStringValue())){
+                    if (row < delegate.getHeight() + delegate1.getHeight() && PropertiesHelper.PROPERTIES_HEADER
+                        .equals(delegate1.getStringValue())) {
                         Transform t2 = transform(delegate1.getWidth(), row);
-                        if (t2 != null){
+                        if (t2 != null) {
                             ICell delegate2 = t2.grid().getCell(t2.getCol(), t2.getRow());
                             Transform t3 = transform(delegate1.getWidth() + delegate2.getWidth(), row);
-                            if (t3 != null){
+                            if (t3 != null) {
                                 ICell delegate3 = t3.grid().getCell(t3.getCol(), t3.getRow());
-                                if (column >= delegate1.getWidth() + delegate2.getWidth()){
-                                    IGridRegion reg = getRegionContaining(delegate1.getWidth() + delegate2.getWidth(), row);
+                                if (column >= delegate1.getWidth() + delegate2.getWidth()) {
+                                    IGridRegion reg = getRegionContaining(delegate1.getWidth() + delegate2.getWidth(),
+                                        row);
                                     IGridRegion region = null;
-                                    if (reg != null){
-                                        region = new GridRegion(reg.getTop(), reg.getLeft(), reg.getBottom(),
-                                            reg.getLeft() + getWidth() - 1 - (delegate1.getWidth() + delegate2.getWidth()));
-                                    }else{
-                                        region = new GridRegion(row, column, row,
-                                                column + getWidth() - 1 - (delegate1.getWidth() + delegate2.getWidth()));
+                                    if (reg != null) {
+                                        region = new GridRegion(reg.getTop(),
+                                            reg.getLeft(),
+                                            reg.getBottom(),
+                                            reg.getLeft() + getWidth() - 1 - (delegate1.getWidth() + delegate2
+                                                .getWidth()));
+                                    } else {
+                                        region = new GridRegion(row,
+                                            column,
+                                            row,
+                                            column + getWidth() - 1 - (delegate1.getWidth() + delegate2.getWidth()));
                                     }
                                     return new CompositeCell(column, row, region, delegate3);
                                 }
@@ -201,8 +206,8 @@ public class CompositeGrid extends AGrid {
     }
 
     /**
-     * If there were merged regions on the source table grids, that were
-     * belonging to tables we need to move it to current grid.
+     * If there were merged regions on the source table grids, that were belonging to tables we need to move it to
+     * current grid.
      * 
      */
     private void initMergedRegions() {
@@ -256,8 +261,7 @@ public class CompositeGrid extends AGrid {
     }
 
     /**
-     * Gets the regions from grid tables, and according it initialize regions on
-     * current grid.
+     * Gets the regions from grid tables, and according it initialize regions on current grid.
      */
     private void initMappedRegions() {
         mappedRegions = new GridRegion[gridTables.length];
@@ -287,8 +291,7 @@ public class CompositeGrid extends AGrid {
     }
 
     /**
-     * Initialize width and height of current grid. According to the compose
-     * direction.
+     * Initialize width and height of current grid. According to the compose direction.
      * 
      */
     private void initWidthAndHeight() {
@@ -316,8 +319,7 @@ public class CompositeGrid extends AGrid {
      * 
      * @param col grid column index
      * @param row grid row index
-     * @return {@link Transform} that contains coordinates to cell in the
-     *         appropriate grid.
+     * @return {@link Transform} that contains coordinates to cell in the appropriate grid.
      */
     private Transform transform(int col, int row) {
         for (int i = 0; i < mappedRegions.length; i++) {

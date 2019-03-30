@@ -15,8 +15,7 @@ package org.openl.ie.constrainer;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An interface for the selection of the integer variable from a given array of
- * variables. Used in GoalGenerate.
+ * An interface for the selection of the integer variable from a given array of variables. Used in GoalGenerate.
  *
  * @see GoalGenerate
  * @see IntVarSelectorFirstUnbound
@@ -25,8 +24,7 @@ package org.openl.ie.constrainer;
  */
 public interface IntVarSelector extends java.io.Serializable {
     /**
-     * Returns the index of the selected variable in the array of IntVar(s). If
-     * no variables to select, it returns -1;
+     * Returns the index of the selected variable in the array of IntVar(s). If no variables to select, it returns -1;
      */
     public int select();
 }

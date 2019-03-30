@@ -24,7 +24,7 @@ public class UndoableRemoveRowsAction extends UndoableRemoveAction {
     }
 
     @Override
-    protected boolean canPerformAction(IGridRegion gridRegion) {        
+    protected boolean canPerformAction(IGridRegion gridRegion) {
         return !(startRow < 0 || startRow >= IGridRegion.Tool.height(gridRegion));
     }
 
@@ -44,7 +44,9 @@ public class UndoableRemoveRowsAction extends UndoableRemoveAction {
     }
 
     @Override
-    protected IUndoableGridTableAction performAction(int numberToRemove, IGridRegion fullTableRegion, IGridTable table) {        
+    protected IUndoableGridTableAction performAction(int numberToRemove,
+            IGridRegion fullTableRegion,
+            IGridTable table) {
         return GridTool.removeRows(numberToRemove, startRow, fullTableRegion, table.getGrid(), metaInfoWriter);
     }
 

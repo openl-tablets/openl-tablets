@@ -7,8 +7,7 @@ public class LessThanConstraint extends AbstractConstraint {
 
     public static final String CONSTRAINT_KEY = "<";
 
-    public static final String CONSTRAINT_MATCH = "^\\s*([_a-zA-Z\\d\\$]+\\s*)?" + CONSTRAINT_KEY
-            + "\\s*[_a-zA-Z\\d\\$]+\\s*$";
+    public static final String CONSTRAINT_MATCH = "^\\s*([_a-zA-Z\\d\\$]+\\s*)?" + CONSTRAINT_KEY + "\\s*[_a-zA-Z\\d\\$]+\\s*$";
 
     private Object[] params;
 

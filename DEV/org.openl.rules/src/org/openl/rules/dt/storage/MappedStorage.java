@@ -9,7 +9,7 @@ abstract class MappedStorage extends ReadOnlyStorage<Object> {
         this.uniqueValues = uniqueValues;
     }
 
-	@Override
+    @Override
     public Object getValue(int index) {
         return uniqueValues[mapIndex(index)];
     }

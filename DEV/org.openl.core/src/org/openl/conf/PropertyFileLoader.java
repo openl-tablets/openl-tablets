@@ -18,12 +18,11 @@ import org.openl.util.Log;
 /**
  * Class PropertyFileLoader loads a property file using the following algorithm:
  *
- * 1) if exists property <code>propertiesFileProperty</code> it's value
- * becomes <code>property_file_name</code> otherwise
- * <code>propertiesFileDefaultName</code> is used.
+ * 1) if exists property <code>propertiesFileProperty</code> it's value becomes <code>property_file_name</code>
+ * otherwise <code>propertiesFileDefaultName</code> is used.
  *
- * 2) It tries to load properties file in the following order: 2.1) as URL 2.2)
- * as resource in context classpath 2.3) as file in context filesystem
+ * 2) It tries to load properties file in the following order: 2.1) as URL 2.2) as resource in context classpath 2.3) as
+ * file in context filesystem
  *
  * @see org.openl.conf.IConfigurableResourceContext
  *
@@ -44,8 +43,10 @@ public class PropertyFileLoader {
 
     private PropertyFileLoader parent = null;
 
-    public PropertyFileLoader(String propertiesFileDefaultName, String propertiesFileProperty,
-            IConfigurableResourceContext context, PropertyFileLoader parent) {
+    public PropertyFileLoader(String propertiesFileDefaultName,
+            String propertiesFileProperty,
+            IConfigurableResourceContext context,
+            PropertyFileLoader parent) {
         this.context = context;
         this.propertiesFileDefaultName = propertiesFileDefaultName;
         this.propertiesFileProperty = propertiesFileProperty;

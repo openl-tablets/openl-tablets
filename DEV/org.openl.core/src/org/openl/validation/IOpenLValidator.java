@@ -4,8 +4,7 @@ import org.openl.OpenL;
 import org.openl.types.IOpenClass;
 
 /**
- * The <code>IOpenValidator</code> interface defines OpenL validator
- * abstraction.
+ * The <code>IOpenValidator</code> interface defines OpenL validator abstraction.
  * 
  */
 public interface IOpenLValidator {

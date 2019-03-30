@@ -9,9 +9,9 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTMergeCells;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTWorksheet;
 
 /**
- * This class implements optimized merged region addition.
- * The class must be in the same package as SXSSFWorkbook to access its package level methods and fields.
- * Remove this class when this bug will be fixed: https://bz.apache.org/bugzilla/show_bug.cgi?id=60397
+ * This class implements optimized merged region addition. The class must be in the same package as SXSSFWorkbook to
+ * access its package level methods and fields. Remove this class when this bug will be fixed:
+ * https://bz.apache.org/bugzilla/show_bug.cgi?id=60397
  */
 public class CustomizedSXSSFWorkbook extends SXSSFWorkbook {
 
@@ -39,9 +39,8 @@ public class CustomizedSXSSFWorkbook extends SXSSFWorkbook {
         public int addMergedRegionUnsafe(CellRangeAddress region) {
             CTWorksheet worksheet = _sh.getCTWorksheet();
 
-            CTMergeCells ctMergeCells = worksheet.isSetMergeCells() ?
-                                        worksheet.getMergeCells() :
-                                        worksheet.addNewMergeCells();
+            CTMergeCells ctMergeCells = worksheet.isSetMergeCells() ? worksheet.getMergeCells()
+                                                                    : worksheet.addNewMergeCells();
             CTMergeCell ctMergeCell = ctMergeCells.addNewMergeCell();
             ctMergeCell.setRef(region.formatAsString());
 

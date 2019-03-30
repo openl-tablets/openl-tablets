@@ -12,8 +12,7 @@ import org.openl.validation.IOpenLValidator;
 import org.openl.validation.ValidationResult;
 
 /**
- * Class that defines OpenL engine manager implementation for validation
- * operations.
+ * Class that defines OpenL engine manager implementation for validation operations.
  */
 public class OpenLValidationManager extends OpenLHolder {
 
@@ -76,7 +75,7 @@ public class OpenLValidationManager extends OpenLHolder {
 
             }
             return results;
-        }else{
+        } else {
             return Collections.emptyList();
         }
     }

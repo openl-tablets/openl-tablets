@@ -22,7 +22,7 @@ public interface IMethodSignature {
         public String getParameterName(int i) {
             throw new IndexOutOfBoundsException();
         }
-        
+
         @Override
         public IOpenClass getParameterType(int i) {
             throw new IndexOutOfBoundsException();
@@ -40,7 +40,7 @@ public interface IMethodSignature {
     int getNumberOfParameters();
 
     String getParameterName(int i);
-    
+
     IOpenClass getParameterType(int i);
 
     IOpenClass[] getParameterTypes();

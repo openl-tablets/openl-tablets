@@ -17,10 +17,7 @@ public class IfNode extends ABoundNode {
     private final IBoundNode thenNode;
     private final IOpenClass type;
 
-    IfNode(ISyntaxNode syntaxNode,
-            IBoundNode conditionNode,
-            IBoundNode thenNode,
-            IOpenClass type) {
+    IfNode(ISyntaxNode syntaxNode, IBoundNode conditionNode, IBoundNode thenNode, IOpenClass type) {
         super(syntaxNode, conditionNode, thenNode);
         this.conditionNode = conditionNode;
         this.thenNode = thenNode;
@@ -29,10 +26,10 @@ public class IfNode extends ABoundNode {
     }
 
     IfNode(ISyntaxNode syntaxNode,
-           IBoundNode conditionNode,
-           IBoundNode thenNode,
-           IBoundNode elseNode,
-           IOpenClass type) {
+            IBoundNode conditionNode,
+            IBoundNode thenNode,
+            IBoundNode elseNode,
+            IOpenClass type) {
         super(syntaxNode, conditionNode, thenNode, elseNode);
         this.conditionNode = conditionNode;
         this.thenNode = thenNode;

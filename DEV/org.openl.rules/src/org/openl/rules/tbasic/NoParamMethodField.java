@@ -72,8 +72,8 @@ public class NoParamMethodField implements IOpenField {
 
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
-        throw new UnsupportedOperationException(String.format(
-                "Set operation is not supported for method proxy field \"%s\"", fieldName));
+        throw new UnsupportedOperationException(
+            String.format("Set operation is not supported for method proxy field \"%s\"", fieldName));
     }
 
 }

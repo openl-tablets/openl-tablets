@@ -20,8 +20,7 @@ import org.openl.ie.constrainer.Undoable;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An implementation of the Undoable interface for the undoable only once
- * object.
+ * An implementation of the Undoable interface for the undoable only once object.
  */
 public abstract class UndoableOnceImpl extends ConstrainerObjectImpl implements Undoable {
     protected boolean _undone;

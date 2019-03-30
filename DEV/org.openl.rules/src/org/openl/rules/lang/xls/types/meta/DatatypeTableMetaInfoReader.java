@@ -127,9 +127,9 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
             return null;
         }
         SimpleNodeUsage nodeUsage = new SimpleNodeUsage(identifier,
-                typeMeta.getDisplayName(INamedThing.SHORT),
-                typeMeta.getSourceUrl(),
-                NodeType.DATATYPE);
+            typeMeta.getDisplayName(INamedThing.SHORT),
+            typeMeta.getSourceUrl(),
+            NodeType.DATATYPE);
 
         return new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
     }

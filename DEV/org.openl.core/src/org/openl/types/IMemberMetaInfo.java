@@ -20,6 +20,6 @@ public interface IMemberMetaInfo extends IMetaInfo {
     BindingDependencies getDependencies();
 
     ISyntaxNode getSyntaxNode();
-    
+
     Map<String, Object> getProperties();
 }

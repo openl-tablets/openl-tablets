@@ -5,27 +5,18 @@ import java.math.BigInteger;
 import org.openl.meta.*;
 
 public final class IntegerValuesUtils {
-    
+
     private IntegerValuesUtils() {
     }
-    
+
     public static boolean isIntegerValue(Class<?> clazz) {
-        return byte.class.equals(clazz)
-                || short.class.equals(clazz)
-                || int.class.equals(clazz)
-                || long.class.equals(clazz)
-                || Byte.class.equals(clazz)
-                || Short.class.equals(clazz)
-                || Integer.class.equals(clazz)
-                || Long.class.equals(clazz)
-                || BigInteger.class.equals(clazz)
-                || ByteValue.class.equals(clazz)
-                || ShortValue.class.equals(clazz)
-                || IntValue.class.equals(clazz)
-                || LongValue.class.equals(clazz)
-                || BigIntegerValue.class.equals(clazz);
+        return byte.class.equals(clazz) || short.class.equals(clazz) || int.class.equals(clazz) || long.class
+            .equals(clazz) || Byte.class.equals(clazz) || Short.class.equals(clazz) || Integer.class
+                .equals(clazz) || Long.class.equals(clazz) || BigInteger.class.equals(clazz) || ByteValue.class
+                    .equals(clazz) || ShortValue.class.equals(clazz) || IntValue.class
+                        .equals(clazz) || LongValue.class.equals(clazz) || BigIntegerValue.class.equals(clazz);
     }
-    
+
     public static Object createNewObjectByType(Class<?> clazz, String value) {
         if (byte.class.equals(clazz)) {
             return Byte.valueOf(value);

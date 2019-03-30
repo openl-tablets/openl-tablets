@@ -47,7 +47,7 @@ final class ArrayBoundNode extends ABoundNode {
         Class<?> componentClass = componentType.getInstanceClass();
         return Array.newInstance(componentClass, dims);
     }
-    
+
     @Override
     public IOpenClass getType() {
         return arrayType;

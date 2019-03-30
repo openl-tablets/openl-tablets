@@ -139,7 +139,7 @@ public class DimensionPropertiesDomainsCollector {
             result = new ArrayDomainCollector(propertyName);
         } else if (propertyType.isArray() && String.class.equals(propertyType.getComponentType())) {
             result = new ArrayDomainCollector(propertyName);
-        } 
+        }
         return result;
     }
 }

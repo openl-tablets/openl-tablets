@@ -13,8 +13,7 @@ import org.openl.util.ClassUtils;
 import org.openl.util.OpenIterator;
 
 /**
- * Default format to convert <code>Object</code> values to <code>String</code>
- * representations. Supports:<br>
+ * Default format to convert <code>Object</code> values to <code>String</code> representations. Supports:<br>
  * - <code>null</code> objects<br>
  * - arrays (Object and primitives)<br>
  * - object that are instances of {@link Collection}<br>
@@ -27,7 +26,7 @@ public final class DefaultFormat {
 
     private DefaultFormat() {
     }
-    
+
     public static StringBuilder format(Object obj, StringBuilder buf) {
         if (obj == null) {
             return buf.append("null");
@@ -96,10 +95,7 @@ public final class DefaultFormat {
         return buf;
     }
 
-    private static StringBuilder formatIterator(Iterator<?> it,
-            StringBuilder buf,
-            int actualLength,
-            String brackets) {
+    private static StringBuilder formatIterator(Iterator<?> it, StringBuilder buf, int actualLength, String brackets) {
         buf.append(brackets.charAt(0));
 
         int len = actualLength;
@@ -140,7 +136,11 @@ public final class DefaultFormat {
             Object key = element.getKey();
             Object value = element.getValue();
             if (key != null && value != null) {
-                buf.append('<').append(ClassUtils.getShortClassName(key.getClass())).append(',').append(ClassUtils.getShortClassName(value.getClass())).append('>');
+                buf.append('<')
+                    .append(ClassUtils.getShortClassName(key.getClass()))
+                    .append(',')
+                    .append(ClassUtils.getShortClassName(value.getClass()))
+                    .append('>');
             }
         }
 

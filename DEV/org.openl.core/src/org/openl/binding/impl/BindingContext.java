@@ -38,7 +38,7 @@ public class BindingContext implements IBindingContext {
     private LocalFrameBuilder localFrame = new LocalFrameBuilder();
     private List<SyntaxNodeException> errors = new ArrayList<>();
     private LinkedList<List<SyntaxNodeException>> errorStack = new LinkedList<>();
-    
+
     private Map<String, Object> externalParams;
 
     private Collection<OpenLMessage> messages = new LinkedHashSet<>();
@@ -197,7 +197,7 @@ public class BindingContext implements IBindingContext {
         messages = messagesStack.pop();
         return tmp;
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -219,7 +219,7 @@ public class BindingContext implements IBindingContext {
         messagesStack.push(messages);
         messages = new LinkedHashSet<>();
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -242,7 +242,7 @@ public class BindingContext implements IBindingContext {
     public boolean isExecutionMode() {
         return executionMode;
     }
-    
+
     @Override
     public void setExecutionMode(boolean exectionMode) {
         this.executionMode = exectionMode;
@@ -269,23 +269,23 @@ public class BindingContext implements IBindingContext {
     public Collection<OpenLMessage> getMessages() {
         return Collections.unmodifiableCollection(messages);
     }
-    
+
     @Override
     public void addMessage(OpenLMessage message) {
         messages.add(message);
     }
-    
+
     @Override
     public void addMessages(Collection<OpenLMessage> messages) {
         for (OpenLMessage message : messages) {
             addMessage(message);
         }
     }
-    
+
     public void setOpenl(OpenL openl) {
         this.openl = openl;
     }
-    
+
     public void setBinder(IOpenBinder binder) {
         this.binder = binder;
     }

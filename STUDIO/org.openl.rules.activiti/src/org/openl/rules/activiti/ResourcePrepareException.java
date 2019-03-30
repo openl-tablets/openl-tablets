@@ -1,6 +1,6 @@
 package org.openl.rules.activiti;
 
-public class ResourcePrepareException extends RuntimeException{
+public class ResourcePrepareException extends RuntimeException {
 
     private static final long serialVersionUID = 4221185497893056680L;
 

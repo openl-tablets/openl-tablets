@@ -51,11 +51,8 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
         if (typeMeta != null) {
             try {
                 IdentifierNode[] parsedHeader = Tokenizer.tokenize(source, " \n\r");
-                return RuleRowHelper.createCellMetaInfo(
-                        parsedHeader[DataNodeBinder.TYPE_INDEX],
-                        typeMeta,
-                        NodeType.DATATYPE
-                );
+                return RuleRowHelper
+                    .createCellMetaInfo(parsedHeader[DataNodeBinder.TYPE_INDEX], typeMeta, NodeType.DATATYPE);
             } catch (OpenLCompilationException e) {
                 log.error(e.getMessage(), e);
                 return null;
@@ -127,11 +124,10 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
                     IdentifierNode foreignKeyTable = foreignDescriptor.getForeignKeyTable();
                     ITable foreignTable = db.getTable(foreignKeyTable.getIdentifier());
                     if (foreignTable != null) {
-                        NodeUsage nodeUsage = new SimpleNodeUsage(
-                                foreignKeyTable,
-                                foreignTable.getTableSyntaxNode().getHeaderLineValue().getValue(),
-                                foreignTable.getTableSyntaxNode().getUri(),
-                                NodeType.DATA);
+                        NodeUsage nodeUsage = new SimpleNodeUsage(foreignKeyTable,
+                            foreignTable.getTableSyntaxNode().getHeaderLineValue().getValue(),
+                            foreignTable.getTableSyntaxNode().getUri(),
+                            NodeType.DATA);
                         return new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
                     }
 

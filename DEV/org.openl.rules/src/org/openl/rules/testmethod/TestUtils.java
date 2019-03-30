@@ -6,7 +6,7 @@ import java.util.List;
 import org.openl.rules.context.IRulesRuntimeContext;
 
 public final class TestUtils {
-    
+
     private TestUtils() {
     }
 

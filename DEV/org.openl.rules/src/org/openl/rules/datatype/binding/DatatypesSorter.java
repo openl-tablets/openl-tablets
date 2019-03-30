@@ -20,7 +20,7 @@ public final class DatatypesSorter {
 
     private DatatypesSorter() {
     }
-    
+
     public static TableSyntaxNode[] sort(TableSyntaxNode[] datatypeNodes, IBindingContext bindingContext) {
         if (datatypeNodes == null) {
             return null;
@@ -37,7 +37,8 @@ public final class DatatypesSorter {
             IBindingContext bindingContext) {
         List<TopoGraphNode<TableSyntaxNode>> toSort = new ArrayList<>();
         for (TableSyntaxNode datatype : datatypes.values()) {
-            toSort.add(wrap(datatype, datatypes, bindingContext, new HashMap<String, TopoGraphNode<TableSyntaxNode>>()));
+            toSort
+                .add(wrap(datatype, datatypes, bindingContext, new HashMap<String, TopoGraphNode<TableSyntaxNode>>()));
         }
         return toSort;
     }
@@ -74,15 +75,16 @@ public final class DatatypesSorter {
             }
             for (String dependency : dependencies) {
                 if (datatypes.containsKey(dependency)
-                // Avoid recursive dependencies
-                //
-                && !dependency.equals(currentName)) {
+                        // Avoid recursive dependencies
+                        //
+                        && !dependency.equals(currentName)) {
                     if (dependentQueue.containsKey(dependency)) {
                         // Avoid recursive dependencies
                         forSort.addDependency(dependentQueue.get(dependency));
                     } else {
                         dependentQueue.put(currentName, forSort);
-                        forSort.addDependency(wrap(datatypes.get(dependency), datatypes, bindingContext, dependentQueue));
+                        forSort
+                            .addDependency(wrap(datatypes.get(dependency), datatypes, bindingContext, dependentQueue));
                         dependentQueue.remove(currentName);
                     }
                 }
@@ -92,7 +94,8 @@ public final class DatatypesSorter {
 
     }
 
-    private static Map<String, TableSyntaxNode> createTypesMap(IBindingContext bindingContext, TableSyntaxNode[] nodes) {
+    private static Map<String, TableSyntaxNode> createTypesMap(IBindingContext bindingContext,
+            TableSyntaxNode[] nodes) {
 
         Map<String, TableSyntaxNode> map = new LinkedHashMap<>();
 

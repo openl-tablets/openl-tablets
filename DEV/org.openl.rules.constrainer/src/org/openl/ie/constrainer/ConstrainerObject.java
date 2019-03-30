@@ -16,8 +16,8 @@ package org.openl.ie.constrainer;
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- * An interface for constrainer object. Constrained variables, expressions,
- * constraints, and goals implement that interface.
+ * An interface for constrainer object. Constrained variables, expressions, constraints, and goals implement that
+ * interface.
  *
  * @see IntExp
  * @see FloatExp
@@ -27,16 +27,14 @@ package org.openl.ie.constrainer;
  */
 public interface ConstrainerObject extends java.io.Serializable {
     /**
-     * Returns the constrainer the object belongs to. Constrainer object belongs
-     * to one and only one constrainer.
+     * Returns the constrainer the object belongs to. Constrainer object belongs to one and only one constrainer.
      *
      * @return the constrainer the object belongs to.
      */
     public Constrainer constrainer();
 
     /**
-     * Returns the name of the object. If the name is undefined the function
-     * returns an empty string.
+     * Returns the name of the object. If the name is undefined the function returns an empty string.
      *
      * @return The name of the object.
      */
@@ -50,20 +48,17 @@ public interface ConstrainerObject extends java.io.Serializable {
     public void name(String name);
 
     /**
-     * Returns the object associated with this constrainer object. It is
-     * possible to associate some object with a constrainer object. This method
-     * returns the associated object if it exists. Otherwise the method returns
-     * null.
+     * Returns the object associated with this constrainer object. It is possible to associate some object with a
+     * constrainer object. This method returns the associated object if it exists. Otherwise the method returns null.
      *
      * @return the object associated with the constrainer object.
      */
     public Object object();
 
     /**
-     * Associates the object with this constrainer object. It is possible to
-     * associate an object with an constrainer object. When your business object
-     * BO is assosiated with the constraned object CO (i.e. IntVar), it is
-     * convenient to use this method to save the reference to the BO in the CO.
+     * Associates the object with this constrainer object. It is possible to associate an object with an constrainer
+     * object. When your business object BO is assosiated with the constraned object CO (i.e. IntVar), it is convenient
+     * to use this method to save the reference to the BO in the CO.
      */
     public void object(Object o);
 

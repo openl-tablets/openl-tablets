@@ -3,14 +3,13 @@ package org.openl.engine;
 import org.openl.OpenL;
 
 /**
- * Class that defines an abstraction of OpenL holder. 
+ * Class that defines an abstraction of OpenL holder.
  */
 public abstract class OpenLHolder {
 
     /**
-     * {@link OpenL} instance. Actually OpenL engine context that used during
-     * core operations such as parsing, binding, processing, compilation and
-     * etc.
+     * {@link OpenL} instance. Actually OpenL engine context that used during core operations such as parsing, binding,
+     * processing, compilation and etc.
      */
     private OpenL openl;
 

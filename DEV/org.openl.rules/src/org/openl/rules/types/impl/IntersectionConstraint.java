@@ -33,13 +33,15 @@ public abstract class IntersectionConstraint<P> {
     protected static <T> IntersectionType intersectionForLE(Comparable<T> firstValue, Comparable<T> secondValue) {
         @SuppressWarnings("unchecked")
         int comparison = firstValue.compareTo((T) secondValue);
-        return comparison == 0 ? IntersectionType.EQUALS : comparison < 0 ? IntersectionType.CONTAINS : IntersectionType.NESTED;
+        return comparison == 0 ? IntersectionType.EQUALS
+                               : comparison < 0 ? IntersectionType.CONTAINS : IntersectionType.NESTED;
     }
 
     protected static <T> IntersectionType intersectionForGE(Comparable<T> firstValue, Comparable<T> secondValue) {
         @SuppressWarnings("unchecked")
         int comparison = firstValue.compareTo((T) secondValue);
-        return comparison == 0 ? IntersectionType.EQUALS : comparison > 0 ? IntersectionType.CONTAINS : IntersectionType.NESTED;
+        return comparison == 0 ? IntersectionType.EQUALS
+                               : comparison > 0 ? IntersectionType.CONTAINS : IntersectionType.NESTED;
     }
 
     @SuppressWarnings("unchecked")
@@ -47,7 +49,8 @@ public abstract class IntersectionConstraint<P> {
         return firstValue.compareTo((T) secondValue) == 0 ? IntersectionType.EQUALS : IntersectionType.NO_INTERSECTION;
     }
 
-    protected static <T> IntersectionType intersectionForCONTAINS(Comparable<T>[] firstValue, Comparable<T>[] secondValue) {
+    protected static <T> IntersectionType intersectionForCONTAINS(Comparable<T>[] firstValue,
+            Comparable<T>[] secondValue) {
         IntersectionType resultForNoAbsentElements;
         if (firstValue.length > secondValue.length) {
             resultForNoAbsentElements = IntersectionType.CONTAINS;
@@ -57,7 +60,7 @@ public abstract class IntersectionConstraint<P> {
             secondValue = swap;
         } else {
             resultForNoAbsentElements = firstValue.length < secondValue.length ? IntersectionType.NESTED
-                    : IntersectionType.EQUALS;
+                                                                               : IntersectionType.EQUALS;
         }
 
         boolean hasEqualElements = false;

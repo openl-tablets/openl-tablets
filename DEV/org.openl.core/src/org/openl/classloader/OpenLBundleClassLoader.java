@@ -8,28 +8,29 @@ import java.util.Set;
 public abstract class OpenLBundleClassLoader extends OpenLClassLoader {
 
     protected Set<ClassLoader> bundleClassLoaders = new LinkedHashSet<ClassLoader>();
-    
+
     OpenLBundleClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
     }
 
     public void addClassLoader(ClassLoader classLoader) {
-        
+
         if (classLoader == null) {
             throw new IllegalArgumentException("Bundle class loader cannot be null");
         }
-        
+
         if (classLoader == this) {
             throw new IllegalArgumentException("Bundle class loader cannot register himself");
         }
 
-        if (classLoader instanceof OpenLBundleClassLoader && ((OpenLBundleClassLoader) classLoader).containsClassLoader(this)) {
+        if (classLoader instanceof OpenLBundleClassLoader && ((OpenLBundleClassLoader) classLoader)
+            .containsClassLoader(this)) {
             throw new IllegalArgumentException("Bundle class loader cannot register class loader containing himself");
         }
-        
+
         bundleClassLoaders.add(classLoader);
     }
-    
+
     protected Set<ClassLoader> getBundleClassLoaders() {
         return Collections.unmodifiableSet(bundleClassLoaders);
     }

@@ -12,8 +12,8 @@ import java.io.StringWriter;
 import org.openl.exception.OpenlNotCheckedException;
 
 /**
- * <code>SyntaxNodeException</code> is the base exception class of those
- * exceptions that can be thrown by engine during compilation process.
+ * <code>SyntaxNodeException</code> is the base exception class of those exceptions that can be thrown by engine during
+ * compilation process.
  * 
  * @author snshor
  */
@@ -47,8 +47,7 @@ public class CompositeSyntaxNodeException extends OpenlNotCheckedException {
     /**
      * Gets the exception message.
      * 
-     * Note. Class hides the original exception message that contains error
-     * stack trace and returns his own message.
+     * Note. Class hides the original exception message that contains error stack trace and returns his own message.
      * 
      * @return exception message
      */
@@ -61,9 +60,9 @@ public class CompositeSyntaxNodeException extends OpenlNotCheckedException {
         if (message != null) {
             printWriter.println(message);
         }
-        
+
         if (errors != null) {
-        	for (int i = 0; i < errors.length; ++i) {
+            for (int i = 0; i < errors.length; ++i) {
                 printWriter.println(errors[i]);
             }
         }

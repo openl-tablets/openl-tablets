@@ -69,7 +69,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         return this;
     }
 
-    private IDomainAdaptor makeDomainAdaptor(IDomain<?> domain) {        
+    private IDomainAdaptor makeDomainAdaptor(IDomain<?> domain) {
         IDomainAdaptor result = null;
         if (domain instanceof EnumDomain<?>) {
             result = new EnumDomainAdaptor(((EnumDomain<?>) domain));
@@ -77,7 +77,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
             IntRangeDomain irange = (IntRangeDomain) domain;
             result = new IntRangeDomainAdaptor(irange);
         } else if (domain instanceof JavaEnumDomain) {
-            result = new JavaEnumDomainAdaptor((JavaEnumDomain)domain);
+            result = new JavaEnumDomainAdaptor((JavaEnumDomain) domain);
         }
         return result;
     }
@@ -108,10 +108,10 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
     }
 
     @Override
-    public IOpenClass transformParameterType(IParameterDeclaration parameterDeclaration) { 
+    public IOpenClass transformParameterType(IParameterDeclaration parameterDeclaration) {
 
         Class<?> instanceClass = parameterDeclaration.getType().getInstanceClass();
-        
+
         if (instanceClass == String.class || instanceClass == Date.class) {
             return JavaOpenClass.INT;
         }
@@ -119,51 +119,55 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         if (instanceClass == IntRange.class) {
             return JavaOpenClass.getOpenClass(CtrIntRange.class);
         }
-        
+
         if (instanceClass == boolean.class || instanceClass == Boolean.class) {
             return JavaOpenClass.INT;
         }
-        
+
         if (instanceClass.isEnum()) {
             return JavaOpenClass.INT;
         }
-        
+
         if (instanceClass.isArray())
-            return  JavaOpenClass.getOpenClass(int[].class);
-        
+            return JavaOpenClass.getOpenClass(int[].class);
 
         return null;
     }
-        
+
     @Override
-    public Object transformLocalParameterValue(String name, IBaseCondition condition, Object value, DecisionTableAnalyzer dtan) {
-        
-        if (value != null && value.getClass().isArray())
-        {
+    public Object transformLocalParameterValue(String name,
+            IBaseCondition condition,
+            Object value,
+            DecisionTableAnalyzer dtan) {
+
+        if (value != null && value.getClass().isArray()) {
             int[] res = new int[Array.getLength(value)];
             for (int i = 0; i < res.length; i++) {
-                res[i] = (Integer)transformSingleLocalParameterValue(name, condition, Array.get(value, i), dtan); 
+                res[i] = (Integer) transformSingleLocalParameterValue(name, condition, Array.get(value, i), dtan);
             }
-            
+
             return res;
-        }   
-        else return transformSingleLocalParameterValue(name, condition, value, dtan);
-    } 
-        
-  public Object transformSingleLocalParameterValue(String name, IBaseCondition condition, Object value, DecisionTableAnalyzer dtan) {
-        
+        } else
+            return transformSingleLocalParameterValue(name, condition, value, dtan);
+    }
+
+    public Object transformSingleLocalParameterValue(String name,
+            IBaseCondition condition,
+            Object value,
+            DecisionTableAnalyzer dtan) {
+
         Object result = value;
         if (value instanceof IntRange) {
             IntRange intr = (IntRange) value;
             return new CtrIntRange(intr.getMin(), intr.getMax());
         }
-        
+
         // at first search domains in those that were defined by user.
         String uniquePname = DecisionTableValidator.getUniqueConditionParamName(condition, name);
         IDomainAdaptor domainAdaptor = getDomains().get(uniquePname);
         if (domainAdaptor == null)
             domainAdaptor = getDomains().get(name);
-        
+
         if (domainAdaptor != null) {
             result = domainAdaptor.getIndex(value);
         } else { // then search domains from its type.
@@ -172,7 +176,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
                 IDomainAdaptor domainAdapt = makeDomainAdaptor(domain);
                 result = domainAdapt.getIndex(value);
             } else {
-                if (!(value instanceof Integer)) { // integer don`t need to be converted. so the original value 
+                if (!(value instanceof Integer)) { // integer don`t need to be converted. so the original value
                                                    // will be returned. in other cases throws an exception.
                     throw new OpenLRuntimeException(String.format("Could not create domain for %s", name));
                 }
@@ -196,7 +200,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         if (instanceClass == boolean.class || instanceClass == Boolean.class) {
             return JavaOpenClass.getOpenClass(IntBoolVar.class);
         }
-        
+
         if (instanceClass.isEnum()) {
             return JavaOpenClass.getOpenClass(IntExp.class);
         }
@@ -205,9 +209,9 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
     }
 
     @Override
-    public Object transformSignatureValueBack(String name, int intValue, DecisionTableAnalyzer dtAnalyzer) {        
+    public Object transformSignatureValueBack(String name, int intValue, DecisionTableAnalyzer dtAnalyzer) {
         Object result = intValue;
-        
+
         DecisionTableParamDescription pd = dtAnalyzer.getUsedParams().get(name);
 
         Class<?> instanceClass = pd.getParameterDeclaration().getType().getInstanceClass();
@@ -215,7 +219,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         if (instanceClass == boolean.class || instanceClass == Boolean.class) {
             return intValue == 1 ? "true" : "false";
         }
-        
+
         // at first search domains in those that were defined by user.
         IDomainAdaptor domainAdapt = getDomains().get(name);
         if (domainAdapt != null) {
@@ -229,18 +233,16 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
                 result = intValue;
             }
         }
-        
+
         return result;
     }
 
-    
-    
     @Override
     public boolean isOverrideAscending() {
-        //1. if return type is void, return false
+        // 1. if return type is void, return false
         if (decisionTable.getMethod().getType() == JavaOpenClass.VOID)
             return false;
-        
+
         return true;
     }
 

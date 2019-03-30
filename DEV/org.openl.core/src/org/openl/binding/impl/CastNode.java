@@ -29,8 +29,7 @@ public class CastNode extends ABoundNode {
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.binding.IBoundNode#assign(java.lang.Object,
-     *      org.openl.vm.IRuntimeEnv)
+     * @see org.openl.binding.IBoundNode#assign(java.lang.Object, org.openl.vm.IRuntimeEnv)
      */
     @Override
     public void assign(Object value, IRuntimeEnv env) throws OpenLRuntimeException {

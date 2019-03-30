@@ -6,7 +6,6 @@ import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
 
-
 /**
  * An implementation of the expression: <code>(IntExp < IntExp + offset)</code>.
  */
@@ -28,6 +27,7 @@ public class IntBoolExpLessExp extends IntBoolExpForSubject {
         }
 
     } // ~ObserverMinMax
+
     protected IntExp _left, _right;
     protected int _offset;
 

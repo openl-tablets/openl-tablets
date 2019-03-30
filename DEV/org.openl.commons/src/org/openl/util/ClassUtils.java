@@ -60,7 +60,7 @@ public class ClassUtils {
     public static Class<?> defineClass(String className, byte[] b, ClassLoader loader) throws Exception {
         Class clazz;
         if (DEFINE_CLASS != null) {
-            Object[] args = new Object[]{className, b, new Integer(0), new Integer(b.length), PROTECTION_DOMAIN};
+            Object[] args = new Object[] { className, b, new Integer(0), new Integer(b.length), PROTECTION_DOMAIN };
             clazz = (Class) DEFINE_CLASS.invoke(loader, args);
         } else {
             throw new IllegalStateException(THROWABLE);
@@ -71,13 +71,12 @@ public class ClassUtils {
 
     /**
      * <p>
-     * Converts the specified primitive Class object to its corresponding wrapper
-     * Class object.
+     * Converts the specified primitive Class object to its corresponding wrapper Class object.
      * </p>
      *
      * @param cls the class to convert, may be null
-     * @return the wrapper class for {@code cls} or {@code cls} if {@code cls} is
-     *         not a primitive. {@code null} if null input.
+     * @return the wrapper class for {@code cls} or {@code cls} if {@code cls} is not a primitive. {@code null} if null
+     *         input.
      */
     public static Class<?> primitiveToWrapper(final Class<?> cls) {
         if (cls == null) {
@@ -112,16 +111,13 @@ public class ClassUtils {
      * </p>
      *
      * <p>
-     * This method is the counter part of {@code primitiveToWrapper()}. If the
-     * passed in class is a wrapper class for a primitive type, this primitive type
-     * will be returned (e.g. {@code Integer.TYPE} for {@code Integer.class}). For
-     * other classes, or if the parameter is <b>null</b>, the return value is
-     * <b>null</b>.
+     * This method is the counter part of {@code primitiveToWrapper()}. If the passed in class is a wrapper class for a
+     * primitive type, this primitive type will be returned (e.g. {@code Integer.TYPE} for {@code Integer.class}). For
+     * other classes, or if the parameter is <b>null</b>, the return value is <b>null</b>.
      * </p>
      *
      * @param cls the class to convert, may be <b>null</b>
-     * @return the corresponding primitive type if {@code cls} is a wrapper class,
-     *         <b>null</b> otherwise
+     * @return the corresponding primitive type if {@code cls} is a wrapper class, <b>null</b> otherwise
      */
     public static Class<?> wrapperToPrimitive(final Class<?> cls) {
         if (cls == Double.class) {
@@ -152,9 +148,8 @@ public class ClassUtils {
      * </p>
      *
      * <p>
-     * Consider using the Java 5 API {@link Class#getSimpleName()} instead. The one
-     * known difference is that this code will return {@code "Map.Entry"} while the
-     * {@code java.lang.Class} variant will simply return {@code "Entry"}.
+     * Consider using the Java 5 API {@link Class#getSimpleName()} instead. The one known difference is that this code
+     * will return {@code "Map.Entry"} while the {@code java.lang.Class} variant will simply return {@code "Entry"}.
      * </p>
      *
      * @param cls the class to get the short name for.
@@ -202,31 +197,28 @@ public class ClassUtils {
 
     /**
      * <p>
-     * Checks if one {@code Class} can be assigned to a variable of another
-     * {@code Class}.
+     * Checks if one {@code Class} can be assigned to a variable of another {@code Class}.
      * </p>
      *
      * <p>
-     * Unlike the {@link Class#isAssignableFrom(java.lang.Class)} method, this
-     * method takes into account widenings of primitive classes and {@code null} s.
+     * Unlike the {@link Class#isAssignableFrom(java.lang.Class)} method, this method takes into account widenings of
+     * primitive classes and {@code null} s.
      * </p>
      *
      * <p>
-     * Primitive widenings allow an int to be assigned to a long, float or double.
-     * This method returns the correct result for these cases.
+     * Primitive widenings allow an int to be assigned to a long, float or double. This method returns the correct
+     * result for these cases.
      * </p>
      *
      * <p>
-     * {@code Null} may be assigned to any reference type. This method will return
-     * {@code true} if {@code null} is passed in and the toClass is non-primitive.
+     * {@code Null} may be assigned to any reference type. This method will return {@code true} if {@code null} is
+     * passed in and the toClass is non-primitive.
      * </p>
      *
      * <p>
-     * Specifically, this method tests whether the type represented by the specified
-     * {@code Class} parameter can be converted to the type represented by this
-     * {@code Class} object via an identity conversion widening primitive or
-     * widening reference conversion. See
-     * <em><a href="http://docs.oracle.com/javase/specs/">The Java Language
+     * Specifically, this method tests whether the type represented by the specified {@code Class} parameter can be
+     * converted to the type represented by this {@code Class} object via an identity conversion widening primitive or
+     * widening reference conversion. See <em><a href="http://docs.oracle.com/javase/specs/">The Java Language
      * Specification</a></em> , sections 5.1.1, 5.1.2 and 5.1.4 for details.
      * </p>
      *
@@ -317,7 +309,6 @@ public class ClassUtils {
     public static String setter(String name) {
         return "set" + capitalize(name);
     }
-
 
     public static String toFieldName(String name) {
         // remove get or set prefix and decapitalize

@@ -63,9 +63,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     }
 
     @Override
-    public IMethodCaller findMethodCaller(String namespace,
-            String name,
-            IOpenClass[] parTypes) {
+    public IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes) {
         return delegate.findMethodCaller(namespace, name, parTypes);
     }
 

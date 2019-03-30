@@ -57,11 +57,13 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
 
                 // grammar problem???
                 ISyntaxNode node = pop();
-                addError(SyntaxNodeExceptionUtils.createError("More than one syntax node on stack:\nSource:\n" + node
-                    .getModule().getCode(), null, node));
+                addError(SyntaxNodeExceptionUtils.createError(
+                    "More than one syntax node on stack:\nSource:\n" + node.getModule().getCode(),
+                    null,
+                    node));
                 return node;
-                // throw new RuntimeException("More than one syntax node on
-                // stack");
+            // throw new RuntimeException("More than one syntax node on
+            // stack");
         }
     }
 
@@ -107,13 +109,13 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
     public void notImplemented(String type) {
         throw new RuntimeException(type + " has not been implemented yet");
     }
-    
+
     public void uop(String type, TextInterval pos) {
         ISyntaxNode left = pop();
 
         push(new UnaryNode(type, pos, left, module));
     }
-    
+
     private void push(ISyntaxNode sn) {
         stack.push(sn);
     }

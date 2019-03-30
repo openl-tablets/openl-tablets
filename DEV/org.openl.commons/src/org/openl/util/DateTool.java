@@ -229,7 +229,8 @@ public class DateTool {
         if (date == null) {
             return null;
         }
-        DateFormat df = dateFormat == null ? DateFormat.getDateInstance(DateFormat.SHORT) : new SimpleDateFormat(dateFormat);
+        DateFormat df = dateFormat == null ? DateFormat.getDateInstance(DateFormat.SHORT)
+                                           : new SimpleDateFormat(dateFormat);
         return df.format(date);
     }
 

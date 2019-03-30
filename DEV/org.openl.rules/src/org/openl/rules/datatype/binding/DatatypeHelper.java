@@ -20,10 +20,8 @@ import org.openl.util.StringUtils;
 public class DatatypeHelper {
 
     /**
-     * Datatype table can contain no more than 3 columns:
-     * 1) First column - type name
-     * 2) Second column - field name
-     * 3) Third column - default value
+     * Datatype table can contain no more than 3 columns: 1) First column - type name 2) Second column - field name 3)
+     * Third column - default value
      */
     private static final int MAXIMUM_COLUMNS_COUNT = 3;
     private static final int TYPE_NAME_COLUMN = 0;
@@ -31,7 +29,7 @@ public class DatatypeHelper {
     private static final int DEFAULTS_COLUMN = 2;
 
     public static ILogicalTable getNormalizedDataPartTable(ILogicalTable table, OpenL openl, IBindingContext cxt) {
-        
+
         ILogicalTable dataPart;
         if (PropertiesHelper.getPropertiesTableSection(table) != null) {
             dataPart = table.getRows(2);
@@ -43,7 +41,7 @@ public class DatatypeHelper {
             return null;
         }
 
-        //if datatype table has only one row
+        // if datatype table has only one row
         if (dataPart.getHeight() == 1) {
             return dataPart;
         } else if (dataPart.getWidth() == 1) {
@@ -83,8 +81,8 @@ public class DatatypeHelper {
     private static boolean isThirdColumnForDefaults(ILogicalTable table) {
         // If first or second row is blank or starts with number, it can't be a type name and field name respectively,
         // in this case we can assume that the third column is definitely for defaults
-        return isDefault(table.getCell(DEFAULTS_COLUMN, TYPE_NAME_COLUMN)) ||
-                isDefault(table.getCell(DEFAULTS_COLUMN, FIELD_NAME_COLUMN));
+        return isDefault(table.getCell(DEFAULTS_COLUMN, TYPE_NAME_COLUMN)) || isDefault(
+            table.getCell(DEFAULTS_COLUMN, FIELD_NAME_COLUMN));
     }
 
     public static boolean isDefault(ICell cell) {
@@ -111,7 +109,7 @@ public class DatatypeHelper {
                     count += 1;
                 }
             } catch (Exception t) {
-                // Ignore exception.                
+                // Ignore exception.
             }
         }
 
@@ -126,9 +124,8 @@ public class DatatypeHelper {
     }
 
     /**
-     * TODO: This method should be generic for the TableSyntaxNode
-     * and return the type of the table
-     * e.g. TableSyntaxNode.getTableReturnType()
+     * TODO: This method should be generic for the TableSyntaxNode and return the type of the table e.g.
+     * TableSyntaxNode.getTableReturnType()
      */
     public static String getDatatypeName(TableSyntaxNode tsn) throws OpenLCompilationException {
 
@@ -142,7 +139,7 @@ public class DatatypeHelper {
 
         return null;
     }
-    
+
     public static IdentifierNode[] tokenizeHeader(IOpenSourceCodeModule tableHeader) throws OpenLCompilationException {
         IdentifierNode[] parsedHeader = Tokenizer.tokenize(tableHeader, " \n\r");
         if (parsedHeader.length < 2) {

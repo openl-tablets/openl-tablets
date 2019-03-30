@@ -33,8 +33,7 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
 
 /**
- * Handles column descriptors that are represented as foreign keys to data from
- * other tables.
+ * Handles column descriptors that are represented as foreign keys to data from other tables.
  * 
  * @author DLiauchuk
  * 
@@ -69,8 +68,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     }
 
     /**
-     * Gets the value as <code>String</code> from the cell. If there is no
-     * value, returns <code>NULL</code>.
+     * Gets the value as <code>String</code> from the cell. If there is no value, returns <code>NULL</code>.
      */
     private String getCellStringValue(ILogicalTable cellTable) {
 
@@ -84,15 +82,12 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     }
 
     /**
-     * Goes through the values as foreign keys, finds all info about this
-     * objects in foreign table and puts it to array. Can process array value
-     * presented as {@link RuleRowHelper#ARRAY_ELEMENTS_SEPARATOR} array.
+     * Goes through the values as foreign keys, finds all info about this objects in foreign table and puts it to array.
+     * Can process array value presented as {@link RuleRowHelper#ARRAY_ELEMENTS_SEPARATOR} array.
      * 
-     * @param valuesTable Logical table representing array values for current
-     *            table.
+     * @param valuesTable Logical table representing array values for current table.
      * @param bindingContext binding context
-     * @param foreignTable Foreign table with stored info about dependent
-     *            values.
+     * @param foreignTable Foreign table with stored info about dependent values.
      * @param foreignKeyIndex index of the foreign key column
      * @return foreign key values
      */
@@ -159,8 +154,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     }
 
     /**
-     * Tries to find value by its key in foreign table. If no, throws an
-     * exception.
+     * Tries to find value by its key in foreign table. If no, throws an exception.
      */
     private Object getValueByForeignKeyIndex(IBindingContext bindingContext,
             ITable foreignTable,
@@ -218,9 +212,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
     /**
      * Method is using to load data from foreign table, using foreign key (see
-     * {@link DataTableBindHelper#getForeignKeyTokens(IBindingContext, ILogicalTable, int)}).
-     * Is used when data table is represents <b>AS</b> a constructor (see
-     * {@link #isConstructor()}).
+     * {@link DataTableBindHelper#getForeignKeyTokens(IBindingContext, ILogicalTable, int)}). Is used when data table is
+     * represents <b>AS</b> a constructor (see {@link #isConstructor()}).
      */
     public Object getLiteralByForeignKey(IOpenClass fieldType,
             ILogicalTable valuesTable,
@@ -307,9 +300,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
     /**
      * Method is using to load data from foreign table, using foreign key (see
-     * {@link DataTableBindHelper#getForeignKeyTokens(IBindingContext, ILogicalTable, int)}).
-     * Is used when data table is represents as <b>NOT</b> a constructor (see
-     * {@link #isConstructor()}).
+     * {@link DataTableBindHelper#getForeignKeyTokens(IBindingContext, ILogicalTable, int)}). Is used when data table is
+     * represents as <b>NOT</b> a constructor (see {@link #isConstructor()}).
      */
     public void populateLiteralByForeignKey(Object target,
             ILogicalTable valuesTable,
@@ -440,13 +432,11 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             }
         } else {
             /*
-             * field == null, in this case don`t do anything. The appropriate
-             * information why it is null would have been processed during
-             * preparing column descriptor. See {@link
-             * DataTableBindHelper#makeDescriptors(IBindingContext
-             * bindingContext, ITable table, IOpenClass type, OpenL openl,
-             * ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows,
-             * boolean hasForeignKeysRow, boolean hasColumnTytleRow)}
+             * field == null, in this case don`t do anything. The appropriate information why it is null would have been
+             * processed during preparing column descriptor. See {@link
+             * DataTableBindHelper#makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type, OpenL
+             * openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow, boolean
+             * hasColumnTytleRow)}
              */
         }
     }

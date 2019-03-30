@@ -17,8 +17,8 @@ package org.openl.ie.constrainer;
 import org.openl.ie.tools.FastVector;
 
 /**
- * An implementation of a {@link Goal} that generates a solution for the problem
- * with the unknown floating-point variables.
+ * An implementation of a {@link Goal} that generates a solution for the problem with the unknown floating-point
+ * variables.
  * <p>
  * This goal:
  * <ul>

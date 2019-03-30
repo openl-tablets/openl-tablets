@@ -19,26 +19,22 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.util.StringUtils;
 
 /**
- * In the Datatype TableSyntaxNode find the dependent types.
- * There are 2 types of dependencies:
- * 1) inheritance dependency (TypeA extends TypeB)
- * 2) dependency in field declaration (TypeB fieldB)
+ * In the Datatype TableSyntaxNode find the dependent types. There are 2 types of dependencies: 1) inheritance
+ * dependency (TypeA extends TypeB) 2) dependency in field declaration (TypeB fieldB)
  *
  * @author Denis Levchuk
  */
 class DependentTypesExtractor {
     public static final String ALIASDATATYPE_PATTERN = "^.+\\<.+\\>\\s*$";
-    
-    private boolean isAliasDatatype(TableSyntaxNode node){
+
+    private boolean isAliasDatatype(TableSyntaxNode node) {
         String header = node.getHeader().getSourceString();
         return header.matches(ALIASDATATYPE_PATTERN);
     }
-    
+
     public Set<String> extract(TableSyntaxNode node, IBindingContext cxt) {
-        ILogicalTable dataPart = DatatypeHelper.getNormalizedDataPartTable(
-                node.getTable(),
-                OpenL.getInstance(OpenL.OPENL_JAVA_NAME),
-                cxt);
+        ILogicalTable dataPart = DatatypeHelper
+            .getNormalizedDataPartTable(node.getTable(), OpenL.getInstance(OpenL.OPENL_JAVA_NAME), cxt);
 
         int tableHeight = 0;
 
@@ -47,8 +43,8 @@ class DependentTypesExtractor {
         }
 
         Set<String> dependencies = new LinkedHashSet<>();
-        if (isAliasDatatype(node)){
-            //Alias datatype doens't have dependencies
+        if (isAliasDatatype(node)) {
+            // Alias datatype doens't have dependencies
             return dependencies;
         }
         String parentType = getParentDatatypeName(node);

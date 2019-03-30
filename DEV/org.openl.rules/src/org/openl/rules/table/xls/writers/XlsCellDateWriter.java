@@ -8,8 +8,8 @@ import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.formatters.FormatConstants;
 
-public class XlsCellDateWriter extends AXlsCellWriter{
-    
+public class XlsCellDateWriter extends AXlsCellWriter {
+
     public XlsCellDateWriter(XlsSheetGridModel xlsSheetGridModel) {
         super(xlsSheetGridModel);
     }
@@ -20,10 +20,11 @@ public class XlsCellDateWriter extends AXlsCellWriter{
         getCellToWrite().setCellValue(dateValue);
 
         CellStyle previousStyle = getCellToWrite().getCellStyle();
-        getCellToWrite().setCellStyle(PoiExcelHelper.createCellStyle(getXlsSheetGridModel().getSheetSource().getSheet().getWorkbook()));
+        getCellToWrite().setCellStyle(
+            PoiExcelHelper.createCellStyle(getXlsSheetGridModel().getSheetSource().getSheet().getWorkbook()));
         getCellToWrite().getCellStyle().cloneStyleFrom(previousStyle);
-        getCellToWrite().getCellStyle().setDataFormat((short) BuiltinFormats
-                .getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
+        getCellToWrite().getCellStyle()
+            .setDataFormat((short) BuiltinFormats.getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
     }
 
 }

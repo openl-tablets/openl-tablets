@@ -22,7 +22,8 @@ public final class FieldUsageSearcher {
     }
 
     public static void findAllFields(List<NodeUsage> fields,
-            IBoundNode boundNode, String sourceString,
+            IBoundNode boundNode,
+            String sourceString,
             int startPosition) {
         if (boundNode == null) {
             return;
@@ -65,7 +66,8 @@ public final class FieldUsageSearcher {
                 uri = tableSyntaxNode.getUri();
             } else if (type instanceof XlsModuleOpenClass && boundField instanceof ConstantOpenField) {
                 ConstantOpenField constantOpenField = ((ConstantOpenField) boundField);
-                description = MethodUtil.printType(boundField.getType()) + " " + boundField.getName() + " = " + constantOpenField.getValueAsString();
+                description = MethodUtil.printType(boundField.getType()) + " " + boundField
+                    .getName() + " = " + constantOpenField.getValueAsString();
                 uri = constantOpenField.getMemberMetaInfo().getSourceUrl();
             } else {
                 IMetaInfo metaInfo = type.getMetaInfo();

@@ -1,8 +1,7 @@
 package org.openl.rules.table;
 
 /**
- * Logical table model that delegate original table and access to original table
- * through coordinates transformation.
+ * Logical table model that delegate original table and access to original table through coordinates transformation.
  * 
  * @author PUdalau
  */

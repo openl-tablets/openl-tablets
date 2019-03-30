@@ -24,7 +24,7 @@ public class MethodTableNodeBinder extends AExecutableNodeBinder {
             OpenL openl,
             OpenMethodHeader header,
             XlsModuleOpenClass module) {
-        
+
         return new MethodTableBoundNode(tableSyntaxNode, openl, header, module);
     }
 }

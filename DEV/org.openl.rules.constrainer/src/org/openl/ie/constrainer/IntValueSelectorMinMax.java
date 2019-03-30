@@ -15,8 +15,8 @@ package org.openl.ie.constrainer;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An implementation of the IntValueSelector interface that interchanges the
- * selection of the minimal and maximal values from the domain of the variable.
+ * An implementation of the IntValueSelector interface that interchanges the selection of the minimal and maximal values
+ * from the domain of the variable.
  *
  * @see GoalInstantiate
  * @see GoalGenerate
@@ -27,8 +27,7 @@ public class IntValueSelectorMinMax implements IntValueSelector {
     private boolean _min;
 
     /**
-     * Default constructor initializes first selection of the minimum value from
-     * the domain of the variable
+     * Default constructor initializes first selection of the minimum value from the domain of the variable
      */
     public IntValueSelectorMinMax() {
         _min = true;

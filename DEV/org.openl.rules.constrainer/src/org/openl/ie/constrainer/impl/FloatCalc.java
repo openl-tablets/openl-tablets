@@ -70,32 +70,28 @@ public final class FloatCalc {
     }
 
     /**
-     * Returns true if the first number is more or equal to the second number
-     * with the precision
+     * Returns true if the first number is more or equal to the second number with the precision
      */
     public static boolean ge(double d1, double d2) {
         return d1 - d2 > -Constrainer.FLOAT_PRECISION;
     }
 
     /**
-     * Returns true if the first number more than the second number with the
-     * precision
+     * Returns true if the first number more than the second number with the precision
      */
     public static boolean gt(double d1, double d2) {
         return (d1 - d2) > Constrainer.FLOAT_PRECISION;
     }
 
     /**
-     * Returns the expression: <code>max(1 / [v..v])</code>. Result may be
-     * finite number or +inf.
+     * Returns the expression: <code>max(1 / [v..v])</code>. Result may be finite number or +inf.
      */
     public static double inverseMax(double v) {
         return v != 0 ? 1 / v : pInf;
     }
 
     /**
-     * Returns the expression: <code>max(1 / [min..max])</code>. Result may
-     * be finite number or +inf.
+     * Returns the expression: <code>max(1 / [min..max])</code>. Result may be finite number or +inf.
      */
     public static double inverseMax(double min, double max) {
         assertMinMax(min, max);
@@ -120,16 +116,14 @@ public final class FloatCalc {
     }
 
     /**
-     * Returns the expression: <code>min(1 / [v..v])</code>. Result may be
-     * finite number or -inf.
+     * Returns the expression: <code>min(1 / [v..v])</code>. Result may be finite number or -inf.
      */
     public static double inverseMin(double v) {
         return v != 0 ? 1 / v : nInf;
     }
 
     /**
-     * Returns the expression: <code>min(1 / [min..max])</code>. Result may
-     * be finite number or -inf.
+     * Returns the expression: <code>min(1 / [min..max])</code>. Result may be finite number or -inf.
      */
     public static double inverseMin(double min, double max) {
         assertMinMax(min, max);
@@ -163,8 +157,7 @@ public final class FloatCalc {
     }
 
     /**
-     * Returns true if the specified number is the special Not-a-Number (NaN)
-     * value.
+     * Returns true if the specified number is the special Not-a-Number (NaN) value.
      *
      * @see Double#isNaN
      */
@@ -194,8 +187,7 @@ public final class FloatCalc {
     }
 
     /**
-     * Returns the expression: <code>max([min1..max1]*[min2..max2])</code>
-     * where <code>[min1..max1] <= 0</code>.
+     * Returns the expression: <code>max([min1..max1]*[min2..max2])</code> where <code>[min1..max1] <= 0</code>.
      */
     public static double productMaxN(double min1, double max1, double min2) {
         if (min2 >= 0) {
@@ -206,8 +198,7 @@ public final class FloatCalc {
     }
 
     /**
-     * Returns the expression: <code>max([min1..max1]*[min2..max2])</code>
-     * where <code>[min1..max1] >= 0</code>.
+     * Returns the expression: <code>max([min1..max1]*[min2..max2])</code> where <code>[min1..max1] >= 0</code>.
      */
     public static double productMaxP(double min1, double max1, double max2) {
         if (max2 >= 0) {
@@ -239,8 +230,7 @@ public final class FloatCalc {
     }
 
     /**
-     * Returns the expression: <code>min([min1..max1]*[min2..max2])</code>
-     * where <code>[min1..max1] <= 0</code>.
+     * Returns the expression: <code>min([min1..max1]*[min2..max2])</code> where <code>[min1..max1] <= 0</code>.
      */
     public static double productMinN(double min1, double max1, double max2) {
         if (max2 >= 0) {
@@ -251,8 +241,7 @@ public final class FloatCalc {
     }
 
     /**
-     * Returns the expression: <code>min([min1..max1]*[min2..max2])</code>
-     * where <code>[min1..max1] >= 0</code>.
+     * Returns the expression: <code>min([min1..max1]*[min2..max2])</code> where <code>[min1..max1] >= 0</code>.
      */
     public static double productMinP(double min1, double max1, double min2) {
         if (min2 >= 0) {
@@ -263,8 +252,7 @@ public final class FloatCalc {
     }
 
     /**
-     * Adjust the expression exp2 so that:
-     * <code>max([min1..max1]*[min2..max2]) <= max</code>.
+     * Adjust the expression exp2 so that: <code>max([min1..max1]*[min2..max2]) <= max</code>.
      */
     static public void productSetMax(double max, FloatExp exp1, FloatExp exp2) throws Failure {
         double min1, max1;
@@ -286,8 +274,7 @@ public final class FloatCalc {
     }
 
     /**
-     * Adjust the expression exp2 so that:
-     * <code>min([min1..max1]*[min2..max2]) <= max</code> where
+     * Adjust the expression exp2 so that: <code>min([min1..max1]*[min2..max2]) <= max</code> where
      * <code>[min1..max1] <= 0</code>.
      */
     static public void productSetMaxN(double max, double min1, double max1, FloatExp exp2) throws Failure {
@@ -305,8 +292,7 @@ public final class FloatCalc {
     }
 
     /**
-     * Adjust the expression exp2 so that:
-     * <code>min([min1..max1]*[min2..max2]) <= max</code> where
+     * Adjust the expression exp2 so that: <code>min([min1..max1]*[min2..max2]) <= max</code> where
      * <code>[min1..max1] >= 0</code>.
      */
     static public void productSetMaxP(double max, double min1, double max1, FloatExp exp2) throws Failure {
@@ -324,8 +310,7 @@ public final class FloatCalc {
     }
 
     /**
-     * Adjust the expression exp2 so that:
-     * <code>min([min1..max1]*[min2..max2]) >= min</code>.
+     * Adjust the expression exp2 so that: <code>min([min1..max1]*[min2..max2]) >= min</code>.
      */
     static public void productSetMin(double min, FloatExp exp1, FloatExp exp2) throws Failure {
         double min1, max1;
@@ -347,8 +332,7 @@ public final class FloatCalc {
     }
 
     /**
-     * Adjust the expression exp2 so that:
-     * <code>min([min1..max1]*[min2..max2]) >= min</code> where
+     * Adjust the expression exp2 so that: <code>min([min1..max1]*[min2..max2]) >= min</code> where
      * <code>[min1..max1] <= 0</code>.
      */
     static public void productSetMinN(double min, double min1, double max1, FloatExp exp2) throws Failure {
@@ -366,8 +350,7 @@ public final class FloatCalc {
     }
 
     /**
-     * Adjust the expression exp2 so that:
-     * <code>min([min1..max1]*[min2..max2]) >= min</code> where
+     * Adjust the expression exp2 so that: <code>min([min1..max1]*[min2..max2]) >= min</code> where
      * <code>[min1..max1] >= 0</code>.
      */
     static public void productSetMinP(double min, double min1, double max1, FloatExp exp2) throws Failure {

@@ -108,7 +108,7 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
 
     @Override
     public boolean isVersionable() {
-        return PropertiesChecker.isPropertySuitableForTableType("version", tsn.getType());        
+        return PropertiesChecker.isPropertySuitableForTableType("version", tsn.getType());
     }
 
     @Override
@@ -136,10 +136,8 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
     @Override
     public boolean isCanContainProperties() {
         String tableType = getType();
-        return tableType != null
-                && !tableType.equals(XlsNodeTypes.XLS_OTHER.toString())
-                && !tableType.equals(XlsNodeTypes.XLS_ENVIRONMENT.toString())
-                && !tableType.equals(XlsNodeTypes.XLS_PROPERTIES.toString());
+        return tableType != null && !tableType.equals(XlsNodeTypes.XLS_OTHER.toString()) && !tableType.equals(
+            XlsNodeTypes.XLS_ENVIRONMENT.toString()) && !tableType.equals(XlsNodeTypes.XLS_PROPERTIES.toString());
     }
 
     @Override

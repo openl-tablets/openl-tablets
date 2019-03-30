@@ -15,9 +15,8 @@ package org.openl.ie.constrainer;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * A delta-event about the change(s) in the domain of the constraint
- * floating-point expression. This event contains an information about current
- * and old (before the change(s)) domains of the expression.
+ * A delta-event about the change(s) in the domain of the constraint floating-point expression. This event contains an
+ * information about current and old (before the change(s)) domains of the expression.
  */
 public abstract class FloatEvent extends EventOfInterest {
     /**

@@ -22,17 +22,18 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
     private final Logger log = LoggerFactory.getLogger(SpreadsheetColumnExtractor.class);
 
     private NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> conf;
-    
+
     /**
      * column to extract
      */
-    private ColumnToExtract column; 
+    private ColumnToExtract column;
 
-    public SpreadsheetColumnExtractor(ColumnToExtract column, NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> configuration) {
+    public SpreadsheetColumnExtractor(ColumnToExtract column,
+            NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> configuration) {
         this.column = column;
         this.conf = configuration;
     }
-    
+
     /**
      * Gets the configuration
      * 
@@ -41,7 +42,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
     public NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> getConfiguration() {
         return conf;
     }
-    
+
     public ColumnToExtract getColumn() {
         return column;
     }
@@ -69,7 +70,8 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
             // Find the best cast:
             for (int i = 0; i < expectedTypes.length; i++) {
                 Class<?> expectedType = expectedTypes[i];
-                IOpenCast openCast = getConfiguration().getObjectToDataOpenCastConvertor().getConvertor(expectedType, valueForStoraging.getClass());
+                IOpenCast openCast = getConfiguration().getObjectToDataOpenCastConvertor()
+                    .getConvertor(expectedType, valueForStoraging.getClass());
                 if (openCast != null && openCast.getDistance() < minConvertDistance) {
                     theBestCast = openCast;
                     minConvertDistance = openCast.getDistance();

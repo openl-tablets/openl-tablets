@@ -15,11 +15,11 @@ import org.openl.types.IOpenMethod;
 public interface IMethodFactory {
 
     IOpenMethod getMethod(String name, IOpenClass[] params);
-    
+
     IOpenMethod getConstructor(IOpenClass[] params);
 
     Iterable<IOpenMethod> methods(String name);
-    
+
     Iterable<IOpenMethod> constructors();
-    
+
 }

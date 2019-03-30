@@ -21,8 +21,7 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
 
 /**
- * Compiles OpenL expressions from the cells and sets meta info about used
- * methods.
+ * Compiles OpenL expressions from the cells and sets meta info about used methods.
  * 
  * @author PUdalau
  */
@@ -36,7 +35,9 @@ public class OpenLCellExpressionsCompiler {
      * @param compositeMethod {@link CompositeMethod} instance
      * @param bindingContext binding context
      */
-    public static void compileMethod(OpenL openl, IOpenSourceCodeModule source, CompositeMethod compositeMethod,
+    public static void compileMethod(OpenL openl,
+            IOpenSourceCodeModule source,
+            CompositeMethod compositeMethod,
             IBindingContext bindingContext) {
 
         OpenLCompileManager compileManager = new OpenLCompileManager(openl);
@@ -45,8 +46,7 @@ public class OpenLCellExpressionsCompiler {
     }
 
     /**
-     * Makes a method from source using method header descriptor and sets meta
-     * info to the cells.
+     * Makes a method from source using method header descriptor and sets meta info to the cells.
      * 
      * @param openl OpenL engine context
      * @param source source
@@ -54,7 +54,9 @@ public class OpenLCellExpressionsCompiler {
      * @param bindingContext binding context
      * @return {@link CompositeMethod} instance
      */
-    public static CompositeMethod makeMethod(OpenL openl, IOpenSourceCodeModule source, IOpenMethodHeader methodHeader,
+    public static CompositeMethod makeMethod(OpenL openl,
+            IOpenSourceCodeModule source,
+            IOpenMethodHeader methodHeader,
             IBindingContext bindingContext) {
 
         OpenLCodeManager codeManager = new OpenLCodeManager(openl);
@@ -63,10 +65,9 @@ public class OpenLCellExpressionsCompiler {
     }
 
     /**
-     * Makes method with unknown return type from source using method name and
-     * method signature. This method used to create open class that hasn't
-     * information of return type at compile time. Return type can be recognized
-     * at runtime time. Sets meta info to the cells.
+     * Makes method with unknown return type from source using method name and method signature. This method used to
+     * create open class that hasn't information of return type at compile time. Return type can be recognized at
+     * runtime time. Sets meta info to the cells.
      * 
      * @param openl OpenL engine context
      * @param source source
@@ -76,13 +77,16 @@ public class OpenLCellExpressionsCompiler {
      * @param bindingContext binding context
      * @return {@link IOpenMethodHeader} instance
      */
-    public static CompositeMethod makeMethodWithUnknownType(OpenL openl, IOpenSourceCodeModule source,
-            String methodName, IMethodSignature signature, IOpenClass declaringClass, IBindingContext bindingContext) {
+    public static CompositeMethod makeMethodWithUnknownType(OpenL openl,
+            IOpenSourceCodeModule source,
+            String methodName,
+            IMethodSignature signature,
+            IOpenClass declaringClass,
+            IBindingContext bindingContext) {
 
         OpenLCodeManager codeManager = new OpenLCodeManager(openl);
 
-        return codeManager.makeMethodWithUnknownType(source, methodName, signature, declaringClass,
-                bindingContext);
+        return codeManager.makeMethodWithUnknownType(source, methodName, signature, declaringClass, bindingContext);
     }
 
     public static List<CellMetaInfo> getMetaInfo(IOpenSourceCodeModule source, CompositeMethod method) {
@@ -111,17 +115,15 @@ public class OpenLCellExpressionsCompiler {
             return Collections.emptyList();
         }
 
-        List<NodeUsage> nodeUsages = new ArrayList<>(MethodUsagesSearcher.findAllMethods(method.getMethodBodyBoundNode(),
-                sourceString, startIndex));
-        FieldUsageSearcher.findAllFields(nodeUsages,
-                method.getMethodBodyBoundNode(),
-                sourceString,
-                startIndex);
+        List<NodeUsage> nodeUsages = new ArrayList<>(
+            MethodUsagesSearcher.findAllMethods(method.getMethodBodyBoundNode(), sourceString, startIndex));
+        FieldUsageSearcher.findAllFields(nodeUsages, method.getMethodBodyBoundNode(), sourceString, startIndex);
         Collections.sort(nodeUsages, new NodeUsageComparator());
         return nodeUsages;
     }
 
-    private static List<CellMetaInfo> getMetaInfoForCompositeSource(CompositeMethod method, CompositeSourceCodeModule source,
+    private static List<CellMetaInfo> getMetaInfoForCompositeSource(CompositeMethod method,
+            CompositeSourceCodeModule source,
             int startIndex) {
         List<NodeUsage> nodeUsages = getNodeUsages(method, source.getCode(), startIndex);
 
@@ -136,14 +138,15 @@ public class OpenLCellExpressionsCompiler {
                 for (NodeUsage usage : nodeUsages) {
                     if (usage.getStart() >= moduleStart && usage.getEnd() <= moduleEnd) {
                         if (usage instanceof MethodUsage) {
-                            currentCellMethodUsages.add(new MethodUsage(usage.getStart() - moduleStart, usage.getEnd()
-                                    - moduleStart, ((MethodUsage) usage).getMethod()));
+                            currentCellMethodUsages.add(new MethodUsage(usage.getStart() - moduleStart,
+                                usage.getEnd() - moduleStart,
+                                ((MethodUsage) usage).getMethod()));
                         } else {
                             currentCellMethodUsages.add(new SimpleNodeUsage(usage.getStart() - moduleStart,
-                                    usage.getEnd() - moduleStart,
-                                    usage.getDescription(),
-                                    usage.getUri(),
-                                    usage.getNodeType()));
+                                usage.getEnd() - moduleStart,
+                                usage.getDescription(),
+                                usage.getUri(),
+                                usage.getNodeType()));
                         }
                     }
                 }

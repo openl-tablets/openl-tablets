@@ -7,7 +7,7 @@ import org.openl.util.StringTool;
  * Created by Andrei Ostrovski on 14.06.14.
  */
 public final class TableUtils {
-    
+
     private TableUtils() {
     }
 

@@ -20,19 +20,19 @@ public interface IOpenLTable {
     Collection<OpenLMessage> getMessages();
 
     /**
-     * @return Table name for user. (Firstly will be searched in table
-     *         properties and then from table header)
+     * @return Table name for user. (Firstly will be searched in table properties and then from table header)
      */
     String getDisplayName();
+
     String getName();
 
     /**
      * 
-     * @return true if table is executable at OpenL rules runtime. Also it indicates that tests can be created for this 
-     * table.   
+     * @return true if table is executable at OpenL rules runtime. Also it indicates that tests can be created for this
+     *         table.
      */
     boolean isExecutable();
-    
+
     /**
      * 
      * @return true if table supports operations over versions

@@ -13,8 +13,7 @@ import org.openl.rules.calc.SpreadsheetResult;
  */
 
 /**
- * Class that holds the information about the column that need to be extracted
- * from spreadsheet table.
+ * Class that holds the information about the column that need to be extracted from spreadsheet table.
  * 
  * @author Marat Kamalov
  * 
@@ -24,10 +23,11 @@ public class ColumnToExtract {
     private String columnName;
 
     private String[] propertyNames;
-    
+
     private Class<?>[] propertyTypes;
-    
+
     private int nestedPriority = Integer.MAX_VALUE - 1;
+
     /**
      * Creates a ColumnToExtract with column name. Requred for nested columns.
      * 
@@ -41,7 +41,7 @@ public class ColumnToExtract {
         this(columnName, expectedType);
         this.nestedPriority = nestedPriority;
     }
-    
+
     /**
      * Creates a ColumnToExtract with column name and expected type.
      * 
@@ -56,26 +56,28 @@ public class ColumnToExtract {
         this(columnName, propertyName, expectedType);
         this.nestedPriority = nestedPriority;
     }
-    
+
     /**
-     * Creates a ColumnToExtract with column name, property name and expected type. Property name is used for storing value into row instance.
+     * Creates a ColumnToExtract with column name, property name and expected type. Property name is used for storing
+     * value into row instance.
      * 
      * @param columnName column name
      * @param propertyName property name
      * @param expectedType expected type
      */
     public ColumnToExtract(String columnName, String propertyName, Class<?> expectedType) {
-        this(columnName, new String[]{propertyName}, new Class<?>[]{expectedType});
+        this(columnName, new String[] { propertyName }, new Class<?>[] { expectedType });
     }
 
     public ColumnToExtract(String columnName, String[] propertyNames, Class<?>[] expectedTypes, int nestedPriority) {
         this(columnName, propertyNames, expectedTypes);
         this.nestedPriority = nestedPriority;
     }
-    
+
     /**
-     * Creates a ColumnToExtract with column name, property names and expected types. Property names are used for storing value into row instance.
-     * If value can't be stored in row instance next property name and expected type is used.
+     * Creates a ColumnToExtract with column name, property names and expected types. Property names are used for
+     * storing value into row instance. If value can't be stored in row instance next property name and expected type is
+     * used.
      * 
      * @param columnName column name
      * @param propertyName property name
@@ -110,6 +112,7 @@ public class ColumnToExtract {
 
     /**
      * Return column name.
+     * 
      * @return column name.
      */
     public String getColumnName() {
@@ -118,6 +121,7 @@ public class ColumnToExtract {
 
     /**
      * Return expected type for property name.
+     * 
      * @return expected type.
      */
     public Class<?>[] getExpectedTypes() {
@@ -126,6 +130,7 @@ public class ColumnToExtract {
 
     /**
      * Returns property names for this column defenition.
+     * 
      * @return expected type.
      */
     public String[] getPropertyNames() {
@@ -135,7 +140,7 @@ public class ColumnToExtract {
     public int getNestedPriority() {
         return nestedPriority;
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;

@@ -7,9 +7,9 @@ import org.openl.domain.IType;
 import org.openl.util.OpenIterator;
 
 public class JavaEnumDomain implements IDomain<Object> {
-    
+
     private JavaOpenEnum enumClass;
-    
+
     public JavaEnumDomain(JavaOpenEnum enumClass) {
         this.enumClass = enumClass;
     }
@@ -41,7 +41,7 @@ public class JavaEnumDomain implements IDomain<Object> {
     public JavaOpenEnum getEnumClass() {
         return enumClass;
     }
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

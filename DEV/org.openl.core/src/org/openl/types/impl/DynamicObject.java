@@ -18,7 +18,7 @@ import org.openl.util.print.NicePrinterAdaptor;
  * @author snshor
  * 
  */
-public class DynamicObject implements IDynamicObject {    
+public class DynamicObject implements IDynamicObject {
 
     private IOpenClass type;
 
@@ -82,7 +82,7 @@ public class DynamicObject implements IDynamicObject {
         printer.print(this, getNicePrinterAdaptor());
         return printer.getBuffer().toString();
     }
-    
+
     private static class DONIcePrinterAdaptor extends NicePrinterAdaptor {
 
         @Override

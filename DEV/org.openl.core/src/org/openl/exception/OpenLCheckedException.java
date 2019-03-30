@@ -29,7 +29,10 @@ public class OpenLCheckedException extends Exception implements OpenLException {
         this(message, cause, null, null);
     }
 
-    public OpenLCheckedException(String message, Throwable cause, ILocation location, IOpenSourceCodeModule sourceModule) {
+    public OpenLCheckedException(String message,
+            Throwable cause,
+            ILocation location,
+            IOpenSourceCodeModule sourceModule) {
         super(message, cause);
         this.location = location;
         this.sourceModule = sourceModule;

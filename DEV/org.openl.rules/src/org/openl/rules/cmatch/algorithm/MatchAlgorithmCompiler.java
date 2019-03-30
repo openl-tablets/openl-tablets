@@ -219,7 +219,11 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     /**
      * Parses CheckValues for node(row). It is up to matcher (type of variable in 'names') how to parse it.
      */
-    protected void parseCheckValues(IBindingContext bindingContext, ColumnMatch columnMatch, TableRow row, MatchNode node, int retValuesCount) {
+    protected void parseCheckValues(IBindingContext bindingContext,
+            ColumnMatch columnMatch,
+            TableRow row,
+            MatchNode node,
+            int retValuesCount) {
         SubValue[] inValues = row.get(VALUES);
         Object[] checkValues = new Object[retValuesCount];
 
@@ -235,7 +239,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                     IOpenClass type;
                     if (node.getArgument() != null) {
                         type = node.getArgument().getType();
-                    }else {
+                    } else {
                         type = JavaOpenClass.getOpenClass(Integer.class);
                     }
                     setMetaInfoForConstant(bindingContext, columnMatch, inValues[index], s, constantOpenField);
@@ -253,7 +257,8 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     /**
      * Compiles (parses) return values based on return type.
      */
-    protected void parseSpecialRows(IBindingContext bindingContext, ColumnMatch columnMatch) throws SyntaxNodeException {
+    protected void parseSpecialRows(IBindingContext bindingContext,
+            ColumnMatch columnMatch) throws SyntaxNodeException {
         IOpenClass returnType = columnMatch.getHeader().getType();
 
         TableRow row0 = columnMatch.getRows().get(0);
@@ -261,7 +266,10 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         columnMatch.setReturnValues(retValues);
     }
 
-    protected Object[] parseValues(IBindingContext bindingContext, ColumnMatch columnMatch, TableRow row, IOpenClass openClass) throws SyntaxNodeException {
+    protected Object[] parseValues(IBindingContext bindingContext,
+            ColumnMatch columnMatch,
+            TableRow row,
+            IOpenClass openClass) throws SyntaxNodeException {
         SubValue[] subValues = row.get(VALUES);
 
         Object[] result = new Object[subValues.length];
@@ -275,13 +283,14 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                     setMetaInfoForConstant(bindingContext, columnMatch, sv, s, constantOpenField);
                     result[i] = RuleRowHelper.castConstantToExpectedType(bindingContext, constantOpenField, openClass);
                 } else {
-                    IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(openClass.getInstanceClass());
+                    IString2DataConvertor converter = String2DataConvertorFactory
+                        .getConvertor(openClass.getInstanceClass());
                     result[i] = converter.parse(s, null);
                 }
             } catch (Exception | LinkageError ex) {
                 TextInterval location = LocationUtils.createTextInterval(s);
                 throw SyntaxNodeExceptionUtils.createError(ex, location, sv.getStringValue().asSourceCodeModule());
-            } 
+            }
         }
 
         return result;

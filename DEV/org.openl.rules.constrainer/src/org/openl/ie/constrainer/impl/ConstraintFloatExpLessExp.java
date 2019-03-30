@@ -27,8 +27,7 @@ import org.openl.ie.constrainer.Subject;
 //: ConstraintFloatExpLessExp.java
 //
 /**
- * An implementation of the constraint:
- * <code>FloatExp1 <= FloatExp2 + value</code>.
+ * An implementation of the constraint: <code>FloatExp1 <= FloatExp2 + value</code>.
  */
 public final class ConstraintFloatExpLessExp extends ConstraintImpl {
     class ObserverExp1Min extends Observer {

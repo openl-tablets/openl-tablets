@@ -24,8 +24,7 @@ import org.openl.ie.constrainer.Subject;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An implementation of the constraint:
- * <code>FloatExp1 == FloatExp2 + offset</code>.
+ * An implementation of the constraint: <code>FloatExp1 == FloatExp2 + offset</code>.
  */
 public final class ConstraintFloatExpEqualsExp extends ConstraintImpl {
     class ObserverFloatEqual extends Observer {
@@ -68,7 +67,8 @@ public final class ConstraintFloatExpEqualsExp extends ConstraintImpl {
         }
 
     } // ~ ObserverFloatEqual
-    // PRIVATE MEMBERS
+      // PRIVATE MEMBERS
+
     private FloatExp _exp1;
     private FloatExp _exp2;
 
@@ -119,4 +119,3 @@ public final class ConstraintFloatExpEqualsExp extends ConstraintImpl {
     }
 
 } // ~ ConstraintFloatExpEqualsExp
-

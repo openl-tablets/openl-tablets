@@ -7,7 +7,6 @@ import org.openl.ie.constrainer.FloatExp;
 import org.openl.ie.constrainer.FloatExpConst;
 import org.openl.ie.constrainer.IntBoolExp;
 
-
 /**
  * A generic implementation of the FloatExp interface.
  */
@@ -154,8 +153,7 @@ public abstract class FloatExpImpl extends ExpressionImpl implements FloatExp {
 
     public double value() throws Failure {
         /*
-         * if (!bound ()) { constrainer ().fail ("Attempt to get value of the
-         * unbound float expresion " + this); }
+         * if (!bound ()) { constrainer ().fail ("Attempt to get value of the unbound float expresion " + this); }
          */
         return (min() + max()) / 2;
     }

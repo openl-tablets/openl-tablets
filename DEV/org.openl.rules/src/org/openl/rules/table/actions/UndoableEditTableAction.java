@@ -14,7 +14,7 @@ import org.openl.rules.table.actions.GridRegionAction.ActionType;
  * @author Andrei Astrouski
  */
 public abstract class UndoableEditTableAction implements IUndoableGridTableAction {
-    
+
     public static final boolean COLUMNS = true;
     public static final boolean ROWS = false;
     public static final boolean INSERT = true;

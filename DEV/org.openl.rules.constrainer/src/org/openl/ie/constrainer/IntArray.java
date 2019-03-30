@@ -4,12 +4,12 @@ import java.util.Vector;
 
 import org.openl.ie.constrainer.impl.IntExpElementAt;
 
-
 /**
  * It is an array-like container for the variables of type
  * <p>
  * IntExp
- * </p>. The essential difference between
+ * </p>
+ * . The essential difference between
  * <p>
  * IntArray
  * </p>
@@ -21,9 +21,8 @@ import org.openl.ie.constrainer.impl.IntExpElementAt;
  * <p>
  * IntExp
  * </p>
- * as index. If an "index" in an "array" is a constrained integer expression,
- * then the "array[index]" is also the constrained integer variable. To get the
- * access to the element of an array using constrained index one has to use
+ * as index. If an "index" in an "array" is a constrained integer expression, then the "array[index]" is also the
+ * constrained integer variable. To get the access to the element of an array using constrained index one has to use
  * method {@link #elementAt(IntExp)}.
  */
 
@@ -213,8 +212,8 @@ public final class IntArray extends ConstrainerObjectImpl {
     }
 
     /**
-     * Returns a constrained integer variables that corresponds to such value
-     * from this array which has index "ind_exp". For example,
+     * Returns a constrained integer variables that corresponds to such value from this array which has index "ind_exp".
+     * For example,
      *
      * <pre>
      * IntArray costs = new IntArray(C, 50, 75, 35, 75);
@@ -223,10 +222,9 @@ public final class IntArray extends ConstrainerObjectImpl {
      *
      * </pre>
      *
-     * For the sake of clarity, let's call A the invoking array. When idx_exp is
-     * bound to the value i, the value of the resulting variable is A[i]. More
-     * generally, the domain of the variable is the set of values A[i] where the
-     * i are in the domain of idx_exp.
+     * For the sake of clarity, let's call A the invoking array. When idx_exp is bound to the value i, the value of the
+     * resulting variable is A[i]. More generally, the domain of the variable is the set of values A[i] where the i are
+     * in the domain of idx_exp.
      */
     public IntExp elementAt(IntExp idx_exp) // throws Failure
     // public IntVar elementAt(IntExp idx_exp) throws Failure // IntVar
@@ -262,8 +260,7 @@ public final class IntArray extends ConstrainerObjectImpl {
     }
 
     /**
-     * The function merges this array and the array provided as parameter and
-     * returns the resulted array.
+     * The function merges this array and the array provided as parameter and returns the resulted array.
      *
      * @param array the array to be merged
      *
@@ -336,15 +333,13 @@ public final class IntArray extends ConstrainerObjectImpl {
      * extending to 5.1.0 added by S. Vanskov
      */
     /**
-     * The function returns subarray of the array consisting of the given array
-     * elements which indeses more or equal to <code> min_index </code> and more
-     * or equal to <code> max_index </code>
+     * The function returns subarray of the array consisting of the given array elements which indeses more or equal to
+     * <code> min_index </code> and more or equal to <code> max_index </code>
      *
      * @param min_index index lower bound
      * @param max_index index upper bound
      *
-     * @return subarray of array from <code> min_index </code> to
-     *         <code> max_index </code>
+     * @return subarray of array from <code> min_index </code> to <code> max_index </code>
      */
     IntArray subarray(int min_index, int max_index) {
         if (min_index > max_index) {

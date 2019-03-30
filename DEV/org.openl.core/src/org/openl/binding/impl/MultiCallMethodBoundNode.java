@@ -29,16 +29,17 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
      * the indexes of the arguments in the method signature that are arrays
      **/
     private final int[] arrayArgArguments;
-    
+
     /**
-     * @param syntaxNode            will be represents like <code>'calculate(parameter)'</code>
-     * @param children              its gonna be only one children, that represents the parameter in method call.
+     * @param syntaxNode will be represents like <code>'calculate(parameter)'</code>
+     * @param children its gonna be only one children, that represents the parameter in method call.
      * @param singleParameterMethod method for single(not array) parameter in signature
-     * @param arrayArgArgumentList     the indexes of the arguments in the method signature that is are arrays
+     * @param arrayArgArgumentList the indexes of the arguments in the method signature that is are arrays
      */
     public MultiCallMethodBoundNode(ISyntaxNode syntaxNode,
             IBoundNode[] children,
-            IMethodCaller singleParameterMethod, List<Integer> arrayArgArgumentList) {
+            IMethodCaller singleParameterMethod,
+            List<Integer> arrayArgArgumentList) {
         super(syntaxNode, children, singleParameterMethod);
         returnType = singleParameterMethod.getMethod().getType();
 
@@ -78,13 +79,13 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
         System.arraycopy(methodParameters, 0, callParameters, 0, methodParameters.length);
 
         IMethodCaller methodCaller = getMethodCaller(env);
-        
+
         if (arrayClass != null) {
             // create an array of results
             //
             results = Array.newInstance(arrayClass, paramsLength);
         }
-        
+
         if (paramsLength > 0) {
             // populate the results array by invoking method for single parameter
             call(methodCaller, target, env, methodParameters, callParameters, 0, results, 0, paramsLength);
@@ -93,7 +94,15 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
         return results;
     }
 
-    private int call(IMethodCaller methodCaller, Object target, IRuntimeEnv env, Object[] allParameters, Object[] callParameters, int iteratedArg, Object results, int callIndex, int resultLength) {
+    private int call(IMethodCaller methodCaller,
+            Object target,
+            IRuntimeEnv env,
+            Object[] allParameters,
+            Object[] callParameters,
+            int iteratedArg,
+            Object results,
+            int callIndex,
+            int resultLength) {
         int iteratedParamNum = arrayArgArguments[iteratedArg];
         Object iteratedParameter = allParameters[iteratedParamNum];
         int length = Array.getLength(iteratedParameter);
@@ -101,22 +110,37 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
             callParameters[iteratedParamNum] = Array.get(iteratedParameter, i);
 
             if (iteratedArg < arrayArgArguments.length - 1) {
-                callIndex = call(methodCaller, target, env, allParameters, callParameters, iteratedArg + 1, results, callIndex, resultLength);
+                callIndex = call(methodCaller,
+                    target,
+                    env,
+                    allParameters,
+                    callParameters,
+                    iteratedArg + 1,
+                    results,
+                    callIndex,
+                    resultLength);
             } else {
-                invokeMethodAndSetResultToArray(methodCaller, target, env, callParameters, results, callIndex, resultLength);
+                invokeMethodAndSetResultToArray(methodCaller,
+                    target,
+                    env,
+                    callParameters,
+                    results,
+                    callIndex,
+                    resultLength);
                 callIndex++;
             }
         }
 
         return callIndex;
     }
-    
-    protected IMethodCaller getMethodCaller(IRuntimeEnv env) { //Optimize if possible
+
+    protected IMethodCaller getMethodCaller(IRuntimeEnv env) { // Optimize if possible
         return getMethodCaller();
     }
 
     @SuppressWarnings("unchecked")
-    protected void invokeMethodAndSetResultToArray(IMethodCaller methodCaller, Object target,
+    protected void invokeMethodAndSetResultToArray(IMethodCaller methodCaller,
+            Object target,
             IRuntimeEnv env,
             Object[] callParameters,
             Object results,
@@ -132,7 +156,7 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
             Array.set(results, index, value);
         }
     }
-    
+
     @Override
     public IOpenClass getType() {
         return returnType;

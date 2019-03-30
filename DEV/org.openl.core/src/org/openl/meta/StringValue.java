@@ -21,13 +21,13 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     private final Logger log = LoggerFactory.getLogger(StringValue.class);
     private ValueMetaInfo metaInfo;
     private final String value;
-    
-    public static class StringValueAdapter extends XmlAdapter<String,StringValue> {
+
+    public static class StringValueAdapter extends XmlAdapter<String, StringValue> {
         @Override
         public StringValue unmarshal(String val) throws Exception {
             return new StringValue(val);
         }
-        
+
         @Override
         public String marshal(StringValue val) throws Exception {
             return val.getValue();
@@ -36,7 +36,8 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
 
     public StringValue(String value) {
         if (value == null) {
-            throw new IllegalArgumentException("Error initializing StringValue class. Parameter \"value\" can't be null.");
+            throw new IllegalArgumentException(
+                "Error initializing StringValue class. Parameter \"value\" can't be null.");
         }
         this.value = value;
         metaInfo = new ValueMetaInfo();
@@ -44,7 +45,8 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
 
     public StringValue(String value, String shortName, String fullName, IOpenSourceCodeModule source) {
         if (value == null) {
-            throw new IllegalArgumentException("Error initializing StringValue class. Parameter \"value\" can't be null.");
+            throw new IllegalArgumentException(
+                "Error initializing StringValue class. Parameter \"value\" can't be null.");
         }
         this.value = value;
         metaInfo = new ValueMetaInfo(shortName, fullName, source);
@@ -72,7 +74,7 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
 
     @Override
     /**
-     * Indicates whether some other object is "equal to" this org.openl.meta.IntValue variable. 
+     * Indicates whether some other object is "equal to" this org.openl.meta.IntValue variable.
      */
     public boolean equals(Object obj) {
 
@@ -136,8 +138,8 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
         } else {
             try {
                 ValueMetaInfo valueMetaInfo = new ValueMetaInfo(metaInfo.getDisplayName(IMetaInfo.SHORT),
-                        metaInfo.getDisplayName(IMetaInfo.LONG),
-                        new URLSourceCodeModule(new URL(metaInfo.getSourceUrl())));
+                    metaInfo.getDisplayName(IMetaInfo.LONG),
+                    new URLSourceCodeModule(new URL(metaInfo.getSourceUrl())));
                 setMetaInfo(valueMetaInfo);
             } catch (Exception e) {
                 log.debug("Failed to set meta info for StringValue \"{}\"", value, e);

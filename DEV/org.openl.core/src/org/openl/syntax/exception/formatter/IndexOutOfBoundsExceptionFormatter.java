@@ -1,8 +1,7 @@
 package org.openl.syntax.exception.formatter;
 
 /**
- * Formatter for {@link ArrayIndexOutOfBoundsException} exception. As its message contains 
- * only the index number.
+ * Formatter for {@link ArrayIndexOutOfBoundsException} exception. As its message contains only the index number.
  * 
  * @author DLiauchuk
  *

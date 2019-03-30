@@ -9,13 +9,12 @@ public class SingleCellGridTable extends AGridTableDecorator {
 
     private int fromColumn;
     private int fromRow;
-    
+
     public SingleCellGridTable(IGridTable table, int fromColumn, int fromRow) {
         super(table);
         this.fromColumn = fromColumn;
         this.fromRow = fromRow;
     }
-
 
     @Override
     public int getGridColumn(int col, int row) {
@@ -53,7 +52,7 @@ public class SingleCellGridTable extends AGridTableDecorator {
             cachedCell = table.getCell(fromColumn, fromRow);
         return cachedCell;
     }
-    
+
     ICell cachedCell = null;
 
 }

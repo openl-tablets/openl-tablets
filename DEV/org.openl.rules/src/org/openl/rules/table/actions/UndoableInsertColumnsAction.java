@@ -25,23 +25,25 @@ public class UndoableInsertColumnsAction extends UndoableInsertAction {
 
     public static boolean canInsertColumns(IGridTable table, int nCols) {
         IGridRegion region = getOriginalRegion(table);
-        GridRegion newRegion = new GridRegion(region.getTop() - 1, region.getRight() + 1,
-                region.getBottom() + 1, region.getRight() + 1 + nCols);
+        GridRegion newRegion = new GridRegion(region.getTop() - 1,
+            region.getRight() + 1,
+            region.getBottom() + 1,
+            region.getRight() + 1 + nCols);
         IGridTable[] allGridTables = table.getGrid().getTables();
         for (IGridTable allGridTable : allGridTables) {
-            if (!table.getUri().equals(allGridTable.getUri())
-                    && IGridRegion.Tool.intersects(newRegion, allGridTable.getRegion())) {
+            if (!table.getUri().equals(allGridTable.getUri()) && IGridRegion.Tool.intersects(newRegion,
+                allGridTable.getRegion())) {
                 return false;
             }
         }
         return true;
     }
-    
+
     @Override
     protected boolean canPerformAction(IGridTable table) {
         return UndoableInsertColumnsAction.canInsertColumns(table, getNumberToInsert(table));
     }
-    
+
     @Override
     protected int getNumberToInsert(IGridTable table) {
         int cellWidth = getOriginalTable(table).getCell(beforeCol, row).getWidth();
@@ -51,15 +53,17 @@ public class UndoableInsertColumnsAction extends UndoableInsertAction {
         }
         return colToInsert;
     }
-    
+
     @Override
-    protected IUndoableGridTableAction performAction(int numberToInsert, IGridRegion fullTableRegion, IGridTable table) {
+    protected IUndoableGridTableAction performAction(int numberToInsert,
+            IGridRegion fullTableRegion,
+            IGridTable table) {
         return GridTool.insertColumns(numberToInsert, beforeCol, fullTableRegion, table.getGrid(), metaInfoWriter);
     }
-    
+
     @Override
     protected GridRegionAction getGridRegionAction(IGridRegion gridRegion, int numberToInsert) {
         return new GridRegionAction(gridRegion, COLUMNS, INSERT, ActionType.EXPAND, numberToInsert);
     }
-    
+
 }

@@ -21,8 +21,7 @@ import org.openl.ie.constrainer.Subject;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An implementation of the expression:
- * <code>(IntBoolExp1 || IntBoolExp2)</code>.
+ * An implementation of the expression: <code>(IntBoolExp1 || IntBoolExp2)</code>.
  */
 final class IntBoolExpOr extends IntBoolExpForSubject {
     class ObserverBoolExpOr extends Observer {

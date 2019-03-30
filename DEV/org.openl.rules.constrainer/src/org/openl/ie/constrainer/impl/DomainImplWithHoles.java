@@ -8,8 +8,8 @@ import org.openl.ie.tools.FastVector;
 //: DomainImplWithHoles.java
 //
 /**
- * A implementation of the Domain interface that supports a vector of intervals
- * where each interval defines the only possible values.
+ * A implementation of the Domain interface that supports a vector of intervals where each interval defines the only
+ * possible values.
  *
  * @see DomainInterval
  */
@@ -20,7 +20,7 @@ public final class DomainImplWithHoles extends DomainImpl {
     // contains 3 intervals [(0;2), (5;6), (9;9)]
 
     public DomainImplWithHoles(IntVar var, int min, int max) // throws
-                                                                // Failure
+                                                             // Failure
     {
         super(var, min, max);
         _values = new FastVector();
@@ -92,7 +92,7 @@ public final class DomainImplWithHoles extends DomainImpl {
                 if (interval.from == interval.to) {
                     if (_values.size() == 1) {
                         constrainer().fail("remove"); // "Empty domain of
-                                                        // "+_variable
+                                                      // "+_variable
                     }
                     _values.removeElementAt(i);
                 } else if (value == interval.from) {

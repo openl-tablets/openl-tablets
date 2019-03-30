@@ -17,10 +17,7 @@ class TransformIndexNode extends ABoundNode {
     private Class<?> componentClass;
     private IOpenClass resultType;
 
-    TransformIndexNode(ISyntaxNode syntaxNode,
-            IBoundNode targetNode,
-            IBoundNode transformer,
-            ILocalVar tempVar) {
+    TransformIndexNode(ISyntaxNode syntaxNode, IBoundNode targetNode, IBoundNode transformer, ILocalVar tempVar) {
         super(syntaxNode, targetNode, transformer);
         this.tempVar = tempVar;
         this.targetNode = targetNode;
@@ -32,8 +29,9 @@ class TransformIndexNode extends ABoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Iterator<Object> elementsIterator = targetNode.getType().getAggregateInfo().getIterator(
-            targetNode.evaluate(env));
+        Iterator<Object> elementsIterator = targetNode.getType()
+            .getAggregateInfo()
+            .getIterator(targetNode.evaluate(env));
         ArrayList<Object> result = new ArrayList<>();
         while (elementsIterator.hasNext()) {
             Object element = elementsIterator.next();

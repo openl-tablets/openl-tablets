@@ -161,8 +161,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * 
      * @param value of variable which should be copied
      * @param name of new variable
-     * @return the new org.openl.meta.FloatValue variable with name <b>name</b>
-     *         and value <b>value</b>
+     * @return the new org.openl.meta.FloatValue variable with name <b>name</b> and value <b>value</b>
      */
     public static org.openl.meta.FloatValue copy(org.openl.meta.FloatValue value, String name) {
         if (value.getName() == null) {
@@ -350,8 +349,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * 
      * @param number
      * @param divisor
-     * @return the remainder after a number is divided by a divisor. The result
-     *         is a numeric value and has the same sign as the devisor.
+     * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign
+     *         as the devisor.
      */
     public static org.openl.meta.FloatValue mod(org.openl.meta.FloatValue number, org.openl.meta.FloatValue divisor) {
         if (number != null && divisor != null) {
@@ -365,8 +364,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     /**
-     * Sorts the array <b>values</b> in ascending order and returns the value
-     * from array <b>values</b> at position <b>position</b>
+     * Sorts the array <b>values</b> in ascending order and returns the value from array <b>values</b> at position
+     * <b>position</b>
      * 
      * @param values array of org.openl.meta.FloatValue values
      * @param position int value
@@ -377,8 +376,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     /**
-     * Sorts the array <b>values</b> in descending order and returns the value
-     * from array <b>values</b> at position <b>position</b>
+     * Sorts the array <b>values</b> in descending order and returns the value from array <b>values</b> at position
+     * <b>position</b>
      * 
      * @param values array of org.openl.meta.FloatValue values
      * @param position int value
@@ -470,8 +469,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     // Autocasts
 
     /**
-     * Is used to overload implicit cast operators from byte to
-     * org.openl.meta.FloatValue
+     * Is used to overload implicit cast operators from byte to org.openl.meta.FloatValue
      * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
@@ -482,8 +480,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     /**
-     * Is used to overload implicit cast operators from short to
-     * org.openl.meta.FloatValue
+     * Is used to overload implicit cast operators from short to org.openl.meta.FloatValue
      * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
@@ -494,8 +491,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     /**
-     * Is used to overload implicit cast operators from int to
-     * org.openl.meta.FloatValue
+     * Is used to overload implicit cast operators from int to org.openl.meta.FloatValue
      * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
@@ -506,8 +502,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     /**
-     * Is used to overload implicit cast operators from char to
-     * org.openl.meta.FloatValue
+     * Is used to overload implicit cast operators from char to org.openl.meta.FloatValue
      * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
@@ -518,8 +513,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     /**
-     * Is used to overload implicit cast operators from long to
-     * org.openl.meta.FloatValue
+     * Is used to overload implicit cast operators from long to org.openl.meta.FloatValue
      * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
@@ -530,8 +524,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     }
 
     /**
-     * Is used to overload implicit cast operators from float to
-     * org.openl.meta.FloatValue
+     * Is used to overload implicit cast operators from float to org.openl.meta.FloatValue
      * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
@@ -587,8 +580,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     // Equals
     @Override
     /**
-     * Indicates whether some other object is "equal to" this
-     * org.openl.meta.FloatValue variable.
+     * Indicates whether some other object is "equal to" this org.openl.meta.FloatValue variable.
      */
     public boolean equals(Object obj) {
         if (obj instanceof org.openl.meta.FloatValue) {

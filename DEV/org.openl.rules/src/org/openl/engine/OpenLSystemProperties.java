@@ -16,7 +16,8 @@ public class OpenLSystemProperties {
     public static final String DISPATCHING_MODE_DT = "dt";
     public static final String AUTO_COMPILE = "compile.auto";
 
-    private OpenLSystemProperties(){}
+    private OpenLSystemProperties() {
+    }
 
     public static boolean isJavaDispatchingMode() {
         String dispatchingMode = System.getProperty(DISPATCHING_MODE_PROPERTY);
@@ -52,7 +53,7 @@ public class OpenLSystemProperties {
         }
         return dispatchingMode != null && dispatchingMode.equalsIgnoreCase(DISPATCHING_MODE_DT);
     }
-    
+
     public static boolean isDispatchingValidationEnabled(Map<String, Object> externalParameters) {
         String dispatchingValidation;
         if (externalParameters != null && externalParameters.containsKey(DISPATCHING_VALIDATION)) {
@@ -85,7 +86,6 @@ public class OpenLSystemProperties {
         return testRunTheadCount;
     }
 
-    
     public static String getDispatchingMode(Map<String, Object> externalParameters) {
         String dispatchingMode;
         if (externalParameters != null && externalParameters.containsKey(DISPATCHING_MODE_PROPERTY)) {

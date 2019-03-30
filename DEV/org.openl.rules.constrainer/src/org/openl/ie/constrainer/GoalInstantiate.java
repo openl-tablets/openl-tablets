@@ -15,18 +15,14 @@ package org.openl.ie.constrainer;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An implementation of a {@link Goal} that instaintiates the constraint integer
- * variable.
+ * An implementation of a {@link Goal} that instaintiates the constraint integer variable.
  * <p>
- * It uses {@link IntValueSelector} to select the next value to be removed from
- * the domain of the variable.
+ * It uses {@link IntValueSelector} to select the next value to be removed from the domain of the variable.
  * <p>
- * The selector should select the values that can be <b>effectively</b> removed
- * from the domain of the variable. For example, if the domain type is plain
- * then selector should select only min or max values from the domain.
- * GoalInstantiate can use both recursive and non-recursive search algorithms.
- * Recursive implementation iterates the domain looking for a value that can be
- * assigned to a variable by GoalSetValue. Non-recursive implementations invokes
+ * The selector should select the values that can be <b>effectively</b> removed from the domain of the variable. For
+ * example, if the domain type is plain then selector should select only min or max values from the domain.
+ * GoalInstantiate can use both recursive and non-recursive search algorithms. Recursive implementation iterates the
+ * domain looking for a value that can be assigned to a variable by GoalSetValue. Non-recursive implementations invokes
  * GoalSetValue ones and removes the given value if it fails.
  *
  * @see IntVar
@@ -42,6 +38,7 @@ public class GoalInstantiate extends GoalImpl {
          */
         public Goal instantiate(int chosen_value) throws Failure;
     }
+
     /**
      * Non recursive instantiation.
      */
@@ -69,6 +66,7 @@ public class GoalInstantiate extends GoalImpl {
         }
 
     } // ~NonRecursiveImpl
+
     /**
      * Recursive instantiation.
      */
@@ -119,9 +117,8 @@ public class GoalInstantiate extends GoalImpl {
     private Impl _impl;
 
     /**
-     * Creates GoalInstantiate using <code>IntValueSelectorMin</code> as a
-     * default ValueSelector. The goal constructed that way uses a recursive
-     * search algorithm.
+     * Creates GoalInstantiate using <code>IntValueSelectorMin</code> as a default ValueSelector. The goal constructed
+     * that way uses a recursive search algorithm.
      */
     public GoalInstantiate(IntVar intvar) {
         this(intvar, new IntValueSelectorMin(), true);
@@ -149,8 +146,7 @@ public class GoalInstantiate extends GoalImpl {
     }
 
     /**
-     * An implementation of the instantiation algorithm for the integer variable
-     * using value selector.
+     * An implementation of the instantiation algorithm for the integer variable using value selector.
      */
     public Goal execute() throws Failure {
         if (_intvar.size() == 1) {

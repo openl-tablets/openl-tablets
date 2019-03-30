@@ -8,10 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class is used to prevent full xls load using User API (DOM approach).
- * Base class loads the file fully when gets sheet name (it's needed when create Categories in WebStudio and when
- * building sheet URI).
- * To prevent it we get sheet name from SheetDescriptor.
+ * This class is used to prevent full xls load using User API (DOM approach). Base class loads the file fully when gets
+ * sheet name (it's needed when create Categories in WebStudio and when building sheet URI). To prevent it we get sheet
+ * name from SheetDescriptor.
  */
 class SequentialXlsSheetSourceCodeModule extends XlsSheetSourceCodeModule {
     private final Logger log = LoggerFactory.getLogger(SequentialXlsSheetSourceCodeModule.class);

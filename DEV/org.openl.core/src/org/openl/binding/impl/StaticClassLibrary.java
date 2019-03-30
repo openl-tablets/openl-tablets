@@ -37,17 +37,17 @@ public class StaticClassLibrary implements IOpenLibrary {
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.binding.IMethodFactory#getMatchingMethod(java.lang.String,
-     * java.lang.String, org.openl.types.IOpenClass[])
+     * @see org.openl.binding.IMethodFactory#getMatchingMethod(java.lang.String, java.lang.String,
+     * org.openl.types.IOpenClass[])
      */
     @Override
     public IOpenMethod getMethod(String name, IOpenClass[] params) {
         return openClass.getMethod(name, params);
     }
-    
+
     @Override
     public IOpenField getVar(String name, boolean strictMatch) {
-        //This method must return null! See EPBDS-6799.
+        // This method must return null! See EPBDS-6799.
         return null;
     }
 
@@ -60,21 +60,21 @@ public class StaticClassLibrary implements IOpenLibrary {
         if (methodNameMap == null) {
             synchronized (this) {
                 List<IOpenMethod> methods = CollectionUtils.findAll(openClass.getMethods(),
-                        new CollectionUtils.Predicate<IOpenMethod>() {
-                            @Override
-                            public boolean evaluate(IOpenMethod method) {
-                                return method.isStatic();
-                            }
-                        });
+                    new CollectionUtils.Predicate<IOpenMethod>() {
+                        @Override
+                        public boolean evaluate(IOpenMethod method) {
+                            return method.isStatic();
+                        }
+                    });
                 methodNameMap = AOpenClass.buildMethodNameMap(methods);
             }
         }
 
         List<IOpenMethod> found = methodNameMap.get(name);
 
-        return found == null ? Collections.<IOpenMethod>emptyList() : found;
+        return found == null ? Collections.<IOpenMethod> emptyList() : found;
     }
-    
+
     @Override
     public IOpenMethod getConstructor(IOpenClass[] params) throws AmbiguousMethodException {
         return null;
@@ -82,6 +82,6 @@ public class StaticClassLibrary implements IOpenLibrary {
 
     @Override
     public Iterable<IOpenMethod> constructors() {
-        return Collections.<IOpenMethod>emptyList();
+        return Collections.<IOpenMethod> emptyList();
     }
 }

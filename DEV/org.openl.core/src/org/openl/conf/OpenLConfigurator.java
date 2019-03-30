@@ -13,8 +13,7 @@ import java.util.Properties;
 
 /**
  *
- * This class is responsible for configuration of a particular OpenL instance
- * designated by it's instance_name.
+ * This class is responsible for configuration of a particular OpenL instance designated by it's instance_name.
  *
  *
  *
@@ -37,7 +36,8 @@ public class OpenLConfigurator extends Configurator {
 
     public static final String OPENL_BUILDER = "OpenLBuilder";
 
-    public synchronized IOpenLBuilder getBuilder(String openlName, IUserContext ucxt) throws OpenConfigurationException {
+    public synchronized IOpenLBuilder getBuilder(String openlName,
+            IUserContext ucxt) throws OpenConfigurationException {
         String userHome = ucxt.getUserHome();
 
         String[] homes;
@@ -51,8 +51,12 @@ public class OpenLConfigurator extends Configurator {
         ConfigurableResourceContext cxt = new ConfigurableResourceContext(ucxt.getUserClassLoader(), homes);
 
         PropertyFileLoader propertyLoader = new PropertyFileLoader(openlName + "." + OPENL_DEFAULT_PROPERTY_FILE_NAME,
-                openlName + "." + OPENL_PROPERTY_FILE_PROPERTY, cxt, new PropertyFileLoader(
-                        OPENL_DEFAULT_PROPERTY_FILE_NAME, "org.openl." + OPENL_PROPERTY_FILE_PROPERTY, cxt, null));
+            openlName + "." + OPENL_PROPERTY_FILE_PROPERTY,
+            cxt,
+            new PropertyFileLoader(OPENL_DEFAULT_PROPERTY_FILE_NAME,
+                "org.openl." + OPENL_PROPERTY_FILE_PROPERTY,
+                cxt,
+                null));
 
         Properties pp = propertyLoader.getProperties();
         cxt.setProperties(pp);
@@ -67,7 +71,9 @@ public class OpenLConfigurator extends Configurator {
         }
     }
 
-    private IOpenLBuilder makeBuilder(String openl, IConfigurableResourceContext cxt, IUserContext ucxt) throws Exception {
+    private IOpenLBuilder makeBuilder(String openl,
+            IConfigurableResourceContext cxt,
+            IUserContext ucxt) throws Exception {
         String builderClassPath = cxt.findProperty(openl + BUILDER_CLASS_PATH);
         if (builderClassPath == null) {
             builderClassPath = cxt.findProperty(DEFAULT_BUILDER_CLASS_PATH_PROPERTY);
@@ -93,6 +99,6 @@ public class OpenLConfigurator extends Configurator {
         if (builderClassName == null) {
             builderClassName = openl + "." + OPENL_BUILDER;
         }
-        return (IOpenLBuilder)ClassFactory.forName(builderClassName, cl).newInstance();
+        return (IOpenLBuilder) ClassFactory.forName(builderClassName, cl).newInstance();
     }
 }

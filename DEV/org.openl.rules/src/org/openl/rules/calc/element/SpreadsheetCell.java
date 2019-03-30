@@ -68,7 +68,7 @@ public class SpreadsheetCell implements Invokable {
     public boolean isValueCell() {
         return spreadsheetCellType == SpreadsheetCellType.VALUE;
     }
-    
+
     public boolean isConstantCell() {
         return spreadsheetCellType == SpreadsheetCellType.CONSTANT;
     }
@@ -84,7 +84,8 @@ public class SpreadsheetCell implements Invokable {
             type = NullOpenClass.the;
         } else if (type == JavaOpenClass.VOID) {
             type = JavaOpenClass.getOpenClass(Void.class);
-        } else if (!(type instanceof DomainOpenClass) && type.getInstanceClass() != null && type.getInstanceClass().isPrimitive()) {
+        } else if (!(type instanceof DomainOpenClass) && type.getInstanceClass() != null && type.getInstanceClass()
+            .isPrimitive()) {
             Class<?> wrapper = NumberUtils.getWrapperType(type.getInstanceClass().getName());
             type = JavaOpenClass.getOpenClass(wrapper);
         }

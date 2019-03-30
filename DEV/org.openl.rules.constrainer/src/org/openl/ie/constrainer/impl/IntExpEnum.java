@@ -39,6 +39,7 @@ public final class IntExpEnum extends IntExpImpl {
         }
 
     } // ~IndexObserver
+
     static class IntEventEnum extends IntEvent {
         static ReusableFactory _factory = new ReusableFactory() {
             @Override
@@ -51,6 +52,7 @@ public final class IntExpEnum extends IntExpImpl {
         int[] _values;
 
         IntEvent _event;
+
         static IntEventEnum getEvent(IntEvent event, int[] values) {
             IntEventEnum ev = (IntEventEnum) _factory.getElement();
             ev.init(event, values);
@@ -103,6 +105,7 @@ public final class IntExpEnum extends IntExpImpl {
         }
 
     } // ~IntEventEnum
+
     private int[] _values;
 
     protected IntVar _index;
@@ -163,6 +166,7 @@ public final class IntExpEnum extends IntExpImpl {
     public void iterateDomain(IntExp.IntDomainIterator it) throws Failure {
         iterateDomain2(it);
     }
+
     void iterateDomain2(final IntExp.IntDomainIterator it) throws Failure {
         int min = _index.min();
         int max = _index.max();
@@ -294,20 +298,17 @@ public final class IntExpEnum extends IntExpImpl {
     }
 
     /*
-     * static void main(String[] args) throws Exception { Constrainer c = new
-     * Constrainer("");
+     * static void main(String[] args) throws Exception { Constrainer c = new Constrainer("");
      *
      * int[] values = {4, 1, 666, 4, 7000, 4};
      *
      * IntArray ary = new IntArray(c,values);
      *
-     * IntExp exp = new IntExpEnum(c,ary,"");
-     *  // IntExp index = c.addIntVar(0,ary.size()-1); // IntExp exp =
+     * IntExp exp = new IntExpEnum(c,ary,""); // IntExp index = c.addIntVar(0,ary.size()-1); // IntExp exp =
      * ary.elementAt(index);
      *
      *
-     * System.out.println(exp); exp.removeValue(4); System.out.println(exp);
-     * exp.setMax(8000); System.out.println(exp); exp.setMin(7000);
-     * System.out.println(exp); }
+     * System.out.println(exp); exp.removeValue(4); System.out.println(exp); exp.setMax(8000); System.out.println(exp);
+     * exp.setMin(7000); System.out.println(exp); }
      */
 } // ~IntExpEnum

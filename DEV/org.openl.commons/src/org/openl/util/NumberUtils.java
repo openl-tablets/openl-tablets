@@ -64,10 +64,10 @@ public class NumberUtils {
 
     public static boolean isPrimitive(String canonicalTypeName) {
         if (StringUtils.isNotBlank(canonicalTypeName)) {
-            if (canonicalTypeName.contains("byte") || canonicalTypeName.contains("short")
-                    || canonicalTypeName.contains("int") || canonicalTypeName.contains("long")
-                    || canonicalTypeName.contains("float") || canonicalTypeName.contains("double")
-                    || canonicalTypeName.contains("boolean") || canonicalTypeName.contains("char")) {
+            if (canonicalTypeName.contains("byte") || canonicalTypeName.contains("short") || canonicalTypeName
+                .contains("int") || canonicalTypeName.contains("long") || canonicalTypeName
+                    .contains("float") || canonicalTypeName.contains(
+                        "double") || canonicalTypeName.contains("boolean") || canonicalTypeName.contains("char")) {
                 return true;
             }
         }

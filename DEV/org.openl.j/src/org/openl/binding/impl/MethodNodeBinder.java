@@ -84,14 +84,13 @@ public class MethodNodeBinder extends ANodeBinder {
         String methodName = ((IdentifierNode) lastNode).getIdentifier();
 
         IBoundNode[] children = bindChildren(node, bindingContext, 0, childrenCount - 1);
-        if (hasErrorBoundNode(children)){
+        if (hasErrorBoundNode(children)) {
             return new ErrorBoundNode(node);
         }
         IOpenClass[] parameterTypes = getTypes(children);
 
-        IMethodCaller methodCaller = bindingContext.findMethodCaller(ISyntaxConstants.THIS_NAMESPACE,
-            methodName,
-            parameterTypes);
+        IMethodCaller methodCaller = bindingContext
+            .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, parameterTypes);
 
         BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
         methodCaller = autoCastReturnTypeWrap(bindingContext, methodCaller, parameterTypes);
@@ -179,7 +178,6 @@ public class MethodNodeBinder extends ANodeBinder {
     @Override
     public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode target) throws Exception {
 
-
         IBoundNode errorNode = validateNode(node, bindingContext);
         if (errorNode != null) {
             return errorNode;
@@ -208,7 +206,10 @@ public class MethodNodeBinder extends ANodeBinder {
         return new MethodBoundNode(node, children, methodCaller, target);
     }
 
-    private IBoundNode validateMethod(ISyntaxNode node, IBindingContext bindingContext, IBoundNode target, IMethodCaller methodCaller) {
+    private IBoundNode validateMethod(ISyntaxNode node,
+            IBindingContext bindingContext,
+            IBoundNode target,
+            IMethodCaller methodCaller) {
         boolean methodIsStatic = methodCaller.getMethod().isStatic();
         if (target.isStaticTarget() != methodIsStatic) {
             if (methodIsStatic) {
@@ -219,7 +220,6 @@ public class MethodNodeBinder extends ANodeBinder {
         }
         return null;
     }
-
 
     private IBoundNode validateNode(ISyntaxNode node, IBindingContext bindingContext) {
         if (node.getNumberOfChildren() < 1) {

@@ -34,5 +34,6 @@ public interface IOpenSourceCodeModule {
      * @return external parameters.
      */
     Map<String, Object> getParams();
+
     void setParams(Map<String, Object> params);
 }

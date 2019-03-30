@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Finds table with biggest version(it will later table) or "active" table;
  *
- * @return -1 if the first later or "active", 1 if second later "active" and 0
- * if tables are "inactive" and have similar versions
+ * @return -1 if the first later or "active", 1 if second later "active" and 0 if tables are "inactive" and have similar
+ *         versions
  */
 public final class TableVersionComparator implements Comparator<ITableProperties> {
 
@@ -30,7 +30,8 @@ public final class TableVersionComparator implements Comparator<ITableProperties
 
     public int compare(IOpenMethod first, IOpenMethod second) {
         if (!new DimensionPropertiesMethodKey(first).equals(new DimensionPropertiesMethodKey(second))) {
-            throw new IllegalArgumentException("Uncomparable tables. Tables should have similar name, signature and dimension properties.");
+            throw new IllegalArgumentException(
+                "Uncomparable tables. Tables should have similar name, signature and dimension properties.");
         }
         return compare(PropertiesHelper.getTableProperties(first), PropertiesHelper.getTableProperties(second));
     }

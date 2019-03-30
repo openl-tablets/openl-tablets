@@ -17,11 +17,11 @@ import org.openl.binding.impl.component.ComponentBindingContext;
  */
 public class ModuleBindingContext extends ComponentBindingContext {
 
-	public ModuleBindingContext(IBindingContext delegate, ModuleOpenClass module) {
-		super(delegate, module);
-	}	
+    public ModuleBindingContext(IBindingContext delegate, ModuleOpenClass module) {
+        super(delegate, module);
+    }
 
-	public ModuleOpenClass getModule() {
-		return (ModuleOpenClass)getComponentOpenClass();
-	}
+    public ModuleOpenClass getModule() {
+        return (ModuleOpenClass) getComponentOpenClass();
+    }
 }

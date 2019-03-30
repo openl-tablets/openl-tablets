@@ -59,10 +59,10 @@ public class DatatypeTableBuilder extends TableBuilder {
         writeCell(1, getCurrentRow(), 1, 1, paramName, cellStyle);
 
         incCurrentRow();
-     }
+    }
 
-     public void writeParameter(String paramType, String paramName) {
+    public void writeParameter(String paramType, String paramName) {
         writeParameter(paramType, paramName, null);
-     }
+    }
 
 }

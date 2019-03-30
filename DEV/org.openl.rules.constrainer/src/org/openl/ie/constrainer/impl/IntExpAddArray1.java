@@ -9,10 +9,9 @@ import org.openl.ie.constrainer.IntVar;
 import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
 
-
 /**
- * An implementation of the expression: <code>sum(IntExpArray)</code>. This
- * implementation "remember and propagate" setMin/Max.
+ * An implementation of the expression: <code>sum(IntExpArray)</code>. This implementation "remember and propagate"
+ * setMin/Max.
  */
 public final class IntExpAddArray1 extends IntExpImpl {
     final class DomainVar extends IntVarImpl {
@@ -26,6 +25,7 @@ public final class IntExpAddArray1 extends IntExpImpl {
         }
 
     } // ~DomainVar
+
     class ExpAddVectorObserver extends Observer {
 
         ExpAddVectorObserver() {
@@ -65,7 +65,7 @@ public final class IntExpAddArray1 extends IntExpImpl {
     } // ~ ExpAddVectorObserver
 
     static final private int[] event_map = { MIN, MIN, MAX, MAX, MIN | MAX | VALUE, VALUE,
-    // REMOVE, REMOVE
+            // REMOVE, REMOVE
     };
     private IntExpArray _vars;
 

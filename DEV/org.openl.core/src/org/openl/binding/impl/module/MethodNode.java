@@ -22,8 +22,7 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
 
     DeferredMethod deferredMethod;
 
-    public MethodNode(ISyntaxNode syntaxNode,
-            DeferredMethod deferredMethod) {
+    public MethodNode(ISyntaxNode syntaxNode, DeferredMethod deferredMethod) {
         super(syntaxNode);
         this.deferredMethod = deferredMethod;
     }
@@ -101,7 +100,7 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
 
     @Override
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
-        //nothing to remove
+        // nothing to remove
     }
 
 }

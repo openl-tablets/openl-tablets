@@ -17,6 +17,7 @@ public class BlockBinder extends ANodeBinder {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv,
      * org.openl.binding.IBindingContext)
      */

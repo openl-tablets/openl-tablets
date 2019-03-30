@@ -53,8 +53,9 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
         IOpenClass openClass = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
         String packageName = tsn.getTableProperties().getPropertyValueAsString("datatypePackage");
-        //Additional condition that it is not loaded class from classloader
-        if (openClass != null && !(openClass instanceof JavaOpenClass) && openClass.getPackageName().equals(packageName)) {
+        // Additional condition that it is not loaded class from classloader
+        if (openClass != null && !(openClass instanceof JavaOpenClass) && openClass.getPackageName()
+            .equals(packageName)) {
             String message = "Duplicate type definition: " + typeName;
             throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
         }
@@ -78,14 +79,14 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             // Get type name.
             //
             String type = parsedHeader[2].getIdentifier().substring(beginIndex, endIndex).trim();
-            
+
             // Create appropriate domain object.
             //
             Object[] res = {};
             if (dataPart != null) {
-                IOpenSourceCodeModule arrayAliasTypeSource = new StringSourceCodeModule(type + "[]", tableSource.getUri());
-                IOpenClass arrayOpenClass = OpenLManager
-                        .makeType(openl, arrayAliasTypeSource, bindingContext);
+                IOpenSourceCodeModule arrayAliasTypeSource = new StringSourceCodeModule(type + "[]",
+                    tableSource.getUri());
+                IOpenClass arrayOpenClass = OpenLManager.makeType(openl, arrayAliasTypeSource, bindingContext);
 
                 OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext, tsn);
 
@@ -103,11 +104,11 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             // more type for it - array with appropriate type of elements.
             //
             IOpenSourceCodeModule aliasTypeSource = new StringSourceCodeModule(type, tableSource.getUri());
-            
+
             // Create appropriate OpenL class for type definition.
             //
             IOpenClass baseOpenClass = OpenLManager.makeType(openl, aliasTypeSource, bindingContext);
-            
+
             // Create domain class definition which will be used by OpenL engine at runtime.
             //
             DomainOpenClass tableType = new DomainOpenClass(typeName,

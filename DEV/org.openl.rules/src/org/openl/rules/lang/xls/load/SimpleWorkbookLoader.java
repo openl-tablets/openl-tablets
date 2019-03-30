@@ -4,8 +4,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.lang.xls.SpreadsheetConstants;
 
 /**
- * Stores the strong reference to previously loaded Workbook instance
- * and is not unloaded.
+ * Stores the strong reference to previously loaded Workbook instance and is not unloaded.
  */
 public class SimpleWorkbookLoader implements WorkbookLoader {
     private final Workbook workbook;
@@ -17,9 +16,8 @@ public class SimpleWorkbookLoader implements WorkbookLoader {
     }
 
     /**
-     * Get the workbook.
-     * When this method is repeatedly called, always returns the same
-     * instance of workbook java object.
+     * Get the workbook. When this method is repeatedly called, always returns the same instance of workbook java
+     * object.
      *
      * @return previously loaded workbook
      * @see #isCanUnload()

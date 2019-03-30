@@ -39,27 +39,28 @@ public class ConversionRulesController {
 
         // Resolve the name of the group defined in the Algorithm Specification
         //
-        String operationGroupName = AlgorithmTableParserManager.getInstance().whatIsOperationsGroupName(
-                groupedOperationNames);
+        String operationGroupName = AlgorithmTableParserManager.getInstance()
+            .whatIsOperationsGroupName(groupedOperationNames);
 
         boolean isMultilineOperation;
         // we assume that all the operations are either all multiline or not
         isMultilineOperation = nodesToCompile.get(0).getSpecification().isMultiline();
 
         for (ConversionRuleBean conversionRule : conversionRules) {
-            if (conversionRule.getOperation().equals(operationGroupName)
-                    && (conversionRule.isMultiLine() == isMultilineOperation)) {
+            if (conversionRule.getOperation()
+                .equals(operationGroupName) && (conversionRule.isMultiLine() == isMultilineOperation)) {
                 return conversionRule;
             }
         }
 
         // No conversion rule found.
 
-        List<String> predecessorOperations = Arrays.asList(nodesToCompile.get(0).getSpecification()
-                .getPredecessorOperations());
+        List<String> predecessorOperations = Arrays
+            .asList(nodesToCompile.get(0).getSpecification().getPredecessorOperations());
         String errorMessage = String.format(
-                "The operations sequence is wrong: %2$s. Operations %1$s must precede the %2$s", predecessorOperations,
-                groupedOperationNames);
+            "The operations sequence is wrong: %2$s. Operations %1$s must precede the %2$s",
+            predecessorOperations,
+            groupedOperationNames);
         IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation().asSourceCodeModule();
         throw SyntaxNodeExceptionUtils.createError(errorMessage, errorSource);
     }

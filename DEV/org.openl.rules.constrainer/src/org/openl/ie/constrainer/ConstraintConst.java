@@ -15,8 +15,8 @@ package org.openl.ie.constrainer;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An implementation of the trivial constraint for which its actual meaning
- * "true" or "false" is known during the construction.
+ * An implementation of the trivial constraint for which its actual meaning "true" or "false" is known during the
+ * construction.
  */
 public final class ConstraintConst extends ConstraintImpl {
     private boolean _flag;
@@ -24,8 +24,7 @@ public final class ConstraintConst extends ConstraintImpl {
     /**
      * Constructs the constraint.
      *
-     * @param flag the boolean value for this constraint known during the
-     *            construction.
+     * @param flag the boolean value for this constraint known during the construction.
      */
     public ConstraintConst(Constrainer c, boolean flag) {
         super(c, "Const");

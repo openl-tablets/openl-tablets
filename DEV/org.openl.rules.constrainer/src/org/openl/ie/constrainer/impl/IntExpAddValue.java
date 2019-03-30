@@ -7,7 +7,6 @@ import org.openl.ie.constrainer.Subject;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
 
-
 //
 //: IntExpAddValue.java
 //
@@ -44,6 +43,7 @@ public final class IntExpAddValue extends IntExpImpl {
         }
 
     } // ~ ExpAddValueObserver
+
     static final class IntEventAddValue extends IntEvent {
 
         static ReusableFactory _factory = new ReusableFactory() {
@@ -57,6 +57,7 @@ public final class IntExpAddValue extends IntExpImpl {
         int _value;
 
         IntEvent _event;
+
         static IntEventAddValue getEvent(IntEvent event, int value) {
             IntEventAddValue ev = (IntEventAddValue) _factory.getElement();
             ev.init(event, value);
@@ -109,6 +110,7 @@ public final class IntExpAddValue extends IntExpImpl {
         }
 
     } // ~IntEventAddValue
+
     private IntExp _exp;
 
     private int _value;

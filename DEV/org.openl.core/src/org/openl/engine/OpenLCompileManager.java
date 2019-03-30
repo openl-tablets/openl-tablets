@@ -57,7 +57,8 @@ public class OpenLCompileManager extends OpenLHolder {
         if (executionMode) {
             IBindingContext bindingContext = sourceManager.getOpenL().getBinder().makeBindingContext();
             bindingContext.setExecutionMode(true);
-            processedCode = sourceManager.processSource(source, SourceType.MODULE, bindingContext, false, dependencyManager);
+            processedCode = sourceManager
+                .processSource(source, SourceType.MODULE, bindingContext, false, dependencyManager);
         } else {
             processedCode = sourceManager.processSource(source, SourceType.MODULE, dependencyManager);
         }
@@ -81,11 +82,12 @@ public class OpenLCompileManager extends OpenLHolder {
     public CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule source,
             boolean executionMode,
             IDependencyManager dependencyManager) {
-        ProcessedCode processedCode; 
+        ProcessedCode processedCode;
         if (executionMode) {
             IBindingContext bindingContext = sourceManager.getOpenL().getBinder().makeBindingContext();
             bindingContext.setExecutionMode(true);
-            processedCode = sourceManager.processSource(source, SourceType.MODULE, bindingContext, true, dependencyManager);
+            processedCode = sourceManager
+                .processSource(source, SourceType.MODULE, bindingContext, true, dependencyManager);
         } else {
             processedCode = sourceManager.processSource(source, SourceType.MODULE, null, true, dependencyManager);
         }

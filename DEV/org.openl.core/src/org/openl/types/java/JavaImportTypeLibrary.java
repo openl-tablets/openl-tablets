@@ -42,11 +42,11 @@ public class JavaImportTypeLibrary implements ITypeLibrary {
             for (String importClass : importClasses) {
                 int index = importClass.lastIndexOf('.');
                 String alias = importClass.substring(index + 1);
-                try{
+                try {
                     Class<?> c = ClassFactory.forName(importClass, loader);
                     aliases.put(alias, JavaOpenClass.getOpenClass(c));
-                }catch (Exception e) {
-                    //This never happens. Classes must be validated before.
+                } catch (Exception e) {
+                    // This never happens. Classes must be validated before.
                 }
             }
         }
@@ -80,21 +80,26 @@ public class JavaImportTypeLibrary implements ITypeLibrary {
                 if (e.getCause() instanceof ClassNotFoundException) {
                     // Type is found but can't be loaded because of absent dependent class.
                     String noClassMessage = e.getCause().getMessage();
-                    String message = String.format("Can't load type '%s' because of absent type '%s'.",
-                            name,
-                            noClassMessage);
+                    String message = String
+                        .format("Can't load type '%s' because of absent type '%s'.", name, noClassMessage);
                     throw RuntimeExceptionWrapper.wrap(message, e);
                 }
                 // NoClassDefFoundError can also be thrown in these cases:
-                // 1. Class was compiled in one package but it was moved manually to another package in file system without changing package in class binary
+                // 1. Class was compiled in one package but it was moved manually to another package in file system
+                // without changing package in class binary
                 // 2. Class was compiled with one name but was manually renamed in file system to another name
-                // 3. If File System is case insensitive and we are trying to find the class org.work.address but exists the class org.work.Address
-                // In all these cases NoClassDefFoundError will be thrown instead of ClassNotFoundException and message will be like:
-                //   java.lang.NoClassDefFoundError: org/work/address (wrong name: org/work/Address)
+                // 3. If File System is case insensitive and we are trying to find the class org.work.address but exists
+                // the class org.work.Address
+                // In all these cases NoClassDefFoundError will be thrown instead of ClassNotFoundException and message
+                // will be like:
+                // java.lang.NoClassDefFoundError: org/work/address (wrong name: org/work/Address)
                 // We just skip such classes and continue searching them in another packages.
             } catch (UnsupportedClassVersionError e) {
                 // Type is found but it's compiled using newer version of JDK
-                String message = String.format("Can't load the class '%s' that was compiled using newer version of JDK than current JRE (%s)", name, System.getProperty("java.version"));
+                String message = String.format(
+                    "Can't load the class '%s' that was compiled using newer version of JDK than current JRE (%s)",
+                    name,
+                    System.getProperty("java.version"));
                 throw RuntimeExceptionWrapper.wrap(message, e);
             } catch (Throwable t) {
                 Log.error("Can't load class: " + name, t);

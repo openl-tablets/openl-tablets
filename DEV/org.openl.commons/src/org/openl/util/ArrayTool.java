@@ -48,8 +48,7 @@ public class ArrayTool {
     }
 
     /**
-     * Returns true if array container contains all the elements of array
-     * testArray
+     * Returns true if array container contains all the elements of array testArray
      */
 
     public static <T> boolean containsAll(T[] container, T[] testArray) {
@@ -65,13 +64,11 @@ public class ArrayTool {
         return true;
     }
 
-
     /**
      * Checks that array is not empty.
      * 
-     * Used the following rules for checking: isEmpty (null) -> true; isEmpty
-     * (new Object[] {}) -> true; isEmpty (new Object[] {null, null, ....}) ->
-     * true; isEmpty (new Object[] {null, ..., <not null value>, ...}) -> false.
+     * Used the following rules for checking: isEmpty (null) -> true; isEmpty (new Object[] {}) -> true; isEmpty (new
+     * Object[] {null, null, ....}) -> true; isEmpty (new Object[] {null, ..., <not null value>, ...}) -> false.
      * 
      * @param array array
      * @return true if array is empty; false - otherwise
@@ -220,8 +217,8 @@ public class ArrayTool {
      * Converts given object to array object. Used the following rules:
      * <ul>
      * <li>if object is null - result is null
-     * <li>if object is array - result is array of objects. If input array is
-     * array of primitive types - result is array of appropriate wrapper types.
+     * <li>if object is array - result is array of objects. If input array is array of primitive types - result is array
+     * of appropriate wrapper types.
      * <li>if object is not array - result is array with one element
      * </ul>
      * 

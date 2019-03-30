@@ -16,7 +16,9 @@ import org.openl.types.impl.OpenMethodHeader;
 
 public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
     private SubTextSourceCodeModule nameOfAlgorithm;
-    private SubTextSourceCodeModule cutNameOfAlgorithm(TableSyntaxNode tsn, IOpenSourceCodeModule src,
+
+    private SubTextSourceCodeModule cutNameOfAlgorithm(TableSyntaxNode tsn,
+            IOpenSourceCodeModule src,
             int headerTokenLength) throws SyntaxNodeException {
         String s = src.getCode();
 
@@ -41,9 +43,10 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
 
         return new SubTextSourceCodeModule(src, p1 + 1, p2);
     }
-    
+
     @Override
-    public IOpenSourceCodeModule createHeaderSource(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) throws SyntaxNodeException{
+    public IOpenSourceCodeModule createHeaderSource(TableSyntaxNode tableSyntaxNode,
+            IBindingContext bindingContext) throws SyntaxNodeException {
         IGridTable table = tableSyntaxNode.getGridTable();
 
         IOpenSourceCodeModule src = new GridCellSourceCodeModule(table, bindingContext);
@@ -62,7 +65,9 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
     }
 
     @Override
-    protected IMemberBoundNode createNode(TableSyntaxNode tsn, OpenL openl, OpenMethodHeader header,
+    protected IMemberBoundNode createNode(TableSyntaxNode tsn,
+            OpenL openl,
+            OpenMethodHeader header,
             XlsModuleOpenClass module) {
         return new ColumnMatchBoundNode(tsn, openl, header, module, nameOfAlgorithm);
     }

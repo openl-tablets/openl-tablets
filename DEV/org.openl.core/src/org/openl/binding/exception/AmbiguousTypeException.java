@@ -21,7 +21,7 @@ public class AmbiguousTypeException extends OpenlNotCheckedException {
      *
      */
     private static final long serialVersionUID = 3432594431020887309L;
-    
+
     private List<IOpenClass> matchingTypes;
     private String typeName;
 

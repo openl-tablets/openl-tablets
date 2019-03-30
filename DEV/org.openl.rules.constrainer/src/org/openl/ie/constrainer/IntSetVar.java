@@ -12,7 +12,6 @@ import java.util.Set;
 
 import org.openl.ie.constrainer.impl.IntSetEvent;
 
-
 public interface IntSetVar extends Subject, IntSetEvent.IntSetEventConstants, java.io.Serializable {
 
     public boolean bound();

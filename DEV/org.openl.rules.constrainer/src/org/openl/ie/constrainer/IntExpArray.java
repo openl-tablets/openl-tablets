@@ -9,7 +9,6 @@ import org.openl.ie.constrainer.impl.IntExpAddArray1;
 import org.openl.ie.constrainer.impl.IntExpArrayElement1;
 import org.openl.ie.tools.FastVector;
 
-
 /**
  * An implementation of the array of the conatraint integer expressions.
  */
@@ -31,8 +30,7 @@ public final class IntExpArray extends ConstrainerObjectImpl {
     }
 
     /**
-     * Constructor for "size" unitialized expressions. Call set() to initialize
-     * all the expressions in this array.
+     * Constructor for "size" unitialized expressions. Call set() to initialize all the expressions in this array.
      */
     public IntExpArray(Constrainer c, int size) {
         super(c);
@@ -50,8 +48,7 @@ public final class IntExpArray extends ConstrainerObjectImpl {
     }
 
     /**
-     * Creates an array of "size" constrained integer variables defined from
-     * "min" to "max".
+     * Creates an array of "size" constrained integer variables defined from "min" to "max".
      *
      * @param size size of the new array
      * @param min minimal value of each constrained variable
@@ -155,7 +152,14 @@ public final class IntExpArray extends ConstrainerObjectImpl {
     /**
      * Convenience constructor from 8 expressions.
      */
-    public IntExpArray(Constrainer c, IntExp e0, IntExp e1, IntExp e2, IntExp e3, IntExp e4, IntExp e5, IntExp e6,
+    public IntExpArray(Constrainer c,
+            IntExp e0,
+            IntExp e1,
+            IntExp e2,
+            IntExp e3,
+            IntExp e4,
+            IntExp e5,
+            IntExp e6,
             IntExp e7) {
         this(c, 8);
 
@@ -172,8 +176,16 @@ public final class IntExpArray extends ConstrainerObjectImpl {
     /**
      * Convenience constructor from 9 expressions.
      */
-    public IntExpArray(Constrainer c, IntExp e0, IntExp e1, IntExp e2, IntExp e3, IntExp e4, IntExp e5, IntExp e6,
-            IntExp e7, IntExp e8) {
+    public IntExpArray(Constrainer c,
+            IntExp e0,
+            IntExp e1,
+            IntExp e2,
+            IntExp e3,
+            IntExp e4,
+            IntExp e5,
+            IntExp e6,
+            IntExp e7,
+            IntExp e8) {
         this(c, 9);
 
         _data[0] = e0;
@@ -188,8 +200,7 @@ public final class IntExpArray extends ConstrainerObjectImpl {
     }
 
     /**
-     * Constructor for "size" unitialized expressions. Call set() to initialize
-     * all the expressions in this array.
+     * Constructor for "size" unitialized expressions. Call set() to initialize all the expressions in this array.
      */
     public IntExpArray(Constrainer c, IntExp[] vars) {
         super(c);
@@ -209,9 +220,8 @@ public final class IntExpArray extends ConstrainerObjectImpl {
     }
 
     /**
-     * Returns an array of cardinalities for the expressions. If such an array
-     * doesn't exist it will be created using invokation
-     * <code>IntArrayCards(this.constrainer(),this)</code>
+     * Returns an array of cardinalities for the expressions. If such an array doesn't exist it will be created using
+     * invokation <code>IntArrayCards(this.constrainer(),this)</code>
      *
      * @see IntArrayCards
      */
@@ -237,11 +247,10 @@ public final class IntExpArray extends ConstrainerObjectImpl {
     }
 
     /**
-     * Returns the expression that corresponds to the array item where indes is
-     * specified by the parameter expressions.
+     * Returns the expression that corresponds to the array item where indes is specified by the parameter expressions.
      *
-     * @param exp expressions that specifies array element index. <b>NOTE:</b>
-     *            The expression is not required to be bound.
+     * @param exp expressions that specifies array element index. <b>NOTE:</b> The expression is not required to be
+     *            bound.
      *
      * @return <code>this[exp]</code>
      */
@@ -272,8 +281,7 @@ public final class IntExpArray extends ConstrainerObjectImpl {
     }
 
     /**
-     * The function merges this array and the array provided as parameter and
-     * returns the resulted array.
+     * The function merges this array and the array provided as parameter and returns the resulted array.
      *
      * @param array the array to be merged
      *
@@ -350,15 +358,13 @@ public final class IntExpArray extends ConstrainerObjectImpl {
      * extending to 5.1.0 added by S. Vanskov
      */
     /**
-     * The function returns subarray of the array consisting of the given array
-     * elements which indeses more or equal to <code> min_index </code> and more
-     * or equal to <code> max_index </code>
+     * The function returns subarray of the array consisting of the given array elements which indeses more or equal to
+     * <code> min_index </code> and more or equal to <code> max_index </code>
      *
      * @param min_index index lower bound
      * @param max_index index upper bound
      *
-     * @return subarray of array from <code> min_index </code> to
-     *         <code> max_index </code>
+     * @return subarray of array from <code> min_index </code> to <code> max_index </code>
      */
     public IntExpArray subarray(int min_index, int max_index) {
         if (min_index > max_index) {
@@ -401,8 +407,8 @@ public final class IntExpArray extends ConstrainerObjectImpl {
         switch (size()) {
             case 0:
                 // return new IntExpConst(constrainer(),0);
-                return (IntExp) _constrainer.expressionFactory().getExpression(IntExpConst.class,
-                        new Object[] { _constrainer, new Integer(0) });
+                return (IntExp) _constrainer.expressionFactory()
+                    .getExpression(IntExpConst.class, new Object[] { _constrainer, new Integer(0) });
 
             case 1:
                 return _data[0];
@@ -412,9 +418,11 @@ public final class IntExpArray extends ConstrainerObjectImpl {
 
             default:
                 // return new IntExpAddArray(_constrainer, this);
-                return (IntExp) _constrainer.expressionFactory().getExpression(
-                // IntExpAddArray.class,
-                        IntExpAddArray1.class, new Object[] { _constrainer, this });
+                return (IntExp) _constrainer.expressionFactory()
+                    .getExpression(
+                        // IntExpAddArray.class,
+                        IntExpAddArray1.class,
+                        new Object[] { _constrainer, this });
 
         }
     }

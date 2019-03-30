@@ -24,6 +24,7 @@ public class IndexNodeBinder extends ANodeBinder {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext)
      */
     @Override
@@ -32,8 +33,9 @@ public class IndexNodeBinder extends ANodeBinder {
     }
 
     @Override
-    public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode)
-        throws Exception {
+    public IBoundNode bindTarget(ISyntaxNode node,
+            IBindingContext bindingContext,
+            IBoundNode targetNode) throws Exception {
 
         if (node.getNumberOfChildren() != 1) {
             return makeErrorNode("Index node must have  exactly 1 subnode", node, bindingContext);
@@ -57,16 +59,15 @@ public class IndexNodeBinder extends ANodeBinder {
             return new IndexNode(node, children, targetNode, index);
         }
 
-        String message = String.format(
-                "Index operator %s[%s] is not found", targetNode.getType(), indexExprType.getName());
+        String message = String
+            .format("Index operator %s[%s] is not found", targetNode.getType(), indexExprType.getName());
         return makeErrorNode(message, node, bindingContext);
     }
-   
+
     private IOpenIndex getMethodBasedIndex(IOpenClass[] types, IBindingContext bindingContext) {
 
-        IMethodCaller reader = BinaryOperatorNodeBinder.findBinaryOperatorMethodCaller(INDEX_METHOD_NAME,
-            types,
-            bindingContext);
+        IMethodCaller reader = BinaryOperatorNodeBinder
+            .findBinaryOperatorMethodCaller(INDEX_METHOD_NAME, types, bindingContext);
 
         if (reader == null) {
             IOpenClass[] params = { types[1] };

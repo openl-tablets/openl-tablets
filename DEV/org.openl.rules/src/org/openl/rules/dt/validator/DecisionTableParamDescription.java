@@ -5,11 +5,11 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 
 public class DecisionTableParamDescription {
-    
+
     private IParameterDeclaration parameterDeclaration;
     private IDomain<?> domain;
     private IOpenClass newType;
-    
+
     public DecisionTableParamDescription(IParameterDeclaration parameterDeclaration, IOpenClass newType) {
         this.parameterDeclaration = parameterDeclaration;
         this.newType = newType;

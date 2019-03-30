@@ -11,11 +11,12 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodDelegator;
 
 public class PropertiesHelper {
-    
+
     public static final String PROPERTIES_HEADER = "properties";
-    
-    private PropertiesHelper(){};
-    
+
+    private PropertiesHelper() {
+    };
+
     public static ILogicalTable getPropertiesTableSection(ILogicalTable table) {
 
         if (table.getHeight() < 2) {
@@ -24,7 +25,7 @@ public class PropertiesHelper {
 
         ILogicalTable propTable = table.getRows(1, 1);
         String header = propTable.getSource().getCell(0, 0).getStringValue();
-        
+
         if (!PROPERTIES_HEADER.equals(header)) {
             return null;
         }
@@ -32,8 +33,8 @@ public class PropertiesHelper {
         return propTable.getColumns(1);
     }
 
-    public static ITableProperties getTableProperties(IOpenMethod method) { 
-        if (method instanceof OpenMethodDispatcher){
+    public static ITableProperties getTableProperties(IOpenMethod method) {
+        if (method instanceof OpenMethodDispatcher) {
             List<IOpenMethod> methods = ((OpenMethodDispatcher) method).getCandidates();
             if (methods.size() == 1) {
                 return getTableProperties(methods.get(0));
@@ -42,7 +43,7 @@ public class PropertiesHelper {
                     "Dispatcher method with more than one candidate doesn't have properties!");
             }
         }
-        
+
         if (method instanceof ITablePropertiesMethod) {
             return ((ITablePropertiesMethod) method).getMethodProperties();
         } else if (method.getInfo() != null) {
@@ -54,12 +55,12 @@ public class PropertiesHelper {
                 }
             }
             return properties;
-            
+
         }
         if (method instanceof MethodDelegator) {
             return getTableProperties(((MethodDelegator) method).getMethod());
         }
-    
+
         return new TableProperties();
     }
 

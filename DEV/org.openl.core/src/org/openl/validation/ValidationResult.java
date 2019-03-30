@@ -7,12 +7,10 @@ import java.util.LinkedHashSet;
 import org.openl.message.OpenLMessage;
 
 /**
- * The <code>ValidationResult</code> defines contract that used in validation
- * process.
+ * The <code>ValidationResult</code> defines contract that used in validation process.
  * 
- * While OpenL engine base concept is rules sets the validation process used
- * list of {@link OpenlMessage} as a container to accumulate problems of each
- * rule.
+ * While OpenL engine base concept is rules sets the validation process used list of {@link OpenlMessage} as a container
+ * to accumulate problems of each rule.
  * 
  */
 public class ValidationResult {

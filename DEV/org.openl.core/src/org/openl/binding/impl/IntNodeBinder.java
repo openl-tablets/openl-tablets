@@ -21,6 +21,7 @@ public class IntNodeBinder extends ANodeBinder {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv,
      * org.openl.binding.IBindingContext)
      */
@@ -55,7 +56,7 @@ public class IntNodeBinder extends ANodeBinder {
             }
         }
     }
-    
+
     @Override
     public IBoundNode bindType(ISyntaxNode node, IBindingContext bindingContext, IOpenClass type) throws Exception {
         IBoundNode boundNode = bindChildNode(node, bindingContext);

@@ -277,14 +277,15 @@ public class DecisionTableLookupConvertor {
                 headerStr = headerStr.toUpperCase();
 
                 if (!(DecisionTableHelper.isValidRuleHeader(headerStr) || DecisionTableHelper
-                        .isValidConditionHeader(headerStr) || DecisionTableHelper
-                        .isValidMergedConditionHeader(headerStr) || ParserUtils.isBlankOrCommented(headerStr))) { // if the
-                                                                    // header in
-                                                                    // the
-                                                                    // column is
-                                                                    // not a
-                                                                    // valid
-                                                                    // header
+                    .isValidConditionHeader(headerStr) || DecisionTableHelper
+                        .isValidMergedConditionHeader(headerStr) || ParserUtils.isBlankOrCommented(headerStr))) { // if
+                                                                                                                  // the
+                    // header in
+                    // the
+                    // column is
+                    // not a
+                    // valid
+                    // header
                     // for common Decision Table, we consider that this column
                     // is going to be the beginning for Lookup table section.
                     return columnIndex;

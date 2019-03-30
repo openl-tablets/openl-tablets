@@ -34,7 +34,7 @@ public class ParameterDeclaration implements IParameterDeclaration {
     public IOpenClass getType() {
         return type;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof ParameterDeclaration)) {
@@ -42,8 +42,7 @@ public class ParameterDeclaration implements IParameterDeclaration {
         }
         ParameterDeclaration paramDecl = (ParameterDeclaration) obj;
 
-        return Objects.equals(name, paramDecl.name) &&
-                Objects.equals(type, paramDecl.getType());
+        return Objects.equals(name, paramDecl.name) && Objects.equals(type, paramDecl.getType());
     }
 
     @Override
@@ -53,7 +52,7 @@ public class ParameterDeclaration implements IParameterDeclaration {
 
     @Override
     public String toString() {
-        return ClassUtils.getShortClassName(type.getInstanceClass()) + " " +name;
+        return ClassUtils.getShortClassName(type.getInstanceClass()) + " " + name;
     }
 
 }

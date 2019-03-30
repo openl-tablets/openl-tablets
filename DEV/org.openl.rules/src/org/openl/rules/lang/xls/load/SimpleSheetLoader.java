@@ -5,8 +5,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.openl.rules.table.xls.PoiExcelHelper;
 
 /**
- * Stores the strong reference to previously loaded Sheet instance
- * and is not unloaded.
+ * Stores the strong reference to previously loaded Sheet instance and is not unloaded.
  */
 public class SimpleSheetLoader implements SheetLoader {
     private final Sheet sheet;
@@ -17,9 +16,7 @@ public class SimpleSheetLoader implements SheetLoader {
     }
 
     /**
-     * Get the sheet.
-     * When this method is repeatedly called, always returns the same
-     * instance of Sheet java object.
+     * Get the sheet. When this method is repeatedly called, always returns the same instance of Sheet java object.
      *
      * @return previously loaded sheet
      */

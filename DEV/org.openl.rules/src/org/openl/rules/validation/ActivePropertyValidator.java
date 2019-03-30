@@ -20,8 +20,8 @@ import org.openl.types.IOpenClass;
 import org.openl.validation.ValidationResult;
 
 /**
- * Validator that checks correctness of "active" property. Only one active table
- * allowed. And if active table is absent warning will occur.
+ * Validator that checks correctness of "active" property. Only one active table allowed. And if active table is absent
+ * warning will occur.
  * 
  * @author PUdalau
  */
@@ -39,7 +39,7 @@ public class ActivePropertyValidator extends TablesValidator {
         //
         Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupedMethods = groupExecutableMethods(
             tableSyntaxNodes);
-        
+
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
 
         for (DimensionPropertiesMethodKey key : groupedMethods.keySet()) {

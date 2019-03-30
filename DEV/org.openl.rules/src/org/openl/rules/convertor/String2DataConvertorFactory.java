@@ -34,7 +34,7 @@ public class String2DataConvertorFactory {
     @SuppressWarnings("rawtypes")
     private static Map<Class<?>, IString2DataConvertor> convertorsCache = new WeakHashMap<>();
     private static ReadWriteLock convertorsLock = new ReentrantReadWriteLock();
-    
+
     static {
         convertors = new HashMap<>();
         convertors.put(Object.class, new String2StringConvertor());
@@ -83,7 +83,7 @@ public class String2DataConvertorFactory {
             IString2DataConverterWithContext<T> convertorCxt = (IString2DataConverterWithContext<T>) convertor;
             return convertorCxt.parse(data, null, bindingContext);
         }
-        
+
         return convertor.parse(data, null);
     }
 
@@ -99,10 +99,10 @@ public class String2DataConvertorFactory {
         } finally {
             readLock.unlock();
         }
-        
+
         IString2DataConvertor<T> convertor = null;
-        
-        // FIXME String2EnumConvertor and String2ConstructorConvertor hold strong reference 
+
+        // FIXME String2EnumConvertor and String2ConstructorConvertor hold strong reference
         // to Class, so classloader for them can't be unloaded without unregisterClassLoader() method.
         if (clazz.isEnum()) {
             convertor = new String2EnumConvertor(clazz);

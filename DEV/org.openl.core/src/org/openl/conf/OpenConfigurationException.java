@@ -32,20 +32,17 @@ public class OpenConfigurationException extends RuntimeException {
     @Override
     public String getMessage() {
         String myMsg = super.getMessage();
-        
+
         if (myMsg == null)
             myMsg = "";
-        
-        
+
         if (uri != null)
             myMsg += " URI: " + uri;
-        
+
         if (getCause() != null)
             myMsg += " Cause: " + getCause().getMessage();
-        
+
         return myMsg;
     }
-    
-    
 
 }

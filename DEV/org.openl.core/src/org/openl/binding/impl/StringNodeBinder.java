@@ -64,55 +64,55 @@ public class StringNodeBinder extends ANodeBinder {
 
         StringBuilder buf = new StringBuilder(len);
 
-            for (int i = 1; i < len - 1; i++) {
-                char c = s.charAt(i);
-                if (c == '\\') {
-                    ++i;
-                    char nextC = s.charAt(i);
-                    switch (nextC) {
-                        case 'b':
-                            buf.append('\b');
-                            break;
-                        case 't':
-                            buf.append('\t');
-                            break;
-                        case 'n':
-                            buf.append('\n');
-                            break;
-                        case 'f':
-                            buf.append('\f');
-                            break;
-                        case 'r':
-                            buf.append('\r');
-                            break;
-                        case '"':
-                            buf.append('"');
-                            break;
-                        case '\'':
-                            buf.append('\'');
-                            break;
-                        case '\\':
-                            buf.append('\\');
-                            break;
-                        case 'u':
-                            buf.append(processUnicode(s, i + 1));
-                            i += 4;
-                            break;
-                        case '0':
-                        case '1':
-                        case '2':
-                        case '3':
-                        case '4':
-                        case '5':
-                        case '6':
-                        case '7':
-                            i += processOctal(s, i, buf) - 1;
-                            break;
-                    }
-                } else {
-                    buf.append(c);
+        for (int i = 1; i < len - 1; i++) {
+            char c = s.charAt(i);
+            if (c == '\\') {
+                ++i;
+                char nextC = s.charAt(i);
+                switch (nextC) {
+                    case 'b':
+                        buf.append('\b');
+                        break;
+                    case 't':
+                        buf.append('\t');
+                        break;
+                    case 'n':
+                        buf.append('\n');
+                        break;
+                    case 'f':
+                        buf.append('\f');
+                        break;
+                    case 'r':
+                        buf.append('\r');
+                        break;
+                    case '"':
+                        buf.append('"');
+                        break;
+                    case '\'':
+                        buf.append('\'');
+                        break;
+                    case '\\':
+                        buf.append('\\');
+                        break;
+                    case 'u':
+                        buf.append(processUnicode(s, i + 1));
+                        i += 4;
+                        break;
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                        i += processOctal(s, i, buf) - 1;
+                        break;
                 }
-            } // end for
+            } else {
+                buf.append(c);
+            }
+        } // end for
 
         return new LiteralBoundNode(node, buf.toString(), JavaOpenClass.STRING);
     }

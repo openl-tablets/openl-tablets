@@ -36,8 +36,8 @@ public class RegionsPool {
     }
 
     /**
-     * Fast regions pool. This is map that gives for each row another map that
-     * contains disjoint intervals covered by some region.
+     * Fast regions pool. This is map that gives for each row another map that contains disjoint intervals covered by
+     * some region.
      */
     private Map<Integer, Map<DisjointInterval, IGridRegion>> pool = new HashMap<>();
 
@@ -53,7 +53,7 @@ public class RegionsPool {
             }
         }
     }
-    
+
     public RegionsPool() {
     }
 

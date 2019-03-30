@@ -53,10 +53,10 @@ public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends 
             int start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
             int end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText);
             nodeUsages.add(new SimpleNodeUsage(start,
-                    end,
-                    metaInfo.getDisplayName(INamedThing.SHORT),
-                    metaInfo.getSourceUrl(),
-                    NodeType.DATATYPE));
+                end,
+                metaInfo.getDisplayName(INamedThing.SHORT),
+                metaInfo.getSourceUrl(),
+                NodeType.DATATYPE));
         }
 
         // Link to input parameters
@@ -75,10 +75,10 @@ public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends 
                     int start = startPosition + sourceLocation.getStart().getAbsolutePosition(tableHeaderText);
                     int end = startPosition + sourceLocation.getEnd().getAbsolutePosition(tableHeaderText);
                     nodeUsages.add(new SimpleNodeUsage(start,
-                            end,
-                            metaInfo.getDisplayName(INamedThing.SHORT),
-                            metaInfo.getSourceUrl(),
-                            NodeType.DATATYPE));
+                        end,
+                        metaInfo.getDisplayName(INamedThing.SHORT),
+                        metaInfo.getSourceUrl(),
+                        NodeType.DATATYPE));
                 }
             }
         }

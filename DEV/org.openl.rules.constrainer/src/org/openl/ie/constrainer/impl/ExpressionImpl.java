@@ -42,9 +42,11 @@ public abstract class ExpressionImpl extends SubjectImpl implements Expression {
 
     protected static final Class[] ARGS_IntBoolExp2 = { IntBoolExp.class, IntBoolExp.class };
     protected static final Class[] ARGS_IntBoolExp3 = { IntBoolExp.class, IntBoolExp.class, IntBoolExp.class };
+
     protected static Expression getExpression(Constrainer c, Class clazz, Object[] args) {
         return c.expressionFactory().getExpression(clazz, args);
     }
+
     protected static Expression getExpression(Constrainer c, Class clazz, Object[] args, Class[] types) {
         return c.expressionFactory().getExpression(clazz, args, types);
     }

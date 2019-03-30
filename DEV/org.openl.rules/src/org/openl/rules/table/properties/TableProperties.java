@@ -26,8 +26,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 
     private String currentTableType;
     /**
-     * Table section that contains properties in appropriate table in data
-     * source.
+     * Table section that contains properties in appropriate table in data source.
      */
     private ILogicalTable propertySection;
 
@@ -44,9 +43,8 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     private Map<String, Object> defaultProperties = Collections.emptyMap();;
 
     /**
-     * The result <code>{@link Map}</code> will contain all pairs from
-     * downLevelProperties and pairs from upLevelProperties that are not defined
-     * in downLevelProperties. Ignore properties from upper level that can`t be
+     * The result <code>{@link Map}</code> will contain all pairs from downLevelProperties and pairs from
+     * upLevelProperties that are not defined in downLevelProperties. Ignore properties from upper level that can`t be
      * defined for current table type.
      *
      * @param downLevelProperties properties that are on the down level.
@@ -90,6 +88,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("name", name);
         reset();
     }
+
     @Override
     public java.lang.String getCategory() {
         return (java.lang.String) getPropertyValue("category");
@@ -100,6 +99,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("category", category);
         reset();
     }
+
     @Override
     public java.lang.String getCreatedBy() {
         return (java.lang.String) getPropertyValue("createdBy");
@@ -110,6 +110,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("createdBy", createdBy);
         reset();
     }
+
     @Override
     public java.util.Date getCreatedOn() {
         return (java.util.Date) getPropertyValue("createdOn");
@@ -120,6 +121,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("createdOn", createdOn);
         reset();
     }
+
     @Override
     public java.lang.String getModifiedBy() {
         return (java.lang.String) getPropertyValue("modifiedBy");
@@ -130,6 +132,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("modifiedBy", modifiedBy);
         reset();
     }
+
     @Override
     public java.util.Date getModifiedOn() {
         return (java.util.Date) getPropertyValue("modifiedOn");
@@ -140,6 +143,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("modifiedOn", modifiedOn);
         reset();
     }
+
     @Override
     public java.lang.String getDescription() {
         return (java.lang.String) getPropertyValue("description");
@@ -150,6 +154,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("description", description);
         reset();
     }
+
     @Override
     public java.lang.String[] getTags() {
         return (java.lang.String[]) getPropertyValue("tags");
@@ -160,6 +165,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("tags", tags);
         reset();
     }
+
     @Override
     public java.util.Date getEffectiveDate() {
         return (java.util.Date) getPropertyValue("effectiveDate");
@@ -170,6 +176,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("effectiveDate", effectiveDate);
         reset();
     }
+
     @Override
     public java.util.Date getExpirationDate() {
         return (java.util.Date) getPropertyValue("expirationDate");
@@ -180,6 +187,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("expirationDate", expirationDate);
         reset();
     }
+
     @Override
     public java.util.Date getStartRequestDate() {
         return (java.util.Date) getPropertyValue("startRequestDate");
@@ -190,6 +198,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("startRequestDate", startRequestDate);
         reset();
     }
+
     @Override
     public java.util.Date getEndRequestDate() {
         return (java.util.Date) getPropertyValue("endRequestDate");
@@ -200,6 +209,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("endRequestDate", endRequestDate);
         reset();
     }
+
     @Override
     public org.openl.rules.enumeration.CaRegionsEnum[] getCaRegions() {
         return (org.openl.rules.enumeration.CaRegionsEnum[]) getPropertyValue("caRegions");
@@ -210,6 +220,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("caRegions", caRegions);
         reset();
     }
+
     @Override
     public org.openl.rules.enumeration.CaProvincesEnum[] getCaProvinces() {
         return (org.openl.rules.enumeration.CaProvincesEnum[]) getPropertyValue("caProvinces");
@@ -220,6 +231,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("caProvinces", caProvinces);
         reset();
     }
+
     @Override
     public org.openl.rules.enumeration.CountriesEnum[] getCountry() {
         return (org.openl.rules.enumeration.CountriesEnum[]) getPropertyValue("country");
@@ -230,6 +242,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("country", country);
         reset();
     }
+
     @Override
     public org.openl.rules.enumeration.RegionsEnum[] getRegion() {
         return (org.openl.rules.enumeration.RegionsEnum[]) getPropertyValue("region");
@@ -240,6 +253,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("region", region);
         reset();
     }
+
     @Override
     public org.openl.rules.enumeration.CurrenciesEnum[] getCurrency() {
         return (org.openl.rules.enumeration.CurrenciesEnum[]) getPropertyValue("currency");
@@ -250,6 +264,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("currency", currency);
         reset();
     }
+
     @Override
     public org.openl.rules.enumeration.LanguagesEnum[] getLang() {
         return (org.openl.rules.enumeration.LanguagesEnum[]) getPropertyValue("lang");
@@ -260,6 +275,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("lang", lang);
         reset();
     }
+
     @Override
     public java.lang.String[] getLob() {
         return (java.lang.String[]) getPropertyValue("lob");
@@ -270,6 +286,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("lob", lob);
         reset();
     }
+
     @Override
     public org.openl.rules.enumeration.OriginsEnum getOrigin() {
         return (org.openl.rules.enumeration.OriginsEnum) getPropertyValue("origin");
@@ -280,6 +297,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("origin", origin);
         reset();
     }
+
     @Override
     public org.openl.rules.enumeration.UsRegionsEnum[] getUsregion() {
         return (org.openl.rules.enumeration.UsRegionsEnum[]) getPropertyValue("usregion");
@@ -290,6 +308,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("usregion", usregion);
         reset();
     }
+
     @Override
     public org.openl.rules.enumeration.UsStatesEnum[] getState() {
         return (org.openl.rules.enumeration.UsStatesEnum[]) getPropertyValue("state");
@@ -300,6 +319,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("state", state);
         reset();
     }
+
     @Override
     public java.lang.String getVersion() {
         return (java.lang.String) getPropertyValue("version");
@@ -310,6 +330,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("version", version);
         reset();
     }
+
     @Override
     public java.lang.Boolean getActive() {
         return (java.lang.Boolean) getPropertyValue("active");
@@ -320,6 +341,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("active", active);
         reset();
     }
+
     @Override
     public java.lang.String getId() {
         return (java.lang.String) getPropertyValue("id");
@@ -330,6 +352,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("id", id);
         reset();
     }
+
     @Override
     public java.lang.String getBuildPhase() {
         return (java.lang.String) getPropertyValue("buildPhase");
@@ -340,6 +363,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("buildPhase", buildPhase);
         reset();
     }
+
     @Override
     public org.openl.rules.enumeration.ValidateDTEnum getValidateDT() {
         return (org.openl.rules.enumeration.ValidateDTEnum) getPropertyValue("validateDT");
@@ -350,6 +374,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("validateDT", validateDT);
         reset();
     }
+
     @Override
     public java.lang.Boolean getFailOnMiss() {
         return (java.lang.Boolean) getPropertyValue("failOnMiss");
@@ -360,6 +385,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("failOnMiss", failOnMiss);
         reset();
     }
+
     @Override
     public java.lang.String getScope() {
         return (java.lang.String) getPropertyValue("scope");
@@ -370,6 +396,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("scope", scope);
         reset();
     }
+
     @Override
     public java.lang.String getDatatypePackage() {
         return (java.lang.String) getPropertyValue("datatypePackage");
@@ -380,6 +407,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("datatypePackage", datatypePackage);
         reset();
     }
+
     @Override
     public java.lang.Boolean getCacheable() {
         return (java.lang.Boolean) getPropertyValue("cacheable");
@@ -390,6 +418,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("cacheable", cacheable);
         reset();
     }
+
     @Override
     public org.openl.rules.enumeration.RecalculateEnum getRecalculate() {
         return (org.openl.rules.enumeration.RecalculateEnum) getPropertyValue("recalculate");
@@ -400,6 +429,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("recalculate", recalculate);
         reset();
     }
+
     @Override
     public java.lang.String getPrecision() {
         return (java.lang.String) getPropertyValue("precision");
@@ -410,6 +440,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("precision", precision);
         reset();
     }
+
     @Override
     public java.lang.Boolean getAutoType() {
         return (java.lang.Boolean) getPropertyValue("autoType");
@@ -420,6 +451,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("autoType", autoType);
         reset();
     }
+
     @Override
     public java.lang.Boolean getCalculateAllCells() {
         return (java.lang.Boolean) getPropertyValue("calculateAllCells");
@@ -430,6 +462,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("calculateAllCells", calculateAllCells);
         reset();
     }
+
     @Override
     public java.lang.Boolean getParallel() {
         return (java.lang.Boolean) getPropertyValue("parallel");
@@ -440,6 +473,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("parallel", parallel);
         reset();
     }
+
     @Override
     public java.lang.String getNature() {
         return (java.lang.String) getPropertyValue("nature");
@@ -450,7 +484,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         setFieldValue("nature", nature);
         reset();
     }
-// <<< END INSERT >>>
+    // <<< END INSERT >>>
 
     /**
      * {@inheritDoc}
@@ -543,7 +577,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     public void setPropertiesSection(ILogicalTable propertySection) {
         this.propertySection = propertySection;
     }
-    
+
     @Override
     public TableSyntaxNode getModulePropertiesTableSyntaxNode() {
         return modulePropertiesTableSyntaxNode;

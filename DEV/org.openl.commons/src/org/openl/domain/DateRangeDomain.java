@@ -124,8 +124,7 @@ public class DateRangeDomain implements IDomain<Date> {
 
     /**
      * @param value Date to get index.
-     * @return The index of specified date or negative number if specified date
-     *         does not belong to the range.
+     * @return The index of specified date or negative number if specified date does not belong to the range.
      */
     public int getIndex(Date value) {
         if (value.after(getMax())) {
@@ -139,8 +138,8 @@ public class DateRangeDomain implements IDomain<Date> {
 
     /**
      * @param index Index of the date.
-     * @return Returns The date within the range or <code>null</code> if date
-     *         with specified index does not belong to the range.
+     * @return Returns The date within the range or <code>null</code> if date with specified index does not belong to
+     *         the range.
      */
     public Date getValue(int index) {
         if (index >= size()) {

@@ -5,7 +5,7 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 public class XlsCellBooleanWriter extends AXlsCellWriter {
 
     public XlsCellBooleanWriter(XlsSheetGridModel xlsSheetGridModel) {
-        super(xlsSheetGridModel);        
+        super(xlsSheetGridModel);
     }
 
     @Override

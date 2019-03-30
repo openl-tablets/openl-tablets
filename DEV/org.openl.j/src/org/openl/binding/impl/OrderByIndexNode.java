@@ -65,7 +65,6 @@ class OrderByIndexNode extends ABoundNode {
             }
         }
 
-
         ArrayList<Object> objects = new ArrayList<>();
 
         for (Object element : map.values()) {

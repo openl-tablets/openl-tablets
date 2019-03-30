@@ -52,20 +52,15 @@ final class BitArray implements java.io.Serializable {
 
 ///////////////////////////////////////////////////////////////////////////////
 /*
- * Copyright Exigen Group 1998, 1999, 2000
- * 320 Amboy Ave., Metuchen, NJ, 08840, USA, www.exigengroup.com
+ * Copyright Exigen Group 1998, 1999, 2000 320 Amboy Ave., Metuchen, NJ, 08840, USA, www.exigengroup.com
  *
- * The copyright to the computer program(s) herein
- * is the property of Exigen Group, USA. All rights reserved.
- * The program(s) may be used and/or copied only with
- * the written permission of Exigen Group
- * or in accordance with the terms and conditions
- * stipulated in the agreement/contract under which
- * the program(s) have been supplied.
+ * The copyright to the computer program(s) herein is the property of Exigen Group, USA. All rights reserved. The
+ * program(s) may be used and/or copied only with the written permission of Exigen Group or in accordance with the terms
+ * and conditions stipulated in the agreement/contract under which the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
 //
-//: DomainBits2.java
+// : DomainBits2.java
 //
 /**
  * An implementation of the Domain interface as a small bit field.
@@ -131,10 +126,9 @@ public final class DomainBits2 extends DomainImpl {
     }
 
     /*
-     * catch(Exception ex) { System.out.println("Error: length: " + _bits.length + "
-     * _initialMin: " + _initial_min + " _initialMax: " + _initial_max + " _min: " +
-     * _min + " _max: " + _max + " value: " + value ); System.exit(1); return
-     * false; }
+     * catch(Exception ex) { System.out.println("Error: length: " + _bits.length + " _initialMin: " + _initial_min + "
+     * _initialMax: " + _initial_max + " _min: " + _min + " _max: " + _max + " value: " + value ); System.exit(1);
+     * return false; }
      */
 
     public void forceBits(int[] bits) {
@@ -306,9 +300,8 @@ public final class DomainBits2 extends DomainImpl {
     }
 
     /*
-     * public String toString() { return "[" + _initial_min + ":" + _min + ";" +
-     * _max + ":" + _initial_max + "]" + " bits: " + printBits() + " size: " +
-     * size(); }
+     * public String toString() { return "[" + _initial_min + ":" + _min + ";" + _max + ":" + _initial_max + "]" +
+     * " bits: " + printBits() + " size: " + size(); }
      */
 
     @Override

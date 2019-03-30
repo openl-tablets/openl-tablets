@@ -15,8 +15,8 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class MethodCaller implements IMethodCaller {
-    
-	private IOpenMethod method;
+
+    private IOpenMethod method;
 
     public MethodCaller(IOpenMethod method) {
         this.method = method;

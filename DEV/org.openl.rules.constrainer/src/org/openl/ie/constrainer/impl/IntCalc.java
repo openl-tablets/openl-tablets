@@ -23,23 +23,18 @@ import org.openl.ie.constrainer.IntExp;
  */
 final class IntCalc {
     /**
-     * Searches the specified array of ints for the specified value using the
-     * binary search algorithm. The array <strong>must</strong> be sorted (as
-     * by the <tt>sort</tt> method, above) prior to making this call. If it is
-     * not sorted, the results are undefined. If the array contains multiple
-     * elements with the specified value, there is no guarantee which one will
-     * be found.
+     * Searches the specified array of ints for the specified value using the binary search algorithm. The array
+     * <strong>must</strong> be sorted (as by the <tt>sort</tt> method, above) prior to making this call. If it is not
+     * sorted, the results are undefined. If the array contains multiple elements with the specified value, there is no
+     * guarantee which one will be found.
      *
      * @param a the array to be searched.
      * @param key the value to be searched for.
-     * @return index of the search key, if it is contained in the list;
-     *         otherwise, <tt>(-(<i>insertion point</i>) - 1)</tt>. The
-     *         <i>insertion point</i> is defined as the point at which the key
-     *         would be inserted into the list: the index of the first element
-     *         greater than the key, or <tt>list.size()</tt>, if all elements
-     *         in the list are less than the specified key. Note that this
-     *         guarantees that the return value will be &gt;= 0 if and only if
-     *         the key is found.
+     * @return index of the search key, if it is contained in the list; otherwise,
+     *         <tt>(-(<i>insertion point</i>) - 1)</tt>. The <i>insertion point</i> is defined as the point at which the
+     *         key would be inserted into the list: the index of the first element greater than the key, or
+     *         <tt>list.size()</tt>, if all elements in the list are less than the specified key. Note that this
+     *         guarantees that the return value will be &gt;= 0 if and only if the key is found.
      * @see #sort(int[])
      */
     public static int binarySearch(int[] a, int key) {
@@ -171,8 +166,7 @@ final class IntCalc {
     }
 
     /**
-     * Returns the expression: <code>max([min1..max1]*[min2..max2])</code>
-     * where <code>[min1..max1] <= 0</code>.
+     * Returns the expression: <code>max([min1..max1]*[min2..max2])</code> where <code>[min1..max1] <= 0</code>.
      */
     public static int productMaxN(int min1, int max1, int min2) {
         if (min2 >= 0) {
@@ -183,8 +177,7 @@ final class IntCalc {
     }
 
     /**
-     * Returns the expression: <code>max([min1..max1]*[min2..max2])</code>
-     * where <code>[min1..max1] >= 0</code>.
+     * Returns the expression: <code>max([min1..max1]*[min2..max2])</code> where <code>[min1..max1] >= 0</code>.
      */
     public static int productMaxP(int min1, int max1, int max2) {
         if (max2 >= 0) {
@@ -216,8 +209,7 @@ final class IntCalc {
     }
 
     /**
-     * Returns the expression: <code>min([min1..max1]*[min2..max2])</code>
-     * where <code>[min1..max1] <= 0</code>.
+     * Returns the expression: <code>min([min1..max1]*[min2..max2])</code> where <code>[min1..max1] <= 0</code>.
      */
     public static int productMinN(int min1, int max1, int max2) {
         if (max2 >= 0) {
@@ -228,8 +220,7 @@ final class IntCalc {
     }
 
     /**
-     * Returns the expression: <code>min([min1..max1]*[min2..max2])</code>
-     * where <code>[min1..max1] >= 0</code>.
+     * Returns the expression: <code>min([min1..max1]*[min2..max2])</code> where <code>[min1..max1] >= 0</code>.
      */
     public static int productMinP(int min1, int max1, int min2) {
         if (min2 >= 0) {
@@ -240,8 +231,7 @@ final class IntCalc {
     }
 
     /**
-     * Adjust the expression exp2 so that:
-     * <code>max([min1..max1]*[min2..max2]) <= max</code>.
+     * Adjust the expression exp2 so that: <code>max([min1..max1]*[min2..max2]) <= max</code>.
      */
     static public void productSetMax(int max, IntExp exp1, IntExp exp2) throws Failure {
         int min1, max1;
@@ -274,8 +264,7 @@ final class IntCalc {
     }
 
     /**
-     * Adjust the expression exp2 so that:
-     * <code>min([min1..max1]*[min2..max2]) <= max</code> where
+     * Adjust the expression exp2 so that: <code>min([min1..max1]*[min2..max2]) <= max</code> where
      * <code>[min1..max1] <= 0</code>.
      */
     static public void productSetMaxN(int max, int min1, int max1, IntExp exp2) throws Failure {
@@ -294,8 +283,7 @@ final class IntCalc {
     }
 
     /**
-     * Adjust the expression exp2 so that:
-     * <code>min([min1..max1]*[min2..max2]) <= max</code> where
+     * Adjust the expression exp2 so that: <code>min([min1..max1]*[min2..max2]) <= max</code> where
      * <code>[min1..max1] >= 0</code>.
      */
     static public void productSetMaxP(int max, int min1, int max1, IntExp exp2) throws Failure {
@@ -314,8 +302,7 @@ final class IntCalc {
     }
 
     /**
-     * Adjust the expression exp2 so that:
-     * <code>min([min1..max1]*[min2..max2]) >= min</code>.
+     * Adjust the expression exp2 so that: <code>min([min1..max1]*[min2..max2]) >= min</code>.
      */
     static public void productSetMin(int min, IntExp exp1, IntExp exp2) throws Failure {
         int min1, max1;
@@ -348,8 +335,7 @@ final class IntCalc {
     }
 
     /**
-     * Adjust the expression exp2 so that:
-     * <code>min([min1..max1]*[min2..max2]) >= min</code> where
+     * Adjust the expression exp2 so that: <code>min([min1..max1]*[min2..max2]) >= min</code> where
      * <code>[min1..max1] <= 0</code>.
      */
     static public void productSetMinN(int min, int min1, int max1, IntExp exp2) throws Failure {
@@ -368,8 +354,7 @@ final class IntCalc {
     }
 
     /**
-     * Adjust the expression exp2 so that:
-     * <code>min([min1..max1]*[min2..max2]) >= min</code> where
+     * Adjust the expression exp2 so that: <code>min([min1..max1]*[min2..max2]) >= min</code> where
      * <code>[min1..max1] >= 0</code>.
      */
     static public void productSetMinP(int min, int min1, int max1, IntExp exp2) throws Failure {

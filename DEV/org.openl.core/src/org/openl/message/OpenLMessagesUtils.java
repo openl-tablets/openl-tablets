@@ -15,7 +15,7 @@ import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.util.CollectionUtils;
 
 public class OpenLMessagesUtils {
-    
+
     private OpenLMessagesUtils() {
     }
 

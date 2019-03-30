@@ -12,9 +12,8 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 
 /**
- * ModuleOpenClass for prebinding that uses {@link IPrebindHandler} to convert
- * methods and fields to some invokable(after prebinding they are not invokable)
- * methods/fields before adding.
+ * ModuleOpenClass for prebinding that uses {@link IPrebindHandler} to convert methods and fields to some
+ * invokable(after prebinding they are not invokable) methods/fields before adding.
  * 
  * @author PUdalau
  */
@@ -30,7 +29,14 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
             ClassLoader classLoader,
             boolean useDescisionTableDispatcher,
             boolean dispatchingValidationEnabled) {
-        super(name, metaInfo, openl, dbase, usingModules, classLoader, useDescisionTableDispatcher, dispatchingValidationEnabled);
+        super(name,
+            metaInfo,
+            openl,
+            dbase,
+            usingModules,
+            classLoader,
+            useDescisionTableDispatcher,
+            dispatchingValidationEnabled);
         this.prebindHandler = prebindHandler;
     }
 
@@ -54,7 +60,7 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
 
     @Override
     protected IOpenMethod decorateForMultimoduleDispatching(IOpenMethod openMethod) {
-        if (openMethod instanceof OpenMethodDispatcher){
+        if (openMethod instanceof OpenMethodDispatcher) {
             return super.decorateForMultimoduleDispatching(openMethod);
         }
         return openMethod;

@@ -31,9 +31,11 @@ public interface IBoundNode {
 
     // Lvalue operations
     boolean isLvalue();
-    
+
     /**
-     * Static target will accept only static methods; vice-versa is not necessarily true, but should produce at least a warning
+     * Static target will accept only static methods; vice-versa is not necessarily true, but should produce at least a
+     * warning
+     * 
      * @return
      */
     boolean isStaticTarget();

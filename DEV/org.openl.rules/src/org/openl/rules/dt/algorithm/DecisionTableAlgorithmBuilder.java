@@ -50,9 +50,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     private IMethodSignature signature;
     private RuleRow ruleRow;
 
-    public DecisionTableAlgorithmBuilder(DecisionTable decisionTable,
-            IOpenMethodHeader header,
-            OpenL openl) {
+    public DecisionTableAlgorithmBuilder(DecisionTable decisionTable, IOpenMethodHeader header, OpenL openl) {
 
         this.table = decisionTable;
         this.header = header;
@@ -125,7 +123,10 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     }
 
     private void prepareActions(IBindingContext bindingContext) throws Exception {
-        DecisionTableDataType ruleExecutionType = new DecisionTableDataType(table, table.getName() + "Type", openl, false);
+        DecisionTableDataType ruleExecutionType = new DecisionTableDataType(table,
+            table.getName() + "Type",
+            openl,
+            false);
         IBindingContext actionBindingContext = new ComponentBindingContext(bindingContext, ruleExecutionType);
 
         int nActions = table.getNumberOfActions();
@@ -148,16 +149,20 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     }
 
     private IConditionEvaluator[] prepareConditions(IBindingContext bindingContext) throws Exception {
-        DecisionTableDataType ruleExecutionType = new DecisionTableDataType(table, table.getName() + "Type", openl, true);
+        DecisionTableDataType ruleExecutionType = new DecisionTableDataType(table,
+            table.getName() + "Type",
+            openl,
+            true);
         IBindingContext conditionBindingContext = new ComponentBindingContext(bindingContext, ruleExecutionType);
-        
+
         int nConditions = table.getNumberOfConditions();
         final IConditionEvaluator[] evaluators = new IConditionEvaluator[nConditions];
 
         SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         for (int i = 0; i < nConditions; i++) {
             final int index = i;
-            syntaxNodeExceptionCollector.run(() -> evaluators[index] = prepareCondition(ruleExecutionType, conditionBindingContext, index));
+            syntaxNodeExceptionCollector
+                .run(() -> evaluators[index] = prepareCondition(ruleExecutionType, conditionBindingContext, index));
         }
         syntaxNodeExceptionCollector.throwIfAny("Error:");
 
@@ -186,10 +191,18 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
      * @since 4.0.2
      */
 
-    private IConditionEvaluator prepareCondition(DecisionTableDataType ruleExecutionType, IBindingContext bindingContext, int index) throws Exception {
+    private IConditionEvaluator prepareCondition(DecisionTableDataType ruleExecutionType,
+            IBindingContext bindingContext,
+            int index) throws Exception {
         ICondition condition = table.getCondition(index);
 
-        condition.prepare(NullOpenClass.the, signature, openl, bindingContext, ruleRow, ruleExecutionType, table.getSyntaxNode());
+        condition.prepare(NullOpenClass.the,
+            signature,
+            openl,
+            bindingContext,
+            ruleRow,
+            ruleExecutionType,
+            table.getSyntaxNode());
         IBoundMethodNode methodNode = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode();
         IOpenSourceCodeModule source = methodNode.getSyntaxNode().getModule();
 

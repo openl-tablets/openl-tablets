@@ -57,10 +57,10 @@ public final class IntExpElementAt extends IntExpImpl {
 
     } // ~ ElementObserver
     /*
-     * ==============================================================================
-     * Functional iterators
+     * ============================================================================== Functional iterators
      * ============================================================================
      */
+
     /**
      * Finds idx from the _index where _ary[idx] == value.
      */
@@ -77,6 +77,7 @@ public final class IntExpElementAt extends IntExpImpl {
         IntArray ary;
         int value;
         int foundIndex;
+
         static FindValueIterator getIterator(IntExp index, IntArray ary, int value) {
             FindValueIterator it = (FindValueIterator) _factory.getElement();
             it.index = index;
@@ -138,6 +139,7 @@ public final class IntExpElementAt extends IntExpImpl {
         } // ~update()
 
     } // ~ IndexObserver
+
     /**
      * A mapping for removing values from the index and element.
      */
@@ -155,6 +157,7 @@ public final class IntExpElementAt extends IntExpImpl {
         public void setValueFromIndex(int idx) throws Failure;
 
     }
+
     /**
      * An Mapping that is one to one.
      */
@@ -248,6 +251,7 @@ public final class IntExpElementAt extends IntExpImpl {
 
         IntArray ary;
         int min, max;
+
         static RemoveFromElementIterator getIterator(IntExp index, IntArray ary, int min, int max) {
             RemoveFromElementIterator it = (RemoveFromElementIterator) _factory.getElement();
             it.index = index;
@@ -283,6 +287,7 @@ public final class IntExpElementAt extends IntExpImpl {
 
         IntArray ary;
         int value;
+
         static SetValueFromElementIterator getIterator(IntExp index, IntArray ary, int value) {
             SetValueFromElementIterator it = (SetValueFromElementIterator) _factory.getElement();
             it.index = index;
@@ -301,8 +306,7 @@ public final class IntExpElementAt extends IntExpImpl {
 
     } // ~SetValueFromElementIterator
     /*
-     * ==============================================================================
-     * EOF Functional iterators
+     * ============================================================================== EOF Functional iterators
      * ============================================================================
      */
 
@@ -411,8 +415,8 @@ public final class IntExpElementAt extends IntExpImpl {
             // Propagate events BEFORE attaching the observers.
             constrainer().propagate();
         } catch (Exception e) {
-            throw new RuntimeException("Invalid elementAt-expression: " + ary + "[" + indexExp + "]. "
-                    + e.getClass().getName() + ": " + e.getMessage());
+            throw new RuntimeException("Invalid elementAt-expression: " + ary + "[" + indexExp + "]. " + e.getClass()
+                .getName() + ": " + e.getMessage());
         }
 
         createMapping();
@@ -440,11 +444,11 @@ public final class IntExpElementAt extends IntExpImpl {
         int size = values.length;
         int nHoles = (max - min + 1) - size;
 
-//        if (nHoles < 10) {
-//            createElement1(values);
-//        } else {
-            createElement2(values);
-//        }
+        // if (nHoles < 10) {
+        // createElement1(values);
+        // } else {
+        createElement2(values);
+        // }
     }
 
     void createElement1(int[] values) throws Failure {
@@ -479,8 +483,8 @@ public final class IntExpElementAt extends IntExpImpl {
     }
 
     void createIndex() throws Failure {
-        boolean effectiveIndexExp = (_indexExp instanceof IntVar)
-                && ((IntVar) _indexExp).domainType() != IntVar.DOMAIN_PLAIN;
+        boolean effectiveIndexExp = (_indexExp instanceof IntVar) && ((IntVar) _indexExp)
+            .domainType() != IntVar.DOMAIN_PLAIN;
         int max = _ary.size() - 1;
         if (effectiveIndexExp) {
             // Use _indexExp as _index.

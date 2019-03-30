@@ -13,6 +13,7 @@ public class TableParserSpecificationBean {
         OPTIONAL,
         PROHIBITED;
     }
+
     private String keyword;
     private String description;
     private boolean multiline;

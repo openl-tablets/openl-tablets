@@ -16,25 +16,23 @@ public class DataOpenField extends AOpenField implements IUriMember {
 
     public DataOpenField(ITable table, ModuleOpenClass declaringClass) {
 
-        super(table.getDataModel().getName(), table.getDataModel()
-            .getType()
-            .getAggregateInfo()
-            .getIndexedAggregateType(table.getDataModel().getType()));
-        
+        super(table.getDataModel().getName(),
+            table.getDataModel().getType().getAggregateInfo().getIndexedAggregateType(table.getDataModel().getType()));
+
         this.table = table;
         this.uri = table.getTableSyntaxNode().getTable().getSource().getUri();
         data = table.getDataArray();
         this.declaringClass = declaringClass;
     }
-    
+
     @Override
     public String getUri() {
         return uri;
     }
-    
+
     @Override
     public IOpenClass getDeclaringClass() {
-    	return declaringClass;
+        return declaringClass;
     }
 
     public ITable getTable() {

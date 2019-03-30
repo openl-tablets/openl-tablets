@@ -22,11 +22,11 @@ import org.openl.types.IOpenClass;
 public class LocalVarBinder extends ANodeBinder {
 
     public static final IBoundNode createLocalVarDeclarationNode(ISyntaxNode node,
-                                                                 String name,
-                                                                 ISyntaxNode initializationNode,
-                                                                 IOpenClass varType,
-                                                                 IBindingContext bindingContext,
-                                                                 boolean implyExpressionType) throws Exception {
+            String name,
+            ISyntaxNode initializationNode,
+            IOpenClass varType,
+            IBindingContext bindingContext,
+            boolean implyExpressionType) throws Exception {
         IBoundNode init = null;
 
         if (initializationNode != null) {
@@ -62,12 +62,8 @@ public class LocalVarBinder extends ANodeBinder {
                 boundNodes.add(createLocalVarDeclarationNode(child, name, null, varType, bindingContext, false));
             } else {
                 String name = child.getChild(0).getText();
-                boundNodes.add(createLocalVarDeclarationNode(child,
-                    name,
-                    child.getChild(1),
-                    varType,
-                    bindingContext,
-                    false));
+                boundNodes
+                    .add(createLocalVarDeclarationNode(child, name, child.getChild(1), varType, bindingContext, false));
             }
         }
 

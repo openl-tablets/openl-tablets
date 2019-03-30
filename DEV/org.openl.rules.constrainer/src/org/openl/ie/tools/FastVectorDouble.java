@@ -22,7 +22,6 @@ public final class FastVectorDouble implements Cloneable, java.io.Serializable {
     double[] m_data;
     int m_size;
 
-
     public FastVectorDouble(int capacity) {
         m_size = 0;
         if (capacity == 0) {

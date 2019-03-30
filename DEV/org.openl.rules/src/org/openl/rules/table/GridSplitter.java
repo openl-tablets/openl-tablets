@@ -104,7 +104,8 @@ public class GridSplitter {
         for (int row = grid.getMinRowIndex(); row < nrows; row++) {
 
             int ncells = grid.getMaxColumnIndex(row) + 1;
-            if (ncells == 0) continue;
+            if (ncells == 0)
+                continue;
 
             for (int col = grid.getMinColumnIndex(row); col < ncells; col++) {
 

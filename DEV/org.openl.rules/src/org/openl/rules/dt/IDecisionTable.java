@@ -10,32 +10,32 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
-public interface IDecisionTable extends ITablePropertiesMethod, IUriMember{
+public interface IDecisionTable extends ITablePropertiesMethod, IUriMember {
 
-	BindingDependencies getDependencies();
+    BindingDependencies getDependencies();
 
-	TableSyntaxNode getSyntaxNode();
+    TableSyntaxNode getSyntaxNode();
 
-	int getNumberOfRules();
+    int getNumberOfRules();
 
-	ILogicalTable getRuleTable(int row);
+    ILogicalTable getRuleTable(int row);
 
-	void updateDependency(BindingDependencies bd);
+    void updateDependency(BindingDependencies bd);
 
-	IBaseAction[] getActionRows();
+    IBaseAction[] getActionRows();
 
-	IBaseCondition[] getConditionRows();
-	
-	int getNumberOfConditions();
+    IBaseCondition[] getConditionRows();
 
-	IMethodSignature getSignature();
+    int getNumberOfConditions();
 
-	IOpenMethod getMethod();
+    IMethodSignature getSignature();
 
-	IOpenClass getDeclaringClass();
+    IOpenMethod getMethod();
 
-	String getRuleName(int ruleIndex);
+    IOpenClass getDeclaringClass();
 
-	ATableBoundNode getBoundNode();
+    String getRuleName(int ruleIndex);
+
+    ATableBoundNode getBoundNode();
 
 }

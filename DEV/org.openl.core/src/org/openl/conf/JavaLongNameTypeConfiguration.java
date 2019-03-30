@@ -12,7 +12,7 @@ public class JavaLongNameTypeConfiguration extends AConfigurationElement impleme
     }
 
     private JavaLongNameTypeLibrary library;
-    
+
     @Override
     public synchronized ITypeLibrary getLibrary(IConfigurableResourceContext cxt) {
         if (library == null) {

@@ -57,7 +57,7 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
         if (userContext == null) {
             synchronized (this) {
                 if (userContext == null) {
-                    userContext = new UserContext(getDefaultUserClassLoader(),  userHome);
+                    userContext = new UserContext(getDefaultUserClassLoader(), userHome);
                 }
             }
         }
@@ -91,7 +91,8 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
     }
 
     @Override
-    protected InvocationHandler prepareInvocationHandler(Object openClassInstance, Map<Method, IOpenMember> methodMap,
+    protected InvocationHandler prepareInvocationHandler(Object openClassInstance,
+            Map<Method, IOpenMember> methodMap,
             IRuntimeEnv runtimeEnv) {
         return new OpenLInvocationHandler(openClassInstance, runtimeEnv, methodMap);
     }

@@ -15,8 +15,7 @@ package org.openl.ie.constrainer;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An interface for the selection of the integer variable from a given array of
- * variables. Used in GoalFloatGenerate.
+ * An interface for the selection of the integer variable from a given array of variables. Used in GoalFloatGenerate.
  *
  * @see GoalFloatGenerate
  * @see FloatVarSelectorFirstUnbound
@@ -25,8 +24,7 @@ package org.openl.ie.constrainer;
  */
 public interface FloatVarSelector {
     /**
-     * Returns the index of the selected variable in the array of FloatVar(s).
-     * If no variables to select, it returns -1;
+     * Returns the index of the selected variable in the array of FloatVar(s). If no variables to select, it returns -1;
      */
     public int select();
 }

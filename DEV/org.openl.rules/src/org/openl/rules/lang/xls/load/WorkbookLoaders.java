@@ -3,10 +3,10 @@ package org.openl.rules.lang.xls.load;
 import org.openl.source.IOpenSourceCodeModule;
 
 public final class WorkbookLoaders {
-    
+
     private WorkbookLoaders() {
     }
-    
+
     private static final WorkbookLoaderFactory DEFAULT_FACTORY = new LazyWorkbookLoaderFactory(true);
     private static ThreadLocal<WorkbookLoaderFactory> workbookLoaderFactoryHolder = ThreadLocal
         .withInitial(() -> DEFAULT_FACTORY);

@@ -5,7 +5,7 @@ public enum SourceType {
     MODULE,
     METHOD_HEADER,
     METHOD_BODY,
-    TYPE, 
+    TYPE,
     INT_RANGE,
     DOUBLE_RANGE
 }

@@ -32,6 +32,7 @@ public class JavaPrimitiveTypeLibrary implements ITypeLibrary {
         classMap.put("boolean", JavaOpenClass.BOOLEAN);
         classMap.put("void", JavaOpenClass.VOID);
     }
+
     @Override
     public IOpenClass getType(String typename) {
         return classMap.get(typename);

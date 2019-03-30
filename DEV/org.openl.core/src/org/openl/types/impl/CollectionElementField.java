@@ -22,20 +22,15 @@ public class CollectionElementField extends AOpenField {
     private Object mapKey;
     private IOpenField field;
     private CollectionType collectionType;
-    
-    public CollectionElementField(IOpenField field,
-            int elementIndex,
-            IOpenClass type,
-            CollectionType collectionType) {
+
+    public CollectionElementField(IOpenField field, int elementIndex, IOpenClass type, CollectionType collectionType) {
         super(getName(field.getName(), String.valueOf(elementIndex)), type);
         this.elementIndex = elementIndex;
         this.field = field;
         this.collectionType = collectionType;
     }
 
-    public CollectionElementField(IOpenField field,
-            Object mapKey,
-            IOpenClass type) {
+    public CollectionElementField(IOpenField field, Object mapKey, IOpenClass type) {
         super(getName(field.getName(), String.valueOf(mapKey)), type);
         this.mapKey = mapKey;
         this.field = field;
@@ -127,7 +122,7 @@ public class CollectionElementField extends AOpenField {
             Array.set(v, elementIndex, value);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     private void setForList(Object target, Object value, IRuntimeEnv env, Object v) {
         if (v == null) {
@@ -138,7 +133,7 @@ public class CollectionElementField extends AOpenField {
             list.set(elementIndex, value);
             setIntoTarget(target, list, env);
         } else {
-            List<Object> list = (List<Object>) v; 
+            List<Object> list = (List<Object>) v;
             while (list.size() <= elementIndex) {
                 list.add(getType().nullObject());
             }
@@ -153,7 +148,7 @@ public class CollectionElementField extends AOpenField {
             map.put(mapKey, value);
             setIntoTarget(target, map, env);
         } else {
-            Map<Object, Object> map = (Map<Object, Object>) v; 
+            Map<Object, Object> map = (Map<Object, Object>) v;
             map.put(mapKey, value);
         }
     }

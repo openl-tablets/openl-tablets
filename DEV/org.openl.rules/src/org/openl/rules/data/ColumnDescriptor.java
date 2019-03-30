@@ -179,7 +179,13 @@ public class ColumnDescriptor {
             if (!valuesAnArray) {
                 env.pushThis(literal);
                 if (supportMultirows) {
-                    processWithMultiRowsSupport(literal, valuesTable, toolAdapter, env, aggregateType, paramType, valuesAnArray);
+                    processWithMultiRowsSupport(literal,
+                        valuesTable,
+                        toolAdapter,
+                        env,
+                        aggregateType,
+                        paramType,
+                        valuesAnArray);
                 } else {
                     IGridTable sourceGrid = valuesTable.getSource().getSubtable(0, 0, 1, 1);
                     ILogicalTable logicalTable = LogicalTableHelper.logicalTable(sourceGrid).getSubtable(0, 0, 1, 1);
@@ -194,7 +200,13 @@ public class ColumnDescriptor {
                 env.pushThis(literal);
                 Object arrayValues;
                 if (supportMultirows) {
-                    processWithMultiRowsSupport(literal, valuesTable, toolAdapter, env, aggregateType, paramType, valuesAnArray);
+                    processWithMultiRowsSupport(literal,
+                        valuesTable,
+                        toolAdapter,
+                        env,
+                        aggregateType,
+                        paramType,
+                        valuesAnArray);
                 } else {
                     arrayValues = getArrayValues(valuesTable, toolAdapter, aggregateType, paramType);
                     field.set(literal, arrayValues, getRuntimeEnv());
@@ -204,8 +216,10 @@ public class ColumnDescriptor {
         } else {
             /*
              * field == null, in this case don`t do anything. The appropriate information why it is null would have been
-             * processed during prepDaring column descriptor. See
-             * {@link DataTableBindHelper#makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type, OpenL openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow, boolean hasColumnTytleRow)}
+             * processed during prepDaring column descriptor. See {@link
+             * DataTableBindHelper#makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type, OpenL
+             * openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow, boolean
+             * hasColumnTytleRow)}
              */
         }
         return literal;
@@ -273,10 +287,12 @@ public class ColumnDescriptor {
 
     private Object getArrayValues(ILogicalTable valuesTable,
             OpenlToolAdaptor ota,
-            IOpenClass aggregateType, IOpenClass paramType) throws SyntaxNodeException {
+            IOpenClass aggregateType,
+            IOpenClass paramType) throws SyntaxNodeException {
 
         if (valuesTable.getHeight() == 1 && valuesTable.getWidth() == 1) {
-            return RuleRowHelper.loadCommaSeparatedParam(aggregateType, paramType, field.getName(), null, valuesTable.getRow(0), ota);
+            return RuleRowHelper
+                .loadCommaSeparatedParam(aggregateType, paramType, field.getName(), null, valuesTable.getRow(0), ota);
         }
 
         return loadMultiRowArray(valuesTable, ota, paramType, aggregateType);
@@ -284,7 +300,8 @@ public class ColumnDescriptor {
 
     private Object loadMultiRowArray(ILogicalTable logicalTable,
             OpenlToolAdaptor openlAdaptor,
-            IOpenClass paramType, IOpenClass aggregateType) throws SyntaxNodeException {
+            IOpenClass paramType,
+            IOpenClass aggregateType) throws SyntaxNodeException {
 
         // get height of table without empty cells at the end
         //

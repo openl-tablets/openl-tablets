@@ -55,10 +55,10 @@ public class DatatypeAliasTableBuilder extends TableBuilder {
         writeCell(0, getCurrentRow(), 1, 1, value, cellStyle);
 
         incCurrentRow();
-     }
+    }
 
-     public void writeValue(String value) {
+    public void writeValue(String value) {
         writeValue(value, null);
-     }
+    }
 
 }

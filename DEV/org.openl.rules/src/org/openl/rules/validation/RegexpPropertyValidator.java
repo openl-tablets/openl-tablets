@@ -17,8 +17,7 @@ import org.openl.types.IOpenClass;
 import org.openl.validation.ValidationResult;
 
 /**
- * Validator for string properties that have to correspond to some regexp
- * pattern
+ * Validator for string properties that have to correspond to some regexp pattern
  * 
  * @author PUdalau
  */

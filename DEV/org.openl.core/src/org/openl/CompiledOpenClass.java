@@ -25,7 +25,7 @@ public class CompiledOpenClass {
     private Collection<OpenLMessage> messages;
 
     private IOpenClass openClass;
-    
+
     private boolean hasErrors;
 
     private ClassLoader classLoader;
@@ -77,7 +77,7 @@ public class CompiledOpenClass {
     public void throwErrorExceptionsIfAny() {
         if (hasErrors()) {
             Collection<OpenLMessage> errorMessages = getErrorMessages(messages);
-            
+
             if (parsingErrors.length > 0) {
                 throw new CompositeOpenlException("Parsing Error(s):", parsingErrors, errorMessages);
             }

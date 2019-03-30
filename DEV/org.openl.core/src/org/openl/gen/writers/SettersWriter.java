@@ -12,9 +12,9 @@ import org.openl.util.ClassUtils;
 public class SettersWriter extends MethodWriter {
 
     public SettersWriter(String beanNameWithPackage, Map<String, FieldDescription> allFields) {
-        super(beanNameWithPackage, allFields);        
+        super(beanNameWithPackage, allFields);
     }
-    
+
     @Override
     public void write(ClassWriter classWriter) {
         for (Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
@@ -23,7 +23,7 @@ public class SettersWriter extends MethodWriter {
             }
         }
     }
-    
+
     /**
      * Generates setter for the fieldEntry.
      * 
@@ -37,7 +37,8 @@ public class SettersWriter extends MethodWriter {
 
         String setterName = ClassUtils.setter(fieldName);
         String methodDescriptor = "(" + fieldType + ")V";
-        MethodVisitor methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, setterName, methodDescriptor, null, null);
+        MethodVisitor methodVisitor = classWriter
+            .visitMethod(Opcodes.ACC_PUBLIC, setterName, methodDescriptor, null, null);
 
         Label l0 = new Label();
         methodVisitor.visitLabel(l0);

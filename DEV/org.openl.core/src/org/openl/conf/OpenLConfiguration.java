@@ -73,8 +73,8 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.binding.ICastFactory#getCast(java.lang.String,
-     * org.openl.types.IOpenClass, org.openl.types.IOpenClass)
+     * @see org.openl.binding.ICastFactory#getCast(java.lang.String, org.openl.types.IOpenClass,
+     * org.openl.types.IOpenClass)
      */
     @Override
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {
@@ -163,10 +163,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     }
 
     @Override
-    public IMethodCaller getMethodCaller(String namespace,
-            String name,
-            IOpenClass[] params,
-            ICastFactory casts) {
+    public IMethodCaller getMethodCaller(String namespace, String name, IOpenClass[] params, ICastFactory casts) {
 
         IOpenMethod[] mcs = getMethods(namespace, name);
 

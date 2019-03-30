@@ -19,7 +19,8 @@ public class IteratorHasNextOperation extends RuntimeOperation {
 
     @Override
     public Result execute(TBasicContextHolderEnv environment, Object param) {
-        Iterator iterator = (Iterator)environment.getTbasicTarget().getFieldValue(IteratorNextOperation.ITERATOR + elementName);
+        Iterator iterator = (Iterator) environment.getTbasicTarget()
+            .getFieldValue(IteratorNextOperation.ITERATOR + elementName);
 
         return new Result(ReturnType.NEXT, iterator.hasNext());
     }

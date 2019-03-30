@@ -37,8 +37,7 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
         return null;
     }
 
-    public IOpenMethod[] getMethods(String name,
-            IConfigurableResourceContext cxt) {
+    public IOpenMethod[] getMethods(String name, IConfigurableResourceContext cxt) {
 
         List<IOpenMethod> methods = new LinkedList<>();
         for (IMethodFactoryConfigurationElement factory : factories) {
@@ -48,7 +47,7 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
             }
         }
 
-        return methods.toArray(new IOpenMethod[]{});
+        return methods.toArray(new IOpenMethod[] {});
     }
 
     /**

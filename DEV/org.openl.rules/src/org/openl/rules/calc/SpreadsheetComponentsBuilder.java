@@ -170,7 +170,8 @@ public class SpreadsheetComponentsBuilder {
                     .getSource();
                 GridCellSourceCodeModule source = new GridCellSourceCodeModule(columnNameForHeader, bindingContext);
                 int j = i;
-                SpreadsheetHeaderDefinition header = columnHeaders.computeIfAbsent(i, e -> new SpreadsheetHeaderDefinition(-1, j));
+                SpreadsheetHeaderDefinition header = columnHeaders.computeIfAbsent(i,
+                    e -> new SpreadsheetHeaderDefinition(-1, j));
                 parseHeader(header, source);
             }
         }
@@ -406,7 +407,7 @@ public class SpreadsheetComponentsBuilder {
             List<IOpenCast> casts = new ArrayList<>();
             List<SpreadsheetCell> returnSpreadsheetCellsAsArray = new ArrayList<>();
             List<IOpenCast> castsAsArray = new ArrayList<>();
-            
+
             IOpenClass type = spreadsheet.getType();
             IAggregateInfo aggregateInfo = type.getAggregateInfo();
             IOpenClass componentType = aggregateInfo.getComponentType(type);
@@ -426,7 +427,7 @@ public class SpreadsheetComponentsBuilder {
                     sprCells.add(spreadsheet.getCells()[n][i]);
                 }
             }
-            
+
             List<SpreadsheetCell> nonEmptySpreadsheetCells = new ArrayList<>();
             for (SpreadsheetCell cell : sprCells) {
                 if (!cell.isEmpty()) {
@@ -481,7 +482,8 @@ public class SpreadsheetComponentsBuilder {
             switch (returnSpreadsheetCells.size()) {
                 case 0:
                     if (!nonEmptySpreadsheetCells.isEmpty()) {
-                        SpreadsheetCell nonEmptySpreadsheetCell = nonEmptySpreadsheetCells.get(nonEmptySpreadsheetCells.size() - 1); 
+                        SpreadsheetCell nonEmptySpreadsheetCell = nonEmptySpreadsheetCells
+                            .get(nonEmptySpreadsheetCells.size() - 1);
                         if (nonEmptySpreadsheetCell.getType() != null) {
                             throw SyntaxNodeExceptionUtils.createError(
                                 "Can not convert from " + nonEmptySpreadsheetCell.getType()

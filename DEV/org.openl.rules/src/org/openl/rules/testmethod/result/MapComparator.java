@@ -17,9 +17,10 @@ class MapComparator extends GenericComparator<Map<?, ?>> {
 
     @Override
     boolean fit(Object expected, Object actual) {
-        return (expected == null || Map.class.isAssignableFrom(expected.getClass())) && (actual == null || Map.class.isAssignableFrom(actual.getClass()));
+        return (expected == null || Map.class.isAssignableFrom(expected.getClass())) && (actual == null || Map.class
+            .isAssignableFrom(actual.getClass()));
     }
-    
+
     @Override
     boolean isEmpty(Map<?, ?> object) {
         return object.isEmpty();

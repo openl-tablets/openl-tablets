@@ -58,7 +58,7 @@ import org.openl.util.StringTool;
 import org.openl.util.text.LocationUtils;
 
 public final class RuleRowHelper {
-    
+
     private RuleRowHelper() {
     }
 
@@ -103,7 +103,8 @@ public final class RuleRowHelper {
      *
      * @return Array of parameters.
      */
-    public static Object loadCommaSeparatedParam(IOpenClass aggregateType, IOpenClass paramType,
+    public static Object loadCommaSeparatedParam(IOpenClass aggregateType,
+            IOpenClass paramType,
             String paramName,
             String ruleName,
             ILogicalTable cell,
@@ -143,7 +144,9 @@ public final class RuleRowHelper {
         return arrayValues;
     }
 
-    public static IOpenClass getType(String typeCode, ISyntaxNode node, IBindingContext bindingContext) throws SyntaxNodeException {
+    public static IOpenClass getType(String typeCode,
+            ISyntaxNode node,
+            IBindingContext bindingContext) throws SyntaxNodeException {
         if (typeCode.endsWith("[]")) {
             String baseCode = typeCode.substring(0, typeCode.length() - 2);
             IOpenClass type = getType(baseCode, node, bindingContext);
@@ -212,7 +215,7 @@ public final class RuleRowHelper {
                     validateValue(res, paramType);
                     return res;
                 }
-            } catch (Exception | LinkageError t ) {
+            } catch (Exception | LinkageError t) {
                 String message = t.getMessage();
                 if (message == null) {
                     message = "Can't load cell value";
@@ -291,12 +294,8 @@ public final class RuleRowHelper {
 
     public static SimpleNodeUsage createConstantNodeUsage(String cellCode, ConstantOpenField constantOpenField) {
         String description = MethodUtil.printType(constantOpenField.getType()) + " " + constantOpenField
-                .getName() + " = " + constantOpenField.getValueAsString();
-        return new SimpleNodeUsage(0,
-                cellCode.length() - 1,
-                description,
-                constantOpenField.getUri(),
-                NodeType.OTHER);
+            .getName() + " = " + constantOpenField.getValueAsString();
+        return new SimpleNodeUsage(0, cellCode.length() - 1, description, constantOpenField.getUri(), NodeType.OTHER);
     }
 
     private static XlsModuleOpenClass getComponentOpenClass(IBindingContext bindingContext) {
@@ -312,12 +311,12 @@ public final class RuleRowHelper {
         }
         return null;
     }
-    
+
     public static ConstantOpenField findConstantField(IBindingContext bindingContext, String source) {
         if (source == null) {
             return null;
         }
-        
+
         XlsModuleOpenClass xlsModuleOpenClass = getComponentOpenClass(bindingContext);
         if (xlsModuleOpenClass != null) {
             return xlsModuleOpenClass.getConstantField(source.trim());
@@ -391,7 +390,8 @@ public final class RuleRowHelper {
                     if (!bindingContext.isExecutionMode()) {
                         MetaInfoReader metaInfoReader = openlAdapter.getTableSyntaxNode().getMetaInfoReader();
                         if (metaInfoReader instanceof BaseMetaInfoReader) {
-                            SimpleNodeUsage nodeUsage = createConstantNodeUsage(theValueCell.getStringValue(), constantOpenField);
+                            SimpleNodeUsage nodeUsage = createConstantNodeUsage(theValueCell.getStringValue(),
+                                constantOpenField);
                             ((BaseMetaInfoReader) metaInfoReader).addConstant(theValueCell, nodeUsage);
                         }
                     }
@@ -532,7 +532,7 @@ public final class RuleRowHelper {
             IDomain<Object> domain,
             IOpenClass paramType) throws OpenLCompilationException {
         if (value == null) {
-             return;
+            return;
         }
         if (value.getClass().isArray()) {
             int length = Array.getLength(value);
@@ -610,7 +610,12 @@ public final class RuleRowHelper {
         if (oneCellTable) {
             if (!isFormula) {
                 // load comma separated array
-                return loadCommaSeparatedArrayParams(dataTable, paramName, ruleName, openlAdaptor, paramType, arrayType);
+                return loadCommaSeparatedArrayParams(dataTable,
+                    paramName,
+                    ruleName,
+                    openlAdaptor,
+                    paramType,
+                    arrayType);
             } else {
                 return loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
             }
@@ -623,7 +628,8 @@ public final class RuleRowHelper {
             String paramName,
             String ruleName,
             OpenlToolAdaptor openlAdaptor,
-            IOpenClass aggregateType, IOpenClass paramType) throws SyntaxNodeException {
+            IOpenClass aggregateType,
+            IOpenClass paramType) throws SyntaxNodeException {
 
         ILogicalTable paramSource = dataTable.getRow(0);
         Object params = RuleRowHelper
@@ -657,9 +663,7 @@ public final class RuleRowHelper {
             }
         }
 
-        return methodsList == null ? ary
-                                   : new ArrayHolder(paramType,
-                                       methodsList.toArray(new CompositeMethod[0]));
+        return methodsList == null ? ary : new ArrayHolder(paramType, methodsList.toArray(new CompositeMethod[0]));
     }
 
     private static List<CompositeMethod> addMethod(List<CompositeMethod> methods, CompositeMethod method) {
@@ -705,9 +709,7 @@ public final class RuleRowHelper {
             index.setValue(ary, i, values.get(i));
         }
 
-        return methodsList == null ? ary
-                                   : new ArrayHolder(paramType,
-                                       methodsList.toArray(new CompositeMethod[0]));
+        return methodsList == null ? ary : new ArrayHolder(paramType, methodsList.toArray(new CompositeMethod[0]));
 
     }
 }

@@ -65,9 +65,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     private IDataBase dataBase = null;
 
     /**
-     * Whether DecisionTable should be used as a dispatcher for overloaded
-     * tables. By default(this flag equals false) dispatching logic will be
-     * performed in Java code.
+     * Whether DecisionTable should be used as a dispatcher for overloaded tables. By default(this flag equals false)
+     * dispatching logic will be performed in Java code.
      */
     private boolean useDescisionTableDispatcher;
 
@@ -78,8 +77,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     private ClassLoader classLoader;
 
     private RulesModuleBindingContext rulesModuleBindingContext;
-    
-    private XlsDefinitions xlsDefinitions = new XlsDefinitions();  
+
+    private XlsDefinitions xlsDefinitions = new XlsDefinitions();
 
     public RulesModuleBindingContext getRulesModuleBindingContext() {
         return rulesModuleBindingContext;
@@ -130,7 +129,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     public IDataBase getDataBase() {
         return dataBase;
     }
-    
+
     protected void addXlsDefinitions(CompiledDependency dependency) {
         IOpenClass openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
         if (openClass instanceof XlsModuleOpenClass) {
@@ -138,7 +137,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             this.xlsDefinitions.addAll(xlsModuleOpenClass.getXlsDefinitions());
         }
     }
-    
+
     public XlsDefinitions getXlsDefinitions() {
         return xlsDefinitions;
     }
@@ -157,9 +156,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             //
             // addTypes(dependency);
             addDependencyTypes(dependency);
-            
+
             addXlsDefinitions(dependency);
-            
+
             addMethods(dependency);
             // Populate current module fields with data from dependent modules.
             // Requered
@@ -452,15 +451,13 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     /**
-     * Dispatcher method should be added by adding all candidates of the
-     * specified dispatcher to current XlsModuleOpenClass(it will cause adding
-     * methods to dispatcher of current module or creating new dispatcher in
+     * Dispatcher method should be added by adding all candidates of the specified dispatcher to current
+     * XlsModuleOpenClass(it will cause adding methods to dispatcher of current module or creating new dispatcher in
      * current module).
      *
-     * Previously there was problems because dispatcher from dependency was
-     * either added to dispatcher of current module(dispatcher as a candidate in
-     * another dispatcher) or added to current module and was modified during
-     * the current module processing. FIXME
+     * Previously there was problems because dispatcher from dependency was either added to dispatcher of current
+     * module(dispatcher as a candidate in another dispatcher) or added to current module and was modified during the
+     * current module processing. FIXME
      *
      * @param dispatcher Dispatcher methods to add.
      */
@@ -525,5 +522,5 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             }
         }
     }
-    
+
 }

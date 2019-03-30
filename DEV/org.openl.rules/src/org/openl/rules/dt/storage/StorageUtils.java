@@ -4,7 +4,7 @@ import org.openl.rules.dt.element.ArrayHolder;
 import org.openl.types.IOpenMethod;
 
 final class StorageUtils {
-    
+
     private StorageUtils() {
     }
 

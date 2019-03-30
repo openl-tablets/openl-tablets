@@ -55,7 +55,7 @@ public abstract class MatchingConstraint<P, C> {
 
     @SuppressWarnings("unchecked")
     public static <T> boolean CONTAINS(Comparable<T>[] cmp1, Comparable<T> cmp2) {
-        
+
         for (Comparable<T> element : cmp1) {
             if (element.compareTo((T) cmp2) == 0) {
                 return true;

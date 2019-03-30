@@ -12,8 +12,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodKey;
 
 /**
- * Dictionary of IOpenMethod instances. Categorizes methods using their
- * signatures.
+ * Dictionary of IOpenMethod instances. Categorizes methods using their signatures.
  */
 public class OverloadedMethodsDictionary {
 
@@ -26,8 +25,7 @@ public class OverloadedMethodsDictionary {
      * Checks that method already in dictionary.
      * 
      * @param method IOpenMethod instance
-     * @return <code>true</code> if method already exists in dictionary;
-     *         <code>false</code> - otherwise
+     * @return <code>true</code> if method already exists in dictionary; <code>false</code> - otherwise
      */
     public boolean contains(IOpenMethod method) {
         MethodKey key = buildKey(method);
@@ -36,15 +34,14 @@ public class OverloadedMethodsDictionary {
     }
 
     /**
-     * Adds TableSyntaxNode instance to dictionary. If method(s) with same signature
-     * already exists in dictionary new one will be added to its group;
-     * otherwise - new entry will be created.
+     * Adds TableSyntaxNode instance to dictionary. If method(s) with same signature already exists in dictionary new
+     * one will be added to its group; otherwise - new entry will be created.
      * 
      * @param table executable table
      */
     public void add(TableSyntaxNode table) {
 
-        IOpenMethod method = (IOpenMethod)table.getMember();
+        IOpenMethod method = (IOpenMethod) table.getMember();
         MethodKey key = buildKey(method);
 
         if (contains(key)) {
@@ -86,8 +83,7 @@ public class OverloadedMethodsDictionary {
      * Checks that entry with passed key already exists.
      * 
      * @param key key
-     * @return <code>true</code> if entry already exists; <code>false</code> -
-     *         otherwise
+     * @return <code>true</code> if entry already exists; <code>false</code> - otherwise
      */
     private boolean contains(MethodKey key) {
         return internalMap.containsKey(key);

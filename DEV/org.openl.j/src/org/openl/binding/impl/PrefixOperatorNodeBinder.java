@@ -19,6 +19,7 @@ public class PrefixOperatorNodeBinder extends ANodeBinder {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv,
      * org.openl.binding.IBindingContext)
      */
@@ -39,9 +40,8 @@ public class PrefixOperatorNodeBinder extends ANodeBinder {
         }
 
         IOpenClass[] types = getTypes(children);
-        IMethodCaller methodCaller = UnaryOperatorNodeBinder.findUnaryOperatorMethodCaller(methodName,
-            types,
-            bindingContext);
+        IMethodCaller methodCaller = UnaryOperatorNodeBinder
+            .findUnaryOperatorMethodCaller(methodName, types, bindingContext);
 
         if (methodCaller == null) {
             String message = UnaryOperatorNodeBinder.errorMsg(methodName, types[0]);
@@ -50,7 +50,8 @@ public class PrefixOperatorNodeBinder extends ANodeBinder {
 
         IOpenClass methodType = methodCaller.getMethod().getType();
 
-        if (ClassUtils.primitiveToWrapper(methodType.getInstanceClass()) != ClassUtils.primitiveToWrapper(types[0].getInstanceClass())) {
+        if (ClassUtils.primitiveToWrapper(methodType.getInstanceClass()) != ClassUtils
+            .primitiveToWrapper(types[0].getInstanceClass())) {
             return makeErrorNode("Prefix operator must return the same type as an argument", node, bindingContext);
         }
 

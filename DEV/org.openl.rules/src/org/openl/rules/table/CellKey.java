@@ -55,7 +55,7 @@ public class CellKey {
     public static final class CellKeyFactory {
         private CellKeyFactory() {
         }
-        
+
         public static CellKey getCellKey(int col, int row) {
             if (col == 0 && row == 0) {
                 return ZERO_ZERO;

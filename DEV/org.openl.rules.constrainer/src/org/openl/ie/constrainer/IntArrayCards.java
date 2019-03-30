@@ -6,13 +6,10 @@ import org.openl.ie.constrainer.impl.IntEvent;
 import org.openl.ie.constrainer.impl.IntExpAddArray;
 import org.openl.ie.constrainer.impl.IntExpCard;
 
-
 /**
- * An implementation of the array of cardinalities for the integer expressions.
- * One can use <code>IntArrayCards</code> to control the number of occurences
- * of several values among the constrained variables in an array of constrained
- * variables. There is a simle example explaining the idea of using
- * <code>IntExpArray</code>:
+ * An implementation of the array of cardinalities for the integer expressions. One can use <code>IntArrayCards</code>
+ * to control the number of occurences of several values among the constrained variables in an array of constrained
+ * variables. There is a simle example explaining the idea of using <code>IntExpArray</code>:
  *
  * <pre>
  *
@@ -26,19 +23,15 @@ import org.openl.ie.constrainer.impl.IntExpCard;
  * }
  * </pre>
  *
- * Here states that each integer value from the interval [0,9] must occure in
- * the "array" exactly once. So one can readily guess that the only possible
- * solution is array[i] == i, correct to permutations of the array's elements.
- * <code>IntArrayCards</code> has the only constructor
- * {@link #IntArrayCards(Constrainer, IntExpArray)}. After being created
- * <code>IntArrayCards</code> becomes one to perform a policy of checking the
- * number of occurences of every possible value among the constrained variables
- * of IntExpArray using the "cards" array. "cards" is an IntExpArray consisting
- * of (array.max() - array.min() + 1) elements (array is an IntExpArray to be
- * controlled) so that it's i-th element define the cardinality of i+array.min()
- * value. In other words, the number of occurences must be within the interval
- * [cards.get(i).min(), cards.get(i).max()]. One can gain the access to the
- * particular card by using {@link #cardAt(int)} method.
+ * Here states that each integer value from the interval [0,9] must occure in the "array" exactly once. So one can
+ * readily guess that the only possible solution is array[i] == i, correct to permutations of the array's elements.
+ * <code>IntArrayCards</code> has the only constructor {@link #IntArrayCards(Constrainer, IntExpArray)}. After being
+ * created <code>IntArrayCards</code> becomes one to perform a policy of checking the number of occurences of every
+ * possible value among the constrained variables of IntExpArray using the "cards" array. "cards" is an IntExpArray
+ * consisting of (array.max() - array.min() + 1) elements (array is an IntExpArray to be controlled) so that it's i-th
+ * element define the cardinality of i+array.min() value. In other words, the number of occurences must be within the
+ * interval [cards.get(i).min(), cards.get(i).max()]. One can gain the access to the particular card by using
+ * {@link #cardAt(int)} method.
  *
  */
 public final class IntArrayCards extends Observer {
@@ -50,12 +43,10 @@ public final class IntArrayCards extends Observer {
     HashMap _index_map = new HashMap();
 
     /**
-     * Creates an array of cardinalities for an <b>IntExpArray </b> that
-     * associates itself with each elements of controlled array in order to spy
-     * on changes of their domains.
+     * Creates an array of cardinalities for an <b>IntExpArray </b> that associates itself with each elements of
+     * controlled array in order to spy on changes of their domains.
      *
-     * @param constrainer A particular constrainer the constructed array belongs
-     *            to
+     * @param constrainer A particular constrainer the constructed array belongs to
      * @param vars An array to take control of
      * @throws Failure
      */

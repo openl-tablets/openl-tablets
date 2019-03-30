@@ -33,7 +33,6 @@ public class JavaCollectionAggregateInfo implements IAggregateInfo {
         return new CollectionIndex();
     }
 
-
     @Override
     public IOpenClass getIndexedAggregateType(IOpenClass componentType) {
         return AAggregateInfo.getArrayType(componentType);

@@ -7,8 +7,7 @@ import org.openl.syntax.impl.ISyntaxConstants;
 
 public class OpenLBuilder extends AOpenLBuilder {
 
-    private static final String[] JAVA_LIBRARY_NAMES = new String[] {
-            org.openl.rules.util.Round.class.getName(),
+    private static final String[] JAVA_LIBRARY_NAMES = new String[] { org.openl.rules.util.Round.class.getName(),
             org.openl.rules.util.Booleans.class.getName(),
             org.openl.rules.util.Strings.class.getName(),
             org.openl.rules.util.Dates.class.getName(),
@@ -59,7 +58,7 @@ public class OpenLBuilder extends AOpenLBuilder {
             org.openl.rules.helpers.DoubleRange.class.getName(),
             org.openl.rules.helpers.CharRange.class.getName(),
             org.openl.rules.helpers.StringRange.class.getName(),
-            org.openl.rules.helpers.DateRange.class.getName()};
+            org.openl.rules.helpers.DateRange.class.getName() };
 
     @Override
     public OpenL build(String category) {
@@ -74,8 +73,10 @@ public class OpenLBuilder extends AOpenLBuilder {
         op.setExtendsCategory(OpenL.OPENL_J_NAME);
         op.setCategory(OpenL.OPENL_JAVA_NAME);
 
-        String[] binders = { "function", org.openl.binding.impl.ce.MethodNodeBinder.class.getName(), 
-                             "op.ternary.qmark", org.openl.binding.impl.IfNodeBinderWithCSRSupport.class.getName()};
+        String[] binders = { "function",
+                org.openl.binding.impl.ce.MethodNodeBinder.class.getName(),
+                "op.ternary.qmark",
+                org.openl.binding.impl.IfNodeBinderWithCSRSupport.class.getName() };
 
         NodeBinderFactoryConfiguration nbc = op.createBindings();
 
@@ -119,8 +120,7 @@ public class OpenLBuilder extends AOpenLBuilder {
         /**
          * <libraries>
          *
-         * <library namespace="org.openl.this">
-         * <javalib classname="org.openl.rules.helpers.RulesUtils"/> </library>
+         * <library namespace="org.openl.this"> <javalib classname="org.openl.rules.helpers.RulesUtils"/> </library>
          * </libraries>
          */
 
@@ -150,9 +150,8 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         /*
          *
-         * <types> <typelibrary namespace="org.openl.this"> <javaimport
-         * all="${org.openl.rules.java.project.imports}"/> <javaimport
-         * all="org.openl.rules.helpers"/> </typelibrary> </types>
+         * <types> <typelibrary namespace="org.openl.this"> <javaimport all="${org.openl.rules.java.project.imports}"/>
+         * <javaimport all="org.openl.rules.helpers"/> </typelibrary> </types>
          *
          */
 

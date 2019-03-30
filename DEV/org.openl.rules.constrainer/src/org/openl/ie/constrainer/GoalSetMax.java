@@ -15,8 +15,7 @@ package org.openl.ie.constrainer;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An implementation of a {@link Goal} that sets the upper bound of a domain of
- * the integer variable.
+ * An implementation of a {@link Goal} that sets the upper bound of a domain of the integer variable.
  */
 public class GoalSetMax extends GoalImpl {
     private IntExp _exp;
@@ -35,8 +34,7 @@ public class GoalSetMax extends GoalImpl {
     }
 
     /**
-     * Creates a goal that is ready to change the upper bound of a domain of
-     * it's exp
+     * Creates a goal that is ready to change the upper bound of a domain of it's exp
      *
      * @param exp The variable of type IntExp
      * @param max The variable of type int
@@ -62,8 +60,7 @@ public class GoalSetMax extends GoalImpl {
     }
 
     /**
-     * Adjust the value to become the upper limit of a domain of goal's
-     * variable.
+     * Adjust the value to become the upper limit of a domain of goal's variable.
      */
     public void max(int M) {
         _max = M;

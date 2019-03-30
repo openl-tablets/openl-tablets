@@ -17,7 +17,7 @@ import org.openl.vm.SimpleVM.SimpleRuntimeEnv;
 public class MethodInvokeResourceServiceTask extends AbstractOpenLResourceServiceTask<Object> {
     protected Expression method;
     protected Expression resultVariable;
-    
+
     private Object compiledInstance;
     private ObjectToDataOpenCastConvertor convertor = new ObjectToDataOpenCastConvertor();
 
@@ -27,7 +27,7 @@ public class MethodInvokeResourceServiceTask extends AbstractOpenLResourceServic
         if (runtimeContext instanceof IRulesRuntimeContext) {
             return (IRulesRuntimeContext) runtimeContext;
         }
-        
+
         return IRulesRuntimeContextUtils.buildRuntimeContext(execution);
     }
 
@@ -62,8 +62,7 @@ public class MethodInvokeResourceServiceTask extends AbstractOpenLResourceServic
             Object variable = execution.getVariable(parameterName);
             if (variable != null) {
                 IOpenClass parameterClass = openMethod.getSignature().getParameterType(i);
-                IOpenCast openCast = convertor.getConvertor(parameterClass.getInstanceClass(),
-                    variable.getClass());
+                IOpenCast openCast = convertor.getConvertor(parameterClass.getInstanceClass(), variable.getClass());
                 openCasts[i] = openCast;
                 if (openCast == null) {
                     f = false;
@@ -76,9 +75,9 @@ public class MethodInvokeResourceServiceTask extends AbstractOpenLResourceServic
             for (int i = 0; i < n; i++) {
                 String parameterName = openMethod.getSignature().getParameterName(i);
                 Object variable = execution.getVariable(parameterName);
-                if (openCasts[i] != null){
+                if (openCasts[i] != null) {
                     args[i] = openCasts[i].convert(variable);
-                }else{
+                } else {
                     args[i] = variable;
                 }
             }
@@ -86,10 +85,10 @@ public class MethodInvokeResourceServiceTask extends AbstractOpenLResourceServic
             if (isProvideRuntimeContext(execution)) {
                 env.setContext(buildRuntimeContext(execution));
             }
-            if (compiledInstance == null){
+            if (compiledInstance == null) {
                 compiledInstance = compiledOpenClass.getOpenClass().newInstance(new SimpleRulesVM().getRuntimeEnv());
             }
-            
+
             return openMethod.invoke(compiledInstance, args, env);
         } else {
             StringBuilder parameterNames = new StringBuilder();

@@ -16,8 +16,7 @@ package org.openl.ie.constrainer;
 ///////////////////////////////////////////////////////////////////////////////
 //: Observer.java
 /**
- * An abstract class for the observer in the observer-subject (or
- * subscriber-publisher) design pattern.
+ * An abstract class for the observer in the observer-subject (or subscriber-publisher) design pattern.
  */
 public abstract class Observer implements EventOfInterest.Constants, java.io.Serializable {
     /**
@@ -50,9 +49,8 @@ public abstract class Observer implements EventOfInterest.Constants, java.io.Ser
     }
 
     /**
-     * Called as a notification about an "event" that occured whith the
-     * "subject". This observer should be subscribed to the corresponding event
-     * type for this "subject".
+     * Called as a notification about an "event" that occured whith the "subject". This observer should be subscribed to
+     * the corresponding event type for this "subject".
      */
     public abstract void update(Subject subject, EventOfInterest event) throws Failure;
 

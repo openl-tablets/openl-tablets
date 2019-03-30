@@ -3,7 +3,7 @@ package org.openl.rules.convertor;
 import java.util.Locale;
 
 class LocaleDependConvertor {
-    
+
     private LocaleDependConvertor() {
     }
 

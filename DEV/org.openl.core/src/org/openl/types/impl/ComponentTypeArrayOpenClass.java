@@ -22,7 +22,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     private final String javaName;
 
     public static final ComponentTypeArrayOpenClass createComponentTypeArrayOpenClass(IOpenClass componentClass,
-                                                                                      int dimensions) {
+            int dimensions) {
         ComponentTypeArrayOpenClass componentTypeArrayOpenClass = null;
         for (int i = 0; i <= dimensions; i++) {
             componentTypeArrayOpenClass = new ComponentTypeArrayOpenClass(componentClass);

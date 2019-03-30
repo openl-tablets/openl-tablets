@@ -10,7 +10,6 @@ package org.openl.rules.calculation.result.convertor2;
  * #L%
  */
 
-
 import java.io.Serializable;
 
 public class SpreadsheetResultPoint implements Serializable {

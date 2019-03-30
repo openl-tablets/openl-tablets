@@ -42,7 +42,8 @@ public class OpenLRulesInvocationHandler extends OpenLInvocationHandler implemen
         if (IEngineWrapper.class != method.getDeclaringClass()) {
             IOpenMember targetMethod = getMethodMap().get(method);
             if (targetMethod instanceof IOpenMethod) {
-                validationHandler.validateProxyArguments(((IOpenMethod) targetMethod).getSignature(), getRuntimeEnv(), args);
+                validationHandler
+                    .validateProxyArguments(((IOpenMethod) targetMethod).getSignature(), getRuntimeEnv(), args);
             }
         }
         return super.invoke(proxy, method, args);

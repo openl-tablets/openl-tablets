@@ -19,7 +19,7 @@ import org.openl.types.impl.CompositeMethod;
  * 
  */
 public final class OpenLManager {
-    
+
     private OpenLManager() {
     }
 
@@ -31,9 +31,7 @@ public final class OpenLManager {
      * @param bindingContextDelegator binding context
      * @return {@link IOpenClass} instance
      */
-    public static IOpenClass makeType(OpenL openl,
-            IOpenSourceCodeModule source,
-            IBindingContext bindingContext) {
+    public static IOpenClass makeType(OpenL openl, IOpenSourceCodeModule source, IBindingContext bindingContext) {
 
         OpenLCodeManager codeManager = new OpenLCodeManager(openl);
 
@@ -78,10 +76,9 @@ public final class OpenLManager {
     }
 
     /**
-     * Makes method with unknown return type from source using method name and
-     * method signature. This method used to create open class that hasn't
-     * information of return type at compile time. Return type can be recognized
-     * at runtime time.
+     * Makes method with unknown return type from source using method name and method signature. This method used to
+     * create open class that hasn't information of return type at compile time. Return type can be recognized at
+     * runtime time.
      * 
      * @param opel OpenL engine context
      * @param source source
@@ -123,8 +120,7 @@ public final class OpenLManager {
     }
 
     /**
-     * Compiles module. As a result a module open class will be returned by
-     * engine.
+     * Compiles module. As a result a module open class will be returned by engine.
      * 
      * @param opel OpenL engine context
      * @param source source
@@ -135,27 +131,28 @@ public final class OpenLManager {
     }
 
     /**
-     * Compiles module. As a result a module open class will be returned by
-     * engine.
+     * Compiles module. As a result a module open class will be returned by engine.
      * 
      * @param opel OpenL engine context
      * @param source source
-     * @param executionMode <code>true</code> if module should be compiled in
-     *            memory optimized mode for only execution
+     * @param executionMode <code>true</code> if module should be compiled in memory optimized mode for only execution
      * @return {@link IOpenClass} instance
      */
     public static IOpenClass compileModule(OpenL openl, IOpenSourceCodeModule source, boolean executionMode) {
         return compileModule(openl, source, executionMode, null);
     }
 
-    public static IOpenClass compileModule(OpenL openl, IOpenSourceCodeModule source, boolean executionMode, IDependencyManager dependencyManager) {
+    public static IOpenClass compileModule(OpenL openl,
+            IOpenSourceCodeModule source,
+            boolean executionMode,
+            IDependencyManager dependencyManager) {
         OpenLCompileManager compileManager = new OpenLCompileManager(openl);
         return compileManager.compileModule(source, executionMode, dependencyManager);
     }
 
     /**
-     * Compiles module. As a result a module open class will be returned by
-     * engine. All errors that occurred during compilation are suppressed.
+     * Compiles module. As a result a module open class will be returned by engine. All errors that occurred during
+     * compilation are suppressed.
      * 
      * @param opel OpenL engine context
      * @param source source
@@ -164,22 +161,26 @@ public final class OpenLManager {
     public static CompiledOpenClass compileModuleWithErrors(OpenL openl, IOpenSourceCodeModule source) {
         return compileModuleWithErrors(openl, source, false);
     }
-    
+
     /**
-     * Compiles module. As a result a module open class will be returned by
-     * engine. All errors that occurred during compilation are suppressed.
+     * Compiles module. As a result a module open class will be returned by engine. All errors that occurred during
+     * compilation are suppressed.
      * 
      * @param opel OpenL engine context
      * @param source source
-     * @param executionMode <code>true</code> if module should be compiled in
-     *            memory optimized mode for only execution
+     * @param executionMode <code>true</code> if module should be compiled in memory optimized mode for only execution
      * @return {@link CompiledOpenClass} instance
      */
-    public static CompiledOpenClass compileModuleWithErrors(OpenL openl, IOpenSourceCodeModule source, boolean executionMode) {
+    public static CompiledOpenClass compileModuleWithErrors(OpenL openl,
+            IOpenSourceCodeModule source,
+            boolean executionMode) {
         return compileModuleWithErrors(openl, source, executionMode, null);
     }
 
-    public static CompiledOpenClass compileModuleWithErrors(OpenL openl, IOpenSourceCodeModule source, boolean executionMode, IDependencyManager dependencyManager) {
+    public static CompiledOpenClass compileModuleWithErrors(OpenL openl,
+            IOpenSourceCodeModule source,
+            boolean executionMode,
+            IDependencyManager dependencyManager) {
         OpenLCompileManager compileManager = new OpenLCompileManager(openl);
         return compileManager.compileModuleWithErrors(source, executionMode, dependencyManager);
     }

@@ -24,10 +24,11 @@ public class UnaryOperatorNodeBinder extends ANodeBinder {
     }
 
     public static IMethodCaller findUnaryOperatorMethodCaller(String methodName,
-                                                              IOpenClass[] types,
-                                                              IBindingContext bindingContext) {
+            IOpenClass[] types,
+            IBindingContext bindingContext) {
 
-        IMethodCaller methodCaller = bindingContext.findMethodCaller(ISyntaxConstants.OPERATORS_NAMESPACE, methodName, types);
+        IMethodCaller methodCaller = bindingContext
+            .findMethodCaller(ISyntaxConstants.OPERATORS_NAMESPACE, methodName, types);
 
         if (methodCaller != null) {
             return methodCaller;
@@ -46,6 +47,7 @@ public class UnaryOperatorNodeBinder extends ANodeBinder {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv,
      * org.openl.binding.IBindingContext)
      */

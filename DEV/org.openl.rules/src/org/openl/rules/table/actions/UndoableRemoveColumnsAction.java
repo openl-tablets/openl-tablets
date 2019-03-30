@@ -22,7 +22,7 @@ public class UndoableRemoveColumnsAction extends UndoableRemoveAction {
         this.row = row;
         this.metaInfoWriter = metaInfoWriter;
     }
-    
+
     @Override
     protected boolean canPerformAction(IGridRegion gridRegion) {
         return !(startCol < 0 || startCol >= IGridRegion.Tool.width(gridRegion));
@@ -39,7 +39,9 @@ public class UndoableRemoveColumnsAction extends UndoableRemoveAction {
     }
 
     @Override
-    protected IUndoableGridTableAction performAction(int numberToRemove, IGridRegion fullTableRegion, IGridTable table) {
+    protected IUndoableGridTableAction performAction(int numberToRemove,
+            IGridRegion fullTableRegion,
+            IGridTable table) {
         return GridTool.removeColumns(numberToRemove, startCol, fullTableRegion, table.getGrid(), metaInfoWriter);
     }
 

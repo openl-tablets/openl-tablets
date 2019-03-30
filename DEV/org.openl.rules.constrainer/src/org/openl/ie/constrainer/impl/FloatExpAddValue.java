@@ -8,15 +8,13 @@ import org.openl.ie.constrainer.Subject;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
 
-
 /**
  * An implementation of the expression: <code>(FloatExp + value)</code>.
  */
 public final class FloatExpAddValue extends FloatExpImpl {
     /*
-     * public double value() throws Failure { if (!bound())
-     * constrainer().fail("Attempt to get value of the unbound expression
-     * "+this); return _exp.value()+_value; }
+     * public double value() throws Failure { if (!bound()) constrainer().fail("Attempt to get value of the unbound
+     * expression "+this); return _exp.value()+_value; }
      */
     static final class FloatEventAddValue extends FloatEvent {
 
@@ -31,6 +29,7 @@ public final class FloatExpAddValue extends FloatExpImpl {
         double _value;
 
         FloatEvent _event;
+
         static FloatEventAddValue getEvent(FloatEvent event, double value) {
             FloatEventAddValue ev = (FloatEventAddValue) _factory.getElement();
             ev.init(event, value);
@@ -73,6 +72,7 @@ public final class FloatExpAddValue extends FloatExpImpl {
         }
 
     } // ~ FloatEventAddValue
+
     class FloatExpAddValueObserver extends ExpressionObserver {
 
         FloatExpAddValueObserver() {
@@ -100,6 +100,7 @@ public final class FloatExpAddValue extends FloatExpImpl {
         }
 
     } // ~ FloatExpAddValueObserver
+
     private FloatExp _exp;
 
     private double _value;

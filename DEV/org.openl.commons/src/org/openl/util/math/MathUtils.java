@@ -736,12 +736,10 @@ public class MathUtils {
     }
 
     /**
-     * Divide one BigDecimal to another. When providing a result of divide
-     * operation, the precision '5' and {@link RoundingMode#HALF_UP} settings
-     * are used.
+     * Divide one BigDecimal to another. When providing a result of divide operation, the precision '5' and
+     * {@link RoundingMode#HALF_UP} settings are used.
      * 
-     * @return rounded to 5 values after comma and {@link RoundingMode#HALF_UP}
-     *         value.
+     * @return rounded to 5 values after comma and {@link RoundingMode#HALF_UP} value.
      */
     public static BigDecimal divide(BigDecimal number, BigDecimal divisor) {
         if (number == null || divisor == null) {

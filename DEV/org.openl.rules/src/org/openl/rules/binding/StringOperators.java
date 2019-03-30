@@ -460,7 +460,7 @@ public class StringOperators extends Operators {
     }
 
     public static Byte autocast(String x, Byte y) {
-        return x == null ? null :Byte.valueOf(x);
+        return x == null ? null : Byte.valueOf(x);
     }
 
     public static Integer distance(String x, Byte y) {
@@ -758,23 +758,23 @@ public class StringOperators extends Operators {
     }
 
     public static boolean gt(String x, Integer y) {
-        return x != null && y!= null && Integer.valueOf(x) > y;
+        return x != null && y != null && Integer.valueOf(x) > y;
     }
 
     public static boolean ge(String x, Integer y) {
-        return x != null && y!= null && Integer.valueOf(x) >= y;
+        return x != null && y != null && Integer.valueOf(x) >= y;
     }
 
     public static boolean lt(String x, Integer y) {
-        return x != null && y!= null && Integer.valueOf(x) < y;
+        return x != null && y != null && Integer.valueOf(x) < y;
     }
 
     public static boolean le(String x, Integer y) {
-        return x != null && y!= null && Integer.valueOf(x) <= y;
+        return x != null && y != null && Integer.valueOf(x) <= y;
     }
 
     public static boolean eq(String x, Integer y) {
-        return x == null && y == null || x!= null && y!= null && Integer.valueOf(x) == y;
+        return x == null && y == null || x != null && y != null && Integer.valueOf(x) == y;
     }
 
     public static boolean ne(String x, Integer y) {
@@ -782,21 +782,20 @@ public class StringOperators extends Operators {
     }
 
     public static boolean gt(Integer x, String y) {
-        return x != null && y!= null && Integer.valueOf(y) < x;
+        return x != null && y != null && Integer.valueOf(y) < x;
     }
 
     public static boolean ge(Integer x, String y) {
-        return x != null && y!= null && Integer.valueOf(y) <= x;
+        return x != null && y != null && Integer.valueOf(y) <= x;
     }
 
     public static boolean lt(Integer x, String y) {
-        return x != null && y!= null && Integer.valueOf(y) > x;
+        return x != null && y != null && Integer.valueOf(y) > x;
     }
 
     public static boolean le(Integer x, String y) {
-        return x != null && y!= null && Integer.valueOf(y) >= x;
+        return x != null && y != null && Integer.valueOf(y) >= x;
     }
-
 
     public static boolean eq(Integer x, String y) {
         return eq(y, x);

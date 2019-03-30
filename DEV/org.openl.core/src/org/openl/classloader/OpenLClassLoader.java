@@ -8,7 +8,7 @@ public class OpenLClassLoader extends URLClassLoader {
     public OpenLClassLoader() {
         this(new URL[0]);
     }
-    
+
     public OpenLClassLoader(URL[] urls) {
         super(urls);
     }

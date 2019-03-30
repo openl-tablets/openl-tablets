@@ -7,13 +7,10 @@ import org.openl.source.IOpenSourceCodeModule;
 import java.lang.ref.WeakReference;
 
 /**
- * Provides lazy loading access to the workbook.
- * When {@link #getWorkbook()} first time is called, it is loaded from file system
- * and then is cached using WeakReference.
- * If that workbook is used nowhere, it can at a certain moment be garbage collected,
- * and after that if {@link #getWorkbook()} is called, the workbook will be loaded again.
- * If you want to prevent garbage collecting loaded Workbook instance, invoke
- * {@link #setCanUnload(boolean) setCanUnload(false)}.
+ * Provides lazy loading access to the workbook. When {@link #getWorkbook()} first time is called, it is loaded from
+ * file system and then is cached using WeakReference. If that workbook is used nowhere, it can at a certain moment be
+ * garbage collected, and after that if {@link #getWorkbook()} is called, the workbook will be loaded again. If you want
+ * to prevent garbage collecting loaded Workbook instance, invoke {@link #setCanUnload(boolean) setCanUnload(false)}.
  */
 public class UnloadableLazyWorkbookLoader implements WorkbookLoader {
 
@@ -31,9 +28,8 @@ public class UnloadableLazyWorkbookLoader implements WorkbookLoader {
     }
 
     /**
-     * Get the workbook.
-     * Depending on {@link #isCanUnload()} state, when this method is repeatedly called,
-     * it can (but mustn't) return different instances of workbook java object.
+     * Get the workbook. Depending on {@link #isCanUnload()} state, when this method is repeatedly called, it can (but
+     * mustn't) return different instances of workbook java object.
      *
      * @return loaded workbook
      * @see #isCanUnload()
@@ -48,7 +44,8 @@ public class UnloadableLazyWorkbookLoader implements WorkbookLoader {
         Workbook wb = workbook != null ? workbook : loadWorkbook();
         workbookCache = new WeakReference<>(wb);
         if (!canUnload) {
-            // Store the strong reference to the workbook, so it will not garbage collected until setCanUnload(true) invocation
+            // Store the strong reference to the workbook, so it will not garbage collected until setCanUnload(true)
+            // invocation
             workbook = wb;
         }
         return wb;

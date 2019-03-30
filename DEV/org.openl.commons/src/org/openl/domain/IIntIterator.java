@@ -14,20 +14,20 @@ public interface IIntIterator extends IOpenIterator<Integer> {
     int nextInt();
 
     IIntIterator select(IIntSelector selector);
-    
+
     /**
      * 
      * @return true if iterator can be reset for repeated use
      * @see #reset()
      */
-    
+
     boolean isResetable();
 
     /**
      * resets iterator to it's initial state
-     * @see #isResetable()  
+     * 
+     * @see #isResetable()
      */
     void reset();
- 
 
 }

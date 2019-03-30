@@ -12,28 +12,24 @@ import org.openl.syntax.impl.IdentifierNode;
 
 class FullClassnameSupport {
 
-    private static StringBuilder tryFixChainWithPackage(ISyntaxNode syntaxNode,
-            IBindingContext bindingContext) {
+    private static StringBuilder tryFixChainWithPackage(ISyntaxNode syntaxNode, IBindingContext bindingContext) {
         if (syntaxNode instanceof IdentifierNode) {
             return new StringBuilder(syntaxNode.getText());
         } else if ("chain.suffix.dot.identifier".equals(syntaxNode.getType())) {
-                    StringBuilder sb = tryFixChainWithPackage(syntaxNode.getChild(0), bindingContext);
-                    if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, sb.toString()) != null) {
-                        try {
-                            Field field = BinaryNode.class.getDeclaredField("left");
-                            field.setAccessible(true);
-                            ISyntaxNode node = syntaxNode.getChild(0);
-                            field.set(syntaxNode,
-                                new IdentifierNode("identifier",
-                                    node.getSourceLocation(),
-                                    sb.toString(),
-                                    node.getModule()));
-                        } catch (NoSuchFieldException | IllegalAccessException ignored) {
-                        }
-                    }
-                    sb.append(".");
-                    sb.append(tryFixChainWithPackage(syntaxNode.getChild(1), bindingContext));
-                    return sb;
+            StringBuilder sb = tryFixChainWithPackage(syntaxNode.getChild(0), bindingContext);
+            if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, sb.toString()) != null) {
+                try {
+                    Field field = BinaryNode.class.getDeclaredField("left");
+                    field.setAccessible(true);
+                    ISyntaxNode node = syntaxNode.getChild(0);
+                    field.set(syntaxNode,
+                        new IdentifierNode("identifier", node.getSourceLocation(), sb.toString(), node.getModule()));
+                } catch (NoSuchFieldException | IllegalAccessException ignored) {
+                }
+            }
+            sb.append(".");
+            sb.append(tryFixChainWithPackage(syntaxNode.getChild(1), bindingContext));
+            return sb;
         }
         throw new OpenlNotCheckedException();
     }
@@ -43,19 +39,20 @@ class FullClassnameSupport {
             return;
         }
         if ("chain.suffix.dot.identifier".equals(syntaxNode.getType())) {
-            try { 
+            try {
                 String fieldName = tryFixChainWithPackage(syntaxNode, bindingContext).toString();
                 if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fieldName) != null) {
                     try {
                         Field field = BinaryNode.class.getDeclaredField("left");
                         field.setAccessible(true);
-                        if (!(syntaxNode.getParent() instanceof BinaryNode)){
+                        if (!(syntaxNode.getParent() instanceof BinaryNode)) {
                             throw new IllegalStateException();
                         }
-                        field.set(syntaxNode.getParent(), new IdentifierNode("identifier",
-                            syntaxNode.getSourceLocation(),
-                            fieldName,
-                            syntaxNode.getModule()));
+                        field.set(syntaxNode.getParent(),
+                            new IdentifierNode("identifier",
+                                syntaxNode.getSourceLocation(),
+                                fieldName,
+                                syntaxNode.getModule()));
                     } catch (NoSuchFieldException e) {
                     } catch (IllegalAccessException e) {
                     }

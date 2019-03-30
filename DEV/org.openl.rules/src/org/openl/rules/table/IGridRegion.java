@@ -40,7 +40,7 @@ public interface IGridRegion {
         public static int getAbsoluteRow(IGridRegion region, int row) {
             return row + region.getTop();
         }
-        
+
         /**
          * Calculates grid region height.
          * 
@@ -50,11 +50,11 @@ public interface IGridRegion {
         public static int height(IGridRegion i1) {
             return i1.getBottom() - i1.getTop() + 1;
         }
-        
+
         /**
-         * Finds common {@link IGridRegion} for incoming regions. 
+         * Finds common {@link IGridRegion} for incoming regions.
          * 
-         * @param i1 first grid region  
+         * @param i1 first grid region
          * @param i2 second grid region
          * @return intersection of incoming grid regions. <code>null</code> if there is no intersection.
          */
@@ -84,7 +84,7 @@ public interface IGridRegion {
         public static int width(IGridRegion i1) {
             return i1.getRight() - i1.getLeft() + 1;
         }
-        
+
         public static int getColumn(String cell) {
             int col = 0;
             int mul = 'Z' - 'A' + 1;
@@ -97,7 +97,7 @@ public interface IGridRegion {
             }
             throw new RuntimeException("Invalid cell: " + cell);
         }
-                
+
         public static int getRow(String cell) {
             for (int i = 0; i < cell.length(); i++) {
                 char ch = cell.charAt(i);
@@ -107,7 +107,7 @@ public interface IGridRegion {
             }
             throw new RuntimeException("Invalid cell: " + cell);
         }
-                
+
         public static IGridRegion makeRegion(String range) {
 
             int idx = range.indexOf(AGrid.RANGE_SEPARATOR);
@@ -129,8 +129,8 @@ public interface IGridRegion {
         public static boolean isValidRegion(IGridRegion region, SpreadsheetConstants spreadsheetConstants) {
             int rowIndex = region.getBottom();
             int columnIndex = region.getRight();
-            return rowIndex >= 0 && rowIndex <= spreadsheetConstants.getMaxRowIndex()
-                    && columnIndex >= 0 && columnIndex <= spreadsheetConstants.getMaxColumnIndex();
+            return rowIndex >= 0 && rowIndex <= spreadsheetConstants
+                .getMaxRowIndex() && columnIndex >= 0 && columnIndex <= spreadsheetConstants.getMaxColumnIndex();
         }
     }
 

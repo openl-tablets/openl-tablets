@@ -19,5 +19,5 @@ public class ResultNotFoundException extends Exception {
     public ResultNotFoundException(Throwable cause) {
         super(cause);
     }
-    
+
 }

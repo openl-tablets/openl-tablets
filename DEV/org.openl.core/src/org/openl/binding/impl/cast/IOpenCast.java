@@ -31,8 +31,7 @@ public interface IOpenCast {
     /**
      * Checks that cast can be performed automatically.
      * 
-     * @return true if cast can be performed automatically, i.e. without
-     *         explicit casting
+     * @return true if cast can be performed automatically, i.e. without explicit casting
      */
     boolean isImplicit();
 }

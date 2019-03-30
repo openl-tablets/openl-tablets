@@ -41,7 +41,7 @@ public class EventTableStyles implements TableStyles {
         this.customFormats = customFormats;
         this.palette = palette;
         this.fonts = fonts;
-        this.comments = comments == null ? Collections.<HSSFComment>emptyList() : comments;
+        this.comments = comments == null ? Collections.<HSSFComment> emptyList() : comments;
         this.formulas = formulas;
     }
 

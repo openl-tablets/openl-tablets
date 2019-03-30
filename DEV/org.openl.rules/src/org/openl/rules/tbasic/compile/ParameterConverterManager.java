@@ -13,15 +13,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Converts the parameter defined in the TBasic table specification to the
- * appropriate Operation constructor parameter
+ * Converts the parameter defined in the TBasic table specification to the appropriate Operation constructor parameter
  *
  * Created by dl on 9/16/14.
  */
 public class ParameterConverterManager {
     private AlgorithmCompiler compiler;
 
-    /** return type for some contexts that are represented as functions**/
+    /** return type for some contexts that are represented as functions **/
     private IOpenClass returnType;
 
     private LabelManager labelManager;
@@ -41,17 +40,19 @@ public class ParameterConverterManager {
     }
 
     public Object convertParam(List<AlgorithmTreeNode> nodesToCompile,
-                                Class<?> clazz,
-                                String operationParam)
-            throws SyntaxNodeException {
+            Class<?> clazz,
+            String operationParam) throws SyntaxNodeException {
 
         ParameterConverter converter = parameterConverters.get(clazz);
 
         if (converter == null) {
-            IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()
-                    .asSourceCodeModule();
-            throw SyntaxNodeExceptionUtils.createError(String.format("Compilation failure. Can't convert parameter %s to type %s",
-                    operationParam, clazz.toString()), errorSource);
+            IOpenSourceCodeModule errorSource = nodesToCompile.get(0)
+                .getAlgorithmRow()
+                .getOperation()
+                .asSourceCodeModule();
+            throw SyntaxNodeExceptionUtils.createError(String
+                .format("Compilation failure. Can't convert parameter %s to type %s", operationParam, clazz.toString()),
+                errorSource);
         }
 
         return converter.convert(nodesToCompile, operationParam);
@@ -64,7 +65,8 @@ public class ParameterConverterManager {
     private final class StringConverter implements ParameterConverter {
 
         @Override
-        public Object convert(List<AlgorithmTreeNode> nodesToCompile, String operationParam) throws SyntaxNodeException {
+        public Object convert(List<AlgorithmTreeNode> nodesToCompile,
+                String operationParam) throws SyntaxNodeException {
             if (labelManager.isLabelInstruction(operationParam)) {
                 return labelManager.getLabelByInstruction(operationParam);
             } else if (AlgorithmCompilerTool.isOperationFieldInstruction(operationParam)) {
@@ -81,7 +83,8 @@ public class ParameterConverterManager {
     private final class BooleanConverter implements ParameterConverter {
 
         @Override
-        public Object convert(List<AlgorithmTreeNode> nodesToCompile, String operationParam) throws SyntaxNodeException {
+        public Object convert(List<AlgorithmTreeNode> nodesToCompile,
+                String operationParam) throws SyntaxNodeException {
             return Boolean.parseBoolean(operationParam);
         }
     }
@@ -89,7 +92,8 @@ public class ParameterConverterManager {
     private final class MethodCallerConverter implements ParameterConverter {
 
         @Override
-        public Object convert(List<AlgorithmTreeNode> nodesToCompile, String operationParam) throws SyntaxNodeException {
+        public Object convert(List<AlgorithmTreeNode> nodesToCompile,
+                String operationParam) throws SyntaxNodeException {
             if (operationParam == null) {
                 return null;
             }
@@ -97,16 +101,15 @@ public class ParameterConverterManager {
             StringValue cellContent = AlgorithmCompilerTool.getCellContent(nodesToCompile, operationParam);
 
             AlgorithmTreeNode executionNode = AlgorithmCompilerTool.extractOperationNode(nodesToCompile,
-                    operationParam);
-            String methodName = String.format("%s_row_%s", operationParam.replace('.', '_'),
-                    executionNode.getAlgorithmRow().getRowNumber());
-
+                operationParam);
+            String methodName = String
+                .format("%s_row_%s", operationParam.replace('.', '_'), executionNode.getAlgorithmRow().getRowNumber());
 
             IOpenSourceCodeModule src = cellContent.getMetaInfo().getSource();
             // return statements for the whole Algorithm(TBasic) should be casted to the return type of
             // whole Algorithm rule
             if (labelManager.isReturnInstruction(operationParam)) {
-                /** create method and cast its value to the appropriate return type*/
+                /** create method and cast its value to the appropriate return type */
                 return compiler.makeMethodWithCast(src, methodName, returnType);
             } else {
                 return compiler.makeMethod(src, methodName);

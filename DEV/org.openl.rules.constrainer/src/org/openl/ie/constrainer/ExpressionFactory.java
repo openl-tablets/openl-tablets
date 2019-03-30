@@ -24,8 +24,7 @@ public interface ExpressionFactory extends Undoable {
     public Expression getExpression(Class clazz, Object[] args);
 
     /**
-     * Returns new or cached expression of the required class, arguments and
-     * argument types. Better performance than
+     * Returns new or cached expression of the required class, arguments and argument types. Better performance than
      * {@link #getExpression(Class,Object[])}.
      */
     public Expression getExpression(Class clazz, Object[] args, Class[] types);

@@ -10,8 +10,8 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
 
 /**
- * The <code>IOpenParser</code> interface is designed to provide a common
- * protocol for parsers what can be used in OpenL engine.
+ * The <code>IOpenParser</code> interface is designed to provide a common protocol for parsers what can be used in OpenL
+ * engine.
  * 
  * @author snshor
  * 

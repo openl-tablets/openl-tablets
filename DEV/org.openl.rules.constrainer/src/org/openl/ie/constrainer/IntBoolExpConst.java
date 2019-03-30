@@ -15,24 +15,23 @@ package org.openl.ie.constrainer;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * IntBoolExp wraps a boolean value (that is reffered to as "boolean_const" in
- * this documentation) into object that is to be used like constant expression
- * of IntBoolExp type.
+ * IntBoolExp wraps a boolean value (that is reffered to as "boolean_const" in this documentation) into object that is
+ * to be used like constant expression of IntBoolExp type.
  */
 public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
     /**
-     * Acts like a following constructor:
-     * <code>new IntBoolExpConst(c,value)</code>
+     * Acts like a following constructor: <code>new IntBoolExpConst(c,value)</code>
      */
     public static IntBoolExpConst getIntBoolExpConst(Constrainer c, boolean value) {
         // return new IntBoolExpConst(constrainer(),value);
-        return (IntBoolExpConst) c.expressionFactory().getExpression(IntBoolExpConst.class,
-                new Object[] { c, new Boolean(value) }, new Class[] { Constrainer.class, boolean.class });
+        return (IntBoolExpConst) c.expressionFactory()
+            .getExpression(IntBoolExpConst.class,
+                new Object[] { c, new Boolean(value) },
+                new Class[] { Constrainer.class, boolean.class });
     }
 
     /**
-     * Constructs an IntBoolExpConst and initializes "boolean_const" (Wrapped
-     * boolean value) with value.
+     * Constructs an IntBoolExpConst and initializes "boolean_const" (Wrapped boolean value) with value.
      */
     public IntBoolExpConst(Constrainer c, boolean value) {
         super(c, value ? 1 : 0);

@@ -1,6 +1,5 @@
 package org.openl.syntax.exception.formatter;
 
-
 public class NoClassDefFoundErrorFormatter implements ExceptionMessageFormatter {
 
     @Override
@@ -10,7 +9,7 @@ public class NoClassDefFoundErrorFormatter implements ExceptionMessageFormatter 
             return String.format("Can't load type '%s'!", cause.getMessage());
         }
         return error.getMessage();
-        
+
     }
 
 }

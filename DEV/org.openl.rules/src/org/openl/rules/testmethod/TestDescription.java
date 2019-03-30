@@ -89,7 +89,7 @@ public class TestDescription {
                     args[i] = cloner.deepClone(value);
                 } catch (RuntimeException e) {
                     Log.error("Failed to clone an argument \"{0}\". Original argument will be used.",
-                            executionParams[i].getName());
+                        executionParams[i].getName());
                     args[i] = value;
                 }
             } finally {
@@ -99,9 +99,12 @@ public class TestDescription {
         return args;
     }
 
-    private static ParameterWithValueDeclaration[] initExecutionParams(IOpenMethod testedMethod, DynamicObject testObject, IDataBase db, ColumnDescriptor[] columnDescriptors) {
+    private static ParameterWithValueDeclaration[] initExecutionParams(IOpenMethod testedMethod,
+            DynamicObject testObject,
+            IDataBase db,
+            ColumnDescriptor[] columnDescriptors) {
         ParameterWithValueDeclaration[] executionParams = new ParameterWithValueDeclaration[testedMethod.getSignature()
-                .getNumberOfParameters()];
+            .getNumberOfParameters()];
         for (int i = 0; i < executionParams.length; i++) {
             String paramName = testedMethod.getSignature().getParameterName(i);
             Object paramValue = testObject.getFieldValue(paramName);
@@ -109,11 +112,7 @@ public class TestDescription {
 
             IOpenField keyField = getKeyField(paramName, paramType, paramValue, db, columnDescriptors);
 
-            executionParams[i] = new ParameterWithValueDeclaration(paramName,
-                    paramValue,
-                    paramType,
-                    keyField
-            );
+            executionParams[i] = new ParameterWithValueDeclaration(paramName, paramValue, paramType, keyField);
         }
         return executionParams;
     }
@@ -133,7 +132,8 @@ public class TestDescription {
     public boolean isExpectedResultDefined() {
         return testObject.containsField(TestMethodHelper.EXPECTED_RESULT_NAME)
                 // When all test cases contain empty (null) expected value
-                || testObject.getType() != null && testObject.getType().getField(TestMethodHelper.EXPECTED_RESULT_NAME) != null;
+                || testObject.getType() != null && testObject.getType()
+                    .getField(TestMethodHelper.EXPECTED_RESULT_NAME) != null;
     }
 
     public Object getExpectedResult() {
@@ -154,11 +154,11 @@ public class TestDescription {
 
     public IRulesRuntimeContext getRuntimeContext(OpenLArgumentsCloner cloner) {
         IRulesRuntimeContext context = (IRulesRuntimeContext) getArgumentValue(TestMethodHelper.CONTEXT_NAME);
-        
+
         if (context == null) {
             return RulesRuntimeContextFactory.buildRulesRuntimeContext();
         }
-        
+
         try {
             return cloner.deepClone(context);
         } catch (Exception e) {
@@ -198,7 +198,11 @@ public class TestDescription {
         return fields;
     }
 
-    protected static IOpenField getKeyField(String paramName, IOpenClass type, Object value, IDataBase db, ColumnDescriptor[] columnDescriptors) {
+    protected static IOpenField getKeyField(String paramName,
+            IOpenClass type,
+            Object value,
+            IDataBase db,
+            ColumnDescriptor[] columnDescriptors) {
         if (value == null) {
             return null;
         }
@@ -229,7 +233,7 @@ public class TestDescription {
         }
         if (foreignKeyField == null) {
             // Couldn't find foreign key field in foreign Data Table or current Test Table - fallback to index field
-            foreignKeyField = type ==null ? null : type.getIndexField();
+            foreignKeyField = type == null ? null : type.getIndexField();
         }
 
         return foreignKeyField;

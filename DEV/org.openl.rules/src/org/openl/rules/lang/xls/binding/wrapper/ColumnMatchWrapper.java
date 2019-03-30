@@ -21,20 +21,20 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrapper{
+public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrapper {
     ColumnMatch delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
-    
+
     public ColumnMatchWrapper(XlsModuleOpenClass xlsModuleOpenClass, ColumnMatch delegate) {
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
-    
+
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return WrapperLogic.invoke(this, target, params, env);
     }
-    
+
     @Override
     public XlsModuleOpenClass getXlsModuleOpenClass() {
         return xlsModuleOpenClass;
@@ -69,7 +69,7 @@ public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrappe
     public IOpenSourceCodeModule getAlgorithm() {
         return delegate.getAlgorithm();
     }
-    
+
     @Override
     public IOpenMethod getDelegate() {
         return delegate;
@@ -209,17 +209,17 @@ public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrappe
     public TableSyntaxNode getSyntaxNode() {
         return delegate.getSyntaxNode();
     }
-    
+
     @Override
     public String getModuleName() {
         return delegate.getModuleName();
     }
-    
+
     @Override
     public void setModuleName(String dependencyName) {
         delegate.setModuleName(dependencyName);
     }
-    
+
     private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override

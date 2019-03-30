@@ -26,11 +26,10 @@ public class XlsParser extends BaseParser {
     @Override
     public IParsedCode parseAsModule(IOpenSourceCodeModule source) {
 
-        String[] roots = {userContext.getUserHome()};
+        String[] roots = { userContext.getUserHome() };
         ClassLoader classLoader = userContext.getUserClassLoader();
-        IncludeSearcher includeSeeker = new IncludeSearcher(new ConfigurableResourceContext(classLoader,
-                roots));
-        
+        IncludeSearcher includeSeeker = new IncludeSearcher(new ConfigurableResourceContext(classLoader, roots));
+
         XlsLoader xlsLoader = new XlsLoader(includeSeeker);
 
         return xlsLoader.parse(source);

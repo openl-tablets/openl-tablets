@@ -229,8 +229,10 @@ public class DomainOpenClass implements IOpenClass {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         DomainOpenClass that = (DomainOpenClass) o;
 
@@ -246,7 +248,7 @@ public class DomainOpenClass implements IOpenClass {
     public Iterable<IOpenMethod> constructors() {
         return baseClass.constructors();
     }
-    
+
     @Override
     public IOpenClass getArrayType(int dim) {
         return AOpenClass.getArrayType(this, dim);

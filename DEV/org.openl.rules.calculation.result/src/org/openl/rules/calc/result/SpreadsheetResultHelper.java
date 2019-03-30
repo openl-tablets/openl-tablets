@@ -10,7 +10,6 @@ package org.openl.rules.calc.result;
  * #L%
  */
 
-
 public class SpreadsheetResultHelper {
     private SpreadsheetResultHelper() {
     }
@@ -26,12 +25,12 @@ public class SpreadsheetResultHelper {
             throw new IllegalArgumentException("Invalid columnName format");
         }
         for (int index = 0; index < colNames.length; index++) {
-            if (colNames[index] != null){
+            if (colNames[index] != null) {
                 String trimmedColName = colNames[index].trim();
-                if (trimmedColName.equals(columnName)
-                        || (trimmedColName.startsWith(columnName) && (Character.isSpaceChar(trimmedColName
-                                .charAt(columnName.length())) || Character.valueOf(':').equals(
-                                trimmedColName.charAt(columnName.length())))))
+                if (trimmedColName.equals(columnName) || (trimmedColName.startsWith(
+                    columnName) && (Character.isSpaceChar(trimmedColName.charAt(columnName.length())) || Character
+                        .valueOf(':')
+                        .equals(trimmedColName.charAt(columnName.length())))))
                     return index;
             }
         }

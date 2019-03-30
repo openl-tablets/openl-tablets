@@ -19,7 +19,9 @@ public class SpreadsheetContext extends ComponentBindingContext {
     }
 
     @Override
-    public IOpenField findRange(String namespace, String rangeStartName, String rangeEndName) throws OpenLCompilationException {
+    public IOpenField findRange(String namespace,
+            String rangeStartName,
+            String rangeEndName) throws OpenLCompilationException {
 
         String key = namespace + ":" + rangeStartName + ":" + rangeEndName;
         IOpenField fstart = findVar(namespace, rangeStartName, true);
@@ -58,17 +60,23 @@ public class SpreadsheetContext extends ComponentBindingContext {
         iterateThroughTheRange(sx, sy, w, h, castsCollector);
 
         if (castsCollector.isImplicitCastNotSupported()) {
-            throw new OpenLCompilationException("Types in range " + rangeStartName + ":" + rangeEndName + " can't be implicit casted to '" + rangeType.getDisplayName(0) + "'.");
+            throw new OpenLCompilationException(
+                "Types in range " + rangeStartName + ":" + rangeEndName + " can't be implicit casted to '" + rangeType
+                    .getDisplayName(0) + "'.");
         }
 
         return new SpreadsheetRangeField(key,
-                (SpreadsheetCellField) fstart,
-                (SpreadsheetCellField) fend,
-                rangeType,
-                castsCollector.getCasts());
+            (SpreadsheetCellField) fstart,
+            (SpreadsheetCellField) fend,
+            rangeType,
+            castsCollector.getCasts());
     }
 
-    private void iterateThroughTheRange(int startColumn, int startRow, int columnsInRange, int rowsInRange, SpreadsheetFieldCollector collector) {
+    private void iterateThroughTheRange(int startColumn,
+            int startRow,
+            int columnsInRange,
+            int rowsInRange,
+            SpreadsheetFieldCollector collector) {
         ComponentOpenClass componentOpenClass = getComponentOpenClass();
         ComponentBindingContext componentBindingContext = this;
         while (componentOpenClass != null) {
@@ -108,9 +116,9 @@ public class SpreadsheetContext extends ComponentBindingContext {
 
         @Override
         public void collect(int columnInRange, int rowInRange, SpreadsheetCellField field) {
-            if (casts[columnInRange][rowInRange] == null && !rangeType.equals(field.getType())){
+            if (casts[columnInRange][rowInRange] == null && !rangeType.equals(field.getType())) {
                 casts[columnInRange][rowInRange] = getCast(field.getType(), rangeType);
-                if (!casts[columnInRange][rowInRange].isImplicit()){
+                if (!casts[columnInRange][rowInRange].isImplicit()) {
                     casts[columnInRange][rowInRange] = null;
                 }
                 if (casts[columnInRange][rowInRange] == null) {

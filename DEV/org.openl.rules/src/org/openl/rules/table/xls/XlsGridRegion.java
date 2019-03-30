@@ -7,7 +7,6 @@ import org.openl.rules.table.IGridRegion;
 
     private CellRangeAddress poiXlsRegion;
 
-    
     /* internal */ XlsGridRegion(CellRangeAddress poiXlsRegion) {
         this.poiXlsRegion = poiXlsRegion;
     }
@@ -15,7 +14,7 @@ import org.openl.rules.table.IGridRegion;
     public CellRangeAddress getPoiXlsRegion() {
         return poiXlsRegion;
     }
-    
+
     @Override
     public int getBottom() {
         return poiXlsRegion.getLastRow();

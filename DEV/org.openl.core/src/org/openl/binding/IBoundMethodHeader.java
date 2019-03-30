@@ -15,5 +15,5 @@ import org.openl.types.IOpenMethodHeader;
 public interface IBoundMethodHeader extends IBoundNode {
 
     IOpenMethodHeader getMethodHeader();
-    
+
 }

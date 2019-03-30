@@ -21,7 +21,7 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
 
     private IOpenSourceCodeModule[] modules;
     private String source;
-    
+
     private int[] modulesCount;
     private Map<String, Object> params;
 
@@ -31,19 +31,19 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
 
         makeCode(separator);
     }
-    
+
     public IOpenSourceCodeModule[] getModules() {
         return modules;
     }
 
     private void makeCode(String separator) {
         StringBuilder buf = new StringBuilder(100);
-    
+
         for (int i = 0; i < modules.length; i++) {
             if (modules[i] == null) {
                 continue;
             }
-    
+
             String code = modules[i].getCode();
             modulesCount[i] = code.length() + separator.length();
             buf.append(code);
@@ -77,7 +77,7 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
     public String getUri() {
         for (int i = 0; i < modulesCount.length; i++) {
             if (modulesCount[i] > 0) {
-                return  modules[i].getUri();
+                return modules[i].getUri();
             }
         }
         return null;

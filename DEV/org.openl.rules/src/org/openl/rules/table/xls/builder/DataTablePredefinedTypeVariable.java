@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A class that describes a Data Table's table type variable for predefined
- * types such as String, BigDecimal, IntRange etc
+ * A class that describes a Data Table's table type variable for predefined types such as String, BigDecimal, IntRange
+ * etc
  * 
  * @author NSamatov
  */

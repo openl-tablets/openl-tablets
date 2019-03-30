@@ -14,9 +14,8 @@ import org.openl.types.java.JavaOpenClass;
 import java.util.List;
 
 /**
- * The <code>ReturnAnalyzer</code> class analyzes body of some TBasic function
- * for correctness of returns sequence and return types and detects unreachable
- * code.
+ * The <code>ReturnAnalyzer</code> class analyzes body of some TBasic function for correctness of returns sequence and
+ * return types and detects unreachable code.
  *
  */
 public class ReturnAnalyzer {
@@ -24,8 +23,7 @@ public class ReturnAnalyzer {
     private AlgorithmCompiler compiler;
 
     /**
-     * Create an instance of <code>ReturnAnalyzer</code> for analysis of some
-     * function from TBasic compiler.
+     * Create an instance of <code>ReturnAnalyzer</code> for analysis of some function from TBasic compiler.
      *
      * @param returnType Expected return type of function
      * @param compiler Associated TBasic compiler.
@@ -36,13 +34,11 @@ public class ReturnAnalyzer {
     }
 
     /**
-     * Make full analysis of correctness of returns sequence and return types
-     * and detects unreachable code.
+     * Make full analysis of correctness of returns sequence and return types and detects unreachable code.
      *
      * @param nodesToAnalyze Body of some function to analyze.
      * @return Correctness of code.
-     * @throws SyntaxNodeException If function contains unreachable code or incorrect
-     *             return type.
+     * @throws SyntaxNodeException If function contains unreachable code or incorrect return type.
      */
     public SuitablityAsReturn analyze(List<AlgorithmTreeNode> nodesToAnalyze) throws SyntaxNodeException {
         if (returnType != JavaOpenClass.VOID) {
@@ -53,16 +49,17 @@ public class ReturnAnalyzer {
     }
 
     private SuitablityAsReturn analyzeGroup(List<AlgorithmTreeNode> nodesToAnalyze) throws SyntaxNodeException {
-        if (TBasicSpecificationKey.IF.toString().equals(nodesToAnalyze.get(0).getSpecificationKeyword())
-                && TBasicSpecificationKey.ELSE.toString().equals(nodesToAnalyze.get(1).getSpecificationKeyword())) {
+        if (TBasicSpecificationKey.IF.toString()
+            .equals(nodesToAnalyze.get(0).getSpecificationKeyword()) && TBasicSpecificationKey.ELSE.toString()
+                .equals(nodesToAnalyze.get(1).getSpecificationKeyword())) {
             return analyzeIFOperation(nodesToAnalyze, nodesToAnalyze.get(0).getSpecification().isMultiline());
         } else {
             return SuitablityAsReturn.NONE;
         }
     }
 
-    private SuitablityAsReturn analyzeIFOperation(List<AlgorithmTreeNode> nodesToAnalyze, boolean isMultiline)
-            throws SyntaxNodeException {
+    private SuitablityAsReturn analyzeIFOperation(List<AlgorithmTreeNode> nodesToAnalyze,
+            boolean isMultiline) throws SyntaxNodeException {
         SuitablityAsReturn result = SuitablityAsReturn.RETURN;
         // checks only IF and ELSE branches
         for (int i = 0; i < 2; i++) {
@@ -87,8 +84,11 @@ public class ReturnAnalyzer {
                 return SuitablityAsReturn.RETURN;
             } else {
                 IOpenSourceCodeModule errorSource = nodeToAnalyze.getAlgorithmRow().getCondition().asSourceCodeModule();
-                throw SyntaxNodeExceptionUtils.createError("Incorrect return type. Return type of function declared as '"
-                        + returnType.getDisplayName(INamedThing.REGULAR) + "'", errorSource);
+                throw SyntaxNodeExceptionUtils
+                    .createError(
+                        "Incorrect return type. Return type of function declared as '" + returnType
+                            .getDisplayName(INamedThing.REGULAR) + "'",
+                        errorSource);
             }
         } else if (canBeGrouped(nodeToAnalyze)) {
             // for loops and single IF without ELSE
@@ -112,9 +112,12 @@ public class ReturnAnalyzer {
             }
 
             if (result == SuitablityAsReturn.RETURN && i + linkedNodesGroupSize < nodesToAnalyze.size()) {
-                IOpenSourceCodeModule errorSource = nodesToAnalyze.get(i + linkedNodesGroupSize).getAlgorithmRow()
-                        .getOperation().asSourceCodeModule();
-                throw SyntaxNodeExceptionUtils.createError("Unreachable code. Operations after RETURN not allowed.", errorSource);
+                IOpenSourceCodeModule errorSource = nodesToAnalyze.get(i + linkedNodesGroupSize)
+                    .getAlgorithmRow()
+                    .getOperation()
+                    .asSourceCodeModule();
+                throw SyntaxNodeExceptionUtils.createError("Unreachable code. Operations after RETURN not allowed.",
+                    errorSource);
             }
         }
         return result;
@@ -122,8 +125,8 @@ public class ReturnAnalyzer {
 
     private boolean canBeGrouped(AlgorithmTreeNode nodeToAnalyze) {
         String currentNodeKeyword = nodeToAnalyze.getSpecificationKeyword();
-        String[] operationNamesToGroup = AlgorithmTableParserManager.getInstance().whatOperationsToGroup(
-                currentNodeKeyword);
+        String[] operationNamesToGroup = AlgorithmTableParserManager.getInstance()
+            .whatOperationsToGroup(currentNodeKeyword);
         return operationNamesToGroup != null;
     }
 

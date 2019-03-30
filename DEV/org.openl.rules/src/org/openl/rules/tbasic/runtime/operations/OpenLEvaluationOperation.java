@@ -7,8 +7,7 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.types.IMethodCaller;
 
 /**
- * The <code>OpenLEvaluationOperation</code> class describes operation which
- * has expression which must be calculated.
+ * The <code>OpenLEvaluationOperation</code> class describes operation which has expression which must be calculated.
  *
  * @author User
  *
@@ -36,8 +35,8 @@ public abstract class OpenLEvaluationOperation extends RuntimeOperation {
         Object resultValue = null;
 
         if (openLStatement != null) {
-            resultValue = openLStatement.invoke(environment.getTbasicTarget(), environment.getTbasicParams(),
-                    environment);
+            resultValue = openLStatement
+                .invoke(environment.getTbasicTarget(), environment.getTbasicParams(), environment);
         }
 
         return resultValue;

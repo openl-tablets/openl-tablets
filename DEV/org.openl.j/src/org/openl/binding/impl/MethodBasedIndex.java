@@ -16,6 +16,7 @@ public class MethodBasedIndex implements IOpenIndex {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.openl.types.IOpenIndex#getElementType()
      */
     @Override
@@ -25,6 +26,7 @@ public class MethodBasedIndex implements IOpenIndex {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.openl.types.IOpenIndex#getIndexType()
      */
     @Override
@@ -36,6 +38,7 @@ public class MethodBasedIndex implements IOpenIndex {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.openl.types.IOpenIndex#getValue(java.lang.Object, java.lang.Object)
      */
     @Override
@@ -53,6 +56,7 @@ public class MethodBasedIndex implements IOpenIndex {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.openl.types.IOpenIndex#isWritable()
      */
     @Override

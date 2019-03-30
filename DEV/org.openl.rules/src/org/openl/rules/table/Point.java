@@ -5,7 +5,7 @@ package org.openl.rules.table;
  *
  */
 public final class Point {
-    
+
     private int column;
     private int row;
 
@@ -14,7 +14,8 @@ public final class Point {
         this.row = row;
     }
 
-    public Point() {}
+    public Point() {
+    }
 
     public int getColumn() {
         return column;
@@ -53,5 +54,5 @@ public final class Point {
     public String toString() {
         return String.format("column index: %s\nrow index: %s", column, row);
     }
-    
+
 }

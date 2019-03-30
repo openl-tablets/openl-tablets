@@ -15,8 +15,7 @@ import org.openl.types.IOpenField;
 public interface ILocalVar extends IOpenField {
 
     /**
-     * Each local variable is put in it's own spot in a stack frame. This method
-     * returns an index in the frame.
+     * Each local variable is put in it's own spot in a stack frame. This method returns an index in the frame.
      *
      * @return
      */

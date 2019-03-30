@@ -8,6 +8,7 @@ import java.lang.reflect.Array;
 class ArrayComparator extends GenericComparator<Object> {
 
     private final TestResultComparator elementComporator;
+
     ArrayComparator(Class<?> clazz, Double delta) {
         this.elementComporator = TestResultComparatorFactory.getComparator(clazz, delta);
     }
@@ -16,7 +17,7 @@ class ArrayComparator extends GenericComparator<Object> {
     boolean fit(Object expected, Object actual) {
         return (expected == null || expected.getClass().isArray()) && (actual == null || actual.getClass().isArray());
     }
-    
+
     @Override
     boolean isEmpty(Object object) {
         return Array.getLength(object) == 0;

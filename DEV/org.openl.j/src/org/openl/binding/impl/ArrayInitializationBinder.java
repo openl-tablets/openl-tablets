@@ -22,8 +22,7 @@ public class ArrayInitializationBinder extends ANodeBinder {
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode,
-     *      org.openl.binding.IBindingContext)
+     * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext)
      */
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
@@ -33,8 +32,8 @@ public class ArrayInitializationBinder extends ANodeBinder {
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.binding.INodeBinder#bindType(org.openl.syntax.ISyntaxNode,
-     *      org.openl.binding.IBindingContext, org.openl.types.IOpenClass)
+     * @see org.openl.binding.INodeBinder#bindType(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext,
+     * org.openl.types.IOpenClass)
      */
     @Override
     public IBoundNode bindType(ISyntaxNode node, IBindingContext bindingContext, IOpenClass type) throws Exception {

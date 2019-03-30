@@ -18,10 +18,10 @@ public class PropertiesOpenField extends AOpenField {
         this.propertiesInstance = propertiesInstance;
         this.declaringClass = declaringClass;
     }
-    
+
     @Override
     public IOpenClass getDeclaringClass() {
-    	return declaringClass;
+        return declaringClass;
     }
 
     @Override
@@ -45,8 +45,8 @@ public class PropertiesOpenField extends AOpenField {
     public void set(Object target, Object value, IRuntimeEnv env) {
         ((IDynamicObject) target).setFieldValue(getName(), value);
     }
-    
-    /*package*/ void setPropertiesInstance(TableProperties propertiesInstance){
+
+    /* package */ void setPropertiesInstance(TableProperties propertiesInstance) {
         this.propertiesInstance = propertiesInstance;
     }
 }

@@ -15,7 +15,8 @@ class String2OpenClassConvertor implements IString2DataConvertor<IOpenClass>, IS
 
     @Override
     public IOpenClass parse(String data, String format, IBindingContext cxt) {
-        if (data == null) return null;
+        if (data == null)
+            return null;
 
         String typeName;
         if (data.endsWith(ARRAY_SUFFIX)) {

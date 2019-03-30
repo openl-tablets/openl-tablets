@@ -21,7 +21,7 @@ public class SimpleRulesRuntimeEnvMT extends SimpleRulesRuntimeEnv {
     public IRuntimeEnv clone() {
         return new SimpleRulesRuntimeEnvMT(this);
     }
-    
+
     @Override
     public IOpenClass getTopClass() {
         return delegate.getTopClass();

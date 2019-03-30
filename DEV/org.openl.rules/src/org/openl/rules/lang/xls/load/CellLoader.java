@@ -7,9 +7,8 @@ import org.apache.poi.ss.usermodel.Cell;
  */
 public interface CellLoader {
     /**
-     * Get the cell.
-     * Depending on implementation, when this method is repeatedly called, it can (but mustn't)
-     * return the different instances of Cell java object.
+     * Get the cell. Depending on implementation, when this method is repeatedly called, it can (but mustn't) return the
+     * different instances of Cell java object.
      *
      * @return loaded cell
      */

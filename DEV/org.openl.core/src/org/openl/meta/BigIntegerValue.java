@@ -63,7 +63,9 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
         return result == null ? null : new BigIntegerValue(new BigIntegerValue(result), operation, values);
     }
 
-    private static BigIntegerValue instance(BigIntegerValue result, NumberOperations operation, BigIntegerValue... values) {
+    private static BigIntegerValue instance(BigIntegerValue result,
+            NumberOperations operation,
+            BigIntegerValue... values) {
         return result == null ? null : new BigIntegerValue(result, operation, values);
     }
 
@@ -84,7 +86,8 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
     }
 
     public static BigDecimalValue median(BigIntegerValue... values) {
-        return BigDecimalValue.instance(MathUtils.median(unwrap(values)), NumberOperations.MEDIAN, toBigDecimalValueValues(values));
+        return BigDecimalValue
+            .instance(MathUtils.median(unwrap(values)), NumberOperations.MEDIAN, toBigDecimalValueValues(values));
     }
 
     public static BigIntegerValue product(BigIntegerValue... values) {
@@ -95,8 +98,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * 
      * @param value of variable which should be copied
      * @param name of new variable
-     * @return the new org.openl.meta.BigIntegerValue variable with name
-     *         <b>name</b> and value <b>value</b>
+     * @return the new org.openl.meta.BigIntegerValue variable with name <b>name</b> and value <b>value</b>
      */
     public static org.openl.meta.BigIntegerValue copy(org.openl.meta.BigIntegerValue value, String name) {
         if (value.getName() == null) {
@@ -293,8 +295,8 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
      * 
      * @param number
      * @param divisor
-     * @return the remainder after a number is divided by a divisor. The result
-     *         is a numeric value and has the same sign as the devisor.
+     * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign
+     *         as the devisor.
      */
     public static org.openl.meta.BigIntegerValue mod(org.openl.meta.BigIntegerValue number,
             org.openl.meta.BigIntegerValue divisor) {
@@ -309,8 +311,8 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
     }
 
     /**
-     * Sorts the array <b>values</b> in ascending order and returns the value
-     * from array <b>values</b> at position <b>position</b>
+     * Sorts the array <b>values</b> in ascending order and returns the value from array <b>values</b> at position
+     * <b>position</b>
      * 
      * @param values array of org.openl.meta.BigIntegerValue values
      * @param position int value
@@ -321,8 +323,8 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
     }
 
     /**
-     * Sorts the array <b>values</b> in descending order and returns the value
-     * from array <b>values</b> at position <b>position</b>
+     * Sorts the array <b>values</b> in descending order and returns the value from array <b>values</b> at position
+     * <b>position</b>
      * 
      * @param values array of org.openl.meta.BigIntegerValue values
      * @param position int value
@@ -417,8 +419,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
     // Autocasts
 
     /**
-     * Is used to overload implicit cast operators from byte to
-     * org.openl.meta.BigIntegerValue
+     * Is used to overload implicit cast operators from byte to org.openl.meta.BigIntegerValue
      * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
@@ -429,8 +430,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
     }
 
     /**
-     * Is used to overload implicit cast operators from short to
-     * org.openl.meta.BigIntegerValue
+     * Is used to overload implicit cast operators from short to org.openl.meta.BigIntegerValue
      * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
@@ -441,8 +441,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
     }
 
     /**
-     * Is used to overload implicit cast operators from int to
-     * org.openl.meta.BigIntegerValue
+     * Is used to overload implicit cast operators from int to org.openl.meta.BigIntegerValue
      * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
@@ -453,8 +452,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
     }
 
     /**
-     * Is used to overload implicit cast operators from char to
-     * org.openl.meta.BigIntegerValue
+     * Is used to overload implicit cast operators from char to org.openl.meta.BigIntegerValue
      * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
@@ -465,8 +463,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
     }
 
     /**
-     * Is used to overload implicit cast operators from long to
-     * org.openl.meta.BigIntegerValue
+     * Is used to overload implicit cast operators from long to org.openl.meta.BigIntegerValue
      * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
@@ -522,8 +519,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
     // Equals
     @Override
     /**
-     * Indicates whether some other object is "equal to" this
-     * org.openl.meta.BigIntegerValue variable.
+     * Indicates whether some other object is "equal to" this org.openl.meta.BigIntegerValue variable.
      */
     public boolean equals(Object obj) {
         return obj instanceof BigIntegerValue && value.equals(((BigIntegerValue) obj).value);

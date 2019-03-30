@@ -18,14 +18,12 @@ public interface IWritableGrid extends IGrid {
     void copyCell(int colFrom, int rowFrom, int colTo, int rowTo);
 
     /**
-     * Finds a rectangular area of given width and height on the grid that can
-     * be used for writing. The returned region should not intersect with or
-     * touch existing not empty cells.
+     * Finds a rectangular area of given width and height on the grid that can be used for writing. The returned region
+     * should not intersect with or touch existing not empty cells.
      * 
      * @param width rectangle width
      * @param height rectangle height
-     * @return region representing required rectangle or <code>null</code> if
-     *         not found
+     * @return region representing required rectangle or <code>null</code> if not found
      */
     IGridRegion findEmptyRect(int width, int height);
 
@@ -34,7 +32,7 @@ public interface IWritableGrid extends IGrid {
     void removeMergedRegion(int x, int y);
 
     void setCellStyle(int col, int row, ICellStyle style);
-    
+
     void setCellBorderStyle(int col, int row, ICellStyle style);
 
     void setCellAlignment(int col, int row, HorizontalAlignment alignment);

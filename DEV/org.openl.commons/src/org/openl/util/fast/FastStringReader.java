@@ -40,8 +40,7 @@ public class FastStringReader extends Reader {
     /**
      * Reads a single character.
      *
-     * @return The character read, or -1 if the end of the stream has been
-     *         reached
+     * @return The character read, or -1 if the end of the stream has been reached
      *
      * @exception IOException If an I/O error occurs
      */
@@ -60,8 +59,7 @@ public class FastStringReader extends Reader {
      * @param off Offset at which to start writing characters
      * @param len Maximum number of characters to read
      *
-     * @return The number of characters read, or -1 if the end of the stream has
-     *         been reached
+     * @return The number of characters read, or -1 if the end of the stream has been reached
      *
      * @exception IOException If an I/O error occurs
      */
@@ -82,20 +80,16 @@ public class FastStringReader extends Reader {
     }
 
     /**
-     * Skips the specified number of characters in the stream. Returns the
-     * number of characters that were skipped.
+     * Skips the specified number of characters in the stream. Returns the number of characters that were skipped.
      *
      * <p>
-     * The <code>ns</code> parameter may be negative, even though the
-     * <code>skip</code> method of the {@link Reader} superclass throws an
-     * exception in this case. Negative values of <code>ns</code> cause the
-     * stream to skip backwards. Negative return values indicate a skip
-     * backwards. It is not possible to skip backwards past the beginning of the
-     * string.
+     * The <code>ns</code> parameter may be negative, even though the <code>skip</code> method of the {@link Reader}
+     * superclass throws an exception in this case. Negative values of <code>ns</code> cause the stream to skip
+     * backwards. Negative return values indicate a skip backwards. It is not possible to skip backwards past the
+     * beginning of the string.
      *
      * <p>
-     * If the entire string has been read or skipped, then this method has no
-     * effect and always returns 0.
+     * If the entire string has been read or skipped, then this method has no effect and always returns 0.
      *
      * @exception IOException If an I/O error occurs
      */
@@ -133,13 +127,11 @@ public class FastStringReader extends Reader {
     }
 
     /**
-     * Marks the present position in the stream. Subsequent calls to reset()
-     * will reposition the stream to this point.
+     * Marks the present position in the stream. Subsequent calls to reset() will reposition the stream to this point.
      *
-     * @param readAheadLimit Limit on the number of characters that may be read
-     *            while still preserving the mark. Because the stream's input
-     *            comes from a string, there is no actual limit, so this
-     *            argument must not be negative, but is otherwise ignored.
+     * @param readAheadLimit Limit on the number of characters that may be read while still preserving the mark. Because
+     *            the stream's input comes from a string, there is no actual limit, so this argument must not be
+     *            negative, but is otherwise ignored.
      *
      * @exception IllegalArgumentException If readAheadLimit is < 0
      * @exception IOException If an I/O error occurs
@@ -154,8 +146,7 @@ public class FastStringReader extends Reader {
     }
 
     /**
-     * Resets the stream to the most recent mark, or to the beginning of the
-     * string if it has never been marked.
+     * Resets the stream to the most recent mark, or to the beginning of the string if it has never been marked.
      *
      * @exception IOException If an I/O error occurs
      */
@@ -166,10 +157,9 @@ public class FastStringReader extends Reader {
     }
 
     /**
-     * Closes the stream and releases any system resources associated with it.
-     * Once the stream has been closed, further read(), ready(), mark(), or
-     * reset() invocations will throw an IOException. Closing a previously
-     * closed stream has no effect.
+     * Closes the stream and releases any system resources associated with it. Once the stream has been closed, further
+     * read(), ready(), mark(), or reset() invocations will throw an IOException. Closing a previously closed stream has
+     * no effect.
      */
     @Override
     public void close() {

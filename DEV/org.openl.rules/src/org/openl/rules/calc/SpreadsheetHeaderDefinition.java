@@ -25,7 +25,7 @@ public class SpreadsheetHeaderDefinition {
     public int getColumn() {
         return column;
     }
-    
+
     public IOpenClass getType() {
         return type;
     }
@@ -33,7 +33,7 @@ public class SpreadsheetHeaderDefinition {
     public List<SymbolicTypeDefinition> getVars() {
         return vars;
     }
-    
+
     public void setType(IOpenClass type) {
         this.type = type;
     }
@@ -43,18 +43,18 @@ public class SpreadsheetHeaderDefinition {
     }
 
     public SymbolicTypeDefinition findVarDef(String name) {
-        
+
         for (SymbolicTypeDefinition sdef : vars) {
             if (sdef.getName().getIdentifier().equals(name)) {
                 return sdef;
             }
         }
-        
+
         return null;
     }
 
     public String getFirstname() {
-        
+
         for (SymbolicTypeDefinition definition : vars) {
             if (definition != null && definition.getName() != null) {
                 return definition.getName().getIdentifier();
@@ -64,7 +64,6 @@ public class SpreadsheetHeaderDefinition {
         return null;
     }
 
-
     public boolean isRow() {
         return row >= 0;
     }
@@ -72,6 +71,5 @@ public class SpreadsheetHeaderDefinition {
     public String rowOrColumn() {
         return isRow() ? "row" : "column";
     }
-
 
 }

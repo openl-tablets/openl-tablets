@@ -177,8 +177,7 @@ public final class FastVector implements Cloneable, java.io.Serializable {
     }
 
     /**
-     * Returns an array containing all of the elements in this Vector in the
-     * correct order.
+     * Returns an array containing all of the elements in this Vector in the correct order.
      *
      * @see java.util.Vector#toArray()
      */
@@ -189,11 +188,9 @@ public final class FastVector implements Cloneable, java.io.Serializable {
     }
 
     /**
-     * Returns an array containing all of the elements in this Vector in the
-     * correct order. The runtime type of the returned array is that of the
-     * specified array. If the Vector fits in the specified array, it is
-     * returned therein. Otherwise, a new array is allocated with the runtime
-     * type of the specified array and the size of this Vector.
+     * Returns an array containing all of the elements in this Vector in the correct order. The runtime type of the
+     * returned array is that of the specified array. If the Vector fits in the specified array, it is returned therein.
+     * Otherwise, a new array is allocated with the runtime type of the specified array and the size of this Vector.
      * <p>
      *
      * @see java.util.Vector#toArray(Object[])

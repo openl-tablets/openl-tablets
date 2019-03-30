@@ -12,7 +12,7 @@ import org.openl.rules.table.IGridRegion;
 public class RegionGridSelector implements IGridSelector {
 
     private IGridRegion[] regions;
-    
+
     private boolean exclude;
 
     public RegionGridSelector(IGridRegion region, boolean exclude) {

@@ -59,7 +59,7 @@ public class GridRegion implements IGridRegion {
 
     @Override
     public String toString() {
-        return  "[" + getTop() + "," + getLeft() + "," + getBottom() + "," + getRight() + "]";
+        return "[" + getTop() + "," + getLeft() + "," + getBottom() + "," + getRight() + "]";
     }
 
     @Override

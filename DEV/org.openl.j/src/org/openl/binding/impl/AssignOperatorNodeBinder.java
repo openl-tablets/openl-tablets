@@ -19,6 +19,7 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv,
      * org.openl.binding.IBindingContext)
      */
@@ -59,7 +60,7 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
 
             cast = bindingContext.getCast(rightType, leftType);
 
-            //only implicit casts and explicit casts for literal are allowed for right part
+            // only implicit casts and explicit casts for literal are allowed for right part
             if (cast == null || (!cast.isImplicit() && !(children[1] instanceof LiteralBoundNode))) {
                 String message = "Can not convert from '" + rightType.getName() + "' to '" + leftType.getName() + "'";
                 return makeErrorNode(message, node, bindingContext);

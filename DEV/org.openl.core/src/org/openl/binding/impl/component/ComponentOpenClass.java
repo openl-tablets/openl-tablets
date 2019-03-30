@@ -20,7 +20,7 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * Open class for different Openl components. Handles {@link OpenL} inside.<br>
- * Was created by extracting functionality from {@link ModuleOpenClass} of 20192 revision. 
+ * Was created by extracting functionality from {@link ModuleOpenClass} of 20192 revision.
  * 
  * @author DLiauchuk
  *
@@ -37,8 +37,8 @@ public class ComponentOpenClass extends ADynamicClass {
         this.init = new DefaultInitializer();
 
         /**
-         * TODO: fixme. Calling method in constructor that is overloaded in childs.
-         * At this time childs are not built yet.
+         * TODO: fixme. Calling method in constructor that is overloaded in childs. At this time childs are not built
+         * yet.
          */
         addField(new ThisField());
         addMethod(new GetOpenClass());
@@ -70,7 +70,7 @@ public class ComponentOpenClass extends ADynamicClass {
         init.invoke(res, new Object[] {}, env);
         return res;
     }
-    
+
     private class DefaultInitializer implements IOpenMethod {
         List<IBoundNode> boundNodes = new ArrayList<>();
 
@@ -132,7 +132,7 @@ public class ComponentOpenClass extends ADynamicClass {
         public boolean isStatic() {
             return false;
         }
-        
+
         @Override
         public boolean isConstructor() {
             return true;
@@ -185,7 +185,7 @@ public class ComponentOpenClass extends ADynamicClass {
         public boolean isStatic() {
             return false;
         }
-        
+
         @Override
         public boolean isConstructor() {
             return false;

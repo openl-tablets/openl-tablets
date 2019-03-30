@@ -21,8 +21,7 @@ public class StringUtils {
     public static final String EMPTY = "";
 
     /**
-     * Convert the specified CharSequence to an array of bytes, encoded using
-     * UTF-8 character encoding.
+     * Convert the specified CharSequence to an array of bytes, encoded using UTF-8 character encoding.
      *
      * @param input the CharSequence to convert
      * @return an array of encoded chars
@@ -33,9 +32,8 @@ public class StringUtils {
 
     /**
      * <p>
-     * Splits the provided string into an array of trimmed strings, separator specified.
-     * The separator is not included in the returned String array. Adjacent
-     * separators are treated as one separator.
+     * Splits the provided string into an array of trimmed strings, separator specified. The separator is not included
+     * in the returned String array. Adjacent separators are treated as one separator.
      * </p>
      * <p>
      * <p>
@@ -68,14 +66,13 @@ public class StringUtils {
 
     /**
      * <p>
-     * Splits the provided text into an array, using whitespace as the
-     * separator. Whitespace is defined by {@link Character#isWhitespace(char)}.
+     * Splits the provided text into an array, using whitespace as the separator. Whitespace is defined by
+     * {@link Character#isWhitespace(char)}.
      * </p>
      * <p>
      * <p>
-     * The separator is not included in the returned String array. Adjacent
-     * separators are treated as one separator. For more control over the split
-     * use the StrTokenizer class.
+     * The separator is not included in the returned String array. Adjacent separators are treated as one separator. For
+     * more control over the split use the StrTokenizer class.
      * </p>
      * <p>
      * <p>
@@ -135,14 +132,12 @@ public class StringUtils {
 
     /**
      * <p>
-     * Joins the elements of the provided array into a single String containing
-     * the provided list of elements.
+     * Joins the elements of the provided array into a single String containing the provided list of elements.
      * </p>
      * <p>
      * <p>
-     * No delimiter is added before or after the list. A {@code null} separator
-     * is the same as an empty String (""). Null objects or empty strings within
-     * the array are represented by empty strings.
+     * No delimiter is added before or after the list. A {@code null} separator is the same as an empty String ("").
+     * Null objects or empty strings within the array are represented by empty strings.
      * </p>
      * <p>
      * 
@@ -169,14 +164,12 @@ public class StringUtils {
 
     /**
      * <p>
-     * Joins the elements of the provided collection into a single String
-     * containing the provided list of elements.
+     * Joins the elements of the provided collection into a single String containing the provided list of elements.
      * </p>
      * <p>
      * <p>
-     * No delimiter is added before or after the list. A {@code null} separator
-     * is the same as an empty String (""). Null objects or empty strings within
-     * the array are represented by empty strings.
+     * No delimiter is added before or after the list. A {@code null} separator is the same as an empty String ("").
+     * Null objects or empty strings within the array are represented by empty strings.
      * </p>
      * <p>
      * 
@@ -289,8 +282,7 @@ public class StringUtils {
 
     /**
      * <p>
-     * Checks if a CharSequence is not empty (""), not null and not whitespace
-     * only.
+     * Checks if a CharSequence is not empty (""), not null and not whitespace only.
      * </p>
      * <p>
      * 
@@ -303,8 +295,7 @@ public class StringUtils {
      * </pre>
      *
      * @param cs the CharSequence to check, may be null
-     * @return {@code true} if the CharSequence is not empty and not null and
-     *         not whitespace
+     * @return {@code true} if the CharSequence is not empty and not null and not whitespace
      */
     public static boolean isNotBlank(final CharSequence cs) {
         return !isBlank(cs);
@@ -312,13 +303,12 @@ public class StringUtils {
 
     /**
      * <p>
-     * Compares two Strings, returning {@code true} if they represent equal
-     * sequences of characters.
+     * Compares two Strings, returning {@code true} if they represent equal sequences of characters.
      * </p>
      * <p>
      * <p>
-     * {@code null}s are handled without exceptions. Two {@code null} references
-     * are considered to be equal. The comparison is case sensitive.
+     * {@code null}s are handled without exceptions. Two {@code null} references are considered to be equal. The
+     * comparison is case sensitive.
      * </p>
      * <p>
      * 
@@ -332,8 +322,7 @@ public class StringUtils {
      *
      * @param str1 the first String, may be {@code null}
      * @param str2 the second String, may be {@code null}
-     * @return {@code true} if the Strings are equal (case-sensitive), or both
-     *         {@code null}
+     * @return {@code true} if the Strings are equal (case-sensitive), or both {@code null}
      * @see String#equals(Object)
      */
     public static boolean equals(final String str1, final String str2) {
@@ -342,8 +331,7 @@ public class StringUtils {
 
     /**
      * <p>
-     * Compares two Strings, returning {@code false} if they represent equal
-     * sequences of characters.
+     * Compares two Strings, returning {@code false} if they represent equal sequences of characters.
      * </p>
      * This method is inverse to {@link #equals(String, String)}.
      * <p>
@@ -358,8 +346,7 @@ public class StringUtils {
      *
      * @param str1 the first String, may be {@code null}
      * @param str2 the second String, may be {@code null}
-     * @return {@code false} if the Strings are equal (case-sensitive), or both
-     *         {@code null}
+     * @return {@code false} if the Strings are equal (case-sensitive), or both {@code null}
      * @see #equals(String, String)
      */
     public static boolean notEquals(final String str1, final String str2) {
@@ -368,9 +355,8 @@ public class StringUtils {
 
     /**
      * <p>
-     * Checks if String contains a search String irrespective of case, handling
-     * {@code null}. Case-insensitivity is defined as by
-     * {@link String#equalsIgnoreCase(String)}.
+     * Checks if String contains a search String irrespective of case, handling {@code null}. Case-insensitivity is
+     * defined as by {@link String#equalsIgnoreCase(String)}.
      * <p>
      * <p>
      * A {@code null} String will return {@code false}.
@@ -390,8 +376,8 @@ public class StringUtils {
      *
      * @param str the String to check, may be null
      * @param searchStr the String to find, may be null
-     * @return true if the String contains the search String irrespective of
-     *         case or false if not or {@code null} string input
+     * @return true if the String contains the search String irrespective of case or false if not or {@code null} string
+     *         input
      */
     public static boolean containsIgnoreCase(final String str, final String searchStr) {
         if (str == null || searchStr == null) {
@@ -409,10 +395,10 @@ public class StringUtils {
 
     /**
      * Do the same as {@link java.lang.String#matches(String)}
+     * 
      * @param regex a Pattern to which this string is to be matched
      * @param input an input string to match regexp Pattern
-     * @return {@code true} if, and only if, this string matches the
-     *           given regular expression
+     * @return {@code true} if, and only if, this string matches the given regular expression
      */
     public static boolean matches(Pattern regex, CharSequence input) {
         Matcher m = regex.matcher(input);
@@ -421,8 +407,8 @@ public class StringUtils {
 
     /**
      * <p>
-     * Removes control characters (char &lt;= 32) from both ends of this String,
-     * handling {@code null} by returning {@code null}.
+     * Removes control characters (char &lt;= 32) from both ends of this String, handling {@code null} by returning
+     * {@code null}.
      * </p>
      * <p>
      * 
@@ -443,9 +429,8 @@ public class StringUtils {
 
     /**
      * <p>
-     * Removes control characters (char &lt;= 32) from both ends of this String
-     * returning {@code null} if the String is empty ("") after the trim or if
-     * it is {@code null}.
+     * Removes control characters (char &lt;= 32) from both ends of this String returning {@code null} if the String is
+     * empty ("") after the trim or if it is {@code null}.
      * <p>
      * 
      * <pre>
@@ -457,8 +442,7 @@ public class StringUtils {
      * </pre>
      *
      * @param str the String to be trimmed, may be null
-     * @return the trimmed String, {@code null} if only chars &lt;= 32, empty or
-     *         null String input
+     * @return the trimmed String, {@code null} if only chars &lt;= 32, empty or null String input
      */
     public static String trimToNull(final String str) {
         final String ts = trim(str);
@@ -467,9 +451,8 @@ public class StringUtils {
 
     /**
      * <p>
-     * Removes control characters (char &lt;= 32) from both ends of this String
-     * returning an empty String ("") if the String is empty ("") after the trim
-     * or if it is {@code null}.
+     * Removes control characters (char &lt;= 32) from both ends of this String returning an empty String ("") if the
+     * String is empty ("") after the trim or if it is {@code null}.
      * <p>
      * 
      * <pre>
@@ -489,14 +472,12 @@ public class StringUtils {
 
     /**
      * <p>
-     * Removes a substring only if it is at the beginning of a source string,
-     * otherwise returns the source string.
+     * Removes a substring only if it is at the beginning of a source string, otherwise returns the source string.
      * </p>
      * <p>
      * <p>
-     * A {@code null} source string will return {@code null}. An empty ("")
-     * source string will return the empty string. A {@code null} search string
-     * will return the source string.
+     * A {@code null} source string will return {@code null}. An empty ("") source string will return the empty string.
+     * A {@code null} search string will return the source string.
      * </p>
      * <p>
      * 
@@ -512,8 +493,7 @@ public class StringUtils {
      *
      * @param str the source String to search, may be null
      * @param remove the String to search for and remove, may be null
-     * @return the substring with the string removed if found, {@code null} if
-     *         null String input
+     * @return the substring with the string removed if found, {@code null} if null String input
      */
     public static String removeStart(final String str, final String remove) {
         if (isEmpty(str) || isEmpty(remove)) {
@@ -527,14 +507,12 @@ public class StringUtils {
 
     /**
      * <p>
-     * Removes a substring only if it is at the end of a source string,
-     * otherwise returns the source string.
+     * Removes a substring only if it is at the end of a source string, otherwise returns the source string.
      * </p>
      * <p>
      * <p>
-     * A {@code null} source string will return {@code null}. An empty ("")
-     * source string will return the empty string. A {@code null} search string
-     * will return the source string.
+     * A {@code null} source string will return {@code null}. An empty ("") source string will return the empty string.
+     * A {@code null} search string will return the source string.
      * </p>
      * <p>
      * 
@@ -550,8 +528,7 @@ public class StringUtils {
      *
      * @param str the source String to search, may be null
      * @param remove the String to search for and remove, may be null
-     * @return the substring with the string removed if found, {@code null} if
-     *         null String input
+     * @return the substring with the string removed if found, {@code null} if null String input
      */
     public static String removeEnd(final String str, final String remove) {
         if (isEmpty(str) || isEmpty(remove)) {
@@ -565,8 +542,8 @@ public class StringUtils {
 
     /**
      * <p>
-     * Capitalizes a String changing the first letter to title case as per
-     * {@link Character#toTitleCase(char)}. No other letters are changed.
+     * Capitalizes a String changing the first letter to title case as per {@link Character#toTitleCase(char)}. No other
+     * letters are changed.
      * </p>
      * <p>
      * <p>
@@ -603,8 +580,8 @@ public class StringUtils {
 
     /**
      * <p>
-     * Uncapitalizes a String changing the first letter to title case as per
-     * {@link Character#toLowerCase(char)}. No other letters are changed.
+     * Uncapitalizes a String changing the first letter to title case as per {@link Character#toLowerCase(char)}. No
+     * other letters are changed.
      * </p>
      * <p>
      * <p>
@@ -674,16 +651,14 @@ public class StringUtils {
     /**
      * Defines a functor interface implemented by classes that perform a predicate test on a character.
      * <p>
-     * A <code>Predicate</code> is the object equivalent of an <code>if</code>
-     * statement. It uses the input object to return a true or false value, and
-     * is often used in validation or filtering.
+     * A <code>Predicate</code> is the object equivalent of an <code>if</code> statement. It uses the input object to
+     * return a true or false value, and is often used in validation or filtering.
      * <p>
      */
     private interface Predicate {
 
         /**
-         * Use the specified parameter to perform a test that returns true or
-         * false.
+         * Use the specified parameter to perform a test that returns true or false.
          *
          * @param ch the character to evaluate
          * @return true or false

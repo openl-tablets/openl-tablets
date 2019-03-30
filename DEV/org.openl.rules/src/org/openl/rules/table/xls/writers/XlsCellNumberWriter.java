@@ -23,10 +23,8 @@ public class XlsCellNumberWriter extends AXlsCellWriter {
         if (DateUtil.isCellDateFormatted(cellToWrite)) {
             // Previously the cell was formatted as a date. Change format to number.
             CellStyle previousStyle = cellToWrite.getCellStyle();
-            CellStyle newStyle = PoiExcelHelper.createCellStyle(getXlsSheetGridModel()
-                    .getSheetSource()
-                    .getSheet()
-                    .getWorkbook());
+            CellStyle newStyle = PoiExcelHelper
+                .createCellStyle(getXlsSheetGridModel().getSheetSource().getSheet().getWorkbook());
             cellToWrite.setCellStyle(newStyle);
             newStyle.cloneStyleFrom(previousStyle);
             newStyle.setDataFormat((short) BuiltinFormats.getBuiltinFormat(FormatConstants.GENERAL_FORMAT));

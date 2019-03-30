@@ -19,8 +19,8 @@ import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenMethodHeader;
 
 /**
- * Class that defines OpenL engine manager implementation for operations with
- * code such as make type, make method and etc.
+ * Class that defines OpenL engine manager implementation for operations with code such as make type, make method and
+ * etc.
  * 
  */
 public class OpenLCodeManager extends OpenLHolder {
@@ -52,8 +52,8 @@ public class OpenLCodeManager extends OpenLHolder {
                 bindingContext.pushErrors();
             }
 
-            ProcessedCode processedCode = sourceManager.processSource(source, SourceType.TYPE, bindingContext,
-                    false, null);
+            ProcessedCode processedCode = sourceManager
+                .processSource(source, SourceType.TYPE, bindingContext, false, null);
 
             IBoundCode boundCode = processedCode.getBoundCode();
 
@@ -74,7 +74,8 @@ public class OpenLCodeManager extends OpenLHolder {
      * @param bindingContext binding context
      * @return {@link CompositeMethod} instance
      */
-    public CompositeMethod makeMethod(IOpenSourceCodeModule source, IOpenMethodHeader methodHeader,
+    public CompositeMethod makeMethod(IOpenSourceCodeModule source,
+            IOpenMethodHeader methodHeader,
             IBindingContext bindingContext) {
 
         CompositeMethod compositeMethod = new CompositeMethod(methodHeader, null);
@@ -97,8 +98,8 @@ public class OpenLCodeManager extends OpenLHolder {
                 bindingContext.pushErrors();
             }
 
-            ProcessedCode processedCode = sourceManager.processSource(source, SourceType.METHOD_HEADER,
-                bindingContext, false, null);
+            ProcessedCode processedCode = sourceManager
+                .processSource(source, SourceType.METHOD_HEADER, bindingContext, false, null);
 
             IBoundCode boundCode = processedCode.getBoundCode();
 
@@ -112,10 +113,9 @@ public class OpenLCodeManager extends OpenLHolder {
     }
 
     /**
-     * Makes method with unknown return type from source using method name and
-     * method signature. This method used to create open class that hasn't
-     * information of return type at compile time. Return type can be recognized
-     * at runtime time.
+     * Makes method with unknown return type from source using method name and method signature. This method used to
+     * create open class that hasn't information of return type at compile time. Return type can be recognized at
+     * runtime time.
      * 
      * @param source source
      * @param methodName method name
@@ -124,8 +124,11 @@ public class OpenLCodeManager extends OpenLHolder {
      * @param bindingContext binding context
      * @return {@link IOpenMethodHeader} instance
      */
-    public CompositeMethod makeMethodWithUnknownType(IOpenSourceCodeModule source, String methodName,
-            IMethodSignature signature, IOpenClass declaringClass, IBindingContext bindingContext) {
+    public CompositeMethod makeMethodWithUnknownType(IOpenSourceCodeModule source,
+            String methodName,
+            IMethodSignature signature,
+            IOpenClass declaringClass,
+            IBindingContext bindingContext) {
 
         OpenMethodHeader header = new OpenMethodHeader(methodName, NullOpenClass.the, signature, declaringClass);
 
@@ -134,8 +137,8 @@ public class OpenLCodeManager extends OpenLHolder {
 
             MethodBindingContext methodBindingContext = new MethodBindingContext(header, bindingContext);
 
-            ProcessedCode processedCode = sourceManager.processSource(source, SourceType.METHOD_BODY,
-                    methodBindingContext, false, null);
+            ProcessedCode processedCode = sourceManager
+                .processSource(source, SourceType.METHOD_BODY, methodBindingContext, false, null);
 
             IBoundCode boundCode = processedCode.getBoundCode();
 
@@ -148,11 +151,11 @@ public class OpenLCodeManager extends OpenLHolder {
             header.setTypeClass(retType);
 
             IBoundMethodNode boundMethodNode = ANodeBinder.bindMethod(boundCode, header, bindingContext);
-            
+
             if (bindingContext.getErrors().length > 0) {
                 throw new CompositeSyntaxNodeException("Parsing Error:", bindingContext.getErrors());
             }
-            
+
             return new CompositeMethod(header, boundMethodNode);
         } finally {
             bindingContext.popErrors();

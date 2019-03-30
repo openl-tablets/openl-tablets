@@ -15,11 +15,10 @@ package org.openl.ie.constrainer;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An implementation of the FloatVarSelector interface that selects the unbound
- * variable with the smallest domain and the minimal minimum.
+ * An implementation of the FloatVarSelector interface that selects the unbound variable with the smallest domain and
+ * the minimal minimum.
  *
- * If there are two variables with the same size, it will select the variable
- * with the minimal minimum.
+ * If there are two variables with the same size, it will select the variable with the minimal minimum.
  *
  * @see FloatVarSelector
  * @see FloatVarSelectorFirstUnbound
@@ -37,9 +36,8 @@ public class FloatVarSelectorMinSizeMin implements FloatVarSelector {
     }
 
     /**
-     * Selects the unbound variable with the smallest domain. If there are two
-     * variables with the same size, it will select the variable with the
-     * minimal minimum. If all variables are bound, returns -1.
+     * Selects the unbound variable with the smallest domain. If there are two variables with the same size, it will
+     * select the variable with the minimal minimum. If all variables are bound, returns -1.
      */
     public int select() {
         double min_size = Double.POSITIVE_INFINITY;

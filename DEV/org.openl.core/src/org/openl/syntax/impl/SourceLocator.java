@@ -71,8 +71,9 @@ public class SourceLocator {
         // Debug.debug("TI: " + loc);
         // }
 
-        int[] bbox = loc == null ? null : new int[] { loc.getStart().getAbsolutePosition(textInfo),
-                loc.getEnd().getAbsolutePosition(textInfo) };
+        int[] bbox = loc == null ? null
+                                 : new int[] { loc.getStart().getAbsolutePosition(textInfo),
+                                         loc.getEnd().getAbsolutePosition(textInfo) };
 
         bbox = calcBbox(error.getSyntaxNode(), bbox);
 

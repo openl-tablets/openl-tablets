@@ -18,8 +18,7 @@ package org.openl.ie.constrainer;
 //: IntVar.java
 //
 /**
- * An interface for the constrained integer variable. The following code creates
- * an integer variable:
+ * An interface for the constrained integer variable. The following code creates an integer variable:
  *
  * <pre>
  * IntVar var = constrainer.addIntVar(min, max, name);
@@ -28,8 +27,7 @@ package org.openl.ie.constrainer;
 public interface IntVar extends IntExp {
 
     /**
-     * The type of the domain implementation: plain. This implementation keeps
-     * only min/max values.
+     * The type of the domain implementation: plain. This implementation keeps only min/max values.
      */
     public static final int DOMAIN_PLAIN = 0;
 
@@ -49,8 +47,8 @@ public interface IntVar extends IntExp {
     public static final int DOMAIN_BOOL = 3;
 
     /**
-     * The type of the domain implementation: default. The concrete type is
-     * choosen depending on the state of the domain.
+     * The type of the domain implementation: default. The concrete type is choosen depending on the state of the
+     * domain.
      */
     public static final int DOMAIN_DEFAULT = -1;
 

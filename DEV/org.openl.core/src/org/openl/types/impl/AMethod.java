@@ -19,14 +19,14 @@ import org.openl.types.IOpenMethodHeader;
 public abstract class AMethod implements IOpenMethod, IModuleInfo {
 
     private IOpenMethodHeader header;
-    
+
     private String dependencyName;
-    
+
     @Override
     public String getModuleName() {
         return dependencyName;
     }
-    
+
     public void setModuleName(String dependencyName) {
         this.dependencyName = dependencyName;
     }

@@ -6,7 +6,6 @@
 
 package org.openl.rules.convertor;
 
-
 /**
  * A converter to parse data from String.
  *

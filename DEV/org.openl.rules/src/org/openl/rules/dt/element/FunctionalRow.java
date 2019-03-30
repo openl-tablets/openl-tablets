@@ -50,7 +50,7 @@ public abstract class FunctionalRow implements IDecisionRow {
     private int row;
 
     protected CompositeMethod method;
-    
+
     protected IOpenClass ruleExecutionType;
 
     private IParameterDeclaration[] params;
@@ -173,8 +173,8 @@ public abstract class FunctionalRow implements IDecisionRow {
 
             int gridHeight = paramsTable.getRow(i).getSource().getHeight();
 
-            IGridTable singleParamGridTable = presentationTable.getSource().getRows(fromHeight,
-                fromHeight + gridHeight - 1);
+            IGridTable singleParamGridTable = presentationTable.getSource()
+                .getRows(fromHeight, fromHeight + gridHeight - 1);
             result[i] = singleParamGridTable.getCell(0, 0).getStringValue();
 
             fromHeight += gridHeight;
@@ -192,7 +192,7 @@ public abstract class FunctionalRow implements IDecisionRow {
             IOpenClass ruleExecutionType,
             TableSyntaxNode tableSyntaxNode) throws Exception {
         this.ruleExecutionType = ruleExecutionType;
-        
+
         method = generateMethod(signature, openl, bindingContext, methodType);
 
         OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext, tableSyntaxNode);
@@ -236,8 +236,7 @@ public abstract class FunctionalRow implements IDecisionRow {
                     methodType,
                     length == 1,
                     openl,
-                    bindingContext
-                );
+                    bindingContext);
 
                 String paramName = parameterDeclaration.getName();
 
@@ -385,22 +384,13 @@ public abstract class FunctionalRow implements IDecisionRow {
     }
 
     private CompositeMethod generateMethod(IMethodSignature signature,
-                                           OpenL openl,
-                                           IBindingContext bindingContext,
-                                           IOpenClass methodType) throws Exception {
+            OpenL openl,
+            IBindingContext bindingContext,
+            IOpenClass methodType) throws Exception {
 
-        IOpenSourceCodeModule source = getExpressionSource(bindingContext,
-            openl,
-            null,
-            signature,
-            methodType);
+        IOpenSourceCodeModule source = getExpressionSource(bindingContext, openl, null, signature, methodType);
 
-        IParameterDeclaration[] methodParams = getParams(source,
-            signature,
-            null,
-            methodType,
-            openl,
-            bindingContext);
+        IParameterDeclaration[] methodParams = getParams(source, signature, null, methodType, openl, bindingContext);
         IMethodSignature newSignature = ((MethodSignature) signature).merge(methodParams);
         OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, newSignature, null);
 
@@ -446,13 +436,13 @@ public abstract class FunctionalRow implements IDecisionRow {
      * @throws OpenLCompilationException if and error has occurred
      */
     private IParameterDeclaration getParameterDeclaration(IOpenSourceCodeModule paramSource,
-                                                          IOpenSourceCodeModule methodSource,
-                                                          IMethodSignature signature,
-                                                          IOpenClass declaringClass,
-                                                          IOpenClass methodType,
-                                                          boolean allowEmpty,
-                                                          OpenL openl,
-                                                          IBindingContext bindingContext) throws OpenLCompilationException {
+            IOpenSourceCodeModule methodSource,
+            IMethodSignature signature,
+            IOpenClass declaringClass,
+            IOpenClass methodType,
+            boolean allowEmpty,
+            OpenL openl,
+            IBindingContext bindingContext) throws OpenLCompilationException {
 
         IdentifierNode[] nodes = Tokenizer.tokenize(paramSource, " \n\r");
 
@@ -462,16 +452,16 @@ public abstract class FunctionalRow implements IDecisionRow {
                     OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, signature, declaringClass);
                     CompositeMethod method = OpenLCellExpressionsCompiler
                         .makeMethod(openl, methodSource, methodHeader, bindingContext);
-    
+
                     IOpenClass type = method.getBodyType();
-    
+
                     if (type instanceof NullOpenClass) {
                         String message = "Cannot recognize type of local parameter for expression";
                         throw SyntaxNodeExceptionUtils.createError(message, null, null, methodSource);
                     }
-    
+
                     String paramName = makeParamName();
-    
+
                     return new ParameterDeclaration(type, paramName);
                 } catch (Exception | LinkageError ex) {
                     throw SyntaxNodeExceptionUtils.createError("Cannot compile expression", ex, null, methodSource);
@@ -480,7 +470,7 @@ public abstract class FunctionalRow implements IDecisionRow {
                 String errMsg = "Parameter cell format: <type> <name>";
                 throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, paramSource);
             }
-        } 
+        }
 
         if (nodes.length > 2) {
             String errMsg = "Parameter cell format: <type> <name>";

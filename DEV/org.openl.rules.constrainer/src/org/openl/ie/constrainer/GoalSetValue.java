@@ -15,8 +15,8 @@ package org.openl.ie.constrainer;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An implementation of a {@link Goal} that tries to set up the value of the
- * integer variable. If it succeededs then the variable becomes "bound"
+ * An implementation of a {@link Goal} that tries to set up the value of the integer variable. If it succeededs then the
+ * variable becomes "bound"
  */
 public class GoalSetValue extends GoalImpl {
     private IntExp _exp;
@@ -33,8 +33,7 @@ public class GoalSetValue extends GoalImpl {
 
     // private UndoableInt _valueI;
     /**
-     * Creates the goal that is ready to make an IntExp type variable bound by
-     * setting it up.
+     * Creates the goal that is ready to make an IntExp type variable bound by setting it up.
      *
      * @param exp An IntExp type variable to be set up.
      * @param value The integer value to be assigned to "exp".
@@ -50,9 +49,8 @@ public class GoalSetValue extends GoalImpl {
      * Executes a goal
      *
      * @return Null if succeeded.
-     * @throws Failure if such a value is out of domain or doesn't satisfy to
-     *             some of the constraints associated with a given IntExp
-     *             variable and so can't be assigned to it.
+     * @throws Failure if such a value is out of domain or doesn't satisfy to some of the constraints associated with a
+     *             given IntExp variable and so can't be assigned to it.
      */
     public Goal execute() throws Failure {
         // Debug.print("\nExecute "+this);

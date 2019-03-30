@@ -310,8 +310,7 @@ public class ParsedGrid extends AGrid {
             if (o == null || getClass() != o.getClass())
                 return false;
             CellRowCol that = (CellRowCol) o;
-            return row == that.row &&
-                    col == that.col;
+            return row == that.row && col == that.col;
         }
 
         @Override

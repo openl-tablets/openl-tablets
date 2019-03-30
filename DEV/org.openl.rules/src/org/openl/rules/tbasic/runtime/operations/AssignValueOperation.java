@@ -8,8 +8,7 @@ import org.openl.rules.tbasic.runtime.ReturnType;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 
 /**
- * The <code>AssignValueOperation</code> class describes operation which
- * creates new variable.
+ * The <code>AssignValueOperation</code> class describes operation which creates new variable.
  *
  * @author User
  *
@@ -31,7 +30,7 @@ public class AssignValueOperation extends RuntimeOperation {
      * (non-Javadoc)
      *
      * @see org.openl.rules.tbasic.runtime.RuntimeOperation#execute(org.openl.rules.tbasic.runtime.TBasicContext,
-     *      java.lang.Object)
+     * java.lang.Object)
      */
     @Override
     public Result execute(TBasicContextHolderEnv environment, Object param) {

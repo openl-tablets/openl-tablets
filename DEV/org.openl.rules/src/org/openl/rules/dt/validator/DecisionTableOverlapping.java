@@ -20,7 +20,9 @@ public class DecisionTableOverlapping {
         return status;
     }
 
-    public DecisionTableOverlapping(int[] rulesIndexes, ArrayOfNamedValues value, Overlapping.OverlappingStatus status) {
+    public DecisionTableOverlapping(int[] rulesIndexes,
+            ArrayOfNamedValues value,
+            Overlapping.OverlappingStatus status) {
         this.rulesIndexes = rulesIndexes;
         this.value = value;
         this.status = status;
@@ -54,9 +56,7 @@ public class DecisionTableOverlapping {
                     rulesIndexes[0],
                     value.toString());
         }
-        return String.format("Rules with # %s overlap for values: %s",
-            asString(rulesIndexes),
-            value.toString());
+        return String.format("Rules with # %s overlap for values: %s", asString(rulesIndexes), value.toString());
     }
 
     private String asString(int[] ary) {

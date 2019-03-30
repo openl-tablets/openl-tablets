@@ -9,30 +9,28 @@ import org.openl.types.IOpenMethod;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
- * The <code>AlgorithmErrorHelper</code> class is the utility class which
- * works with errors(handling and creation).
+ * The <code>AlgorithmErrorHelper</code> class is the utility class which works with errors(handling and creation).
  *
  */
 class AlgorithmErrorHelper {
-    
+
     private AlgorithmErrorHelper() {
     }
 
     /**
-     * Create exception with specified message and makes reference to source of
-     * error.
+     * Create exception with specified message and makes reference to source of error.
      *
      * @param message The message to display.
      * @param operation The operation which is source of error.
-     * @return <code>OpenLAlgorithmExecutionException</code> with wanted error
-     *         message.
+     * @return <code>OpenLAlgorithmExecutionException</code> with wanted error message.
      */
-    public static OpenLAlgorithmExecutionException createExecutionException(String message, RuntimeOperation operation) {
+    public static OpenLAlgorithmExecutionException createExecutionException(String message,
+            RuntimeOperation operation) {
         String sourceOperationUrl = operation.getSourceCode().getSourceUri();
-        String errorMessage = String
-                .format(
-                        "Unexpected error appeared while executing TBasic component logic. It's unusal situation and the most propably something is wrong in component's internal logic, please contact developers. Error: %s at %s",
-                        message, sourceOperationUrl);
+        String errorMessage = String.format(
+            "Unexpected error appeared while executing TBasic component logic. It's unusal situation and the most propably something is wrong in component's internal logic, please contact developers. Error: %s at %s",
+            message,
+            sourceOperationUrl);
 
         return new OpenLAlgorithmExecutionException(errorMessage);
     }

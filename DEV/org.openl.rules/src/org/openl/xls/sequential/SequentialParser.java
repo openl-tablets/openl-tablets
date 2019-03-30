@@ -19,8 +19,7 @@ public class SequentialParser extends BaseParser {
     public IParsedCode parseAsModule(IOpenSourceCodeModule source) {
         String[] roots = { userContext.getUserHome() };
         ClassLoader classLoader = userContext.getUserClassLoader();
-        IncludeSearcher includeSeeker = new IncludeSearcher(new ConfigurableResourceContext(classLoader,
-                roots));
+        IncludeSearcher includeSeeker = new IncludeSearcher(new ConfigurableResourceContext(classLoader, roots));
 
         return new SequentialXlsLoader(includeSeeker).parse(source);
     }

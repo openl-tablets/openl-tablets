@@ -128,8 +128,7 @@ public class NullOpenClass implements IOpenClass {
     /*
      * (non-Javadoc)
      *
-     * @see
-     * org.openl.types.IOpenClass#isAssignableFrom(org.openl.types.IOpenClass)
+     * @see org.openl.types.IOpenClass#isAssignableFrom(org.openl.types.IOpenClass)
      */
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
@@ -219,12 +218,12 @@ public class NullOpenClass implements IOpenClass {
     public Iterable<IOpenMethod> methods(String name) {
         return Collections.emptyList();
     }
-    
+
     @Override
     public Iterable<IOpenMethod> constructors() {
         return Collections.emptyList();
     }
-    
+
     @Override
     public IOpenClass getArrayType(int dim) {
         return this;

@@ -7,7 +7,6 @@ import org.openl.ie.constrainer.IntBoolExp;
 import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntExpConst;
 
-
 ///////////////////////////////////////////////////////////////////////////////
 /*
  * Copyright Exigen Group 1998, 1999, 2000
@@ -121,37 +120,30 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
 
     /*
      * public final IntEventBool createIntEventBool(boolean b) { IntEventBool e =
-     * (IntEventBool)_constrainer._int_event_bool_factory.getElement();
-     * e.exp(this); e.init(b); return e; }
+     * (IntEventBool)_constrainer._int_event_bool_factory.getElement(); e.exp(this); e.init(b); return e; }
      */
 
     /*
-     * public final IntEventAddExp createIntEventAddExp(IntEvent e, IntExp
-     * second) { IntEventAddExp exp =
-     * (IntEventAddExp)_constrainer._int_event_add_exp_factory.getElement();
-     * exp.exp(this); exp.init(e, second); return exp; }
+     * public final IntEventAddExp createIntEventAddExp(IntEvent e, IntExp second) { IntEventAddExp exp =
+     * (IntEventAddExp)_constrainer._int_event_add_exp_factory.getElement(); exp.exp(this); exp.init(e, second); return
+     * exp; }
      *
-     * public final IntEventAddValue createIntEventAddValue(IntEvent e, int
-     * value) { IntEventAddValue exp =
-     * (IntEventAddValue)_constrainer._int_event_add_value_factory.getElement();
-     * exp.exp(this); exp.init(e, value); return exp; }
+     * public final IntEventAddValue createIntEventAddValue(IntEvent e, int value) { IntEventAddValue exp =
+     * (IntEventAddValue)_constrainer._int_event_add_value_factory.getElement(); exp.exp(this); exp.init(e, value);
+     * return exp; }
      *
-     * public final IntEventMulPositiveValue
-     * createIntEventMulPositiveValue(IntEvent e, int value) {
+     * public final IntEventMulPositiveValue createIntEventMulPositiveValue(IntEvent e, int value) {
      * IntEventMulPositiveValue exp =
-     * (IntEventMulPositiveValue)_constrainer._int_event_mul_positive_value_factory.getElement();
-     * exp.exp(this); exp.init(e, value); return exp; }
+     * (IntEventMulPositiveValue)_constrainer._int_event_mul_positive_value_factory.getElement(); exp.exp(this);
+     * exp.init(e, value); return exp; }
      *
      *
-     * public final IntEventOpposite createIntEventOpposite(IntEvent e) {
-     * IntEventOpposite exp =
-     * (IntEventOpposite)_constrainer._int_event_opposite_factory.getElement();
-     * exp.exp(this); exp.init(e); return exp; }
+     * public final IntEventOpposite createIntEventOpposite(IntEvent e) { IntEventOpposite exp =
+     * (IntEventOpposite)_constrainer._int_event_opposite_factory.getElement(); exp.exp(this); exp.init(e); return exp;
+     * }
      *
-     * public final IntEventDomain createIntEventDomain(IntDomainHistory hist) {
-     * IntEventDomain exp =
-     * (IntEventDomain)_constrainer._int_event_domain_factory.getElement();
-     * exp.exp(this); exp.init(hist); return exp; }
+     * public final IntEventDomain createIntEventDomain(IntDomainHistory hist) { IntEventDomain exp =
+     * (IntEventDomain)_constrainer._int_event_domain_factory.getElement(); exp.exp(this); exp.init(hist); return exp; }
      *
      */
 
@@ -167,15 +159,14 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
 
     public void removeRange(int min, int max) throws Failure {
         /*
-         * commented by SV 02.06.03 by SV due to domain improvements if(min >
-         * max) throw new IllegalArgumentException("removeRange: min > max");
+         * commented by SV 02.06.03 by SV due to domain improvements if(min > max) throw new
+         * IllegalArgumentException("removeRange: min > max");
          *
-         * if(min <= min()) { setMin(max + 1); } else if(max >= max()) {
-         * setMax(min - 1); } else // min() < min <= max < max() {
-         * removeRangeInternal(min,max); }
+         * if(min <= min()) { setMin(max + 1); } else if(max >= max()) { setMax(min - 1); } else // min() < min <= max <
+         * max() { removeRangeInternal(min,max); }
          */
         removeRangeInternal(min, max); // added by SV 02.06.03 by SV due to
-                                        // domain improvements
+                                       // domain improvements
     }
 
     protected void removeRangeInternal(int min, int max) throws Failure {

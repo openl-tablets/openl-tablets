@@ -24,8 +24,7 @@ public class RuntimeExceptionWrapper {
     }
 
     /**
-     * Gets the error message from the given exception. If it is empty, gets the
-     * message from its cause.
+     * Gets the error message from the given exception. If it is empty, gets the message from its cause.
      * 
      * @param error error
      * @return the message from the error, or from its cause.

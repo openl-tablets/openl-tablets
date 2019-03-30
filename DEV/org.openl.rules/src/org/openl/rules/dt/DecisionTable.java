@@ -189,9 +189,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         return false;
     }
 
-    private void prepare(IOpenMethodHeader header,
-            OpenL openl,
-            IBindingContext bindingContext) throws Exception {
+    private void prepare(IOpenMethodHeader header, OpenL openl, IBindingContext bindingContext) throws Exception {
         IAlgorithmBuilder algorithmBuilder = new DecisionTableAlgorithmBuilder(this, header, openl);
         algorithm = algorithmBuilder.prepareAndBuildAlgorithm(bindingContext);
 

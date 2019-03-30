@@ -17,7 +17,10 @@ import org.openl.types.IOpenMethodHeader;
 public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBoundNode {
     private final IOpenSourceCodeModule nameOfAlgorithm;
 
-    public ColumnMatchBoundNode(TableSyntaxNode tsn, OpenL openl, IOpenMethodHeader header, ModuleOpenClass module,
+    public ColumnMatchBoundNode(TableSyntaxNode tsn,
+            OpenL openl,
+            IOpenMethodHeader header,
+            ModuleOpenClass module,
             IOpenSourceCodeModule nameOfAlgorithm) {
         super(tsn, openl, header, module);
 
@@ -44,9 +47,8 @@ public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBou
 
     @Override
     public int getSignatureStartIndex() {
-        return nameOfAlgorithm == null ?
-               super.getSignatureStartIndex() :
-               nameOfAlgorithm.getStartPosition() + nameOfAlgorithm.getCode().length() + 1;
+        return nameOfAlgorithm == null ? super.getSignatureStartIndex()
+                                       : nameOfAlgorithm.getStartPosition() + nameOfAlgorithm.getCode().length() + 1;
     }
 
     public IOpenSourceCodeModule getAlgorithm() {
@@ -56,9 +58,9 @@ public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBou
     public ColumnMatch getColumnMatch() {
         return (ColumnMatch) getMethod();
     }
-    
+
     @Override
     public void updateDependency(BindingDependencies dependencies) {
-        //seems column match can`t call other methods in its body.
+        // seems column match can`t call other methods in its body.
     }
 }

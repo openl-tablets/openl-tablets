@@ -7,10 +7,10 @@ import org.openl.domain.IntRangeDomain;
 import org.openl.types.java.JavaEnumDomain;
 
 public final class DomainAdaptorFactory {
-    
+
     private DomainAdaptorFactory() {
     }
-    
+
     public static IDomainAdaptor getAdaptor(IDomain<?> domain) {
         if (domain instanceof EnumDomain<?>) {
             return new EnumDomainAdaptor((EnumDomain<?>) domain);

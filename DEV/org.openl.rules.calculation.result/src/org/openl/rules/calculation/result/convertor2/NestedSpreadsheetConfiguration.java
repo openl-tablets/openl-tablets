@@ -18,36 +18,32 @@ import java.util.Map;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 
 /**
- * Configuration for the nested spreadsheet result converter. Extend it by
- * overriding abstract methods {@link #initCompoundRowExtractor(List)} and
- * {@link #initSimpleRowExtractor(List)}
+ * Configuration for the nested spreadsheet result converter. Extend it by overriding abstract methods
+ * {@link #initCompoundRowExtractor(List)} and {@link #initSimpleRowExtractor(List)}
  * 
  * @author DLiauchuk
  * 
- * @param <T> class that will be populated with values, when extracting rows
- *            without compound results.
- * @param <Q> class that will be populated with values, when extracting rows wit
- *            compound results.
+ * @param <T> class that will be populated with values, when extracting rows without compound results.
+ * @param <Q> class that will be populated with values, when extracting rows wit compound results.
  */
 public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, Q extends CompoundStep> {
 
     /** Map of columns that gonna be extracted on each level of extracting **/
     private Map<Integer, List<ColumnToExtract>> columnsToExtractForLevels;
-    
-    /** Row filter**/
+
+    /** Row filter **/
     private RowFilter rowFilter;
-    
+
     private ObjectToDataOpenCastConvertor objectToDataOpenCastConvertor = new ObjectToDataOpenCastConvertor();
-    
+
     public ObjectToDataOpenCastConvertor getObjectToDataOpenCastConvertor() {
         return objectToDataOpenCastConvertor;
     }
-    
+
     /**
      * 
-     * @param columnsToExtractForLevels Map of columns that gonna be extracted
-     *            on each level of extracting key: number of the nesting level.
-     *            value: list of columns to extract
+     * @param columnsToExtractForLevels Map of columns that gonna be extracted on each level of extracting key: number
+     *            of the nesting level. value: list of columns to extract
      */
     public NestedSpreadsheetConfiguration(Map<Integer, List<ColumnToExtract>> columnsToExtractForLevels) {
         this.columnsToExtractForLevels = new HashMap<>(columnsToExtractForLevels);
@@ -63,8 +59,7 @@ public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, 
     }
 
     /**
-     * Implement this method to return {@link RowExtractor} for the rows with
-     * only simple columns.
+     * Implement this method to return {@link RowExtractor} for the rows with only simple columns.
      * 
      * @param simpleExtractors extractors for simple columns
      * @return {@link RowExtractor} for the rows with only simple columns
@@ -72,8 +67,7 @@ public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, 
     protected abstract RowExtractor<T> initSimpleRowExtractor(List<SpreadsheetColumnExtractor<T>> simpleExtractors);
 
     /**
-     * Implement this method to return {@link RowExtractor} for the rows contain
-     * compound columns.
+     * Implement this method to return {@link RowExtractor} for the rows contain compound columns.
      * 
      * @param compoundExtractors extractors for compound columns
      * @return {@link RowExtractor} for the rows contain compound columns
@@ -96,7 +90,7 @@ public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, 
             ColumnToExtract columnToExtract) {
         return new NestedSpreadsheedColumnExtractor(nestingLevel, this, columnToExtract);
     }
-    
+
     /**
      * Initialize rowFilter
      */
@@ -113,5 +107,5 @@ public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, 
         }
         return rowFilter;
     }
-    
+
 }

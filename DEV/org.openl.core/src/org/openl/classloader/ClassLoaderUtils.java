@@ -9,13 +9,12 @@ import org.slf4j.LoggerFactory;
  * @author Yury Molchan.
  */
 public final class ClassLoaderUtils {
-    
+
     private ClassLoaderUtils() {
     }
 
     /**
-     * Closes a {@link ClassLoader} which implements {@link Closeable}
-     * interface.
+     * Closes a {@link ClassLoader} which implements {@link Closeable} interface.
      */
     public static void close(ClassLoader classLoader) {
         if (classLoader instanceof Closeable) {

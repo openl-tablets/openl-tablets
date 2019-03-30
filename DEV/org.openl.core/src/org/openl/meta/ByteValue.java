@@ -90,8 +90,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comp
      * 
      * @param value of variable which should be copied
      * @param name of new variable
-     * @return the new org.openl.meta.ByteValue variable with name <b>name</b>
-     *         and value <b>value</b>
+     * @return the new org.openl.meta.ByteValue variable with name <b>name</b> and value <b>value</b>
      */
     public static org.openl.meta.ByteValue copy(org.openl.meta.ByteValue value, String name) {
         if (value.getName() == null) {
@@ -283,8 +282,8 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comp
      * 
      * @param number
      * @param divisor
-     * @return the remainder after a number is divided by a divisor. The result
-     *         is a numeric value and has the same sign as the devisor.
+     * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign
+     *         as the devisor.
      */
     public static org.openl.meta.ByteValue mod(org.openl.meta.ByteValue number, org.openl.meta.ByteValue divisor) {
         if (number != null && divisor != null) {
@@ -298,8 +297,8 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comp
     }
 
     /**
-     * Sorts the array <b>values</b> in ascending order and returns the value
-     * from array <b>values</b> at position <b>position</b>
+     * Sorts the array <b>values</b> in ascending order and returns the value from array <b>values</b> at position
+     * <b>position</b>
      * 
      * @param values array of org.openl.meta.ByteValue values
      * @param position int value
@@ -310,8 +309,8 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comp
     }
 
     /**
-     * Sorts the array <b>values</b> in descending order and returns the value
-     * from array <b>values</b> at position <b>position</b>
+     * Sorts the array <b>values</b> in descending order and returns the value from array <b>values</b> at position
+     * <b>position</b>
      * 
      * @param values array of org.openl.meta.ByteValue values
      * @param position int value
@@ -403,8 +402,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comp
     // Autocasts
 
     /**
-     * Is used to overload implicit cast operators from byte to
-     * org.openl.meta.ByteValue
+     * Is used to overload implicit cast operators from byte to org.openl.meta.ByteValue
      * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
@@ -457,8 +455,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comp
     // Equals
     @Override
     /**
-     * Indicates whether some other object is "equal to" this
-     * org.openl.meta.ByteValue variable.
+     * Indicates whether some other object is "equal to" this org.openl.meta.ByteValue variable.
      */
     public boolean equals(Object obj) {
         return obj instanceof ByteValue && value == ((ByteValue) obj).value;

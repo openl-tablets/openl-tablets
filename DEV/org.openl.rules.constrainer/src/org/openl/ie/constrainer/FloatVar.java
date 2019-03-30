@@ -18,8 +18,7 @@ package org.openl.ie.constrainer;
 //: FloatVar.java
 //
 /**
- * An interface for the constrained floating-point variable. The following code
- * creates a floating-point variable:
+ * An interface for the constrained floating-point variable. The following code creates a floating-point variable:
  *
  * <pre>
  * FloatVar var = constrainer.addFloatVar(min, max, name);

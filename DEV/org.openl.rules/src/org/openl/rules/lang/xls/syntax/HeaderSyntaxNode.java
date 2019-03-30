@@ -5,8 +5,8 @@ import org.openl.syntax.impl.IdentifierNode;
 
 public class HeaderSyntaxNode extends CellSyntaxNode {
 
-    private static final String[] EMPTY_ARRAY = new String[]{};
-    
+    private static final String[] EMPTY_ARRAY = new String[] {};
+
     public static final String HEADER_TYPE = "org.openl.celltype.header";
 
     private IdentifierNode headerToken;
@@ -16,8 +16,11 @@ public class HeaderSyntaxNode extends CellSyntaxNode {
     public HeaderSyntaxNode(GridCellSourceCodeModule module, IdentifierNode headerToken) {
         this(module, headerToken, false, EMPTY_ARRAY);
     }
-    
-    public HeaderSyntaxNode(GridCellSourceCodeModule module, IdentifierNode headerToken, boolean isCollect, String[] collectParameters) {
+
+    public HeaderSyntaxNode(GridCellSourceCodeModule module,
+            IdentifierNode headerToken,
+            boolean isCollect,
+            String[] collectParameters) {
         super(HEADER_TYPE, module);
         this.headerToken = headerToken;
         this.isCollect = isCollect;
@@ -28,12 +31,12 @@ public class HeaderSyntaxNode extends CellSyntaxNode {
         return headerToken;
     }
 
-    public boolean isCollect(){
+    public boolean isCollect() {
         return isCollect;
     }
-    
+
     public String[] getCollectParameters() {
         return collectParameters.clone();
     }
-    
+
 }

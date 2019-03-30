@@ -12,9 +12,9 @@ public abstract class DependencyManager implements IDependencyManager {
 
     private boolean executionMode;
     private Map<String, Object> externalParameters;
-    
-    private Map<String, CompiledDependency> compiledDependencies = new HashMap<>();  
-    
+
+    private Map<String, CompiledDependency> compiledDependencies = new HashMap<>();
+
     @Override
     public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
 
@@ -27,10 +27,10 @@ public abstract class DependencyManager implements IDependencyManager {
         CompiledDependency compiledDependency = handleLoadDependency(dependency);
 
         if (compiledDependency == null) {
-            throw new OpenLCompilationException(String.format("Dependency with name '%s' hasn't been found", dependencyName), 
-                null, dependency.getNode().getSourceLocation());
-        }   
-        
+            throw new OpenLCompilationException(String.format("Dependency with name '%s' hasn't been found",
+                dependencyName), null, dependency.getNode().getSourceLocation());
+        }
+
         compiledDependencies.put(dependencyName, compiledDependency);
 
         return compiledDependency;
@@ -46,13 +46,13 @@ public abstract class DependencyManager implements IDependencyManager {
 
     @Override
     public void resetAll() {
-    	compiledDependencies.clear();
+        compiledDependencies.clear();
     }
-    
+
     /**
      * In execution mode all meta info that is not used in rules running is being cleaned.
      * 
-     * @param executionMode flag indicating is it execution mode or not. 
+     * @param executionMode flag indicating is it execution mode or not.
      * 
      */
     public void setExecutionMode(boolean executionMode) {
@@ -67,29 +67,29 @@ public abstract class DependencyManager implements IDependencyManager {
     public abstract List<IDependencyLoader> getDependencyLoaders();
 
     /**
-     * Handles loading dependent modules. This method should not cache
-     * dependencies (method {@link #loadDependency(IDependency)} already uses
-     * caching) Default implementation uses dependency loaders to load the
-     * dependency. Can be overriden to redefine behavior.
+     * Handles loading dependent modules. This method should not cache dependencies (method
+     * {@link #loadDependency(IDependency)} already uses caching) Default implementation uses dependency loaders to load
+     * the dependency. Can be overriden to redefine behavior.
      * 
      * @param dependency dependency to load
      * @return loaded and compiled dependency
-     * @throws OpenLCompilationException if exception during compilation is
-     *             occured
+     * @throws OpenLCompilationException if exception during compilation is occured
      */
     protected CompiledDependency handleLoadDependency(IDependency dependency) throws OpenLCompilationException {
         List<IDependencyLoader> dependencyLoaders = getDependencyLoaders();
         return loadDependency(dependency.getNode().getIdentifier(), dependencyLoaders);
     }
-    
-    private CompiledDependency loadDependency(String dependencyName, List<IDependencyLoader> loaders) throws OpenLCompilationException{
+
+    private CompiledDependency loadDependency(String dependencyName,
+            List<IDependencyLoader> loaders) throws OpenLCompilationException {
         CompiledDependency result = null;
         for (IDependencyLoader loader : loaders) {
             synchronized (loader) {
-                CompiledDependency dependency = loader.load(dependencyName, this);    
+                CompiledDependency dependency = loader.load(dependencyName, this);
                 if (dependency != null) {
                     if (result != null) {
-                        throw new OpenLCompilationException(String.format("Found more than one module with the same name '%s'", dependencyName));
+                        throw new OpenLCompilationException(
+                            String.format("Found more than one module with the same name '%s'", dependencyName));
                     }
                     result = dependency;
                 }
@@ -98,12 +98,12 @@ public abstract class DependencyManager implements IDependencyManager {
 
         return result;
     }
-    
+
     @Override
     public Map<String, Object> getExternalParameters() {
         return externalParameters;
     }
-    
+
     public void setExternalParameters(Map<String, Object> parameters) {
         this.externalParameters = parameters;
     }

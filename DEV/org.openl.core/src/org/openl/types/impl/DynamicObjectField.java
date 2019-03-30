@@ -50,7 +50,7 @@ public class DynamicObjectField extends AOpenField {
     public void set(Object target, Object value, IRuntimeEnv env) {
         ((IDynamicObject) target).setFieldValue(getName(), value);
     }
-    
+
     public void setDeclaringClass(IOpenClass declaringClass) {
         this.declaringClass = declaringClass;
     }

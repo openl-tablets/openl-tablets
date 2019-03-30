@@ -17,6 +17,7 @@ public class CharNodeBinder extends ANodeBinder {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv,
      * org.openl.binding.IBindingContext)
      */
@@ -25,61 +26,61 @@ public class CharNodeBinder extends ANodeBinder {
         String s = node.getText();
         char c = s.charAt(1);
 
-            if (c == '\\') {
-                char nextC = s.charAt(2);
-                switch (nextC) {
-                    case 'b':
-                        c = '\b';
-                        break;
-                    case 't':
-                        c = '\t';
-                        break;
-                    case 'n':
-                        c = '\n';
-                        break;
-                    case 'f':
-                        c = '\f';
-                        break;
-                    case 'r':
-                        c = '\r';
-                        break;
-                    case '"':
-                        c = '"';
-                        break;
-                    case '\'':
-                        c = '\'';
-                        break;
-                    case '\\':
-                        c = '\\';
-                        break;
-                    case 'u':
-                        c = StringNodeBinder.processUnicode(s, 3);
-                        break;
-                    case '0':
-                    case '1':
-                    case '2':
-                    case '3':
-                    case '4':
-                    case '5':
-                    case '6':
-                    case '7': {
-                        int res = 0;
-                        int i;
-                        for (i = 0; i < 3; ++i) {
-                            char cc = s.charAt(2 + i);
+        if (c == '\\') {
+            char nextC = s.charAt(2);
+            switch (nextC) {
+                case 'b':
+                    c = '\b';
+                    break;
+                case 't':
+                    c = '\t';
+                    break;
+                case 'n':
+                    c = '\n';
+                    break;
+                case 'f':
+                    c = '\f';
+                    break;
+                case 'r':
+                    c = '\r';
+                    break;
+                case '"':
+                    c = '"';
+                    break;
+                case '\'':
+                    c = '\'';
+                    break;
+                case '\\':
+                    c = '\\';
+                    break;
+                case 'u':
+                    c = StringNodeBinder.processUnicode(s, 3);
+                    break;
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7': {
+                    int res = 0;
+                    int i;
+                    for (i = 0; i < 3; ++i) {
+                        char cc = s.charAt(2 + i);
 
-                            if ('0' <= cc && cc <= '7') {
-                                res = res * 8 + cc - '0';
-                            } else {
-                                break;
-                            }
-                            c = (char) res;
+                        if ('0' <= cc && cc <= '7') {
+                            res = res * 8 + cc - '0';
+                        } else {
+                            break;
                         }
-
-                        break;
+                        c = (char) res;
                     }
+
+                    break;
                 }
             }
+        }
 
         return new LiteralBoundNode(node, c, JavaOpenClass.CHAR);
     }

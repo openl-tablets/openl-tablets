@@ -9,7 +9,7 @@ import org.openl.types.java.JavaOpenClass;
 public class ObjectToDataOpenCastConvertor {
 
     private ICastFactory castFactory = null;
-    
+
     private ICastFactory getCastFactory() {
         if (castFactory == null) {
             IOpenBinder binder = OpenL.getInstance(OpenL.OPENL_JAVA_NAME).getBinder();

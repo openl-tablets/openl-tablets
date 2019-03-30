@@ -21,7 +21,7 @@ public class CellsHeaderExtractor {
     private String[] rowNames;
     private String[] columnNames;
     private Set<String> dependentSpreadsheetTypes;
-    
+
     /** table representing column section in the spreadsheet **/
     private final ILogicalTable columnNamesTable;
 
@@ -30,7 +30,7 @@ public class CellsHeaderExtractor {
 
     /** Spreadsheet signature */
     private final String spreadsheetSignature;
-    
+
     // regex that represents the next line:
     // [any_symbols] : SpreadsheetResult<custom_spreadsheet_result_name>
     //
@@ -38,10 +38,11 @@ public class CellsHeaderExtractor {
     static final String DEPENDENT_CSR_REGEX = "^.*\\s*:\\s*SpreadsheetResult[^\\s\\[\\]].*";
 
     /**
-     * Pattern that represents the next line:
-     * Spreadsheet SpreadsheetResult<custom_spreadsheet_result_name> <name_and_params_declaration>
+     * Pattern that represents the next line: Spreadsheet SpreadsheetResult<custom_spreadsheet_result_name>
+     * <name_and_params_declaration>
      */
-    private static final Pattern CSR_IN_RETURN_PATTERN = Pattern.compile("\\s*Spreadsheet\\s*SpreadsheetResult([^\\s\\[\\]]+).+");
+    private static final Pattern CSR_IN_RETURN_PATTERN = Pattern
+        .compile("\\s*Spreadsheet\\s*SpreadsheetResult([^\\s\\[\\]]+).+");
 
     /**
      * Pattern that represents parameters of the spreadsheet
@@ -52,8 +53,10 @@ public class CellsHeaderExtractor {
      * Pattern that represents custom spreadsheet type parameter
      */
     private static final Pattern CSR_TYPE_PATTERN = Pattern.compile("\\s*SpreadsheetResult([^\\s\\[\\]]+).+");
-    
-    public CellsHeaderExtractor(String spreadsheetSignature, ILogicalTable columnNamesTable, ILogicalTable rowNamesTable) {
+
+    public CellsHeaderExtractor(String spreadsheetSignature,
+            ILogicalTable columnNamesTable,
+            ILogicalTable rowNamesTable) {
         this.spreadsheetSignature = spreadsheetSignature;
         this.columnNamesTable = columnNamesTable;
         this.rowNamesTable = rowNamesTable;
@@ -66,7 +69,6 @@ public class CellsHeaderExtractor {
     public int getWidth() {
         return (columnNamesTable == null) ? 0 : columnNamesTable.getWidth();
     }
-
 
     public ILogicalTable getRowNamesTable() {
         return rowNamesTable;
@@ -87,7 +89,7 @@ public class CellsHeaderExtractor {
         }
         return rowNames;
     }
-    
+
     public String[] getColumnNames() {
         if (columnNames == null) {
             int width = getWidth();
@@ -99,7 +101,7 @@ public class CellsHeaderExtractor {
         }
         return columnNames;
     }
-    
+
     public Set<String> getDependentSignatureSpreadsheetTypes() {
         if (dependentSpreadsheetTypes == null) {
             dependentSpreadsheetTypes = new HashSet<>();

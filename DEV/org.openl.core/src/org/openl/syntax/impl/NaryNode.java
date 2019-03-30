@@ -19,9 +19,9 @@ public class NaryNode extends ASyntaxNode {
     private ISyntaxNode[] nodes;
 
     public NaryNode(String type, ILocation pos, ISyntaxNode[] nodes, IOpenSourceCodeModule module) {
-        
+
         super(type, pos, module);
-        
+
         this.nodes = nodes == null ? EMPTY : nodes;
 
         for (ISyntaxNode node : this.nodes) {
@@ -34,7 +34,7 @@ public class NaryNode extends ASyntaxNode {
     public ISyntaxNode[] getNodes() {
         return nodes;
     }
-    
+
     /*
      * (non-Javadoc)
      *
@@ -54,9 +54,9 @@ public class NaryNode extends ASyntaxNode {
     public ISyntaxNode getChild(int i) {
         return nodes[i];
     }
-    
-    public void addNode(ISyntaxNode node) { 
-        if (node != null) {          
+
+    public void addNode(ISyntaxNode node) {
+        if (node != null) {
             node.setParent(this);
             nodes = ArrayUtils.add(nodes, node);
         }

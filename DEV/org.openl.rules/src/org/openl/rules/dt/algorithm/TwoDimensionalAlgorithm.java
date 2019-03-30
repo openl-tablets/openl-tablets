@@ -9,7 +9,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class TwoDimensionalAlgorithm implements IDecisionTableAlgorithm {
 
-    private IDecisionTableAlgorithm va; 
+    private IDecisionTableAlgorithm va;
     private IDecisionTableAlgorithm ha;
 
     TwoDimensionalAlgorithm(IDecisionTableAlgorithm va, IDecisionTableAlgorithm ha) {

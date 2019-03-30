@@ -17,7 +17,10 @@ public class GridRegionAction implements IUndoableGridTableAction {
     private boolean isColumns;
     private int nRowsOrColumns;
 
-    public GridRegionAction(IGridRegion region, boolean isColumns, boolean isInsert, ActionType actionType,
+    public GridRegionAction(IGridRegion region,
+            boolean isColumns,
+            boolean isInsert,
+            ActionType actionType,
             int nRowsOrColumns) {
         this.region = region;
         this.actionType = actionType;

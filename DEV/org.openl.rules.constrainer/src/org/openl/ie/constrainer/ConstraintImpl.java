@@ -19,8 +19,7 @@ package org.openl.ie.constrainer;
  * <p>
  * Any specific subclass of the ConstraintImpl should implement:
  * <ul>
- * <li>A special constructor that saves the variables constrained by this
- * constraint.
+ * <li>A special constructor that saves the variables constrained by this constraint.
  * </ul>
  *
  * @see Constraint

@@ -9,7 +9,6 @@ import org.openl.ie.constrainer.IntVar;
 import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
 
-
 /**
  * An implementation of the expression: <code>sum(IntExpArray)</code>.
  */
@@ -47,8 +46,9 @@ public final class IntExpAddArray extends IntExpImpl {
         }
 
     } // ~ ExpAddVectorObserver
+
     static final private int[] event_map = { MIN, MIN, MAX, MAX, MIN | MAX | VALUE, VALUE,
-    // REMOVE, REMOVE
+            // REMOVE, REMOVE
     };
     private IntExpArray _vars;
 

@@ -7,17 +7,17 @@ public final class CharRangeParser extends ARangeParser<Character> {
     private static class CharRangeParserHolder {
         private static final CharRangeParser INSTANCE = new CharRangeParser();
     }
-    
+
     private final RangeParser[] parsers;
     private final Pattern[] patterns;
-    
+
     private final static String MIN_MAX_PATTERN = "\\s*(\\S)\\s*([-;…]|\\.{3}|\\.{2})\\s*(\\S)\\s*";
     private final static String BRACKETS_PATTERN = "\\s*([\\[(])\\s*(\\S)\\s*(?:[-;…]|\\.{3}|\\.{2})\\s*(\\S)\\s*([])])\\s*";
     private final static String VERBAL_PATTERN = "\\s*(\\S)\\s*(\\+|and more|or less)\\s*";
     private final static String MORE_LESS_PATTERN = "\\s*(<|>|>=|<=|less than|more than)\\s*(\\S)\\s*";
     private final static String RANGE_MORE_LESS_PATTERN = "\\s*(<=?|>=?)\\s*(\\S)\\s*(<=?|>=?)\\s*(\\S)\\s*";
     private final static String SIMPLE_PATTERN = "\\s*(\\S)\\s*";
-    
+
     private CharRangeParser() {
         CharacterRangeBoundAdapter adapter = new CharacterRangeBoundAdapter();
         patterns = new Pattern[] { Pattern.compile(BRACKETS_PATTERN),

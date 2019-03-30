@@ -15,14 +15,12 @@ package org.openl.ie.constrainer;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An implementation of a {@link Goal} that instantiates a constrained integer
- * variable.
+ * An implementation of a {@link Goal} that instantiates a constrained integer variable.
  * <p>
- * It recursively splits the domain of the variable into two parts. If the
- * variable is already bound, it does nothing and succeeds. Otherwise, the goal
- * sets a choice point, and replaces the domain by one of its halves, and (if
- * recursive) calls itself again. The goal execution will be stopped when the
- * variable is bound or when a failure occurs.
+ * It recursively splits the domain of the variable into two parts. If the variable is already bound, it does nothing
+ * and succeeds. Otherwise, the goal sets a choice point, and replaces the domain by one of its halves, and (if
+ * recursive) calls itself again. The goal execution will be stopped when the variable is bound or when a failure
+ * occurs.
  *
  * @see GoalInstantiate
  */
@@ -37,8 +35,7 @@ public class GoalDichotomize extends GoalImpl {
     }
 
     /**
-     * An implementation of the dichotomize instantiation algorithm for the
-     * integer variable.
+     * An implementation of the dichotomize instantiation algorithm for the integer variable.
      */
     public Goal execute() throws Failure {
         // Debug.on();Debug.print("Execute "+this+ " with " + _var);Debug.off();

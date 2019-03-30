@@ -7,8 +7,7 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 
 /**
- * This binder is used for both: if-then-else statement and ternary q-mark
- * statement.
+ * This binder is used for both: if-then-else statement and ternary q-mark statement.
  * 
  * @author Yury Molchan
  */

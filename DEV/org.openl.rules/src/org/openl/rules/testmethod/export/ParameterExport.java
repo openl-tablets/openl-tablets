@@ -26,7 +26,6 @@ class ParameterExport extends BaseExport {
             return;
         }
 
-
         int rowNum = FIRST_ROW;
         int colNum = FIRST_COLUMN;
 
@@ -119,7 +118,10 @@ class ParameterExport extends BaseExport {
             if (fieldDescriptor.getChildren() == null) {
                 tasks.add(new WriteTask(new Cursor(rowNum, colNum), prefix + fieldName, styles.header));
             } else {
-                addHeaderTasks(tasks, new Cursor(rowNum, colNum), fieldDescriptor.getChildren(), prefix + fieldName + ".");
+                addHeaderTasks(tasks,
+                    new Cursor(rowNum, colNum),
+                    fieldDescriptor.getChildren(),
+                    prefix + fieldName + ".");
             }
 
             colNum += width;
@@ -142,7 +144,8 @@ class ParameterExport extends BaseExport {
 
             // ID
             int maxHeight = getMaxHeight(description, nonEmptyFields);
-            tasks.add(new WriteTask(new Cursor(rowNum, colNum++), description.getId(), styles.parameterValue, maxHeight));
+            tasks.add(
+                new WriteTask(new Cursor(rowNum, colNum++), description.getId(), styles.parameterValue, maxHeight));
 
             ParameterWithValueDeclaration[] executionParams = description.getExecutionParams();
             for (int p = 0; p < executionParams.length; p++) {
@@ -160,16 +163,15 @@ class ParameterExport extends BaseExport {
                     IOpenField keyField = parameter.getKeyField();
                     Object id = ExportUtils.fieldValue(parameter.getValue(), keyField);
 
-
                     if (id != null && id.getClass().isArray()) {
                         int pkRow = rowNum;
                         int count = Array.getLength(id);
                         for (int i = 0; i < count; i++) {
                             int height = getRowHeight(Array.get(value, i), fields);
                             tasks.add(new WriteTask(new Cursor(pkRow, colNum),
-                                    Array.get(id, i),
-                                    styles.parameterValue,
-                                    height));
+                                Array.get(id, i),
+                                styles.parameterValue,
+                                height));
                             pkRow += height;
                         }
                     } else {
@@ -192,7 +194,11 @@ class ParameterExport extends BaseExport {
         return rowNum;
     }
 
-    private void addValueTasks(TreeSet<WriteTask> tasks, Cursor cursor, List<FieldDescriptor> fields, Object value, int rowHeight) {
+    private void addValueTasks(TreeSet<WriteTask> tasks,
+            Cursor cursor,
+            List<FieldDescriptor> fields,
+            Object value,
+            int rowHeight) {
         int colNum = cursor.getColNum();
         int rowNum = cursor.getRowNum();
 
@@ -289,7 +295,8 @@ class ParameterExport extends BaseExport {
     }
 
     /**
-     * Due to stream nature of SXSSF, we should write row by row because of flushing if row num exceed rowAccessWindowSize
+     * Due to stream nature of SXSSF, we should write row by row because of flushing if row num exceed
+     * rowAccessWindowSize
      */
     private Cursor performWrite(Sheet sheet, Cursor start, TreeSet<WriteTask> tasks, int lastCellNum) {
         int lowestRowNum = start.getRowNum();

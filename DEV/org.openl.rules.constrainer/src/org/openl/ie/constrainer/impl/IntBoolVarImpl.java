@@ -13,8 +13,7 @@ import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
 
 /**
- * An implementation of the IntBoolVar interface. This implementation is
- * optimized for [0..1] domain.
+ * An implementation of the IntBoolVar interface. This implementation is optimized for [0..1] domain.
  */
 public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
     static final class IntEventBool extends IntEvent {
@@ -89,6 +88,7 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
         }
 
     }
+
     /**
      * An implementation of the 'false' event.
      */
@@ -373,13 +373,11 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
         }
     }
 
-    
-	public void removeValue(int value) throws Failure {
-		if (value == 1)
-			setMax(0);
-		else
-			setMin(1);
-	}
+    public void removeValue(int value) throws Failure {
+        if (value == 1)
+            setMax(0);
+        else
+            setMin(1);
+    }
 
-    
 } // ~IntBoolVarImpl

@@ -12,10 +12,11 @@ class StringComparator extends GenericComparator<String> {
      */
     private StringComparator() {
     }
-    
+
     @Override
     boolean fit(Object expected, Object actual) {
-        return (expected == null || String.class.equals(expected.getClass())) && (actual == null || String.class.equals(actual.getClass())); 
+        return (expected == null || String.class.equals(expected.getClass())) && (actual == null || String.class
+            .equals(actual.getClass()));
     }
 
     @Override

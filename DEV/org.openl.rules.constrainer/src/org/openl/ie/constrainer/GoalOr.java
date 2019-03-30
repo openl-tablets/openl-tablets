@@ -15,8 +15,8 @@ package org.openl.ie.constrainer;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An implementation of the OR-execution of several subgoals. The goal GoalOr
- * succeeds when one subgoal succeed. It fails when all subgoals fail.
+ * An implementation of the OR-execution of several subgoals. The goal GoalOr succeeds when one subgoal succeed. It
+ * fails when all subgoals fail.
  */
 public class GoalOr extends GoalImpl {
     private Goal _g1;

@@ -18,7 +18,8 @@ public interface IAggregateInfo {
     IOpenIndex getIndex(IOpenClass aggregateType);
 
     /**
-     * Same as {{@link #getIndex(IOpenClass)}} but index will be converted from indexType to default index type for this IAggregateInfo implementation.
+     * Same as {{@link #getIndex(IOpenClass)}} but index will be converted from indexType to default index type for this
+     * IAggregateInfo implementation.
      *
      * @param aggregateType The type from which the index will be created
      * @param indexType Index type from which the index will be converted to internal index type.

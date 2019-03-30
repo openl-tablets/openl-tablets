@@ -48,7 +48,7 @@ public class TextInfo {
             }
         }
 
-//        throw new RuntimeException();
+        // throw new RuntimeException();
         // In case we get EOF position(for some errors)
         return line.length();
     }

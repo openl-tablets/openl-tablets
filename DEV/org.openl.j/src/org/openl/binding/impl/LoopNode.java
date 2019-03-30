@@ -14,7 +14,6 @@ public class LoopNode extends ABoundNode {
     private final IBoundNode blockCodeNode;
     private final IBoundNode afterNode;
 
-
     LoopNode(ISyntaxNode syntaxNode, IBoundNode conditionNode, IBoundNode blockCodeNode) {
         super(syntaxNode, conditionNode, blockCodeNode);
         this.initNode = null;
@@ -23,7 +22,11 @@ public class LoopNode extends ABoundNode {
         this.afterNode = null;
     }
 
-    LoopNode(ISyntaxNode syntaxNode, IBoundNode initNode, IBoundNode conditionNode, IBoundNode blockCodeNode, IBoundNode afterNode) {
+    LoopNode(ISyntaxNode syntaxNode,
+            IBoundNode initNode,
+            IBoundNode conditionNode,
+            IBoundNode blockCodeNode,
+            IBoundNode afterNode) {
         super(syntaxNode, initNode, conditionNode, blockCodeNode, afterNode);
         this.initNode = initNode;
         this.conditionNode = conditionNode;

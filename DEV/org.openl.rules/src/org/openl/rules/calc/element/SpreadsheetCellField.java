@@ -29,7 +29,7 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
         if (result == null) {
             return getType().nullObject();
         }
-        
+
         return result.getValue(cell.getRowIndex(), cell.getColumnIndex());
     }
 

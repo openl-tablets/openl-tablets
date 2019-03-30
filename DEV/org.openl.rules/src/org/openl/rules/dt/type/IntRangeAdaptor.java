@@ -20,7 +20,7 @@ public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
         if (range == null) {
             return null;
         }
-        
+
         int max = range.getMax();
 
         if (max != Integer.MAX_VALUE) {
@@ -42,18 +42,17 @@ public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
         return range.getMin();
     }
 
+    @Override
+    public Integer adaptValueType(Object value) {
+        if (value == null) {
+            return null;
+        }
+        return ((Number) value).intValue();
+    }
 
-	@Override
-	public Integer adaptValueType(Object value) {
-	    if (value == null){
-	        return null;
-	    }
-        return ((Number)value).intValue();
-	}
-
-	@Override
-	public boolean useOriginalSource() {
-		return false;
-	}
+    @Override
+    public boolean useOriginalSource() {
+        return false;
+    }
 
 }

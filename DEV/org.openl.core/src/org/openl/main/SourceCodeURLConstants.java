@@ -12,11 +12,6 @@ package org.openl.main;
  */
 public interface SourceCodeURLConstants {
 
-    String START = "start",
-           END = "end",
-           QSEP = "&",
-           QSTART = "?",
-           OPENL = "openl",
-           AT_PREFIX = "    at ";
+    String START = "start", END = "end", QSEP = "&", QSTART = "?", OPENL = "openl", AT_PREFIX = "    at ";
 
 }

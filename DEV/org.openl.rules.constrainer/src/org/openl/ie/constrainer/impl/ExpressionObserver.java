@@ -24,11 +24,10 @@ import org.openl.ie.constrainer.Subject;
 /**
  * An abstract implementation of the observers used in expressions.
  *
- * Any expression is a subject for other expressions and has an observers for
- * its arguments.
+ * Any expression is a subject for other expressions and has an observers for its arguments.
  *
- * ExpressionObserver maintains transformations between publisher event mask for
- * the expression and subscriber event mask for its arguments.
+ * ExpressionObserver maintains transformations between publisher event mask for the expression and subscriber event
+ * mask for its arguments.
  */
 public abstract class ExpressionObserver extends Observer {
     /**
@@ -103,10 +102,8 @@ public abstract class ExpressionObserver extends Observer {
     /**
      * Subscribes for the events from "exp" with a given "publishMask".
      *
-     * This method will be initiated by any subscriber (constraint on this
-     * expression or other expression) which wants to be notified about events
-     * presented by the "publishMask" (the constraint subscribes to these
-     * events).
+     * This method will be initiated by any subscriber (constraint on this expression or other expression) which wants
+     * to be notified about events presented by the "publishMask" (the constraint subscribes to these events).
      */
     public void publish(int publishMask, Expression exp) {
         subscriberMask(_event_map.publishToSubscribe(publishMask), exp);

@@ -14,7 +14,11 @@ public class TestRunner {
     }
 
     @SuppressWarnings("unchecked")
-    public ITestUnit runTest(TestDescription test, Object target, IRuntimeEnv env, OpenLArgumentsCloner cloner, long ntimes) {
+    public ITestUnit runTest(TestDescription test,
+            Object target,
+            IRuntimeEnv env,
+            OpenLArgumentsCloner cloner,
+            long ntimes) {
         if (ntimes <= 0) {
             return runTest(test, target, env, cloner, 1);
         } else {

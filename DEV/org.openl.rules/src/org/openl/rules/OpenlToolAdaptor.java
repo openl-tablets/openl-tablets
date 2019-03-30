@@ -14,10 +14,9 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 
 /**
- * The purpose of this class is to simplify compiling of OpenL objects in
- * complex structured environments where context is defined on top and must be
- * propagated down without having to transfer many of the elements required to
- * do the validation and compilation.
+ * The purpose of this class is to simplify compiling of OpenL objects in complex structured environments where context
+ * is defined on top and must be propagated down without having to transfer many of the elements required to do the
+ * validation and compilation.
  * 
  * @author snshor
  */
@@ -28,9 +27,7 @@ public class OpenlToolAdaptor {
     private IBindingContext bindingContext;
     private TableSyntaxNode tableSyntaxNode;
 
-    public OpenlToolAdaptor(OpenL openl,
-            IBindingContext bindingContext,
-            TableSyntaxNode tableSyntaxNode) {
+    public OpenlToolAdaptor(OpenL openl, IBindingContext bindingContext, TableSyntaxNode tableSyntaxNode) {
         this.openl = openl;
         this.bindingContext = bindingContext;
         this.tableSyntaxNode = tableSyntaxNode;

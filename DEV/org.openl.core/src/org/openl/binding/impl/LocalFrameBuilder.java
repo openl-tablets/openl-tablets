@@ -151,8 +151,7 @@ public class LocalFrameBuilder {
         /*
          * (non-Javadoc)
          *
-         * @see org.openl.types.IOpenField#set(java.lang.Object,
-         *      java.lang.Object)
+         * @see org.openl.types.IOpenField#set(java.lang.Object, java.lang.Object)
          */
         @Override
         public void set(Object target, Object value, IRuntimeEnv env) {
@@ -183,8 +182,7 @@ public class LocalFrameBuilder {
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.binding.IBindingContext#addVar(java.lang.String,
-     *      java.lang.String)
+     * @see org.openl.binding.IBindingContext#addVar(java.lang.String, java.lang.String)
      */
     public ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException {
         ILocalVar var = findLocalVar(namespace, name);

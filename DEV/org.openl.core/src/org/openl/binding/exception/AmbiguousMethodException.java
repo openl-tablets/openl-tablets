@@ -24,7 +24,7 @@ public class AmbiguousMethodException extends OpenlNotCheckedException {
      *
      */
     private static final long serialVersionUID = -4733490029481524664L;
-    
+
     private List<IOpenMethod> matchingMethods;
     private String methodName;
     private IOpenClass[] pars;
@@ -34,7 +34,7 @@ public class AmbiguousMethodException extends OpenlNotCheckedException {
         this.pars = pars;
         this.matchingMethods = Collections.unmodifiableList(matchingMethods);
     }
-    
+
     public List<IOpenMethod> getMatchingMethods() {
         return matchingMethods;
     }

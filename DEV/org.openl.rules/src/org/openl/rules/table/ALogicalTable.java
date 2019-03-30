@@ -56,21 +56,21 @@ public abstract class ALogicalTable implements ILogicalTable {
     }
 
     @Override
-    public boolean isNormalOrientation() {        
+    public boolean isNormalOrientation() {
         return getSource().isNormalOrientation();
     }
 
     @Override
     public String toString() {
-        StringBuilder tableVisualization = new StringBuilder();     
+        StringBuilder tableVisualization = new StringBuilder();
         tableVisualization.append(super.toString())
-                .append("(")
-                .append(getWidth())
-                .append(" x ")
-                .append(getHeight())
-                .append(")")
-                .append("\n");
-        
+            .append("(")
+            .append(getWidth())
+            .append(" x ")
+            .append(getHeight())
+            .append(")")
+            .append("\n");
+
         int height = getHeight();
         int width = getWidth();
         if (width > 0) {
@@ -93,17 +93,17 @@ public abstract class ALogicalTable implements ILogicalTable {
                     stringValue = "EMPTY";
                 }
                 length += stringValue.length();
-                tableVisualization.append(stringValue);                
+                tableVisualization.append(stringValue);
                 tableVisualization.append("|");
             }
             tableVisualization.append("\n");
-            for(int k = 0; k <= length; k++) {
+            for (int k = 0; k <= length; k++) {
                 tableVisualization.append("-");
-            }   
+            }
             tableVisualization.append("\n");
         }
-        
-        return  tableVisualization.toString();
+
+        return tableVisualization.toString();
     }
 
 }

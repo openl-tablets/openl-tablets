@@ -25,7 +25,12 @@ public class OpenMethodHeader implements IOpenMethodHeader {
     protected ILocation typeLocation;
     protected ILocation[] paramTypeLocations;
 
-    public OpenMethodHeader(String name, IOpenClass typeClass, IMethodSignature signature, IOpenClass declaringClass, ILocation typeLocation, ILocation[] paramTypeLocations) {
+    public OpenMethodHeader(String name,
+            IOpenClass typeClass,
+            IMethodSignature signature,
+            IOpenClass declaringClass,
+            ILocation typeLocation,
+            ILocation[] paramTypeLocations) {
         this(name, typeClass, signature, declaringClass);
         this.typeLocation = typeLocation;
         this.paramTypeLocations = paramTypeLocations;

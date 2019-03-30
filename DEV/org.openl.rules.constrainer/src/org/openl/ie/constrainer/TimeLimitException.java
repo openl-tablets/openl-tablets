@@ -5,9 +5,8 @@ package org.openl.ie.constrainer;
  * Title: TimeLimitException
  * </p>
  * <p>
- * Description: This kind of exception are to be thrown by Constrainer if the
- * actual time of solution searching process exceeded the time limit. The value
- * for time limit could be set by calling Constrainer.setTimeLimit(int)
+ * Description: This kind of exception are to be thrown by Constrainer if the actual time of solution searching process
+ * exceeded the time limit. The value for time limit could be set by calling Constrainer.setTimeLimit(int)
  * </p>
  */
 

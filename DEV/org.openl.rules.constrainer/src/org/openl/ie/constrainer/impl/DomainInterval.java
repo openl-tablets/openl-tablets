@@ -16,8 +16,7 @@ package org.openl.ie.constrainer.impl;
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- * Class DomainInterval implements integer intervals used by
- * DomainImplWithHoles.
+ * Class DomainInterval implements integer intervals used by DomainImplWithHoles.
  *
  * @see DomainImplWithHoles
  */

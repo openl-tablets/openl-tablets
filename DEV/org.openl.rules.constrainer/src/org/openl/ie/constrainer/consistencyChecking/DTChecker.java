@@ -51,8 +51,8 @@ public interface DTChecker {
     /**
      * Performs check of the completeness of the given rule's system
      *
-     * @return Vector of points in the state of space not covered by any rules.
-     *         Points are represented by objects of type <code>Uncovered</code>
+     * @return Vector of points in the state of space not covered by any rules. Points are represented by objects of
+     *         type <code>Uncovered</code>
      * @see Uncovered
      */
     public List<Uncovered> checkCompleteness();

@@ -4,10 +4,10 @@ import org.openl.types.IParameterDeclaration;
 
 public interface IDecisionTableParameterInfo {
 
-	IParameterDeclaration getParameterDeclaration();
+    IParameterDeclaration getParameterDeclaration();
 
-	String getPresentation();
+    String getPresentation();
 
-	Object getValue(int row);
+    Object getValue(int row);
 
 }

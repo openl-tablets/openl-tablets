@@ -8,8 +8,8 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.el.ValueBinding;
 
 /**
- * Component that displayes user info. See javadocs for AuthenticationTag from
- * Spring Security library for more information.
+ * Component that displayes user info. See javadocs for AuthenticationTag from Spring Security library for more
+ * information.
  *
  * @author Andrey Naumenko
  */

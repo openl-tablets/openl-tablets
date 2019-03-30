@@ -17,8 +17,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
 
 /**
- * The base abstraction for the spreadsheet step, each step is a spreadsheet
- * row.
+ * The base abstraction for the spreadsheet step, each step is a spreadsheet row.
  * 
  * @author DLiauchuk, Marat Kamalov
  */
@@ -49,15 +48,15 @@ public class CalculationStep implements Serializable {
     public void setFormula(Double formula) {
         this.formula = formula;
     }
-    
+
     @XmlTransient
     private ConvertationMetadata convertationMetadata = null;
-    
+
     @XmlTransient
-    public ConvertationMetadata getConvertationMetadata(){
+    public ConvertationMetadata getConvertationMetadata() {
         return convertationMetadata;
     }
-    
+
     public void setConvertationMetadata(ConvertationMetadata convertationMetadata) {
         this.convertationMetadata = convertationMetadata;
     }

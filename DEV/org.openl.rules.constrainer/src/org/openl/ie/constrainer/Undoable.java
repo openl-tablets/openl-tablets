@@ -19,8 +19,7 @@ package org.openl.ie.constrainer;
  */
 public interface Undoable extends ConstrainerObject {
     /**
-     * Creates Undo-object for this undoable object and adds it to the
-     * constrainer's undo-stack.
+     * Creates Undo-object for this undoable object and adds it to the constrainer's undo-stack.
      */
     public void addUndo();
 

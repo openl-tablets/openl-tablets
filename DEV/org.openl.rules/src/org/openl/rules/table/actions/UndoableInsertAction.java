@@ -14,7 +14,7 @@ import org.openl.rules.table.IGridTable;
  *
  */
 public abstract class UndoableInsertAction extends UndoableEditTableAction {
-    
+
     private IUndoableGridTableAction action;
     protected final MetaInfoWriter metaInfoWriter;
 
@@ -52,7 +52,7 @@ public abstract class UndoableInsertAction extends UndoableEditTableAction {
     public void undoAction(IGridTable table) {
         action.undoAction(table);
     }
-    
+
     /**
      * Checks if action can be performed without moving the table.
      * 
@@ -60,16 +60,15 @@ public abstract class UndoableInsertAction extends UndoableEditTableAction {
      * @return true if action can be performed without moving the table.
      */
     protected abstract boolean canPerformAction(IGridTable table);
-    
+
     /**
-     * Get actual number of rows or columns to be inserted.
-     * It depends whether the cell is merged or not.
+     * Get actual number of rows or columns to be inserted. It depends whether the cell is merged or not.
      * 
      * @param table a table to apply the action.
      * @return actual number to be inserted.
      */
     protected abstract int getNumberToInsert(IGridTable table);
-    
+
     /**
      * Perform action for inserting rows or columns.
      * 
@@ -78,9 +77,10 @@ public abstract class UndoableInsertAction extends UndoableEditTableAction {
      * @param table a table to apply the action.
      * @return action for inserting rows or columns.
      */
-    protected abstract IUndoableGridTableAction performAction(int numberToInsert, IGridRegion fullTableRegion, IGridTable table);
-    
+    protected abstract IUndoableGridTableAction performAction(int numberToInsert,
+            IGridRegion fullTableRegion,
+            IGridTable table);
+
     protected abstract GridRegionAction getGridRegionAction(IGridRegion gridRegion, int numberToInsert);
-    
 
 }

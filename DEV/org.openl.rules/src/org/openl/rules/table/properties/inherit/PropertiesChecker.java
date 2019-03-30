@@ -21,24 +21,23 @@ import org.slf4j.LoggerFactory;
  * @author DLiauchuk
  */
 public final class PropertiesChecker {
-    
+
     private PropertiesChecker() {
     }
 
     /**
-     * We need to check loaded properties that all values are appropriate for
-     * this table. If there is any problem an error should be thrown. Now we
-     * check 3 situations:<br>
+     * We need to check loaded properties that all values are appropriate for this table. If there is any problem an
+     * error should be thrown. Now we check 3 situations:<br>
      * 1) properties can be defined on TABLE level;<br>
-     * 2) properties can be defined for current type of table;
-     * 3) deprecated properties;
+     * 2) properties can be defined for current type of table; 3) deprecated properties;
      *
-     * @param propertyNamesToCheck properties names that are physically defined
-     *                             in table.
-     *                             TODO: Refactor with strategy pattern
+     * @param propertyNamesToCheck properties names that are physically defined in table. TODO: Refactor with strategy
+     *            pattern
      */
-    public static void checkProperties(IBindingContext bindingContext, Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode,
-                                       InheritanceLevel level) {
+    public static void checkProperties(IBindingContext bindingContext,
+            Set<String> propertyNamesToCheck,
+            TableSyntaxNode tableSyntaxNode,
+            InheritanceLevel level) {
         checkForErrors(bindingContext, propertyNamesToCheck, tableSyntaxNode, level);
         checkForDeprecation(bindingContext, propertyNamesToCheck, tableSyntaxNode);
     }
@@ -46,22 +45,23 @@ public final class PropertiesChecker {
     /**
      * Checks if properties can be defined for given type of table and for given inheritance level.
      */
-    private static void checkForErrors(IBindingContext bindingContext, Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode,
+    private static void checkForErrors(IBindingContext bindingContext,
+            Set<String> propertyNamesToCheck,
+            TableSyntaxNode tableSyntaxNode,
             InheritanceLevel level) {
         String tableType = tableSyntaxNode.getType();
         String typeName = getTypeName(tableSyntaxNode);
 
         for (String propertyNameToCheck : propertyNamesToCheck) {
             if (!PropertiesChecker.isPropertySuitableForTableType(propertyNameToCheck, tableType)) {
-                String message = String.format("Property '%s' can't be defined in %s Table",
-                        propertyNameToCheck,
-                        typeName);
+                String message = String
+                    .format("Property '%s' can't be defined in %s Table", propertyNameToCheck, typeName);
 
                 addError(bindingContext, tableSyntaxNode, message);
             } else if (level != null && !PropertiesChecker.isPropertySuitableForLevel(level, propertyNameToCheck)) {
                 String message = String.format("Property '%s' can't be defined on the '%s' level",
-                        propertyNameToCheck,
-                        level.getDisplayName());
+                    propertyNameToCheck,
+                    level.getDisplayName());
 
                 addError(bindingContext, tableSyntaxNode, message);
             }
@@ -77,10 +77,15 @@ public final class PropertiesChecker {
     /**
      * Checks if properties were deprecated.
      */
-    private static void checkForDeprecation(IBindingContext bindingContext, Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode) {
+    private static void checkForDeprecation(IBindingContext bindingContext,
+            Set<String> propertyNamesToCheck,
+            TableSyntaxNode tableSyntaxNode) {
         for (String propertyNameToCheck : propertyNamesToCheck) {
-            TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(propertyNameToCheck);
-            if (propertyDefinition != null && propertyDefinition.getDeprecation() != null && !propertyDefinition.getDeprecation().isEmpty()) {
+            TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils
+                .getPropertyByName(propertyNameToCheck);
+            if (propertyDefinition != null && propertyDefinition.getDeprecation() != null && !propertyDefinition
+                .getDeprecation()
+                .isEmpty()) {
                 String message = String.format("Property '%s' was deprecated. Please remove it!", propertyNameToCheck);
                 bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, tableSyntaxNode));
             }
@@ -88,8 +93,8 @@ public final class PropertiesChecker {
     }
 
     /**
-     * Checks if property with given name is suitable for given level. Checks according to the property
-     * definitions in {@link DefaultPropertyDefinitions}.
+     * Checks if property with given name is suitable for given level. Checks according to the property definitions in
+     * {@link DefaultPropertyDefinitions}.
      *
      * @param currentLevel current level of current property.
      * @param propertyName name of the property to check.
@@ -161,7 +166,7 @@ public final class PropertiesChecker {
             case XLS_ENVIRONMENT:
                 return "Environment";
             case XLS_CONSTANTS:
-                return "Constants";                
+                return "Constants";
             case XLS_TABLEPART:
                 return "TablePart";
             case XLS_OTHER:

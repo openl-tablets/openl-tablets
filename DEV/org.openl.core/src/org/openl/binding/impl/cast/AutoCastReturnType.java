@@ -10,5 +10,3 @@ import java.lang.annotation.Target;
 public @interface AutoCastReturnType {
     Class<? extends AutoCastFactory> value() default DefaultAutoCastFactory.class;
 }
-
-

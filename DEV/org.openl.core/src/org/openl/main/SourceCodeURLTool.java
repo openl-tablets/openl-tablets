@@ -24,7 +24,7 @@ public final class SourceCodeURLTool implements SourceCodeURLConstants {
 
     private SourceCodeURLTool() {
     }
-    
+
     private static final Pattern NEW_LINE = Pattern.compile("[\r\n]+");
 
     public static String makeSourceLocationURL(ILocation location, IOpenSourceCodeModule module) {
@@ -79,7 +79,8 @@ public final class SourceCodeURLTool implements SourceCodeURLConstants {
             if (modules.length <= line || line < 0) {
                 // Occurs when Method table expression has several lines but reside inside single cell.
                 final Logger log = LoggerFactory.getLogger(SourceCodeURLTool.class);
-                log.debug("Modules count in composite module are less than error line number. Return first found module uri.");
+                log.debug(
+                    "Modules count in composite module are less than error line number. Return first found module uri.");
                 moduleUri = module.getUri();
             } else {
                 // Occurs when Method table expression has several lines and each line resides inside his own cell.

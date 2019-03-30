@@ -13,8 +13,7 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 
 /**
- * The <code>AlgoritmNodesCompiler</code> class compiles sequence of nodes
- * inside the specified context.
+ * The <code>AlgoritmNodesCompiler</code> class compiles sequence of nodes inside the specified context.
  *
  */
 public class AlgoritmNodesCompiler {
@@ -38,9 +37,10 @@ public class AlgoritmNodesCompiler {
      * @param currentCompileContext Context of compilation of nodes.
      * @param compiler Main algorithm compiler
      */
-    public AlgoritmNodesCompiler(IOpenClass returnType, CompileContext currentCompileContext,
-            AlgorithmCompiler compiler) {        
-        /**Label Manager that controls the labels.**/
+    public AlgoritmNodesCompiler(IOpenClass returnType,
+            CompileContext currentCompileContext,
+            AlgorithmCompiler compiler) {
+        /** Label Manager that controls the labels. **/
         this.labelManager = compiler.getLabelManager();
         this.currentCompileContext = currentCompileContext;
         this.parameterConverter = new ParameterConverterManager(compiler, returnType);
@@ -65,9 +65,12 @@ public class AlgoritmNodesCompiler {
         // process nodes by groups of linked nodes
         for (int i = 0, linkedNodesGroupSize; i < nodesToProcess.size(); i += linkedNodesGroupSize) {
             if (hasUnreachableCode(nodesToProcess, i)) {
-                IOpenSourceCodeModule errorSource = nodesToProcess.get(i + 1).getAlgorithmRow().getOperation()
-                        .asSourceCodeModule();
-                throw SyntaxNodeExceptionUtils.createError("Unreachable code. Operations after BREAK,CONTINUE not allowed.", errorSource);
+                IOpenSourceCodeModule errorSource = nodesToProcess.get(i + 1)
+                    .getAlgorithmRow()
+                    .getOperation()
+                    .asSourceCodeModule();
+                throw SyntaxNodeExceptionUtils
+                    .createError("Unreachable code. Operations after BREAK,CONTINUE not allowed.", errorSource);
             }
 
             linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToProcess, i);
@@ -75,7 +78,7 @@ public class AlgoritmNodesCompiler {
             final List<AlgorithmTreeNode> nodesToCompile = nodesToProcess.subList(i, i + linkedNodesGroupSize);
             syntaxNodeExceptionCollector.run(() -> emittedOperations.addAll(compileLinkedNodesGroup(nodesToCompile)));
         }
-        
+
         syntaxNodeExceptionCollector.throwIfAny("Compilation fails!");
 
         return emittedOperations;
@@ -143,18 +146,22 @@ public class AlgoritmNodesCompiler {
         return createOperationForFirstNodeField(nodesToCompile, beforeFieldName);
     }
 
-    private RuntimeOperation createOperationForFirstNodeField(List<AlgorithmTreeNode> nodesToCompile, String fieldName)
-            throws Exception {
+    private RuntimeOperation createOperationForFirstNodeField(List<AlgorithmTreeNode> nodesToCompile,
+            String fieldName) throws Exception {
         // TODO: strange method, refactore
-        String param = nodesToCompile.get(0).getAlgorithmRow().getOperation() + AlgorithmCompilerTool.FIELD_SEPARATOR
-                + fieldName;
+        String param = nodesToCompile.get(0)
+            .getAlgorithmRow()
+            .getOperation() + AlgorithmCompilerTool.FIELD_SEPARATOR + fieldName;
 
         StringValue content = AlgorithmCompilerTool.getCellContent(nodesToCompile, param);
         RuntimeOperation operation = null;
 
         if (content.getValue() != null && !content.getValue().trim().isEmpty()) {
-            ConversionRuleStep conversionStep = new ConversionRuleStep("Perform", param, null, null, fieldName
-                    + " execution");
+            ConversionRuleStep conversionStep = new ConversionRuleStep("Perform",
+                param,
+                null,
+                null,
+                fieldName + " execution");
             operation = operationFactory.createOperation(nodesToCompile, conversionStep);
         }
 
@@ -163,8 +170,10 @@ public class AlgoritmNodesCompiler {
 
     private boolean hasUnreachableCode(List<AlgorithmTreeNode> nodesToProcess, int indexOfReturn) {
         if (indexOfReturn < nodesToProcess.size() - 1) {
-            if (TBasicSpecificationKey.BREAK.toString().equals(nodesToProcess.get(indexOfReturn).getSpecificationKeyword())
-                    || TBasicSpecificationKey.CONTINUE.toString().equals(nodesToProcess.get(indexOfReturn).getSpecificationKeyword())) {
+            if (TBasicSpecificationKey.BREAK.toString()
+                .equals(nodesToProcess.get(indexOfReturn).getSpecificationKeyword()) || TBasicSpecificationKey.CONTINUE
+                    .toString()
+                    .equals(nodesToProcess.get(indexOfReturn).getSpecificationKeyword())) {
                 return true;
             }
         }
@@ -177,7 +186,6 @@ public class AlgoritmNodesCompiler {
         assert conversionStep != null;
 
         String label = null;
-
 
         // get label for the current step
         if (conversionStep.getLabelInstruction() != null) {
@@ -207,8 +215,9 @@ public class AlgoritmNodesCompiler {
 
     public interface OperationAnalyzer {
         boolean suits(String operationType);
+
         List<RuntimeOperation> getOperations(List<AlgorithmTreeNode> nodesToCompile,
-                                             ConversionRuleStep conversionStep) throws Exception;
+                ConversionRuleStep conversionStep) throws Exception;
     }
 
     private final class CommonOperations implements OperationAnalyzer {
@@ -220,7 +229,7 @@ public class AlgoritmNodesCompiler {
 
         @Override
         public List<RuntimeOperation> getOperations(List<AlgorithmTreeNode> nodesToCompile,
-                                                    ConversionRuleStep conversionStep) throws Exception {
+                ConversionRuleStep conversionStep) throws Exception {
             List<RuntimeOperation> emittedOperations = new ArrayList<>();
             RuntimeOperation emittedOperation = operationFactory.createOperation(nodesToCompile, conversionStep);
             emittedOperations.add(emittedOperation);
@@ -237,11 +246,11 @@ public class AlgoritmNodesCompiler {
 
         @Override
         public List<RuntimeOperation> getOperations(List<AlgorithmTreeNode> nodesToCompile,
-                                                    ConversionRuleStep conversionStep) throws Exception {
+                ConversionRuleStep conversionStep) throws Exception {
             List<RuntimeOperation> emittedOperations = new ArrayList<>();
             List<AlgorithmTreeNode> nodesToProcess;
-            nodesToProcess = AlgorithmCompilerTool.getNestedInstructionsBlock(nodesToCompile, conversionStep
-                    .getOperationParam1());
+            nodesToProcess = AlgorithmCompilerTool.getNestedInstructionsBlock(nodesToCompile,
+                conversionStep.getOperationParam1());
             emittedOperations.addAll(compileNestedNodes(nodesToProcess));
             return emittedOperations;
         }
@@ -256,18 +265,19 @@ public class AlgoritmNodesCompiler {
 
         @Override
         public List<RuntimeOperation> getOperations(List<AlgorithmTreeNode> nodesToCompile,
-                                                    ConversionRuleStep conversionStep) throws Exception {
-            String labelName = (String) parameterConverter.convertParam(nodesToCompile, String.class,
-                    conversionStep.getOperationParam1());
+                ConversionRuleStep conversionStep) throws Exception {
+            String labelName = (String) parameterConverter
+                .convertParam(nodesToCompile, String.class, conversionStep.getOperationParam1());
             if (!currentCompileContext.isLabelRegistered(labelName)) {
-                IOpenSourceCodeModule errorSource =
-                        nodesToCompile.get(0).getAlgorithmRow().getOperation().asSourceCodeModule();
+                IOpenSourceCodeModule errorSource = nodesToCompile.get(0)
+                    .getAlgorithmRow()
+                    .getOperation()
+                    .asSourceCodeModule();
                 String errorMessage = String.format("Such label is not available from this place: \"%s\".", labelName);
                 throw SyntaxNodeExceptionUtils.createError(errorMessage, errorSource);
             }
             return null;
         }
     }
-
 
 }

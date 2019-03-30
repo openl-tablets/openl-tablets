@@ -15,34 +15,58 @@ import org.openl.runtime.IRuntimeContext;
 @XmlRootElement
 @XmlJavaTypeAdapter(DefaultRulesRuntimeContext.IRulesRuntimeContextAdapter.class)
 public interface IRulesRuntimeContext extends IRuntimeContext {
-	
-	Object getValue(String variable);
-	void setValue(String name, Object value);
-	
-	// <<< INSERT >>>
+
+    Object getValue(String variable);
+
+    void setValue(String name, Object value);
+
+    // <<< INSERT >>>
     java.util.Date getCurrentDate();
+
     void setCurrentDate(java.util.Date currentDate);
+
     java.util.Date getRequestDate();
+
     void setRequestDate(java.util.Date requestDate);
+
     java.lang.String getLob();
+
     void setLob(java.lang.String lob);
+
     java.lang.String getNature();
+
     void setNature(java.lang.String nature);
+
     org.openl.rules.enumeration.UsStatesEnum getUsState();
+
     void setUsState(org.openl.rules.enumeration.UsStatesEnum usState);
+
     org.openl.rules.enumeration.CountriesEnum getCountry();
+
     void setCountry(org.openl.rules.enumeration.CountriesEnum country);
+
     org.openl.rules.enumeration.UsRegionsEnum getUsRegion();
+
     void setUsRegion(org.openl.rules.enumeration.UsRegionsEnum usRegion);
+
     org.openl.rules.enumeration.CurrenciesEnum getCurrency();
+
     void setCurrency(org.openl.rules.enumeration.CurrenciesEnum currency);
+
     org.openl.rules.enumeration.LanguagesEnum getLang();
+
     void setLang(org.openl.rules.enumeration.LanguagesEnum lang);
+
     org.openl.rules.enumeration.RegionsEnum getRegion();
+
     void setRegion(org.openl.rules.enumeration.RegionsEnum region);
+
     org.openl.rules.enumeration.CaProvincesEnum getCaProvince();
+
     void setCaProvince(org.openl.rules.enumeration.CaProvincesEnum caProvince);
+
     org.openl.rules.enumeration.CaRegionsEnum getCaRegion();
+
     void setCaRegion(org.openl.rules.enumeration.CaRegionsEnum caRegion);
-// <<< END INSERT >>>
+    // <<< END INSERT >>>
 }

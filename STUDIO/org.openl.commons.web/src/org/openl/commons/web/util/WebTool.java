@@ -32,7 +32,7 @@ public final class WebTool {
     public static String listRequestParams(Map<String, String[]> paramsMap, String[] exceptParams) {
         StringBuilder buf = new StringBuilder();
 
-        for (Map.Entry<String, String[]> entry: paramsMap.entrySet()) {
+        for (Map.Entry<String, String[]> entry : paramsMap.entrySet()) {
             String paramName = entry.getKey();
             if (ArrayUtils.contains(exceptParams, paramName)) {
                 continue;
@@ -41,8 +41,7 @@ public final class WebTool {
                 buf.append('&');
             }
             String[] paramValues = entry.getValue();
-            buf.append(paramName).append('=').append(
-                    StringTool.encodeURL(paramValues[0]));
+            buf.append(paramName).append('=').append(StringTool.encodeURL(paramValues[0]));
         }
 
         return buf.toString();
@@ -60,8 +59,7 @@ public final class WebTool {
      * Checks if given IP address is a loopback.
      *
      * @param ip address to check
-     * @return <code>true</code> if <code>ip</code> represents loopback
-     * address, or <code>false</code> otherwise.
+     * @return <code>true</code> if <code>ip</code> represents loopback address, or <code>false</code> otherwise.
      */
     public static boolean isLoopbackAddress(String ip) {
         if (StringUtils.isEmpty(ip)) {
@@ -78,19 +76,22 @@ public final class WebTool {
     }
 
     /**
-     * Set content disposition HTTP header with a given file name.
-     * To support non-ASCII symbols in filenames we must use RFC 2231
-     * But old browsers and Safari still doesn't support it, so we mix old and new approach
+     * Set content disposition HTTP header with a given file name. To support non-ASCII symbols in filenames we must use
+     * RFC 2231 But old browsers and Safari still doesn't support it, so we mix old and new approach
      *
      * @param response servlet response
      * @param fileName file name that can contain non-ascii symbols
      * @see <a href="http://www.ietf.org/rfc/rfc2231.txt">RFC 2231</a>
-     * @see <a href="http://kbyanc.blogspot.com/2010/07/serving-file-downloads-with-non-ascii.html">serving-file-downloads-with-non-ascii</a>
-     * @see <a href="http://stackoverflow.com/questions/93551/how-to-encode-the-filename-parameter-of-content-disposition-header-in-http/6745788#6745788">Stackoverflow post</a>
+     * @see <a href=
+     *      "http://kbyanc.blogspot.com/2010/07/serving-file-downloads-with-non-ascii.html">serving-file-downloads-with-non-ascii</a>
+     * @see <a href=
+     *      "http://stackoverflow.com/questions/93551/how-to-encode-the-filename-parameter-of-content-disposition-header-in-http/6745788#6745788">Stackoverflow
+     *      post</a>
      */
     public static void setContentDisposition(HttpServletResponse response, String fileName) {
         String encodedfileName = StringTool.encodeURL(fileName);
-        response.setHeader("Content-Disposition", "attachment; filename=" + encodedfileName + "; filename*=UTF-8''" + encodedfileName);
+        response.setHeader("Content-Disposition",
+            "attachment; filename=" + encodedfileName + "; filename*=UTF-8''" + encodedfileName);
     }
 
 }

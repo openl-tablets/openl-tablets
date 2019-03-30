@@ -16,8 +16,7 @@ public class Version implements Comparable<Version> {
         /**
          * 
          * @param s
-         * @param previousStart index of previously found start or -1 if this is
-         *            first
+         * @param previousStart index of previously found start or -1 if this is first
          * @return index of possible start for version or -1
          */
         int findVersionStart(String s, int previousStart);

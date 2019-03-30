@@ -10,8 +10,8 @@ import java.util.Collection;
  */
 public interface ClassLocator {
     /**
-     * Find all classes in a given path. If a class cannot be loaded, it is
-     * skipped (in our case we don't need such classes).
+     * Find all classes in a given path. If a class cannot be loaded, it is skipped (in our case we don't need such
+     * classes).
      * 
      * @param pathURL The path where classes is searched
      * @param packageName The package name for classes found inside the path

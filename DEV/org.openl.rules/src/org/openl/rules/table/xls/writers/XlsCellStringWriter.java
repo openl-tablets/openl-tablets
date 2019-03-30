@@ -6,7 +6,7 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 public class XlsCellStringWriter extends AXlsCellWriter {
 
     public XlsCellStringWriter(XlsSheetGridModel xlsSheetGridModel) {
-        super(xlsSheetGridModel);        
+        super(xlsSheetGridModel);
     }
 
     @Override

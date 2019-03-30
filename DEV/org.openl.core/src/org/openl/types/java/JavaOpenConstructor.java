@@ -89,7 +89,7 @@ public class JavaOpenConstructor implements IOpenMethod, IMethodSignature {
     public String getParameterName(int i) {
         return "p" + i;
     }
-    
+
     /*
      * (non-Javadoc)
      *
@@ -132,8 +132,7 @@ public class JavaOpenConstructor implements IOpenMethod, IMethodSignature {
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.types.IMethodCaller#invoke(java.lang.Object,
-     *      java.lang.Object[])
+     * @see org.openl.types.IMethodCaller#invoke(java.lang.Object, java.lang.Object[])
      */
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
@@ -153,7 +152,7 @@ public class JavaOpenConstructor implements IOpenMethod, IMethodSignature {
     public boolean isStatic() {
         return true;
     }
-    
+
     @Override
     public boolean isConstructor() {
         return true;

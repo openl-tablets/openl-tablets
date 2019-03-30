@@ -18,11 +18,11 @@ public class CellFont implements ICellFont {
     private boolean italic;
 
     private boolean bold;
-    
+
     private boolean underlined;
-    
+
     private boolean strikeout;
-    
+
     public CellFont(ICellFont cf) {
         if (cf == null) {
             name = "arial";

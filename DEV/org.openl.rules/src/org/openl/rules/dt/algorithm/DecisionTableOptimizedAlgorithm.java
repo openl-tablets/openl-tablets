@@ -376,10 +376,10 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 IConditionEvaluator eval = evaluators[j];
                 ICondition condition = table.getCondition(j);
                 if (eval instanceof ContainsInArrayIndexedEvaluator) {
-                    int maxArrayLength = ((ContainsInArrayIndexedEvaluator) eval)
-                            .getMaxArrayLength(condition, info.makeRuleIterator());
+                    int maxArrayLength = ((ContainsInArrayIndexedEvaluator) eval).getMaxArrayLength(condition,
+                        info.makeRuleIterator());
                     if (maxArrayLength > MAX_INDEXED_ARRAY_SIZE) {
-                        //make condition as not indexed
+                        // make condition as not indexed
                         eval = new ConditionEvaluatorDecoratorAsNotIndexed(eval);
                     }
                 }
@@ -432,7 +432,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         return condition.getEvaluator().invoke(target, dtparams, env);
     }
 
-        /**
+    /**
      * Clears condition's param values.
      *
      * Memory optimization: clear condition values because this values will be used in index(only if it condition is not
@@ -593,7 +593,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     private static class ConditionToEvaluatorHolder implements Comparable<ConditionToEvaluatorHolder> {
 
         private final IndexInfo localInfo;
-        private int uniqueKeysSize = - 1;
+        private int uniqueKeysSize = -1;
         private final ICondition condition;
         private IConditionEvaluator evaluator;
 
@@ -636,8 +636,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         }
 
         private boolean isEqualsIndex() {
-            return this.evaluator instanceof EqualsIndexedEvaluator
-                    || this.evaluator instanceof ContainsInArrayIndexedEvaluator;
+            return this.evaluator instanceof EqualsIndexedEvaluator || this.evaluator instanceof ContainsInArrayIndexedEvaluator;
         }
 
         private int getUniqueKeysSize() {

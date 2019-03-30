@@ -26,7 +26,7 @@ import org.openl.util.text.TextInterval;
  * @author snshor
  */
 public class Tokenizer {
-	
+
     private static final int EOF = -1;
     private static String TOKEN_TYPE = "token";
 
@@ -39,10 +39,9 @@ public class Tokenizer {
     }
 
     /**
-     * Makes delimiters table. Delimiters table is array of boolean values where
-     * element index is delimiter character code (char casted to integer) and
-     * value is boolean value that has <code>true</code> value if the character
-     * is used as delimiter; <code>false</code> - otherwise.
+     * Makes delimiters table. Delimiters table is array of boolean values where element index is delimiter character
+     * code (char casted to integer) and value is boolean value that has <code>true</code> value if the character is
+     * used as delimiter; <code>false</code> - otherwise.
      * 
      * @param delimiters string of delimiters (each char is delimiter)
      */
@@ -71,8 +70,7 @@ public class Tokenizer {
      * Checks that given character (his integer code) is delimiter.
      * 
      * @param character character to check
-     * @return <code>true</code> if character is delimiter; <code>false</code> -
-     *         otherwise
+     * @return <code>true</code> if character is delimiter; <code>false</code> - otherwise
      */
     private boolean isDelimiter(int character) {
         return character < delimitersTable.length && delimitersTable[character];
@@ -82,8 +80,7 @@ public class Tokenizer {
      * Gets first token from source.
      * 
      * @param source source
-     * @return {@link IdentifierNode} object that represents first token in
-     *         source
+     * @return {@link IdentifierNode} object that represents first token in source
      * @throws OpenLCompilationException
      */
     private IdentifierNode firstToken(IOpenSourceCodeModule source) throws OpenLCompilationException {
@@ -109,27 +106,27 @@ public class Tokenizer {
                         return new IdentifierNode(TOKEN_TYPE, location, value, source);
                     }
                 } else {
-					if (character != EOF && !isDelimiter(character)) {
-						if (buffer == null) {
-							buffer = new StringBuilder();
-							startToken = position;
-						}
+                    if (character != EOF && !isDelimiter(character)) {
+                        if (buffer == null) {
+                            buffer = new StringBuilder();
+                            startToken = position;
+                        }
 
-						buffer.append((char) character);
-					}
+                        buffer.append((char) character);
+                    }
                 }
 
             } while (character != EOF);
 
-            return new IdentifierNode(TOKEN_TYPE, LocationUtils.createTextInterval(0, 0),
-                    StringUtils.EMPTY, source);
+            return new IdentifierNode(TOKEN_TYPE, LocationUtils.createTextInterval(0, 0), StringUtils.EMPTY, source);
 
         } catch (IOException e) {
             throw new OpenLCompilationException("Parsing error", e, null, source);
         }
     }
 
-    public IdentifierNode[] parse(IOpenSourceCodeModule source, ILocation textLocation) throws OpenLCompilationException {
+    public IdentifierNode[] parse(IOpenSourceCodeModule source,
+            ILocation textLocation) throws OpenLCompilationException {
         List<IdentifierNode> nodes = new ArrayList<IdentifierNode>();
 
         try {
@@ -166,7 +163,7 @@ public class Tokenizer {
                         buffer = null;
                     }
                 } else {
-                    if (!isDelimiter(character)){
+                    if (!isDelimiter(character)) {
                         if (buffer == null) {
                             buffer = new StringBuilder();
                             startToken = position;
@@ -179,7 +176,7 @@ public class Tokenizer {
                     if (position < textLocation.getEnd().getAbsolutePosition(null)) {
                         continueLooping = character != EOF;
                     } else {
-                        /*if end of token then save last token*/
+                        /* if end of token then save last token */
                         if (buffer != null) {
                             String value = buffer.toString().trim();
                             if (!value.isEmpty()) {
@@ -204,13 +201,13 @@ public class Tokenizer {
         return nodes.toArray(new IdentifierNode[nodes.size()]);
     }
 
-	public static IdentifierNode firstToken(IOpenSourceCodeModule source, String delimiter)
-            throws OpenLCompilationException {
+    public static IdentifierNode firstToken(IOpenSourceCodeModule source,
+            String delimiter) throws OpenLCompilationException {
         return getTokenizer(delimiter).firstToken(source);
     }
 
-    public static IdentifierNode[] tokenize(IOpenSourceCodeModule source, String delimiter)
-            throws OpenLCompilationException {
+    public static IdentifierNode[] tokenize(IOpenSourceCodeModule source,
+            String delimiter) throws OpenLCompilationException {
         return getTokenizer(delimiter).parse(source, null);
     }
 
@@ -226,7 +223,9 @@ public class Tokenizer {
         return tokenizer;
     }
 
-    public static IdentifierNode[] tokenize(IOpenSourceCodeModule source, String delimiter, ILocation location) throws OpenLCompilationException {
+    public static IdentifierNode[] tokenize(IOpenSourceCodeModule source,
+            String delimiter,
+            ILocation location) throws OpenLCompilationException {
         return getTokenizer(delimiter).parse(source, location);
     }
 

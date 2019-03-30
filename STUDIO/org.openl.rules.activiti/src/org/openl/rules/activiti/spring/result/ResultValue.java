@@ -12,7 +12,7 @@ public class ResultValue {
     public ResultValue(Object value) {
         this.value = value;
     }
-    
+
     @SuppressWarnings("unchecked")
     private <T> T convert(Class<T> to) {
         IOpenCast openCast = convertor.getConvertor(to, value.getClass());
@@ -24,7 +24,7 @@ public class ResultValue {
                 to.getCanonicalName()));
         }
     }
-    
+
     public ResultValue asByte() {
         return new ResultValue(toByte());
     }

@@ -6,7 +6,7 @@ public enum InheritanceLevel {
     EXTERNAL("External"),
     FILE("File"),
     MODULE("Module"),
-    CATEGORY("Category"), 
+    CATEGORY("Category"),
     TABLE("Table");
 
     private String displayName;
@@ -23,7 +23,7 @@ public enum InheritanceLevel {
     public String toString() {
         return displayName;
     }
-    
+
     public static InheritanceLevel getEnumByValue(String value) {
         for (InheritanceLevel level : InheritanceLevel.values()) {
             if (level.getDisplayName().equals(value)) {

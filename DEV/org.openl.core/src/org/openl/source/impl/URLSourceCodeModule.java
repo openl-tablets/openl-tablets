@@ -44,6 +44,7 @@ public class URLSourceCodeModule extends ASourceCodeModule {
             throw RuntimeExceptionWrapper.wrap(e);
         }
     }
+
     public URL getUrl() {
         return url;
     }

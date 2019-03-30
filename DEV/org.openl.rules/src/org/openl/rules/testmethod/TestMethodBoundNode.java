@@ -20,7 +20,7 @@ import org.openl.types.impl.DynamicObject;
 public class TestMethodBoundNode extends DataTableBoundNode {
 
     private TestSuiteMethod testSuiteMethod;
-    
+
     public TestMethodBoundNode(TableSyntaxNode tableSyntaxNode, XlsModuleOpenClass module) {
         super(tableSyntaxNode, module);
     }
@@ -35,15 +35,15 @@ public class TestMethodBoundNode extends DataTableBoundNode {
     protected void setTestSuite(TestSuiteMethod testSuiteMethod) {
         this.testSuiteMethod = testSuiteMethod;
     }
-    
+
     @Override
     public void finalizeBind(IBindingContext cxt) throws Exception {
         super.finalizeBind(cxt);
 
         DynamicObject[] testCases = (DynamicObject[]) getField().getData();
         for (DynamicObject testCase : testCases) {
-            if (testCase.getFieldValue(TestMethodHelper.EXPECTED_ERROR) != null
-                    && testCase.getFieldValue(TestMethodHelper.EXPECTED_RESULT_NAME) != null) {
+            if (testCase.getFieldValue(TestMethodHelper.EXPECTED_ERROR) != null && testCase
+                .getFieldValue(TestMethodHelper.EXPECTED_RESULT_NAME) != null) {
                 ITable table = getTable();
                 int row = table.getRowIndex(testCase);
                 int column = table.getColumnIndex(TestMethodHelper.EXPECTED_ERROR);
@@ -51,8 +51,8 @@ public class TestMethodBoundNode extends DataTableBoundNode {
                 IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell, cxt);
 
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
-                        "Ambiguous expectation in the test case. Both expected result and expected error have been declared.",
-                        cellSourceCodeModule);
+                    "Ambiguous expectation in the test case. Both expected result and expected error have been declared.",
+                    cellSourceCodeModule);
                 getTableSyntaxNode().addError(error);
                 cxt.addError(error);
             }

@@ -25,8 +25,8 @@ public class DateFormatter implements IFormatter {
     }
 
     public DateFormatter(Locale locale) {
-        this(DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale == null ? Locale.getDefault()
-                : locale));
+        this(DateFormat
+            .getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale == null ? Locale.getDefault() : locale));
     }
 
     public DateFormatter(DateFormat format) {
@@ -47,8 +47,8 @@ public class DateFormatter implements IFormatter {
             this.format = new SimpleDateFormat(format, locale);
         } catch (Exception e) {
             log.error("Could not create format: {}", format);
-            this.format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT,
-                    locale == null ? Locale.getDefault() : locale);
+            this.format = DateFormat
+                .getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale == null ? Locale.getDefault() : locale);
         }
     }
 

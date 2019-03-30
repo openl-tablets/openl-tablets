@@ -267,7 +267,7 @@ public class DoubleRange implements INumberRange {
     public static DoubleRange cast(BigDecimal x, DoubleRange y) {
         return new DoubleRange(x.doubleValue());
     }
-    
+
     public static DoubleRange cast(ByteValue x, DoubleRange y) {
         return new DoubleRange(x.intValue());
     }

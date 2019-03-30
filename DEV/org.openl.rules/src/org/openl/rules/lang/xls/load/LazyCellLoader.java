@@ -6,9 +6,8 @@ import org.openl.rules.table.xls.PoiExcelHelper;
 import java.lang.ref.WeakReference;
 
 /**
- * Provides lazy access to the Cell.
- * If corresponding workbook was garbage collected previously, it will bec loaded again
- * when {@link #getCell()} is invoked.
+ * Provides lazy access to the Cell. If corresponding workbook was garbage collected previously, it will bec loaded
+ * again when {@link #getCell()} is invoked.
  */
 public class LazyCellLoader implements CellLoader {
     private final SheetLoader sheetLoader;
@@ -24,9 +23,8 @@ public class LazyCellLoader implements CellLoader {
     }
 
     /**
-     * Get the cell.
-     * When this method is repeatedly called, it can (but mustn't)
-     * return the different instances of Cell java object.
+     * Get the cell. When this method is repeatedly called, it can (but mustn't) return the different instances of Cell
+     * java object.
      *
      * @return loaded cell
      */

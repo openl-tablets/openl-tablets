@@ -57,7 +57,7 @@ public enum UsStatesEnum {
 
     private final String displayName;
 
-    private UsStatesEnum (String displayName) {
+    private UsStatesEnum(String displayName) {
         this.displayName = displayName;
     }
 

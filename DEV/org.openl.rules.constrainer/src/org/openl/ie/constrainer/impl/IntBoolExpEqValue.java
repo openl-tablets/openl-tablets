@@ -6,7 +6,6 @@ import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
 
-
 /**
  * An implementation of the expression: <code>(IntExp == value)</code>.
  */
@@ -28,6 +27,7 @@ public final class IntBoolExpEqValue extends IntBoolExpForSubject {
         }
 
     } // ~ObserverMinMax
+
     private IntExp _exp;
 
     private int _value;

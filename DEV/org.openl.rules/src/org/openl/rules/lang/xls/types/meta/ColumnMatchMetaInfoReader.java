@@ -46,7 +46,11 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
 
         TableRow row0 = columnMatch.getRows().get(0);
 
-        CellMetaInfo metaInfo = searchMetaInfo(columnMatch, rowNum, colNum, row0.get(VALUES), columnMatch.getReturnValues());
+        CellMetaInfo metaInfo = searchMetaInfo(columnMatch,
+            rowNum,
+            colNum,
+            row0.get(VALUES),
+            columnMatch.getReturnValues());
         if (metaInfo != NOT_FOUND) {
             return metaInfo;
         }
@@ -54,13 +58,21 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
         if (getSpecialRowCount(columnMatch) > 1) {
             TableRow totalScoreRow = columnMatch.getRows().get(WeightAlgorithmCompiler.ROW_TOTAL_SCORE_IDX);
             MatchNode totalScore = columnMatch.getTotalScore();
-            metaInfo = searchMetaInfo(columnMatch, rowNum, colNum, totalScoreRow.get(VALUES), totalScore.getCheckValues());
+            metaInfo = searchMetaInfo(columnMatch,
+                rowNum,
+                colNum,
+                totalScoreRow.get(VALUES),
+                totalScore.getCheckValues());
             if (metaInfo != NOT_FOUND) {
                 return metaInfo;
             }
 
             TableRow scoreRow = columnMatch.getRows().get(WeightAlgorithmCompiler.ROW_SCORE_IDX);
-            metaInfo = searchMetaInfo(columnMatch, rowNum, colNum, scoreRow.get(VALUES), asObjects(columnMatch.getColumnScores()));
+            metaInfo = searchMetaInfo(columnMatch,
+                rowNum,
+                colNum,
+                scoreRow.get(VALUES),
+                asObjects(columnMatch.getColumnScores()));
             if (metaInfo != NOT_FOUND) {
                 return metaInfo;
             }

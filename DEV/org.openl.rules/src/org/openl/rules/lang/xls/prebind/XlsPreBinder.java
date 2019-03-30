@@ -24,8 +24,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 
 /**
- * Serves to prebind code. Prebind means to process all datatypes, properties
- * and headers for another table types.
+ * Serves to prebind code. Prebind means to process all datatypes, properties and headers for another table types.
  * 
  * @author pudalau
  */
@@ -61,14 +60,17 @@ public class XlsPreBinder extends XlsBinder {
     protected XlsLazyModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode,
             OpenL openl,
             IDataBase dbase,
-            Set<CompiledDependency> moduleDependencies, IBindingContext bindingContext) {
+            Set<CompiledDependency> moduleDependencies,
+            IBindingContext bindingContext) {
 
         return new XlsLazyModuleOpenClass(XlsHelper.getModuleName(moduleNode),
-                new XlsMetaInfo(moduleNode),
-                openl,
-                dbase,
-                prebindHandler,
-                moduleDependencies, Thread.currentThread().getContextClassLoader(), OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()),
-                OpenLSystemProperties.isDispatchingValidationEnabled((bindingContext.getExternalParams())));
+            new XlsMetaInfo(moduleNode),
+            openl,
+            dbase,
+            prebindHandler,
+            moduleDependencies,
+            Thread.currentThread().getContextClassLoader(),
+            OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()),
+            OpenLSystemProperties.isDispatchingValidationEnabled((bindingContext.getExternalParams())));
     }
 }

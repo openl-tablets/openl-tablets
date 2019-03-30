@@ -17,7 +17,8 @@ class String2ClassConvertor implements IString2DataConvertor<Class<?>>, IString2
 
     @Override
     public Class<?> parse(String data, String format, IBindingContext cxt) {
-        if (data == null) return null;
+        if (data == null)
+            return null;
 
         String typeName;
         if (data.endsWith(ARRAY_SUFIX)) {

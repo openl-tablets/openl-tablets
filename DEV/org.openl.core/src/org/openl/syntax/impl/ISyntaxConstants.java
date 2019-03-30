@@ -19,5 +19,5 @@ public interface ISyntaxConstants {
      * The namespace for operator methods - this way they do not mix with THIS namespace
      */
     String OPERATORS_NAMESPACE = "org.openl.operators";
-    
+
 }

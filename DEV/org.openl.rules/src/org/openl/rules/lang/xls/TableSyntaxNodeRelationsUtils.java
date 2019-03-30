@@ -30,12 +30,13 @@ final class TableSyntaxNodeRelationsUtils {
     }
 
     public static TableSyntaxNode[] sort(TableSyntaxNode[] tableSyntaxNodes,
-            TableSyntaxNodeRelationsDeterminer tableSyntaxNodeRelationsDeterminer) throws TableSyntaxNodeCircularDependencyException{
+            TableSyntaxNodeRelationsDeterminer tableSyntaxNodeRelationsDeterminer) throws TableSyntaxNodeCircularDependencyException {
         boolean[][] matrix = buildRelationsMatrix(tableSyntaxNodes, tableSyntaxNodeRelationsDeterminer);
         return sort(tableSyntaxNodes, matrix);
     }
 
-    public static TableSyntaxNode[] sort(TableSyntaxNode[] tableSyntaxNodes, boolean[][] matrix) throws TableSyntaxNodeCircularDependencyException{
+    public static TableSyntaxNode[] sort(TableSyntaxNode[] tableSyntaxNodes,
+            boolean[][] matrix) throws TableSyntaxNodeCircularDependencyException {
         TableSyntaxNode[] result = new TableSyntaxNode[tableSyntaxNodes.length];
 
         int[] countArray = new int[tableSyntaxNodes.length];

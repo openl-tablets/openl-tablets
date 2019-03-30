@@ -13,21 +13,20 @@ import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 
 /**
- * The <code>IBoundCode</code> interface is designed to provide a common
- * protocol for objects what describes bound code.
+ * The <code>IBoundCode</code> interface is designed to provide a common protocol for objects what describes bound code.
  * 
  * @author snshor
  * 
  */
 public interface IBoundCode {
-    
+
     /**
      * Gets errors what was found during binding process.
      * 
      * @return syntax errors
      */
     SyntaxNodeException[] getErrors();
-    
+
     Collection<OpenLMessage> getMessages();
 
     /**
@@ -38,8 +37,8 @@ public interface IBoundCode {
     IParsedCode getParsedCode();
 
     /**
-     * Gets link to top node of bound code objects hierarchy. Bound code
-     * represented as a tree of bound code objects (nodes).
+     * Gets link to top node of bound code objects hierarchy. Bound code represented as a tree of bound code objects
+     * (nodes).
      * 
      * @return top node
      */

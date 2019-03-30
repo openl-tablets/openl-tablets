@@ -5,10 +5,10 @@ import java.util.Iterator;
 import org.openl.domain.IDomain;
 
 public final class DomainUtils {
-    
+
     private DomainUtils() {
     }
-    
+
     @SuppressWarnings("unchecked")
     public static String toString(@SuppressWarnings("rawtypes") IDomain domain) {
         StringBuilder sb = new StringBuilder();
@@ -28,5 +28,5 @@ public final class DomainUtils {
         }
         return "[" + sb.toString() + "]";
     }
-    
+
 }

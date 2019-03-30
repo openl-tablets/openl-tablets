@@ -31,7 +31,8 @@ public class SequentialXlsLoader extends XlsLoader {
 
         ExcelReaderFactory factory = ExcelReaderFactory.sequentialFactory();
 
-        // Opening the file by path is preferred because using an InputStream has a higher memory footprint than using a File.
+        // Opening the file by path is preferred because using an InputStream has a higher memory footprint than using a
+        // File.
         // See POI documentation. For both: User API and SAX/Event API.
         String path = getPath(workbookSourceModule);
         try (ExcelReader excelReader = path == null ? factory.create(source.getByteStream()) : factory.create(path)) {
@@ -43,9 +44,8 @@ public class SequentialXlsLoader extends XlsLoader {
 
             for (int i = 0; i < nsheets; i++) {
                 final SheetDescriptor sheet = sheets.get(i);
-                XlsSheetSourceCodeModule sheetSource = new SequentialXlsSheetSourceCodeModule(
-                        workbookSourceModule,
-                        sheet);
+                XlsSheetSourceCodeModule sheetSource = new SequentialXlsSheetSourceCodeModule(workbookSourceModule,
+                    sheet);
                 Object[][] cells = excelReader.getCells(sheet);
                 IGridTable[] tables = new ParsedGrid(path, sheetSource, sheet, cells, use1904Windowing).getTables();
                 sheetNodes[i] = createWorksheetSyntaxNode(tablePartProcessor, sheetSource, tables);
@@ -56,9 +56,8 @@ public class SequentialXlsLoader extends XlsLoader {
     }
 
     /**
-     * Get path on file system for xls/xlsx file.
-     * Returns null if path file isn't on file system (for example inside of jar). Example of such case
-     * is AlgorithmTableSpecification.xls.
+     * Get path on file system for xls/xlsx file. Returns null if path file isn't on file system (for example inside of
+     * jar). Example of such case is AlgorithmTableSpecification.xls.
      *
      * @param workbookSourceModule module to get the path
      * @return path on file system or null if path can't be retrieved.

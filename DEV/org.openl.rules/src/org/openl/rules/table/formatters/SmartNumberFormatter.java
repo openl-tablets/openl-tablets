@@ -8,10 +8,10 @@ import org.openl.rules.helpers.NumberUtils;
 import org.openl.util.formatters.IFormatter;
 import org.openl.util.formatters.NumberFormatter;
 
-public class SmartNumberFormatter implements IFormatter{
+public class SmartNumberFormatter implements IFormatter {
 
     private Locale locale;
-    
+
     public SmartNumberFormatter() {
         locale = Locale.US;
     }
@@ -25,13 +25,13 @@ public class SmartNumberFormatter implements IFormatter{
         if (!(value instanceof Number)) {
             return null;
         }
-        
-        String format = getFormatForScale((Number)value);
+
+        String format = getFormatForScale((Number) value);
         Number processedValue = getProcessedValue((Number) value);
         NumberFormatter formatter = new NumberFormatter(format, locale);
         return formatter.format(processedValue);
     }
-    
+
     @Override
     public Object parse(String value) {
         throw new UnsupportedOperationException();
@@ -74,16 +74,16 @@ public class SmartNumberFormatter implements IFormatter{
                     best = d2;
                 }
             }
-            if (scale - bestScale > 1){
-                return best;    
-            }else{
+            if (scale - bestScale > 1) {
+                return best;
+            } else {
                 return d;
             }
         } else {
             return value;
         }
     }
-    
+
     private static int getScale(Number value) {
         if (value == null) {
             throw new NullPointerException("Null value is not supported");
@@ -124,9 +124,9 @@ public class SmartNumberFormatter implements IFormatter{
                     bestScale = s;
                 }
             }
-            if (scale - bestScale > 1){
-                return bestScale;    
-            }else{
+            if (scale - bestScale > 1) {
+                return bestScale;
+            } else {
                 return scale;
             }
         } else {

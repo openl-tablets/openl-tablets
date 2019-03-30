@@ -18,9 +18,8 @@ import org.openl.ie.constrainer.IntExp;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * A delta-event about the change(s) in the domain of the constraint integer
- * expression. This event contains an information about current and old (before
- * the change(s)) domains of the expression.
+ * A delta-event about the change(s) in the domain of the constraint integer expression. This event contains an
+ * information about current and old (before the change(s)) domains of the expression.
  */
 public abstract class IntEvent extends EventOfInterest {
     /**
@@ -55,8 +54,7 @@ public abstract class IntEvent extends EventOfInterest {
     public abstract int max();
 
     /**
-     * Returns the delta-change of the largest value of the domain of the
-     * expression.
+     * Returns the delta-change of the largest value of the domain of the expression.
      */
     public int maxdiff() {
         return max() - oldmax();
@@ -68,8 +66,7 @@ public abstract class IntEvent extends EventOfInterest {
     public abstract int min();
 
     /**
-     * Returns the delta-change of the smallest value of the domain of the
-     * expression.
+     * Returns the delta-change of the smallest value of the domain of the expression.
      */
     public int mindiff() {
         return min() - oldmin();
@@ -93,8 +90,7 @@ public abstract class IntEvent extends EventOfInterest {
     public abstract int oldmin();
 
     /**
-     * Returns i<sup>th</sup> value that was removed from the domain of the
-     * expression.
+     * Returns i<sup>th</sup> value that was removed from the domain of the expression.
      *
      * @see #numberOfRemoves
      */

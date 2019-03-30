@@ -1,10 +1,10 @@
 package org.openl.rules.fuzzy;
 
 public final class Token {
- 
+
     private final String value;
     private final int distance;
-    
+
     public Token(String value, int distance) {
         this.value = value;
         this.distance = distance;
@@ -13,11 +13,11 @@ public final class Token {
     public String getValue() {
         return value;
     }
-    
+
     public int getDistance() {
         return distance;
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -45,7 +45,7 @@ public final class Token {
             return false;
         return true;
     }
-    
+
     @Override
     public String toString() {
         return "Token [value=" + value + "]";

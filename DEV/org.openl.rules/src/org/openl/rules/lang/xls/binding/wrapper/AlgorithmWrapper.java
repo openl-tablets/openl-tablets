@@ -17,20 +17,20 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
-public class AlgorithmWrapper extends Algorithm implements IOpenMethodWrapper{
+public class AlgorithmWrapper extends Algorithm implements IOpenMethodWrapper {
     Algorithm delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
-    
+
     public AlgorithmWrapper(XlsModuleOpenClass xlsModuleOpenClass, Algorithm delegate) {
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
-    
+
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return WrapperLogic.invoke(this, target, params, env);
     }
-    
+
     @Override
     public XlsModuleOpenClass getXlsModuleOpenClass() {
         return xlsModuleOpenClass;
@@ -150,12 +150,12 @@ public class AlgorithmWrapper extends Algorithm implements IOpenMethodWrapper{
     public TableSyntaxNode getSyntaxNode() {
         return delegate.getSyntaxNode();
     }
-    
+
     @Override
     public String getModuleName() {
         return delegate.getModuleName();
     }
-    
+
     @Override
     public void setModuleName(String dependencyName) {
         delegate.setModuleName(dependencyName);

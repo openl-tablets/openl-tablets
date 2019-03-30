@@ -73,7 +73,7 @@ public class FieldBoundNode extends ATargetBoundNode {
     }
 
     private Object evaluateDim(Object target, IRuntimeEnv env, int dims, Class<?> targetType) {
-        if (dims == 0){
+        if (dims == 0) {
             return boundField.get(target, env);
         } else if (target == null) {
             return null;

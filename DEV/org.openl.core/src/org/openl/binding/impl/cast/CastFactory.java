@@ -24,8 +24,7 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 
 /**
- * Base implementation of {@link ICastFactory} abstraction that used by engine
- * for type conversion operations.
+ * Base implementation of {@link ICastFactory} abstraction that used by engine for type conversion operations.
  *
  * @author snshor, Yury Molchan, Marat Kamalov
  */
@@ -74,8 +73,7 @@ public class CastFactory implements ICastFactory {
     public static final String DISTANCE_METHOD_NAME = "distance";
 
     /**
-     * Method factory object. This factory allows to define cast operations thru
-     * java methods.
+     * Method factory object. This factory allows to define cast operations thru java methods.
      */
     private IMethodFactory methodFactory;
     private ICastFactory globalCastFactory;
@@ -106,7 +104,7 @@ public class CastFactory implements ICastFactory {
             ICastFactory casts,
             Iterable<IOpenMethod> methods) {
 
-        openClass1 = JavaOpenClass.getOpenClass(openClass1.getInstanceClass()); //AliasDatatypes support
+        openClass1 = JavaOpenClass.getOpenClass(openClass1.getInstanceClass()); // AliasDatatypes support
         openClass2 = JavaOpenClass.getOpenClass(openClass2.getInstanceClass());
 
         Iterator<IOpenMethod> itr = methods.iterator();
@@ -187,10 +185,12 @@ public class CastFactory implements ICastFactory {
                 if (cast == null || !cast.isImplicit()) {
                     cast = casts.getCast(openClass, ret);
                     if (cast != null && cast.isImplicit()) {
-                        // Found narrower candidate. For example Integer is narrower than Double (when convert from int).
+                        // Found narrower candidate. For example Integer is narrower than Double (when convert from
+                        // int).
                         ret = openClass;
                     } else {
-                        // Two candidate classes are not convertible between each over. For example Float and BigInteger.
+                        // Two candidate classes are not convertible between each over. For example Float and
+                        // BigInteger.
                         // Compare second candidate with remaining candidates later.
                         notConvertible.add(openClass);
                     }
@@ -205,8 +205,8 @@ public class CastFactory implements ICastFactory {
                             ret = openClass;
                         } else if (distance == backDistance) {
                             // We have a collision.
-                            String message = "Can't find closest cast: have two candidate classes with same cast distance: " +
-                                    ret.getName() + " and " + openClass.getName();
+                            String message = "Can't find closest cast: have two candidate classes with same cast distance: " + ret
+                                .getName() + " and " + openClass.getName();
                             throw new IllegalStateException(message);
                         } else {
                             // Previous candidate is narrower. Keep it.
@@ -225,8 +225,8 @@ public class CastFactory implements ICastFactory {
 
             if (newCandidates.size() == openClass1Candidates.size()) {
                 // Can't filter out classes to choose a closest. Prevent infinite recursion.
-                String message = "Can't find closest cast: have several candidate classes not convertible between each over: " +
-                        Arrays.toString(newCandidates.toArray());
+                String message = "Can't find closest cast: have several candidate classes not convertible between each over: " + Arrays
+                    .toString(newCandidates.toArray());
                 throw new IllegalStateException(message);
             }
 
@@ -251,7 +251,7 @@ public class CastFactory implements ICastFactory {
 
     private static void addClassToCandidates(IOpenClass openClass, Set<IOpenClass> candidates) {
         if (openClass.getInstanceClass() != null) {
-            candidates.add(openClass); 
+            candidates.add(openClass);
             if (openClass.getInstanceClass().isPrimitive()) {
                 candidates.add(JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(openClass.getInstanceClass())));
             } else {
@@ -264,8 +264,7 @@ public class CastFactory implements ICastFactory {
     }
 
     /**
-     * Gets cast operation for given types. This is method is using internal
-     * cache for cast operations.
+     * Gets cast operation for given types. This is method is using internal cache for cast operations.
      * 
      * @param from from type
      * @param to to type
@@ -329,14 +328,14 @@ public class CastFactory implements ICastFactory {
         IOpenCast javaCast = findJavaCast(from, to);
         // Select minimum between alias cast and java cast
         typeCast = selectBetterCast(from, to, typeCast, javaCast);
-        
+
         IOpenCast methodBasedCast = findMethodBasedCast(from, to, methodFactory);
         typeCast = selectBetterCast(from, to, typeCast, methodBasedCast);
 
         if (typeCast == null) {
             typeCast = findOneElementArrayCast(from, to);
         }
-        
+
         return typeCast;
     }
 
@@ -385,7 +384,7 @@ public class CastFactory implements ICastFactory {
 
         IOpenClass t = to.getComponentClass();
         IOpenClass f = from.getComponentClass();
-        if (! f.isArray() && t.isArray()) {
+        if (!f.isArray() && t.isArray()) {
             // to prevent Obj[] -> Obj[][] because of findOneElementArrayCast
             return null;
         }
@@ -395,7 +394,7 @@ public class CastFactory implements ICastFactory {
         }
         return null;
     }
-    
+
     private IOpenCast findOneElementArrayCast(IOpenClass from, IOpenClass to) {
         if (!from.isArray() && to.isArray() && !to.getComponentClass().isArray()) {
             IOpenClass componentClass = to.getComponentClass();
@@ -422,16 +421,15 @@ public class CastFactory implements ICastFactory {
      * Checks that instance class of open class is primitive.
      * 
      * @param openClass type to check
-     * @return <code>true</code> if instance class is primitive type;
-     *         <code>false</code> - otherwise
+     * @return <code>true</code> if instance class is primitive type; <code>false</code> - otherwise
      */
     private boolean isPrimitive(IOpenClass openClass) {
         return openClass != null && openClass.getInstanceClass() != null && openClass.getInstanceClass().isPrimitive();
     }
 
     /**
-     * Finds appropriate cast type operation using cast rules of java language.
-     * If result type is not java class <code>null</code> will be returned.
+     * Finds appropriate cast type operation using cast rules of java language. If result type is not java class
+     * <code>null</code> will be returned.
      * 
      * @param from from type
      * @param to to type
@@ -443,8 +441,14 @@ public class CastFactory implements ICastFactory {
         //
         Class<?> fromClass = from.getInstanceClass();
         Class<?> toClass = to.getInstanceClass();
-        
-        if (fromClass == toClass && from != to && from instanceof ADynamicClass && to instanceof ADynamicClass) { //Dynamic classes with the same instance class
+
+        if (fromClass == toClass && from != to && from instanceof ADynamicClass && to instanceof ADynamicClass) { // Dynamic
+                                                                                                                  // classes
+                                                                                                                  // with
+                                                                                                                  // the
+                                                                                                                  // same
+                                                                                                                  // instance
+                                                                                                                  // class
             return null;
         }
 
@@ -482,13 +486,11 @@ public class CastFactory implements ICastFactory {
     }
 
     /**
-     * Finds appropriate auto boxing (primitive to wrapper object) cast
-     * operation.
+     * Finds appropriate auto boxing (primitive to wrapper object) cast operation.
      * 
      * @param from primitive type
      * @param to wrapper type
-     * @return auto boxing cast operation if conversion is found; null -
-     *         otherwise
+     * @return auto boxing cast operation if conversion is found; null - otherwise
      */
     private IOpenCast findBoxingCast(IOpenClass from, IOpenClass to) {
 
@@ -543,8 +545,7 @@ public class CastFactory implements ICastFactory {
     }
 
     /**
-     * Finds cast operation for alias types. If both types are not alias types
-     * <code>null</code> will be returned.
+     * Finds cast operation for alias types. If both types are not alias types <code>null</code> will be returned.
      * 
      * @param from from type
      * @param to to type
@@ -801,28 +802,21 @@ public class CastFactory implements ICastFactory {
     /**
      * The following conversions are called the narrowing reference conversions:
      * 
-     * From any class type S to any class type T, provided that S is a
-     * superclass of T. (An important special case is that there is a narrowing
-     * conversion from the class type Object to any other class type.) From any
-     * class type S to any interface type K, provided that S is not final and
-     * does not implement K. (An important special case is that there is a
-     * narrowing conversion from the class type Object to any interface type.)
-     * From type Object to any array type. From type Object to any interface
-     * type. From any interface type J to any class type T that is not final.
-     * From any interface type J to any class type T that is final, provided
-     * that T implements J. From any interface type J to any interface type K,
-     * provided that J is not a subinterface of K and there is no method name m
-     * such that J and K both contain a method named m with the same signature
-     * but different return types. From any array type SC[] to any array type
-     * TC[], provided that SC and TC are reference types and there is a
-     * narrowing conversion from SC to TC.
+     * From any class type S to any class type T, provided that S is a superclass of T. (An important special case is
+     * that there is a narrowing conversion from the class type Object to any other class type.) From any class type S
+     * to any interface type K, provided that S is not final and does not implement K. (An important special case is
+     * that there is a narrowing conversion from the class type Object to any interface type.) From type Object to any
+     * array type. From type Object to any interface type. From any interface type J to any class type T that is not
+     * final. From any interface type J to any class type T that is final, provided that T implements J. From any
+     * interface type J to any interface type K, provided that J is not a subinterface of K and there is no method name
+     * m such that J and K both contain a method named m with the same signature but different return types. From any
+     * array type SC[] to any array type TC[], provided that SC and TC are reference types and there is a narrowing
+     * conversion from SC to TC.
      * 
-     * @link http://java.sun.com/docs/books/jls/second_edition/html/conversions.doc
-     *       .html
+     * @link http://java.sun.com/docs/books/jls/second_edition/html/conversions.doc .html
      * @param from from type
      * @param to to type
-     * @return <code>true</code> is downcast operation is allowed for given
-     *         types; <code>false</code> - otherwise
+     * @return <code>true</code> is downcast operation is allowed for given types; <code>false</code> - otherwise
      */
     private boolean isAllowJavaDowncast(Class<?> from, Class<?> to) {
 

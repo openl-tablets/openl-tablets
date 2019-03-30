@@ -17,9 +17,11 @@ import org.openl.types.IOpenMethod;
  */
 public interface INameSpacedMethodFactory {
 
-    IMethodCaller getMethodCaller(String namespace, String name, IOpenClass[] params, ICastFactory casts)
-            throws AmbiguousMethodException;
-    
+    IMethodCaller getMethodCaller(String namespace,
+            String name,
+            IOpenClass[] params,
+            ICastFactory casts) throws AmbiguousMethodException;
+
     IOpenMethod[] getMethods(String namespace, String name);
 
 }

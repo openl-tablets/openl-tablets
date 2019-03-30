@@ -33,5 +33,4 @@ public interface Goal extends ConstrainerObject {
 
     public boolean toContinue(ChoicePointLabel label, boolean restore_flag);
 
-
 } // ~Goal

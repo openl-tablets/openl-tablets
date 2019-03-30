@@ -12,7 +12,6 @@ import javax.xml.bind.annotation.XmlRootElement;
  * #L%
  */
 
-
 /**
  * Spreadsheet row(step) that has formula and value as column values.
  * 

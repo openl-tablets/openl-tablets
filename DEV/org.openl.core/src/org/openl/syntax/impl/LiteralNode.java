@@ -8,7 +8,7 @@ import org.openl.util.text.TextInterval;
  *
  */
 public class LiteralNode extends TerminalNode {
-    
+
     private String image;
 
     LiteralNode(String type, TextInterval location, String image, IOpenSourceCodeModule module) {

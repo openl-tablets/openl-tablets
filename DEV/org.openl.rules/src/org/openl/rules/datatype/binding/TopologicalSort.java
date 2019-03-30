@@ -19,8 +19,10 @@ public class TopologicalSort<T> {
         return order;
     }
 
-    private void visit(final TopoGraphNode<T> n, final Set<TopoGraphNode<T>> alreadySeen,
-                       final Set<TopoGraphNode<T>> visited, final LinkedHashSet<TopoGraphNode<T>> order) {
+    private void visit(final TopoGraphNode<T> n,
+            final Set<TopoGraphNode<T>> alreadySeen,
+            final Set<TopoGraphNode<T>> visited,
+            final LinkedHashSet<TopoGraphNode<T>> order) {
         if (alreadySeen.contains(n)) {
             return;
         }

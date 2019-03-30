@@ -4,17 +4,15 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.lang.xls.IXlsTableNames;
 
 /**
- * Helper class that allows creating new decision tables in specified excel
- * sheet.
+ * Helper class that allows creating new decision tables in specified excel sheet.
  *
  * @author Aliaksandr Antonik
  */
 public class DecisionTableBuilder extends TableBuilder {
 
     /**
-     * Number of rows that usually are used for table logic element. That is
-     * actions & conditions title, logic, parameter declarations, paramater
-     * business names.
+     * Number of rows that usually are used for table logic element. That is actions & conditions title, logic,
+     * parameter declarations, paramater business names.
      */
     public static final int LOGIC_ELEMENT_HEIGHT = 4;
 
@@ -44,15 +42,14 @@ public class DecisionTableBuilder extends TableBuilder {
     }
 
     /**
-     * Writes an element, which is an action, a condition or return block. As an
-     * example look at a part of <i>driverPremium</i> table in OpenL Tutorial
-     * 4: <table cellspacing="2">
+     * Writes an element, which is an action, a condition or return block. As an example look at a part of
+     * <i>driverPremium</i> table in OpenL Tutorial 4:
+     * <table cellspacing="2">
      * <tr bgcolor="#ccffff">
      * <td align="center" colspan="2"><b>C2</b></td>
      * </tr>
      * <tr bgcolor="#ccffff">
-     * <td colspan="2">located == "in" &amp;&amp; statelist.indexOf(
-     * di.driver.state) &gt;= 0</td>
+     * <td colspan="2">located == "in" &amp;&amp; statelist.indexOf( di.driver.state) &gt;= 0</td>
      * </tr>
      * <tr bgcolor="#ccffff">
      * <td align="center">String located</td>
@@ -64,14 +61,13 @@ public class DecisionTableBuilder extends TableBuilder {
      * </tr>
      * </table>
      *
-     * Here element's <code>title</code> is <i>C2</i>, <code>logic</code>
-     * is <i>located == "in" &amp;&amp; statelist.indexOf( di.driver.state)
-     * &gt;= 0</i>, <code>parameterNames</code> are <i>Located</i> and
-     * <i>State</i> and finally <code>parameterSignatures</code> are
-     * <i>String located</i> and <i>String statelist</i>.
+     * Here element's <code>title</code> is <i>C2</i>, <code>logic</code> is <i>located == "in" &amp;&amp;
+     * statelist.indexOf( di.driver.state) &gt;= 0</i>, <code>parameterNames</code> are <i>Located</i> and <i>State</i>
+     * and finally <code>parameterSignatures</code> are <i>String located</i> and <i>String statelist</i>.
      *
-     * <br/> <br/> The lengths of <code>parameterNames</code> and
-     * <code>parameterSignatures</code> must be equal and positive.
+     * <br/>
+     * <br/>
+     * The lengths of <code>parameterNames</code> and <code>parameterSignatures</code> must be equal and positive.
      *
      * @param title element title
      * @param logic element logic
@@ -109,9 +105,8 @@ public class DecisionTableBuilder extends TableBuilder {
 
     /**
      * Writes decision table header. <br />
-     * Requires the header signature, e.g.
-     * <code><i>void hello1(int hour)</i></code><br/> without Decision table
-     * header token <code>Rules</code>
+     * Requires the header signature, e.g. <code><i>void hello1(int hour)</i></code><br/>
+     * without Decision table header token <code>Rules</code>
      *
      * @param signature method signature for the table.
      */

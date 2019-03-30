@@ -22,7 +22,8 @@ public class EventReader implements ExcelReader {
     }
 
     public EventReader(InputStream is) {
-        // Save to temp file because using an InputStream has a higher memory footprint than using a File. See POI javadocs.
+        // Save to temp file because using an InputStream has a higher memory footprint than using a File. See POI
+        // javadocs.
         tempFile = FileTool.toTempFile(is, "stream.xls");
         this.fileName = tempFile.getAbsolutePath();
     }

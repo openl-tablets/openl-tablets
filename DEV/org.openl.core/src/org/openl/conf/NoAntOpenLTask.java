@@ -82,8 +82,10 @@ public class NoAntOpenLTask {
             IOpenLConfiguration extendsConfiguration = null;
             if (extendsCategory != null) {
                 if ((extendsConfiguration = ucxt.getOpenLConfiguration(extendsCategory)) == null) {
-                    throw new OpenConfigurationException("The extended category " + extendsCategory
-                            + " must have been loaded first", null, null);
+                    throw new OpenConfigurationException(
+                        "The extended category " + extendsCategory + " must have been loaded first",
+                        null,
+                        null);
                 }
             }
 
@@ -92,9 +94,9 @@ public class NoAntOpenLTask {
             conf.setParent(extendsConfiguration);
             conf.setConfigurationContext(cxt);
             conf.validate(cxt);
-            
+
             ucxt.registerOpenLConfiguration(category, conf);
-            
+
             saveConfiguration(conf);
         } catch (Exception e) {
             e.printStackTrace(System.err);
@@ -102,9 +104,10 @@ public class NoAntOpenLTask {
         }
     }
 
-    private IConfigurableResourceContext getConfigurationContext(IOpenLConfiguration extendsConfiguration, IUserContext ucxt) {
-        ClassLoader parentLoader = extendsConfiguration == null ? OpenL.class.getClassLoader()
-                : extendsConfiguration.getConfigurationContext().getClassLoader();
+    private IConfigurableResourceContext getConfigurationContext(IOpenLConfiguration extendsConfiguration,
+            IUserContext ucxt) {
+        ClassLoader parentLoader = extendsConfiguration == null ? OpenL.class
+            .getClassLoader() : extendsConfiguration.getConfigurationContext().getClassLoader();
 
         if (!inheritExtendedConfigurationLoader) {
             parentLoader = ucxt.getUserClassLoader();

@@ -9,8 +9,7 @@ import org.openl.vm.IRuntimeEnv;
  * @author snshor
  *
  */
-public class ModuleNode extends ABoundNode
-{
+public class ModuleNode extends ABoundNode {
 
     IOpenClass type;
 

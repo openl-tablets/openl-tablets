@@ -27,24 +27,23 @@ public class Spreadsheet extends ExecutableRulesMethod {
     private SpreadsheetCell[][] cells;
 
     /**
-     * Top left cell of the whole Spreadsheet is not included.
-     * So the row names starts from [1, 0] in the Spreadsheet table body
+     * Top left cell of the whole Spreadsheet is not included. So the row names starts from [1, 0] in the Spreadsheet
+     * table body
      */
     private String[] rowNames;
 
     /**
-     * Top left cell is not included.
-     * So the column names starts from [0, 1] in the Spreadsheet table body
+     * Top left cell is not included. So the column names starts from [0, 1] in the Spreadsheet table body
      */
     private String[] columnNames;
-    
+
     private String[] rowTitles;
 
     private String[] columnTitles;
 
     /**
-     * Type of the Spreadsheet with all its fields Is some type of internal. Is
-     * used on calculating the results of the cells.
+     * Type of the Spreadsheet with all its fields Is some type of internal. Is used on calculating the results of the
+     * cells.
      */
     private SpreadsheetOpenClass spreadsheetType;
 
@@ -54,8 +53,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
     private volatile Invokable invoker;
 
     /**
-     * Custom return type of the spreadsheet method. Is a public type of the
-     * spreadsheet
+     * Custom return type of the spreadsheet method. Is a public type of the spreadsheet
      */
     private volatile CustomSpreadsheetResultOpenClass spreadsheetCustomType;
 
@@ -67,7 +65,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
     public Spreadsheet() {
         super(null, null);
     }
-    
+
     public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode, boolean customSpreadsheetType) {
         super(header, boundNode);
         initProperties(getSyntaxNode().getTableProperties());
@@ -98,15 +96,23 @@ public class Spreadsheet extends ExecutableRulesMethod {
         }
         return spreadsheetCustomType;
     }
-    
+
     private CustomSpreadsheetResultOpenClass initCustomSpreadsheetResultType() {
         Map<String, IOpenField> spreadsheetOpenClassFields = getSpreadsheetType().getFields();
         spreadsheetOpenClassFields.remove("this");
         String typeName = SPREADSHEETRESULT_TYPE_PREFIX + getName();
-        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(typeName, getRowNames(), getColumnNames(), getRowTitles(), getColumnTitles());
+        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
+            typeName,
+            getRowNames(),
+            getColumnNames(),
+            getRowTitles(),
+            getColumnTitles());
         customSpreadsheetResultOpenClass.setMetaInfo(new TableMetaInfo("Spreadsheet", getName(), getSourceUrl()));
         for (IOpenField field : spreadsheetOpenClassFields.values()) {
-            CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(customSpreadsheetResultOpenClass, field.getName(), field.getType());
+            CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(
+                customSpreadsheetResultOpenClass,
+                field.getName(),
+                field.getType());
             customSpreadsheetResultOpenClass.addField(customSpreadsheetResultField);
         }
         return customSpreadsheetResultOpenClass;
@@ -157,19 +163,19 @@ public class Spreadsheet extends ExecutableRulesMethod {
     public void setRowNames(String[] rowNames) {
         this.rowNames = rowNames;
     }
-    
+
     public void setRowTitles(String[] rowTitles) {
         this.rowTitles = rowTitles;
     }
-    
+
     public String[] getRowTitles() {
         return rowTitles;
     }
-    
+
     public void setColumnTitles(String[] columnTitles) {
         this.columnTitles = columnTitles;
     }
-    
+
     public String[] getColumnTitles() {
         return columnTitles;
     }
@@ -199,7 +205,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
         return new SpreadsheetInvoker(this);
     }
 
-     protected Invokable getInvoker() {
+    protected Invokable getInvoker() {
         if (invoker == null) {
             synchronized (this) {
                 if (invoker == null) {
@@ -214,7 +220,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
     public void setInvoker(SpreadsheetInvoker invoker) {
         this.invoker = invoker;
     }
-    
+
     volatile Map<String, Point> fieldsCoordinates = null;
 
     public Map<String, Point> getFieldsCoordinates() {

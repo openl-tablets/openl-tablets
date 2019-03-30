@@ -15,11 +15,10 @@ package org.openl.ie.constrainer;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An implementation of the IntVarSelector interface that selects the unbound
- * variable with the smallest domain and the minimal minimum.
+ * An implementation of the IntVarSelector interface that selects the unbound variable with the smallest domain and the
+ * minimal minimum.
  *
- * If there are two variables with the same size, it will select the variable
- * with the minimal minimum.
+ * If there are two variables with the same size, it will select the variable with the minimal minimum.
  *
  * @see IntVarSelector
  * @see IntVarSelectorFirstUnbound
@@ -37,9 +36,8 @@ public class IntVarSelectorMinSizeMin implements IntVarSelector {
     }
 
     /**
-     * Selects the unbound variable with the smallest domain. If there are two
-     * variables with the same size, it will select the variable with the
-     * minimal minimum. If all variables are bound, returns -1.
+     * Selects the unbound variable with the smallest domain. If there are two variables with the same size, it will
+     * select the variable with the minimal minimum. If all variables are bound, returns -1.
      */
     public int select() {
         int min_size = Integer.MAX_VALUE;

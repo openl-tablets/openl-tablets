@@ -35,10 +35,10 @@ public class DoubleNodeBinder extends ANodeBinder {
         if (!doubleValue.isInfinite() || doubleValue.toString().equals(s)) {
             return new LiteralBoundNode(node, doubleValue, JavaOpenClass.DOUBLE);
         }
-        
+
         return new LiteralBoundNode(node, new BigDecimal(s), JavaOpenClass.getOpenClass(BigDecimal.class));
     }
-    
+
     @Override
     public IBoundNode bindType(ISyntaxNode node, IBindingContext bindingContext, IOpenClass type) throws Exception {
         IBoundNode boundNode = bindChildNode(node, bindingContext);

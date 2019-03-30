@@ -5,7 +5,7 @@ import java.util.SortedMap;
 /**
  * @author Andrei Astrouski
  * 
- * TODO Refactor - add Source object to encapsulate source data 
+ *         TODO Refactor - add Source object to encapsulate source data
  */
 public interface SourceHistoryManager<T> {
 

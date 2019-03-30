@@ -18,9 +18,8 @@ package org.openl.ie.constrainer;
 //: FloatExp.java
 //
 /**
- * An interface for the constrained floating-point expression. Any arithmetic
- * operation where one of the operands is the floating-point variable/expression
- * returns the floating-point expression.
+ * An interface for the constrained floating-point expression. Any arithmetic operation where one of the operands is the
+ * floating-point variable/expression returns the floating-point expression.
  */
 public interface FloatExp extends Expression {
 
@@ -38,8 +37,8 @@ public interface FloatExp extends Expression {
      * (max-min)/max(1,|min|) &lt;= precision
      * </pre>
      *
-     * The floating-point expression is bound to the <b>mean value</b> in the
-     * <code>[min..max]</code> interval associated with this expresion.
+     * The floating-point expression is bound to the <b>mean value</b> in the <code>[min..max]</code> interval
+     * associated with this expresion.
      *
      * @return true if this expression is bound.
      */
@@ -188,8 +187,7 @@ public interface FloatExp extends Expression {
     public void setValue(double value) throws Failure;
 
     /**
-     * Returns the size of the domain for this expression:
-     * <code>(max - min)</code>.
+     * Returns the size of the domain for this expression: <code>(max - min)</code>.
      *
      * @return <code>(max - min)</code>.
      */
@@ -198,8 +196,8 @@ public interface FloatExp extends Expression {
     /**
      * Returns the value this expression if it is bound.
      *
-     * The floating-point expression is bound to the <b>mean value</b> in the
-     * <code>[min..max]</code> interval associated with this expresion.
+     * The floating-point expression is bound to the <b>mean value</b> in the <code>[min..max]</code> interval
+     * associated with this expresion.
      *
      * @return the value of this bound expression.
      *

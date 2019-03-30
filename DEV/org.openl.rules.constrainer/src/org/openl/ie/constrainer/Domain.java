@@ -16,8 +16,8 @@ package org.openl.ie.constrainer;
 ///////////////////////////////////////////////////////////////////////////////
 //import java.util.Set;
 /**
- * An interface for the domain of the constrained integer variable. Domain is a
- * set of the possible values of the constrained variables.
+ * An interface for the domain of the constrained integer variable. Domain is a set of the possible values of the
+ * constrained variables.
  *
  * @see IntVar
  */
@@ -53,8 +53,7 @@ public interface Domain extends java.io.Serializable {
     public void forceSize(int val);
 
     /**
-     * Iterates this domain calling it.doSomethingOrStop() for each values in
-     * the domain.
+     * Iterates this domain calling it.doSomethingOrStop() for each values in the domain.
      */
     public void iterateDomain(IntExp.IntDomainIterator it) throws Failure;
 

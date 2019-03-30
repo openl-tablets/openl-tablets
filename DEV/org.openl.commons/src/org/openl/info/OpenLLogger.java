@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 abstract class OpenLLogger {
     private final Logger logger;
-    
+
     {
         String name = getName();
         logger = LoggerFactory.getLogger("OpenL." + name);
@@ -70,7 +70,7 @@ abstract class OpenLLogger {
             int length = Array.getLength(o);
             return "<" + o.getClass().getComponentType().getSimpleName() + "[" + length + "]>";
         } else if (o.getClass().isEnum()) {
-            return "<" + o.getClass().getName() + "." + ((Enum<?>)o).name() + "]>";
+            return "<" + o.getClass().getName() + "." + ((Enum<?>) o).name() + "]>";
         } else {
             return o.toString();
         }
@@ -132,22 +132,12 @@ abstract class OpenLLogger {
     }
 
     private boolean isSimpleType(Object o) {
-        return o == null
-                || o instanceof Number
-                || o instanceof CharSequence
-                || o instanceof Class<?>
-                || o instanceof URL
-                || o instanceof URI
-                || o instanceof File
-                || o instanceof Path
-                || o instanceof Iterable
-                || o instanceof Map
-                || o.getClass().isArray()
-                || o.getClass().isEnum()
-                || o.getClass().isAnnotation()
-                || o.getClass().isInterface()
-                || o.getClass().isPrimitive()
-                || o.getClass().getName().startsWith("java")
-                || o.getClass().getName().startsWith("org.apache.naming");
+        return o == null || o instanceof Number || o instanceof CharSequence || o instanceof Class<?> || o instanceof URL || o instanceof URI || o instanceof File || o instanceof Path || o instanceof Iterable || o instanceof Map || o
+            .getClass()
+            .isArray() || o.getClass().isEnum() || o.getClass().isAnnotation() || o.getClass().isInterface() || o
+                .getClass()
+                .isPrimitive() || o.getClass().getName().startsWith("java") || o.getClass()
+                    .getName()
+                    .startsWith("org.apache.naming");
     }
 }

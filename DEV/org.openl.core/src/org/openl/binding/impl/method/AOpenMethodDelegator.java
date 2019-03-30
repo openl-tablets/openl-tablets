@@ -15,7 +15,7 @@ public abstract class AOpenMethodDelegator implements IOpenMethod, IMethodSignat
         }
         this.delegate = delegate;
     }
-    
+
     public IOpenMethod getDelegate() {
         return delegate;
     }

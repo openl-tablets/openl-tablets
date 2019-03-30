@@ -7,7 +7,7 @@ public class CastOperand {
     public CastOperand(Class<?> type, boolean autocast) {
         this(type.getSimpleName(), autocast);
     }
-    
+
     public CastOperand(String type, boolean autocast) {
         this.type = type;
         this.autocast = autocast;

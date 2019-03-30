@@ -11,7 +11,7 @@ package org.openl.types;
  *
  */
 public interface IMethodCaller extends Invokable {
-   
+
     IOpenMethod getMethod();
-    
+
 }

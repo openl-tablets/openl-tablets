@@ -18,7 +18,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
         IntExp _element;
         IntExpArray _ary;
         IntExpArray _valuesUsed; // How many times a particular value could
-                                    // be encountered within _ary[_index]
+                                 // be encountered within _ary[_index]
 
         IntExpArray copyOfAry;
         IntExp _copyOfIndex;
@@ -209,7 +209,9 @@ public class IntExpArrayElement1 extends IntExpImpl {
 
         public void indexRemove(int removedValue) throws Failure {
             if (_copyOfIndex.contains(removedValue)) {
-                decreaseUsageCounter(copyOfAry.get(removedValue).min(), copyOfAry.get(removedValue).max(), removedValue);
+                decreaseUsageCounter(copyOfAry.get(removedValue).min(),
+                    copyOfAry.get(removedValue).max(),
+                    removedValue);
             }
             _ary.get(removedValue).detachObserver(_observers[removedValue]);
             _copyOfIndex.removeValue(removedValue);
@@ -217,7 +219,6 @@ public class IntExpArrayElement1 extends IntExpImpl {
 
         /**/
         public void indexValue(int value) throws Failure {
-
 
             _element.setMin(_ary.get(value).min());
             _element.setMax(_ary.get(value).max());
@@ -262,17 +263,16 @@ public class IntExpArrayElement1 extends IntExpImpl {
         }
 
     }// ~AdvancedMapping
+
     static class AdvancedMapping2 extends AdvancedMapping {
         public AdvancedMapping2(IntExp index, IntExp element, IntExpArray ary, AryElementsObserver[] observers) {
             super(index, element, ary, observers);
         }
 
         /*
-         * public void indexValue(int value) throws Failure{ for (int i=0; i<this._ary.size();
-         * i++){ if ( (_observers[i] != null) && (i!=value))
-         * this._ary.get(value).detachObserver(_observers[i]); }
-         * this._element.setMin(this._ary.get(value).min());
-         * this._element.setMax(this._ary.get(value).max()); }
+         * public void indexValue(int value) throws Failure{ for (int i=0; i<this._ary.size(); i++){ if ( (_observers[i]
+         * != null) && (i!=value)) this._ary.get(value).detachObserver(_observers[i]); }
+         * this._element.setMin(this._ary.get(value).min()); this._element.setMax(this._ary.get(value).max()); }
          */
 
         @Override
@@ -296,6 +296,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
             _copyOfIndex.removeValue(removedValue);
         }
     } // ~AdvancedMapping2
+
     class AryElementsObserver extends Observer {
         private int idx;
 
@@ -322,8 +323,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
                 int value = e.min();
                 _m.arrayElementValue(value, idx);
                 /*
-                 * if ( (value > _element.max()) || (value < _element.min()) ){
-                 * _index.removeValue(idx); }
+                 * if ( (value > _element.max()) || (value < _element.min()) ){ _index.removeValue(idx); }
                  */
             } else {
                 if ((type & IntEvent.MIN) != 0) {
@@ -352,6 +352,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
             }
         } // ~update()
     } // ~ AryElementsObserver
+
     /**
      * make an exctract from IntExpArray based on _index
      */
@@ -368,6 +369,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
         IntExpArray source;
         IntExpArray extract;
         int cnt = 0;
+
         static CopyElementsIterator getIterator(IntExp index, IntExpArray ary) {
             CopyElementsIterator iter = new CopyElementsIterator();
             iter._index = index;
@@ -381,6 +383,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
             return true;
         }
     }
+
     class ElementObserver extends Observer {
         @Override
         public Object master() {
@@ -421,6 +424,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
         } // ~update()
 
     } // ~ ElementObserver
+
     /**
      * finds min(_ary[idx]) and max(_ary[idx]).
      */
@@ -456,8 +460,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
     }
 
     /*
-     * ==============================================================================
-     * Functional iterators
+     * ============================================================================== Functional iterators
      * ============================================================================
      */
     /**
@@ -476,6 +479,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
         IntExpArray ary;
         int value;
         int foundIndex;
+
         static FindValueIterator getIterator(IntExp index, IntExpArray ary, int value) {
             FindValueIterator it = (FindValueIterator) _factory.getElement();
             it.index = index;
@@ -581,6 +585,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
 
         IntExpArray ary;
         int max;
+
         static RemoveFromElementMaxIterator getIterator(IntExp index, IntExpArray ary, int max) {
             RemoveFromElementMaxIterator it = (RemoveFromElementMaxIterator) _factory.getElement();
             it.index = index;
@@ -613,6 +618,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
 
         IntExpArray ary;
         int min;
+
         static RemoveFromElementMinIterator getIterator(IntExp index, IntExpArray ary, int min) {
             RemoveFromElementMinIterator it = (RemoveFromElementMinIterator) _factory.getElement();
             it.index = index;
@@ -645,6 +651,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
 
         IntExpArray ary;
         int value;
+
         static SetValueFromElementIterator getIterator(IntExp index, IntExpArray ary, int value) {
             SetValueFromElementIterator it = (SetValueFromElementIterator) _factory.getElement();
             it.index = index;
@@ -767,8 +774,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
     // ~FindMinMaxIterator
 
     /*
-     * ==============================================================================
-     * EOF Functional iterators
+     * ============================================================================== EOF Functional iterators
      * ============================================================================
      */
 
@@ -847,8 +853,8 @@ public class IntExpArrayElement1 extends IntExpImpl {
             // Propagate events BEFORE attaching the observers.
             constrainer().propagate();
         } catch (Exception e) {
-            throw new RuntimeException("Invalid elementAt-expression: " + ary + "[" + indexExp + "]. "
-                    + e.getClass().getName() + ": " + e.getMessage());
+            throw new RuntimeException("Invalid elementAt-expression: " + ary + "[" + indexExp + "]. " + e.getClass()
+                .getName() + ": " + e.getMessage());
         }
 
         createMapping();
@@ -922,8 +928,8 @@ public class IntExpArrayElement1 extends IntExpImpl {
     }
 
     void createIndex() throws Failure {
-        boolean effectiveIndexExp = (_indexExp instanceof IntVar)
-                && ((IntVar) _indexExp).domainType() != IntVar.DOMAIN_PLAIN;
+        boolean effectiveIndexExp = (_indexExp instanceof IntVar) && ((IntVar) _indexExp)
+            .domainType() != IntVar.DOMAIN_PLAIN;
         int max = _ary.size() - 1;
         if (effectiveIndexExp) {
             // Use _indexExp as _index.
@@ -957,10 +963,9 @@ public class IntExpArrayElement1 extends IntExpImpl {
         // _aryElementsObservers);
         _m = new AdvancedMapping2(_index, _element, _ary, _aryElementsObservers);
         /*
-         * int nHoles = (_element.max() - _element.min() +1) - _element.size();
-         * if(_index.size() == _element.size() && nHoles < 2000) { _m = new
-         * OneToOneMapping(_index, _element, _ary); } else { _m = new
-         * SimpleMapping(_index, _element, _ary); }
+         * int nHoles = (_element.max() - _element.min() +1) - _element.size(); if(_index.size() == _element.size() &&
+         * nHoles < 2000) { _m = new OneToOneMapping(_index, _element, _ary); } else { _m = new SimpleMapping(_index,
+         * _element, _ary); }
          */
     }
 

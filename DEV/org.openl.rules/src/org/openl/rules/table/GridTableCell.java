@@ -14,10 +14,10 @@ class GridTableCell implements ICell {
 
     @Override
     public ICell getTopLeftCellFromRegion() {
-		return cell.getTopLeftCellFromRegion();
-	}
+        return cell.getTopLeftCellFromRegion();
+    }
 
-	public GridTableCell(int column, int row, IGridTable table) {
+    public GridTableCell(int column, int row, IGridTable table) {
         this.column = column;
         this.row = row;
         this.table = table;
@@ -70,7 +70,7 @@ class GridTableCell implements ICell {
     public int getHeight() {
         return table.isNormalOrientation() ? cell.getHeight() : cell.getWidth();
     }
-    
+
     @Override
     public Object getObjectValue() {
         return cell.getObjectValue();

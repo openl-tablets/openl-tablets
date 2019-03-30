@@ -24,11 +24,14 @@ public interface IDataBase {
     ITable registerNewTable(String tableName, TableSyntaxNode tsn);
 
     ITable getTable(String name);
-    
+
     void registerTable(ITable newTable) throws DuplicatedTableException;
-    
+
     Collection<ITable> getTables();
 
-    void preLoadTable(ITable table, ITableModel dataModel, ILogicalTable dataWithHeader, OpenlToolAdaptor ota) throws Exception;
+    void preLoadTable(ITable table,
+            ITableModel dataModel,
+            ILogicalTable dataWithHeader,
+            OpenlToolAdaptor ota) throws Exception;
 
 }

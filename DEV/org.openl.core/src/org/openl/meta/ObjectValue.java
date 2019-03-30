@@ -13,7 +13,8 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
 
     public ObjectValue(Object value) {
         if (value == null) {
-            throw new IllegalArgumentException("Error initializing ObjectValue class. Parameter \"value\" can't be null.");
+            throw new IllegalArgumentException(
+                "Error initializing ObjectValue class. Parameter \"value\" can't be null.");
         }
         this.value = value;
         metaInfo = new ValueMetaInfo();
@@ -21,7 +22,8 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
 
     public ObjectValue(Object value, String shortName, String fullName, IOpenSourceCodeModule source) {
         if (value == null) {
-            throw new IllegalArgumentException("Error initializing ObjectValue class. Parameter \"value\" can't be null.");
+            throw new IllegalArgumentException(
+                "Error initializing ObjectValue class. Parameter \"value\" can't be null.");
         }
         this.value = value;
         metaInfo = new ValueMetaInfo(shortName, fullName, source);
@@ -42,7 +44,7 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
     public void setMetaInfo(IMetaInfo info) {
         this.metaInfo = info;
     }
-    
+
     /**
      * 
      * @return the value of current Objct
@@ -97,7 +99,8 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
     }
 
     /**
-     * Sorts the array <b>values</b> 
+     * Sorts the array <b>values</b>
+     * 
      * @param values array of Objects
      * @return the sorted array
      */

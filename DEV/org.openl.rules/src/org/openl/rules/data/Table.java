@@ -138,7 +138,7 @@ public class Table implements ITable {
 
     @Override
     public synchronized String getPrimaryIndexKey(int row) {
-        if (primaryIndexMap == null){
+        if (primaryIndexMap == null) {
             return null;
         }
         return primaryIndexMap.get(row);
@@ -274,12 +274,14 @@ public class Table implements ITable {
                             }
                         } catch (SyntaxNodeException e) {
                             boolean found = false;
-                            for (SyntaxNodeException syntaxNodeException : errorSyntaxNodeExceptions){
-                                if (syntaxNodeException.getMessage().equals(e.getMessage()) && syntaxNodeException.getSyntaxNode() == e.getSyntaxNode()){
+                            for (SyntaxNodeException syntaxNodeException : errorSyntaxNodeExceptions) {
+                                if (syntaxNodeException.getMessage()
+                                    .equals(
+                                        e.getMessage()) && syntaxNodeException.getSyntaxNode() == e.getSyntaxNode()) {
                                     found = true;
                                 }
                             }
-                            if (!found){
+                            if (!found) {
                                 errorSyntaxNodeExceptions.add(e);
                             }
                         }
@@ -300,15 +302,13 @@ public class Table implements ITable {
         int startRow = getStartRowForData();
 
         dataArray = Array.newInstance(dataModel.getInstanceClass(), rows - startRow);
-        
+
         for (int rowNum = startRow; rowNum < rows; rowNum++) {
             processRow(openlAdapter, startRow, rowNum);
         }
     }
 
-    private void processRow(OpenlToolAdaptor openlAdapter,
-            int startRow,
-            int rowNum) throws OpenLCompilationException {
+    private void processRow(OpenlToolAdaptor openlAdapter, int startRow, int rowNum) throws OpenLCompilationException {
 
         boolean constructor = isConstructor();
         Object literal = null;
@@ -335,7 +335,7 @@ public class Table implements ITable {
         }
 
         int columns = logicalTable.getWidth();
-        
+
         IRuntimeEnv env = openlAdapter.getOpenl().getVm().getRuntimeEnv();
         env.pushLocalFrame(new Object[] { new DatatypeArrayMultiRowElementContext() });
         for (int columnNum = 0; columnNum < columns; columnNum++) {
@@ -360,13 +360,14 @@ public class Table implements ITable {
 
         if (columnDescriptor != null && !columnDescriptor.isReference()) {
             if (constructor) {
-                literal = columnDescriptor.getLiteral(dataModel.getType(),
-                    logicalTable.getSubtable(columnNum, rowNum, 1, 1),
-                    openlAdapter);
+                literal = columnDescriptor
+                    .getLiteral(dataModel.getType(), logicalTable.getSubtable(columnNum, rowNum, 1, 1), openlAdapter);
             } else {
                 try {
                     ILogicalTable lTable = logicalTable.getSubtable(columnNum, rowNum, 1, 1);
-                    if (!(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0).getStringValue() != null) { //EPBDS-6104. For empty values should be used data type default value.
+                    if (!(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0)
+                        .getStringValue() != null) { // EPBDS-6104. For empty values should be used data type default
+                                                     // value.
                         return columnDescriptor.populateLiteral(literal, lTable, openlAdapter, env);
                     }
                 } catch (SyntaxNodeException ex) {
@@ -381,7 +382,7 @@ public class Table implements ITable {
 
     @Override
     public synchronized void setPrimaryIndexKey(int row, String value) {
-        if (primaryIndexMap == null){
+        if (primaryIndexMap == null) {
             primaryIndexMap = new BiMap<>();
         }
         Integer oldRow = primaryIndexMap.getKey(value);
@@ -406,15 +407,14 @@ public class Table implements ITable {
     }
 
     private void addToRowIndex(int rowIndex, Object target) {
-        if (rowIndexMap == null){
+        if (rowIndexMap == null) {
             rowIndexMap = new BiMap<>();
         }
         rowIndexMap.put(rowIndex, target);
     }
 
     /**
-     * @return Start row for data rows from Data_With_Titles rows. It depends on
-     *         if table has or no column title row.
+     * @return Start row for data rows from Data_With_Titles rows. It depends on if table has or no column title row.
      */
     private int getStartRowForData() {
 

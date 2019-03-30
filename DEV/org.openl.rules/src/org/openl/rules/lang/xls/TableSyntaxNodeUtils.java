@@ -20,7 +20,9 @@ public final class TableSyntaxNodeUtils {
         return getTableDisplayValue(tableSyntaxNode, i, null);
     }
 
-    public static String[] getTableDisplayValue(TableSyntaxNode tableSyntaxNode, int i, OverloadedMethodsDictionary dictionary) {
+    public static String[] getTableDisplayValue(TableSyntaxNode tableSyntaxNode,
+            int i,
+            OverloadedMethodsDictionary dictionary) {
 
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
 
@@ -33,7 +35,8 @@ public final class TableSyntaxNodeUtils {
         }
 
         if (name == null) {
-            name = str2name(tableSyntaxNode.getGridTable().getCell(0, 0).getStringValue(), tableSyntaxNode.getNodeType());
+            name = str2name(tableSyntaxNode.getGridTable().getCell(0, 0).getStringValue(),
+                tableSyntaxNode.getNodeType());
         }
 
         if (display == null) {
@@ -43,10 +46,10 @@ public final class TableSyntaxNodeUtils {
         String sfx = (i < 2 ? "" : " (" + i + ")");
         String dimensionInfo = StringUtils.EMPTY;
 
-        if (dictionary != null && tableProperties != null && tableSyntaxNode.getMember() instanceof IOpenMethod
-                && dictionary.contains((IOpenMethod) tableSyntaxNode.getMember())) {
+        if (dictionary != null && tableProperties != null && tableSyntaxNode
+            .getMember() instanceof IOpenMethod && dictionary.contains((IOpenMethod) tableSyntaxNode.getMember())) {
 
-            if (dictionary.getAllMethodOverloads((IOpenMethod)tableSyntaxNode.getMember()).size() > 1) {
+            if (dictionary.getAllMethodOverloads((IOpenMethod) tableSyntaxNode.getMember()).size() > 1) {
                 // Add dimension properties info only if there are more than one table in dictionary.
                 // For single table don`t add this info.
                 //
@@ -57,8 +60,8 @@ public final class TableSyntaxNodeUtils {
 
                     if (StringUtils.isNotEmpty(value)) {
                         String propertyInfo = dimensionalPropertyName + "=" + value;
-                        dimensionInfo = dimensionInfo +
-                                (StringUtils.isEmpty(dimensionInfo) ? StringUtils.EMPTY : ", ") + propertyInfo;
+                        dimensionInfo = dimensionInfo + (StringUtils.isEmpty(dimensionInfo) ? StringUtils.EMPTY
+                                                                                            : ", ") + propertyInfo;
                     }
                 }
             }
@@ -87,15 +90,16 @@ public final class TableSyntaxNodeUtils {
             //
             if (tokens.length > DatatypeNodeBinder.TYPE_INDEX) {
                 resultName = tokens[DatatypeNodeBinder.TYPE_INDEX].trim();
-            }            
+            }
 
-        } else if (tableType.equals(XlsNodeTypes.XLS_DT) || tableType.equals(XlsNodeTypes.XLS_SPREADSHEET)
-                || tableType.equals(XlsNodeTypes.XLS_TBASIC) || tableType.equals(XlsNodeTypes.XLS_COLUMN_MATCH)
-                || tableType.equals(XlsNodeTypes.XLS_DATA)
-                || tableType.equals(XlsNodeTypes.XLS_METHOD) || tableType.equals(XlsNodeTypes.XLS_TEST_METHOD)
-                || tableType.equals(XlsNodeTypes.XLS_RUN_METHOD) || tableType.equals(XlsNodeTypes.XLS_CONSTANTS) 
-                || tableType.equals(XlsNodeTypes.XLS_CONDITIONS) || tableType.equals(XlsNodeTypes.XLS_ACTIONS) || tableType.equals(XlsNodeTypes.XLS_RETURNS) 
-                || tableType.equals(XlsNodeTypes.XLS_ENVIRONMENT)   || tableType.equals(XlsNodeTypes.XLS_PROPERTIES)) {
+        } else if (tableType.equals(XlsNodeTypes.XLS_DT) || tableType.equals(XlsNodeTypes.XLS_SPREADSHEET) || tableType
+            .equals(XlsNodeTypes.XLS_TBASIC) || tableType.equals(XlsNodeTypes.XLS_COLUMN_MATCH) || tableType
+                .equals(XlsNodeTypes.XLS_DATA) || tableType.equals(XlsNodeTypes.XLS_METHOD) || tableType
+                    .equals(XlsNodeTypes.XLS_TEST_METHOD) || tableType.equals(XlsNodeTypes.XLS_RUN_METHOD) || tableType
+                        .equals(XlsNodeTypes.XLS_CONSTANTS) || tableType.equals(
+                            XlsNodeTypes.XLS_CONDITIONS) || tableType.equals(XlsNodeTypes.XLS_ACTIONS) || tableType
+                                .equals(XlsNodeTypes.XLS_RETURNS) || tableType.equals(
+                                    XlsNodeTypes.XLS_ENVIRONMENT) || tableType.equals(XlsNodeTypes.XLS_PROPERTIES)) {
             String[] tokens = StringUtils.split(resultName.replaceAll(ROUND_BRACKETS_WITH_ANY_TEXT, ""));
             resultName = tokens[tokens.length - 1].trim();
 

@@ -13,16 +13,13 @@ import org.openl.conf.OpenLConfigurator;
 import org.openl.conf.UserContext;
 
 /**
- * This class describes OpenL engine context abstraction that used during
- * compilation process.
+ * This class describes OpenL engine context abstraction that used during compilation process.
  * 
- * The class OpenL implements both factory(static) methods for creating OpenL
- * instances and actual OpenL functionality. Each instance of OpenL should be
- * considered as a Language Configuration(LC). You may have as many LCs in your
- * application as you want. Current OpenL architecture allows to have different
- * OpenL configurations in separate class loaders, so they will not interfere
- * with each other. It allows, for example, to have 2 LCs using different SAX or
- * DOM parser implementation.
+ * The class OpenL implements both factory(static) methods for creating OpenL instances and actual OpenL functionality.
+ * Each instance of OpenL should be considered as a Language Configuration(LC). You may have as many LCs in your
+ * application as you want. Current OpenL architecture allows to have different OpenL configurations in separate class
+ * loaders, so they will not interfere with each other. It allows, for example, to have 2 LCs using different SAX or DOM
+ * parser implementation.
  * 
  * The actual work is done by class OpenLConfigurator.
  * 
@@ -70,14 +67,14 @@ public class OpenL {
      * @return instance of OpenL
      * @throws OpenConfigurationException
      */
-    //TODO: Do not use this method! Should be removed!    
+    // TODO: Do not use this method! Should be removed!
     public static synchronized OpenL getInstance(String name) {
         return getInstance(name, new UserContext(config.getClassLoader(), DEFAULT_USER_HOME));
     }
-    
+
     /**
-     * Gets an instance of OpenL. Each instance is cached with name and user
-     * context as it's key. To remove cached instance use #remove method
+     * Gets an instance of OpenL. Each instance is cached with name and user context as it's key. To remove cached
+     * instance use #remove method
      * 
      * @see #remove
      * @see IUserContext
@@ -87,22 +84,19 @@ public class OpenL {
      * @return instance of IOpenL
      * @throws OpenConfigurationException
      */
-    public static synchronized OpenL getInstance(String name,
-            IUserContext userContext) {
+    public static synchronized OpenL getInstance(String name, IUserContext userContext) {
         IOpenLBuilder builder = config.getBuilder(name, userContext);
         return getInstance(name, userContext, builder);
     }
 
     /**
-     * Gets an instance of OpenL. Each instance is cached with name and user
-     * context as it's key.
+     * Gets an instance of OpenL. Each instance is cached with name and user context as it's key.
      * 
      * @see IUserContext
      * 
      * @param name IOpenL name
      * @param userContext user context
-     * @param builder {@link IOpenLBuilder} instance which used to build new
-     *            instance of OpenL if that doesn't exist
+     * @param builder {@link IOpenLBuilder} instance which used to build new instance of OpenL if that doesn't exist
      * @return instance of IOpenL
      * @throws OpenConfigurationException
      */

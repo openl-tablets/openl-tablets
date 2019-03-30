@@ -3,10 +3,9 @@ package org.openl.ie.tools;
 import org.openl.util.Log;
 
 /**
- * This class should be used in methods which may cause exceptions as a result
- * of programming error or system call fails. You don't want to include an
- * exception in a signature of your method but Java will require it from you.
- * Write a try-catch block and wrap throwed exception in this Wrapper
+ * This class should be used in methods which may cause exceptions as a result of programming error or system call
+ * fails. You don't want to include an exception in a signature of your method but Java will require it from you. Write
+ * a try-catch block and wrap throwed exception in this Wrapper
  */
 
 public class RTExceptionWrapper extends RuntimeException {

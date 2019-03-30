@@ -44,7 +44,7 @@ public enum LanguagesEnum {
 
     private final String displayName;
 
-    private LanguagesEnum (String displayName) {
+    private LanguagesEnum(String displayName) {
         this.displayName = displayName;
     }
 

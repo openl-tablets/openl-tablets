@@ -14,22 +14,22 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBoundNode {
-    
+
     private PropertiesOpenField field;
     private TableProperties propertiesInstance;
     private String tableName;
-    
+
     public PropertyTableBoundNode(TableSyntaxNode syntaxNode) {
         super(syntaxNode);
     }
 
     @Override
-    public void addTo(ModuleOpenClass openClass) {             
+    public void addTo(ModuleOpenClass openClass) {
         TableSyntaxNode tsn = getTableSyntaxNode();
         if (tableName != null) {
             field = new PropertiesOpenField(tableName, propertiesInstance, openClass);
             openClass.addField(field);
-            tsn.setMember(field);   
+            tsn.setMember(field);
         }
     }
 
@@ -47,8 +47,8 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
     @Override
     public IOpenClass getType() {
         return JavaOpenClass.getOpenClass(propertiesInstance.getClass());
-    }    
-    
+    }
+
     public void setPropertiesInstance(TableProperties propertiesInstance) {
         this.propertiesInstance = propertiesInstance;
     }
@@ -56,15 +56,15 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
     public TableProperties getPropertiesInstance() {
         return propertiesInstance;
     }
-    
+
     public void setTableName(String tableName) {
-        this.tableName = tableName;        
+        this.tableName = tableName;
     }
-    
+
     public String getTableName() {
-        return tableName;        
+        return tableName;
     }
-    
+
     private static TableProperties getTablePropertiesForExecutionMode(ITableProperties properties) {
         if (properties != null) {
             TableProperties clonedProperties = new TableProperties();
@@ -83,5 +83,5 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
             field.setPropertiesInstance(getTablePropertiesForExecutionMode(propertiesInstance));
         }
     }
-    
+
 }

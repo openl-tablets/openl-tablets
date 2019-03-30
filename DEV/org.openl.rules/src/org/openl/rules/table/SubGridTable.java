@@ -1,7 +1,7 @@
 package org.openl.rules.table;
 
 /**
- * Part of the grid table. Allows to get different parts from the table. 
+ * Part of the grid table. Allows to get different parts from the table.
  * 
  * @author snshor
  */

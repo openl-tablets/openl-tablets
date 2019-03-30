@@ -28,9 +28,9 @@ public class BoundCode implements IBoundCode {
     private Collection<OpenLMessage> messages;
 
     public BoundCode(IParsedCode parsedCode,
-                     IBoundNode topNode,
-                     SyntaxNodeException[] error,
-                     Collection<OpenLMessage> messages) {
+            IBoundNode topNode,
+            SyntaxNodeException[] error,
+            Collection<OpenLMessage> messages) {
         this.parsedCode = parsedCode;
         this.topNode = topNode;
         this.error = error;

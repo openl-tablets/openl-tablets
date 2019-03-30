@@ -149,8 +149,8 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
             if (!simpleRulesRuntimeEnv.isIgnoreRecalculation()) {
                 if (!RecalculateEnum.ALWAYS.equals(getRecalculateType())) {
                     if (simpleRulesRuntimeEnv.isOriginalCalculation()) {
-                        simpleRulesRuntimeEnv.getArgumentCachingStorage().makeBackwardStepForOriginalCalculation(this,
-                            result);
+                        simpleRulesRuntimeEnv.getArgumentCachingStorage()
+                            .makeBackwardStepForOriginalCalculation(this, result);
                     }
                     if (isSimilarStep && !simpleRulesRuntimeEnv.isOriginalCalculation()) {
                         simpleRulesRuntimeEnv.getArgumentCachingStorage().makeBackwardStep(this);
@@ -213,8 +213,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
     }
 
     /**
-     * Overridden to get access to {@link TableSyntaxNode} from current
-     * implementation.
+     * Overridden to get access to {@link TableSyntaxNode} from current implementation.
      */
     @Override
     public TableSyntaxNode getSyntaxNode() {

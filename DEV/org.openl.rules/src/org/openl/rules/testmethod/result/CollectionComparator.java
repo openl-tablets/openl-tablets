@@ -17,10 +17,11 @@ class CollectionComparator extends GenericComparator<Collection<?>> {
      */
     private CollectionComparator() {
     }
-    
+
     @Override
     boolean fit(Object expected, Object actual) {
-        return (expected == null || Collection.class.isAssignableFrom(expected.getClass())) && (actual == null || Collection.class.isAssignableFrom(actual.getClass()));
+        return (expected == null || Collection.class.isAssignableFrom(
+            expected.getClass())) && (actual == null || Collection.class.isAssignableFrom(actual.getClass()));
     }
 
     @Override

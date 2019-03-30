@@ -29,16 +29,16 @@ public class TableMethod extends ExecutableRulesMethod {
     public TableMethod() {
         super(null, null);
     }
-    
+
     /**
      * Constructs new instance of class.
      * 
      * @param header method header
-     * @param methodBodyBoundNode method body bound node - code block that will
-     *            be invoked by OpenL engine at runtime
+     * @param methodBodyBoundNode method body bound node - code block that will be invoked by OpenL engine at runtime
      * @param methodTableBoundNode table bound node (table itself)
      */
-    public TableMethod(IOpenMethodHeader header, IBoundMethodNode methodBodyBoundNode,
+    public TableMethod(IOpenMethodHeader header,
+            IBoundMethodNode methodBodyBoundNode,
             MethodTableBoundNode methodTableBoundNode) {
         super(header, methodTableBoundNode);
         method = new CompositeMethod(header, methodBodyBoundNode);

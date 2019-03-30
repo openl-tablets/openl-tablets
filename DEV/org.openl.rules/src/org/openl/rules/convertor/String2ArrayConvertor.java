@@ -6,12 +6,12 @@ import org.openl.binding.IBindingContext;
 import org.openl.util.StringTool;
 
 /**
- * A converter for arrays. It converts strings to an array of a specified type.
- * E.g. for int[]: "1,2,4,8" ==> int[]{1,2,4,8}
+ * A converter for arrays. It converts strings to an array of a specified type. E.g. for int[]: "1,2,4,8" ==>
+ * int[]{1,2,4,8}
  *
  * @author Yury Molchan
  */
-class String2ArrayConvertor<C, T> implements IString2DataConvertor<T> , IString2DataConverterWithContext<T> {
+class String2ArrayConvertor<C, T> implements IString2DataConvertor<T>, IString2DataConverterWithContext<T> {
 
     /**
      * Constant for escaping {@link #ARRAY_ELEMENTS_SEPARATOR} of elements. It is needed when the element contains
@@ -36,11 +36,13 @@ class String2ArrayConvertor<C, T> implements IString2DataConvertor<T> , IString2
     @Override
     @SuppressWarnings("unchecked")
     public T parse(String data, String format, IBindingContext cxt) {
-        if (data == null) return null;
-        if (data.length() == 0) return (T) Array.newInstance(componentType, 0);
+        if (data == null)
+            return null;
+        if (data.length() == 0)
+            return (T) Array.newInstance(componentType, 0);
 
-        String[] elementValues = StringTool.splitAndEscape(data, ARRAY_ELEMENTS_SEPARATOR,
-                ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
+        String[] elementValues = StringTool
+            .splitAndEscape(data, ARRAY_ELEMENTS_SEPARATOR, ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
         T resultArray = (T) Array.newInstance(componentType, elementValues.length);
 
         IString2DataConvertor<C> converter = String2DataConvertorFactory.getConvertor(componentType);
@@ -53,7 +55,7 @@ class String2ArrayConvertor<C, T> implements IString2DataConvertor<T> , IString2
                 if (cxt != null && converter instanceof IString2DataConverterWithContext) {
                     IString2DataConverterWithContext<C> convertorCxt = (IString2DataConverterWithContext<C>) converter;
                     element = convertorCxt.parse(elementValue, format, cxt);
-                }else{
+                } else {
                     element = converter.parse(elementValue, format);
                 }
             }

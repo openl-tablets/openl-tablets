@@ -41,7 +41,7 @@ public class ArrayConditionBuilder extends AConditionBuilder {
         for (int i = 1; i <= numberOfLocalParameters; i++) {
             sheet.setCellValue(columnStartIndex,
                 rowStartIndex + DecisionTableBuilder.PARAMETER_DECLARATION_ROW_INDEX,
-                    parameterDeclaration + i);
+                parameterDeclaration + i);
 
             columnStartIndex++;
         }

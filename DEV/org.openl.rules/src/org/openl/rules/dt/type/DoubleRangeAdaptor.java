@@ -5,11 +5,11 @@ import org.openl.util.RangeWithBounds.BoundType;
 
 public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Double> {
     private static final DoubleRangeAdaptor INSTANCE = new DoubleRangeAdaptor();
-    
-    private DoubleRangeAdaptor(){
+
+    private DoubleRangeAdaptor() {
     }
-    
-    public static IRangeAdaptor<DoubleRange, Double> getInstance(){
+
+    public static IRangeAdaptor<DoubleRange, Double> getInstance() {
         return INSTANCE;
     }
 
@@ -21,14 +21,14 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
 
         double max = range.getUpperBound();
         if (max != Double.POSITIVE_INFINITY && range.getUpperBoundType() == BoundType.INCLUDING) {
-        	// the max should be moved to the right,
-        	// to ensure that range.getUpperBound() will get to the interval
-        	//
-        	max += Math.ulp(max);
+            // the max should be moved to the right,
+            // to ensure that range.getUpperBound() will get to the interval
+            //
+            max += Math.ulp(max);
         }
         return max;
-    }    
-    
+    }
+
     @Override
     public Double getMin(DoubleRange range) {
         if (range == null) {
@@ -42,18 +42,17 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
         return min;
     }
 
+    @Override
+    public Double adaptValueType(Object value) {
+        if (value == null) {
+            return null;
+        }
+        return ((Number) value).doubleValue();
+    }
 
-	@Override
-	public Double adaptValueType(Object value) {
-	    if (value == null){
-	        return null;
-	    }
-        return((Number)value).doubleValue();
-	}
-
-	@Override
-	public boolean useOriginalSource() {
-		return false;
-	}
+    @Override
+    public boolean useOriginalSource() {
+        return false;
+    }
 
 }

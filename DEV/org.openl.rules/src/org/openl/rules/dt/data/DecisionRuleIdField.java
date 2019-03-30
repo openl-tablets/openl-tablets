@@ -7,7 +7,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
-public class DecisionRuleIdField  implements IOpenField {
+public class DecisionRuleIdField implements IOpenField {
 
     private DecisionTableDataType decisionTableDataType;
 

@@ -5,7 +5,7 @@ import org.openl.grammar.ParserErrorMessage;
 import org.openl.syntax.exception.SyntaxNodeException;
 
 public class BExGrammarWithParsingHelp extends BExGrammar {
-	
+
     @Override
     public void parseTopNode(String type) {
         try {
@@ -50,62 +50,52 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
         }
     }
 
-	private SyntaxNodeException reparseTokens(ParseException pe) {
-		
-		BExGrammar be = new BExGrammar();
-		
-		be.setModule(syntaxBuilder.getModule());
-		be.ReInit(syntaxBuilder.getModule().getCharacterStream());
-		
-		
-		BracketMatcher bm = new BracketMatcher();
-		
-		while(true)
-		{
+    private SyntaxNodeException reparseTokens(ParseException pe) {
 
-			Token t = be.getNextToken();
-			if (t.kind == EOF)
-				break;
+        BExGrammar be = new BExGrammar();
 
-			BracketMatcher.BracketsStackObject bso = bm.addToken(t.image, t);
-			if (bso != null)
-			{
-				if (bso.getErrorCode() == BracketMatcher.UNEXPECTED)
-				{
-					String message = ParserErrorMessage.printUnexpectedBracket(t.image);
-					
-					return new SyntaxNodeException(message, null,  pos(t), syntaxBuilder.getModule());
-				}
-				
+        be.setModule(syntaxBuilder.getModule());
+        be.ReInit(syntaxBuilder.getModule().getCharacterStream());
 
-				if (bso.getErrorCode() == BracketMatcher.MISMATCHED)
-				{
-					Token t2 = (Token)bso.getId();
-					
-					String message = ParserErrorMessage.printMismatchedBracket(t2.image.substring(0,1),   t.image);
-					return new SyntaxNodeException(message, null,  pos(t2 ,t), syntaxBuilder.getModule());
-				}
-				
-				throw new RuntimeException("Unknown BracketMatchError = " + bso.getErrorCode());
-			}	
-			
-			
-			
-		}
-		
-		
-		BracketMatcher.BracketsStackObject bso = bm.checkAtTheEnd();
-		if (bso != null)
-		{
-			Token t = (Token)bso.getId();
-			
-			String message = ParserErrorMessage.printUmatchedBracket(t.image);
-			
-			return new SyntaxNodeException(message, null,  pos(t), syntaxBuilder.getModule());
-			
-		}	
-		
-		return null;
-	}
+        BracketMatcher bm = new BracketMatcher();
+
+        while (true) {
+
+            Token t = be.getNextToken();
+            if (t.kind == EOF)
+                break;
+
+            BracketMatcher.BracketsStackObject bso = bm.addToken(t.image, t);
+            if (bso != null) {
+                if (bso.getErrorCode() == BracketMatcher.UNEXPECTED) {
+                    String message = ParserErrorMessage.printUnexpectedBracket(t.image);
+
+                    return new SyntaxNodeException(message, null, pos(t), syntaxBuilder.getModule());
+                }
+
+                if (bso.getErrorCode() == BracketMatcher.MISMATCHED) {
+                    Token t2 = (Token) bso.getId();
+
+                    String message = ParserErrorMessage.printMismatchedBracket(t2.image.substring(0, 1), t.image);
+                    return new SyntaxNodeException(message, null, pos(t2, t), syntaxBuilder.getModule());
+                }
+
+                throw new RuntimeException("Unknown BracketMatchError = " + bso.getErrorCode());
+            }
+
+        }
+
+        BracketMatcher.BracketsStackObject bso = bm.checkAtTheEnd();
+        if (bso != null) {
+            Token t = (Token) bso.getId();
+
+            String message = ParserErrorMessage.printUmatchedBracket(t.image);
+
+            return new SyntaxNodeException(message, null, pos(t), syntaxBuilder.getModule());
+
+        }
+
+        return null;
+    }
 
 }

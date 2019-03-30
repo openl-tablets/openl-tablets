@@ -41,13 +41,13 @@ public class DataBase implements IDataBase {
             if (table != null) {
                 String uri = table.getTableSyntaxNode().getTable().getSource().getUri();
                 String newUri = tsn.getTable().getSource().getUri();
-                if (!uri.equals(newUri)){
+                if (!uri.equals(newUri)) {
                     throw new DuplicatedTableException(tableName, table.getTableSyntaxNode(), tsn);
-                }else{
-                    return table;    
+                } else {
+                    return table;
                 }
             }
-            
+
             table = makeNewTable(tableName, tsn);
             tables.put(tableName, table);
 
@@ -64,9 +64,9 @@ public class DataBase implements IDataBase {
             return table;
         }
     }
-    
+
     @Override
-    public Set<ITable> getTables(){
+    public Set<ITable> getTables() {
         synchronized (lock) {
             Set<ITable> ret = new HashSet<>();
             for (ITable table : this.tables.values()) {
@@ -75,22 +75,24 @@ public class DataBase implements IDataBase {
             return ret;
         }
     }
-    
+
     @Override
-    public void registerTable(ITable newTable) throws DuplicatedTableException{
+    public void registerTable(ITable newTable) throws DuplicatedTableException {
         synchronized (lock) {
             ITable table = getTable(newTable.getName());
 
             if (table != null) {
                 String uri = table.getTableSyntaxNode().getTable().getSource().getUri();
                 String newUri = newTable.getTableSyntaxNode().getTable().getSource().getUri();
-                if (!uri.equals(newUri)){
-                    throw new DuplicatedTableException(newTable.getName(), table.getTableSyntaxNode(), newTable.getTableSyntaxNode());
+                if (!uri.equals(newUri)) {
+                    throw new DuplicatedTableException(newTable.getName(),
+                        table.getTableSyntaxNode(),
+                        newTable.getTableSyntaxNode());
                 }
             }
 
-            tables.put(newTable.getName(), newTable); 
-        }       
+            tables.put(newTable.getName(), newTable);
+        }
     }
 
     protected ITable makeNewTable(String tableName, TableSyntaxNode tsn) {

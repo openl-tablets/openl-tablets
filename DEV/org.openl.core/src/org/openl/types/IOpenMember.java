@@ -16,8 +16,8 @@ public interface IOpenMember extends INamedThing {
     IOpenClass getType();
 
     boolean isStatic();
-    
+
     IMemberMetaInfo getInfo();
-    
+
     IOpenClass getDeclaringClass();
 }

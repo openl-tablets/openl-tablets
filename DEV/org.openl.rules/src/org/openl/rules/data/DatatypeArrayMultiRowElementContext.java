@@ -49,7 +49,7 @@ public class DatatypeArrayMultiRowElementContext {
     public boolean isRowValueIsTheSameAsPrevious() {
         return rowValueIsTheSameAsPrevious;
     }
-    
+
     public void setRow(int row) {
         this.row = row;
     }

@@ -30,7 +30,7 @@ public abstract class AParser implements IOpenParser {
      */
     @Override
     public IParsedCode parseAsMethodBody(IOpenSourceCodeModule source) {
- 
+
         IGrammar grammar = getGrammarFactory().getGrammar();
         grammar.setModule(source);
         grammar.parseAsMethod(source.getCharacterStream());

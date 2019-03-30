@@ -165,7 +165,7 @@ public class CollectionElementWithMultiRowField extends AOpenField {
     public boolean isPkField() {
         return pkField;
     }
-    
+
     public CollectionType getCollectionType() {
         return collectionType;
     }

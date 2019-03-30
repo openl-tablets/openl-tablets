@@ -18,7 +18,8 @@ class String2ConstructorConvertor<T> implements IString2DataConvertor<T> {
 
     @Override
     public T parse(String data, String format) {
-        if (data == null) return null;
+        if (data == null)
+            return null;
 
         try {
             return ctr.newInstance(data);

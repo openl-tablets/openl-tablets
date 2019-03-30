@@ -237,10 +237,8 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     }
 
     /**
-     * Indicates if test method has any row rules for testing target table.
-     * Finds it by field that contains
-     * {@link TestMethodHelper#EXPECTED_RESULT_NAME} or
-     * {@link TestMethodHelper#EXPECTED_ERROR}
+     * Indicates if test method has any row rules for testing target table. Finds it by field that contains
+     * {@link TestMethodHelper#EXPECTED_RESULT_NAME} or {@link TestMethodHelper#EXPECTED_ERROR}
      * 
      * @return true if method expects some return result or some error.
      * 
@@ -303,7 +301,8 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                     continue;
                 }
                 Integer fieldPrecision = testTablePrecision;
-                if (nodes.length > 1 && StringUtils.matches(DataTableBindHelper.PRECISION_PATTERN, nodes[nodes.length - 1].getIdentifier())) {
+                if (nodes.length > 1 && StringUtils.matches(DataTableBindHelper.PRECISION_PATTERN,
+                    nodes[nodes.length - 1].getIdentifier())) {
                     // set the precision of the field
                     fieldPrecision = DataTableBindHelper.getPrecisionValue(nodes[nodes.length - 1]);
                     nodes = ArrayUtils.remove(nodes, nodes.length - 1);
@@ -311,11 +310,12 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
 
                 if (columnDescriptor.isReference() && !resultType.isSimple() && !resultType.isArray()) {
                     fieldsToTest.addAll(resultType.getFields().values());
-                }  else {
+                } else {
                     IOpenField[] fieldSequence;
                     String identifier1 = nodes[0].getIdentifier();
-                    boolean resIsCollection = StringUtils.matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, identifier1)
-                            || StringUtils.matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, identifier1);
+                    boolean resIsCollection = StringUtils
+                        .matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, identifier1) || StringUtils
+                            .matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, identifier1);
                     int startIndex = 0;
                     IOpenClass currentType = resultType;
 
@@ -327,10 +327,15 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                         IOpenField arrayAccessField;
                         if (collectionType == CollectionType.MAP) {
                             Object key = DataTableBindHelper.getCollectionKey(nodes[0]);
-                            arrayAccessField = new CollectionElementField(arrayField, key, arrayField.getType().getComponentClass());
+                            arrayAccessField = new CollectionElementField(arrayField,
+                                key,
+                                arrayField.getType().getComponentClass());
                         } else {
                             int index = DataTableBindHelper.getCollectionIndex(nodes[0]);
-                            arrayAccessField = new CollectionElementField(arrayField, index, arrayField.getType().getComponentClass(), collectionType);
+                            arrayAccessField = new CollectionElementField(arrayField,
+                                index,
+                                arrayField.getType().getComponentClass(),
+                                collectionType);
                         }
                         if (arrayAccessField.getType().isArray()) {
                             currentType = arrayAccessField.getType().getComponentClass();
@@ -344,15 +349,17 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                     int i;
                     for (i = startIndex; i < fieldSequence.length; i++) {
                         String identifier = nodes[i + 1 - startIndex].getIdentifier();
-                        boolean isCollection = StringUtils.matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, identifier)
-                                || StringUtils.matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, identifier);
+                        boolean isCollection = StringUtils
+                            .matches(DataTableBindHelper.COLLECTION_ACCESS_BY_INDEX_PATTERN, identifier) || StringUtils
+                                .matches(DataTableBindHelper.COLLECTION_ACCESS_BY_KEY_PATTERN, identifier);
                         if (isCollection) {
-                            IOpenField arrayField = currentType.getField(DataTableBindHelper.getCollectionName(nodes[i + 1 - startIndex]));
+                            IOpenField arrayField = currentType
+                                .getField(DataTableBindHelper.getCollectionName(nodes[i + 1 - startIndex]));
                             // Try process field as SpreadsheetResult
-                            if (arrayField == null && currentType
-                                .equals(JavaOpenClass.OBJECT) && StringUtils
-                                    .matches(DataTableBindHelper.SPREADSHEETRESULTFIELD_PATTERN, identifier)) {
-                                IOpenClass spreadsheetResultOpenClass = JavaOpenClass.getOpenClass(SpreadsheetResult.class);
+                            if (arrayField == null && currentType.equals(JavaOpenClass.OBJECT) && StringUtils
+                                .matches(DataTableBindHelper.SPREADSHEETRESULTFIELD_PATTERN, identifier)) {
+                                IOpenClass spreadsheetResultOpenClass = JavaOpenClass
+                                    .getOpenClass(SpreadsheetResult.class);
                                 arrayField = spreadsheetResultOpenClass
                                     .getField(DataTableBindHelper.getCollectionName(nodes[i + 1 - startIndex]));
                             }
@@ -362,10 +369,15 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                                 IOpenField arrayAccessField;
                                 if (collectionType == CollectionType.MAP) {
                                     Object key = DataTableBindHelper.getCollectionKey(nodes[i + 1 - startIndex]);
-                                    arrayAccessField = new CollectionElementField(arrayField, key, type.getComponentClass());
+                                    arrayAccessField = new CollectionElementField(arrayField,
+                                        key,
+                                        type.getComponentClass());
                                 } else {
                                     int arrayIndex = DataTableBindHelper.getCollectionIndex(nodes[i + 1 - startIndex]);
-                                    arrayAccessField = new CollectionElementField(arrayField, arrayIndex, type.getComponentClass(), collectionType);
+                                    arrayAccessField = new CollectionElementField(arrayField,
+                                        arrayIndex,
+                                        type.getComponentClass(),
+                                        collectionType);
                                 }
                                 fieldSequence[i] = arrayAccessField;
                             }
@@ -373,7 +385,8 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                             fieldSequence[i] = currentType.getField(identifier);
                             if (fieldSequence[i] == null) {
                                 // Try process field as SpreadsheetResult
-                                IOpenClass spreadsheetResultOpenClass = JavaOpenClass.getOpenClass(SpreadsheetResult.class);
+                                IOpenClass spreadsheetResultOpenClass = JavaOpenClass
+                                    .getOpenClass(SpreadsheetResult.class);
                                 IOpenField openField = spreadsheetResultOpenClass.getField(identifier);
                                 if (openField != null) {
                                     fieldSequence[i] = openField;

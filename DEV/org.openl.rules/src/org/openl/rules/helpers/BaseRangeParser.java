@@ -82,9 +82,9 @@ public abstract class BaseRangeParser implements RangeParser {
     /**
      * Determine, which number is min, which is max and what bounds are.
      *
-     * @param first       first number in the parsing sequence
-     * @param second      second number in the parsing sequence
-     * @param firstBound  one of "&lt;", "&lt;=", "&gt;", "&gt;="
+     * @param first first number in the parsing sequence
+     * @param second second number in the parsing sequence
+     * @param firstBound one of "&lt;", "&lt;=", "&gt;", "&gt;="
      * @param secondBound one of "&lt;", "&lt;=", "&gt;", "&gt;="
      * @return Parsed range
      */
@@ -100,12 +100,10 @@ public abstract class BaseRangeParser implements RangeParser {
             }
             min = second;
             max = first;
-            minBound = secondBound.equals(">") ?
-                       RangeWithBounds.BoundType.EXCLUDING :
-                       RangeWithBounds.BoundType.INCLUDING;
-            maxBound = firstBound.equals("<") ?
-                       RangeWithBounds.BoundType.EXCLUDING :
-                       RangeWithBounds.BoundType.INCLUDING;
+            minBound = secondBound.equals(">") ? RangeWithBounds.BoundType.EXCLUDING
+                                               : RangeWithBounds.BoundType.INCLUDING;
+            maxBound = firstBound.equals("<") ? RangeWithBounds.BoundType.EXCLUDING
+                                              : RangeWithBounds.BoundType.INCLUDING;
 
             String t;
             t = minNumber;
@@ -121,12 +119,10 @@ public abstract class BaseRangeParser implements RangeParser {
             }
             min = first;
             max = second;
-            minBound = firstBound.equals(">") ?
-                       RangeWithBounds.BoundType.EXCLUDING :
-                       RangeWithBounds.BoundType.INCLUDING;
-            maxBound = secondBound.equals("<") ?
-                       RangeWithBounds.BoundType.EXCLUDING :
-                       RangeWithBounds.BoundType.INCLUDING;
+            minBound = firstBound.equals(">") ? RangeWithBounds.BoundType.EXCLUDING
+                                              : RangeWithBounds.BoundType.INCLUDING;
+            maxBound = secondBound.equals("<") ? RangeWithBounds.BoundType.EXCLUDING
+                                               : RangeWithBounds.BoundType.INCLUDING;
         }
 
         return new RangeWithBounds(min, max, minBound, maxBound);

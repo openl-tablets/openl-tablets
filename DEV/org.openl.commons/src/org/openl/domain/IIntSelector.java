@@ -51,16 +51,16 @@ public interface IIntSelector {
             return next;
         }
 
-		@Override
-		public boolean isResetable() {
-			return it.isResetable();
-		}
+        @Override
+        public boolean isResetable() {
+            return it.isResetable();
+        }
 
-		@Override
-		public void reset() {
-			hasNext = false;
-			it.reset();
-		}
+        @Override
+        public void reset() {
+            hasNext = false;
+            it.reset();
+        }
 
     }
 

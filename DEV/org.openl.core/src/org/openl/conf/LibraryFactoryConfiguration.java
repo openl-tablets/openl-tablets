@@ -25,13 +25,12 @@ public class LibraryFactoryConfiguration extends AConfigurationElement implement
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.binding.INameSpacedMethodFactory#getMethodCaller(java.lang.String,
-     *      java.lang.String, org.openl.types.IOpenClass[],
-     *      org.openl.binding.ICastFactory)
+     * @see org.openl.binding.INameSpacedMethodFactory#getMethodCaller(java.lang.String, java.lang.String,
+     * org.openl.types.IOpenClass[], org.openl.binding.ICastFactory)
      */
     public IOpenMethod[] getMethods(String namespace, String name, IConfigurableResourceContext cxt) {
         NameSpacedLibraryConfiguration lib = (NameSpacedLibraryConfiguration) map.get(namespace);
-        return lib == null ? new IOpenMethod[]{} : lib.getMethods(name, cxt);
+        return lib == null ? new IOpenMethod[] {} : lib.getMethods(name, cxt);
     }
 
     public IOpenField getVar(String namespace, String name, IConfigurableResourceContext cxt, boolean strictMatch) {

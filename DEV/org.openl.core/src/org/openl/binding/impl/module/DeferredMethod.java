@@ -24,14 +24,17 @@ public class DeferredMethod extends AMethod {
     private ISyntaxNode methodBodyNode;
 
     private IBoundMethodNode methodBodyBoundNode = null;
-    
+
     /**
      * @param name
      * @param typeClass
      * @param parameterTypes
      * @param declaringClass
      */
-    public DeferredMethod(String name, IOpenClass typeClass, IMethodSignature signature, IOpenClass declaringClass,
+    public DeferredMethod(String name,
+            IOpenClass typeClass,
+            IMethodSignature signature,
+            IOpenClass declaringClass,
             ISyntaxNode methodBodyNode) {
         super(new OpenMethodHeader(name, typeClass, signature, declaringClass));
         this.methodBodyNode = methodBodyNode;
@@ -62,7 +65,7 @@ public class DeferredMethod extends AMethod {
     public void setMethodBodyBoundNode(IBoundMethodNode bnode) {
         methodBodyBoundNode = bnode;
     }
-    
+
     @Override
     public boolean isConstructor() {
         return false;

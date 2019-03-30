@@ -16,9 +16,8 @@ import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * As part of the EL Specification, you can incorporate static Java methods into
- * your documents. Just add new function here and it will be registered within
- * Spring Security taglib
+ * As part of the EL Specification, you can incorporate static Java methods into your documents. Just add new function
+ * here and it will be registered within Spring Security taglib
  *
  * @author Andrey Naumenko
  */
@@ -57,13 +56,19 @@ public final class AcegiFunctions {
 
                 return property;
             } catch (IllegalAccessException e) {
-                log.warn("Error when trying to get property {} of {}. Empty string will be returned.", operation, principal);
+                log.warn("Error when trying to get property {} of {}. Empty string will be returned.",
+                    operation,
+                    principal);
                 return "";
             } catch (InvocationTargetException e) {
-                log.warn("Error when trying to get property {} of {}. Empty string will be returned.", operation, principal);
+                log.warn("Error when trying to get property {} of {}. Empty string will be returned.",
+                    operation,
+                    principal);
                 return "";
             } catch (NoSuchMethodException e) {
-                log.warn("Error when trying to get property {} of {}. Empty string will be returned.", operation, principal);
+                log.warn("Error when trying to get property {} of {}. Empty string will be returned.",
+                    operation,
+                    principal);
                 return "";
             }
         } else if (auth.getPrincipal() != null) {
@@ -75,8 +80,7 @@ public final class AcegiFunctions {
     }
 
     /**
-     * Returns true if current user has access to a given URI
-     * (look for FilterSecurityInterceptor configuration)
+     * Returns true if current user has access to a given URI (look for FilterSecurityInterceptor configuration)
      *
      * @param uri URI that will be checked
      * @return true if current user has access to a given URI
@@ -86,7 +90,8 @@ public final class AcegiFunctions {
     }
 
     private static WebInvocationPrivilegeEvaluator getPrivilegeEvaluator() {
-        ApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(FacesUtils.getServletContext());
+        ApplicationContext ctx = WebApplicationContextUtils
+            .getRequiredWebApplicationContext(FacesUtils.getServletContext());
         Map<String, WebInvocationPrivilegeEvaluator> wipes = ctx.getBeansOfType(WebInvocationPrivilegeEvaluator.class);
 
         if (wipes.size() == 0) {

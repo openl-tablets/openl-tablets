@@ -15,8 +15,7 @@ package org.openl.ie.constrainer;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An implementation of the IntValueSelector interface that selects the minimal
- * value from the domain of the variable.
+ * An implementation of the IntValueSelector interface that selects the minimal value from the domain of the variable.
  *
  * This is a default selector for GoalInstantiate.
  *

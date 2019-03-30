@@ -66,7 +66,8 @@ public class TableStyleListener implements HSSFListener {
 
             final StyleTrackingListener formatListener = new StyleTrackingListener(this);
 
-            // Default HSSFEventFactory doesn't include ContinueRecord items in the stream and it breaks Comments parsing
+            // Default HSSFEventFactory doesn't include ContinueRecord items in the stream and it breaks Comments
+            // parsing
             // for some cases. So we used to override processEvents() and initialize RecordFactoryInputStream
             // to include ContinueRecord items in the stream.
             HSSFEventFactory factory = new HSSFEventFactory() {
@@ -91,16 +92,14 @@ public class TableStyleListener implements HSSFListener {
             }
             collectComments();
 
-            tableStyles = new EventTableStyles(
-                    tableRegion,
-                    cellIndexes,
-                    formatListener.getExtendedFormats(),
-                    formatListener.getCustomFormats(),
-                    palette,
-                    formatListener.getFonts(),
-                    comments,
-                    formulas
-            );
+            tableStyles = new EventTableStyles(tableRegion,
+                cellIndexes,
+                formatListener.getExtendedFormats(),
+                formatListener.getCustomFormats(),
+                palette,
+                formatListener.getFonts(),
+                comments,
+                formulas);
         }
     }
 
@@ -190,11 +189,9 @@ public class TableStyleListener implements HSSFListener {
                 if (record instanceof StringRecord) {
                     cachedText = (StringRecord) record;
                 }
-                FormulaRecordAggregate formulaAggregate = new FormulaRecordAggregate(
-                        currentFormula,
-                        cachedText,
-                        sharedValueManager
-                );
+                FormulaRecordAggregate formulaAggregate = new FormulaRecordAggregate(currentFormula,
+                    cachedText,
+                    sharedValueManager);
                 String formula = HSSFFormulaParser.toFormulaString(null, formulaAggregate.getFormulaTokens());
                 formulas.put(new CellAddress(row, column), formula);
             } catch (Exception e) {

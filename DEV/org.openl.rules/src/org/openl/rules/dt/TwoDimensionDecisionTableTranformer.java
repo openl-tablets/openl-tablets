@@ -4,8 +4,7 @@ import org.openl.rules.table.CoordinatesTransformer;
 import org.openl.rules.table.IGridTable;
 
 /**
- * Transforms coordinates for table with two dimensions(table that has vertical
- * and horizontal conditions).
+ * Transforms coordinates for table with two dimensions(table that has vertical and horizontal conditions).
  * 
  * @author PUdalau
  */
@@ -24,8 +23,7 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
     private int dtHeaderHeight;
 
     /**
-     * @param entireTable The entire table with two dimensions(WITHOUT a
-     *            header).
+     * @param entireTable The entire table with two dimensions(WITHOUT a header).
      * @param lookupValuesTable The "values subtable"
      */
     TwoDimensionDecisionTableTranformer(IGridTable entireTable, IGridTable lookupValuesTable, int retTableWidth) {

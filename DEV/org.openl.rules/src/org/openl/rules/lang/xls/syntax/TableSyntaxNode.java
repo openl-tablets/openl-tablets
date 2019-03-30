@@ -42,7 +42,7 @@ public class TableSyntaxNode extends NaryNode {
     private ILogicalTable table;
 
     private HeaderSyntaxNode headerNode;
-    
+
     private ITableProperties tableProperties;
 
     private IOpenMember member;
@@ -55,7 +55,10 @@ public class TableSyntaxNode extends NaryNode {
 
     private MetaInfoReader metaInfoReader = EmptyMetaInfoReader.getInstance();
 
-    public TableSyntaxNode(String type, GridLocation pos, XlsSheetSourceCodeModule module, IGridTable gridtable,
+    public TableSyntaxNode(String type,
+            GridLocation pos,
+            XlsSheetSourceCodeModule module,
+            IGridTable gridtable,
             HeaderSyntaxNode header) {
         super(type, pos, null, module);
         table = LogicalTableHelper.logicalTable(gridtable);
@@ -87,11 +90,11 @@ public class TableSyntaxNode extends NaryNode {
             addError(e);
         }
     }
-    
-    public void clearErrors(){
+
+    public void clearErrors() {
         errors = null;
     }
-    
+
     public String getDisplayName() {
         return table.getSource().getCell(0, 0).getStringValue();
     }
@@ -126,7 +129,6 @@ public class TableSyntaxNode extends NaryNode {
         return member;
     }
 
-    
     public ITableProperties getTableProperties() {
         return tableProperties;
     }
@@ -146,13 +148,13 @@ public class TableSyntaxNode extends NaryNode {
     public IGridTable getGridTable() {
         return table.getSource();
     }
-    
+
     /**
      * Gets the table body without header and properties section.
      * 
      * @return table body, without header and properties section (if exists).
      */
-    public ILogicalTable getTableBody() {        
+    public ILogicalTable getTableBody() {
         int startRow = !hasPropertiesDefinedInTable() ? 1 : 2;
 
         if (table.getHeight() <= startRow) {
@@ -186,33 +188,34 @@ public class TableSyntaxNode extends NaryNode {
     }
 
     public void setTableProperties(ITableProperties properties) {
-        tableProperties = properties;        
+        tableProperties = properties;
     }
 
     public void setValidationResult(Object validationResult) {
         this.validationResult = validationResult;
     }
-    
+
     /**
      * Checks if <code>{@link TableSyntaxNode}</code> has properties that were physically defined in appropriate table
-     * in data source. <br>Properties set by default are ignoring.
-     * @return <code>TRUE</code> if <code>{@link TableSyntaxNode}</code> has properties that were physically defined 
-     * in appropriate table in data source. 
+     * in data source. <br>
+     * Properties set by default are ignoring.
+     * 
+     * @return <code>TRUE</code> if <code>{@link TableSyntaxNode}</code> has properties that were physically defined in
+     *         appropriate table in data source.
      */
     public boolean hasPropertiesDefinedInTable() {
-        boolean result = false;        
-        if (tableProperties != null
-                && tableProperties.getPropertiesSection() != null) {
+        boolean result = false;
+        if (tableProperties != null && tableProperties.getPropertiesSection() != null) {
             result = true;
         }
         return result;
     }
-    
+
     public boolean isExecutableNode() {
         if (getMember() != null) {
             Class<?> memberClass = getMember().getClass();
             Annotation[] annotations = memberClass.getAnnotations();
-            
+
             for (Annotation annotation : annotations) {
                 if (annotation instanceof Executable) {
                     return true;
@@ -221,10 +224,9 @@ public class TableSyntaxNode extends NaryNode {
         }
         return false;
     }
-    
+
     /**
-     * Use this method instead of {@link #getType()}. Returns the enum constant for 
-     * the current node.
+     * Use this method instead of {@link #getType()}. Returns the enum constant for the current node.
      * 
      * @return the {@link XlsNodeTypes} for current TableSyntaxNode
      */

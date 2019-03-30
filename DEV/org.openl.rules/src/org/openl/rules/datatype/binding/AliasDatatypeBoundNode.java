@@ -9,47 +9,48 @@ import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 
 /**
- * Class that represents bound node for alias data types of 'Datatype' table
- * component.
+ * Class that represents bound node for alias data types of 'Datatype' table component.
  */
 public class AliasDatatypeBoundNode implements IMemberBoundNode {
 
-	private TableSyntaxNode tableSyntaxNode;
-	private DomainOpenClass domainOpenClass;
-	private ModuleOpenClass moduleOpenClass;
+    private TableSyntaxNode tableSyntaxNode;
+    private DomainOpenClass domainOpenClass;
+    private ModuleOpenClass moduleOpenClass;
 
-	public AliasDatatypeBoundNode(TableSyntaxNode tableSyntaxNode, DomainOpenClass domain, ModuleOpenClass moduleOpenClass) {
-		this.tableSyntaxNode = tableSyntaxNode;
-		this.domainOpenClass = domain;
-		this.moduleOpenClass = moduleOpenClass;
-	}
+    public AliasDatatypeBoundNode(TableSyntaxNode tableSyntaxNode,
+            DomainOpenClass domain,
+            ModuleOpenClass moduleOpenClass) {
+        this.tableSyntaxNode = tableSyntaxNode;
+        this.domainOpenClass = domain;
+        this.moduleOpenClass = moduleOpenClass;
+    }
 
-	@Override
+    @Override
     public void addTo(ModuleOpenClass openClass) {
-		InternalDatatypeClass internalClassMember = new InternalDatatypeClass(domainOpenClass, openClass);
-		tableSyntaxNode.setMember(internalClassMember);
-	}
+        InternalDatatypeClass internalClassMember = new InternalDatatypeClass(domainOpenClass, openClass);
+        tableSyntaxNode.setMember(internalClassMember);
+    }
 
-	@Override
+    @Override
     public void finalizeBind(IBindingContext cxt) throws Exception {
         if (!cxt.isExecutionMode()) {
             tableSyntaxNode.setMetaInfoReader(new AliasDatatypeMetaInfoReader(this));
         }
-		// Add new type to internal types of module.
-		//
-		moduleOpenClass.addType(domainOpenClass);
-	}
+        // Add new type to internal types of module.
+        //
+        moduleOpenClass.addType(domainOpenClass);
+    }
 
     @Override
     public void removeDebugInformation(IBindingContext cxt) {
-        //nothing to remove
+        // nothing to remove
     }
 
-	public TableSyntaxNode getTableSyntaxNode() {
-		return tableSyntaxNode;
-	}
+    public TableSyntaxNode getTableSyntaxNode() {
+        return tableSyntaxNode;
+    }
 
-	public DomainOpenClass getDomainOpenClass() {
-		return domainOpenClass;
-	}
+    public DomainOpenClass getDomainOpenClass() {
+        return domainOpenClass;
+    }
 }

@@ -40,8 +40,8 @@ public class ConstrainerObjectImpl implements ConstrainerObject {
     }
 
     /**
-     * This method aborts the program execution. It prints the "msg" and
-     * displays the stack trace. Used to display "impossible" errors.
+     * This method aborts the program execution. It prints the "msg" and displays the stack trace. Used to display
+     * "impossible" errors.
      */
     public void abort(String msg) {
         Constrainer.abort(msg);

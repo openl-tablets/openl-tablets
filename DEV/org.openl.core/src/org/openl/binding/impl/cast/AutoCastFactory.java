@@ -6,5 +6,8 @@ import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenMethod;
 
 public interface AutoCastFactory {
-    IMethodCaller build(IBindingContext bindingContext, IMethodCaller methodCaller, JavaOpenMethod javaOpenMethod, IOpenClass[] parameterTypes);
+    IMethodCaller build(IBindingContext bindingContext,
+            IMethodCaller methodCaller,
+            JavaOpenMethod javaOpenMethod,
+            IOpenClass[] parameterTypes);
 }

@@ -28,21 +28,21 @@ public class Tracer {
     }
 
     protected <T, E extends IRuntimeEnv> void doResolveTraceNode(Invokable<? super T, E> executor,
-                                                                 T target,
-                                                                 Object[] params,
-                                                                 E env,
-                                                                 Object source) {
+            T target,
+            Object[] params,
+            E env,
+            Object source) {
 
     }
 
     public static void put(Object source, String id, Object... args) {
         instance.doPut(source, id, args);
     }
-    
+
     public boolean isOn() {
         return false;
     }
-    
+
     public static boolean isEnabled() {
         return instance.isOn();
     }
@@ -60,10 +60,10 @@ public class Tracer {
     }
 
     public static <T, E extends IRuntimeEnv> void resolveTraceNode(Invokable<? super T, E> executor,
-                                                                   T target,
-                                                                   Object[] params,
-                                                                   E env,
-                                                                   Object source) {
+            T target,
+            Object[] params,
+            E env,
+            Object source) {
         instance.doResolveTraceNode(executor, target, params, env, source);
     }
 }

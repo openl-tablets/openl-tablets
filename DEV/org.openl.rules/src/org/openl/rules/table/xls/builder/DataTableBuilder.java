@@ -63,8 +63,7 @@ public class DataTableBuilder extends TableBuilder {
     }
 
     /**
-     * Write a field's description for a given data table (field technical and
-     * business names and their foreign keys).
+     * Write a field's description for a given data table (field technical and business names and their foreign keys).
      * 
      * @param fields a fields list
      */
@@ -89,8 +88,7 @@ public class DataTableBuilder extends TableBuilder {
     /**
      * Write a field values
      * 
-     * @param fieldValues a map containing values where a key is fully qualified
-     *            field name
+     * @param fieldValues a map containing values where a key is fully qualified field name
      * @param style cell style (can be null)
      */
     public void writeFieldValues(Map<String, String> fieldValues, ICellStyle cellStyle) {
@@ -153,7 +151,9 @@ public class DataTableBuilder extends TableBuilder {
         return "";
     }
 
-    private void writeFieldValues(List<? extends DataTableField> fields, Map<String, String> fieldValues, ICellStyle cellStyle) {
+    private void writeFieldValues(List<? extends DataTableField> fields,
+            Map<String, String> fieldValues,
+            ICellStyle cellStyle) {
         for (int i = 0; i < fields.size(); i++) {
             DataTableField field = fields.get(i);
             if (field.isFillChildren()) {

@@ -36,5 +36,5 @@ public interface ISyntaxNode {
     void setParent(ISyntaxNode node);
 
     ISyntaxNode[] EMPTY = {};
-    
+
 }

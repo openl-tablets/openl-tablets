@@ -65,15 +65,21 @@ public class TestUnit extends BaseTestUnit {
         // TODO: Investigate why we need to wrap actual value and expected value with ParameterWithValueDeclaration
         for (ComparedResult comparedResult : getComparisonResults()) {
             ComparedResult copy = new ComparedResult(comparedResult.getFieldName(),
-                    buildParameterDeclaration(comparedResult.getFieldName(), "expectedResult", comparedResult.getExpectedValue()),
-                    buildParameterDeclaration(comparedResult.getFieldName(), "actualResult", comparedResult.getActualValue()),
-                    comparedResult.getStatus());
+                buildParameterDeclaration(comparedResult.getFieldName(),
+                    "expectedResult",
+                    comparedResult.getExpectedValue()),
+                buildParameterDeclaration(comparedResult.getFieldName(),
+                    "actualResult",
+                    comparedResult.getActualValue()),
+                comparedResult.getStatus());
             params.add(copy);
         }
         return params;
     }
 
-    private ParameterWithValueDeclaration buildParameterDeclaration(String fieldName, String defaultName, Object value) {
+    private ParameterWithValueDeclaration buildParameterDeclaration(String fieldName,
+            String defaultName,
+            Object value) {
         if (fieldName == null) {
             fieldName = defaultName;
         }
@@ -99,7 +105,8 @@ public class TestUnit extends BaseTestUnit {
 
         private static Builder instance = new Builder();
 
-        private Builder() { /* NON */ }
+        private Builder() {
+            /* NON */ }
 
         public static Builder getInstance() {
             return instance;

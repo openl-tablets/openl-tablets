@@ -26,7 +26,7 @@ public class ConstantsTableBinder extends AXlsTableBinder {
         assert cxt instanceof RulesModuleBindingContext;
 
         ILogicalTable table = tsn.getTable();
-        
+
         return new ConstantsTableBoundNode(tsn, module, table, openl);
     }
 

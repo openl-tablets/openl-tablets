@@ -13,7 +13,6 @@ import javax.xml.bind.annotation.XmlSeeAlso;
  * #L%
  */
 
-
 /**
  * Spreadsheet step(row) that has the code value.
  * 
@@ -22,13 +21,13 @@ import javax.xml.bind.annotation.XmlSeeAlso;
  */
 
 @XmlRootElement
-@XmlSeeAlso({CompoundStep.class, SimpleStep.class})
+@XmlSeeAlso({ CompoundStep.class, SimpleStep.class })
 public class CodeStep extends CalculationStep {
 
     private static final long serialVersionUID = 7372598798002605558L;
 
     private String code;
-    
+
     private Double value;
 
     public String getCode() {
@@ -38,11 +37,11 @@ public class CodeStep extends CalculationStep {
     public void setCode(String code) {
         this.code = code;
     }
-    
+
     public Double getValue() {
         return value;
     }
-    
+
     public void setValue(Double value) {
         this.value = value;
     }

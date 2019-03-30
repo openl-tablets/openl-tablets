@@ -45,9 +45,9 @@ public class ValueMetaInfo implements IMetaInfo {
 
     @Override
     public String getSourceUrl() {
-        if(source != null){
+        if (source != null) {
             return source.getUri();
-        }else{
+        } else {
             return null;
         }
     }

@@ -209,7 +209,7 @@ public class SpreadsheetStructureBuilder {
                 BindHelper.processError(e, spreadsheetBindingContext);
             } catch (Exception | LinkageError e) {
                 String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
-                
+
                 addError(SyntaxNodeExceptionUtils
                     .createError(message, e, LocationUtils.createTextInterval(source.getCode()), source));
             }
@@ -408,7 +408,8 @@ public class SpreadsheetStructureBuilder {
         IBindingContext generalBindingContext = componentsBuilder.getBindingContext();
         Map<Integer, SpreadsheetHeaderDefinition> headers = componentsBuilder.getRowHeaders();
 
-        ComponentOpenClass columnOpenClass = new ComponentOpenClass(columnOpenClassName, generalBindingContext.getOpenL());
+        ComponentOpenClass columnOpenClass = new ComponentOpenClass(columnOpenClassName,
+            generalBindingContext.getOpenL());
 
         int height = cells.length;
 
@@ -448,7 +449,10 @@ public class SpreadsheetStructureBuilder {
         return new SpreadsheetContext(spreadsheetBindingContext, rowOpenClass);
     }
 
-    private void proc(int rowIndex, ComponentOpenClass rowOpenClass, int columnIndex, SpreadsheetHeaderDefinition columnHeader) {
+    private void proc(int rowIndex,
+            ComponentOpenClass rowOpenClass,
+            int columnIndex,
+            SpreadsheetHeaderDefinition columnHeader) {
         if (columnHeader == null) {
             return;
         }
@@ -470,7 +474,10 @@ public class SpreadsheetStructureBuilder {
         if (cell.getSpreadsheetCellType() == SpreadsheetCellType.METHOD) {
             return new SpreadsheetCellField(structureBuilderContainer, rowOpenClass, fieldName, cell);
         } else {
-            return new SpreadsheetCellField.ConstSpreadsheetCellField(structureBuilderContainer, rowOpenClass, fieldName, cell);
+            return new SpreadsheetCellField.ConstSpreadsheetCellField(structureBuilderContainer,
+                rowOpenClass,
+                fieldName,
+                cell);
         }
     }
 }

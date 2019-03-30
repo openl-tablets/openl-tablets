@@ -11,7 +11,7 @@ package org.openl.types.java;
  *
  */
 public class JavaLang extends JavaImportTypeLibrary {
-    public JavaLang() {        
+    public JavaLang() {
         super(new String[] { "java.lang" }, null, ClassLoader.getSystemClassLoader());
     }
 

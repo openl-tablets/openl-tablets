@@ -60,7 +60,6 @@ public class AlgorithmMetaInfoReader extends AMethodMetaInfoReader<AlgorithmBoun
             }
         }
 
-
         return null;
     }
 
@@ -95,11 +94,8 @@ public class AlgorithmMetaInfoReader extends AMethodMetaInfoReader<AlgorithmBoun
                 if (step instanceof OpenLEvaluationOperation) {
                     IMethodCaller methodCaller = ((OpenLEvaluationOperation) step).getOpenLStatement();
                     if (methodCaller instanceof CompositeMethod) {
-                        List<NodeUsage> nodeUsages = OpenLCellExpressionsCompiler.getNodeUsages(
-                                (CompositeMethod) methodCaller,
-                                sourceModule.getCode(),
-                                0
-                        );
+                        List<NodeUsage> nodeUsages = OpenLCellExpressionsCompiler
+                            .getNodeUsages((CompositeMethod) methodCaller, sourceModule.getCode(), 0);
 
                         return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
                     }

@@ -56,7 +56,8 @@ public final class ConstraintExpLessValue extends ConstraintImpl {
         }
 
     } // ~ ObserverLessValue
-    // PRIVATE MEMBERS
+      // PRIVATE MEMBERS
+
     private IntExp _exp;
     private int _value;
 

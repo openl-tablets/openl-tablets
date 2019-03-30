@@ -56,7 +56,8 @@ public final class ConstraintExpMoreValue extends ConstraintImpl {
         }
 
     } // ~ ObserverMoreValue
-    // PRIVATE MEMBERS
+      // PRIVATE MEMBERS
+
     private IntExp _exp;
     private int _value;
 

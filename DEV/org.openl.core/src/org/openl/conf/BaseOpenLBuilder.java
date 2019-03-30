@@ -1,6 +1,5 @@
 package org.openl.conf;
 
-
 public abstract class BaseOpenLBuilder implements IOpenLBuilder {
 
     private IConfigurableResourceContext resourceContext;

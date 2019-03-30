@@ -70,6 +70,7 @@ public class RootDictionaryContext implements VariableInContextFinder {
         }
 
     }
+
     protected IOpenField[] roots;
 
     protected int maxDepthLevel;
@@ -118,7 +119,7 @@ public class RootDictionaryContext implements VariableInContextFinder {
 
         return ff.get(0);
     }
-    
+
     protected final void initializeField(IOpenField parent, IOpenField field, int level) {
         if (level > maxDepthLevel) {
             return;

@@ -13,7 +13,7 @@ import org.openl.rules.table.IGridTable;
  *
  */
 public abstract class UndoableRemoveAction extends UndoableEditTableAction {
-    
+
     private IUndoableGridTableAction action;
 
     @Override
@@ -23,14 +23,14 @@ public abstract class UndoableRemoveAction extends UndoableEditTableAction {
             return;
         }
         int numberToRemove = getNumberToRemove(table);
-        
+
         List<IUndoableGridTableAction> actions = new ArrayList<>();
         IUndoableGridTableAction ua = performAction(numberToRemove, fullTableRegion, table);
         actions.add(ua);
         GridRegionAction allTable = getGridRegionAction(fullTableRegion, numberToRemove);
         actions.add(allTable);
         if (isDecoratorTable(table)) {
-            GridRegionAction displayTable = getGridRegionAction(table.getRegion(), numberToRemove); 
+            GridRegionAction displayTable = getGridRegionAction(table.getRegion(), numberToRemove);
             actions.add(displayTable);
         }
         action = new UndoableCompositeAction(actions);
@@ -42,7 +42,7 @@ public abstract class UndoableRemoveAction extends UndoableEditTableAction {
     public void undoAction(IGridTable table) {
         action.undoAction(table);
     }
-    
+
     /**
      * Checks if action can be performed.
      * 
@@ -50,16 +50,15 @@ public abstract class UndoableRemoveAction extends UndoableEditTableAction {
      * @return true if action can be performed.
      */
     protected abstract boolean canPerformAction(IGridRegion gridRegion);
-    
+
     /**
-     * Get actual number of rows or columns to be removed.
-     * It depends whether the cell is merged or not.
+     * Get actual number of rows or columns to be removed. It depends whether the cell is merged or not.
      * 
      * @param table
      * @return actual number to be removed.
      */
     protected abstract int getNumberToRemove(IGridTable table);
-    
+
     /**
      * Perform action for removing rows or columns.
      * 
@@ -68,8 +67,10 @@ public abstract class UndoableRemoveAction extends UndoableEditTableAction {
      * @param table
      * @return action for removing rows or columns.
      */
-    protected abstract IUndoableGridTableAction performAction(int numberToRemove, IGridRegion fullTableRegion, IGridTable table);
-    
+    protected abstract IUndoableGridTableAction performAction(int numberToRemove,
+            IGridRegion fullTableRegion,
+            IGridTable table);
+
     protected abstract GridRegionAction getGridRegionAction(IGridRegion gridRegion, int numberToRemove);
 
 }

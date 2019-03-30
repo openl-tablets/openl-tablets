@@ -1,17 +1,17 @@
 package org.openl.rules.table.properties.expressions.match;
 
 public class MatchingExpression {
-    
+
     private String matchExpressionStr;
-    
+
     private IMatchingExpression matchExpression;
-    
-    public MatchingExpression() {        
+
+    public MatchingExpression() {
     }
-    
+
     public MatchingExpression(String matchExpressionStr) {
         this.matchExpressionStr = matchExpressionStr;
-        this.matchExpression = MatchingExpressionsParser.parse(matchExpressionStr);        
+        this.matchExpression = MatchingExpressionsParser.parse(matchExpressionStr);
     }
 
     public String getMatchExpressionStr() {

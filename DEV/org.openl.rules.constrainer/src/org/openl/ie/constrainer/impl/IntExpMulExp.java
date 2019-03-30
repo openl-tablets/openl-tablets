@@ -7,7 +7,6 @@ import org.openl.ie.constrainer.IntVar;
 import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
 
-
 //
 //: IntExpMulExp.java
 //
@@ -71,6 +70,7 @@ public final class IntExpMulExp extends IntExpImpl {
         }
 
     } // ~CalcGeneral
+
     /**
      * Calculation for exp1 <= 0.
      */
@@ -131,6 +131,7 @@ public final class IntExpMulExp extends IntExpImpl {
         }
 
     } // ~CalcN
+
     /**
      * Calculation for exp1 <= 0 && exp2 <= 0.
      */
@@ -165,6 +166,7 @@ public final class IntExpMulExp extends IntExpImpl {
         }
 
     } // ~CalcNN
+
     /**
      * Calculation for exp1 >= 0.
      */

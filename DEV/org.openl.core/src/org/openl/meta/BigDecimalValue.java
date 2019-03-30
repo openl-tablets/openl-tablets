@@ -35,11 +35,12 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     private final java.math.BigDecimal value;
 
-    public static class BigDecimalValueAdapter extends XmlAdapter<BigDecimal,BigDecimalValue> {
+    public static class BigDecimalValueAdapter extends XmlAdapter<BigDecimal, BigDecimalValue> {
         @Override
         public BigDecimalValue unmarshal(BigDecimal val) throws Exception {
             return new BigDecimalValue(val);
         }
+
         @Override
         public BigDecimal marshal(BigDecimalValue val) throws Exception {
             return val.getValue();
@@ -50,7 +51,9 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
         return result == null ? null : new BigDecimalValue(new BigDecimalValue(result), operation, values);
     }
 
-    private static BigDecimalValue instance(BigDecimalValue result, NumberOperations operation, BigDecimalValue... values) {
+    private static BigDecimalValue instance(BigDecimalValue result,
+            NumberOperations operation,
+            BigDecimalValue... values) {
         return result == null ? null : new BigDecimalValue(result, operation, values);
     }
 
@@ -80,74 +83,86 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     /**
      * Compares two values
+     * 
      * @param value1
      * @param value2
-     * @return true if  value1 equal value2
+     * @return true if value1 equal value2
      */
     public static boolean eq(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
-        if (value1 == null || value2 == null){
+        if (value1 == null || value2 == null) {
             return value1 == value2;
         }
         return Comparison.eq(value1.getValue(), value2.getValue());
     }
+
     /**
      * Compares two values
+     * 
      * @param value1
      * @param value2
-     * @return true if  value1 greater or equal value2
+     * @return true if value1 greater or equal value2
      */
     public static Boolean ge(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
         BigDecimal v1 = value1 == null ? null : value1.value;
         BigDecimal v2 = value2 == null ? null : value2.value;
         return Comparison.ge(v1, v2);
     }
+
     /**
      * Compares two values
+     * 
      * @param value1
      * @param value2
-     * @return true if  value1 greater value2
+     * @return true if value1 greater value2
      */
     public static Boolean gt(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
         BigDecimal v1 = value1 == null ? null : value1.value;
         BigDecimal v2 = value2 == null ? null : value2.value;
         return Comparison.gt(v1, v2);
     }
+
     /**
      * Compares two values
+     * 
      * @param value1
      * @param value2
-     * @return true if  value1 less or equal value2
+     * @return true if value1 less or equal value2
      */
     public static Boolean le(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
         BigDecimal v1 = value1 == null ? null : value1.value;
         BigDecimal v2 = value2 == null ? null : value2.value;
         return Comparison.le(v1, v2);
     }
+
     /**
      * Compares two values
+     * 
      * @param value1
      * @param value2
-     * @return true if  value1 less value2
+     * @return true if value1 less value2
      */
     public static Boolean lt(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
         BigDecimal v1 = value1 == null ? null : value1.value;
         BigDecimal v2 = value2 == null ? null : value2.value;
         return Comparison.lt(v1, v2);
     }
+
     /**
      * Compares two values
+     * 
      * @param value1
      * @param value2
-     * @return true if  value1 not equal value2
+     * @return true if value1 not equal value2
      */
     public static boolean ne(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
-        if (value1 == null || value2 == null){
+        if (value1 == null || value2 == null) {
             return value1 != value2;
         }
 
         return Comparison.ne(value1.getValue(), value2.getValue());
     }
-        /**
+
+    /**
      * 
      * @param value of variable which should be copied
      * @param name of new variable
@@ -159,7 +174,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.BigDecimalValue result = new org.openl.meta.BigDecimalValue (value, NumberOperations.COPY, 
+            org.openl.meta.BigDecimalValue result = new org.openl.meta.BigDecimalValue(value,
+                NumberOperations.COPY,
                 new org.openl.meta.BigDecimalValue[] { value });
             result.setName(name);
 
@@ -168,44 +184,50 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
         return value;
     }
 
-    //REM
+    // REM
     /**
      * Divides left hand operand by right hand operand and returns remainder
-     * @param value1 org.openl.meta.BigDecimalValue 
-     * @param value2 org.openl.meta.BigDecimalValue 
+     * 
+     * @param value1 org.openl.meta.BigDecimalValue
+     * @param value2 org.openl.meta.BigDecimalValue
      * @return remainder from division value1 by value2
      */
-    public static org.openl.meta.BigDecimalValue rem(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+    public static org.openl.meta.BigDecimalValue rem(org.openl.meta.BigDecimalValue value1,
+            org.openl.meta.BigDecimalValue value2) {
         // Commented to support operations with nulls. See also MathUtils.mod()
         // validate(value1, value2, Formulas.REM.toString());
         if (value1 == null || value2 == null) {
             return ZERO;
         }
 
-        return new org.openl.meta.BigDecimalValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.BigDecimalValue(value1,
+            value2,
+            Operators.rem(value1.getValue(), value2.getValue()),
             Formulas.REM);
     }
 
-    //ADD
+    // ADD
     public static String add(BigDecimalValue value1, String value2) {
         return value1 + value2;
     }
-    
+
     public static String add(String value1, BigDecimalValue value2) {
         return value1 + value2;
     }
-    
-     /**
+
+    /**
      * Adds left hand operand to right hand operand
+     * 
      * @param value1 org.openl.meta.BigDecimalValue
      * @param value2 org.openl.meta.BigDecimalValue
      * @return the result of addition operation
      */
-    public static org.openl.meta.BigDecimalValue add(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+    public static org.openl.meta.BigDecimalValue add(org.openl.meta.BigDecimalValue value1,
+            org.openl.meta.BigDecimalValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.ADD.toString());
-        //conditions big types
+        // validate(value1, value2, Formulas.ADD.toString());
+        // conditions big types
         if (value1 == null) {
             return value2;
         }
@@ -214,21 +236,25 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
             return value1;
         }
 
-        return new org.openl.meta.BigDecimalValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.BigDecimalValue(value1,
+            value2,
+            Operators.add(value1.getValue(), value2.getValue()),
             Formulas.ADD);
     }
 
     // MULTIPLY
-     /**
+    /**
      * Multiplies left hand operand to right hand operand
+     * 
      * @param value1 org.openl.meta.BigDecimalValue
      * @param value2 org.openl.meta.BigDecimalValue
-     * @return the result of multiplication  operation
+     * @return the result of multiplication operation
      */
-    public static org.openl.meta.BigDecimalValue multiply(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+    public static org.openl.meta.BigDecimalValue multiply(org.openl.meta.BigDecimalValue value1,
+            org.openl.meta.BigDecimalValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.MULTIPLY.toString());
+        // validate(value1, value2, Formulas.MULTIPLY.toString());
         if (value1 == null) {
             return value2;
         }
@@ -237,21 +263,25 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
             return value1;
         }
 
-        return new org.openl.meta.BigDecimalValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.BigDecimalValue(value1,
+            value2,
+            Operators.multiply(value1.getValue(), value2.getValue()),
             Formulas.MULTIPLY);
     }
 
-    //SUBTRACT
+    // SUBTRACT
     /**
      * Subtracts left hand operand to right hand operand
+     * 
      * @param value1 org.openl.meta.BigDecimalValue
      * @param value2 org.openl.meta.BigDecimalValue
-     * @return the result of subtraction  operation
+     * @return the result of subtraction operation
      */
-    public static org.openl.meta.BigDecimalValue subtract(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+    public static org.openl.meta.BigDecimalValue subtract(org.openl.meta.BigDecimalValue value1,
+            org.openl.meta.BigDecimalValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.SUBTRACT.toString());
+        // validate(value1, value2, Formulas.SUBTRACT.toString());
         if (value1 == null && value2 == null) {
             return null;
         }
@@ -264,28 +294,35 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
             return value1;
         }
 
-        return new org.openl.meta.BigDecimalValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
+        return new org.openl.meta.BigDecimalValue(value1,
+            value2,
+            Operators.subtract(value1.getValue(), value2.getValue()),
             Formulas.SUBTRACT);
     }
 
     // DIVIDE
     /**
      * Divides left hand operand by right hand operand
+     * 
      * @param value1 org.openl.meta.BigDecimalValue
      * @param value2 org.openl.meta.BigDecimalValue
-     * @return the result of division  operation
+     * @return the result of division operation
      */
-    public static org.openl.meta.BigDecimalValue divide(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+    public static org.openl.meta.BigDecimalValue divide(org.openl.meta.BigDecimalValue value1,
+            org.openl.meta.BigDecimalValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.DIVIDE.toString());
+        // validate(value1, value2, Formulas.DIVIDE.toString());
         if (value1 == null && value2 == null) {
             return null;
         }
 
         if (value1 == null) {
             if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.BigDecimalValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
+                return new org.openl.meta.BigDecimalValue(value1,
+                    value2,
+                    divide(ONE, value2).getValue(),
+                    Formulas.DIVIDE);
             }
         }
 
@@ -297,16 +334,19 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
             throw new OpenLRuntimeException("Division by zero");
         }
 
-        return new org.openl.meta.BigDecimalValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.BigDecimalValue(value1,
+            value2,
+            Operators.divide(value1.getValue(), value2.getValue()),
             Formulas.DIVIDE);
     }
 
     // QUAOTIENT
     /**
      * Divides left hand operand by right hand operand
+     * 
      * @param number org.openl.meta.BigDecimalValue
      * @param divisor org.openl.meta.BigDecimalValue
-     * @return LongValue the result of division  operation
+     * @return LongValue the result of division operation
      */
     public static LongValue quotient(org.openl.meta.BigDecimalValue number, org.openl.meta.BigDecimalValue divisor) {
         if (number != null && divisor != null) {
@@ -316,23 +356,30 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
         return null;
     }
 
-     /**
-     *   
+    /**
+     * 
      * @param number
      * @param divisor
-     * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign as the devisor.
+     * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign
+     *         as the devisor.
      */
-    public static org.openl.meta.BigDecimalValue mod(org.openl.meta.BigDecimalValue number, org.openl.meta.BigDecimalValue divisor) {
+    public static org.openl.meta.BigDecimalValue mod(org.openl.meta.BigDecimalValue number,
+            org.openl.meta.BigDecimalValue divisor) {
         if (number != null && divisor != null) {
-            org.openl.meta.BigDecimalValue result = new org.openl.meta.BigDecimalValue(MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new org.openl.meta.BigDecimalValue(result, NumberOperations.MOD, new org.openl.meta.BigDecimalValue[]{number, divisor} );
+            org.openl.meta.BigDecimalValue result = new org.openl.meta.BigDecimalValue(
+                MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new org.openl.meta.BigDecimalValue(result,
+                NumberOperations.MOD,
+                new org.openl.meta.BigDecimalValue[] { number, divisor });
         }
         return null;
     }
 
     /**
-     * Sorts the array <b>values</b> in ascending order and returns the value from array <b>values</b> at position <b>position</b>
-     * @param values array of org.openl.meta.BigDecimalValue values 
+     * Sorts the array <b>values</b> in ascending order and returns the value from array <b>values</b> at position
+     * <b>position</b>
+     * 
+     * @param values array of org.openl.meta.BigDecimalValue values
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
@@ -341,8 +388,10 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     }
 
     /**
-     * Sorts the array <b>values</b> in descending order and returns the value from array <b>values</b> at position <b>position</b>
-     * @param values array of org.openl.meta.BigDecimalValue values 
+     * Sorts the array <b>values</b> in descending order and returns the value from array <b>values</b> at position
+     * <b>position</b>
+     * 
+     * @param values array of org.openl.meta.BigDecimalValue values
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
@@ -356,7 +405,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
      * @param value2
      * @return the result of value1 raised to the power of value2
      */
-    public static org.openl.meta.BigDecimalValue pow(org.openl.meta.BigDecimalValue value1, org.openl.meta.BigDecimalValue value2) {
+    public static org.openl.meta.BigDecimalValue pow(org.openl.meta.BigDecimalValue value1,
+            org.openl.meta.BigDecimalValue value2) {
         // Commented to support operations with nulls
         // "null" means that data does not exist
         //
@@ -367,8 +417,10 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
             return value1;
         }
 
-        return new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(Operators.pow(value1.getValue(), value2.getValue())), 
-            NumberOperations.POW, new org.openl.meta.BigDecimalValue[] { value1, value2 });
+        return new org.openl.meta.BigDecimalValue(
+            new org.openl.meta.BigDecimalValue(Operators.pow(value1.getValue(), value2.getValue())),
+            NumberOperations.POW,
+            new org.openl.meta.BigDecimalValue[] { value1, value2 });
     }
 
     /**
@@ -385,7 +437,9 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
         // evaluate result
         org.openl.meta.BigDecimalValue result = new org.openl.meta.BigDecimalValue(Operators.abs(value.getValue()));
         // create instance with information about last operation
-        return new org.openl.meta.BigDecimalValue(result, NumberOperations.ABS, new org.openl.meta.BigDecimalValue[] { value });
+        return new org.openl.meta.BigDecimalValue(result,
+            NumberOperations.ABS,
+            new org.openl.meta.BigDecimalValue[] { value });
     }
 
     /**
@@ -431,6 +485,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     /**
      * Is used to overload implicit cast operators from byte to org.openl.meta.BigDecimalValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.BigDecimalValue
@@ -438,8 +493,10 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     public static org.openl.meta.BigDecimalValue autocast(byte x, org.openl.meta.BigDecimalValue y) {
         return new org.openl.meta.BigDecimalValue(String.valueOf(x));
     }
+
     /**
      * Is used to overload implicit cast operators from short to org.openl.meta.BigDecimalValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.BigDecimalValue
@@ -447,8 +504,10 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     public static org.openl.meta.BigDecimalValue autocast(short x, org.openl.meta.BigDecimalValue y) {
         return new org.openl.meta.BigDecimalValue(String.valueOf(x));
     }
+
     /**
      * Is used to overload implicit cast operators from int to org.openl.meta.BigDecimalValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.BigDecimalValue
@@ -456,17 +515,21 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     public static org.openl.meta.BigDecimalValue autocast(int x, org.openl.meta.BigDecimalValue y) {
         return new org.openl.meta.BigDecimalValue(String.valueOf(x));
     }
+
     /**
      * Is used to overload implicit cast operators from char to org.openl.meta.BigDecimalValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.BigDecimalValue
      */
     public static org.openl.meta.BigDecimalValue autocast(char x, org.openl.meta.BigDecimalValue y) {
-        return new org.openl.meta.BigDecimalValue(String.valueOf((int)x));
+        return new org.openl.meta.BigDecimalValue(String.valueOf((int) x));
     }
+
     /**
      * Is used to overload implicit cast operators from long to org.openl.meta.BigDecimalValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.BigDecimalValue
@@ -474,8 +537,10 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     public static org.openl.meta.BigDecimalValue autocast(long x, org.openl.meta.BigDecimalValue y) {
         return new org.openl.meta.BigDecimalValue(String.valueOf(x));
     }
+
     /**
      * Is used to overload implicit cast operators from float to org.openl.meta.BigDecimalValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.BigDecimalValue
@@ -483,8 +548,10 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     public static org.openl.meta.BigDecimalValue autocast(float x, org.openl.meta.BigDecimalValue y) {
         return new org.openl.meta.BigDecimalValue(String.valueOf(x));
     }
+
     /**
      * Is used to overload implicit cast operators from double to org.openl.meta.BigDecimalValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.BigDecimalValue
@@ -498,45 +565,48 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
         this.value = value;
     }
 
-    /**Formula constructor**/
-    public BigDecimalValue(org.openl.meta.BigDecimalValue lv1, org.openl.meta.BigDecimalValue lv2, java.math.BigDecimal value, Formulas operand) {
+    /** Formula constructor **/
+    public BigDecimalValue(org.openl.meta.BigDecimalValue lv1,
+            org.openl.meta.BigDecimalValue lv2,
+            java.math.BigDecimal value,
+            Formulas operand) {
         super(lv1, lv2, operand);
         this.value = value;
     }
 
-    /**Cast constructor**/
+    /** Cast constructor **/
     public BigDecimalValue(String valueString, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
         super(beforeCastValue, new CastOperand("BigDecimalValue", autocast));
         this.value = new java.math.BigDecimal(valueString);
     }
 
     /**
-    *Copy the current value with new name <b>name</b>
-    */
+     * Copy the current value with new name <b>name</b>
+     */
     @Override
     public org.openl.meta.BigDecimalValue copy(String name) {
         return copy(this, name);
     }
 
     /**
-    * Prints the value of the current variable
-    */
+     * Prints the value of the current variable
+     */
     @Override
     public String printValue() {
         return String.valueOf(value);
     }
 
     /**
-    * Returns the value of the current variable
-    */
+     * Returns the value of the current variable
+     */
     public java.math.BigDecimal getValue() {
         return value;
     }
 
-    //Equals
+    // Equals
     @Override
-     /**
-     * Indicates whether some other object is "equal to" this org.openl.meta.BigDecimalValue variable. 
+    /**
+     * Indicates whether some other object is "equal to" this org.openl.meta.BigDecimalValue variable.
      */
     public boolean equals(Object obj) {
         if (obj instanceof org.openl.meta.BigDecimalValue) {
@@ -549,15 +619,16 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
 
     // sort
     /**
-    * Sorts the array <b>values</b>
-    * @param values an array for sorting
-    * @return the sorted array
-    */
-    public static org.openl.meta.BigDecimalValue[] sort (org.openl.meta.BigDecimalValue[] values ) {
+     * Sorts the array <b>values</b>
+     * 
+     * @param values an array for sorting
+     * @return the sorted array
+     */
+    public static org.openl.meta.BigDecimalValue[] sort(org.openl.meta.BigDecimalValue[] values) {
         org.openl.meta.BigDecimalValue[] sortedArray = null;
         if (values != null) {
             sortedArray = new org.openl.meta.BigDecimalValue[values.length];
-           org.openl.meta.BigDecimalValue[] notNullArray = ArrayTool.removeNulls(values);
+            org.openl.meta.BigDecimalValue[] notNullArray = ArrayTool.removeNulls(values);
 
             Arrays.sort(notNullArray);
 
@@ -636,7 +707,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
         }
         return x.getValue().toBigInteger();
     }
-    
+
     public static ByteValue cast(BigDecimalValue x, ByteValue y) {
         if (x == null) {
             return null;

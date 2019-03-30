@@ -16,29 +16,29 @@ import org.openl.util.tree.ITreeElement;
  * @param <T> type that extends {@link ExplanationNumberValue}
  */
 public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>> extends Number implements ExplanationForNumber<T> {
-    
+
     private static final long serialVersionUID = -5461468496220613277L;
-    
-    /** 
+
+    /**
      * Explanator for current value.
      */
     private transient ExplanationForNumber<T> explanation;
 
     public ExplanationNumberValue() {
     }
-    
+
     /** Formula constructor */
     public ExplanationNumberValue(T dv1, T dv2, Formulas operand) {
         /** initialize explanation for formula value */
         this.explanation = new FormulaExplanationValue<>(dv1, dv2, operand);
     }
-    
+
     /** Function constructor */
     public ExplanationNumberValue(NumberOperations function, T[] params) {
         /** initialize explanation for function value */
         this.explanation = new FunctionExplanationValue<>(function, params);
     }
-    
+
     /** Casting constructor */
     @SuppressWarnings("unchecked")
     public ExplanationNumberValue(ExplanationNumberValue<?> previousValue, CastOperand operand) {
@@ -96,17 +96,17 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
     public IMetaInfo getMetaInfo() {
         return getExplanation().getMetaInfo();
     }
-    
+
     @Override
     public void setMetaInfo(IMetaInfo metaInfo) {
         getExplanation().setMetaInfo(metaInfo);
     }
-    
+
     @Override
     public String getName() {
         return getExplanation().getName();
     }
-    
+
     @Override
     public String getDisplayName(int mode) {
         return getExplanation().getDisplayName(mode);
@@ -139,10 +139,10 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
 
     @Override
     @SuppressWarnings("unchecked")
-    public T getObject() {    
+    public T getObject() {
         return (T) this;
     }
-    
+
     @Override
     public String toString() {
         return printValue();

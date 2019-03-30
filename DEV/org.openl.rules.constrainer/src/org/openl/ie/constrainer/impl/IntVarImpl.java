@@ -12,7 +12,6 @@ import org.openl.ie.constrainer.Undoable;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
 
-
 //
 //: IntVarImpl.java
 //
@@ -69,6 +68,7 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
         }
 
     } // ~UndoIntVarImpl
+
     private Domain _domain;
 
     private IntDomainHistory _history;

@@ -16,7 +16,7 @@ import org.openl.validation.ValidationResult;
 public abstract class TablesValidator implements IOpenLValidator {
 
     private void findAllTableSyntaxNodes(Set<TableSyntaxNode> tableSyntaxNodes, IOpenClass openClass) {
-        if (openClass instanceof XlsModuleOpenClass){
+        if (openClass instanceof XlsModuleOpenClass) {
             for (CompiledDependency compiledDependency : ((XlsModuleOpenClass) openClass).getDependencies()) {
                 IOpenClass dependencyOpenClass = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors();
                 findAllTableSyntaxNodes(tableSyntaxNodes, dependencyOpenClass);

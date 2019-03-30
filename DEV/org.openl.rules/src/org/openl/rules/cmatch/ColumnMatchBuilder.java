@@ -114,14 +114,17 @@ public class ColumnMatchBuilder {
             }
 
             String cellName = "cell" + r + "_" + column.getColumnIndex() + "_" + c;
-            StringValue sv = new StringValue(value, cellName, cellName, new GridCellSourceCodeModule(grid, c, r, bindingContext));
+            StringValue sv = new StringValue(value,
+                cellName,
+                cellName,
+                new GridCellSourceCodeModule(grid, c, r, bindingContext));
             values[c] = new SubValue(sv, grid.getCell(c, r).getStyle());
             IGridTable lr = grid.getSubtable(c, r, 1, 1);
             values[c].setGridRegion(lr.getRegion());
         }
 
         return values;
-    }    
+    }
 
     private void prepareColumns(ILogicalTable tableBody) throws SyntaxNodeException {
         columns = new ArrayList<>();

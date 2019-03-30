@@ -10,26 +10,25 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.Tracer;
 
 /**
- * The <code>TBasicVM</code> class executes Algorithm logic. Besides execution
- * of operations list, the class provides logic to support GOTO to main method
- * and errors processing.
+ * The <code>TBasicVM</code> class executes Algorithm logic. Besides execution of operations list, the class provides
+ * logic to support GOTO to main method and errors processing.
  *
  */
 public class TBasicVM {
     private TBasicVMDataContext mainContext;
     private TBasicVMDataContext currentContext;
-    
+
     private IOpenClass tbasicType;
 
     /**
-     * Create an instance of <code>TBasicVM</code> initialized with main
-     * Algorithm method operations and labels register.
+     * Create an instance of <code>TBasicVM</code> initialized with main Algorithm method operations and labels
+     * register.
      *
      * @param operations
      * @param labels
      */
     public TBasicVM(IOpenClass tbasicType, List<RuntimeOperation> operations, Map<String, RuntimeOperation> labels) {
-    	this.tbasicType = tbasicType;
+        this.tbasicType = tbasicType;
         this.mainContext = new TBasicVMDataContext(operations, labels, true);
 
         // in the first turn only main can be called
@@ -38,9 +37,8 @@ public class TBasicVM {
 
     /**
      * Searches for operation labeled with the provided label. <br>
-     * The search will be done in current context and in the main context. If
-     * label will be found in main context, the execution will be switched to
-     * there.
+     * The search will be done in current context and in the main context. If label will be found in main context, the
+     * execution will be switched to there.
      *
      * @param label The label to switch to.
      * @return The labeled operation.
@@ -51,15 +49,14 @@ public class TBasicVM {
         } else if (mainContext.isLabelInContext(label)) {
             goToLabelInMainContext(label);
         }
-        throw new RuntimeException(String.format(
-                "Unexpected error while execution of TBasic component: unknown label \"%s\"", label));
+        throw new RuntimeException(
+            String.format("Unexpected error while execution of TBasic component: unknown label \"%s\"", label));
     }
 
     /**
-     * Switch execution from current subroutine or function context to the main
-     * Algorithm context. The OpenL control signal is used to do this. It passes
-     * all the catches in OpenL and must be handled by <code>TBasicVM</code>
-     * handle logic.
+     * Switch execution from current subroutine or function context to the main Algorithm context. The OpenL control
+     * signal is used to do this. It passes all the catches in OpenL and must be handled by <code>TBasicVM</code> handle
+     * logic.
      *
      * @param label The context to set as current.
      */
@@ -68,17 +65,17 @@ public class TBasicVM {
     }
 
     /**
-     * Run sub-method of Algorithm. <code>TBasicVM</code> instance will
-     * execute the provided operations list. <br>
-     * The sub-method can be called only within of execution of main Algorithm
-     * method. However, the implementation doesn't put any restrictions.
+     * Run sub-method of Algorithm. <code>TBasicVM</code> instance will execute the provided operations list. <br>
+     * The sub-method can be called only within of execution of main Algorithm method. However, the implementation
+     * doesn't put any restrictions.
      *
      * @param methodSteps The list of operations to run.
      * @param methodLabels The labels register for sub-method.
      * @param environment The environment for execution.
      * @return The result of the method execution.
      */
-    public Object run(List<RuntimeOperation> methodSteps, Map<String, RuntimeOperation> methodLabels,
+    public Object run(List<RuntimeOperation> methodSteps,
+            Map<String, RuntimeOperation> methodLabels,
             TBasicContextHolderEnv environment) {
 
         TBasicVMDataContext methodContext = new TBasicVMDataContext(methodSteps, methodLabels, false);
@@ -93,12 +90,11 @@ public class TBasicVM {
     }
 
     /**
-     * Run the method of Algorithm. <code>TBasicVM</code> instance will run
-     * operations which are considered in current context. <br>
-     * Method also implements logic to handle all errors by user defined
-     * handling method. <br>
-     * Method should be called only for main Algorithm method, all sub methods
-     * should be run using {@link #run(List, Map, TBasicContextHolderEnv)}.
+     * Run the method of Algorithm. <code>TBasicVM</code> instance will run operations which are considered in current
+     * context. <br>
+     * Method also implements logic to handle all errors by user defined handling method. <br>
+     * Method should be called only for main Algorithm method, all sub methods should be run using
+     * {@link #run(List, Map, TBasicContextHolderEnv)}.
      *
      * @param environment The environment for execution.
      * @return The result of the method execution.
@@ -110,7 +106,7 @@ public class TBasicVM {
 
         // Run fail safe, in case of error allow user code to handle it
         // processing of error will be done in Algorithm main method
-        
+
         boolean errorOccured = false;
         try {
             returnResult = runAll(environment);
@@ -133,9 +129,9 @@ public class TBasicVM {
                 throw new OpenLAlgorithmErrorSignal(error);
             }
         }
-        
+
         if (tbasicType.equals(JavaOpenClass.VOID) && !errorOccured) {
-        	returnResult = null;
+            returnResult = null;
         }
 
         return returnResult;
@@ -157,11 +153,8 @@ public class TBasicVM {
             Result operationResult;
             try {
 
-                operationResult = Tracer.invoke(operation,
-                        null,
-                        new Object[] { previousStepResult },
-                        environment,
-                        this);
+                operationResult = Tracer
+                    .invoke(operation, null, new Object[] { previousStepResult }, environment, this);
 
             } catch (OpenLAlgorithmGoToMainSignal signal) {
                 operation = getLabeledOperation(signal.getLabel());

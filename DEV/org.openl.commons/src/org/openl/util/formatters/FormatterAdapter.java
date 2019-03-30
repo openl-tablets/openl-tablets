@@ -4,8 +4,7 @@ import org.openl.util.print.DefaultFormat;
 
 /**
  * 
- * Wrapper to adapt {@link DefaultFormat} functionality to {@link IFormatter}.
- * Supports only format operation.
+ * Wrapper to adapt {@link DefaultFormat} functionality to {@link IFormatter}. Supports only format operation.
  * 
  * @author DLiauchuk
  * 
@@ -20,7 +19,8 @@ public class FormatterAdapter implements IFormatter {
 
     @Override
     public Object parse(String value) {
-        throw new UnsupportedOperationException("Should not be called, this is only to implement IFormatter interface.");
+        throw new UnsupportedOperationException(
+            "Should not be called, this is only to implement IFormatter interface.");
     }
 
 }

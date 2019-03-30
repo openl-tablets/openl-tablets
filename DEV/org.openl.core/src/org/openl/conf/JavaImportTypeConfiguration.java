@@ -18,15 +18,15 @@ import org.openl.util.StringUtils;
  *
  */
 public class JavaImportTypeConfiguration extends AConfigurationElement implements ITypeFactoryConfigurationElement {
-    
+
     private List<String> classes = new ArrayList<>();
 
     private List<String> packages = new ArrayList<>();
 
     private ITypeLibrary library = null;
-    
+
     public synchronized void addClassImport(String className) {
-        if (library != null){
+        if (library != null) {
             throw new IllegalStateException("Library has already been initialized!");
         }
         if (StringUtils.isNotEmpty(className)) {
@@ -35,18 +35,20 @@ public class JavaImportTypeConfiguration extends AConfigurationElement implement
     }
 
     public synchronized void addPackageImport(String packageName) {
-        if (library != null){
+        if (library != null) {
             throw new IllegalStateException("Library has already been initialized!");
         }
         if (StringUtils.isNotEmpty(packageName)) {
             packages.add(packageName);
-        }   
+        }
     }
 
     @Override
     public synchronized ITypeLibrary getLibrary(IConfigurableResourceContext cxt) {
         if (library == null) {
-            library = new JavaImportTypeLibrary(packages.toArray(new String[]{}), classes.toArray(new String[]{}), cxt.getClassLoader());
+            library = new JavaImportTypeLibrary(packages.toArray(new String[] {}),
+                classes.toArray(new String[] {}),
+                cxt.getClassLoader());
         }
         return library;
     }

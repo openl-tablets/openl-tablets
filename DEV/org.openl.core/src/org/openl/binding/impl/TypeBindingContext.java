@@ -19,8 +19,8 @@ import org.openl.types.java.CustomJavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
- * Binding context for all expressions that are related to some type. All fields
- * specified in the type will be available as variables.
+ * Binding context for all expressions that are related to some type. All fields specified in the type will be available
+ * as variables.
  *
  * @author PUdalau
  */
@@ -30,9 +30,8 @@ public class TypeBindingContext extends BindingContextDelegator {
 
     public static TypeBindingContext create(IBindingContext delegate, ILocalVar localVar) {
         Class<?> instanceClass = localVar.getType().getInstanceClass();
-        CustomJavaOpenClass annotation = instanceClass == null ?
-                                         null :
-                                         instanceClass.getAnnotation(CustomJavaOpenClass.class);
+        CustomJavaOpenClass annotation = instanceClass == null ? null
+                                                               : instanceClass.getAnnotation(CustomJavaOpenClass.class);
         VariableInContextFinder context;
         if (annotation != null && annotation.variableInContextFinder() != null) {
             context = createCustomVariableFinder(annotation, localVar);
@@ -50,19 +49,22 @@ public class TypeBindingContext extends BindingContextDelegator {
             return type.getConstructor(IOpenField.class, int.class).newInstance(localVar, 1);
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException(String.format(
-                    "Cannot find constructor with signature 'public MyCustomVariableFinder(IOpenField<?> field, int depthLevel)' in type %s",
-                    type.getCanonicalName()), e);
+                "Cannot find constructor with signature 'public MyCustomVariableFinder(IOpenField<?> field, int depthLevel)' in type %s",
+                type.getCanonicalName()), e);
         } catch (InstantiationException e) {
-            throw new IllegalStateException(String.format(
-                    "Error while creating a custom VariableInContextFinder of type '%s'",
-                    type.getCanonicalName()), e);
+            throw new IllegalStateException(
+                String.format("Error while creating a custom VariableInContextFinder of type '%s'",
+                    type.getCanonicalName()),
+                e);
         } catch (IllegalAccessException e) {
-            throw new IllegalStateException(String.format(
-                    "Constructor of a custom VariableInContextFinder of type '%s' is inaccessible",
-                    type.getCanonicalName()), e);
+            throw new IllegalStateException(
+                String.format("Constructor of a custom VariableInContextFinder of type '%s' is inaccessible",
+                    type.getCanonicalName()),
+                e);
         } catch (InvocationTargetException e) {
-            throw new IllegalStateException(String.format("Constructor of a class '%s' threw and exception",
-                    type.getCanonicalName()), e);
+            throw new IllegalStateException(
+                String.format("Constructor of a class '%s' threw and exception", type.getCanonicalName()),
+                e);
         }
 
     }
@@ -84,14 +86,15 @@ public class TypeBindingContext extends BindingContextDelegator {
     }
 
     @Override
-    public IMethodCaller findMethodCaller(String namespace, String name,
+    public IMethodCaller findMethodCaller(String namespace,
+            String name,
             IOpenClass[] parTypes) throws AmbiguousMethodException {
         IMethodCaller res = null;
-        //        IOpenMethod method = null;
+        // IOpenMethod method = null;
         if (namespace.equals(ISyntaxConstants.THIS_NAMESPACE)) {
             res = MethodSearch.findMethod(name, parTypes, this, localVar.getType());
 
-            //        	method = localVar.getType().getMatchingMethod(name, parTypes);
+            // method = localVar.getType().getMatchingMethod(name, parTypes);
             if (res != null)
                 res = new LocalVarMethodCaller(localVar, res);
         }
@@ -99,7 +102,7 @@ public class TypeBindingContext extends BindingContextDelegator {
         return res == null ? super.findMethodCaller(namespace, name, parTypes) : res;
     }
 
-    private static class LocalVarMethodCaller implements IMethodCaller, IOwnTargetMethod{
+    private static class LocalVarMethodCaller implements IMethodCaller, IOwnTargetMethod {
 
         ILocalVar localvar;
         IMethodCaller method;

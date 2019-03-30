@@ -32,7 +32,8 @@ public class DTCheckerImpl implements DTChecker {
 
         public CDecisionTableImpl(IntBoolExp[][] data, IntExpArray vars, boolean overrideAscending) {
             if (data == null) {
-                throw new IllegalArgumentException("DecisionTableImpl(IntBoolExp[][] _data, IntExpArray vars) : can't be created based on null data array");
+                throw new IllegalArgumentException(
+                    "DecisionTableImpl(IntBoolExp[][] _data, IntExpArray vars) : can't be created based on null data array");
             }
             _data = data;
             _vars = vars;

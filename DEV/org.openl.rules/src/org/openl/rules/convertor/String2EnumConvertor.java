@@ -10,7 +10,8 @@ class String2EnumConvertor<E extends Enum<E>> implements IString2DataConvertor<E
 
     @Override
     public E parse(String data, String format) {
-        if (data == null) return null;
+        if (data == null)
+            return null;
 
         for (E enumConstant : enumType.getEnumConstants()) {
             if (data.equalsIgnoreCase(enumConstant.name())) {
@@ -18,7 +19,7 @@ class String2EnumConvertor<E extends Enum<E>> implements IString2DataConvertor<E
             }
         }
 
-        throw new IllegalArgumentException(String.format(
-                "Constant corresponding to value \"%s\" can't be found in Enum %s ", data, enumType.getName()));
+        throw new IllegalArgumentException(String
+            .format("Constant corresponding to value \"%s\" can't be found in Enum %s ", data, enumType.getName()));
     }
 }

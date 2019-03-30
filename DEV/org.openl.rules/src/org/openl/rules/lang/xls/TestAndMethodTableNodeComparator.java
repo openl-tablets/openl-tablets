@@ -17,11 +17,11 @@ public class TestAndMethodTableNodeComparator implements Comparator<TableSyntaxN
 
         return i1 - i2;
     }
-    
+
     private boolean isTestMethod(String type) {
         return XlsNodeTypes.XLS_TEST_METHOD.toString().equals(type);
     }
-    
+
     private boolean isRunMethod(String type) {
         return XlsNodeTypes.XLS_RUN_METHOD.toString().equals(type);
     }

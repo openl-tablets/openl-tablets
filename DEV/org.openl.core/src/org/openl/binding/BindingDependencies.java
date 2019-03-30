@@ -19,14 +19,13 @@ public class BindingDependencies {
      * All methods.
      */
     private HashMap<IOpenMethod, IBoundNode> methods = new HashMap<>();
-    
+
     /**
      * Dependencies to executable Openl rules.
      */
     private HashMap<ExecutableMethod, IBoundNode> rulesMethods = new HashMap<>();
-    
-    private HashMap<IBoundNode, IOpenField> fields = new HashMap<>();
 
+    private HashMap<IBoundNode, IOpenField> fields = new HashMap<>();
 
     public void addAssign(IBoundNode target, IBoundNode node) {
         target.updateAssignFieldDependency(this);
@@ -40,7 +39,7 @@ public class BindingDependencies {
         methods.put(method, node);
         // check if method is instance of Openl executable rules method.
         if (method instanceof ExecutableMethod) {
-            rulesMethods.put((ExecutableMethod)method, node);
+            rulesMethods.put((ExecutableMethod) method, node);
         }
     }
 
@@ -50,12 +49,13 @@ public class BindingDependencies {
 
     /**
      * Gets dependencies to executable Openl rules.
+     * 
      * @return dependencies to executable Openl rules.
      */
     public Set<ExecutableMethod> getRulesMethods() {
         return rulesMethods.keySet();
     }
-    
+
     protected Map<ExecutableMethod, IBoundNode> getRulesMethodsMap() {
         return rulesMethods;
     }

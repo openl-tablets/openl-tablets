@@ -11,20 +11,20 @@ class CompositeCell implements ICell {
     private int row;
     private IGridRegion region;
     private ICell delegate;
-    
+
     @Override
     public ICell getTopLeftCellFromRegion() {
-		return delegate.getTopLeftCellFromRegion();
-	}
+        return delegate.getTopLeftCellFromRegion();
+    }
 
-	/**
-     * parameters column and row are different from inner column and row in cell delegate. 
+    /**
+     * parameters column and row are different from inner column and row in cell delegate.
      */
     public CompositeCell(int column, int row, IGridRegion region, ICell delegate) {
         this.column = column;
         this.row = row;
         this.region = region;
-        this.delegate = delegate;  
+        this.delegate = delegate;
     }
 
     @Override
@@ -69,17 +69,17 @@ class CompositeCell implements ICell {
 
     @Override
     public int getHeight() {
-        if (region == null){
+        if (region == null) {
             return delegate.getHeight();
         }
         return region.getBottom() - region.getTop() + 1;
     }
-    
+
     @Override
     public Object getObjectValue() {
         return delegate.getObjectValue();
     }
-    
+
     @Override
     public String getStringValue() {
         return delegate.getStringValue();
@@ -87,7 +87,7 @@ class CompositeCell implements ICell {
 
     @Override
     public int getWidth() {
-        if (region == null){
+        if (region == null) {
             return delegate.getWidth();
         }
         return region.getRight() - region.getLeft() + 1;

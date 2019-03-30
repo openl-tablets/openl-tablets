@@ -34,7 +34,7 @@ final class Styles {
     final CellStyle resultSuccess;
     final CellStyle resultFailure;
     final CellStyle resultOther;
-    
+
     final CellStyle parametersInfo;
     final CellStyle parameterValue;
     final CellStyle parameterAbsent;

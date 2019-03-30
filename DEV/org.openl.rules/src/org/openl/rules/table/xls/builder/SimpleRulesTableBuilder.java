@@ -8,8 +8,7 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 
 /**
- * Helper class that allows creating new SimpleRules tables in specified excel
- * sheet.
+ * Helper class that allows creating new SimpleRules tables in specified excel sheet.
  *
  * @author Pavel Tarasevich
  */
@@ -19,10 +18,9 @@ public class SimpleRulesTableBuilder extends TableBuilder {
     public SimpleRulesTableBuilder(XlsSheetGridModel gridModel) {
         super(gridModel);
     }
-    
+
     /**
-     * Number of rows that usually are used for table logic element. That is
-     * conditions title
+     * Number of rows that usually are used for table logic element. That is conditions title
      */
     public static final int LOGIC_ELEMENT_HEIGHT = 1;
 
@@ -45,7 +43,7 @@ public class SimpleRulesTableBuilder extends TableBuilder {
     public void writeTableBodyRow(List<Map<String, Object>> row) {
         int i = 0;
         for (Map<String, Object> cell : row) {
-            writeCell(i, getCurrentRow(), 1, 1, cell.get("value"), (ICellStyle) cell.get("style") );
+            writeCell(i, getCurrentRow(), 1, 1, cell.get("value"), (ICellStyle) cell.get("style"));
             i++;
         }
 
@@ -54,9 +52,8 @@ public class SimpleRulesTableBuilder extends TableBuilder {
 
     /**
      * Writes decision table header. <br />
-     * Requires the header signature, e.g.
-     * <code><i>void hello1(int hour)</i></code><br/> without Decision table
-     * header token <code>Rules</code>
+     * Requires the header signature, e.g. <code><i>void hello1(int hour)</i></code><br/>
+     * without Decision table header token <code>Rules</code>
      *
      * @param signature method signature for the table.
      */

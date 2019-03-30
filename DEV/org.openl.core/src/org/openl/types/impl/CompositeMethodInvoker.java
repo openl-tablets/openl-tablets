@@ -18,26 +18,25 @@ import org.openl.vm.IRuntimeEnv;
 public class CompositeMethodInvoker implements Invokable {
 
     private IBoundMethodNode methodBodyBoundNode;
-    
-    private IBoundNode expressionNode; 
 
-    public CompositeMethodInvoker(IBoundMethodNode methodBodyBoundNode, CompositeMethod method) {        
+    private IBoundNode expressionNode;
+
+    public CompositeMethodInvoker(IBoundMethodNode methodBodyBoundNode, CompositeMethod method) {
         this.methodBodyBoundNode = methodBodyBoundNode;
-        
+
         optimizeMethodCall(methodBodyBoundNode, method);
     }
 
-    private void optimizeMethodCall(IBoundMethodNode methodBodyBoundNode,
-			CompositeMethod method) {
-    	
-    	if (methodBodyBoundNode instanceof BlockNode) {
-			BlockNode mbb = (BlockNode) methodBodyBoundNode;
+    private void optimizeMethodCall(IBoundMethodNode methodBodyBoundNode, CompositeMethod method) {
+
+        if (methodBodyBoundNode instanceof BlockNode) {
+            BlockNode mbb = (BlockNode) methodBodyBoundNode;
             IBoundNode[] children = mbb.getChildren();
-            if (children != null && children.length == 1 && mbb.getLocalFrameSize() == method.getSignature().getNumberOfParameters())
-			{
-				expressionNode = children[0];
-			}
-		}
+            if (children != null && children.length == 1 && mbb.getLocalFrameSize() == method.getSignature()
+                .getNumberOfParameters()) {
+                expressionNode = children[0];
+            }
+        }
         if (expressionNode != null) {
             this.methodBodyBoundNode = null;
         }
@@ -52,6 +51,7 @@ public class CompositeMethodInvoker implements Invokable {
             clearSyntaxNodes(methodBodyBoundNode);
         }
     }
+
     private void clearSyntaxNodes(IBoundNode boundNode) {
         if (boundNode instanceof ABoundNode) {
             ((ABoundNode) boundNode).setSyntaxNode(null);
@@ -64,13 +64,14 @@ public class CompositeMethodInvoker implements Invokable {
         }
     }
 
-	@Override
+    @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         try {
             env.pushThis(target);
             IOpenRunner runner = env.getRunner();
 
-            return expressionNode == null ? runner.run(methodBodyBoundNode, params, env) : runner.runExpression(expressionNode, params, env);
+            return expressionNode == null ? runner.run(methodBodyBoundNode, params, env)
+                                          : runner.runExpression(expressionNode, params, env);
         } catch (ControlSignalReturn csret) {
             return csret.getReturnValue();
         } finally {

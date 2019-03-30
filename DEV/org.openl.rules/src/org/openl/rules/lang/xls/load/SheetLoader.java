@@ -1,6 +1,5 @@
 package org.openl.rules.lang.xls.load;
 
-
 import org.apache.poi.ss.usermodel.Sheet;
 
 /**
@@ -8,9 +7,8 @@ import org.apache.poi.ss.usermodel.Sheet;
  */
 public interface SheetLoader {
     /**
-     * Get the sheet.
-     * Depending on implementation, when this method is repeatedly called, it can (but mustn't)
-     * return the different instances of Sheet java object.
+     * Get the sheet. Depending on implementation, when this method is repeatedly called, it can (but mustn't) return
+     * the different instances of Sheet java object.
      *
      * @return loaded sheet
      */
@@ -27,7 +25,7 @@ public interface SheetLoader {
      * Get the cell accessor of current sheet
      *
      * @param column the column of current sheet
-     * @param row    the row of current sheet
+     * @param row the row of current sheet
      * @return the cell accessor of current sheet
      */
     CellLoader getCellLoader(int column, int row);

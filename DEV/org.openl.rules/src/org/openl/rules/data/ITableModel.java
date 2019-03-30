@@ -13,7 +13,7 @@ import org.openl.types.IOpenClass;
  *
  */
 public interface ITableModel {
-    
+
     ColumnDescriptor[] getDescriptor();
 
     Class<?> getInstanceClass();
@@ -23,7 +23,7 @@ public interface ITableModel {
     IOpenClass getType();
 
     Object newInstance();
-    
+
     boolean hasColumnTitleRow();
 
 }

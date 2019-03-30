@@ -19,10 +19,8 @@ package org.openl.ie.constrainer;
  * <p>
  * Any implementaion of constraint should:
  * <ul>
- * <li>save in its <b>constructor</b> the expressions on which this constraint
- * imposed.
- * <li>apply in <b>{@link #execute()}</b> the condition of this constraint to
- * the expressions.
+ * <li>save in its <b>constructor</b> the expressions on which this constraint imposed.
+ * <li>apply in <b>{@link #execute()}</b> the condition of this constraint to the expressions.
  * </ul>
  *
  * @see Goal

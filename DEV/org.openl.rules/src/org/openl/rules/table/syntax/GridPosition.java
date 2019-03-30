@@ -39,8 +39,7 @@ public class GridPosition implements IPosition {
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.util.text.IPosition#getColumn(org.openl.util.text.TextInfo,
-     *      int)
+     * @see org.openl.util.text.IPosition#getColumn(org.openl.util.text.TextInfo, int)
      */
     @Override
     public int getColumn(TextInfo info, int tabSize) {

@@ -13,16 +13,16 @@ import org.openl.exception.OpenlNotCheckedException;
  *
  */
 public class DuplicatedVarException extends OpenlNotCheckedException {
-    
+
     private static final long serialVersionUID = 2754037692502108330L;
-    
+
     private String variableName;
 
     public DuplicatedVarException(String msg, String variableName) {
-        super(msg);        
+        super(msg);
         this.variableName = variableName;
     }
-    
+
     public String getVariableName() {
         return variableName;
     }

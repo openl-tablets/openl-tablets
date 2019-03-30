@@ -1,8 +1,7 @@
 package org.openl.types;
 
 /**
- * Provides the possibility to add the name of the module to which this object
- * belongs to.
+ * Provides the possibility to add the name of the module to which this object belongs to.
  */
 public interface IModuleInfo {
 

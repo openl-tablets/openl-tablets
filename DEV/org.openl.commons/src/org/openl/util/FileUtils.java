@@ -30,15 +30,13 @@ public class FileUtils {
     /**
      * Copies a file to a new location preserving the file date.
      * <p>
-     * This method copies the contents of the specified source file to the
-     * specified destination file. The directory holding the destination file is
-     * created if it does not exist. If the destination file exists, then this
-     * method will overwrite it.
+     * This method copies the contents of the specified source file to the specified destination file. The directory
+     * holding the destination file is created if it does not exist. If the destination file exists, then this method
+     * will overwrite it.
      * <p>
-     * <strong>Note:</strong> This method tries to preserve the file's last
-     * modified date/times using {@link File#setLastModified(long)}, however it
-     * is not guaranteed that the operation will succeed. If the modification
-     * operation fails, no indication is provided.
+     * <strong>Note:</strong> This method tries to preserve the file's last modified date/times using
+     * {@link File#setLastModified(long)}, however it is not guaranteed that the operation will succeed. If the
+     * modification operation fails, no indication is provided.
      *
      * @param src an existing file to copy, must not be {@code null}
      * @param dest the new file, must not be {@code null}
@@ -78,8 +76,7 @@ public class FileUtils {
     }
 
     /**
-     * Collects nested directories which should be excluded for copying to
-     * prevent an infinity loop of copying.
+     * Collects nested directories which should be excluded for copying to prevent an infinity loop of copying.
      * 
      * @param src the source directory
      * @param dest the destination directory
@@ -111,10 +108,8 @@ public class FileUtils {
      * Internal copy directory method.
      *
      * @param srcDir the validated source directory, must not be {@code null}
-     * @param destDir the validated destination directory, must not be
-     *            {@code null}
-     * @param excluded the list of directories or files to exclude from the
-     *            copy, may be null
+     * @param destDir the validated destination directory, must not be {@code null}
+     * @param excluded the list of directories or files to exclude from the copy, may be null
      * @throws IOException if an error occurs
      */
     private static void doCopyDirectory(File srcDir, File destDir, Collection<String> excluded) throws IOException {
@@ -191,8 +186,7 @@ public class FileUtils {
     /**
      * Moves a directory or a file.
      * <p>
-     * When the destination directory or file is on another file system, do a
-     * "copy and delete".
+     * When the destination directory or file is on another file system, do a "copy and delete".
      *
      * @param src the directory or the file to be moved
      * @param dest the destination directory or file
@@ -222,8 +216,7 @@ public class FileUtils {
     }
 
     /**
-     * Deletes a file. If file is a directory, delete it and all
-     * sub-directories.
+     * Deletes a file. If file is a directory, delete it and all sub-directories.
      * <p/>
      * The difference between File.delete() and this method are:
      * <ul>
@@ -271,14 +264,12 @@ public class FileUtils {
     }
 
     /**
-     * Deletes a file, never throwing an exception. If file is a directory,
-     * delete it and all sub-directories.
+     * Deletes a file, never throwing an exception. If file is a directory, delete it and all sub-directories.
      * <p/>
      * The difference between File.delete() and this method are:
      * <ul>
      * <li>A directory to be deleted does not have to be empty.</li>
-     * <li>No exceptions are thrown when a file or directory cannot be deleted.
-     * </li>
+     * <li>No exceptions are thrown when a file or directory cannot be deleted.</li>
      * </ul>
      *
      * @param file file or directory to delete, can be {@code null}
@@ -294,8 +285,8 @@ public class FileUtils {
     /**
      * Gets the name minus the path from a full filename.
      * <p>
-     * This method will handle a file in either Unix or Windows format. The text
-     * after the last forward or backslash is returned.
+     * This method will handle a file in either Unix or Windows format. The text after the last forward or backslash is
+     * returned.
      * 
      * <pre>
      * a/b/c.txt --> c.txt
@@ -306,8 +297,7 @@ public class FileUtils {
      * <p>
      *
      * @param filename the filename to query, null returns null
-     * @return the name of the file without the path, or an empty string if none
-     *         exists
+     * @return the name of the file without the path, or an empty string if none exists
      */
     public static String getName(String filename) {
         if (filename == null) {
@@ -318,11 +308,10 @@ public class FileUtils {
     }
 
     /**
-     * Gets the base name, minus the full path and extension, from a full
-     * filename.
+     * Gets the base name, minus the full path and extension, from a full filename.
      * <p/>
-     * This method will handle a file in either Unix or Windows format. The text
-     * after the last forward or backslash and before the last dot is returned.
+     * This method will handle a file in either Unix or Windows format. The text after the last forward or backslash and
+     * before the last dot is returned.
      *
      * <pre>
      * a/b/c.txt --> c
@@ -333,8 +322,7 @@ public class FileUtils {
      * <p/>
      *
      * @param filename the filename to query, null returns null
-     * @return the name of the file without the path, or an empty string if none
-     *         exists
+     * @return the name of the file without the path, or an empty string if none exists
      */
     public static String getBaseName(String filename) {
         if (filename == null) {
@@ -353,8 +341,8 @@ public class FileUtils {
     /**
      * Gets the extension of a filename.
      * <p>
-     * This method returns the textual part of the filename after the last dot.
-     * There must be no directory separator after the dot.
+     * This method returns the textual part of the filename after the last dot. There must be no directory separator
+     * after the dot.
      * 
      * <pre>
      * a/b/c.txt    --> txt
@@ -365,8 +353,8 @@ public class FileUtils {
      * <p>
      *
      * @param filename the filename to retrieve the extension of.
-     * @return the extension of the file or an empty string if none exists or
-     *         {@code null} if the filename is {@code null}.
+     * @return the extension of the file or an empty string if none exists or {@code null} if the filename is
+     *         {@code null}.
      */
     public static String getExtension(String filename) {
         if (filename == null) {
@@ -384,8 +372,8 @@ public class FileUtils {
     /**
      * Removes the extension from a filename.
      * <p>
-     * This method returns the textual part of the filename before the last dot.
-     * There must be no directory separator after the dot.
+     * This method returns the textual part of the filename before the last dot. There must be no directory separator
+     * after the dot.
      * 
      * <pre>
      * foo.txt    --> foo

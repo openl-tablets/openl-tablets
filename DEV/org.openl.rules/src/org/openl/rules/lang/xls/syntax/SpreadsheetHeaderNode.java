@@ -5,11 +5,11 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 
 public class SpreadsheetHeaderNode extends HeaderSyntaxNode {
-    
+
     private CellsHeaderExtractor cellHeadersExtractor;
 
     public SpreadsheetHeaderNode(GridCellSourceCodeModule module, IdentifierNode headerToken) {
-        super(module, headerToken);        
+        super(module, headerToken);
     }
 
     public CellsHeaderExtractor getCellHeadersExtractor() {

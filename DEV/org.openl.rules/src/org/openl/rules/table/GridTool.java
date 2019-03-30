@@ -21,20 +21,18 @@ import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
 
 /**
-* Created by ymolchan on 8/13/2014.
-*/
+ * Created by ymolchan on 8/13/2014.
+ */
 public class GridTool {
 
     private static final String PROPERTIES_SECTION_NAME = "properties";
     private static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;
 
     /**
-     * Searches all merged regions inside the specified region of table for
-     * regions that have to be resized.
+     * Searches all merged regions inside the specified region of table for regions that have to be resized.
      *
      * @param grid Current writable grid.
-     * @param firstRowOrColumn Index of row or column for
-     *            insertion/removing.
+     * @param firstRowOrColumn Index of row or column for insertion/removing.
      * @param numberOfRowsOrColumns Number of elements to insert/remove.
      * @param isInsert Flag that defines what we have to do(insert/remove).
      * @param isColumns Flag that defines direction of insertion/removing.
@@ -53,23 +51,32 @@ public class GridTool {
         for (int i = 0; i < grid.getNumberOfMergedRegions(); i++) {
             IGridRegion existingMergedRegion = grid.getMergedRegion(i);
             // merged region is contained by region of grid
-            if (IGridRegion.Tool.contains(regionOfTable, existingMergedRegion.getLeft(), existingMergedRegion
-                    .getTop())) {
-                if (isRegionMustBeResized(existingMergedRegion, firstRowOrColumn, numberOfRowsOrColumns, isColumns,
-                        regionOfTable)) {
-                    ICellStyle oldCellStyle = grid.getCell(existingMergedRegion.getLeft(),existingMergedRegion.getBottom()).getStyle();
+            if (IGridRegion.Tool
+                .contains(regionOfTable, existingMergedRegion.getLeft(), existingMergedRegion.getTop())) {
+                if (isRegionMustBeResized(existingMergedRegion,
+                    firstRowOrColumn,
+                    numberOfRowsOrColumns,
+                    isColumns,
+                    regionOfTable)) {
+                    ICellStyle oldCellStyle = grid
+                        .getCell(existingMergedRegion.getLeft(), existingMergedRegion.getBottom())
+                        .getStyle();
 
                     if (!isColumns && isInsert) {
                         for (int j = 1; j <= numberOfRowsOrColumns; j++) {
-                            grid.getCell(existingMergedRegion.getLeft(),existingMergedRegion.getBottom() + 1).getStyle();
-                            resizeActions.add(new SetBorderStyleAction(existingMergedRegion.getLeft(), existingMergedRegion.getBottom() + j,
-                                    oldCellStyle,
-                                    metaInfoWriter));
+                            grid.getCell(existingMergedRegion.getLeft(), existingMergedRegion.getBottom() + 1)
+                                .getStyle();
+                            resizeActions.add(new SetBorderStyleAction(existingMergedRegion.getLeft(),
+                                existingMergedRegion.getBottom() + j,
+                                oldCellStyle,
+                                metaInfoWriter));
                         }
                     }
 
                     resizeActions.add(new UndoableResizeMergedRegionAction(existingMergedRegion,
-                            numberOfRowsOrColumns, isInsert, isColumns));
+                        numberOfRowsOrColumns,
+                        isInsert,
+                        isColumns));
                 }
             }
         }
@@ -79,26 +86,29 @@ public class GridTool {
     /**
      * Checks if the specified region must be resized.
      *
-     * If we delete all we remove all rows/columns in region then region
-     * must be deleted(not resized).
+     * If we delete all we remove all rows/columns in region then region must be deleted(not resized).
      */
-    private static boolean isRegionMustBeResized(IGridRegion region, int firstRowOrColumn,
-            int numberOfRowsOrColumns, boolean isColumns, IGridRegion regionOfTable) {
+    private static boolean isRegionMustBeResized(IGridRegion region,
+            int firstRowOrColumn,
+            int numberOfRowsOrColumns,
+            boolean isColumns,
+            IGridRegion regionOfTable) {
         if (isColumns) {
             // merged region contains column which we copy/remove
-            return IGridRegion.Tool.width(region) > numberOfRowsOrColumns
-                    && IGridRegion.Tool.contains(region, regionOfTable.getLeft() + firstRowOrColumn, region
-                    .getTop());
+            return IGridRegion.Tool.width(region) > numberOfRowsOrColumns && IGridRegion.Tool
+                .contains(region, regionOfTable.getLeft() + firstRowOrColumn, region.getTop());
         } else {
             // merged region contains row which we copy/remove
-            return IGridRegion.Tool.height(region) > numberOfRowsOrColumns
-                    && IGridRegion.Tool.contains(region, region.getLeft(), regionOfTable.getTop()
-                    + firstRowOrColumn);
+            return IGridRegion.Tool.height(region) > numberOfRowsOrColumns && IGridRegion.Tool
+                .contains(region, region.getLeft(), regionOfTable.getTop() + firstRowOrColumn);
         }
     }
 
-    public static IUndoableGridTableAction insertColumns(int nCols, int beforeColumns, IGridRegion region,
-            IGrid grid, MetaInfoWriter metaInfoWriter) {
+    public static IUndoableGridTableAction insertColumns(int nCols,
+            int beforeColumns,
+            IGridRegion region,
+            IGrid grid,
+            MetaInfoWriter metaInfoWriter) {
         int h = IGridRegion.Tool.height(region);
         int w = IGridRegion.Tool.width(region);
         int columnsToMove = w - beforeColumns;
@@ -204,8 +214,11 @@ public class GridTool {
     /**
      * @return null if set new property with empty or same value
      */
-    public static IUndoableGridTableAction insertProp(IGridRegion tableRegion, IGrid grid,
-            String newPropName, Object newPropValue, MetaInfoWriter metaInfoWriter) {
+    public static IUndoableGridTableAction insertProp(IGridRegion tableRegion,
+            IGrid grid,
+            String newPropName,
+            Object newPropValue,
+            MetaInfoWriter metaInfoWriter) {
         if (newPropValue == null) {
             return null;
         }
@@ -229,8 +242,7 @@ public class GridTool {
         int propsCount = grid.getCell(leftCell, topCell + 1).getHeight();
         int propNameCellOffset = grid.getCell(leftCell, topCell + 1).getWidth();
         for (int i = 0; i < propsCount; i++) {
-            String propNameFromTable = grid.getCell(leftCell + propNameCellOffset, topCell + 1 + i)
-                    .getStringValue();
+            String propNameFromTable = grid.getCell(leftCell + propNameCellOffset, topCell + 1 + i).getStringValue();
             if (propNameFromTable != null && propNameFromTable.equals(newPropName)) {
                 return topCell + 1 + i;
             }
@@ -246,17 +258,18 @@ public class GridTool {
         int leftCell = tableRegion.getLeft();
         int topCell = tableRegion.getTop();
         int propNameCellOffset = grid.getCell(leftCell, topCell + 1).getWidth();
-        int propValueCellOffset = propNameCellOffset
-                + grid.getCell(leftCell + propNameCellOffset, topCell + 1).getWidth();
+        int propValueCellOffset = propNameCellOffset + grid.getCell(leftCell + propNameCellOffset, topCell + 1)
+            .getWidth();
 
-        Object propValueFromTable = grid.getCell(leftCell + propValueCellOffset, propertyRowIndex)
-                .getObjectValue();
+        Object propValueFromTable = grid.getCell(leftCell + propValueCellOffset, propertyRowIndex).getObjectValue();
         if (propValueFromTable != null && propValueFromTable.equals(newPropValue)) {
             // Property with such name and value already exists
             return null;
         }
-        return new UndoableSetValueAction(leftCell + propValueCellOffset, propertyRowIndex, newPropValue,
-                metaInfoWriter);
+        return new UndoableSetValueAction(leftCell + propValueCellOffset,
+            propertyRowIndex,
+            newPropValue,
+            metaInfoWriter);
     }
 
     private static IUndoableGridTableAction insertNewProperty(IGridRegion tableRegion,
@@ -269,16 +282,15 @@ public class GridTool {
         int firstPropertyRow = IGridRegion.Tool.height(grid.getCell(leftCell, topCell).getAbsoluteRegion());
 
         int rowsToMove = IGridRegion.Tool.height(tableRegion) - firstPropertyRow;
-        ArrayList<IUndoableGridTableAction> actions = new ArrayList<>(IGridRegion.Tool
-                .width(tableRegion) * rowsToMove);
+        ArrayList<IUndoableGridTableAction> actions = new ArrayList<>(IGridRegion.Tool.width(tableRegion) * rowsToMove);
 
         String propsHeader = grid.getCell(leftCell, topCell + firstPropertyRow).getStringValue();
         int propNameCellOffset;
         int propValueCellOffset;
 
         if (tableWithoutPropertySection(propsHeader)) {
-            actions.addAll(shiftRows(tableRegion.getTop() + firstPropertyRow, 1, INSERT, tableRegion, grid,
-                    metaInfoWriter));
+            actions.addAll(
+                shiftRows(tableRegion.getTop() + firstPropertyRow, 1, INSERT, tableRegion, grid, metaInfoWriter));
             actions.add(createPropertiesSection(tableRegion, grid, metaInfoWriter));
             propNameCellOffset = 1;
             propValueCellOffset = 2;
@@ -286,15 +298,20 @@ public class GridTool {
             actions.add(insertRows(1, firstPropertyRow, tableRegion, grid, true, metaInfoWriter));
             actions.add(resizePropertiesHeader(tableRegion, grid, metaInfoWriter));
             propNameCellOffset = grid.getCell(leftCell, topCell + firstPropertyRow).getWidth();
-            propValueCellOffset = propNameCellOffset
-                    + grid.getCell(leftCell + propNameCellOffset, topCell + firstPropertyRow).getWidth();
+            propValueCellOffset = propNameCellOffset + grid
+                .getCell(leftCell + propNameCellOffset, topCell + firstPropertyRow)
+                .getWidth();
         }
 
-        actions.add(new UndoableSetValueAction(leftCell + propNameCellOffset, topCell + firstPropertyRow,
-                newPropName, metaInfoWriter));
+        actions.add(new UndoableSetValueAction(leftCell + propNameCellOffset,
+            topCell + firstPropertyRow,
+            newPropName,
+            metaInfoWriter));
 
-        actions.add(new UndoableSetValueAction(leftCell + propValueCellOffset, topCell + firstPropertyRow,
-                newPropValue, metaInfoWriter));
+        actions.add(new UndoableSetValueAction(leftCell + propValueCellOffset,
+            topCell + firstPropertyRow,
+            newPropValue,
+            metaInfoWriter));
         return new UndoableCompositeAction(actions);
     }
 
@@ -308,65 +325,87 @@ public class GridTool {
 
         ArrayList<IUndoableGridTableAction> actions = new ArrayList<>();
 
-        actions.add(new SetBorderStyleAction(leftCell, headerRegion.getBottom() + 1,
-                makeNewPropStyle(grid, leftCell, headerRegion.getBottom() + 1, leftCell, regionWidth), metaInfoWriter));
-        actions.add(new UnmergeByColumnsAction(new GridRegion(headerRegion.getBottom() + 1, leftCell, headerRegion
-                .getBottom() + 1, tableRegion.getRight())));
-        actions.add(new UndoableSetValueAction(leftCell, headerRegion.getBottom() + 1, PROPERTIES_SECTION_NAME,
-                metaInfoWriter));
+        actions.add(new SetBorderStyleAction(leftCell,
+            headerRegion.getBottom() + 1,
+            makeNewPropStyle(grid, leftCell, headerRegion.getBottom() + 1, leftCell, regionWidth),
+            metaInfoWriter));
+        actions.add(new UnmergeByColumnsAction(new GridRegion(headerRegion.getBottom() + 1,
+            leftCell,
+            headerRegion.getBottom() + 1,
+            tableRegion.getRight())));
+        actions.add(new UndoableSetValueAction(leftCell,
+            headerRegion.getBottom() + 1,
+            PROPERTIES_SECTION_NAME,
+            metaInfoWriter));
 
         // clear cells for properties
         for (int prpCell = leftCell + 1; prpCell < leftCell + regionWidth; prpCell++) {
             actions.add(new UndoableClearAction(prpCell, headerRegion.getBottom() + 1, metaInfoWriter));
-            /*actions.add(new SetBorderStyleAction(prpCell, headerRegion.getBottom() + 1,
-                    makeNewPropStyle(grid, prpCell, headerRegion.getBottom() + 1, prpCell, regionWidth, null) ));*/
+            /*
+             * actions.add(new SetBorderStyleAction(prpCell, headerRegion.getBottom() + 1, makeNewPropStyle(grid,
+             * prpCell, headerRegion.getBottom() + 1, prpCell, regionWidth, null) ));
+             */
         }
 
         if (regionWidth >= 3) {
             // set cell style
-            //leftCell + 2 - this is index of last property column
+            // leftCell + 2 - this is index of last property column
             for (int j = leftCell + 2; j < leftCell + regionWidth; j++) {
-                actions.add(new SetBorderStyleAction(j, headerRegion.getBottom() + 1, makeNewPropStyle(grid, j, headerRegion.getBottom() + 1, leftCell, regionWidth),
-                        metaInfoWriter));
+                actions.add(new SetBorderStyleAction(j,
+                    headerRegion.getBottom() + 1,
+                    makeNewPropStyle(grid, j, headerRegion.getBottom() + 1, leftCell, regionWidth),
+                    metaInfoWriter));
             }
         } else {
             // expand table by including neighboring cell in merged
             // regions, width will equal 3
             int propSize = 3;
 
-            actions.add(new MergeCellsAction(new GridRegion(topCell, leftCell, headerRegion.getBottom(),
-                    leftCell + 2)));
+            actions
+                .add(new MergeCellsAction(new GridRegion(topCell, leftCell, headerRegion.getBottom(), leftCell + 2)));
 
-            //add style for expanded header's and properties's  cells
-            for(int row = topCell; row < tableRegion.getBottom(); row++) {
-                for(int j = leftCell + regionWidth; j < leftCell + 3; j++) {
-                    actions.add(new SetBorderStyleAction(j, row, grid.getCell(leftCell + regionWidth - 1, row).getStyle(),
-                            metaInfoWriter));
+            // add style for expanded header's and properties's cells
+            for (int row = topCell; row < tableRegion.getBottom(); row++) {
+                for (int j = leftCell + regionWidth; j < leftCell + 3; j++) {
+                    actions.add(new SetBorderStyleAction(j,
+                        row,
+                        grid.getCell(leftCell + regionWidth - 1, row).getStyle(),
+                        metaInfoWriter));
                 }
             }
 
-          //add style for expanded others cells
-            for(int row = topCell + 1; row < tableRegion.getBottom(); row++) {
-                for(int j = leftCell + regionWidth; j < leftCell + 3; j++) {
-                    actions.add(new SetBorderStyleAction(j, row + 1, grid.getCell(leftCell + regionWidth - 1, row).getStyle(),
-                            metaInfoWriter));
+            // add style for expanded others cells
+            for (int row = topCell + 1; row < tableRegion.getBottom(); row++) {
+                for (int j = leftCell + regionWidth; j < leftCell + 3; j++) {
+                    actions.add(new SetBorderStyleAction(j,
+                        row + 1,
+                        grid.getCell(leftCell + regionWidth - 1, row).getStyle(),
+                        metaInfoWriter));
                 }
             }
 
             // merge right cells in each row
             IGridRegion cellToExpandRegion;
-            for (int row = headerRegion.getBottom() + 1; row < tableRegion.getBottom(); row = cellToExpandRegion
-                    .getBottom() + 1) {
+            for (int row = headerRegion.getBottom() + 1; row < tableRegion
+                .getBottom(); row = cellToExpandRegion.getBottom() + 1) {
                 cellToExpandRegion = grid.getCell(leftCell + regionWidth - 1, row).getAbsoluteRegion();
 
-                actions.add(new MergeCellsAction(new GridRegion(row + 1, cellToExpandRegion.getLeft(),
-                        cellToExpandRegion.getBottom() + 1, leftCell + 2)));
+                actions.add(new MergeCellsAction(new GridRegion(row + 1,
+                    cellToExpandRegion.getLeft(),
+                    cellToExpandRegion.getBottom() + 1,
+                    leftCell + 2)));
 
-                actions.add(new SetBorderStyleAction(leftCell + 2, topCell, grid.getCell(leftCell + regionWidth - 1, topCell).getStyle(),
-                        metaInfoWriter));
+                actions.add(new SetBorderStyleAction(leftCell + 2,
+                    topCell,
+                    grid.getCell(leftCell + regionWidth - 1, topCell).getStyle(),
+                    metaInfoWriter));
             }
 
-            actions.add(new GridRegionAction(tableRegion, COLUMNS, INSERT, GridRegionAction.ActionType.EXPAND, propSize - regionWidth));
+            actions.add(new GridRegionAction(tableRegion,
+                COLUMNS,
+                INSERT,
+                GridRegionAction.ActionType.EXPAND,
+                propSize - regionWidth));
         }
 
         return new UndoableCompositeAction(actions);
@@ -376,28 +415,33 @@ public class GridTool {
         ICell cell = grid.getCell(col, row);
         CellStyle newCellStyle = new CellStyle(cell.getStyle());
 
-        ICellStyle cellStyle =  cell.getStyle();
+        ICellStyle cellStyle = cell.getStyle();
         BorderStyle[] borderStyle = cellStyle != null ? cellStyle.getBorderStyle() : null;
 
-        /*Create new cell style*/
+        /* Create new cell style */
 
         if (borderStyle != null && col == regionLeftCell) {
             // Only left border will be set
             if (borderStyle.length == 4) {
-                borderStyle = new BorderStyle[] { BorderStyle.NONE, BorderStyle.NONE, BorderStyle.NONE, borderStyle[3] };
+                borderStyle = new BorderStyle[] { BorderStyle.NONE,
+                        BorderStyle.NONE,
+                        BorderStyle.NONE,
+                        borderStyle[3] };
             }
         } else if (borderStyle != null && (col - regionLeftCell == regionWidth - 1)) {
             // Only right border will be set
             if (borderStyle.length == 4) {
-                borderStyle = new BorderStyle[]{BorderStyle.NONE, borderStyle[1], BorderStyle.NONE, BorderStyle.NONE};
-                /*FIXME add bottom border for expender row (only for last)
-                if (actionType != null && actionType == ActionType.EXPAND) {
-                    borderStyle = new short[]{CellStyle.BORDER_NONE, borderStyle[1], borderStyle[2], CellStyle.BORDER_NONE};
-                } else {
-                    borderStyle = new short[]{CellStyle.BORDER_NONE, borderStyle[1], CellStyle.BORDER_NONE, CellStyle.BORDER_NONE};
-                }
-                */
-           }
+                borderStyle = new BorderStyle[] { BorderStyle.NONE,
+                        borderStyle[1],
+                        BorderStyle.NONE,
+                        BorderStyle.NONE };
+                /*
+                 * FIXME add bottom border for expender row (only for last) if (actionType != null && actionType ==
+                 * ActionType.EXPAND) { borderStyle = new short[]{CellStyle.BORDER_NONE, borderStyle[1], borderStyle[2],
+                 * CellStyle.BORDER_NONE}; } else { borderStyle = new short[]{CellStyle.BORDER_NONE, borderStyle[1],
+                 * CellStyle.BORDER_NONE, CellStyle.BORDER_NONE}; }
+                 */
+            }
         } else {
             borderStyle = new BorderStyle[] { BorderStyle.NONE, BorderStyle.NONE, BorderStyle.NONE, BorderStyle.NONE };
         }
@@ -418,12 +462,15 @@ public class GridTool {
         if (propsCount == 1) {
             IGridRegion propHeaderRegion = grid.getRegionContaining(leftCell, topCell + firstPropertyRow);
             if (propHeaderRegion == null) {
-                propHeaderRegion = new GridRegion(topCell + firstPropertyRow, leftCell, topCell + firstPropertyRow, leftCell);
+                propHeaderRegion = new GridRegion(topCell + firstPropertyRow,
+                    leftCell,
+                    topCell + firstPropertyRow,
+                    leftCell);
             }
             return new UndoableResizeMergedRegionAction(propHeaderRegion, 1, INSERT, ROWS);
         } else {
-            return new UndoableCompositeAction(resizeMergedRegions(grid, firstPropertyRow, 1, INSERT, ROWS, tableRegion,
-                    metaInfoWriter));
+            return new UndoableCompositeAction(
+                resizeMergedRegions(grid, firstPropertyRow, 1, INSERT, ROWS, tableRegion, metaInfoWriter));
         }
 
     }
@@ -445,8 +492,7 @@ public class GridTool {
         List<IUndoableGridTableAction> clearActions = new ArrayList<>();
         for (int i = startColumn; i < startColumn + nCols; i++) {
             for (int j = startRow; j < startRow + nRows; j++) {
-                if (!grid.isPartOfTheMergedRegion(i, j)
-                        || (grid.isTopLeftCellInMergedRegion(i, j))){
+                if (!grid.isPartOfTheMergedRegion(i, j) || (grid.isTopLeftCellInMergedRegion(i, j))) {
                     clearActions.add(new UndoableClearAction(i, j, metaInfoWriter));
                 }
             }
@@ -469,21 +515,28 @@ public class GridTool {
         return new SetBorderStyleAction(colTo, rowTo, grid.getCell(colFrom, rowFrom).getStyle(), false, metaInfoWriter);
     }
 
-    private static List<IUndoableGridTableAction> shiftColumns(int startColumn, int nCols, boolean isInsert,
-            IGridRegion region, IGrid grid, MetaInfoWriter metaInfoWriter) {
+    private static List<IUndoableGridTableAction> shiftColumns(int startColumn,
+            int nCols,
+            boolean isInsert,
+            IGridRegion region,
+            IGrid grid,
+            MetaInfoWriter metaInfoWriter) {
         ArrayList<IUndoableGridTableAction> shiftActions = new ArrayList<>();
 
         // The first step: clear cells that will be lost after shifting
         // columns(just because we need to restore this cells after UNDO)
         if (isInsert) {
-            shiftActions.addAll(clearCells(region.getRight() + 1, nCols, region.getTop(),
-                    IGridRegion.Tool.height(region), grid, metaInfoWriter));
+            shiftActions.addAll(clearCells(region.getRight() + 1,
+                nCols,
+                region.getTop(),
+                IGridRegion.Tool.height(region),
+                grid,
+                metaInfoWriter));
         } else {
             for (int column = startColumn - nCols; column < startColumn; column++) {
                 for (int row = region.getTop(); row <= region.getBottom(); row++) {
-                    if (!grid.isPartOfTheMergedRegion(column, row)
-                            || (grid.isTopLeftCellInMergedRegion(column, row) && IGridRegion.Tool
-                                    .width(grid.getRegionStartingAt(column, row)) <= nCols)) {
+                    if (!grid.isPartOfTheMergedRegion(column, row) || (grid.isTopLeftCellInMergedRegion(column,
+                        row) && IGridRegion.Tool.width(grid.getRegionStartingAt(column, row)) <= nCols)) {
                         // Sense of the second check: if it was a merged
                         // cell then it can be removed or resized depending
                         // on count of columns deleted
@@ -493,7 +546,7 @@ public class GridTool {
             }
         }
 
-        //The second step: shift cells
+        // The second step: shift cells
         int direction, colFromCopy, colToCopy;
         if (isInsert) {// shift columns left
             direction = -1;
@@ -523,21 +576,24 @@ public class GridTool {
      * @param region region to work with.
      * @param metaInfoWriter class needed to save meta info modifications
      */
-    private static List<IUndoableGridTableAction> shiftRows(int startRow, int nRows, boolean isInsert,
-            IGridRegion region, IGrid grid, MetaInfoWriter metaInfoWriter) {
+    private static List<IUndoableGridTableAction> shiftRows(int startRow,
+            int nRows,
+            boolean isInsert,
+            IGridRegion region,
+            IGrid grid,
+            MetaInfoWriter metaInfoWriter) {
         ArrayList<IUndoableGridTableAction> shiftActions = new ArrayList<>();
 
         // The first step: clear cells that will be lost after shifting
         // rows(just because we need to restore this cells after UNDO)
         if (isInsert) {
-            shiftActions.addAll(clearCells(region.getLeft(), IGridRegion.Tool.width(region),
-                    region.getBottom() + 1, nRows, grid, metaInfoWriter));
+            shiftActions.addAll(clearCells(region
+                .getLeft(), IGridRegion.Tool.width(region), region.getBottom() + 1, nRows, grid, metaInfoWriter));
         } else {
             for (int row = startRow - nRows; row < startRow; row++) {
                 for (int column = region.getLeft(); column <= region.getRight(); column++) {
-                    if (!grid.isPartOfTheMergedRegion(column, row)
-                            || (grid.isTopLeftCellInMergedRegion(column, row) && IGridRegion.Tool
-                                    .height(grid.getRegionStartingAt(column, row)) <= nRows)) {
+                    if (!grid.isPartOfTheMergedRegion(column, row) || (grid.isTopLeftCellInMergedRegion(column,
+                        row) && IGridRegion.Tool.height(grid.getRegionStartingAt(column, row)) <= nRows)) {
                         // Sense of the second check: if it was a merged
                         // cell then it can be removed or resized depending
                         // on count of rows deleted
@@ -547,7 +603,7 @@ public class GridTool {
             }
         }
 
-        //The second step: shift cells
+        // The second step: shift cells
         int direction, rowFromCopy;
         if (isInsert) {// shift rows down
             direction = -1;
@@ -571,7 +627,11 @@ public class GridTool {
         return shiftActions;
     }
 
-    public static IUndoableGridTableAction removeColumns(int nCols, int startColumn, IGridRegion region, IGrid grid, MetaInfoWriter metaInfoWriter) {
+    public static IUndoableGridTableAction removeColumns(int nCols,
+            int startColumn,
+            IGridRegion region,
+            IGrid grid,
+            MetaInfoWriter metaInfoWriter) {
         int firstToMove = region.getLeft() + startColumn + nCols;
         int w = IGridRegion.Tool.width(region);
         int h = IGridRegion.Tool.height(region);
@@ -586,7 +646,11 @@ public class GridTool {
         return new UndoableCompositeAction(actions);
     }
 
-    public static IUndoableGridTableAction removeRows(int nRows, int startRow, IGridRegion region, IGrid grid, MetaInfoWriter metaInfoWriter) {
+    public static IUndoableGridTableAction removeRows(int nRows,
+            int startRow,
+            IGridRegion region,
+            IGrid grid,
+            MetaInfoWriter metaInfoWriter) {
         int w = IGridRegion.Tool.width(region);
         int h = IGridRegion.Tool.height(region);
         int firstToMove = region.getTop() + startRow + nRows;

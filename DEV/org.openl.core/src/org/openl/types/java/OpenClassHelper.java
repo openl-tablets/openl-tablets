@@ -7,7 +7,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 
 public final class OpenClassHelper {
-    
+
     private OpenClassHelper() {
     }
 
@@ -34,7 +34,7 @@ public final class OpenClassHelper {
     private static IOpenClass findType(Class<?> classToFind, Iterable<IOpenClass> internalTypes) {
         IOpenClass result = null;
         for (IOpenClass datatypeClass : internalTypes) {
-            //getInstanceClass() for DomainOpenClass returns simple type == enum type
+            // getInstanceClass() for DomainOpenClass returns simple type == enum type
             if (!(datatypeClass instanceof DomainOpenClass) && classToFind.equals(datatypeClass.getInstanceClass())) {
 
                 result = datatypeClass;

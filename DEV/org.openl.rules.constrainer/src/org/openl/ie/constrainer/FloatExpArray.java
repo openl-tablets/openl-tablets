@@ -3,7 +3,6 @@ package org.openl.ie.constrainer;
 import java.util.Arrays;
 import java.util.Comparator;
 
-
 /**
  * An implementation of the array of the conatraint floating-point expressions.
  */
@@ -11,10 +10,8 @@ public final class FloatExpArray extends ConstrainerObjectImpl {
 
     private FloatExp[] _data;
 
-
     /**
-     * Constructor for "size" unitialized expressions. Call set() to initialize
-     * all the expressions in this array.
+     * Constructor for "size" unitialized expressions. Call set() to initialize all the expressions in this array.
      */
     public FloatExpArray(Constrainer c, int size) {
         super(c);

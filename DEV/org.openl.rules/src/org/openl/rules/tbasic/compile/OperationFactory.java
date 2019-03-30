@@ -22,8 +22,8 @@ public class OperationFactory {
         this.parameterConverter = parameterConverter;
     }
 
-    public RuntimeOperation createOperation(List<AlgorithmTreeNode> nodesToCompile, ConversionRuleStep conversionStep)
-            throws Exception {
+    public RuntimeOperation createOperation(List<AlgorithmTreeNode> nodesToCompile,
+            ConversionRuleStep conversionStep) throws Exception {
         try {
             Constructor<?> constructor = getOperationConstructor(conversionStep.getOperationType());
 
@@ -32,22 +32,24 @@ public class OperationFactory {
             // Init the first parameter for the Operation constructor
             //
             if (constructor.getParameterTypes().length > 0) {
-                params[0] = parameterConverter.convertParam(nodesToCompile, constructor.getParameterTypes()[0], conversionStep
-                        .getOperationParam1());
+                params[0] = parameterConverter.convertParam(nodesToCompile,
+                    constructor.getParameterTypes()[0],
+                    conversionStep.getOperationParam1());
             }
 
-            //Init the second parameter for the Operation constructor
+            // Init the second parameter for the Operation constructor
             //
             if (constructor.getParameterTypes().length > 1) {
-                params[1] = parameterConverter.convertParam(nodesToCompile, constructor.getParameterTypes()[1], conversionStep
-                        .getOperationParam2());
+                params[1] = parameterConverter.convertParam(nodesToCompile,
+                    constructor.getParameterTypes()[1],
+                    conversionStep.getOperationParam2());
             }
 
             RuntimeOperation emittedOperation = (RuntimeOperation) constructor.newInstance(params);
 
             // TODO: set more precise source reference
-            AlgorithmOperationSource source = AlgorithmCompilerTool.getOperationSource(nodesToCompile, conversionStep
-                    .getOperationParam1());
+            AlgorithmOperationSource source = AlgorithmCompilerTool.getOperationSource(nodesToCompile,
+                conversionStep.getOperationParam1());
             emittedOperation.setSourceCode(source);
 
             String nameForDebug = conversionStep.getNameForDebug();

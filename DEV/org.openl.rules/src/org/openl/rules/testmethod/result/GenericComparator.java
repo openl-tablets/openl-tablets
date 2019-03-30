@@ -15,29 +15,29 @@ class GenericComparator<T> implements TestResultComparator {
     GenericComparator() {
     }
 
-    boolean fit(Object expected, Object actual){
+    boolean fit(Object expected, Object actual) {
         return true;
     }
-    
+
     @Override
     @SuppressWarnings("unchecked")
     public final boolean isEqual(Object expected, Object actual) {
         if (actual == expected) {
             return true;
         }
-        
+
         if (!fit(expected, actual)) {
             return false;
         }
-        
-        boolean expectedIsEmpty = expected == null || isEmpty((T)expected);
-        boolean actualIsEmpty = actual == null || isEmpty((T)actual);
+
+        boolean expectedIsEmpty = expected == null || isEmpty((T) expected);
+        boolean actualIsEmpty = actual == null || isEmpty((T) actual);
         if (expectedIsEmpty) {
             return actualIsEmpty;
         } else if (actualIsEmpty) {
             return false;
         }
-        return equals((T)expected, (T)actual);
+        return equals((T) expected, (T) actual);
     }
 
     boolean isEmpty(T object) {

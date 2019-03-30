@@ -17,48 +17,43 @@ import java.util.Map;
 import org.openl.ie.constrainer.IntExpArray;
 import org.openl.ie.constrainer.consistencyChecking.DTChecker.Utils;
 
-
 public class Overlapping {
-    
+
     /**
      * 
      * @author snshor
      * 
-     * For rules A and B, A fires first and B - second.
+     *         For rules A and B, A fires first and B - second.
      * 
-     * BLOCK (0x01),  // this is a very bad status, it means that rule A completely blocks rule B, so B can never be true. This is definitely an erroneous behavior.
-     * PARTIAL(0x02), // A and B partially overlap, this could either be an error or an intended behavior. 
-     * OVERRIDE(0x04); // B overrides A, this is always the case for default rules, such as "all the rest". In most cases this is an expected behavior
+     *         BLOCK (0x01), // this is a very bad status, it means that rule A completely blocks rule B, so B can never
+     *         be true. This is definitely an erroneous behavior. PARTIAL(0x02), // A and B partially overlap, this
+     *         could either be an error or an intended behavior. OVERRIDE(0x04); // B overrides A, this is always the
+     *         case for default rules, such as "all the rest". In most cases this is an expected behavior
      *
      */
-    
-    public enum OverlappingStatus
-    {
-        BLOCK (0x01),  
-        PARTIAL(0x02),  
-        OVERRIDE(0x04); 
-        
-        
-        OverlappingStatus(int bit)
-        {
+
+    public enum OverlappingStatus {
+        BLOCK(0x01),
+        PARTIAL(0x02),
+        OVERRIDE(0x04);
+
+        OverlappingStatus(int bit) {
             this.bit = bit;
         }
+
         int bit;
-        
-        
-        
+
         public int getBit() {
             return bit;
         }
 
     }
-    
-    
+
     private List<Integer> _overlapped = null;
 
     protected String[] _solutionNames = null;
     protected int[] _solutionValues = null;
-    
+
     private OverlappingStatus status;
 
     public OverlappingStatus getStatus() {
@@ -87,8 +82,7 @@ public class Overlapping {
     }
 
     /**
-     * @return an amount of rules being satisfied with the solution returned by
-     *         <code>getSolution()</code>
+     * @return an amount of rules being satisfied with the solution returned by <code>getSolution()</code>
      * @see #getSolution()
      */
     public int amount() {
@@ -110,9 +104,8 @@ public class Overlapping {
 
     /**
      *
-     * @return the solution satisfying two or more rules in the form of a
-     *         HashMap of names of the variables associated with the according
-     *         values
+     * @return the solution satisfying two or more rules in the form of a HashMap of names of the variables associated
+     *         with the according values
      */
     public Map<String, Integer> getSolution() {
         Map<String, Integer> map = new HashMap<String, Integer>();

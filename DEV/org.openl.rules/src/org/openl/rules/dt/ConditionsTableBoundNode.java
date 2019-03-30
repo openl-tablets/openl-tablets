@@ -20,10 +20,12 @@ public class ConditionsTableBoundNode extends ADtColumnsDefinitionTableBoundNode
     public ConditionsTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl) {
         super(tableSyntaxNode, openl);
     }
-    
+
     @Override
-    protected void createAndAddDefinition(Map<String, List<IParameterDeclaration>> localParameters, IOpenMethodHeader header, CompositeMethod compositeMethod) {
-        DTColumnsDefinition conditionDefinition = new DTColumnsDefinition(DTColumnsDefinitionType.CONDITION, 
+    protected void createAndAddDefinition(Map<String, List<IParameterDeclaration>> localParameters,
+            IOpenMethodHeader header,
+            CompositeMethod compositeMethod) {
+        DTColumnsDefinition conditionDefinition = new DTColumnsDefinition(DTColumnsDefinitionType.CONDITION,
             localParameters,
             header,
             compositeMethod);

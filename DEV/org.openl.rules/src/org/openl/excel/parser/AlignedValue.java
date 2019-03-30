@@ -30,8 +30,7 @@ public final class AlignedValue implements ExtendedValue {
         if (o == null || getClass() != o.getClass())
             return false;
         AlignedValue that = (AlignedValue) o;
-        return indent == that.indent &&
-                Objects.equals(value, that.value);
+        return indent == that.indent && Objects.equals(value, that.value);
     }
 
     @Override

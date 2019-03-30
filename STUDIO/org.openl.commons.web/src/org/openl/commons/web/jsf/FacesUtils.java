@@ -33,8 +33,7 @@ import org.openl.util.StringUtils;
  */
 public abstract class FacesUtils {
     /**
-     * Creates an array of <code>SelectItem</code>s from collection of
-     * <code>String</code>s.
+     * Creates an array of <code>SelectItem</code>s from collection of <code>String</code>s.
      *
      * @param values an array of <code>SelectItem</code> values.
      * @return array of JSF objects representing items.
@@ -49,8 +48,7 @@ public abstract class FacesUtils {
     }
 
     /**
-     * Creates an array of <code>SelectItem</code>s from array of
-     * <code>String</code>s.
+     * Creates an array of <code>SelectItem</code>s from array of <code>String</code>s.
      *
      * @param values an array of <code>SelectItem</code> values.
      * @return array of JSF objects representing items.
@@ -148,13 +146,11 @@ public abstract class FacesUtils {
     }
 
     /**
-     * Returns request parameter from HttpServletRequest object through current
-     * FacesContext.
+     * Returns request parameter from HttpServletRequest object through current FacesContext.
      *
      * @param parameterName parameter name
      *
-     * @return parameter value - if parameter exists, <code>null</code> -
-     *         otherwise.
+     * @return parameter value - if parameter exists, <code>null</code> - otherwise.
      */
     public static String getRequestParameter(String parameterName) {
         return getRequestParameterMap().get(parameterName);
@@ -227,7 +223,7 @@ public abstract class FacesUtils {
         if (!StringUtils.isEmpty(contextPath)) {
             cookie.setPath(contextPath);
         } else {
-            cookie.setPath("/"); //EPBDS-7613
+            cookie.setPath("/"); // EPBDS-7613
         }
         cookie.setMaxAge(age);
         FacesUtils.addCookie(cookie);

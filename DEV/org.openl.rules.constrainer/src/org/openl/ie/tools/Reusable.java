@@ -15,12 +15,11 @@ package org.openl.ie.tools;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An interface for the reusable object. Reusable objects allow the developer to
- * reuse the memory allocated and freed for the objects of the same class.
+ * An interface for the reusable object. Reusable objects allow the developer to reuse the memory allocated and freed
+ * for the objects of the same class.
  *
- * Any reusable object belongs to the single ReusableFactory. The factory
- * creates the objects and the objects are returned to the factory when they are
- * no longer used.
+ * Any reusable object belongs to the single ReusableFactory. The factory creates the objects and the objects are
+ * returned to the factory when they are no longer used.
  *
  * @see ReusableFactory
  */

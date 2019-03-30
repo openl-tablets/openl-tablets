@@ -48,7 +48,7 @@ public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBound
     public Algorithm getAlgorithm() {
         return (Algorithm) getMethod();
     }
-    
+
     @Override
     public void updateDependency(BindingDependencies dependencies) {
         Algorithm algorithm = getAlgorithm();

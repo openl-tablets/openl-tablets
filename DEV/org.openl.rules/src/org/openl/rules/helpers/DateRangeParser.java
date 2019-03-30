@@ -33,11 +33,9 @@ public class DateRangeParser extends ARangeParser<Date> {
                 Pattern.compile(VERBAL_PATTERN),
                 Pattern.compile(MORE_LESS_PATTERN),
                 Pattern.compile(RANGE_MORE_LESS_PATTERN),
-                Pattern.compile(SIMPLE_PATTERN)};
+                Pattern.compile(SIMPLE_PATTERN) };
         DateRangeBoundAdapter adapter = new DateRangeBoundAdapter();
-        parsers = new RangeParser[] {
-                new BracketsParser<>(patterns[0],
-                        adapter),
+        parsers = new RangeParser[] { new BracketsParser<>(patterns[0], adapter),
                 new MinMaxParser<>(patterns[1], adapter),
                 new VerbalParser<>(patterns[2], adapter),
                 new MoreLessParser<>(patterns[3], adapter),

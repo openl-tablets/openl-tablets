@@ -9,8 +9,8 @@ import org.openl.types.IMethodSignature;
 import org.openl.util.ClassUtils;
 
 /**
- * Test units results for the test table. Consist of the test suit method
- * itself. And a number of test units that were represented in test table.
+ * Test units results for the test table. Consist of the test suit method itself. And a number of test units that were
+ * represented in test table.
  * 
  */
 public class TestUnitsResults implements INamedThing {
@@ -146,10 +146,12 @@ public class TestUnitsResults implements INamedThing {
         String[] columnDisplayNames = new String[columnTechnicalNames.length];
         for (int i = 0; i < columnDisplayNames.length; i++) {
             TestSuiteMethod testSuiteMethod = testSuite.getTestSuiteMethod();
-            String displayName = testSuiteMethod == null ? null : testSuiteMethod.getColumnDisplayName(columnTechnicalNames[i]);
-            if (displayName != null){
+            String displayName = testSuiteMethod == null ? null
+                                                         : testSuiteMethod
+                                                             .getColumnDisplayName(columnTechnicalNames[i]);
+            if (displayName != null) {
                 columnDisplayNames[i] = displayName;
-            }else{
+            } else {
                 columnDisplayNames[i] = columnTechnicalNames[i];
             }
         }

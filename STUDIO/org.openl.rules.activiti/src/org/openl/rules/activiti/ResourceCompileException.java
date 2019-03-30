@@ -1,6 +1,6 @@
 package org.openl.rules.activiti;
 
-public class ResourceCompileException extends RuntimeException{
+public class ResourceCompileException extends RuntimeException {
 
     private static final long serialVersionUID = -8353037823013785531L;
 

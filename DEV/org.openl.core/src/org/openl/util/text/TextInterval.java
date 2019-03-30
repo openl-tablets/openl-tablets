@@ -11,7 +11,7 @@ package org.openl.util.text;
  *
  */
 public class TextInterval implements ILocation {
-    
+
     private IPosition start;
     private IPosition end;
 

@@ -76,8 +76,8 @@ public class TableBuilder {
      * @param height table height in cells
      * 
      * @throws CreateTableException if unable to create table
-     * @throws IllegalStateException if <code>beginTable()</code> has already
-     *             been called without subsequent <code>endTable()</code>
+     * @throws IllegalStateException if <code>beginTable()</code> has already been called without subsequent
+     *             <code>endTable()</code>
      */
     public void beginTable(int width, int height) throws CreateTableException {
         if (region != null) {
@@ -101,8 +101,8 @@ public class TableBuilder {
      * @param regionToWrite region to write table.
      * 
      * @throws CreateTableException if unable to create table
-     * @throws IllegalStateException if <code>beginTable()</code> has already
-     *             been called without subsequent <code>endTable()</code>
+     * @throws IllegalStateException if <code>beginTable()</code> has already been called without subsequent
+     *             <code>endTable()</code>
      */
     public void beginTable(IGridRegion regionToWrite) throws CreateTableException {
         if (region != null) {
@@ -119,8 +119,7 @@ public class TableBuilder {
     /**
      * Finishes writing a table. Saves the changes to excel sheet.
      * 
-     * @throws IllegalStateException if method is called without prior
-     *             <code>beginTable()</code> call
+     * @throws IllegalStateException if method is called without prior <code>beginTable()</code> call
      * @throws CreateTableException if an exception occurred when saving
      */
     public void endTable() throws CreateTableException {
@@ -269,8 +268,7 @@ public class TableBuilder {
      * Analyse the type of cell style.
      * 
      * @param style Incoming cell style.
-     * @return CellStyle according to its type. If income value was
-     *         <code>NULL</code> returns {@link #defaultCellStyle}.
+     * @return CellStyle according to its type. If income value was <code>NULL</code> returns {@link #defaultCellStyle}.
      * 
      * @author DLiauchuk
      */
@@ -285,8 +283,8 @@ public class TableBuilder {
     }
 
     /**
-     * If the value was set to the cell of type date, we need to create new
-     * style for this cell with data format for dates.
+     * If the value was set to the cell of type date, we need to create new style for this cell with data format for
+     * dates.
      * 
      * @param cell Cell with value in it.
      */
@@ -337,7 +335,22 @@ public class TableBuilder {
     }
 
     private boolean equalsStyle(CellStyle cs1, CellStyle cs2) {
-        return (cs1.getAlignment() == cs2.getAlignment() && cs1.getHidden() == cs2.getHidden() && cs1.getLocked() == cs2.getLocked() && cs1.getWrapText() == cs2.getWrapText() && cs1.getBorderBottom() == cs2.getBorderBottom() && cs1.getBorderLeft() == cs2.getBorderLeft() && cs1.getBorderRight() == cs2.getBorderRight() && cs1.getBorderTop() == cs2.getBorderTop() && cs1.getBottomBorderColor() == cs2.getBottomBorderColor() && cs1.getFillBackgroundColor() == cs2.getFillBackgroundColor() && cs1.getFillForegroundColor() == cs2.getFillForegroundColor() && cs1.getFillPattern() == cs2.getFillPattern() && cs1.getIndention() == cs2.getIndention() && cs1.getLeftBorderColor() == cs2.getLeftBorderColor() && cs1.getRightBorderColor() == cs2.getRightBorderColor() && cs1.getRotation() == cs2.getRotation() && cs1.getTopBorderColor() == cs2.getTopBorderColor() && cs1.getVerticalAlignment() == cs2.getVerticalAlignment()) && cs1.getDataFormat() == cs2.getDataFormat();
+        return (cs1.getAlignment() == cs2.getAlignment() && cs1.getHidden() == cs2.getHidden() && cs1.getLocked() == cs2
+            .getLocked() && cs1.getWrapText() == cs2.getWrapText() && cs1
+                .getBorderBottom() == cs2.getBorderBottom() && cs1.getBorderLeft() == cs2.getBorderLeft() && cs1
+                    .getBorderRight() == cs2.getBorderRight() && cs1.getBorderTop() == cs2.getBorderTop() && cs1
+                        .getBottomBorderColor() == cs2.getBottomBorderColor() && cs1
+                            .getFillBackgroundColor() == cs2.getFillBackgroundColor() && cs1
+                                .getFillForegroundColor() == cs2.getFillForegroundColor() && cs1
+                                    .getFillPattern() == cs2.getFillPattern() && cs1
+                                        .getIndention() == cs2.getIndention() && cs1
+                                            .getLeftBorderColor() == cs2.getLeftBorderColor() && cs1
+                                                .getRightBorderColor() == cs2.getRightBorderColor() && cs1
+                                                    .getRotation() == cs2.getRotation() && cs1
+                                                        .getTopBorderColor() == cs2.getTopBorderColor() && cs1
+                                                            .getVerticalAlignment() == cs2
+                                                                .getVerticalAlignment()) && cs1
+                                                                    .getDataFormat() == cs2.getDataFormat();
     }
 
     /**
@@ -357,8 +370,7 @@ public class TableBuilder {
      * @param table table grid
      * 
      * @throws IllegalArgumentException if table is null
-     * @throws IllegalStateException if method is called without prior
-     *             <code>beginTable()</code> call
+     * @throws IllegalStateException if method is called without prior <code>beginTable()</code> call
      */
     public void writeGridTable(IGridTable table) {
         if (table == null) {
@@ -403,8 +415,8 @@ public class TableBuilder {
                 }
                 if (metaInfoWriter != null && newCell != null) {
                     metaInfoWriter.setMetaInfo(newCell.getRowIndex(),
-                            newCell.getColumnIndex(),
-                            metaInfoWriter.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn()));
+                        newCell.getColumnIndex(),
+                        metaInfoWriter.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn()));
                 }
             }
         }
@@ -417,8 +429,7 @@ public class TableBuilder {
      * @param header header text for the table
      * @param style header style
      * 
-     * @throws IllegalStateException if method is called without prior
-     *             <code>beginTable()</code> call
+     * @throws IllegalStateException if method is called without prior <code>beginTable()</code> call
      */
     public void writeHeader(String header, ICellStyle style) {
         if (region == null) {
@@ -434,8 +445,7 @@ public class TableBuilder {
      * @param style properties style
      * 
      * @throws IllegalArgumentException if properties is null
-     * @throws IllegalStateException if method is called without prior
-     *             <code>beginTable()</code> call
+     * @throws IllegalStateException if method is called without prior <code>beginTable()</code> call
      */
     public void writeProperties(Map<String, Object> properties, ICellStyle style) {
         if (properties == null) {

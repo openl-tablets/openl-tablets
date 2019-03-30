@@ -111,8 +111,8 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator {
     }
 
     /**
-     * Synch object for file accessing. It is necessary to prevent getting
-     * isModified info before save operation will be finished.
+     * Synch object for file accessing. It is necessary to prevent getting isModified info before save operation will be
+     * finished.
      */
     private final Object fileAccessLock = new Object();
 
@@ -206,9 +206,8 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator {
     }
 
     /**
-     * Avoids rewriting the file before actual write operation is occurred. For
-     * example if OutOfMemoryError is thrown before actual write operation
-     * begins, the file should not be corrupted.
+     * Avoids rewriting the file before actual write operation is occurred. For example if OutOfMemoryError is thrown
+     * before actual write operation begins, the file should not be corrupted.
      *
      * @author NSamatov
      */
@@ -219,9 +218,8 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator {
          * Create deferred output stream.
          *
          * @param fileName the system-dependent file name
-         * @throws FileNotFoundException if the file exists but is a directory
-         *             rather than a regular file, does not exist but cannot be
-         *             created, or cannot be opened for any other reason.
+         * @throws FileNotFoundException if the file exists but is a directory rather than a regular file, does not
+         *             exist but cannot be created, or cannot be opened for any other reason.
          */
         private DeferredCreateFileOutputStream(String fileName) throws FileNotFoundException {
             this.fileName = fileName;
@@ -229,13 +227,11 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator {
         }
 
         /**
-         * Check that file is writable. File should not be rewritten in this
-         * method.
+         * Check that file is writable. File should not be rewritten in this method.
          *
          * @param fileName the checking file
-         * @throws FileNotFoundException if the file exists but is a directory
-         *             rather than a regular file, does not exist but cannot be
-         *             created, or cannot be opened for any other reason.
+         * @throws FileNotFoundException if the file exists but is a directory rather than a regular file, does not
+         *             exist but cannot be created, or cannot be opened for any other reason.
          */
         private void throwExceptionIfNotWritable(String fileName) throws FileNotFoundException {
             FileOutputStream os = null;

@@ -6,12 +6,11 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.types.Invokable;
 
 /**
- * The <code>RuntimeOperation</code> class describes operation in common.
- * Contains link to source of this operation and can be executed with debug
- * mode.
+ * The <code>RuntimeOperation</code> class describes operation in common. Contains link to source of this operation and
+ * can be executed with debug mode.
  *
  */
-public abstract class RuntimeOperation implements Invokable<Object, TBasicContextHolderEnv>{
+public abstract class RuntimeOperation implements Invokable<Object, TBasicContextHolderEnv> {
     private AlgorithmOperationSource sourceCode;
 
     private String nameForDebug;

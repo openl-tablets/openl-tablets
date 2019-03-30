@@ -17,15 +17,13 @@ package org.openl.ie.constrainer;
 import org.openl.ie.tools.FastVector;
 
 /**
- * An implementation of a {@link Goal} that generates a solution for the problem
- * with the unknown integer variables.
+ * An implementation of a {@link Goal} that generates a solution for the problem with the unknown integer variables.
  * <p>
  * This goal:
  * <ul>
  * <li>Selects the variable using {@link IntVarSelector}.
- * <li>Tries to instantiate it using {@link GoalInstantiate}. GoalInstantiate
- * make use of IntValueSelector taken from a constructor of GoalGenerate to work
- * with the domain of a variable.
+ * <li>Tries to instantiate it using {@link GoalInstantiate}. GoalInstantiate make use of IntValueSelector taken from a
+ * constructor of GoalGenerate to work with the domain of a variable.
  * </ul>
  *
  * @see IntVarSelector
@@ -45,37 +43,33 @@ public class GoalGenerate extends GoalImpl {
     private FastVector _goals;
 
     /**
-     * Constructor with a given array of variables. GoalGenerate will be
-     * constructed with <code>IntVarSelectorFirstUnbound<code>
-     * as a default variable selector and <code>IntValueSelectorMin</code> as a
-     * default value selector and it won't use dichotomize.
+     * Constructor with a given array of variables. GoalGenerate will be constructed with
+     * <code>IntVarSelectorFirstUnbound<code>
+     * as a default variable selector and <code>IntValueSelectorMin</code> as a default value selector and it won't use
+     * dichotomize.
      */
     public GoalGenerate(IntExpArray intvars) {
         this(intvars, null, null, false);
     }
 
     /**
-     * GoalGenerate will be constructed with
-     * <code>IntVarSelectorFirstUnbound<code>
-     * as a default variable selector and <code>IntValueSelectorMin</code> as a
-     * default value selector.
+     * GoalGenerate will be constructed with <code>IntVarSelectorFirstUnbound<code>
+     * as a default variable selector and <code>IntValueSelectorMin</code> as a default value selector.
      */
     public GoalGenerate(IntExpArray intvars, boolean dichotomize) {
         this(intvars, null, null, dichotomize);
     }
 
     /**
-     * Constructor with a given array of variables, variable selector, and
-     * "dichotomize" parameter.
+     * Constructor with a given array of variables, variable selector, and "dichotomize" parameter.
      */
     public GoalGenerate(IntExpArray intvars, IntVarSelector var_selector, boolean dichotomize) {
         this(intvars, var_selector, null, dichotomize);
     }
 
     /**
-     * Constructor with a given array of variables, variable selector, and value
-     * selector. GoalGenerate constructed that way won't use dichotomize
-     * procedure.
+     * Constructor with a given array of variables, variable selector, and value selector. GoalGenerate constructed that
+     * way won't use dichotomize procedure.
      */
     public GoalGenerate(IntExpArray intvars, IntVarSelector var_selector, IntValueSelector value_selector) {
         this(intvars, var_selector, value_selector, false);
@@ -84,7 +78,10 @@ public class GoalGenerate extends GoalImpl {
     /**
      * Constructor with full (and redundant) set of parameters.
      */
-    GoalGenerate(IntExpArray intvars, IntVarSelector var_selector, IntValueSelector value_selector, boolean dichotomize) {
+    GoalGenerate(IntExpArray intvars,
+            IntVarSelector var_selector,
+            IntValueSelector value_selector,
+            boolean dichotomize) {
         super(intvars.constrainer(), "Generate");
         _intvars = intvars;
         _dichotomize = dichotomize;

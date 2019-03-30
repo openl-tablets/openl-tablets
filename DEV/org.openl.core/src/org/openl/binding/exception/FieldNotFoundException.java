@@ -18,7 +18,7 @@ public class FieldNotFoundException extends OpenLCompilationException {
      *
      */
     private static final long serialVersionUID = -782077307706500730L;
-        
+
     private String fieldName;
     private IOpenClass type;
 

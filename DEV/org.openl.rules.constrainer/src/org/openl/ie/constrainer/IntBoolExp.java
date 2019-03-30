@@ -15,8 +15,7 @@ package org.openl.ie.constrainer;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An interface for the constraint boolean expression as an [0..1] integer
- * expression where 0 is false and 1 is true.
+ * An interface for the constraint boolean expression as an [0..1] integer expression where 0 is false and 1 is true.
  */
 public interface IntBoolExp extends IntExp {
     /**
@@ -35,14 +34,12 @@ public interface IntBoolExp extends IntExp {
     Constraint asConstraint();
 
     /**
-     * Returns true if the expression is false. Note: this is not equals to
-     * <code>!isTrue()</code>
+     * Returns true if the expression is false. Note: this is not equals to <code>!isTrue()</code>
      */
     boolean isFalse();
 
     /**
-     * Returns true if the expression is true. Note: this is not equals to
-     * <code>!isFalse()</code>
+     * Returns true if the expression is true. Note: this is not equals to <code>!isFalse()</code>
      */
     boolean isTrue();
 

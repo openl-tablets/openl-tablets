@@ -80,9 +80,8 @@ public class MethodUsagesSearcher {
 
         /**
          * 
-         * @return uri of the table representing used method or
-         *         <code>null</code> if this method is not represented by some
-         *         OpenL component.
+         * @return uri of the table representing used method or <code>null</code> if this method is not represented by
+         *         some OpenL component.
          */
         @Override
         public String getUri() {
@@ -111,9 +110,7 @@ public class MethodUsagesSearcher {
             if (o == null || getClass() != o.getClass())
                 return false;
             MethodUsage that = (MethodUsage) o;
-            return startPos == that.startPos &&
-                    endPos == that.endPos &&
-                    Objects.equals(method, that.method);
+            return startPos == that.startPos && endPos == that.endPos && Objects.equals(method, that.method);
         }
 
         @Override
@@ -127,8 +124,7 @@ public class MethodUsagesSearcher {
      * 
      * @param boundNode Compiled OpenL expression.
      * @param sourceString Source of OpenL expression.
-     * @param startIndex Position in the <code>sourceString</code> which defines
-     *            start of OpenL expression.
+     * @param startIndex Position in the <code>sourceString</code> which defines start of OpenL expression.
      */
     public static List<MethodUsage> findAllMethods(IBoundNode boundNode, String sourceString, int startIndex) {
         List<MethodUsage> methods = new ArrayList<>();
@@ -156,7 +152,8 @@ public class MethodUsagesSearcher {
                 }
                 int pstart;
                 int pend;
-                if ((method instanceof ExecutableMethod || method instanceof MatchingOpenMethodDispatcher || method instanceof MethodDelegator) && location != null && location.isTextLocation()) {
+                if ((method instanceof ExecutableMethod || method instanceof MatchingOpenMethodDispatcher || method instanceof MethodDelegator) && location != null && location
+                    .isTextLocation()) {
                     TextInfo info = new TextInfo(sourceString);
                     pstart = location.getStart().getAbsolutePosition(info) + startIndex;
                     pend = pstart + method.getName().length() - 1;

@@ -45,8 +45,7 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
 
     /**
      *
-     * @param beanNameWithPackage name of the class being generated with package,
-     *            symbol '/' is used as separator<br>
+     * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
      *            (e.g. <code>my/test/TestClass</code>)
      * @param parentClass class descriptor for super class.
      * @param beanFields fields of generating class.
@@ -154,10 +153,10 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
             pushValue(mg, primType, value);
             mg.valueOf(primType);
         } else if (value.getClass().isEnum()) {
-            //SomeEnum.NAME
+            // SomeEnum.NAME
             Class<?> enumClass = value.getClass();
             Type enumType = Type.getType(enumClass);
-            mg.getStatic(enumType, ((Enum)value).name(), enumType);
+            mg.getStatic(enumType, ((Enum) value).name(), enumType);
         } else {
             // new SomeType("value")
             validateConstructor(type.getClassName(), STR_CONSTR_PARAMS);
@@ -173,7 +172,7 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
         try {
             clazz = Class.forName(className);
         } catch (ClassNotFoundException e) {
-            //it's OK. Maybe happen when datatype class wasn't generated yet
+            // it's OK. Maybe happen when datatype class wasn't generated yet
             return;
         }
 
@@ -184,7 +183,8 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
                 throw new ByteCodeGenerationException("There is no default constructor for type: " + className);
             } else {
                 throw new ByteCodeGenerationException(String.format("%s doesn't have a constructor with parameters: %s",
-                        className, Arrays.toString(parameterTypes)));
+                    className,
+                    Arrays.toString(parameterTypes)));
             }
         }
     }

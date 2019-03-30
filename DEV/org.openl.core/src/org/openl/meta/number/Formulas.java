@@ -4,9 +4,9 @@ public enum Formulas {
     ADD("+", false),
     MULTIPLY("*", true),
     SUBTRACT("-", false),
-    DIVIDE("/", true),  
+    DIVIDE("/", true),
     REM("%", true);
-    
+
     private String operand;
     private boolean isMultiplicative;
 
@@ -14,7 +14,7 @@ public enum Formulas {
         this.operand = operand;
         this.isMultiplicative = isMultiplicative;
     }
-    
+
     public boolean isMultiplicative() {
         return isMultiplicative;
     }
@@ -23,7 +23,7 @@ public enum Formulas {
     public String toString() {
         return operand;
     }
-    
+
     public String getName() {
         return name().toLowerCase();
     }

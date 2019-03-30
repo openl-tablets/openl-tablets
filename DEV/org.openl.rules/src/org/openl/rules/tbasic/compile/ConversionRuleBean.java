@@ -30,8 +30,11 @@ public class ConversionRuleBean {
             String theLabelInstruction = label[i];
             String theNameForDebug = nameForDebug[i];
 
-            ConversionRuleStep step = new ConversionRuleStep(theOperationType, theOperationParam1, theOperationParam2,
-                    theLabelInstruction, theNameForDebug);
+            ConversionRuleStep step = new ConversionRuleStep(theOperationType,
+                theOperationParam1,
+                theOperationParam2,
+                theLabelInstruction,
+                theNameForDebug);
 
             steps.add(step);
         }

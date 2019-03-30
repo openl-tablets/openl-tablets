@@ -32,7 +32,7 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
     public void doAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
         IGridRegion rrFrom = grid.getRegionStartingAt(colFrom, rowFrom);
-        
+
         ICell cell = grid.getCell(colFrom, rowFrom);
 
         setPrevValue(cell.getObjectValue());
@@ -44,8 +44,10 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         if (rrFrom != null) {
             toRestore = rrFrom;
             grid.removeMergedRegion(rrFrom);
-            GridRegion copyFrom = new GridRegion(rrFrom.getTop() + getRow() - rowFrom, rrFrom.getLeft() + getCol()
-                    - colFrom, rrFrom.getBottom() + getRow() - rowFrom, rrFrom.getRight() + getCol() - colFrom);
+            GridRegion copyFrom = new GridRegion(rrFrom.getTop() + getRow() - rowFrom,
+                rrFrom.getLeft() + getCol() - colFrom,
+                rrFrom.getBottom() + getRow() - rowFrom,
+                rrFrom.getRight() + getCol() - colFrom);
             grid.addMergedRegion(copyFrom);
             toRemove = copyFrom;
         }

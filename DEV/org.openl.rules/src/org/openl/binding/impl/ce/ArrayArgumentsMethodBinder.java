@@ -20,7 +20,7 @@ public class ArrayArgumentsMethodBinder extends org.openl.binding.impl.ArrayArgu
             IBoundNode[] children,
             List<Integer> arrayArgArgumentList,
             IMethodCaller singleParameterMethodCaller) {
-       if (singleParameterMethodCaller.getMethod() instanceof ITablePropertiesMethod) {
+        if (singleParameterMethodCaller.getMethod() instanceof ITablePropertiesMethod) {
             ITablePropertiesMethod tablePropertiesMethod = (ITablePropertiesMethod) singleParameterMethodCaller
                 .getMethod();
             if (Boolean.TRUE.equals(tablePropertiesMethod.getMethodProperties().getParallel())) {
@@ -53,9 +53,6 @@ public class ArrayArgumentsMethodBinder extends org.openl.binding.impl.ArrayArgu
             }
         }
 
-        return new MultiCallMethodBoundNode(node,
-            children,
-            singleParameterMethodCaller,
-            arrayArgArgumentList);
+        return new MultiCallMethodBoundNode(node, children, singleParameterMethodCaller, arrayArgArgumentList);
     }
 }

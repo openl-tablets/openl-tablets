@@ -10,18 +10,18 @@ import org.openl.types.IOpenMethodHeader;
  *
  */
 public abstract class ExecutableMethod extends AMethod implements IMemberMetaInfo {
-    
-	public ExecutableMethod(IOpenMethodHeader header) {
-		super(header);		
-	}
-	
-	@Override
-	public boolean isConstructor() {
-	    return false;
-	}
-	
-	@Override
-	public String toString() {	
-		return getName();
-	}
+
+    public ExecutableMethod(IOpenMethodHeader header) {
+        super(header);
+    }
+
+    @Override
+    public boolean isConstructor() {
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

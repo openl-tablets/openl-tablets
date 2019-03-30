@@ -59,13 +59,13 @@ public class Condition extends FunctionalRow implements ICondition {
     public void setEvaluator(IMethodCaller evaluator) {
         this.evaluator = evaluator;
     }
-    
+
     @Override
     public DecisionValue calculateCondition(int ruleN, Object target, Object[] dtParams, IRuntimeEnv env) {
         if (target instanceof IDynamicObject) {
             target = new RuleExecutionObject(ruleExecutionType, (IDynamicObject) target, ruleN);
         }
-        
+
         if (isEmpty(ruleN)) {
             return DecisionValue.NxA_VALUE;
         }

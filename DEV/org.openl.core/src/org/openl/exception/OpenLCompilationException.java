@@ -17,7 +17,10 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
     private ILocation location;
     private IOpenSourceCodeModule source;
 
-    public OpenLCompilationException(String message, Throwable insideCause, ILocation location, IOpenSourceCodeModule source) {
+    public OpenLCompilationException(String message,
+            Throwable insideCause,
+            ILocation location,
+            IOpenSourceCodeModule source) {
         super(message);
         this.insideCause = insideCause;
         this.location = location;
@@ -27,11 +30,11 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
     public OpenLCompilationException(String message, Throwable cause, ILocation location) {
         this(message, cause, location, null);
     }
-    
+
     public OpenLCompilationException(String message, Throwable cause) {
         this(message, cause, null, null);
     }
-    
+
     public OpenLCompilationException(String message) {
         this(message, null, null, null);
     }
@@ -47,7 +50,9 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
         return insideCause;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.openl.exception.OpenLException#getLocation()
      */
     @Override
@@ -55,16 +60,18 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
         return location;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.openl.exception.OpenLException#getSourceModule()
      */
     @Override
     public IOpenSourceCodeModule getSourceModule() {
         return source;
     }
-    
+
     @Override
-    public Throwable getCause() {        
+    public Throwable getCause() {
         return getOriginalCause();
     }
 

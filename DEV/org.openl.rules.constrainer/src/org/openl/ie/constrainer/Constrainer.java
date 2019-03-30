@@ -35,43 +35,33 @@ import org.openl.ie.tools.FastStack;
 import org.openl.ie.tools.FastVector;
 import org.openl.ie.tools.RTExceptionWrapper;
 
-
 /**
- * An implementation of the Constrainer - a placeholder for all variables,
- * constraints, and search goals of the problem.
+ * An implementation of the Constrainer - a placeholder for all variables, constraints, and search goals of the problem.
  * <p>
- * The Constrainer is a Java package for modeling and solving different
- * constraint satisfaction problems.
+ * The Constrainer is a Java package for modeling and solving different constraint satisfaction problems.
  *
- * A problem is represented in terms of the decision variables and constraints,
- * which define relationships between these variables.
+ * A problem is represented in terms of the decision variables and constraints, which define relationships between these
+ * variables.
  *
- * The decision variables could be represented in form of Java objects which may
- * use the predefined constrained variables such as IntVar.
+ * The decision variables could be represented in form of Java objects which may use the predefined constrained
+ * variables such as IntVar.
  *
- * The constraints themselves are objects inherited from a generic class
- * Constraint.
+ * The constraints themselves are objects inherited from a generic class Constraint.
  *
  * A user can define new business constraints.
  *
  * <p>
- * To find the problem solutions, the search algorithms could be represented
- * using objects called Goals as building blocks. The Constrainer supports a
- * reversible environment with multiple choice points: when constraints/goals
- * fail, the Constrainer automatically backtracks to a previous choice point (if
- * any).
+ * To find the problem solutions, the search algorithms could be represented using objects called Goals as building
+ * blocks. The Constrainer supports a reversible environment with multiple choice points: when constraints/goals fail,
+ * the Constrainer automatically backtracks to a previous choice point (if any).
  * <p>
  * There are several basic entities in the Constrainer:
  * <ol>
- * <li> Class Constrainer - a placeholder for all variables, constraints, and
- * search goals of the problem
- * <li> Interface Subject - a base-class for constrained variables. Contains the
- * major methods to allow constraints (observers) observe the modification of
- * the variables (subjects).
- * <li> Interface IntVar - constrained integer variables, the most popular
- * subclass of the class Subject
- * <li> Interface Goal - a base class for different search goals and
- * constraints.
+ * <li>Class Constrainer - a placeholder for all variables, constraints, and search goals of the problem
+ * <li>Interface Subject - a base-class for constrained variables. Contains the major methods to allow constraints
+ * (observers) observe the modification of the variables (subjects).
+ * <li>Interface IntVar - constrained integer variables, the most popular subclass of the class Subject
+ * <li>Interface Goal - a base class for different search goals and constraints.
  * </ol>
  *
  * @see Goal
@@ -84,13 +74,10 @@ import org.openl.ie.tools.RTExceptionWrapper;
 /*
  * Implementation notes
  *
- * GOALS EXECUTION. There are two major stacks: execution stack "EXE" and
- * alternative stack "ALT". At each choice point we create a new reversibility
- * stack "REV". EXE.push(goal); while(!EXE.empty()) { execute(EXE.pop()); Goal
- * execution could: - push new subgoal on EXE (GoalAnd) - push goals on ALT
- * (GoalOr) - fail. When failed: - pop from EXE all goals pushed on it after the
- * last choice point (done via marker) - if ALT.empty, FAILURE! -
- * EXE.push(ALT.pop()) } SUCCESS!
+ * GOALS EXECUTION. There are two major stacks: execution stack "EXE" and alternative stack "ALT". At each choice point
+ * we create a new reversibility stack "REV". EXE.push(goal); while(!EXE.empty()) { execute(EXE.pop()); Goal execution
+ * could: - push new subgoal on EXE (GoalAnd) - push goals on ALT (GoalOr) - fail. When failed: - pop from EXE all goals
+ * pushed on it after the last choice point (done via marker) - if ALT.empty, FAILURE! - EXE.push(ALT.pop()) } SUCCESS!
  *
  */
 
@@ -124,10 +111,7 @@ public final class Constrainer implements Serializable {
     private int _failure_display_frequency;
     private FastVector _backtrack_objects;
 
-
     private boolean _trace_goals;
-
-
 
     private boolean _show_internal_names;
     private boolean _show_variable_names;
@@ -141,7 +125,6 @@ public final class Constrainer implements Serializable {
 
     private FastQueue _propagation_queue;
 
-
     private ExpressionFactory _expressionFactory;
 
     private FastStack _active_undoable_once;
@@ -149,13 +132,12 @@ public final class Constrainer implements Serializable {
     transient private PrintStream _out = System.out;
 
     /*
-     * ==============================================================================
-     * Misc: toString(), helpers, ...
+     * ============================================================================== Misc: toString(), helpers, ...
      * ============================================================================
      */
     /**
-     * This method aborts the program execution. It prints the "msg" and the
-     * stack trace. Used to display "impossible" errors.
+     * This method aborts the program execution. It prints the "msg" and the stack trace. Used to display "impossible"
+     * errors.
      *
      * @param msg Diagnostic message to print.
      */
@@ -168,25 +150,21 @@ public final class Constrainer implements Serializable {
     }
 
     /*
-     * ==============================================================================
-     * EOF High-level Components
+     * ============================================================================== EOF High-level Components
      * ============================================================================
      */
 
     /**
-     * Returns the precision of the constrained floating-point variable
-     * calculations.
+     * Returns the precision of the constrained floating-point variable calculations.
      *
-     * @return the precision of the constrained floating-point variable
-     *         calculations.
+     * @return the precision of the constrained floating-point variable calculations.
      */
     static public double precision() {
         return FLOAT_PRECISION;
     }
 
     /**
-     * Sets the precision of the constrained floating-point variable
-     * calculations. The default value is 1E-06.
+     * Sets the precision of the constrained floating-point variable calculations. The default value is 1E-06.
      *
      * @param prc The new precision to be set.
      */
@@ -208,10 +186,9 @@ public final class Constrainer implements Serializable {
     }
 
     /**
-     * Constructs a new constrainer - the object that serves as a placeholder
-     * for all other constrained objects, constraints, and goals. Each problem
-     * should define at least one Constrainer object. All other objects relate
-     * to this object.
+     * Constructs a new constrainer - the object that serves as a placeholder for all other constrained objects,
+     * constraints, and goals. Each problem should define at least one Constrainer object. All other objects relate to
+     * this object.
      *
      * @param s Constrainer's symbolic name
      */
@@ -267,14 +244,13 @@ public final class Constrainer implements Serializable {
     }
 
     /**
-     * Adds an internal constrained float variable to the Constrainer,
-     * selectively allows trace. Used in expressions that create internal
-     * variables for their own needs. <br>
+     * Adds an internal constrained float variable to the Constrainer, selectively allows trace. Used in expressions
+     * that create internal variables for their own needs. <br>
      * <b>Note:</b>Constrainer's users should not use this method.
      */
     public FloatVar addFloatVarTraceInternal(double min, double max, String name, int trace) {
-        FloatVar var = trace != 0 ? new FloatVarImplTrace(this, min, max, name, trace) : new FloatVarImpl(this, min,
-                max, name);
+        FloatVar var = trace != 0 ? new FloatVarImplTrace(this, min, max, name, trace)
+                                  : new FloatVarImpl(this, min, max, name);
         return addFloatVarInternal(var);
     }
 
@@ -314,8 +290,8 @@ public final class Constrainer implements Serializable {
     }
 
     /**
-     * Adds an internal constrained boolean variable to the Constrainer. Used in
-     * expressions that create internal variables for their own needs. <br>
+     * Adds an internal constrained boolean variable to the Constrainer. Used in expressions that create internal
+     * variables for their own needs. <br>
      * <b>Note:</b>Constrainer's users should not use this method.
      */
     public IntBoolVar addIntBoolVarInternal(String name) {
@@ -335,8 +311,7 @@ public final class Constrainer implements Serializable {
     }
 
     /*
-     * ==============================================================================
-     * Variables
+     * ============================================================================== Variables
      * ============================================================================
      */
     /**
@@ -425,34 +400,30 @@ public final class Constrainer implements Serializable {
     }
 
     /**
-     * Adds an internal constrained integer variable to the Constrainer,
-     * selectively allows trace. Used in expressions that create internal
-     * variables for their own needs. <br>
+     * Adds an internal constrained integer variable to the Constrainer, selectively allows trace. Used in expressions
+     * that create internal variables for their own needs. <br>
      * <b>Note:</b>Constrainer's users should not use this method.
      */
     public IntVar addIntVarTraceInternal(int min, int max, String name, int type, int trace) {
-        IntVar var = trace != 0 ? new IntVarImplTrace(this, min, max, name, type, trace) : new IntVarImpl(this, min,
-                max, name, type);
+        IntVar var = trace != 0 ? new IntVarImplTrace(this, min, max, name, type, trace)
+                                : new IntVarImpl(this, min, max, name, type);
         return addIntVarInternal(var);
     }
 
     /*
-     * ==============================================================================
-     * Propagation
+     * ============================================================================== Propagation
      * ============================================================================
      */
     /**
-     * Adds the subject (usually variable) to the propagation queue. It happenes
-     * when the subject changes its state. The notificatioin events will be
-     * generated in {@link #propagate} method.
+     * Adds the subject (usually variable) to the propagation queue. It happenes when the subject changes its state. The
+     * notificatioin events will be generated in {@link #propagate} method.
      */
     public void addToPropagationQueue(Subject subject) {
         _propagation_queue.push(subject);
     }
 
     /*
-     * ==============================================================================
-     * Undo objects
+     * ============================================================================== Undo objects
      * ============================================================================
      */
     /**
@@ -467,10 +438,8 @@ public final class Constrainer implements Serializable {
     }
 
     /**
-     * Adds an undo-object to the reversibility stack for a given undoable
-     * object. Some undo-objects can be generated one time between choice
-     * points. Constrainer notifies such objects when backtrack or choice point
-     * occures.
+     * Adds an undo-object to the reversibility stack for a given undoable object. Some undo-objects can be generated
+     * one time between choice points. Constrainer notifies such objects when backtrack or choice point occures.
      *
      * @param undo_object Undo object to add.
      * @param undoable Undoable object to add for notification.
@@ -485,8 +454,7 @@ public final class Constrainer implements Serializable {
     }
 
     /*
-     * ==============================================================================
-     * EOF Variables
+     * ============================================================================== EOF Variables
      * ============================================================================
      */
 
@@ -510,11 +478,9 @@ public final class Constrainer implements Serializable {
         return new UndoableIntImpl(this, value);
     }
 
-
     /**
-     * Clears the undone-flags for active undoable once objects. This force them
-     * to create undos again. Used: - when a choice point is set - when
-     * backtracking is performed
+     * Clears the undone-flags for active undoable once objects. This force them to create undos again. Used: - when a
+     * choice point is set - when backtracking is performed
      */
     void allowUndos() {
         while (!_active_undoable_once.empty()) {
@@ -523,9 +489,8 @@ public final class Constrainer implements Serializable {
     }
 
     /*
-     * ==============================================================================
-     * Execution, backtracking, choice points
-     * ============================================================================
+     * ============================================================================== Execution, backtracking, choice
+     * points ============================================================================
      */
     /**
      * Backtracks to the most recent choice point.
@@ -596,9 +561,8 @@ public final class Constrainer implements Serializable {
     }
 
     /**
-     * Returns an array of constrained integer variables "cards" such that
-     * cards[i] is equal to the number of variables in "vars" bound to the
-     * sequental [0,vars.size()] values.
+     * Returns an array of constrained integer variables "cards" such that cards[i] is equal to the number of variables
+     * in "vars" bound to the sequental [0,vars.size()] values.
      *
      * @param vars Array of variables.
      * @return An array of constrained integer variables.
@@ -616,9 +580,8 @@ public final class Constrainer implements Serializable {
     }
 
     /**
-     * Returns an array of n constrained integer variables "cards" such that
-     * cards[i] is equal to the number of variables in "vars" bound to the value
-     * i.
+     * Returns an array of n constrained integer variables "cards" such that cards[i] is equal to the number of
+     * variables in "vars" bound to the value i.
      *
      * @param vars The array of constrained ineteger expressions.
      * @param n The value to be checked.
@@ -634,9 +597,8 @@ public final class Constrainer implements Serializable {
     }
 
     /**
-     * Returns the array of constrained integer variables "cards" such that
-     * cards[i] is equal to the number of variables in "vars" bound to the value
-     * values[i].
+     * Returns the array of constrained integer variables "cards" such that cards[i] is equal to the number of variables
+     * in "vars" bound to the value values[i].
      *
      * @param vars The array of constrained ineteger variables.
      * @param values The array of value to be checked.
@@ -659,17 +621,13 @@ public final class Constrainer implements Serializable {
     }
 
     /**
-     * All elements of an array are associated with their domains. The union of
-     * the domains makes up the array "domain" that is the set of all values
-     * that may occur in the array. An instance of {@link IntArrayCards} class
-     * is associated with each instance of {@link IntExpArray}. The instance
-     * keeps track the possible number of the value occurrences in the array
-     * that is it has an element(constrained integer expression) per value from
-     * the array "domain". For each value from the array "domain" the method
-     * {@link #distribute(IntExpArray , IntExpArray)} creates the constraint
-     * "equals" to the number of occurrences of values. The number of
-     * occurrences for each value of array "domain" is specified in
-     * <code>cards</code> parameter.
+     * All elements of an array are associated with their domains. The union of the domains makes up the array "domain"
+     * that is the set of all values that may occur in the array. An instance of {@link IntArrayCards} class is
+     * associated with each instance of {@link IntExpArray}. The instance keeps track the possible number of the value
+     * occurrences in the array that is it has an element(constrained integer expression) per value from the array
+     * "domain". For each value from the array "domain" the method {@link #distribute(IntExpArray , IntExpArray)}
+     * creates the constraint "equals" to the number of occurrences of values. The number of occurrences for each value
+     * of array "domain" is specified in <code>cards</code> parameter.
      *
      * @param vars The array of constrained integer expressions.
      * @param cards The array of value occurences.
@@ -689,13 +647,11 @@ public final class Constrainer implements Serializable {
     }
 
     /**
-     * Prints the statistical information. This information is accumulated
-     * during the execution of the goals.
+     * Prints the statistical information. This information is accumulated during the execution of the goals.
      */
     void doPrintInformation() {
-        _out.println("\nChoice Points: " + _number_of_choice_points + "  Failures: " + _number_of_failures
-                + "  Undos: " + _number_of_undos + "  Notifications: " + _number_of_notifications + "  Memory: "
-                + (_max_occupied_memory - _initial_memory) + "  Time: " + _execution_time + "msec");
+        _out.println(
+            "\nChoice Points: " + _number_of_choice_points + "  Failures: " + _number_of_failures + "  Undos: " + _number_of_undos + "  Notifications: " + _number_of_notifications + "  Memory: " + (_max_occupied_memory - _initial_memory) + "  Time: " + _execution_time + "msec");
     }
 
     /**
@@ -709,12 +665,10 @@ public final class Constrainer implements Serializable {
     }
 
     /**
-     * Executes the search goal provided by the first parameter. In most cases,
-     * the goal is expected to find a solution: to instantiate all constrained
-     * objects and satisfied all constraints. Return true if the solution is
-     * found. Returns false otherwise. The second parameter allows a user to
-     * restore the state of the constrainer after the succesful execution of the
-     * main_goal.
+     * Executes the search goal provided by the first parameter. In most cases, the goal is expected to find a solution:
+     * to instantiate all constrained objects and satisfied all constraints. Return true if the solution is found.
+     * Returns false otherwise. The second parameter allows a user to restore the state of the constrainer after the
+     * succesful execution of the main_goal.
      *
      * @return true if success
      * @param main_goal org.openl.ie.constrainer.Goal
@@ -757,8 +711,7 @@ public final class Constrainer implements Serializable {
                 }
             } catch (Failure f) {
 
-                if (_trace_failure_stack && _failure_display_frequency > 0
-                        && _number_of_failures % _failure_display_frequency == 0) {
+                if (_trace_failure_stack && _failure_display_frequency > 0 && _number_of_failures % _failure_display_frequency == 0) {
                     f.printStackTrace(_out);
                 }
 
@@ -825,8 +778,7 @@ public final class Constrainer implements Serializable {
     }
 
     /*
-     * ==============================================================================
-     * High-level Components
+     * ============================================================================== High-level Components
      * ============================================================================
      */
     /**
@@ -837,8 +789,7 @@ public final class Constrainer implements Serializable {
     }
 
     /*
-     * ==============================================================================
-     * Failures
+     * ============================================================================== Failures
      * ============================================================================
      */
     /**
@@ -880,8 +831,7 @@ public final class Constrainer implements Serializable {
         }
 
         /*
-         * if (showInternalNames()) _failure.message(s); else
-         * _failure.message("");
+         * if (showInternalNames()) _failure.message(s); else _failure.message("");
          */
         throw new Failure(s, label);// _failure; //
     }
@@ -947,8 +897,7 @@ public final class Constrainer implements Serializable {
     }
 
     /**
-     * functions providing the possibility of supporting multi-session added by
-     * E. Tseitlin
+     * functions providing the possibility of supporting multi-session added by E. Tseitlin
      */
 
     IntVar[] getIntVars(int[] indices) {
@@ -964,14 +913,12 @@ public final class Constrainer implements Serializable {
     }
 
     /*
-     * ==============================================================================
-     * EOF Tracing
+     * ============================================================================== EOF Tracing
      * ============================================================================
      */
 
     /**
-     * Used internally in the implementation of subject when it sends a
-     * notificaction event. <br>
+     * Used internally in the implementation of subject when it sends a notificaction event. <br>
      * <b>Note:</b>Constrainer's users should not use this method.
      */
     public void incrementNumberOfNotifications() {
@@ -998,8 +945,7 @@ public final class Constrainer implements Serializable {
     }
 
     /*
-     * ==============================================================================
-     * Statistics, metrics, flags, ...
+     * ============================================================================== Statistics, metrics, flags, ...
      * ============================================================================
      */
     /**
@@ -1022,11 +968,9 @@ public final class Constrainer implements Serializable {
     }
 
     /**
-     * Returns the Constrainer's output stream where the output information is
-     * printed out.
+     * Returns the Constrainer's output stream where the output information is printed out.
      *
-     * @return the Constrainer's output stream where the output information is
-     *         printed out.
+     * @return the Constrainer's output stream where the output information is printed out.
      */
     public PrintStream out() {
         return _out;
@@ -1042,16 +986,13 @@ public final class Constrainer implements Serializable {
     }
 
     /**
-     * Activates the passed constraint. This method executes the specified
-     * constraint.The constraint is not added to internal constraint storage
-     * (with which {@link #addConstraint(Constraint)} and
-     * {@link #postConstraints()} operates) instead it is just activated
-     * immediately.
+     * Activates the passed constraint. This method executes the specified constraint.The constraint is not added to
+     * internal constraint storage (with which {@link #addConstraint(Constraint)} and {@link #postConstraints()}
+     * operates) instead it is just activated immediately.
      *
      * @param ct The constraint to be posted/executed.
-     * @throws Failure When the constraint can not be posted that is the
-     *             constraint is incompatible with the previously activated
-     *             ones.
+     * @throws Failure When the constraint can not be posted that is the constraint is incompatible with the previously
+     *             activated ones.
      */
     public void postConstraint(Constraint ct) throws Failure {
         boolean ok = execute(ct);
@@ -1065,9 +1006,8 @@ public final class Constrainer implements Serializable {
     }
 
     /*
-     * ==============================================================================
-     * EOF Special expressions, constraints, ...
-     * ============================================================================
+     * ============================================================================== EOF Special expressions,
+     * constraints, ... ============================================================================
      */
 
     /**
@@ -1087,7 +1027,6 @@ public final class Constrainer implements Serializable {
     void pushOnExecutionStack(Goal goal) {
         _goal_stack.pushGoal(goal);
     }
-
 
     /**
      * Sets a labeled choice point between two goals.
@@ -1123,9 +1062,8 @@ public final class Constrainer implements Serializable {
     }
 
     /*
-     * ==============================================================================
-     * EOF Execution, backtracking, choice points
-     * ============================================================================
+     * ============================================================================== EOF Execution, backtracking,
+     * choice points ============================================================================
      */
 
     /**
@@ -1183,8 +1121,7 @@ public final class Constrainer implements Serializable {
                     }
                 } catch (Failure f) {
 
-                    if (_trace_failure_stack && _failure_display_frequency > 0
-                            && _number_of_failures % _failure_display_frequency == 0) {
+                    if (_trace_failure_stack && _failure_display_frequency > 0 && _number_of_failures % _failure_display_frequency == 0) {
                         f.printStackTrace(_out);
                     }
 
@@ -1239,8 +1176,7 @@ public final class Constrainer implements Serializable {
 
         _execution_time += System.currentTimeMillis() - execution_start;
         /*
-         * if (_print_information) { if(!(main_goal instanceof Constraint))
-         * doPrintInformation(); }
+         * if (_print_information) { if(!(main_goal instanceof Constraint)) doPrintInformation(); }
          */
         _goal_stack = old_goal_stack;
 

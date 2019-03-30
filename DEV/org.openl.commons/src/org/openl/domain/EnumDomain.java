@@ -158,15 +158,15 @@ public class EnumDomain<T> implements IDomain<T> {
         copy.andNot(sd.bits);
         return new EnumDomain<T>(enumeration, copy);
     }
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         boolean f = false;
-        for (Object o : enumeration.getAllObjects()){
-            if (f){
+        for (Object o : enumeration.getAllObjects()) {
+            if (f) {
                 sb.append(",");
-            }else{
+            } else {
                 f = true;
             }
             sb.append(o.toString());

@@ -8,8 +8,8 @@ import org.openl.rules.tbasic.runtime.ReturnType;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 
 /**
- * The <code>CalculateOperation</code> class describes GOTO operation which
- * will be realized if previous condition returned expected result.
+ * The <code>CalculateOperation</code> class describes GOTO operation which will be realized if previous condition
+ * returned expected result.
  *
  * @author User
  *
@@ -22,9 +22,8 @@ public class ConditionalGotoOperation extends GotoOperation {
      * Create an instance of <code>ConditionalGotoOperation</code>.
      *
      * @param label The label to jump to.
-     * @param expectedCondition expected result of previous calculation of
-     *            condition(if equals then GOTO will executed else jump to next
-     *            operation will be performed).
+     * @param expectedCondition expected result of previous calculation of condition(if equals then GOTO will executed
+     *            else jump to next operation will be performed).
      */
     public ConditionalGotoOperation(String label, boolean expectedCondition) {
         super(label);
@@ -34,8 +33,8 @@ public class ConditionalGotoOperation extends GotoOperation {
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.rules.tbasic.runtime.RuntimeOperation#execute(org.openl.rules
-     *      .tbasic.runtime.TBasicContext, java.lang.Object[])
+     * @see org.openl.rules.tbasic.runtime.RuntimeOperation#execute(org.openl.rules .tbasic.runtime.TBasicContext,
+     * java.lang.Object[])
      */
     @Override
     public Result execute(TBasicContextHolderEnv environment, Object param) {

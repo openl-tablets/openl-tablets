@@ -14,8 +14,8 @@ public class WhereExpressionNodeBinder extends ANodeBinder {
         return bindChildNode(node, bindingContext);
     }
 
-    private static IBoundNode[] makeLocalVarsFromWhere(ISyntaxNode whereNode, IBindingContext bindingContext)
-        throws Exception {
+    private static IBoundNode[] makeLocalVarsFromWhere(ISyntaxNode whereNode,
+            IBindingContext bindingContext) throws Exception {
 
         int n = whereNode.getNumberOfChildren();
 

@@ -51,7 +51,10 @@ public class SheetHandler extends DefaultHandler {
     // Cell indent
     private Short indent;
 
-    SheetHandler(SharedStringsTable sharedStringsTable, boolean use1904Windowing, MinimalStyleTable stylesTable, ParserDateUtil parserDateUtil) {
+    SheetHandler(SharedStringsTable sharedStringsTable,
+            boolean use1904Windowing,
+            MinimalStyleTable stylesTable,
+            ParserDateUtil parserDateUtil) {
         this.sharedStringsTable = sharedStringsTable;
         this.use1904Windowing = use1904Windowing;
         this.stylesTable = stylesTable;
@@ -181,7 +184,8 @@ public class SheetHandler extends DefaultHandler {
                             parsedValue = null;
                         } else {
                             double d = Double.parseDouble(n);
-                            if (DateUtil.isValidExcelDate(d) && parserDateUtil.isADateFormat(formatIndex, formatString)) {
+                            if (DateUtil.isValidExcelDate(d) && parserDateUtil.isADateFormat(formatIndex,
+                                formatString)) {
                                 parsedValue = DateUtil.getJavaDate(d, use1904Windowing);
                             } else {
                                 parsedValue = NumberUtils.intOrDouble(d);
@@ -225,7 +229,8 @@ public class SheetHandler extends DefaultHandler {
             col = 0;
         }
 
-        // According to specification "dimension" is optional and is not required. We must expand array if it's too small
+        // According to specification "dimension" is optional and is not required. We must expand array if it's too
+        // small
         int maxRows = Math.max(row + 1, cells.length + rowShift);
 
         int columnCount = cells.length == 0 ? 0 : cells[0].length;

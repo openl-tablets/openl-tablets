@@ -10,8 +10,7 @@ import org.openl.ie.constrainer.IntVar;
 //: DomainImpl.java
 //
 /**
- * An implementation of the Domain interface that supports plain domain. This
- * implementation keeps only min/max values.
+ * An implementation of the Domain interface that supports plain domain. This implementation keeps only min/max values.
  *
  * @see IntVar
  */
@@ -45,9 +44,8 @@ public class DomainImpl implements Domain {
     }
 
     /*
-     * public Set set() { Set elements = new HashSet(); for(int i=0; i<_values.size();
-     * i++) { DomainInterval interval = (DomainInterval)_values.elementAt(i);
-     * for(int v=interval.from; v<=interval.to; ++v) { elements.add(new
+     * public Set set() { Set elements = new HashSet(); for(int i=0; i<_values.size(); i++) { DomainInterval interval =
+     * (DomainInterval)_values.elementAt(i); for(int v=interval.from; v<=interval.to; ++v) { elements.add(new
      * Integer(v)); } } return elements; }
      */
 

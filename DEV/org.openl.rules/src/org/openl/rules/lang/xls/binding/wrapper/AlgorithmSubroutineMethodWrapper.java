@@ -21,18 +21,18 @@ import org.openl.vm.IRuntimeEnv;
 public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod implements IOpenMethodWrapper {
     AlgorithmSubroutineMethod delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
-    
+
     public AlgorithmSubroutineMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass, AlgorithmSubroutineMethod delegate) {
         super(null);
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
-    
+
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return WrapperLogic.invoke(this, target, params, env);
     }
-    
+
     @Override
     public XlsModuleOpenClass getXlsModuleOpenClass() {
         return xlsModuleOpenClass;
@@ -47,7 +47,7 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
     public IOpenClass getDeclaringClass() {
         return delegate.getDeclaringClass();
     }
-    
+
     @Override
     public IOpenMethod getDelegate() {
         return delegate;
@@ -152,12 +152,12 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
     public IMemberMetaInfo getInfo() {
         return delegate.getInfo();
     }
-    
+
     @Override
     public String getModuleName() {
         return delegate.getModuleName();
     }
-    
+
     @Override
     public void setModuleName(String dependencyName) {
         delegate.setModuleName(dependencyName);

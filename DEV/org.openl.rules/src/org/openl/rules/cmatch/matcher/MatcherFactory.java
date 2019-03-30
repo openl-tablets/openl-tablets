@@ -9,10 +9,10 @@ import java.util.Map;
 import org.openl.types.IOpenClass;
 
 public class MatcherFactory {
-    
+
     private MatcherFactory() {
     }
-    
+
     private static final Map<String, List<IMatcherBuilder>> matcherBuilders = new HashMap<>();
 
     static {

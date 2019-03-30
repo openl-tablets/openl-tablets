@@ -9,6 +9,6 @@ import org.objectweb.asm.ClassWriter;
  *
  */
 public interface BeanByteCodeWriter {
-    
+
     void write(ClassWriter classWriter);
 }

@@ -14,7 +14,10 @@ public class ArrayResultBuilder implements IResultBuilder {
     private IOpenCast[] openCasts;
     private boolean calculateAllCells;
 
-    public ArrayResultBuilder(SpreadsheetCell[] cells, IOpenCast[] openCasts, IOpenClass type, boolean calculateAllCells) {
+    public ArrayResultBuilder(SpreadsheetCell[] cells,
+            IOpenCast[] openCasts,
+            IOpenClass type,
+            boolean calculateAllCells) {
         this.cells = cells;
         this.openCasts = openCasts;
         this.type = type;

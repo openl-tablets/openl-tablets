@@ -5,20 +5,19 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 
 /**
- * Column that is used in the dispatching table, built by dimension properties of the group of tables.
- * Handles the column with array dimension property.
+ * Column that is used in the dispatching table, built by dimension properties of the group of tables. Handles the
+ * column with array dimension property.
  * 
  * @author DLiauchuk
  *
  */
 public class ArrayParameterColumn extends ADispatcherTableColumn {
 
-    ArrayParameterColumn(TablePropertyDefinition arrayDimensionProperty,
-            DispatcherTableRules rules) {
+    ArrayParameterColumn(TablePropertyDefinition arrayDimensionProperty, DispatcherTableRules rules) {
         super(arrayDimensionProperty, rules);
         validate();
     }
-    
+
     private void validate() {
         if (!getProperty().getType().getInstanceClass().isArray()) {
             throw new OpenlNotCheckedException("Can`t create array parameter column for not an array property");
@@ -27,13 +26,13 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
 
     @Override
     public String getCodeExpression() {
-        MatchingExpression matchExpression = getProperty().getExpression();        
-        String result = getMatchByDefaultCodeExpression(matchExpression);        
-        
-        // array values can have only "contains" operation  
+        MatchingExpression matchExpression = getProperty().getExpression();
+        String result = getMatchByDefaultCodeExpression(matchExpression);
+
+        // array values can have only "contains" operation
         //
         StringBuilder codeExpression = new StringBuilder();
-        
+
         if (matchExpression != null) {
             codeExpression.append("contains(");
             codeExpression.append(getLocalParameterName());
@@ -42,7 +41,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
             codeExpression.append(")");
             result += codeExpression.toString();
         } else {
-            String message = String.format("Can`t create expression for \"%s\" property validation.", 
+            String message = String.format("Can`t create expression for \"%s\" property validation.",
                 getProperty().getName());
             throw new OpenlNotCheckedException(message);
         }
@@ -50,7 +49,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
     }
 
     @Override
-    public String getTitle() {        
+    public String getTitle() {
         return getProperty().getDisplayName();
     }
 
@@ -59,12 +58,12 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
         Class<?> componentType = getProperty().getType().getInstanceClass().getComponentType();
         return componentType.getSimpleName() + "[] " + getLocalParameterName();
     }
-    
+
     @Override
     public String getRuleValue(int ruleIndex, int localParameterIndex) {
         return getRules().getRule(ruleIndex).getPropertyValueAsString(getProperty().getName());
     }
-    
+
     private String getLocalParameterName() {
         return (getProperty().getName() + ADispatcherTableColumn.LOCAL_PARAM_SUFFIX).intern();
     }

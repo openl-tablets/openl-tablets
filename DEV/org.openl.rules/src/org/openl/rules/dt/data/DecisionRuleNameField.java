@@ -13,7 +13,7 @@ public class DecisionRuleNameField implements IOpenField {
 
     private DecisionTableDataType decisionTableDataType;
     private RuleRow ruleRow;
-    
+
     DecisionRuleNameField(DecisionTableDataType decisionTableDataType, RuleRow ruleRow) {
         this.decisionTableDataType = decisionTableDataType;
         this.ruleRow = ruleRow;
@@ -77,4 +77,3 @@ public class DecisionRuleNameField implements IOpenField {
     }
 
 }
-

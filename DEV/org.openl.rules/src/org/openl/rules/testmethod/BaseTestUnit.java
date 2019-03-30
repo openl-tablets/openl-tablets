@@ -99,19 +99,16 @@ public class BaseTestUnit implements ITestUnit {
                 return compareMessageAndGetResult(expectedError, rootCause.getMessage(), expectedResult);
             } else {
                 ComparedResult results = new ComparedResult(null,
-                        expectedError == null ? expectedResult : expectedError,
-                        rootCause == null ? actualResult : rootCause.getMessage(),
-                        TR_EXCEPTION);
+                    expectedError == null ? expectedResult : expectedError,
+                    rootCause == null ? actualResult : rootCause.getMessage(),
+                    TR_EXCEPTION);
 
                 comparisonResults.add(results);
                 return TR_EXCEPTION;
             }
         } else {
             if (expectedError != null) {
-                ComparedResult results = new ComparedResult(null,
-                        expectedError,
-                        actualResult,
-                        TR_NEQ);
+                ComparedResult results = new ComparedResult(null, expectedError, actualResult, TR_NEQ);
 
                 comparisonResults.add(results);
                 return TR_NEQ;
@@ -167,7 +164,10 @@ public class BaseTestUnit implements ITestUnit {
         }
 
         TestStatus status = equal ? TR_OK : TR_NEQ;
-        ComparedResult fieldComparisonResults = new ComparedResult(field.getName(), expectedFieldValue, actualFieldValue, status);
+        ComparedResult fieldComparisonResults = new ComparedResult(field.getName(),
+            expectedFieldValue,
+            actualFieldValue,
+            status);
         comparisonResults.add(fieldComparisonResults);
 
         return equal;
@@ -219,7 +219,8 @@ public class BaseTestUnit implements ITestUnit {
 
         private static Builder instance = new Builder();
 
-        private Builder() { /* NON */ }
+        private Builder() {
+            /* NON */ }
 
         public static Builder getInstance() {
             return instance;

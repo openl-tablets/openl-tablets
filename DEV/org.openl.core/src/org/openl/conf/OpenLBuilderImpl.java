@@ -10,10 +10,10 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
 
     private String category;
 
-    private String[] packageImports = new String[]{};
-    private String[] classImports = new String[]{};
+    private String[] packageImports = new String[] {};
+    private String[] classImports = new String[] {};
 
-    private String[] libraries = new String[]{};
+    private String[] libraries = new String[] {};
 
     @Override
     public OpenL build(String category) {
@@ -78,8 +78,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
         /**
          * <libraries>
          * 
-         * <library namespace="org.openl.this">
-         * <javalib classname="org.openl.rules.helpers.RulesUtils"/> </library>
+         * <library namespace="org.openl.this"> <javalib classname="org.openl.rules.helpers.RulesUtils"/> </library>
          * </libraries>
          */
 
@@ -106,9 +105,8 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
 
         /*
          * 
-         * <types> <typelibrary namespace="org.openl.this"> <javaimport
-         * all="${org.openl.rules.java.project.imports}"/> <javaimport
-         * all="org.openl.rules.helpers"/> </typelibrary> </types>
+         * <types> <typelibrary namespace="org.openl.this"> <javaimport all="${org.openl.rules.java.project.imports}"/>
+         * <javaimport all="org.openl.rules.helpers"/> </typelibrary> </types>
          */
 
         return op;
@@ -125,11 +123,11 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
     public void setClassImports(String[] classImports) {
         this.classImports = classImports;
     }
-    
+
     public void setLibraries(String[] libraries) {
         this.libraries = libraries;
     }
-    
+
     public void setPackageImports(String[] packageImports) {
         this.packageImports = packageImports;
     }

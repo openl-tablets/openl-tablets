@@ -71,25 +71,25 @@ public class EnumDomainAdaptor implements IDomainAdaptor {
 
     @Override
     public IDomainAdaptor merge(IDomainAdaptor adaptor) {
-        EnumDomainAdaptor a = (EnumDomainAdaptor)adaptor;
-        
+        EnumDomainAdaptor a = (EnumDomainAdaptor) adaptor;
+
         Object[] v1 = getValues();
         Object[] v2 = a.getValues();
-        
+
         HashSet<Object> set = new HashSet<>(v1.length + v2.length);
-        
+
         for (int i = 0; i < v1.length; i++) {
             set.add(v1[i]);
         }
-        
+
         for (int i = 0; i < v2.length; i++) {
             set.add(v2[i]);
         }
-        
+
         Object[] newValues = set.toArray();
-        
+
         return new EnumDomainAdaptor(new EnumDomain<Object>(newValues));
-        
+
     }
 
 }

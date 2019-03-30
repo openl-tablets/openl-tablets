@@ -20,8 +20,8 @@ import java.util.Vector;
 /**
  * An abstract implementation of the factory for reusable objects.
  *
- * Any concrete factory should implement the method: createNewElement(). This
- * method returns a new uninitialized object for the conctete factory.
+ * Any concrete factory should implement the method: createNewElement(). This method returns a new uninitialized object
+ * for the conctete factory.
  *
  * @see Reusable
  */
@@ -58,8 +58,7 @@ public abstract class ReusableFactory implements java.io.Serializable {
     }
 
     /**
-     * Default constructor initializes this factory and registeres this factory
-     * in all factories.
+     * Default constructor initializes this factory and registeres this factory in all factories.
      */
     public ReusableFactory() {
         _reusables = new FastStack();
@@ -88,9 +87,8 @@ public abstract class ReusableFactory implements java.io.Serializable {
     }
 
     /**
-     * Returns next the uninitialized object for this factory. If there are
-     * unused objects one of them is returned. Otherwise new object is created
-     * and returned.
+     * Returns next the uninitialized object for this factory. If there are unused objects one of them is returned.
+     * Otherwise new object is created and returned.
      */
     public final synchronized Object getElement() {
         Reusable result;

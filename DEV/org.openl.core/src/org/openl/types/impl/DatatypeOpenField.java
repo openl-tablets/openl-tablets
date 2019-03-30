@@ -56,12 +56,12 @@ public class DatatypeOpenField extends AOpenField {
         }
 
     }
-    
+
     public Method getGetter() {
         initMethods();
         return getter;
     }
-    
+
     public Method getSetter() {
         initMethods();
         return setter;

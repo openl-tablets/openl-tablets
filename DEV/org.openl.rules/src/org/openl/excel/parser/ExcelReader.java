@@ -19,10 +19,10 @@ public interface ExcelReader extends AutoCloseable {
     Object[][] getCells(SheetDescriptor sheet);
 
     /**
-     * Sometimes we need to convert parsed double value to date.
-     * For example a cell contains value 1.25, user sees it in Excel as 1.25 but in OpenL this value has a type Date.
-     * It should be converted from double to Date. (There is unit test for such case)
-     * We should get this property from workbook and use it in DateUtil.getJavaDate(double, boolean) to convert it correctly.
+     * Sometimes we need to convert parsed double value to date. For example a cell contains value 1.25, user sees it in
+     * Excel as 1.25 but in OpenL this value has a type Date. It should be converted from double to Date. (There is unit
+     * test for such case) We should get this property from workbook and use it in DateUtil.getJavaDate(double, boolean)
+     * to convert it correctly.
      *
      * @return The setting for a given workbook
      */

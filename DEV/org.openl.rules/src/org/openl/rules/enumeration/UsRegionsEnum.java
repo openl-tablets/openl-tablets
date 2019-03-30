@@ -10,7 +10,7 @@ public enum UsRegionsEnum {
 
     private final String displayName;
 
-    private UsRegionsEnum (String displayName) {
+    private UsRegionsEnum(String displayName) {
         this.displayName = displayName;
     }
 

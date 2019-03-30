@@ -14,17 +14,17 @@ class PreBinderMethods {
     public IOpenMethod get(String name) {
         return binderMethodsByName.get(name);
     }
-    
+
     public IOpenMethod get(IOpenMethodHeader header) {
         return binderMethods.get(header);
     }
 
     public void put(IOpenMethodHeader header, RecursiveOpenMethodPreBinder method) {
-        if (binderMethods.containsKey(header)){
+        if (binderMethods.containsKey(header)) {
             IOpenMethod m = binderMethods.get(header);
             RecursiveOpenMethodPreBinder recursiveOpenMethodPreBinder = (RecursiveOpenMethodPreBinder) m;
             recursiveOpenMethodPreBinder.addRecursiveOpenMethodPreBinderMethod(method);
-        }else{
+        } else {
             binderMethods.put(header, method);
             binderMethodsByName.put(header.getName(), method);
         }
@@ -34,7 +34,7 @@ class PreBinderMethods {
         binderMethods.remove(header);
         binderMethodsByName.remove(header.getName());
     }
-    
+
     public Collection<IOpenMethod> values() {
         return binderMethods.values();
     }

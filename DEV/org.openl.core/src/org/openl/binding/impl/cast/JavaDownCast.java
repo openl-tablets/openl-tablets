@@ -5,7 +5,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 final class JavaDownCast implements IOpenCast {
-    
+
     private IOpenClass to;
     private ICastFactory castFactory;
 
@@ -13,7 +13,7 @@ final class JavaDownCast implements IOpenCast {
         if (to == null) {
             throw new IllegalArgumentException("to arg can't be null!");
         }
-        if (castFactory == null){
+        if (castFactory == null) {
             throw new IllegalArgumentException("castFactory arg can't be null!");
         }
         this.to = to;
@@ -22,21 +22,22 @@ final class JavaDownCast implements IOpenCast {
 
     @Override
     public Object convert(Object from) {
-        if (from == null){
+        if (from == null) {
             return null;
         }
         if (from.getClass().isAssignableFrom(to.getInstanceClass())) {
             return from;
         } else {
-            //Allow upcast if posible
+            // Allow upcast if posible
             if (to.getInstanceClass().isAssignableFrom(from.getClass())) {
-                return from;    
-            }else{
+                return from;
+            } else {
                 IOpenCast openCast = castFactory.getCast(JavaOpenClass.getOpenClass(from.getClass()), to);
-                if (openCast != null && !(openCast instanceof JavaDownCast)){
+                if (openCast != null && !(openCast instanceof JavaDownCast)) {
                     return openCast.convert(from);
                 }
-                throw new ClassCastException("Can't cast from '" + from.getClass().getCanonicalName() + "' to " + to.getDisplayName(0));
+                throw new ClassCastException(
+                    "Can't cast from '" + from.getClass().getCanonicalName() + "' to " + to.getDisplayName(0));
             }
         }
     }
@@ -44,8 +45,7 @@ final class JavaDownCast implements IOpenCast {
     /*
      * (non-Javadoc)
      * 
-     * @see org.openl.types.IOpenCast#getDistance(org.openl.types.IOpenClass,
-     * org.openl.types.IOpenClass)
+     * @see org.openl.types.IOpenCast#getDistance(org.openl.types.IOpenClass, org.openl.types.IOpenClass)
      */
     @Override
     public int getDistance() {

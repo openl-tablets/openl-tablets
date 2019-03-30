@@ -7,9 +7,8 @@ import java.util.IdentityHashMap;
 import java.util.Set;
 
 /**
- * ClassLoader that have bundle classLoaders. When loading any class, at first
- * tries to find it in bundle classLoaders if can`t tries to find it in his
- * parent.
+ * ClassLoader that have bundle classLoaders. When loading any class, at first tries to find it in bundle classLoaders
+ * if can`t tries to find it in his parent.
  * 
  * 
  */

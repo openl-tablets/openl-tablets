@@ -24,9 +24,9 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 public class SAXReader implements ExcelReader {
-    
+
     private final ParserDateUtil parserDateUtil = new ParserDateUtil();
-    
+
     private final String fileName;
     private File tempFile;
 
@@ -40,7 +40,8 @@ public class SAXReader implements ExcelReader {
     }
 
     public SAXReader(InputStream is) {
-        // Save to temp file because using an InputStream has a higher memory footprint than using a File. See POI javadocs.
+        // Save to temp file because using an InputStream has a higher memory footprint than using a File. See POI
+        // javadocs.
         tempFile = FileTool.toTempFile(is, "stream.xlsx");
         this.fileName = tempFile.getAbsolutePath();
         ExcelUtils.configureZipBombDetection();
@@ -81,7 +82,10 @@ public class SAXReader implements ExcelReader {
             initializeNeededData(r, pkg);
 
             XMLReader parser = SAXHelper.newXMLReader();
-            SheetHandler handler = new SheetHandler(r.getSharedStringsTable(), use1904Windowing, styleTable, parserDateUtil);
+            SheetHandler handler = new SheetHandler(r.getSharedStringsTable(),
+                use1904Windowing,
+                styleTable,
+                parserDateUtil);
             parser.setContentHandler(handler);
 
             try (InputStream sheetData = r.getSheet(saxSheet.getRelationId())) {
@@ -126,10 +130,10 @@ public class SAXReader implements ExcelReader {
             }
 
             return new SAXTableStyles(tableRegion,
-                    styleIndexHandler.getCellIndexes(),
-                    r.getStylesTable(),
-                    getSheetComments(pkg, saxSheet),
-                    styleIndexHandler.getFormulas());
+                styleIndexHandler.getCellIndexes(),
+                r.getStylesTable(),
+                getSheetComments(pkg, saxSheet),
+                styleIndexHandler.getFormulas());
         } catch (IOException | OpenXML4JException | SAXException | ParserConfigurationException e) {
             throw new ExcelParseException(e);
         }
@@ -177,16 +181,16 @@ public class SAXReader implements ExcelReader {
     private CommentsTable getSheetComments(OPCPackage pkg, SAXSheetDescriptor sheet) {
         try {
             // Get workbook part
-            PackageRelationship workbookRel = pkg.getRelationshipsByType(
-                    PackageRelationshipTypes.CORE_DOCUMENT
-            ).getRelationship(0);
+            PackageRelationship workbookRel = pkg.getRelationshipsByType(PackageRelationshipTypes.CORE_DOCUMENT)
+                .getRelationship(0);
             PackagePart workbookPart = pkg.getPart(workbookRel);
 
             // Find sheet part by relation id
             PackageRelationship sheetRel = workbookPart.getRelationship(sheet.getRelationId());
             PackagePart sheetPart = pkg.getPart(PackagingURIHelper.createPartName(sheetRel.getTargetURI()));
 
-            PackageRelationshipCollection commentRelList = sheetPart.getRelationshipsByType(XSSFRelation.SHEET_COMMENTS.getRelation());
+            PackageRelationshipCollection commentRelList = sheetPart
+                .getRelationshipsByType(XSSFRelation.SHEET_COMMENTS.getRelation());
             if (commentRelList.size() > 0) {
                 // Comments have only one relationship
                 PackageRelationship commentRel = commentRelList.getRelationship(0);

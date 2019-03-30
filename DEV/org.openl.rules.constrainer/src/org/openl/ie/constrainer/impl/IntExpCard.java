@@ -14,9 +14,8 @@ import org.openl.ie.constrainer.Subject;
  */
 public final class IntExpCard extends IntExpImpl {
     /**
-     * This is an Observer for min/max events on _possible_required variable:
-     * _possible_required.min() <= this.min() <= this.max() <=
-     * _possible_required.max()
+     * This is an Observer for min/max events on _possible_required variable: _possible_required.min() <= this.min() <=
+     * this.max() <= _possible_required.max()
      */
 
     class ObserverIndexes extends Observer {
@@ -46,6 +45,7 @@ public final class IntExpCard extends IntExpImpl {
 
         }
     } // ~ ObserverPossibleRequired
+
     private IntExpArray _vars;
     private IntVar _possible_required;
     private IntVarImpl _indexes;
@@ -64,8 +64,8 @@ public final class IntExpCard extends IntExpImpl {
         int size = vars.size();
         _vars = vars;
 
-        _indexes = (IntVarImpl) constrainer().addIntVarTraceInternal(0, size, "IX" + card_value,
-                IntVar.DOMAIN_BIT_FAST, trace);
+        _indexes = (IntVarImpl) constrainer()
+            .addIntVarTraceInternal(0, size, "IX" + card_value, IntVar.DOMAIN_BIT_FAST, trace);
 
         int possible_instances = 0;
         int required_instances = 0;
@@ -81,8 +81,11 @@ public final class IntExpCard extends IntExpImpl {
 
         }
 
-        _possible_required = constrainer().addIntVarTraceInternal(required_instances, _indexes.size() - 1,
-                "PR" + card_value, IntVar.DOMAIN_PLAIN, trace);
+        _possible_required = constrainer().addIntVarTraceInternal(required_instances,
+            _indexes.size() - 1,
+            "PR" + card_value,
+            IntVar.DOMAIN_PLAIN,
+            trace);
 
         _indexes.attachObserver(new ObserverIndexes());
 

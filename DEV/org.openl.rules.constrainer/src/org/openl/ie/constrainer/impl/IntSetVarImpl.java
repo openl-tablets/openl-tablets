@@ -18,7 +18,6 @@ import org.openl.ie.constrainer.UndoImpl;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
 
-
 public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
 
     class ElementsObserver extends Observer {
@@ -49,15 +48,16 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
             }
             if (e.max() == 1) {
                 // TRUE
-                notifyObservers(IntSetEvent.getEvent(IntSetVarImpl.this, _val,
-                        IntSetEvent.IntSetEventConstants.REQUIRE | valueMask));
+                notifyObservers(IntSetEvent
+                    .getEvent(IntSetVarImpl.this, _val, IntSetEvent.IntSetEventConstants.REQUIRE | valueMask));
             } else {
                 // FALSE
-                notifyObservers(IntSetEvent.getEvent(IntSetVarImpl.this, _val,
-                        IntSetEvent.IntSetEventConstants.REMOVE | valueMask));
+                notifyObservers(IntSetEvent
+                    .getEvent(IntSetVarImpl.this, _val, IntSetEvent.IntSetEventConstants.REMOVE | valueMask));
             }
         } // ~update()
     }
+
     static public class UndoPossibleSetReduction extends UndoImpl {
 
         static ReusableFactory _factory = new ReusableFactory() {
@@ -85,6 +85,7 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
             super.undo();
         }
     }
+
     private IntExpArray _set;
 
     private HashMap _values2index = new HashMap();

@@ -8,9 +8,8 @@ import org.openl.rules.lang.xls.SpreadsheetConstants;
  */
 public interface WorkbookLoader {
     /**
-     * Get the workbook.
-     * Depending on implementation and {@link #isCanUnload()} state, when this method is repeatedly called,
-     * it can (but mustn't) return different instances of workbook java object.
+     * Get the workbook. Depending on implementation and {@link #isCanUnload()} state, when this method is repeatedly
+     * called, it can (but mustn't) return different instances of workbook java object.
      *
      * @return loaded workbook
      * @see #isCanUnload()
@@ -34,9 +33,9 @@ public interface WorkbookLoader {
 
     /**
      * <p>
-     * If true - the workbook can (but mustn't) be unloaded (for example if there is no enough memory).
-     * In this case when the {@link #getWorkbook()} is repeatedly called, it can (but mustn't) return
-     * different instances of workbook java object.
+     * If true - the workbook can (but mustn't) be unloaded (for example if there is no enough memory). In this case
+     * when the {@link #getWorkbook()} is repeatedly called, it can (but mustn't) return different instances of workbook
+     * java object.
      * </p>
      * <p>
      * If false - the workbook is not unloaded and {@link #getWorkbook()} always returns the same Workbook instance.
@@ -48,9 +47,9 @@ public interface WorkbookLoader {
     boolean isCanUnload();
 
     /**
-     * Set the flag that this workbook can or can't be unloaded.
-     * If workbook can't be unloaded (for example when we edit the workbook) internal implementation should always keep
-     * strong reference to workbook and {@link #getWorkbook()} always returns the same Workbook instance.
+     * Set the flag that this workbook can or can't be unloaded. If workbook can't be unloaded (for example when we edit
+     * the workbook) internal implementation should always keep strong reference to workbook and {@link #getWorkbook()}
+     * always returns the same Workbook instance.
      *
      * @param canUnload the flag that this workbook can or can't be unloaded
      * @see #isCanUnload()

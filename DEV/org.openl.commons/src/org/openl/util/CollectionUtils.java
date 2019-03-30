@@ -17,8 +17,7 @@ public class CollectionUtils {
      * Return {@code true} if a collection is null or is empty.
      * 
      * @param col the checked collection.
-     * @return return {@code true} if the collection does not contain any
-     *         elements.
+     * @return return {@code true} if the collection does not contain any elements.
      * @see Collection#isEmpty()
      */
     public static boolean isEmpty(Collection<?> col) {
@@ -26,8 +25,8 @@ public class CollectionUtils {
     }
 
     /**
-     * Return {@code true} if a collection contains at least one element. This
-     * method is inverse to {@link #isEmpty(Collection)}.
+     * Return {@code true} if a collection contains at least one element. This method is inverse to
+     * {@link #isEmpty(Collection)}.
      *
      * @param col the checked collection.
      * @return {@code true} if the collection contains at least one element.
@@ -48,8 +47,7 @@ public class CollectionUtils {
     }
 
     /**
-     * Return {@code true} if a map contains at least one element. This method
-     * is inverse to {@link #isEmpty(Map)}.
+     * Return {@code true} if a map contains at least one element. This method is inverse to {@link #isEmpty(Map)}.
      *
      * @param map the checked map.
      * @return {@code true} if the map contains at least one element.
@@ -70,8 +68,7 @@ public class CollectionUtils {
     }
 
     /**
-     * Return {@code true} if an array contains at least one element. This
-     * method is inverse to {@link #isEmpty(T[])}.
+     * Return {@code true} if an array contains at least one element. This method is inverse to {@link #isEmpty(T[])}.
      *
      * @param array the checked array.
      * @return {@code true} if the array contains at least one element.
@@ -93,8 +90,7 @@ public class CollectionUtils {
     }
 
     /**
-     * Return {@code true} if an array contains at least one element. This
-     * method is inverse to {@link #isEmpty(T[])}.
+     * Return {@code true} if an array contains at least one element. This method is inverse to {@link #isEmpty(T[])}.
      *
      * @param array the checked array.
      * @return {@code true} if the array contains at least one element.
@@ -105,8 +101,7 @@ public class CollectionUtils {
     }
 
     /**
-     * Returns a new Collection consisting of the elements of the input
-     * collection transformed by the given transformer.
+     * Returns a new Collection consisting of the elements of the input collection transformed by the given transformer.
      * <p>
      *
      * @param <I> the type of object in the input collection.
@@ -133,15 +128,13 @@ public class CollectionUtils {
     }
 
     /**
-     * Finds the first element in the given collection which matches the given
-     * predicate.
+     * Finds the first element in the given collection which matches the given predicate.
      * <p>
      *
      * @param <T> the type of object the {@link Iterable} contains.
      * @param col the collection to search, may be null.
      * @param predicate the predicate to use.
-     * @return the first element of the collection which matches the predicate
-     *         or null if none could be found.
+     * @return the first element of the collection which matches the predicate or null if none could be found.
      * @throws NullPointerException if the predicate is null.
      */
     public static <T> T findFirst(Iterable<T> col, Predicate<? super T> predicate) {
@@ -160,16 +153,14 @@ public class CollectionUtils {
     }
 
     /**
-     * Selects all elements from input collection which match the given
-     * predicate into an output collection.
+     * Selects all elements from input collection which match the given predicate into an output collection.
      * <p>
      *
      * @param <T> the type of object the {@link Iterable} contains.
      * @param col the collection to search, may be null.
      * @param predicate the predicate to use.
-     * @return the all the elements of the collection which matches the
-     *         predicate or [] if none could be found or null if the input
-     *         collection is null.
+     * @return the all the elements of the collection which matches the predicate or [] if none could be found or null
+     *         if the input collection is null.
      * @throws NullPointerException if the predicate is null.
      */
     public static <T> List<T> findAll(Iterable<T> col, Predicate<? super T> predicate) {
@@ -219,11 +210,9 @@ public class CollectionUtils {
     }
 
     /**
-     * Defines a functor interface implemented by classes that map one object
-     * into another.
+     * Defines a functor interface implemented by classes that map one object into another.
      * <p>
-     * A <code>Mapper</code> converts the input object to the output object. The
-     * input object should be left unchanged.
+     * A <code>Mapper</code> converts the input object to the output object. The input object should be left unchanged.
      *
      * @param <I> the input type to the mapper.
      * @param <O> the output type from the mapper.
@@ -241,12 +230,10 @@ public class CollectionUtils {
     }
 
     /**
-     * Defines a functor interface implemented by classes that perform a
-     * predicate test on an object.
+     * Defines a functor interface implemented by classes that perform a predicate test on an object.
      * <p>
-     * A <code>Predicate</code> is the object equivalent of an <code>if</code>
-     * statement. It uses the input object to return a true or false value, and
-     * is often used in validation or filtering.
+     * A <code>Predicate</code> is the object equivalent of an <code>if</code> statement. It uses the input object to
+     * return a true or false value, and is often used in validation or filtering.
      * <p>
      *
      * @param <T> the type that the predicate queries.
@@ -254,8 +241,7 @@ public class CollectionUtils {
     public interface Predicate<T> {
 
         /**
-         * Use the specified parameter to perform a test that returns true or
-         * false.
+         * Use the specified parameter to perform a test that returns true or false.
          *
          * @param object the object to evaluate, should not be changed.
          * @return true or false.

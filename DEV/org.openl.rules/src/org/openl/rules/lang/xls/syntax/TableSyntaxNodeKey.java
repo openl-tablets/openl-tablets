@@ -4,9 +4,8 @@ import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 
 /**
- * Key to check identity of tables represented by TableSyntaxNodes. Tables are
- * identical when they have the same method signature and the same business
- * dimension properties.
+ * Key to check identity of tables represented by TableSyntaxNodes. Tables are identical when they have the same method
+ * signature and the same business dimension properties.
  * 
  * @author PUdalau
  */
@@ -16,16 +15,16 @@ public class TableSyntaxNodeKey {
 
     public TableSyntaxNodeKey(TableSyntaxNode tsn) {
         this.tsn = tsn;
-        this.methodKey = new DimensionPropertiesMethodKey((ExecutableRulesMethod)tsn.getMember());
+        this.methodKey = new DimensionPropertiesMethodKey((ExecutableRulesMethod) tsn.getMember());
     }
 
     /**
-     * @return The TableSyntaxNode, key was generated for 
+     * @return The TableSyntaxNode, key was generated for
      */
     public TableSyntaxNode getTableSyntaxNode() {
         return tsn;
     }
-    
+
     /**
      * 
      * @return {@link DimensionPropertiesMethodKey} for {@link TableSyntaxNode} member.
@@ -40,7 +39,7 @@ public class TableSyntaxNodeKey {
             return false;
         }
         TableSyntaxNodeKey key = (TableSyntaxNodeKey) obj;
-        
+
         return methodKey.equals(key.getMethodKey());
     }
 
@@ -48,7 +47,7 @@ public class TableSyntaxNodeKey {
     public int hashCode() {
         return methodKey.hashCode();
     }
-    
+
     @Override
     public String toString() {
         return methodKey.toString();

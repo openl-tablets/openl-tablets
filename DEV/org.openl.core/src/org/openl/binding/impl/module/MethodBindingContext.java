@@ -59,8 +59,7 @@ public class MethodBindingContext extends BindingContextDelegator {
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.binding.IBindingContext#addVar(java.lang.String,
-     *      java.lang.String, org.openl.types.IOpenClass)
+     * @see org.openl.binding.IBindingContext#addVar(java.lang.String, java.lang.String, org.openl.types.IOpenClass)
      */
     @Override
     public ILocalVar addVar(String namespace, String name, IOpenClass type) {

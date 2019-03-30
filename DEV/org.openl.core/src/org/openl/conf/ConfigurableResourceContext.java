@@ -21,7 +21,7 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
 
     private final Logger log = LoggerFactory.getLogger(ConfigurableResourceContext.class);
 
-    private static final String[] DEFAULT_FILESYSTEM_ROOTS = {".", ""};
+    private static final String[] DEFAULT_FILESYSTEM_ROOTS = { ".", "" };
 
     private IOpenLConfiguration config;
     private ClassLoader classLoader;
@@ -90,9 +90,7 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.openl.conf.IConfigurableResourceContext#findProperty(java.lang.String
-     * )
+     * @see org.openl.conf.IConfigurableResourceContext#findProperty(java.lang.String )
      */
     @Override
     public String findProperty(String propertyName) {

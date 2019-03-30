@@ -15,11 +15,11 @@ public final class TestSuiteExecutor {
     public TestSuiteExecutor(int threadCount) {
         this.threadCount = threadCount;
         this.executor = new ThreadPoolExecutor(threadCount,
-                threadCount,
-                1L,
-                TimeUnit.MINUTES,
-                new ArrayBlockingQueue<Runnable>(QUEUE_SIZE),
-                new ThreadPoolExecutor.CallerRunsPolicy());
+            threadCount,
+            1L,
+            TimeUnit.MINUTES,
+            new ArrayBlockingQueue<Runnable>(QUEUE_SIZE),
+            new ThreadPoolExecutor.CallerRunsPolicy());
         executor.allowCoreThreadTimeOut(true);
     }
 

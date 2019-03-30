@@ -22,11 +22,11 @@ import org.openl.types.java.JavaOpenClass;
  *
  */
 public class TypeCastFactory extends AConfigurationElement implements IConfigurationElement {
-    
+
     TypeCastFactory(IOpenLConfiguration configuration) {
         this.configuration = configuration;
     }
-    
+
     private IOpenLConfiguration configuration;
 
     public class JavaCastComponent extends AConfigurationElement {
@@ -42,7 +42,8 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
                         ClassLoader classLoader = cxt.getClassLoader();
                         String uri = getUri();
 
-                        Class<?> libClass = ClassFactory.validateClassExistsAndPublic(libraryClassName, classLoader, uri);
+                        Class<?> libClass = ClassFactory
+                            .validateClassExistsAndPublic(libraryClassName, classLoader, uri);
                         Class<?> implClass = ClassFactory.validateClassExistsAndPublic(className, classLoader, uri);
 
                         // Strange reflection logic with implementation cast!
@@ -75,9 +76,7 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
         /*
          * (non-Javadoc)
          *
-         * @see
-         * org.openl.newconf.IConfigurationElement#validate(org.openl.newconf.
-         * IConfigurationContext)
+         * @see org.openl.newconf.IConfigurationElement#validate(org.openl.newconf. IConfigurationContext)
          */
         @Override
         public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
@@ -96,7 +95,7 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
     public void addJavaCast(JavaCastComponent cmp) {
         components.add(cmp);
     }
-    
+
     public Collection<JavaCastComponent> getJavaCastComponents() {
         return Collections.unmodifiableList(components);
     }
@@ -104,8 +103,7 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.binding.ICastFactory#getCast(org.openl.types.IOpenClass,
-     * org.openl.types.IOpenClass)
+     * @see org.openl.binding.ICastFactory#getCast(org.openl.types.IOpenClass, org.openl.types.IOpenClass)
      */
     public IOpenCast getCast(IOpenClass from, IOpenClass to, IConfigurableResourceContext cxt) {
         for (JavaCastComponent component : components) {
@@ -120,8 +118,7 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.newconf.IConfigurationElement#validate(org.openl.newconf.
-     * IConfigurationContext)
+     * @see org.openl.newconf.IConfigurationElement#validate(org.openl.newconf. IConfigurationContext)
      */
     @Override
     public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {

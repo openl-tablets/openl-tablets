@@ -10,9 +10,8 @@ package org.openl.rules.calculation.result.convertor2;
  * #L%
  */
 
-
 public interface RowFilter {
-    
+
     boolean excludeRow(String rowName);
-    
+
 }

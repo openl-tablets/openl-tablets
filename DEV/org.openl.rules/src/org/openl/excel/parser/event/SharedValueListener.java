@@ -59,11 +59,9 @@ public class SharedValueListener implements HSSFListener {
     }
 
     public SharedValueManager getSharedValueManager() {
-        return SharedValueManager.create(
-                sharedFormulaRecords.toArray(new SharedFormulaRecord[0]),
-                firstCellRefs.toArray(new CellReference[0]),
-                arrayRecords.toArray(new ArrayRecord[0]),
-                tableRecords.toArray(new TableRecord[0])
-        );
+        return SharedValueManager.create(sharedFormulaRecords.toArray(new SharedFormulaRecord[0]),
+            firstCellRefs.toArray(new CellReference[0]),
+            arrayRecords.toArray(new ArrayRecord[0]),
+            tableRecords.toArray(new TableRecord[0]));
     }
 }

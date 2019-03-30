@@ -123,7 +123,7 @@ public class StringRange {
         return sb.toString();
     }
 
-    //CAST METHODS
+    // CAST METHODS
     public static StringRange cast(char[] x, StringRange y) {
         return new StringRange(String.valueOf(x));
     }
@@ -131,6 +131,6 @@ public class StringRange {
     public static StringRange cast(StringValue x, StringRange y) {
         return new StringRange(x.getValue());
     }
-    //END
+    // END
 
 }

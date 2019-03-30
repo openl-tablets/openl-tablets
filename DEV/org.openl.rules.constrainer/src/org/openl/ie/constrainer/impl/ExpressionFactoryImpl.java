@@ -15,7 +15,6 @@ import org.openl.ie.constrainer.Undoable;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
 
-
 /**
  * A generic implementation of the ExpressionFactory interface.
  */
@@ -233,8 +232,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
     private boolean _useCache = false;
 
     /**
-     * Returns a constructor with the given parameter types for a given
-     * parameter values.
+     * Returns a constructor with the given parameter types for a given parameter values.
      */
     static Class[] args2types(Object[] args) {
         int size = args.length;
@@ -262,8 +260,8 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
             constr.setAccessible(true); // to create not public implementations
             return (Expression) constr.newInstance(args);
         } catch (Exception e) {
-            String msg = "Error creating expression: " + e.getClass().getName() + ": " + e.getMessage() + ": "
-                    + c.getName();
+            String msg = "Error creating expression: " + e.getClass().getName() + ": " + e.getMessage() + ": " + c
+                .getName();
 
             Constrainer.abort(msg, e);
             return null;
@@ -275,8 +273,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
     }
 
     /**
-     * Returns the cached expression for a given key. If there is no cached
-     * expression returns null.
+     * Returns the cached expression for a given key. If there is no cached expression returns null.
      */
     Expression findExpression(ExpressionKey key) {
         return (Expression) _expressions.get(key);

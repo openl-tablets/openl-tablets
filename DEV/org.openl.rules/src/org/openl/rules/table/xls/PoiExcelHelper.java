@@ -11,7 +11,7 @@ import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.*;
 
 public final class PoiExcelHelper {
-    
+
     private PoiExcelHelper() {
     }
 
@@ -63,7 +63,7 @@ public final class PoiExcelHelper {
         }
         return null;
     }
-        
+
     public static Cell getOrCreateCell(int colIndex, int rowIndex, Sheet sheet) {
         Row row = sheet.getRow(rowIndex);
         if (row == null) {
@@ -71,7 +71,7 @@ public final class PoiExcelHelper {
         }
         return row.getCell(colIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
     }
-    
+
     /**
      * Some magic numbers here What is column width???
      */
@@ -82,10 +82,9 @@ public final class PoiExcelHelper {
         }
         return w / 40;
     }
-    
+
     /**
-     * Returns the index of the column. After that column there is no more
-     * filled cells on the sheet in given row.
+     * Returns the index of the column. After that column there is no more filled cells on the sheet in given row.
      * 
      * @param rownum index of the row on the sheet
      */
@@ -93,21 +92,20 @@ public final class PoiExcelHelper {
         Row row = sheet.getRow(rownum);
         return row == null ? 0 : row.getLastCellNum();
     }
-    
+
     public static int getMaxRowIndex(Sheet sheet) {
         return sheet.getLastRowNum();
     }
-    
+
     /**
-     * Returns the index of the column, the next column will be the first cell
-     * with data in given row.
+     * Returns the index of the column, the next column will be the first cell with data in given row.
      * 
      */
     public static int getMinColumnIndex(int rownum, Sheet sheet) {
         Row row = sheet.getRow(rownum);
         return row == null ? 0 : row.getFirstCellNum();
     }
-    
+
     public static int getNumberOfMergedRegions(Sheet sheet) {
         try {
             return sheet.getNumMergedRegions();
@@ -115,7 +113,7 @@ public final class PoiExcelHelper {
             return 0;
         }
     }
-    
+
     public static int getMinRowIndex(Sheet sheet) {
         return sheet.getFirstRowNum();
     }
@@ -129,7 +127,7 @@ public final class PoiExcelHelper {
         cell.setCellType(CellType.STRING);
         cell.setCellValue(value);
     }
- 
+
     public static CellRangeAddress getMergedRegionAt(int index, Sheet sheet) {
         return sheet.getMergedRegion(index);
     }
@@ -138,8 +136,7 @@ public final class PoiExcelHelper {
      * Evaluates formula in the cell to get new cell value.
      */
     public static void evaluateFormula(Cell cell) throws Exception {
-        FormulaEvaluator formulaEvaluator = cell.getSheet().getWorkbook()
-            .getCreationHelper().createFormulaEvaluator();
+        FormulaEvaluator formulaEvaluator = cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
         formulaEvaluator.evaluateFormulaCell(cell);
     }
 
@@ -201,12 +198,18 @@ public final class PoiExcelHelper {
     }
 
     public static void setCellFont(Cell cell,
-            boolean boldWeight, short color, short fontHeight, String name, boolean italic,
-            boolean strikeout, short typeOffset, byte underline) {
+            boolean boldWeight,
+            short color,
+            short fontHeight,
+            String name,
+            boolean italic,
+            boolean strikeout,
+            short typeOffset,
+            byte underline) {
         if (cell != null) {
             Workbook workbook = cell.getSheet().getWorkbook();
-            Font font = workbook.findFont(
-                    boldWeight, color, fontHeight, name, italic, strikeout, typeOffset, underline);
+            Font font = workbook
+                .findFont(boldWeight, color, fontHeight, name, italic, strikeout, typeOffset, underline);
             if (font == null) { // Create new font
                 font = cell.getSheet().getWorkbook().createFont();
                 font.setBold(boldWeight);
@@ -226,8 +229,14 @@ public final class PoiExcelHelper {
         Font font = getCellFont(cell);
         if (font != null) {
             setCellFont(cell,
-                    boldweight, font.getColor(), font.getFontHeight(), font.getFontName(), font.getItalic(),
-                    font.getStrikeout(), font.getTypeOffset(), font.getUnderline());
+                boldweight,
+                font.getColor(),
+                font.getFontHeight(),
+                font.getFontName(),
+                font.getItalic(),
+                font.getStrikeout(),
+                font.getTypeOffset(),
+                font.getUnderline());
         }
     }
 
@@ -235,8 +244,14 @@ public final class PoiExcelHelper {
         Font font = getCellFont(cell);
         if (font != null) {
             setCellFont(cell,
-                    font.getBold(), font.getColor(), font.getFontHeight(), font.getFontName(), italic,
-                    font.getStrikeout(), font.getTypeOffset(), font.getUnderline());
+                font.getBold(),
+                font.getColor(),
+                font.getFontHeight(),
+                font.getFontName(),
+                italic,
+                font.getStrikeout(),
+                font.getTypeOffset(),
+                font.getUnderline());
         }
     }
 
@@ -244,8 +259,14 @@ public final class PoiExcelHelper {
         Font font = getCellFont(cell);
         if (font != null) {
             setCellFont(cell,
-                    font.getBold(), font.getColor(), font.getFontHeight(), font.getFontName(), font.getItalic(),
-                    font.getStrikeout(), font.getTypeOffset(), underline);
+                font.getBold(),
+                font.getColor(),
+                font.getFontHeight(),
+                font.getFontName(),
+                font.getItalic(),
+                font.getStrikeout(),
+                font.getTypeOffset(),
+                underline);
         }
     }
 
@@ -316,11 +337,11 @@ public final class PoiExcelHelper {
 
     }
 
-    private static double calculateLum(int lum , double tint) {
+    private static double calculateLum(int lum, double tint) {
         if (tint < 0) {
             return lum * (1.0 + tint);
         } else {
-            return (lum - 255) * (1.0 - tint) + 255 ;
+            return (lum - 255) * (1.0 - tint) + 255;
         }
     }
 
@@ -363,7 +384,7 @@ public final class PoiExcelHelper {
             colors[2] = toRgb(style.getBottomBorderColor(), hssfWorkbook);
             colors[3] = toRgb(style.getLeftBorderColor(), hssfWorkbook);
 
-        } else if(style instanceof XSSFCellStyle) {
+        } else if (style instanceof XSSFCellStyle) {
             XSSFCellStyle xssfStyle = (XSSFCellStyle) style;
             colors[0] = toRgb(xssfStyle.getTopBorderXSSFColor());
             colors[1] = toRgb(xssfStyle.getRightBorderXSSFColor());
@@ -400,7 +421,7 @@ public final class PoiExcelHelper {
             if (colors[3] != null) {
                 style.setLeftBorderColor(getOrAddColorIndex(colors[3], hssfWorkbook));
             }
-        } else if(style instanceof XSSFCellStyle) {
+        } else if (style instanceof XSSFCellStyle) {
             XSSFWorkbook xssfWorkbook = (XSSFWorkbook) workbook;
             XSSFCellStyle xssfStyle = (XSSFCellStyle) style;
             if (colors[0] != null) {

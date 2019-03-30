@@ -12,19 +12,21 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 
 public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
-    
+
     String tableNamePrefix;
-    
+
     public ADtColumnsDefinitionTableBinder(String tableNamePrefix) {
         if (tableNamePrefix == null) {
             throw new NullPointerException();
         }
         this.tableNamePrefix = tableNamePrefix;
     }
-    
+
     @Override
-    public IMemberBoundNode preBind(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt, XlsModuleOpenClass module)
-        throws Exception {
+    public IMemberBoundNode preBind(TableSyntaxNode tsn,
+            OpenL openl,
+            IBindingContext cxt,
+            XlsModuleOpenClass module) throws Exception {
 
         assert cxt instanceof RulesModuleBindingContext;
 
@@ -34,7 +36,7 @@ public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
         if (tableName == null) {
             tableName = tableNamePrefix + tsn.getUri();
         }
-        
+
         action.setTableName(tableName);
 
         return action;
@@ -58,7 +60,7 @@ public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
 
         return null;
     }
-    
+
     protected abstract ADtColumnsDefinitionTableBoundNode makeNode(TableSyntaxNode tsn,
             XlsModuleOpenClass module,
             OpenL openl,

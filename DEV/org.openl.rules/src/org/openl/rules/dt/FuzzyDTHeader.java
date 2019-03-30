@@ -29,7 +29,7 @@ class FuzzyDTHeader extends DTHeader {
     public String getStatementForCompoundReturn() {
         return statementForCompoundReturn;
     }
-    
+
     public IOpenMethod[] getMethodChainForCompoundReturn() {
         return methodChainForCompoundReturn;
     }

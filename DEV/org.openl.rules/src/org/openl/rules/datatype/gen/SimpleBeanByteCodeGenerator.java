@@ -16,10 +16,10 @@ class SimpleBeanByteCodeGenerator extends POJOByteCodeGenerator {
     private final String methodName;
 
     SimpleBeanByteCodeGenerator(String beanName,
-                          LinkedHashMap<String, FieldDescription> beanFields,
-                          Class<?> parentClass,
-                          Map<String, FieldDescription> parentFields,
-                          String methodName) {
+            LinkedHashMap<String, FieldDescription> beanFields,
+            Class<?> parentClass,
+            Map<String, FieldDescription> parentFields,
+            String methodName) {
         super(beanName, beanFields, parentClass, parentFields, true);
         this.methodName = methodName;
     }
@@ -54,7 +54,11 @@ class SimpleBeanByteCodeGenerator extends POJOByteCodeGenerator {
         Type classType = Type.getType(Class.class);
 
         Method types = Method.getMethod("java.lang.Class[] _types()");
-        GeneratorAdapter tg = new GeneratorAdapter(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, types, null, null, classWriter);
+        GeneratorAdapter tg = new GeneratorAdapter(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
+            types,
+            null,
+            null,
+            classWriter);
         tg.push(beanFields.size()); // array length
         tg.newArray(classType); // ar = new Object[size]
 
@@ -76,7 +80,11 @@ class SimpleBeanByteCodeGenerator extends POJOByteCodeGenerator {
 
     private void addMethod(ClassWriter classWriter, String methodName) {
         Method method = Method.getMethod("java.lang.String _method()");
-        GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, method, null, null, classWriter);
+        GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
+            method,
+            null,
+            null,
+            classWriter);
         mg.push(methodName);
         mg.returnValue();
         mg.endMethod();

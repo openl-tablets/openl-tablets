@@ -19,7 +19,7 @@ public class BinaryOpNode extends MethodBoundNode {
 
     }
 
-	private boolean useBinaryMethod;
+    private boolean useBinaryMethod;
 
     /**
      * @param syntaxNode
@@ -36,7 +36,7 @@ public class BinaryOpNode extends MethodBoundNode {
         Object[] pars = evaluateChildren(env);
 
         if (useBinaryMethod) {
-        	return boundMethod.invoke(null, pars, env);
+            return boundMethod.invoke(null, pars, env);
         }
         return boundMethod.invoke(pars[0], new Object[] { pars[1] }, env);
 

@@ -6,11 +6,9 @@ import java.util.Set;
 import org.openl.validation.IOpenLValidator;
 
 /**
- * The <code>ICompileContext</code> defines an abstraction of the compilation
- * time context.
+ * The <code>ICompileContext</code> defines an abstraction of the compilation time context.
  * 
- * The instance used to define compile time settings what determine compilation
- * process and can be changed by user.
+ * The instance used to define compile time settings what determine compilation process and can be changed by user.
  */
 public interface ICompileContext {
 

@@ -32,7 +32,7 @@ public class MethodSignature implements IMethodSignature {
     public String getParameterName(int i) {
         return parameters[i].getName();
     }
-    
+
     @Override
     public IOpenClass getParameterType(int i) {
         return parameters[i].getType();
@@ -51,7 +51,7 @@ public class MethodSignature implements IMethodSignature {
     public MethodSignature merge(IParameterDeclaration[] extraParams) {
         return new MethodSignature(merge(parameters, extraParams));
     }
-    
+
     @Override
     public String toString() {
         return StringUtils.join(parameters, ", ");

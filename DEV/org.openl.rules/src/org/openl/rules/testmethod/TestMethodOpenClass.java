@@ -24,13 +24,13 @@ public class TestMethodOpenClass extends ADynamicClass {
     public Object newInstance(IRuntimeEnv env) {
         return new DynamicObject(this);
     }
-    
+
     private IOpenMethod testedMethod;
 
     protected void init(IOpenMethod testedMethod) {
-        
+
         this.testedMethod = testedMethod;
-        
+
         addParameterFields(testedMethod);
 
         addExpectedResult(testedMethod);
@@ -38,7 +38,7 @@ public class TestMethodOpenClass extends ADynamicClass {
         addDescription();
 
         addContext();
-        
+
         addExpectedError();
 
         addTestId();
@@ -56,9 +56,7 @@ public class TestMethodOpenClass extends ADynamicClass {
     }
 
     protected void addExpectedError() {
-        IOpenField errorField = new DynamicObjectField(this,
-            TestMethodHelper.EXPECTED_ERROR,
-            JavaOpenClass.STRING);
+        IOpenField errorField = new DynamicObjectField(this, TestMethodHelper.EXPECTED_ERROR, JavaOpenClass.STRING);
         addField(errorField);
     }
 
@@ -84,12 +82,10 @@ public class TestMethodOpenClass extends ADynamicClass {
     }
 
     protected void addTestId() {
-        IOpenField idField = new DynamicObjectField(this,
-                RowIdField.ROW_ID,
-                JavaOpenClass.STRING);
+        IOpenField idField = new DynamicObjectField(this, RowIdField.ROW_ID, JavaOpenClass.STRING);
         addField(idField);
     }
-    
+
     public IOpenMethod getTestedMethod() {
         return testedMethod;
     }

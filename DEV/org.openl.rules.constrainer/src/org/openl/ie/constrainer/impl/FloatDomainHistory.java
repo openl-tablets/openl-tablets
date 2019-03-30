@@ -46,6 +46,7 @@ public final class FloatDomainHistory {
 
         protected int _type_mask;
         FloatDomainHistory _history;
+
         static FloatEventDomain getEvent(FloatDomainHistory history) {
             FloatEventDomain ev = (FloatEventDomain) _factory.getElement();
             ev.init(history);
@@ -93,6 +94,7 @@ public final class FloatDomainHistory {
             return _type_mask;
         }
     }
+
     final static int MIN_IDX = 0;
     final static int MAX_IDX = 1;
 

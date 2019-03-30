@@ -18,10 +18,8 @@ import java.util.Collection;
 
 import org.openl.ie.tools.FastVector;
 
-
 /**
- * An interface for the subject in the observer-subject (or
- * subscriber-publisher) design pattern.
+ * An interface for the subject in the observer-subject (or subscriber-publisher) design pattern.
  */
 public interface Subject extends Undoable {
     /**
@@ -55,14 +53,12 @@ public interface Subject extends Undoable {
     public void forcePublisherMask(int mask);
 
     /**
-     * Sets the condition 'this subject is in the propagation process' to the
-     * given value.
+     * Sets the condition 'this subject is in the propagation process' to the given value.
      */
     public void inProcess(boolean value);
 
     /**
-     * Notify the observers about an event. Only the observers interested in
-     * this event are notified.
+     * Notify the observers about an event. Only the observers interested in this event are notified.
      */
     public void notifyObservers(EventOfInterest interest) throws Failure;
 
@@ -97,11 +93,9 @@ public interface Subject extends Undoable {
     public void trace();
 
     /**
-     * Will trace this subject every time when the event of the "event_type"
-     * happens.
+     * Will trace this subject every time when the event of the "event_type" happens.
      *
-     * @param event_type EventOfInterest.MAX or EventOfInterest.MIN or
-     *            EventOfInterest.VALUE.
+     * @param event_type EventOfInterest.MAX or EventOfInterest.MIN or EventOfInterest.VALUE.
      */
     public void trace(int event_type);
 

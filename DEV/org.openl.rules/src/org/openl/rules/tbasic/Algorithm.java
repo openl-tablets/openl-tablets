@@ -13,8 +13,7 @@ import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
 
 /**
- * Table Basic Algorithm component. It's runnable method inside OpenL Tablets
- * infrastructure.
+ * Table Basic Algorithm component. It's runnable method inside OpenL Tablets infrastructure.
  * 
  * Allows users to represent any algorithm in tables using simple TBasic syntax.
  * 
@@ -42,7 +41,7 @@ public class Algorithm extends AlgorithmFunction {
     public Algorithm() {
         super(null, null);
     }
-    
+
     public Algorithm(IOpenMethodHeader header, AlgorithmBoundNode node) {
         super(header, node);
         initProperties(getSyntaxNode().getTableProperties());

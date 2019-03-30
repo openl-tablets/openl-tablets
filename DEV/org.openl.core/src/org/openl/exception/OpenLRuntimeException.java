@@ -12,8 +12,8 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.util.text.ILocation;
 
 /**
- * Exception, that happens at runtime time of OpenL, when rules are invoking.
- * NOTE! Don`t use it as wrapper for java runtime exceptions on compile time of OpenL. 
+ * Exception, that happens at runtime time of OpenL, when rules are invoking. NOTE! Don`t use it as wrapper for java
+ * runtime exceptions on compile time of OpenL.
  * 
  * @author snshor
  *
@@ -24,34 +24,34 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
 
     private IBoundNode node;
     private LinkedList<IBoundNode> openlCallStack = new LinkedList<>();
-    
+
     public OpenLRuntimeException() {
         super();
     }
-    
+
     public OpenLRuntimeException(String message, Throwable cause) {
-        super(message, cause);        
+        super(message, cause);
     }
-    
+
     public OpenLRuntimeException(String message) {
-        super(message);    
+        super(message);
     }
-    
+
     public OpenLRuntimeException(Throwable cause) {
-        super(cause);    
+        super(cause);
     }
 
     public OpenLRuntimeException(Throwable cause, IBoundNode node) {
         super(cause);
         this.node = node;
     }
-    
+
     public OpenLRuntimeException(String message, IBoundNode node) {
         super(message);
         this.node = node;
     }
 
-    public String getOriginalMessage(){
+    public String getOriginalMessage() {
         return super.getMessage();
     }
 
@@ -64,7 +64,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
             SourceCodeURLTool.printCodeAndError(getLocation(), getSourceModule(), pw);
             SourceCodeURLTool.printSourceLocation(getLocation(), getSourceModule(), pw);
         } else {
-            pw.print(super.getMessage());    
+            pw.print(super.getMessage());
         }
         return messageWriter.toString();
     }
@@ -131,7 +131,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
 
         LinkedList<IBoundNode> nodes = openlCallStack;
 
-        for (IBoundNode node: nodes) {
+        for (IBoundNode node : nodes) {
             ISyntaxNode syntaxNode = node.getSyntaxNode();
             if (syntaxNode != null) {
                 SourceCodeURLTool.printSourceLocation(syntaxNode.getSourceLocation(), syntaxNode.getModule(), writer);

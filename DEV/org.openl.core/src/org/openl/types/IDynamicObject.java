@@ -19,9 +19,8 @@ public interface IDynamicObject {
     void setFieldValue(String name, Object value);
 
     /**
-     * Gets map of all field values with names as map keys. The changes in map
-     * itself will not affect the instance. However, changes in values object
-     * will affect field values.
+     * Gets map of all field values with names as map keys. The changes in map itself will not affect the instance.
+     * However, changes in values object will affect field values.
      * 
      * @return Map of field names as keys and field values as values.
      */

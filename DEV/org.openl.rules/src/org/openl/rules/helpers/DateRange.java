@@ -95,10 +95,7 @@ public class DateRange {
             return false;
         }
         DateRange dateRange = (DateRange) o;
-        return lowerBound == dateRange.lowerBound &&
-                upperBound == dateRange.upperBound &&
-                lowerBoundType == dateRange.lowerBoundType &&
-                upperBoundType == dateRange.upperBoundType;
+        return lowerBound == dateRange.lowerBound && upperBound == dateRange.upperBound && lowerBoundType == dateRange.lowerBoundType && upperBoundType == dateRange.upperBoundType;
     }
 
     @Override
@@ -142,7 +139,7 @@ public class DateRange {
         return new Date(time);
     }
 
-    //CAST METHODS
+    // CAST METHODS
     public static DateRange cast(Calendar x, StringRange y) {
         return new DateRange(x.getTime());
     }
@@ -150,6 +147,6 @@ public class DateRange {
     public static DateRange cast(long x, StringRange y) {
         return new DateRange(new Date(x));
     }
-    //END
+    // END
 
 }

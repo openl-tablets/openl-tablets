@@ -4,9 +4,8 @@ import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
 
 /**
- * A cache pool for strings. This util is a replacement for Java's
- * String.intern() but it does not use Perm Gen. All strings in this pool are
- * weak referenced, so they can be garbage collected.
+ * A cache pool for strings. This util is a replacement for Java's String.intern() but it does not use Perm Gen. All
+ * strings in this pool are weak referenced, so they can be garbage collected.
  *
  * Note that this implementation is synchronized.
  *
@@ -23,9 +22,8 @@ public final class StringPool {
     }
 
     /**
-     * Returns a canonical representation for the string object. It works like
-     * {@link String#intern()} but it uses own pool for collecting unique
-     * strings.
+     * Returns a canonical representation for the string object. It works like {@link String#intern()} but it uses own
+     * pool for collecting unique strings.
      *
      * @see String#intern()
      */

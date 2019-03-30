@@ -19,7 +19,7 @@ public class XlsDefinitions {
 
     private static final boolean theSame(DTColumnsDefinition dtColumnDefinition1,
             DTColumnsDefinition dtColumnDefinition2) {
-        
+
         if (!Objects.equals(dtColumnDefinition1.getType(), dtColumnDefinition2.getType())) {
             return false;
         }
@@ -57,7 +57,7 @@ public class XlsDefinitions {
                 return false;
             }
         }
-        
+
         Set<String> titles1 = dtColumnDefinition1.getTitles();
         Set<String> titles2 = dtColumnDefinition1.getTitles();
         for (String title : titles1) {

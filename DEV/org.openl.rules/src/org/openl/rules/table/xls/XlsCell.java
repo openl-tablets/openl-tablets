@@ -24,8 +24,8 @@ public class XlsCell implements ICell {
     private XlsSheetGridModel gridModel;
 
     /**
-     * Usually there is a parameter duplication: the same column and row exist in cell object.
-     * But sometimes cell is null, so we will have just the coordinates of the cell.
+     * Usually there is a parameter duplication: the same column and row exist in cell object. But sometimes cell is
+     * null, so we will have just the coordinates of the cell.
      */
     public XlsCell(int column, int row, XlsSheetGridModel gridModel) {
         this.column = column;
@@ -43,7 +43,8 @@ public class XlsCell implements ICell {
     @Override
     public ICellStyle getStyle() {
         Cell cell = getCell();
-        if (cell == null) return null;
+        if (cell == null)
+            return null;
         return getCellStyle(cell);
     }
 
@@ -74,8 +75,12 @@ public class XlsCell implements ICell {
     @Override
     public ICellFont getFont() {
         Cell cell = getCell();
-        if (cell == null) return null;
-        Font font = gridModel.getSheetSource().getSheet().getWorkbook().getFontAt(cell.getCellStyle().getFontIndexAsInt());
+        if (cell == null)
+            return null;
+        Font font = gridModel.getSheetSource()
+            .getSheet()
+            .getWorkbook()
+            .getFontAt(cell.getCellStyle().getFontIndexAsInt());
         return new XlsCellFont(font, gridModel.getSheetSource().getSheet().getWorkbook());
     }
 
@@ -250,7 +255,7 @@ public class XlsCell implements ICell {
 
     /**
      * @return date value if cell is of type {@link IGrid#CELL_TYPE_NUMERIC} and is formatted in excel as date.<br>
-     * null is cell is of type {@link IGrid#CELL_TYPE_NUMERIC} and is not formatted in excel as date.<br>
+     *         null is cell is of type {@link IGrid#CELL_TYPE_NUMERIC} and is not formatted in excel as date.<br>
      * @throws IllegalStateException is the cell is of type {@link IGrid#CELL_TYPE_STRING}
      */
     @Override
@@ -261,7 +266,7 @@ public class XlsCell implements ICell {
         }
         try {
             return cell.getDateCellValue();
-        } catch (NullPointerException npe){
+        } catch (NullPointerException npe) {
             throw new IllegalStateException("Cannot parse the value as a date : " + cell.getNumericCellValue());
         }
     }

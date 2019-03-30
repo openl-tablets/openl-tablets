@@ -16,7 +16,7 @@ public abstract class DataTableField {
     private String businessName;
     private String foreignKeyTable;
     private String foreignKeyColumn;
-    
+
     private List<DataTableField> aggregatedFields = new ArrayList<>();
 
     /**
@@ -101,18 +101,17 @@ public abstract class DataTableField {
     public String getForeignKey() {
         if (StringUtils.isBlank(foreignKeyTable))
             return null;
-        
+
         String fk = ">" + foreignKeyTable;
-        
+
         if (StringUtils.isNotBlank(foreignKeyColumn))
             fk += " " + foreignKeyColumn;
-        
+
         return fk;
     }
 
     /**
-     * Get a list of an aggregated fields that will be filled instead of
-     * referencing with a foreign key
+     * Get a list of an aggregated fields that will be filled instead of referencing with a foreign key
      * 
      * @return list of an aggregated fields
      */
@@ -121,8 +120,7 @@ public abstract class DataTableField {
     }
 
     /**
-     * Set a list of an aggregated fields that will be filled instead of
-     * referencing with a foreign key
+     * Set a list of an aggregated fields that will be filled instead of referencing with a foreign key
      * 
      * @param aggregatedFields list of an aggregated fields
      */
@@ -133,8 +131,7 @@ public abstract class DataTableField {
     /**
      * Returns a method of filling data for a field
      * 
-     * @return if true then data is filled using aggregated fields else data is
-     *         filled using foreign keys
+     * @return if true then data is filled using aggregated fields else data is filled using foreign keys
      */
     public boolean isFillChildren() {
         return !getAggregatedFields().isEmpty();
@@ -157,13 +154,13 @@ public abstract class DataTableField {
     public void useForeignKey() {
         setAggregatedFields(Collections.<DataTableField> emptyList());
     }
-    
+
     /**
      * Get the field's type name
      * 
      * @return type name
      */
-    public abstract String getTypeName(); 
+    public abstract String getTypeName();
 
     /**
      * Determine, if a field is a complex object

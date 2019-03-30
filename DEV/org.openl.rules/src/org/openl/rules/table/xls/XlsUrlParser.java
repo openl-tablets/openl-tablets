@@ -25,12 +25,13 @@ public class XlsUrlParser implements XlsURLConstants {
     private String range;
     private String cell;
 
-    public XlsUrlParser() { /* NON */ }
+    public XlsUrlParser() {
+        /* NON */ }
 
     public XlsUrlParser(String url) {
         parse(url);
     }
-    
+
     public void parse(String url) {
         String file;
         Map<String, String> map = new HashMap<>();
@@ -66,7 +67,7 @@ public class XlsUrlParser implements XlsURLConstants {
             // TODO line, col
             range = cell;
         }
-        
+
         if (cell == null && range != null) {
             cell = range.substring(0, range.indexOf(":"));
         }
@@ -112,6 +113,5 @@ public class XlsUrlParser implements XlsURLConstants {
     public String getCell() {
         return cell;
     }
-    
-    
+
 }

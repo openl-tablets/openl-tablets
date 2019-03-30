@@ -86,10 +86,9 @@ public final class DomainBits extends DomainImpl {
     }
 
     /*
-     * catch(Exception ex) { System.out.println("Error: length: " + _bits.length + "
-     * _initialMin: " + _initial_min + " _initialMax: " + _initial_max + " _min: " +
-     * _min + " _max: " + _max + " value: " + value ); System.exit(1); return
-     * false; }
+     * catch(Exception ex) { System.out.println("Error: length: " + _bits.length + " _initialMin: " + _initial_min + "
+     * _initialMax: " + _initial_max + " _min: " + _min + " _max: " + _max + " value: " + value ); System.exit(1);
+     * return false; }
      */
 
     @Override
@@ -252,9 +251,8 @@ public final class DomainBits extends DomainImpl {
     }
 
     /*
-     * public String toString() { return "[" + _initial_min + ":" + _min + ";" +
-     * _max + ":" + _initial_max + "]" + " bits: " + printBits() + " size: " +
-     * size(); }
+     * public String toString() { return "[" + _initial_min + ":" + _min + ";" + _max + ":" + _initial_max + "]" +
+     * " bits: " + printBits() + " size: " + size(); }
      */
 
     @Override

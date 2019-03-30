@@ -2,10 +2,9 @@ package org.openl.ie.constrainer;
 
 import org.openl.ie.constrainer.impl.FloatExpImpl;
 
-
 /**
- * An implementation of the constant floating-point expression. Many methods
- * from FloatExpImpl are overloaded with optimized implementation.
+ * An implementation of the constant floating-point expression. Many methods from FloatExpImpl are overloaded with
+ * optimized implementation.
  */
 public final class FloatExpConst extends FloatExpImpl {
     private double _const;

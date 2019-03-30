@@ -21,6 +21,7 @@ public class NewNodeBinder extends ANodeBinder {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv,
      * org.openl.binding.IBindingContext)
      */
@@ -42,7 +43,7 @@ public class NewNodeBinder extends ANodeBinder {
         }
 
         IBoundNode[] children = bindChildren(node, bindingContext, 1, childrenCount);
-        if (hasErrorBoundNode(children)){
+        if (hasErrorBoundNode(children)) {
             return new ErrorBoundNode(node);
         }
         IOpenClass[] types = getTypes(children);

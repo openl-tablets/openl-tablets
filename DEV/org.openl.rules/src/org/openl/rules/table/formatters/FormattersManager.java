@@ -9,8 +9,7 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * Manager to get the formatters for convertions from <code>Object</code> values
- * to <code>String</code> and vice versa.
+ * Manager to get the formatters for convertions from <code>Object</code> values to <code>String</code> and vice versa.
  *
  * @author DLiauchuk
  */
@@ -20,13 +19,11 @@ public class FormattersManager {
     public static String DEFAULT_NUMBER_FORMAT = "#.#################";
 
     /**
-     * Gets the formatter for appropriate value. Formatters supports formatting
-     * of <code>null</code> objects.
+     * Gets the formatter for appropriate value. Formatters supports formatting of <code>null</code> objects.
      *
      * @param value value to format
-     * @return xls formatter for appropriate value class (if the value isn`t
-     * <code>null</code>). If value is <code>null</code> or there is no
-     * formatter for it`s class, returns {@link FormatterAdapter}
+     * @return xls formatter for appropriate value class (if the value isn`t <code>null</code>). If value is
+     *         <code>null</code> or there is no formatter for it`s class, returns {@link FormatterAdapter}
      */
     static IFormatter getFormatter(Object value) {
         IFormatter formatter;
@@ -49,8 +46,8 @@ public class FormattersManager {
     }
 
     /**
-     * Returns String presentation of the given object. This method do a little bit more than Java's toString().
-     * It returns a human readable string for Enums, Arrays, Booleans, Dates...
+     * Returns String presentation of the given object. This method do a little bit more than Java's toString(). It
+     * returns a human readable string for Enums, Arrays, Booleans, Dates...
      *
      * @param value an object to format
      * @return String presentation of the object
@@ -61,24 +58,21 @@ public class FormattersManager {
     }
 
     /**
-     * The method used for getting the appropriate formatter for the income
-     * class. If no formatter found it will be returned {@link DefaultFormatter}
-     * as default.<br>
+     * The method used for getting the appropriate formatter for the income class. If no formatter found it will be
+     * returned {@link DefaultFormatter} as default.<br>
      * Existing formatters:
      * <ul>
      * <li>{@link NumberFormatter} for numeric types.</li>
      * <li>{@link DateFormatter} for {@link Date} type.</li>
      * <li>{@link BooleanFormatter} for {@link Boolean} type.</li>
      * <li>{@link EnumFormatter} for Enum types.</li>
-     * <li>{@link ArrayFormatter} for array types, also supports primitive
-     * arrays.</li>
+     * <li>{@link ArrayFormatter} for array types, also supports primitive arrays.</li>
      * <li>{@link DefaultFormatter} for {@link String} type.</li>
      * </ul>
      *
-     * @param clazz  formatter will be returned for this {@link Class}.
-     * @param format format for number, date formatters. If <code>null</code>
-     *               default format will be used {@link #DEFAULT_NUMBER_FORMAT} and
-     *               {@link #DEFAULT_DATE_FORMAT} accordingly.
+     * @param clazz formatter will be returned for this {@link Class}.
+     * @param format format for number, date formatters. If <code>null</code> default format will be used
+     *            {@link #DEFAULT_NUMBER_FORMAT} and {@link #DEFAULT_DATE_FORMAT} accordingly.
      * @return formatter for a type.
      */
     public static IFormatter getFormatter(Class<?> clazz, Object value, String format) {
@@ -123,8 +117,7 @@ public class FormattersManager {
      * Returns format pattern for appropriate value scale
      *
      * @param value float point value which is gonna be formatted
-     * @return format pattern for appropriate value scale, <code>null</code> if
-     * value is <code>null</code>
+     * @return format pattern for appropriate value scale, <code>null</code> if value is <code>null</code>
      */
     private static String getFormatForScale(Object value) {
         if (value != null) {

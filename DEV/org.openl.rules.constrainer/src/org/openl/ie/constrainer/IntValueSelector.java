@@ -15,8 +15,7 @@ package org.openl.ie.constrainer;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An interface for the selection of the values from the domain of the IntVar.
- * Used in GoalInstantiate.
+ * An interface for the selection of the values from the domain of the IntVar. Used in GoalInstantiate.
  *
  * @see GoalInstantiate
  * @see GoalGenerate

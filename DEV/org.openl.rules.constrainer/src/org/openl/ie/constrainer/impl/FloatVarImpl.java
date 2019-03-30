@@ -11,7 +11,6 @@ import org.openl.ie.constrainer.Undoable;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
 
-
 /**
  * A generic implementation of the FloatVar interface.
  */

@@ -6,7 +6,6 @@
 
 package org.openl.conf;
 
-
 /**
  * @author snshor
  *
@@ -22,8 +21,7 @@ public interface IConfigurationElement {
     // OpenConfigurationException;
 
     /**
-     * Checks that configuration is valid, for example that class exists and
-     * conforms to the interface
+     * Checks that configuration is valid, for example that class exists and conforms to the interface
      *
      * @throws OpenConfigurationException
      */

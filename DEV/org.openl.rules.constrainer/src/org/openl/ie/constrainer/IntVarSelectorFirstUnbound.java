@@ -15,8 +15,7 @@ package org.openl.ie.constrainer;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An implementation of the IntVarSelector interface that selects the first
- * unbound variable.
+ * An implementation of the IntVarSelector interface that selects the first unbound variable.
  *
  * @see IntVarSelector
  * @see IntVarSelectorMinSize

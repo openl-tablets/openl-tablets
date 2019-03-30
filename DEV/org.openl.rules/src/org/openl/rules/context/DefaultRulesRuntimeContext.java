@@ -17,8 +17,8 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
 
     private static final long serialVersionUID = 670283457423670894L;
 
-    private static final UUID NEW_INSTANCE_UUID = UUID.randomUUID(); 
-    
+    private static final UUID NEW_INSTANCE_UUID = UUID.randomUUID();
+
     @XmlTransient
     UUID uuid = NEW_INSTANCE_UUID;
 
@@ -142,68 +142,69 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     @Override
     public void setValue(String name, Object value) {
         if ("currentDate".equals(name)) {
-            setCurrentDate((java.util.Date)value);
+            setCurrentDate((java.util.Date) value);
             uuid = UUID.randomUUID();
             return;
         }
         if ("requestDate".equals(name)) {
-            setRequestDate((java.util.Date)value);
+            setRequestDate((java.util.Date) value);
             uuid = UUID.randomUUID();
             return;
         }
         if ("lob".equals(name)) {
-            setLob((java.lang.String)value);
+            setLob((java.lang.String) value);
             uuid = UUID.randomUUID();
             return;
         }
         if ("nature".equals(name)) {
-            setNature((java.lang.String)value);
+            setNature((java.lang.String) value);
             uuid = UUID.randomUUID();
             return;
         }
         if ("usState".equals(name)) {
-            setUsState((org.openl.rules.enumeration.UsStatesEnum)value);
+            setUsState((org.openl.rules.enumeration.UsStatesEnum) value);
             uuid = UUID.randomUUID();
             return;
         }
         if ("country".equals(name)) {
-            setCountry((org.openl.rules.enumeration.CountriesEnum)value);
+            setCountry((org.openl.rules.enumeration.CountriesEnum) value);
             uuid = UUID.randomUUID();
             return;
         }
         if ("usRegion".equals(name)) {
-            setUsRegion((org.openl.rules.enumeration.UsRegionsEnum)value);
+            setUsRegion((org.openl.rules.enumeration.UsRegionsEnum) value);
             uuid = UUID.randomUUID();
             return;
         }
         if ("currency".equals(name)) {
-            setCurrency((org.openl.rules.enumeration.CurrenciesEnum)value);
+            setCurrency((org.openl.rules.enumeration.CurrenciesEnum) value);
             uuid = UUID.randomUUID();
             return;
         }
         if ("lang".equals(name)) {
-            setLang((org.openl.rules.enumeration.LanguagesEnum)value);
+            setLang((org.openl.rules.enumeration.LanguagesEnum) value);
             uuid = UUID.randomUUID();
             return;
         }
         if ("region".equals(name)) {
-            setRegion((org.openl.rules.enumeration.RegionsEnum)value);
+            setRegion((org.openl.rules.enumeration.RegionsEnum) value);
             uuid = UUID.randomUUID();
             return;
         }
         if ("caProvince".equals(name)) {
-            setCaProvince((org.openl.rules.enumeration.CaProvincesEnum)value);
+            setCaProvince((org.openl.rules.enumeration.CaProvincesEnum) value);
             uuid = UUID.randomUUID();
             return;
         }
         if ("caRegion".equals(name)) {
-            setCaRegion((org.openl.rules.enumeration.CaRegionsEnum)value);
+            setCaRegion((org.openl.rules.enumeration.CaRegionsEnum) value);
             uuid = UUID.randomUUID();
             return;
         }
     }
 
     private java.util.Date currentDate = null;
+
     @Override
     public java.util.Date getCurrentDate() {
         return currentDate;
@@ -217,6 +218,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private java.util.Date requestDate = null;
+
     @Override
     public java.util.Date getRequestDate() {
         return requestDate;
@@ -230,6 +232,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private java.lang.String lob = null;
+
     @Override
     public java.lang.String getLob() {
         return lob;
@@ -243,6 +246,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private java.lang.String nature = null;
+
     @Override
     public java.lang.String getNature() {
         return nature;
@@ -256,6 +260,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.UsStatesEnum usState = null;
+
     @Override
     public org.openl.rules.enumeration.UsStatesEnum getUsState() {
         return usState;
@@ -269,6 +274,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.CountriesEnum country = null;
+
     @Override
     public org.openl.rules.enumeration.CountriesEnum getCountry() {
         return country;
@@ -282,6 +288,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.UsRegionsEnum usRegion = null;
+
     @Override
     public org.openl.rules.enumeration.UsRegionsEnum getUsRegion() {
         return usRegion;
@@ -295,6 +302,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.CurrenciesEnum currency = null;
+
     @Override
     public org.openl.rules.enumeration.CurrenciesEnum getCurrency() {
         return currency;
@@ -308,6 +316,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.LanguagesEnum lang = null;
+
     @Override
     public org.openl.rules.enumeration.LanguagesEnum getLang() {
         return lang;
@@ -321,6 +330,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.RegionsEnum region = null;
+
     @Override
     public org.openl.rules.enumeration.RegionsEnum getRegion() {
         return region;
@@ -334,6 +344,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.CaProvincesEnum caProvince = null;
+
     @Override
     public org.openl.rules.enumeration.CaProvincesEnum getCaProvince() {
         return caProvince;
@@ -347,6 +358,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.CaRegionsEnum caRegion = null;
+
     @Override
     public org.openl.rules.enumeration.CaRegionsEnum getCaRegion() {
         return caRegion;
@@ -359,5 +371,5 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
         uuid = UUID.randomUUID();
     }
 
-// <<< END INSERT >>>
+    // <<< END INSERT >>>
 }

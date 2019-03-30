@@ -19,8 +19,7 @@ import org.openl.ie.constrainer.UndoableInt;
  */
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * An abstract implementation of the IntBoolExp that is based on some boolean
- * subject.
+ * An abstract implementation of the IntBoolExp that is based on some boolean subject.
  */
 public abstract class IntBoolExpForSubject extends IntBoolVarImpl {
     protected UndoableInt _subjectMin, _subjectMax;
@@ -40,14 +39,12 @@ public abstract class IntBoolExpForSubject extends IntBoolVarImpl {
     }
 
     /**
-     * Returns true if the expression's is subject false. Note: this is not
-     * equals to <code>!isSubjectTrue()</code>.
+     * Returns true if the expression's is subject false. Note: this is not equals to <code>!isSubjectTrue()</code>.
      */
     abstract protected boolean isSubjectFalse();
 
     /**
-     * Returns true if the expression's subject is true. Note: this is not
-     * equals to <code>!isSubjectFalse()</code>.
+     * Returns true if the expression's subject is true. Note: this is not equals to <code>!isSubjectFalse()</code>.
      */
     abstract protected boolean isSubjectTrue();
 
@@ -60,8 +57,7 @@ public abstract class IntBoolExpForSubject extends IntBoolVarImpl {
     }
 
     /**
-     * Sets the domain of this expression based on
-     * isSubjectTrue()/isSubjectFalse().
+     * Sets the domain of this expression based on isSubjectTrue()/isSubjectFalse().
      */
     protected void setDomainMinMax() throws Failure {
         // if(_subjectMin.value() > _subjectMax.value())
@@ -101,10 +97,8 @@ public abstract class IntBoolExpForSubject extends IntBoolVarImpl {
     }
 
     /**
-     * Sets the domain of this expression based on
-     * isSubjectTrue()/isSubjectFalse(). Should be called from constructor to
-     * avoid failures. Note: doesn't use setMin/setMax because ctor should set
-     * _min/_max directly.
+     * Sets the domain of this expression based on isSubjectTrue()/isSubjectFalse(). Should be called from constructor
+     * to avoid failures. Note: doesn't use setMin/setMax because ctor should set _min/_max directly.
      */
     protected void setDomainMinMaxSafe() {
         if (isSubjectTrue()) {

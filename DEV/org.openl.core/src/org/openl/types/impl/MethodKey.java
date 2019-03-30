@@ -38,17 +38,15 @@ public final class MethodKey {
     }
 
     public MethodKey(String name, IOpenClass[] parTypes, boolean isConstructor, boolean doNotNormalizeParams) {
-    	this.name = name;
-    	this.internalParameters = doNotNormalizeParams ? parTypes : getNormalizedParams(parTypes);
-    	this.isConstructor = isConstructor;
-	}
+        this.name = name;
+        this.internalParameters = doNotNormalizeParams ? parTypes : getNormalizedParams(parTypes);
+        this.isConstructor = isConstructor;
+    }
 
-	/**
-     * Normalizes types of method parameters. OpenL engine uses alias data types
-     * as internal types and they are used only in OpenL. For java users alias
-     * data types are represented as appropriate java type. While method key
-     * usage we should use underlying type of alias data type parameter as real
-     * type of parameter.
+    /**
+     * Normalizes types of method parameters. OpenL engine uses alias data types as internal types and they are used
+     * only in OpenL. For java users alias data types are represented as appropriate java type. While method key usage
+     * we should use underlying type of alias data type parameter as real type of parameter.
      * 
      * @param originalParams parameters of method
      * @return normalized parameters
@@ -98,9 +96,8 @@ public final class MethodKey {
 
         MethodKey mk = (MethodKey) obj;
 
-        return Objects.equals(name, mk.name) &&
-                isConstructor == mk.isConstructor &&
-                Arrays.equals(internalParameters, mk.internalParameters);
+        return Objects.equals(name, mk.name) && isConstructor == mk.isConstructor && Arrays.equals(internalParameters,
+            mk.internalParameters);
     }
 
     @Override

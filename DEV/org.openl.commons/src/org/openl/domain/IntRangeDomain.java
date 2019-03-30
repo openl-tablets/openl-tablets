@@ -28,8 +28,8 @@ public class IntRangeDomain implements IDomain<Integer>, IIntDomain {
 
         @Override
         public int nextInt() {
-        	int ret = current;
-        	current += step;
+            int ret = current;
+            current += step;
             return ret;
         }
 
@@ -38,15 +38,15 @@ public class IntRangeDomain implements IDomain<Integer>, IIntDomain {
             return (max - min + 1) / step;
         }
 
-		@Override
-		public boolean isResetable() {
-			return true;
-		}
+        @Override
+        public boolean isResetable() {
+            return true;
+        }
 
-		@Override
-		public void reset() {
-			current = min;
-		}
+        @Override
+        public void reset() {
+            current = min;
+        }
     }
 
     protected int min, max;
@@ -109,11 +109,10 @@ public class IntRangeDomain implements IDomain<Integer>, IIntDomain {
     public IIntIterator intIterator() {
         return new RangeIterator(1);
     }
-    
+
     public IIntIterator iterate(int step) {
         return new RangeIterator(step);
     }
-    
 
     @Override
     public Iterator<Integer> iterator() {

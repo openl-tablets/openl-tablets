@@ -18,25 +18,21 @@ package org.openl.ie.constrainer;
 //: IntExp.java
 //
 /**
- * An interface for the constrained integer expression. Any arithmetic operation
- * where the operands are the integer variables/expressions returns the integer
- * expression.
+ * An interface for the constrained integer expression. Any arithmetic operation where the operands are the integer
+ * variables/expressions returns the integer expression.
  */
 public interface IntExp extends Expression {
 
     /**
-     * An interface used in the iteration of the domain of the integer
-     * expression.
+     * An interface used in the iteration of the domain of the integer expression.
      *
      * @see #iterateDomain
      */
     public interface IntDomainIterator {
         /**
-         * Processes each value contained within domain one by one (by
-         * convention from lowest to highest value).
+         * Processes each value contained within domain one by one (by convention from lowest to highest value).
          *
-         * It should return <code>false</code> to stop iteration or
-         * <code>true</code> to continue.
+         * It should return <code>false</code> to stop iteration or <code>true</code> to continue.
          *
          * @see IntExp#iterateDomain
          */
@@ -44,8 +40,7 @@ public interface IntExp extends Expression {
     }
 
     /**
-     * The smallest value of type int. Please notice that
-     * <code>MIN_VALUE == -MAX_VALUE</code> which is not true for
+     * The smallest value of type int. Please notice that <code>MIN_VALUE == -MAX_VALUE</code> which is not true for
      * <code>java.lang.Integer</code>.
      */
     int MIN_VALUE = -Integer.MAX_VALUE;
@@ -66,22 +61,20 @@ public interface IntExp extends Expression {
     IntExp add(IntExp exp);
 
     /**
-     * Returns true if this expression is bound. An expression is considered
-     * bound if contains only one value in its domain.
+     * Returns true if this expression is bound. An expression is considered bound if contains only one value in its
+     * domain.
      *
-     * @return <code>true</code> if this expression is bound: it's domain has
-     *         only one value.
+     * @return <code>true</code> if this expression is bound: it's domain has only one value.
      */
     boolean bound();
 
     /**
      * Returns true if the domain of this expression contains the value.
      *
-     * <code>NOTE: in some cases it is not possible (or feasible) to calculate <code>contains</code> with
-     * 100% accuracy. We also can not guarantee a consistency between <code>contains</code> and
-     * <code>size</code> method for all expressions. In other words if <code>contains(value)</code> returns
-     * <code>true</code> it might happen that value does not belong to the expression's domain.
-     * The opposite (<code>false</code>) is always true :).
+     * <code>NOTE: in some cases it is not possible (or feasible) to calculate <code>contains</code> with 100% accuracy.
+     * We also can not guarantee a consistency between <code>contains</code> and <code>size</code> method for all
+     * expressions. In other words if <code>contains(value)</code> returns <code>true</code> it might happen that value
+     * does not belong to the expression's domain. The opposite (<code>false</code>) is always true :).
      *
      * @return <code>true</code> if the expression contains the value in it's domain.
      */
@@ -123,8 +116,7 @@ public interface IntExp extends Expression {
     IntBoolExp gt(IntExp exp);
 
     /**
-     * Iterates the domain of this expression by calling
-     * <code>doSomethingOrStop(int val)</code> of
+     * Iterates the domain of this expression by calling <code>doSomethingOrStop(int val)</code> of
      * <code>IntDomainIterator</code>.
      *
      * @see IntDomainIterator
@@ -199,8 +191,8 @@ public interface IntExp extends Expression {
     void setValue(int value) throws Failure;
 
     /**
-     * Returns the size (cardinality) of the domain of this expression. The
-     * domain's size is the number of integer values the domain.
+     * Returns the size (cardinality) of the domain of this expression. The domain's size is the number of integer
+     * values the domain.
      *
      * @return the number of values in the domain of this variable.
      */
@@ -218,8 +210,7 @@ public interface IntExp extends Expression {
 
     /**
      *
-     * @return value without checking bound(); should be called only after the
-     *         caller checked the bounds already
+     * @return value without checking bound(); should be called only after the caller checked the bounds already
      */
     int valueUnsafe();
 

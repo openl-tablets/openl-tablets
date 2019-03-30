@@ -34,8 +34,8 @@ public abstract class AGridTable implements IGridTable {
     public String getUri() {
         int w = getWidth();
         int h = getHeight();
-        return getGrid().getRangeUri(getGridColumn(0, 0), getGridRow(0, 0), getGridColumn(w - 1, h - 1),
-                getGridRow(w - 1, h - 1));
+        return getGrid()
+            .getRangeUri(getGridColumn(0, 0), getGridRow(0, 0), getGridColumn(w - 1, h - 1), getGridRow(w - 1, h - 1));
     }
 
     @Override
@@ -60,7 +60,7 @@ public abstract class AGridTable implements IGridTable {
 
     @Override
     public ICell getCell(int column, int row) {
-    	return new GridTableCell(column, row, this);
+        return new GridTableCell(column, row, this);
     }
 
     @Override
@@ -103,25 +103,25 @@ public abstract class AGridTable implements IGridTable {
         if (getWidth() == width && getHeight() == height) {
             return this;
         }
-        
+
         if (width == 1 && height == 1)
             return new SingleCellGridTable(this, column, row);
-        
-        return  new SubGridTable(this, column, row, width, height);
+
+        return new SubGridTable(this, column, row, width, height);
     }
 
     @Override
     public String toString() {
         StringBuilder tableVizualization = new StringBuilder();
         tableVizualization.append(super.toString())
-                .append(isNormalOrientation() ? "[N]" : "[T]")
-                .append("(")
-                .append(getWidth())
-                .append(" x ")
-                .append(getHeight())
-                .append(")")
-                .append(getRegion().toString())
-                .append("\n");
+            .append(isNormalOrientation() ? "[N]" : "[T]")
+            .append("(")
+            .append(getWidth())
+            .append(" x ")
+            .append(getHeight())
+            .append(")")
+            .append(getRegion().toString())
+            .append("\n");
         for (int i = 0; i < getHeight(); i++) {
             int length = 0;
             for (int j = 0; j < getWidth(); j++) {
@@ -130,17 +130,17 @@ public abstract class AGridTable implements IGridTable {
                     strValue = "EMPTY";
                 }
                 length += strValue.length();
-                tableVizualization.append(strValue);                
+                tableVizualization.append(strValue);
                 tableVizualization.append("|");
             }
             tableVizualization.append("\n");
-            for(int k = 0; k <= length; k++) {
+            for (int k = 0; k <= length; k++) {
                 tableVizualization.append("-");
-            }   
+            }
             tableVizualization.append("\n");
         }
-        
-        return  tableVizualization.toString();
+
+        return tableVizualization.toString();
     }
 
 }

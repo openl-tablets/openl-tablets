@@ -12,13 +12,13 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  * 
  */
 public class ConditionsTableBinder extends ADtColumnsDefinitionTableBinder {
-    
+
     private static final String DEFAULT_TABLE_NAME_PREFIX = "Conditions: ";
-    
+
     public ConditionsTableBinder() {
         super(DEFAULT_TABLE_NAME_PREFIX);
     }
-    
+
     @Override
     protected ADtColumnsDefinitionTableBoundNode makeNode(TableSyntaxNode tsn,
             XlsModuleOpenClass module,

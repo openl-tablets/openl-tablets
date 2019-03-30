@@ -20,6 +20,7 @@ public abstract class BusinessNumberNodeBinder extends ANodeBinder {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext)
      */
     @Override
@@ -52,5 +53,7 @@ public abstract class BusinessNumberNodeBinder extends ANodeBinder {
         return parsedNumber;
     }
 
-    protected abstract IBoundNode makeNumber(String literal, int multiplier, ISyntaxNode node) throws SyntaxNodeException;
+    protected abstract IBoundNode makeNumber(String literal,
+            int multiplier,
+            ISyntaxNode node) throws SyntaxNodeException;
 }

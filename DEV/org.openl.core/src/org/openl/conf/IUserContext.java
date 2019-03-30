@@ -9,8 +9,7 @@ package org.openl.conf;
 import org.openl.OpenL;
 
 /**
- * The <code>IUserContext</code> defines an user environment configuration
- * abstraction.
+ * The <code>IUserContext</code> defines an user environment configuration abstraction.
  * 
  * @author snshor
  * 

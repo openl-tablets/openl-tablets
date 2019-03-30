@@ -32,7 +32,7 @@ public class ConstantOpenField extends AOpenField implements IUriMember {
     public String getValueAsString() {
         return valueAsString;
     }
-    
+
     @Override
     public String getUri() {
         return uri;

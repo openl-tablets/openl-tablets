@@ -21,20 +21,22 @@ import org.openl.types.IOpenClass;
  * @author snshor
  */
 public class BinaryOperatorNodeBinder extends ANodeBinder {
-    private static Map<String, String> inverseMethod = new HashMap<String, String>(6){{
-        put("le", "ge");
-        put("lt", "gt");
-        put("ge", "le");
-        put("gt", "lt");
-        put("eq", "eq");
-        put("add", "add");
-    }};
+    private static Map<String, String> inverseMethod = new HashMap<String, String>(6) {
+        {
+            put("le", "ge");
+            put("lt", "gt");
+            put("ge", "le");
+            put("gt", "lt");
+            put("eq", "eq");
+            put("add", "add");
+        }
+    };
 
     public static IBoundNode bindOperator(ISyntaxNode node,
-                                          String operatorName,
-                                          IBoundNode b1,
-                                          IBoundNode b2,
-                                          IBindingContext bindingContext) throws SyntaxNodeException {
+            String operatorName,
+            IBoundNode b1,
+            IBoundNode b2,
+            IBindingContext bindingContext) throws SyntaxNodeException {
 
         IOpenClass[] types = { b1.getType(), b2.getType() };
         IMethodCaller methodCaller = findBinaryOperatorMethodCaller(operatorName, types, bindingContext);
@@ -77,22 +79,22 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
     }
 
     private static IMethodCaller findSingleBinaryOperatorMethodCaller(String methodName,
-                                                                      IOpenClass[] argumentTypes,
-                                                                      IBindingContext bindingContext) {
-        
+            IOpenClass[] argumentTypes,
+            IBindingContext bindingContext) {
+
         // An attempt to find the method <namespace>.<methodName>(argumentTypes) in the binding context.
         // This is the most privileged place for searching.
         // @author DLiauchuk
         //
-        IMethodCaller methodCaller = bindingContext.findMethodCaller(ISyntaxConstants.OPERATORS_NAMESPACE, methodName, 
-            argumentTypes);
+        IMethodCaller methodCaller = bindingContext
+            .findMethodCaller(ISyntaxConstants.OPERATORS_NAMESPACE, methodName, argumentTypes);
         if (methodCaller != null) {
             return methodCaller;
         }
 
         IOpenClass[] types2 = { argumentTypes[1] };
-        
-        // An attempt to find method <methodName>(argumentTypes[1]), using the first argument type as a possible 
+
+        // An attempt to find method <methodName>(argumentTypes[1]), using the first argument type as a possible
         // collection of suitable methods.
         //
         // TODO: Investigate which case covers this branch. How the method, e.g. foo(Type2) may be suitable
@@ -103,7 +105,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
         if (methodCaller != null) {
             return methodCaller;
         }
-        
+
         // An attempt to find method <methodName>(argumentTypes), using the first argument type as a possible
         // collection of suitable methods, e.g. {@link DoubleValue#add(DoubleValue value1, DoubleValue value2).
         //
@@ -111,7 +113,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
         if (methodCaller != null) {
             return methodCaller;
         }
-        
+
         // An attempt to find method <methodName>(argumentTypes), using the second argument type as a possible
         // collection of suitable methods.
         //
@@ -122,6 +124,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
 
     /*
      * (non-Javadoc)
+     * 
      * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv,
      * org.openl.binding.IBindingContext)
      */

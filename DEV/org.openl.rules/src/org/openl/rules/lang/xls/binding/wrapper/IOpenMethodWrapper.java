@@ -6,8 +6,8 @@ import org.openl.types.IOpenMethod;
 
 public interface IOpenMethodWrapper {
     IOpenMethod getDelegate();
-    
+
     XlsModuleOpenClass getXlsModuleOpenClass();
-    
+
     IOpenMethod getTopOpenClassMethod(IOpenClass openClass);
 }

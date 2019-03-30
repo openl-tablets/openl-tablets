@@ -9,14 +9,14 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.Point;
 
 /**
- * Builder is used when return type of the spreadsheet table is {@link SpreadsheetResult}. 
+ * Builder is used when return type of the spreadsheet table is {@link SpreadsheetResult}.
  *
  */
 public class DefaultResultBuilder implements IResultBuilder {
-    
+
     @Override
-    public Object makeResult(SpreadsheetResultCalculator result) {    
-        
+    public Object makeResult(SpreadsheetResultCalculator result) {
+
         Object[][] resultArray = result.getValues();
 
         Spreadsheet spreadsheet = result.getSpreadsheet();
@@ -25,7 +25,10 @@ public class DefaultResultBuilder implements IResultBuilder {
         String[] columnNames = spreadsheet.getColumnNames();
         Map<String, Point> fieldsCoordinates = spreadsheet.getFieldsCoordinates();
 
-        SpreadsheetResult spreadsheetBean = new SpreadsheetResult(resultArray, rowNames, columnNames, fieldsCoordinates);
+        SpreadsheetResult spreadsheetBean = new SpreadsheetResult(resultArray,
+            rowNames,
+            columnNames,
+            fieldsCoordinates);
 
         TableSyntaxNode tsn = spreadsheet.getSyntaxNode();
 

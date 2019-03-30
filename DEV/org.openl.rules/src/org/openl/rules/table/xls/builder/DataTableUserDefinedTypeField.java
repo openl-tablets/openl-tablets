@@ -23,29 +23,27 @@ public class DataTableUserDefinedTypeField extends DataTableField {
     private final PredefinedTypeChecker predefinedChecker;
 
     /**
-     * Create a field with a given generalized abstraction of a class and a
-     * field name
+     * Create a field with a given generalized abstraction of a class and a field name
      * 
      * @param type generalized abstraction of a class
      * @param name name technical name of a field
-     * @param predefinedChecker object that checks if a "type" is a predefined
-     *            OpenL type such as IntRange etc
+     * @param predefinedChecker object that checks if a "type" is a predefined OpenL type such as IntRange etc
      */
     public DataTableUserDefinedTypeField(IOpenClass type, String name, PredefinedTypeChecker predefinedChecker) {
         this(type, name, name.toUpperCase(), predefinedChecker);
     }
 
     /**
-     * Create a field with a given generalized abstraction of a class and a
-     * field name
+     * Create a field with a given generalized abstraction of a class and a field name
      * 
      * @param type generalized abstraction of a class
      * @param name name technical name of a field
      * @param businessName business name of a field
-     * @param predefinedChecker object that checks if a "type" is a predefined
-     *            OpenL type such as IntRange etc
+     * @param predefinedChecker object that checks if a "type" is a predefined OpenL type such as IntRange etc
      */
-    public DataTableUserDefinedTypeField(IOpenClass type, String name, String businessName,
+    public DataTableUserDefinedTypeField(IOpenClass type,
+            String name,
+            String businessName,
             PredefinedTypeChecker predefinedChecker) {
         super(name, businessName);
         this.type = type;
@@ -72,9 +70,9 @@ public class DataTableUserDefinedTypeField extends DataTableField {
             for (Entry<String, IOpenField> entry : getType().getFields().entrySet()) {
                 if (entry.getValue().isConst() || !entry.getValue().isWritable())
                     continue;
-                
-                list.add(new DataTableUserDefinedTypeField(entry.getValue().getType(), entry.getKey(),
-                        predefinedChecker));
+
+                list.add(
+                    new DataTableUserDefinedTypeField(entry.getValue().getType(), entry.getKey(), predefinedChecker));
             }
 
             availableFields = Collections.unmodifiableList(list);
@@ -100,8 +98,7 @@ public class DataTableUserDefinedTypeField extends DataTableField {
     }
 
     /**
-     * Utility interface that checks if a "type" is a predefined OpenL type such
-     * as IntRange etc
+     * Utility interface that checks if a "type" is a predefined OpenL type such as IntRange etc
      * 
      * @author NSamatov
      * 
@@ -111,8 +108,7 @@ public class DataTableUserDefinedTypeField extends DataTableField {
          * Check if a "type" is a predefined OpenL type
          * 
          * @param type checking type
-         * @return true if a "type" is a predefined OpenL type such as IntRange
-         *         etc, false otherwise
+         * @return true if a "type" is a predefined OpenL type such as IntRange etc, false otherwise
          */
         boolean isPredefined(IOpenClass type);
     }

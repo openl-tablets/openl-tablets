@@ -46,16 +46,15 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         Spreadsheet spreadsheet;
         if (componentsBuilder.isExistsReturnHeader()) {
             spreadsheet = new Spreadsheet(getHeader(), this, false);
-        }else {
+        } else {
             /*
-             * We need to generate a customSpreadsheet class only if return type of
-             * the spreadsheet is SpreadsheetResult and the customspreadsheet
-             * property is true
+             * We need to generate a customSpreadsheet class only if return type of the spreadsheet is SpreadsheetResult
+             * and the customspreadsheet property is true
              */
             boolean isCustomSpreadsheetType = SpreadsheetResult.class.equals(getType()
                 .getInstanceClass()) && (!(getType() instanceof CustomSpreadsheetResultOpenClass)) && OpenLSystemProperties
                     .isCustomSpreadsheetType(bindingContext.getExternalParams());
-            
+
             spreadsheet = new Spreadsheet(getHeader(), this, isCustomSpreadsheetType);
         }
         spreadsheet.setSpreadsheetType(spreadsheetOpenClass);
@@ -69,9 +68,9 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
         spreadsheet.setRowTitles(componentsBuilder.getCellsHeadersExtractor().getRowNames());
         spreadsheet.setColumnTitles(componentsBuilder.getCellsHeadersExtractor().getColumnNames());
-        
+
         if (spreadsheet.isCustomSpreadsheetType()) {
-            
+
             IOpenClass type = null;
             try {
                 type = spreadsheet.getType(); // Can throw RuntimeException
@@ -110,7 +109,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         Boolean autoType = tableSyntaxNode.getTableProperties().getAutoType();
         structureBuilder.addCellFields(spreadsheetOpenClass, autoType);
     }
-    
+
     @Override
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
         super.finalizeBind(bindingContext);
@@ -130,10 +129,12 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         return cells;
     }
 
-    private void validateTableBody(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) throws SyntaxNodeException {
+    private void validateTableBody(TableSyntaxNode tableSyntaxNode,
+            IBindingContext bindingContext) throws SyntaxNodeException {
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
         if (tableBody == null) {
-            throw SyntaxNodeExceptionUtils.createError("Table has no body! Try to merge header cell horizontally to identify table.",
+            throw SyntaxNodeExceptionUtils.createError(
+                "Table has no body! Try to merge header cell horizontally to identify table.",
                 getTableSyntaxNode());
         }
 
@@ -167,7 +168,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
             }
         }
     }
-    
+
     public SpreadsheetComponentsBuilder getComponentsBuilder() {
         return componentsBuilder;
     }

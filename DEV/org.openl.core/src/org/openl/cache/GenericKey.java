@@ -1,9 +1,8 @@
 package org.openl.cache;
 
 /**
- * This is immutable object for using it as a key. Build key by array of
- * objects. This is instance controlled class. For instantiate class use static
- * factory method "getInstance" [EJ1].
+ * This is immutable object for using it as a key. Build key by array of objects. This is instance controlled class. For
+ * instantiate class use static factory method "getInstance" [EJ1].
  * 
  */
 public class GenericKey {

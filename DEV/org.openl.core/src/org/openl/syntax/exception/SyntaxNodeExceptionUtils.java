@@ -43,9 +43,7 @@ public class SyntaxNodeExceptionUtils {
         return new SyntaxNodeException(message, ex, location, source);
     }
 
-    public static SyntaxNodeException createError(Throwable ex,
-            ILocation location,
-            IOpenSourceCodeModule source) {
+    public static SyntaxNodeException createError(Throwable ex, ILocation location, IOpenSourceCodeModule source) {
         return createError(formatErrorMessage(ex), ex, location, source);
     }
 

@@ -8,7 +8,7 @@ public class NullPointerExceptionFormatter implements ExceptionMessageFormatter 
             return "The element is null";
         }
         return error.getMessage();
-        
+
     }
 
 }

@@ -9,7 +9,7 @@ import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 
 /**
- * Binder for following lexical constructions: driver.name; name of the driver. 
+ * Binder for following lexical constructions: driver.name; name of the driver.
  * 
  * @author snshor
  */
@@ -29,7 +29,7 @@ public class BExChainSuffixBinder extends ANodeBinder {
         }
 
         IBoundNode target = bindChildNode(node.getChild(targetInd), bindingContext);
-        
+
         return bindTargetNode(node.getChild(chainInd), bindingContext, target);
     }
 }

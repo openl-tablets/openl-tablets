@@ -30,8 +30,9 @@ public class PercentNodeBinder extends ANodeBinder {
     }
 
     @Override
-    public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode)
-        throws Exception {
+    public IBoundNode bindTarget(ISyntaxNode node,
+            IBindingContext bindingContext,
+            IBoundNode targetNode) throws Exception {
 
         IBoundNode thisNode = bind(node, bindingContext);
 

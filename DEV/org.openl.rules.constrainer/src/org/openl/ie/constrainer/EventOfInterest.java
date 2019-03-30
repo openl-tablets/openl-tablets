@@ -18,8 +18,7 @@ import org.openl.ie.tools.ReusableImpl;
 
 //: EventOfInterest.java
 /**
- * Class EventOfInterest is a base class for different events used by constraint
- * observers.
+ * Class EventOfInterest is a base class for different events used by constraint observers.
  *
  * @see Observer
  * @see Subject
@@ -106,8 +105,8 @@ public abstract class EventOfInterest extends ReusableImpl implements EventOfInt
 } // ~EventOfInterest
 
 /**
- * The constants for the EventOfInterest. Temporary is not inner interface of
- * the EventOfInterest because of compilation problem with javac.
+ * The constants for the EventOfInterest. Temporary is not inner interface of the EventOfInterest because of compilation
+ * problem with javac.
  */
 interface EventOfInterestConstants {
     /**
@@ -126,8 +125,7 @@ interface EventOfInterestConstants {
     public static final int MAX = 4;
 
     /**
-     * The mask for the REMOVE event: when value(s) is(are) removed from the
-     * expression's domain.
+     * The mask for the REMOVE event: when value(s) is(are) removed from the expression's domain.
      */
     public static final int REMOVE = 8;
 
@@ -142,4 +140,3 @@ interface EventOfInterestConstants {
     public static final int ALL = VALUE | MIN | MAX | REMOVE;
 
 } // ~Constants
-

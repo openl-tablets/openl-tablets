@@ -3,13 +3,12 @@ package org.openl.ie.constrainer;
 import org.openl.ie.constrainer.impl.ConstraintExpEqualsValue;
 import org.openl.ie.constrainer.impl.IntExpImpl;
 
-
 //
 //: IntExpConst.java
 //
 /**
- * An implementation of the constant integer expression. Many methods from
- * IntExpImpl are overloaded with optimized implementation.
+ * An implementation of the constant integer expression. Many methods from IntExpImpl are overloaded with optimized
+ * implementation.
  */
 public class IntExpConst extends IntExpImpl {
     protected final int _const;
@@ -128,8 +127,7 @@ public class IntExpConst extends IntExpImpl {
     }
 
     /**
-     * Checks wether the value is greater then or equal to "const". If it is not
-     * throws Failure.
+     * Checks wether the value is greater then or equal to "const". If it is not throws Failure.
      *
      * @param max the value to be checked
      */
@@ -140,8 +138,7 @@ public class IntExpConst extends IntExpImpl {
     }
 
     /**
-     * Checks wether the value is less then or equal to "const". If it is not
-     * throws Failure
+     * Checks wether the value is less then or equal to "const". If it is not throws Failure
      *
      * @param min the value to be checked
      */
@@ -152,8 +149,7 @@ public class IntExpConst extends IntExpImpl {
     }
 
     /**
-     * Actually it checks wether the value is equal to "const". If it is not
-     * throws Failure.
+     * Actually it checks wether the value is equal to "const". If it is not throws Failure.
      *
      * @param value The value to be checked
      */

@@ -37,5 +37,5 @@ public interface IOpenBinder {
     INameSpacedVarFactory getVarFactory();
 
     IBindingContext makeBindingContext();
-    
+
 }

@@ -6,10 +6,8 @@ import org.openl.ie.constrainer.FloatExp;
 import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
 
-
 /**
- * An implementation of the expression:
- * <code>(FloatExp == FloatExp + offset)</code>.
+ * An implementation of the expression: <code>(FloatExp == FloatExp + offset)</code>.
  */
 public class IntBoolExpFloatEqExp extends IntBoolExpForSubject {
     final class ObserverMinMax extends Observer {
@@ -29,6 +27,7 @@ public class IntBoolExpFloatEqExp extends IntBoolExpForSubject {
         }
 
     } // ~ObserverMinMax
+
     protected FloatExp _exp1, _exp2;
     protected double _offset;
 

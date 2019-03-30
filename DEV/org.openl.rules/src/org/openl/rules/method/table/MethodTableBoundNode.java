@@ -56,7 +56,7 @@ public class MethodTableBoundNode extends AMethodBasedNode {
         ILogicalTable logicalTable = tsn.getTable();
         boolean tableHasProperties = tsn.hasPropertiesDefinedInTable();
         ILogicalTable bodyTable = logicalTable.getRows(tableHasProperties ? 2 : 1);
-        
+
         if (bodyTable == null) {
             String errorMessage = "Method table must contain a body section";
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage, tsn);
@@ -73,7 +73,8 @@ public class MethodTableBoundNode extends AMethodBasedNode {
 
             IOpenSourceCodeModule src = new CompositeSourceCodeModule(cellSources, "\n");
 
-            OpenLCellExpressionsCompiler.compileMethod(getOpenl(), src, getTableMethod().getCompositeMethod(), bindingContext);
+            OpenLCellExpressionsCompiler
+                .compileMethod(getOpenl(), src, getTableMethod().getCompositeMethod(), bindingContext);
         }
     }
 

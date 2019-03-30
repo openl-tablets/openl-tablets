@@ -16,14 +16,13 @@ import org.openl.util.fast.FastStringReader;
 /**
  * @author snshor
  *
- * Contains substring of the base code between start and end positions. End
- * position can have either positive or negative values. If positive, it is the
- * absolute end position from the beginning of the base code, if negative it is
- * the relative position from the end of the base code
+ *         Contains substring of the base code between start and end positions. End position can have either positive or
+ *         negative values. If positive, it is the absolute end position from the beginning of the base code, if
+ *         negative it is the relative position from the end of the base code
  *
  */
 public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
-    
+
     private IOpenSourceCodeModule baseModule;
     private int startPosition;
     private int endPosition = 0;
