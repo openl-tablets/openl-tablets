@@ -17,6 +17,7 @@ public abstract class ASimplePriorityRule<T extends Comparable<T>> implements IP
 
     public abstract T getProprtyValue(ITableProperties properties);
     
+    @Override
     public int compare(ITableProperties properties1, ITableProperties properties2) {
         T propertyValue1 = getProprtyValue(properties1);
         T propertyValue2 = getProprtyValue(properties2);

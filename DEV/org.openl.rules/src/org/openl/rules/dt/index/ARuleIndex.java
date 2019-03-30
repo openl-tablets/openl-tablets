@@ -19,10 +19,12 @@ public abstract class ARuleIndex implements IRuleIndex {
         this.emptyOrFormulaNodes = emptyOrFormulaNodes;
     }
 
+    @Override
     public DecisionTableRuleNode getEmptyOrFormulaNodes() {
         return emptyOrFormulaNodes;
     }
 
+    @Override
     public DecisionTableRuleNode findNode(Object value, DecisionTableRuleNode prevResult) {
         if (value == null) {
             return emptyOrFormulaNodes;
@@ -35,8 +37,10 @@ public abstract class ARuleIndex implements IRuleIndex {
 
     abstract DecisionTableRuleNode findNodeInIndex(Object value);
 
+    @Override
     public abstract Iterable<? extends DecisionTableRuleNode> nodes();
 
+    @Override
     public int[] collectRules() {
         Set<Integer> set = new HashSet<>();
 

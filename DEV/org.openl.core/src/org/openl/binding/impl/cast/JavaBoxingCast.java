@@ -11,14 +11,17 @@ final class JavaBoxingCast implements IOpenCast {
         // Use JavaBoxingCast.instance
     }
 
+    @Override
     public Object convert(Object from) {
         return from;
     }
 
+    @Override
     public int getDistance() {
         return CastFactory.JAVA_BOXING_CAST_DISTANCE;
     }
 
+    @Override
     public boolean isImplicit() {
         return true;
     }

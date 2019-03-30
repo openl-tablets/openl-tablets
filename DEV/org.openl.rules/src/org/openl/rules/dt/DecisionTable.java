@@ -58,6 +58,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         initProperties(getSyntaxNode().getTableProperties());
     }
 
+    @Override
     public IBaseAction[] getActionRows() {
         return actionRows;
     }
@@ -78,6 +79,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         this.columns = columns;
     }
 
+    @Override
     public IBaseCondition[] getConditionRows() {
         return conditionRows;
     }
@@ -86,6 +88,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         this.conditionRows = conditionRows;
     }
 
+    @Override
     public String getDisplayName(int mode) {
         IMemberMetaInfo metaInfo = getHeader().getInfo();
         if (metaInfo != null) {
@@ -94,10 +97,12 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         return toString();
     }
 
+    @Override
     public IOpenMethod getMethod() {
         return this;
     }
 
+    @Override
     public int getNumberOfRules() {
 
         if (actionRows.length > 0) {
@@ -107,6 +112,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         return 0;
     }
 
+    @Override
     public String getRuleName(int col) {
         return ruleRow == null ? "R" + (col + 1) : ruleRow.getRuleName(col);
     }
@@ -126,6 +132,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
      * @param ruleIndex Index of rule.
      * @return ILogicalTable that contains rule column.
      */
+    @Override
     public ILogicalTable getRuleTable(int ruleIndex) {
         ILogicalTable dt = actionRows[0].getDecisionTable();
         int starColumn = dt.getWidth() - columns;
@@ -133,6 +140,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         return dt.getColumn(starColumn + ruleIndex);
     }
 
+    @Override
     public String getSourceUrl() {
         return getSyntaxNode().getUri();
     }
@@ -153,6 +161,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         prepare(getHeader(), openl, bindingContext);
     }
 
+    @Override
     public BindingDependencies getDependencies() {
 
         BindingDependencies bindingDependencies = new RulesBindingDependencies();
@@ -161,6 +170,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         return bindingDependencies;
     }
 
+    @Override
     protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
         if (invoker == null) {
             invoker = new DecisionTableInvoker(this);
@@ -192,6 +202,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         return getName();
     }
 
+    @Override
     public void updateDependency(BindingDependencies dependencies) {
         if (conditionRows != null) {
             for (IBaseCondition condition : conditionRows) {

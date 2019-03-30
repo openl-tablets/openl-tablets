@@ -20,6 +20,7 @@ public class TestMethodOpenClass extends ADynamicClass {
         init(testedMethod);
     }
 
+    @Override
     public Object newInstance(IRuntimeEnv env) {
         return new DynamicObject(this);
     }

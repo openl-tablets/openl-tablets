@@ -20,6 +20,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
     C increment(C value);
 
     abstract static class NumberTypeAdaptor<N extends Number, C extends Comparable<C>> implements ITypeAdaptor<N, C> {
+        @Override
         @SuppressWarnings("unchecked")
         public C convert(N param) {
             return (C) param;

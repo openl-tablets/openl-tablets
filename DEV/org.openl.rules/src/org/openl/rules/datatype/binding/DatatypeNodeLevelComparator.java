@@ -21,6 +21,7 @@ public class DatatypeNodeLevelComparator implements Comparator<TableSyntaxNode> 
         this.levelsMap = levelsMap;
     }
     
+    @Override
     public int compare(TableSyntaxNode first, TableSyntaxNode second) {
         int firstLevel = levelsMap.get(first);
         int secondLevel = levelsMap.get(second);

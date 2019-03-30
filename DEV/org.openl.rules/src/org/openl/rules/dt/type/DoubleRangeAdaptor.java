@@ -13,6 +13,7 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
         return INSTANCE;
     }
 
+    @Override
     public Double getMax(DoubleRange range) {
         if (range == null) {
             return null;
@@ -28,6 +29,7 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
         return max;
     }    
     
+    @Override
     public Double getMin(DoubleRange range) {
         if (range == null) {
             return null;

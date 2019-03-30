@@ -145,6 +145,7 @@ public class DatatypeOpenClass extends ADynamicClass {
         return (Map<String, IOpenField>) fieldMap().clone();
     }
 
+    @Override
     public Object newInstance(IRuntimeEnv env) {
         Object instance = null;
         try {

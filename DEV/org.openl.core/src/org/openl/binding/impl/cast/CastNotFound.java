@@ -14,6 +14,7 @@ final class CastNotFound implements IOpenCast {
     /**
      * Impossible to convert.
      */
+    @Override
     public Object convert(Object from) {
         throw new ClassCastException("Unsupported conversion");
     }
@@ -21,6 +22,7 @@ final class CastNotFound implements IOpenCast {
     /**
      * Maximal possible distance.
      */
+    @Override
     public int getDistance() {
         return Integer.MAX_VALUE;
     }
@@ -28,6 +30,7 @@ final class CastNotFound implements IOpenCast {
     /**
      * Cannot be performed automaticaly.
      */
+    @Override
     public boolean isImplicit() {
         return false;
     }

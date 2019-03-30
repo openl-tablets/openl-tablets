@@ -36,9 +36,11 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     private final java.math.BigDecimal value;
 
     public static class BigDecimalValueAdapter extends XmlAdapter<BigDecimal,BigDecimalValue> {
+        @Override
         public BigDecimalValue unmarshal(BigDecimal val) throws Exception {
             return new BigDecimalValue(val);
         }
+        @Override
         public BigDecimal marshal(BigDecimalValue val) throws Exception {
             return val.getValue();
         }
@@ -519,6 +521,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     /**
     * Prints the value of the current variable
     */
+    @Override
     public String printValue() {
         return String.valueOf(value);
     }

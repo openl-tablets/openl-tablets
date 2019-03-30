@@ -4,6 +4,7 @@ public class ContainsMatchingExpression extends AMatchingExpression {
     
     public static final String OPERATION_NAME = "CONTAINS";    
     
+    @Override
     public boolean isContextAttributeExpression() {
         return false;
     }

@@ -25,6 +25,7 @@ public class UndoableSetValueAction extends AUndoableCellAction {
         this.newValue = value;
     }
 
+    @Override
     public void doAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
 
@@ -41,6 +42,7 @@ public class UndoableSetValueAction extends AUndoableCellAction {
         }
     }
 
+    @Override
     public void undoAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
         if (StringUtils.isNotBlank(getPrevFormula())) {

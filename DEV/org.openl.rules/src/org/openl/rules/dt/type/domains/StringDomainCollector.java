@@ -17,6 +17,7 @@ public class StringDomainCollector implements IDomainCollector {
         this.propertyToSearch = propertyToSearch;
     }
 
+    @Override
     public void gatherDomains(Map<String, Object> methodProperties) {
         if (methodProperties != null) {
             String propvalue = (String) methodProperties.get(propertyToSearch);
@@ -26,6 +27,7 @@ public class StringDomainCollector implements IDomainCollector {
         }
     }
 
+    @Override
     public IDomainAdaptor getGatheredDomain() {
         if (stringProp.isEmpty()) {
             // fake string domain it is because constrainer will be freezed with empty domain.

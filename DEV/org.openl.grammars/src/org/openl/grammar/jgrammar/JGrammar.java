@@ -73,6 +73,7 @@ protected org.openl.util.text.TextInterval pos(Token t1, Token t2)
         }
 
 
+@Override
 public void parseTopNode(String type)
 {
         try
@@ -3211,7 +3212,8 @@ syntaxBuilder.uop("block.top", null);
   }
 
   /** Reinitialise. */
-  public void ReInit(java.io.Reader stream) {
+  @Override
+public void ReInit(java.io.Reader stream) {
 	if (jj_input_stream == null) {
 	   jj_input_stream = new SimpleCharStream(stream, 1, 1);
 	} else {

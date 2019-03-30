@@ -11,10 +11,12 @@ public class ClassMatchMatcher implements IMatcher {
         this.convertor = convertor;
     }
 
+    @Override
     public Object fromString(String checkValue) {
         return convertor.parse(checkValue, null);
     }
 
+    @Override
     public boolean match(Object var, Object checkValue) {
         if (checkValue == null) {
             return false;

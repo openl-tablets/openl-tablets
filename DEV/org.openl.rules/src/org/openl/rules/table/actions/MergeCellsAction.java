@@ -19,6 +19,7 @@ public class MergeCellsAction implements IUndoableGridTableAction {
         this.region = region;
     }
 
+    @Override
     public void doAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
         removedRegions = new ArrayList<>();
@@ -35,6 +36,7 @@ public class MergeCellsAction implements IUndoableGridTableAction {
         grid.addMergedRegion(region);
     }
 
+    @Override
     public void undoAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
         grid.removeMergedRegion(region);

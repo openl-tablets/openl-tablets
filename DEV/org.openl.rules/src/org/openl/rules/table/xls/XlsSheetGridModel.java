@@ -66,6 +66,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         cellWriters.put(AXlsCellWriter.STRING_WRITER, new XlsCellStringWriter(this));
     }
 
+    @Override
     public int addMergedRegion(IGridRegion reg) {
         Object topLeftCellValue = findFirstValueInRegion(reg);
         for (int row = reg.getTop(); row <= reg.getBottom(); row++) {
@@ -103,6 +104,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         setCellValue(col, row, null);
     }
 
+    @Override
     public void clearCell(int col, int row) {
         Sheet sheet = getSheet();
         Cell cell = PoiExcelHelper.getCell(col, row, sheet);
@@ -113,11 +115,13 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         }
     }
 
+    @Override
     public void copyCell(int colFrom, int rowFrom, int colTo, int rowTo) {
         Cell cellFrom = PoiExcelHelper.getCell(colFrom, rowFrom, getSheet());
         copyCell(cellFrom, colTo, rowTo);
     }
 
+    @Override
     public void createCell(int col, int row, Object value, String formula, ICellStyle style, ICellComment comment) {
         if (StringUtils.isNotBlank(formula)) {
             setCellFormula(col, row, formula);
@@ -147,6 +151,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         cellTo.removeCellComment();
     }
 
+    @Override
     public IGridRegion findEmptyRect(int width, int height) {
         int lastRow = PoiExcelHelper.getLastRowNum(getSheet());
         int top = lastRow + 2, left = 1;
@@ -158,30 +163,37 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         return null;
     }
 
+    @Override
     public ICell getCell(int column, int row) {
         return new XlsCell(column, row, this);
     }
 
+    @Override
     public int getColumnWidth(int col) {
         return PoiExcelHelper.getColumnWidth(col, getSheet());
     }
 
+    @Override
     public int getMaxColumnIndex(int rownum) {
         return PoiExcelHelper.getMaxColumnIndex(rownum, getSheet());
     }
 
+    @Override
     public int getMaxRowIndex() {
         return PoiExcelHelper.getMaxRowIndex(getSheet());
     }
 
+    @Override
     public synchronized IGridRegion getMergedRegion(int i) {
         return new XlsGridRegion(PoiExcelHelper.getMergedRegionAt(i, getSheet()));
     }
 
+    @Override
     public int getMinColumnIndex(int rownum) {
         return PoiExcelHelper.getMinColumnIndex(rownum, getSheet());
     }
 
+    @Override
     public int getMinRowIndex() {
         return PoiExcelHelper.getMinRowIndex(getSheet());
     }
@@ -190,6 +202,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         return sheetSource.getSheetName();
     }
 
+    @Override
     public int getNumberOfMergedRegions() {
         return PoiExcelHelper.getNumberOfMergedRegions(getSheet());
     }
@@ -205,6 +218,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         return getRangeUri(region.getLeft(), region.getTop(), region.getRight(), region.getBottom());
     }
 
+    @Override
     public IGridRegion getRegionContaining(int x, int y) {
         return getMergedRegionsPool().getRegionContaining(x, y);
     }
@@ -213,10 +227,12 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         return sheetSource;
     }
 
+    @Override
     public String getUri() {
         return sheetSource == null ? "" : sheetSource.getUri();// + "#" + name;
     }
 
+    @Override
     public boolean isEmpty(int x, int y) {
         Cell cell = PoiExcelHelper.getCell(x, y, getSheet());
         if (cell == null) {
@@ -235,6 +251,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         return false;
     }
 
+    @Override
     public void removeMergedRegion(IGridRegion remove) {
         removeMergedRegion(remove.getLeft(), remove.getTop());
     }
@@ -253,6 +270,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         }
     }
 
+    @Override
     public void setCellValue(int col, int row, Object value) {
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, getSheet());
         if (value != null) {
@@ -265,10 +283,12 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         }
     }
 
+    @Override
     public void setCellStringValue(int col, int row, String value) {
         PoiExcelHelper.setCellStringValue(col, row, value, getSheet());
     }
 
+    @Override
     public void setCellFormula(int col, int row, String formula) {
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, getSheet());
 
@@ -287,6 +307,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         return cellWriters;
     }
 
+    @Override
     public void setCellStyle(int col, int row, ICellStyle style) {
         Sheet sheet = getSheet();
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
@@ -313,6 +334,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     /*
      * Set only BorderStyle and BorderRGB properties
      */
+    @Override
     public void setCellBorderStyle(int col, int row, ICellStyle style) {
         if (style == null) {
             // no needs to set absent styles.
@@ -341,18 +363,21 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         poiCell.setCellStyle(newPoiStyle);
     }
 
+    @Override
     public void setCellAlignment(int col, int row, HorizontalAlignment alignment) {
         Sheet sheet = getSheet();
         Cell cell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
         CellUtil.setCellStyleProperty(cell, CellUtil.ALIGNMENT, alignment);
     }
 
+    @Override
     public void setCellIndent(int col, int row, int indent) {
         Sheet sheet = getSheet();
         Cell cell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
         CellUtil.setCellStyleProperty(cell, CellUtil.INDENTION, (short) indent);
     }
 
+    @Override
     public void setCellFillColor(int col, int row, short[] color) {
         Cell cell = PoiExcelHelper.getOrCreateCell(col, row, getSheet());
         CellStyle newStyle = PoiExcelHelper.cloneStyleFrom(cell);
@@ -386,6 +411,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         }
     }
 
+    @Override
     public void setCellFontColor(int col, int row, short[] color) {
         Cell cell = PoiExcelHelper.getOrCreateCell(col, row, getSheet());
 
@@ -443,22 +469,26 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         return color == null ? null : color.getIndex();
     }
 
+    @Override
     public void setCellFontBold(int col, int row, boolean bold) {
         Cell cell = PoiExcelHelper.getOrCreateCell(col, row, getSheet());
         PoiExcelHelper.setCellFontBold(cell, bold);
     }
 
+    @Override
     public void setCellFontItalic(int col, int row, boolean italic) {
         Cell cell = PoiExcelHelper.getOrCreateCell(col, row, getSheet());
         PoiExcelHelper.setCellFontItalic(cell, italic);
     }
 
+    @Override
     public void setCellFontUnderline(int col, int row, boolean underlined) {
         Cell cell = PoiExcelHelper.getOrCreateCell(col, row, getSheet());
         byte underline = underlined ? Font.U_SINGLE : Font.U_NONE;
         PoiExcelHelper.setCellFontUnderline(cell, underline);
     }
 
+    @Override
     public void setCellComment(int col, int row, ICellComment comment) {
         Comment poiComment = null;
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, getSheet());

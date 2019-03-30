@@ -24,6 +24,7 @@ public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatch
         super(method, moduleOpenClass);
     }
 
+    @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         IOpenMethod openMethod = getDecisionTableOpenMethod();
         if (openMethod != null) {

@@ -8,14 +8,17 @@ final class JavaUnboxingCast implements IOpenCast {
         // Use JavaUnboxingCast.instance
     }
 
+    @Override
     public Object convert(Object from) {
         return from;
     }
 
+    @Override
     public int getDistance() {
         return CastFactory.JAVA_UNBOXING_CAST_DISTANCE;
     }
 
+    @Override
     public boolean isImplicit() {
         return true;
     }

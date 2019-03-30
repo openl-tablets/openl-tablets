@@ -28,6 +28,7 @@ public abstract class AParser implements IOpenParser {
     /**
      * {@inheritDoc}
      */
+    @Override
     public IParsedCode parseAsMethodBody(IOpenSourceCodeModule source) {
  
         IGrammar grammar = getGrammarFactory().getGrammar();
@@ -40,6 +41,7 @@ public abstract class AParser implements IOpenParser {
     /**
      * {@inheritDoc}
      */
+    @Override
     public IParsedCode parseAsMethodHeader(IOpenSourceCodeModule source) {
 
         IGrammar grammar = getGrammarFactory().getGrammar();
@@ -52,6 +54,7 @@ public abstract class AParser implements IOpenParser {
     /**
      * {@inheritDoc}
      */
+    @Override
     public IParsedCode parseAsModule(IOpenSourceCodeModule source) {
 
         IGrammar grammar = getGrammarFactory().getGrammar();
@@ -64,6 +67,7 @@ public abstract class AParser implements IOpenParser {
     /**
      * {@inheritDoc}
      */
+    @Override
     public IParsedCode parseAsType(IOpenSourceCodeModule source) {
 
         IGrammar grammar = getGrammarFactory().getGrammar();
@@ -76,6 +80,7 @@ public abstract class AParser implements IOpenParser {
     /**
      * {@inheritDoc}
      */
+    @Override
     public IParsedCode parseAsFloatRange(IOpenSourceCodeModule source) {
 
         IGrammar grammar = getGrammarFactory().getGrammar();
@@ -88,6 +93,7 @@ public abstract class AParser implements IOpenParser {
     /**
      * {@inheritDoc}
      */
+    @Override
     public IParsedCode parseAsIntegerRange(IOpenSourceCodeModule source) {
 
         IGrammar grammar = getGrammarFactory().getGrammar();

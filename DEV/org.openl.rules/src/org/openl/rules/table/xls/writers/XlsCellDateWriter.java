@@ -14,6 +14,7 @@ public class XlsCellDateWriter extends AXlsCellWriter{
         super(xlsSheetGridModel);
     }
 
+    @Override
     public void writeCellValue() {
         Date dateValue = (Date) getValueToWrite();
         getCellToWrite().setCellValue(dateValue);

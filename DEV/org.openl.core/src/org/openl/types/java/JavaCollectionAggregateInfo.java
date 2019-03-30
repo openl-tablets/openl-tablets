@@ -16,6 +16,7 @@ import org.openl.types.impl.AAggregateInfo;
 public class JavaCollectionAggregateInfo implements IAggregateInfo {
     static final IAggregateInfo COLLECTION_AGGREGATE = new JavaCollectionAggregateInfo();
 
+    @Override
     public IOpenClass getComponentType(IOpenClass aggregateType) {
         return JavaOpenClass.OBJECT;
     }
@@ -25,6 +26,7 @@ public class JavaCollectionAggregateInfo implements IAggregateInfo {
         return getIndex(aggregateType, JavaOpenClass.OBJECT);
     }
 
+    @Override
     public IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType) {
         // For general collection indexed operator x[i] isn't supported
         // Returned index is limited: it supports only method collection.add(element)
@@ -37,11 +39,13 @@ public class JavaCollectionAggregateInfo implements IAggregateInfo {
         return AAggregateInfo.getArrayType(componentType);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Iterator<Object> getIterator(Object aggregate) {
         return ((Collection<Object>) aggregate).iterator();
     }
 
+    @Override
     public boolean isAggregate(IOpenClass type) {
         return Collection.class.isAssignableFrom(type.getInstanceClass());
     }
@@ -54,22 +58,27 @@ public class JavaCollectionAggregateInfo implements IAggregateInfo {
     }
 
     private static class CollectionIndex implements IOpenIndex {
+        @Override
         public IOpenClass getElementType() {
             return JavaOpenClass.OBJECT;
         }
 
+        @Override
         public IOpenClass getIndexType() {
             return null;
         }
 
+        @Override
         public Object getValue(Object container, Object index) {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public boolean isWritable() {
             return true;
         }
 
+        @Override
         @SuppressWarnings("unchecked")
         public void setValue(Object container, Object index, Object value) {
             ((Collection<Object>) container).add(value);

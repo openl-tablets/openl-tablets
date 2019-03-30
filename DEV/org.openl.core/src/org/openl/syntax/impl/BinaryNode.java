@@ -26,6 +26,7 @@ public class BinaryNode extends ASyntaxNode {
         right.setParent(this);
     }
 
+    @Override
     public ISyntaxNode getChild(int i) {
         if (i == 0) {
             return left;
@@ -36,6 +37,7 @@ public class BinaryNode extends ASyntaxNode {
         throw new RuntimeException("BinaryNode has only two children, not " + (i + 1));
     }
 
+    @Override
     public int getNumberOfChildren() {
         return 2;
     }

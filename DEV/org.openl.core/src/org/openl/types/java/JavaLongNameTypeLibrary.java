@@ -35,6 +35,7 @@ public class JavaLongNameTypeLibrary implements ITypeLibrary {
         this.loader = classLoader;
     }
 
+    @Override
     public IOpenClass getType(String typename)  {
         
         IOpenClass ioc = foundClasses.get(typename);

@@ -140,22 +140,27 @@ public class XlsBinder implements IOpenBinder {
         this.userContext = userContext;
     }
 
+    @Override
     public ICastFactory getCastFactory() {
         return null;
     }
 
+    @Override
     public INameSpacedMethodFactory getMethodFactory() {
         return null;
     }
 
+    @Override
     public INodeBinderFactory getNodeBinderFactory() {
         return null;
     }
 
+    @Override
     public INameSpacedTypeFactory getTypeFactory() {
         return null;
     }
 
+    @Override
     public INameSpacedVarFactory getVarFactory() {
         return null;
     }
@@ -165,14 +170,17 @@ public class XlsBinder implements IOpenBinder {
      * 
      * @see org.openl.IOpenBinder#makeBindingContext()
      */
+    @Override
     public IBindingContext makeBindingContext() {
         return new BindingContext(null, JavaOpenClass.VOID, null);
     }
 
+    @Override
     public IBoundCode bind(IParsedCode parsedCode) {
         return bind(parsedCode, null);
     }
 
+    @Override
     public IBoundCode bind(IParsedCode parsedCode, IBindingContext bindingContext) {
 
         XlsModuleSyntaxNode moduleNode = (XlsModuleSyntaxNode) parsedCode.getTopNode();
@@ -931,6 +939,7 @@ public class XlsBinder implements IOpenBinder {
             return module;
         }
 
+        @Override
         public void preBind() {
             try {
                 preBindeding = true;
@@ -963,6 +972,7 @@ public class XlsBinder implements IOpenBinder {
             }
         }
 
+        @Override
         public boolean isPreBinding() {
             return preBindeding;
         }

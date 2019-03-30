@@ -32,10 +32,12 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comp
     public static final ByteValue MINUS_ONE = new ByteValue((byte) -1);
 
     public static class ByteValueAdapter extends XmlAdapter<Byte, ByteValue> {
+        @Override
         public ByteValue unmarshal(Byte val) throws Exception {
             return new ByteValue(val);
         }
 
+        @Override
         public Byte marshal(ByteValue val) throws Exception {
             return val.getValue();
         }
@@ -409,7 +411,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comp
      * @return the casted value to org.openl.meta.ByteValue
      */
     public static org.openl.meta.ByteValue autocast(byte x, org.openl.meta.ByteValue y) {
-        return new org.openl.meta.ByteValue((byte) x);
+        return new org.openl.meta.ByteValue(x);
     }
 
     // Constructors
@@ -440,6 +442,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comp
     /**
      * Prints the value of the current variable
      */
+    @Override
     public String printValue() {
         return String.valueOf(value);
     }
@@ -620,22 +623,22 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comp
 
     @Override
     public double doubleValue() {
-        return (double) value;
+        return value;
     }
 
     @Override
     public float floatValue() {
-        return (float) value;
+        return value;
     }
 
     @Override
     public int intValue() {
-        return (int) value;
+        return value;
     }
 
     @Override
     public long longValue() {
-        return (long) value;
+        return value;
     }
 
     @Override

@@ -21,10 +21,12 @@ public class IntRangeDomain implements IDomain<Integer>, IIntDomain {
             this.step = step;
         }
 
+        @Override
         public boolean hasNext() {
             return current <= max;
         }
 
+        @Override
         public int nextInt() {
         	int ret = current;
         	current += step;
@@ -54,6 +56,7 @@ public class IntRangeDomain implements IDomain<Integer>, IIntDomain {
         this.max = max;
     }
 
+    @Override
     public boolean contains(int value) {
         return min <= value && value <= max;
     }
@@ -76,15 +79,18 @@ public class IntRangeDomain implements IDomain<Integer>, IIntDomain {
         return min == other.min && max == other.max;
     }
 
+    @Override
     @XmlTransient
     public IType getElementType() {
         return null;
     }
 
+    @Override
     public int getMax() {
         return max;
     }
 
+    @Override
     public int getMin() {
         return min;
     }
@@ -99,6 +105,7 @@ public class IntRangeDomain implements IDomain<Integer>, IIntDomain {
         return hashCode;
     }
 
+    @Override
     public IIntIterator intIterator() {
         return new RangeIterator(1);
     }
@@ -108,14 +115,17 @@ public class IntRangeDomain implements IDomain<Integer>, IIntDomain {
     }
     
 
+    @Override
     public Iterator<Integer> iterator() {
         return intIterator();
     }
 
+    @Override
     public boolean selectObject(Integer n) {
         return containsNumber(n);
     }
 
+    @Override
     public int size() {
         return max - min + 1;
     }

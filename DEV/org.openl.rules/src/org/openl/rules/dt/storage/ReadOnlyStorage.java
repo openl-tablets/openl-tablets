@@ -31,6 +31,7 @@ public abstract class ReadOnlyStorage<T> implements IStorage<T> {
 
     }
 
+    @Override
     public StorageInfo getInfo() {
         return info;
     }

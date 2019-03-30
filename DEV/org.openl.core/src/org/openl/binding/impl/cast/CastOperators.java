@@ -83,11 +83,11 @@ public class CastOperators {
     }
 
     public static BigInteger autocast(char x, BigInteger y) {
-        return BigInteger.valueOf((int) x);
+        return BigInteger.valueOf(x);
     }
 
     public static BigDecimal autocast(char x, BigDecimal y) {
-        return BigDecimal.valueOf((int) x);
+        return BigDecimal.valueOf(x);
     }
 
     public static long autocast(int x, long y) {

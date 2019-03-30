@@ -18,6 +18,7 @@ public class MethodBasedIndex implements IOpenIndex {
      * (non-Javadoc)
      * @see org.openl.types.IOpenIndex#getElementType()
      */
+    @Override
     public IOpenClass getElementType() {
         return reader.getMethod().getType();
     }
@@ -26,6 +27,7 @@ public class MethodBasedIndex implements IOpenIndex {
      * (non-Javadoc)
      * @see org.openl.types.IOpenIndex#getIndexType()
      */
+    @Override
     public IOpenClass getIndexType() {
         int n = writer.getMethod().getSignature().getParameterTypes().length;
 
@@ -36,6 +38,7 @@ public class MethodBasedIndex implements IOpenIndex {
      * (non-Javadoc)
      * @see org.openl.types.IOpenIndex#getValue(java.lang.Object, java.lang.Object)
      */
+    @Override
     @SuppressWarnings("unchecked")
     public Object getValue(Object container, Object index) {
 
@@ -52,10 +55,12 @@ public class MethodBasedIndex implements IOpenIndex {
      * (non-Javadoc)
      * @see org.openl.types.IOpenIndex#isWritable()
      */
+    @Override
     public boolean isWritable() {
         return writer != null;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void setValue(Object container, Object index, Object value) {
 

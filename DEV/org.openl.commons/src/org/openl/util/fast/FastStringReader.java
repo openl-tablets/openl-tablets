@@ -45,6 +45,7 @@ public class FastStringReader extends Reader {
      *
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public int read() throws IOException {
         ensureOpen();
         if (next >= length)
@@ -64,6 +65,7 @@ public class FastStringReader extends Reader {
      *
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public int read(char cbuf[], int off, int len) throws IOException {
         ensureOpen();
         if ((off < 0) || (off > cbuf.length) || (len < 0) || ((off + len) > cbuf.length) || ((off + len) < 0)) {
@@ -97,6 +99,7 @@ public class FastStringReader extends Reader {
      *
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public long skip(long ns) throws IOException {
         ensureOpen();
         if (next >= length)
@@ -115,6 +118,7 @@ public class FastStringReader extends Reader {
      *
      * @exception IOException If the stream is closed
      */
+    @Override
     public boolean ready() throws IOException {
         ensureOpen();
         return true;
@@ -123,6 +127,7 @@ public class FastStringReader extends Reader {
     /**
      * Tells whether this stream supports the mark() operation, which it does.
      */
+    @Override
     public boolean markSupported() {
         return true;
     }
@@ -139,6 +144,7 @@ public class FastStringReader extends Reader {
      * @exception IllegalArgumentException If readAheadLimit is < 0
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public void mark(int readAheadLimit) throws IOException {
         if (readAheadLimit < 0) {
             throw new IllegalArgumentException("Read-ahead limit < 0");
@@ -153,6 +159,7 @@ public class FastStringReader extends Reader {
      *
      * @exception IOException If an I/O error occurs
      */
+    @Override
     public void reset() throws IOException {
         ensureOpen();
         next = mark;
@@ -164,6 +171,7 @@ public class FastStringReader extends Reader {
      * reset() invocations will throw an IOException. Closing a previously
      * closed stream has no effect.
      */
+    @Override
     public void close() {
         str = null;
     }

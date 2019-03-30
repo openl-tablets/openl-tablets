@@ -11,6 +11,7 @@ public abstract class AGridTable implements IGridTable {
 
     private XlsUrlParser cacheUrlParser;
 
+    @Override
     public IGridRegion getRegion() {
         int left = getGridColumn(0, 0);
         int top = getGridRow(0, 0);
@@ -29,6 +30,7 @@ public abstract class AGridTable implements IGridTable {
         return new GridRegion(top, left, bottom, right);
     }
 
+    @Override
     public String getUri() {
         int w = getWidth();
         int h = getHeight();
@@ -44,46 +46,56 @@ public abstract class AGridTable implements IGridTable {
         return cacheUrlParser;
     }
 
+    @Override
     public String getUri(int col, int row) {
         int colStart = getGridColumn(col, row);
         int rowStart = getGridRow(col, row);
         return getGrid().getRangeUri(colStart, rowStart, colStart, rowStart);
     }
 
+    @Override
     public IGridTable transpose() {
         return new TransposedGridTable(this);
     }
 
+    @Override
     public ICell getCell(int column, int row) {
     	return new GridTableCell(column, row, this);
     }
 
+    @Override
     public IGridTable getColumn(int column) {
         return getColumns(column, column);
     }
 
+    @Override
     public IGridTable getColumns(int from) {
         return getColumns(from, getWidth() - 1);
     }
 
+    @Override
     public IGridTable getColumns(int from, int to) {
         int colsNum = to - from + 1;
         return getSubtable(from, 0, colsNum, getHeight());
     }
 
+    @Override
     public IGridTable getRow(int row) {
         return getRows(row, row);
     }
 
+    @Override
     public IGridTable getRows(int from) {
         return getRows(from, getHeight() - 1);
     }
 
+    @Override
     public IGridTable getRows(int from, int to) {
         int rowsNum = to - from + 1;
         return getSubtable(0, from, getWidth(), rowsNum);
     }
 
+    @Override
     public IGridTable getSubtable(int column, int row, int width, int height) {
         if (width == 0 || height == 0) {
             return null;

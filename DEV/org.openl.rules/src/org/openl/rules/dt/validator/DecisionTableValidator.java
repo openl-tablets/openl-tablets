@@ -39,6 +39,7 @@ public final class DecisionTableValidator implements IValidator {
         return (DecisionTableValidationResult) getInstance().validate(validatedObject, openl);
     }
 
+    @Override
     public IValidationResult validate(IValidatedObject validatedObject, OpenL openl) {
         return new ValidationAlgorithm((IDecisionTableValidatedObject) validatedObject, openl).validate();
     }

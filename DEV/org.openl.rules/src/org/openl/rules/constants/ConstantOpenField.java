@@ -43,6 +43,7 @@ public class ConstantOpenField extends AOpenField implements IUriMember {
         return declaringClass;
     }
 
+    @Override
     public Object get(Object target, IRuntimeEnv env) {
         return value;
     }
@@ -69,6 +70,7 @@ public class ConstantOpenField extends AOpenField implements IUriMember {
         return true;
     }
 
+    @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         throw new UnsupportedOperationException();
     }

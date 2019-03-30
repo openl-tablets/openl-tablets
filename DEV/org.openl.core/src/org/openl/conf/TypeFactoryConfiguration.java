@@ -31,6 +31,7 @@ public class TypeFactoryConfiguration extends AConfigurationElement implements I
      *
      * @see org.openl.newconf.IConfigurationElement#validate(org.openl.newconf.IConfigurationContext)
      */
+    @Override
     public void validate(IConfigurableResourceContext cxt) {
         for (Object lib : map.values()) {
             ((NameSpacedTypeConfiguration) lib).validate(cxt);

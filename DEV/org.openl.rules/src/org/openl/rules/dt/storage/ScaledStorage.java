@@ -13,22 +13,27 @@ public class ScaledStorage extends ReadOnlyStorage {
         this.s = s;
     }
 
+    @Override
     public int size() {
         return s.size() * scale.getMultiplier();
     }
 
+    @Override
     public Object getValue(int index) {
         return s.getValue(actualIndex(index));
     }
 
+    @Override
     public boolean isSpace(int index) {
         return s.isSpace(actualIndex(index));
     }
 
+    @Override
     public boolean isFormula(int index) {
         return s.isFormula(actualIndex(index));
     }
 
+    @Override
     public boolean isElse(int index) {
         return s.isElse(actualIndex(index));
     }

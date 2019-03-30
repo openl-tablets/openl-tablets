@@ -10,11 +10,13 @@ public class EnumMatchMatcher implements IMatcher {
         enumType = (Class<Enum>) clazz;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Object fromString(String checkValue) {
         return Enum.valueOf(enumType, checkValue);
     }
 
+    @Override
     public boolean match(Object var, Object checkValue) {
         if (checkValue == null) {
             return false;

@@ -69,6 +69,7 @@ public class ObjectToDataConvertorFactory {
             this.ctr = ctr;
         }
 
+        @Override
         public Object convert(Object data) {
             try {
                 return ctr.newInstance(data);
@@ -94,6 +95,7 @@ public class ObjectToDataConvertorFactory {
             this.staticMethod = staticMethod;
         }
 
+        @Override
         public Object convert(Object data) {
             try {
                 // first argument is null as field staticMethod represents only
@@ -107,6 +109,7 @@ public class ObjectToDataConvertorFactory {
     }
 
     public static class CopyConvertor implements IObjectToDataConvertor {
+        @Override
         public Object convert(Object data) {
             return data;
         }
@@ -121,6 +124,7 @@ public class ObjectToDataConvertorFactory {
      *
      */
     public static class GetValueConvertor implements IObjectToDataConvertor {
+        @Override
         public Object convert(Object data) {
             if (data != null) {
                 Method getValueMethod;

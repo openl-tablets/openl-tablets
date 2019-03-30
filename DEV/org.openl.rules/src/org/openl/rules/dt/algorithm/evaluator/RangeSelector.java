@@ -37,6 +37,7 @@ public class RangeSelector implements IIntSelector {
         this.target = target;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public boolean select(int ruleN) {
 

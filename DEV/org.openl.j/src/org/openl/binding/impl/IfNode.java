@@ -49,6 +49,7 @@ public class IfNode extends ABoundNode {
         return (Boolean.TRUE.equals(res)) ? thenNode.evaluate(env) : (elseNode != null ? elseNode.evaluate(env) : null);
     }
 
+    @Override
     public IOpenClass getType() {
         return type;
     }

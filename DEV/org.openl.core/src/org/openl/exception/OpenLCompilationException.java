@@ -50,6 +50,7 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
     /* (non-Javadoc)
      * @see org.openl.exception.OpenLException#getLocation()
      */
+    @Override
     public ILocation getLocation() {
         return location;
     }
@@ -57,6 +58,7 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
     /* (non-Javadoc)
      * @see org.openl.exception.OpenLException#getSourceModule()
      */
+    @Override
     public IOpenSourceCodeModule getSourceModule() {
         return source;
     }

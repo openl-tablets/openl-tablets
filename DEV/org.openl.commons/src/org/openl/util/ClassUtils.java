@@ -26,12 +26,14 @@ public class ClassUtils {
         Throwable th = null;
         try {
             pd = (ProtectionDomain) AccessController.doPrivileged(new PrivilegedAction() {
+                @Override
                 public Object run() {
                     return ClassUtils.class.getProtectionDomain();
                 }
             });
 
             dc = (Method) AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
+                @Override
                 public Object run() throws Exception {
                     Class loader = Class.forName("java.lang.ClassLoader");
                     Method defineClass = loader.getDeclaredMethod("defineClass",

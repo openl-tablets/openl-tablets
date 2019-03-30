@@ -15,12 +15,15 @@ import org.openl.vm.IRuntimeEnv;
  */
 public interface IDecisionRow extends IBaseDecisionRow {
 
+    @Override
     IOpenSourceCodeModule getSourceCodeModule();
 
     String[] getParamPresentation();
 
+    @Override
     Object getParamValue(int paramIndex, int ruleN);
 
+    @Override
     boolean hasFormula(int ruleN);
 
     boolean hasFormulas();

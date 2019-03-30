@@ -13,6 +13,7 @@ import org.openl.types.IOpenField;
  */
 public class IdentifierBinder extends ANodeBinder {
 
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         boolean strictMatch = isStrictMatch(node);

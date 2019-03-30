@@ -32,6 +32,7 @@ public class HashCodeWriter extends MethodWriter {
         super(beanNameWithPackage, allFields);
     }
 
+    @Override
     public void write(ClassWriter classWriter) {
         MethodVisitor mv;
         mv = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "hashCode", "()I", null, null);

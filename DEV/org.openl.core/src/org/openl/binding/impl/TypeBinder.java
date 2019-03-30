@@ -17,6 +17,7 @@ import org.openl.types.IOpenClass;
  */
 public class TypeBinder extends ANodeBinder {
 
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         ISyntaxNode typeNode = node.getChild(0);

@@ -64,6 +64,7 @@ public abstract class AOpenClass implements IOpenClass {
 
     protected abstract Map<String, IOpenField> fieldMap();
 
+    @Override
     public Map<String, IOpenField> getFields() {
         Map<String, IOpenField> fields = new HashMap<>();
         Iterable<IOpenClass> superClasses = superClasses();
@@ -74,6 +75,7 @@ public abstract class AOpenClass implements IOpenClass {
         return fields;
     }
 
+    @Override
     public Map<String, IOpenField> getDeclaredFields() {
         return new HashMap<>(fieldMap());
     }
@@ -95,18 +97,22 @@ public abstract class AOpenClass implements IOpenClass {
         throw new IllegalArgumentException();
     }
 
+    @Override
     public IOpenClass getArrayType(int dim) {
         return getArrayType(this, dim);
     }
 
+    @Override
     public IDomain<?> getDomain() {
         return null;
     }
 
+    @Override
     public IOpenField getField(String fname) {
         return getField(fname, true);
     }
 
+    @Override
     public IOpenField getField(String fname, boolean strictMatch) {
 
         IOpenField f = null;
@@ -157,20 +163,24 @@ public abstract class AOpenClass implements IOpenClass {
         return null;
     }
 
+    @Override
     public IOpenField getIndexField() {
         return indexField;
     }
 
+    @Override
     public IOpenMethod getConstructor(IOpenClass[] params) {
         Map<MethodKey, IOpenMethod> m = constructorMap();
         MethodKey methodKey = new MethodKey(params);
         return m.get(methodKey);
     }
 
+    @Override
     public IMetaInfo getMetaInfo() {
         return metaInfo;
     }
 
+    @Override
     public IOpenMethod getMethod(String name, IOpenClass[] classes) {
 
         IOpenMethod method = getDeclaredMethod(name, classes);
@@ -202,6 +212,7 @@ public abstract class AOpenClass implements IOpenClass {
         return uniqueLowerCaseFieldMap;
     }
 
+    @Override
     public IOpenField getVar(String name, boolean strictMatch) {
         return getField(name, strictMatch);
     }
@@ -212,10 +223,12 @@ public abstract class AOpenClass implements IOpenClass {
         }
     }
 
+    @Override
     public boolean isAbstract() {
         return false;
     }
 
+    @Override
     public boolean isAssignableFrom(IType type) {
         if (type instanceof IOpenClass) {
             return isAssignableFrom((IOpenClass) type);
@@ -223,10 +236,12 @@ public abstract class AOpenClass implements IOpenClass {
         return false;
     }
 
+    @Override
     public boolean isSimple() {
         return false;
     }
 
+    @Override
     public boolean isArray() {
         if (getInstanceClass() != null) {
             return getInstanceClass().isArray();
@@ -234,6 +249,7 @@ public abstract class AOpenClass implements IOpenClass {
         return false;
     }
 
+    @Override
     public IOpenClass getComponentClass() {
         // Default implementation. Open classes that can be represented as
         // arrays, should override this method.
@@ -358,6 +374,7 @@ public abstract class AOpenClass implements IOpenClass {
     private Collection<IOpenMethod> allMethodsCache = null;
     private volatile boolean allMethodsCacheInvalidated = true;
 
+    @Override
     public final Collection<IOpenMethod> getMethods() {
         if (allMethodsCacheInvalidated) {
             synchronized (this) {
@@ -394,10 +411,12 @@ public abstract class AOpenClass implements IOpenClass {
         return m.get(methodKey);
     }
 
+    @Override
     public Collection<IOpenMethod> getDeclaredMethods() {
         return methodMap().values();
     }
 
+    @Override
     public Object nullObject() {
         return null;
     }
@@ -406,6 +425,7 @@ public abstract class AOpenClass implements IOpenClass {
         indexField = field;
     }
 
+    @Override
     public void setMetaInfo(IMetaInfo metaInfo) {
         this.metaInfo = metaInfo;
     }
@@ -421,6 +441,7 @@ public abstract class AOpenClass implements IOpenClass {
      * @param type IOpenClass instance
      * @throws Exception if an error had occurred.
      */
+    @Override
     public void addType(IOpenClass type) throws Exception {
     }
 
@@ -433,6 +454,7 @@ public abstract class AOpenClass implements IOpenClass {
      * Default implementation. Always returns <code>null</code>.
      * 
      */
+    @Override
     public Collection<IOpenClass> getTypes() {
         // Default implementation.
         // To do nothing. Not everyone has internal types.

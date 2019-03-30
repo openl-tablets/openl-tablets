@@ -188,6 +188,7 @@ public class JavaOpenClass extends AOpenClass {
         return null;
     }
 
+    @Override
     public IAggregateInfo getAggregateInfo() {
         if (aggregateInfo != null) {
             return aggregateInfo;
@@ -210,6 +211,7 @@ public class JavaOpenClass extends AOpenClass {
         return aggregateInfo;
     }
 
+    @Override
     public String getDisplayName(int mode) {
         String name = getName();
         switch (mode) {
@@ -222,12 +224,14 @@ public class JavaOpenClass extends AOpenClass {
         }
     }
 
+    @Override
     public Class<?> getInstanceClass() {
         return instanceClass;
     }
 
     String name;
 
+    @Override
     public String getName() {
         if (name == null)
             name = instanceClass.getCanonicalName();
@@ -258,14 +262,17 @@ public class JavaOpenClass extends AOpenClass {
         return Modifier.isAbstract(instanceClass.getModifiers());
     }
 
+    @Override
     public boolean isAssignableFrom(Class<?> c) {
         return instanceClass.isAssignableFrom(c);
     }
 
+    @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
         return instanceClass.isAssignableFrom(ioc.getInstanceClass());
     }
 
+    @Override
     public boolean isInstance(Object instance) {
         return instanceClass.isInstance(instance);
     }
@@ -320,6 +327,7 @@ public class JavaOpenClass extends AOpenClass {
         return Collections.unmodifiableMap(constructors);
     }
 
+    @Override
     public Object newInstance(IRuntimeEnv env) {
         try {
             return getInstanceClass().newInstance();
@@ -338,6 +346,7 @@ public class JavaOpenClass extends AOpenClass {
         return getAggregateInfo().getComponentType(this);
     }
 
+    @Override
     public Iterable<IOpenClass> superClasses() {
         if (superClasses == null) {
             synchronized (this) {
@@ -409,46 +418,57 @@ public class JavaOpenClass extends AOpenClass {
             this.instanceClass = instanceClass;
         }
 
+        @Override
         public Object get(Object target, IRuntimeEnv env) {
             return instanceClass;
         }
 
+        @Override
         public IOpenClass getDeclaringClass() {
             return null;
         }
 
+        @Override
         public String getDisplayName(int mode) {
             return "class";
         }
 
+        @Override
         public IMemberMetaInfo getInfo() {
             return null;
         }
 
+        @Override
         public String getName() {
             return "class";
         }
 
+        @Override
         public IOpenClass getType() {
             return JavaOpenClass.CLASS;
         }
 
+        @Override
         public boolean isConst() {
             return true;
         }
 
+        @Override
         public boolean isReadable() {
             return true;
         }
 
+        @Override
         public boolean isStatic() {
             return true;
         }
 
+        @Override
         public boolean isWritable() {
             return false;
         }
 
+        @Override
         public void set(Object target, Object value, IRuntimeEnv env) {
             throw new UnsupportedOperationException();
         }

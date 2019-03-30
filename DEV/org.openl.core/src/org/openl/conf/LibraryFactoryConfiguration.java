@@ -39,6 +39,7 @@ public class LibraryFactoryConfiguration extends AConfigurationElement implement
         return lib == null ? null : lib.getField(name, cxt, strictMatch);
     }
 
+    @Override
     public void validate(IConfigurableResourceContext cxt) {
         for (Object lib : map.values()) {
             ((NameSpacedLibraryConfiguration) lib).validate(cxt);

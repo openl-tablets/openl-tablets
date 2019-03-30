@@ -6,6 +6,7 @@ import org.openl.types.IOpenClass;
 
 public class ClassMatchBuilder implements IMatcherBuilder {
 
+    @Override
     public IMatcher getInstanceIfSupports(IOpenClass type) {
         Class<?> c = type.getInstanceClass();
         if (Comparable.class.isAssignableFrom(c)) {
@@ -16,6 +17,7 @@ public class ClassMatchBuilder implements IMatcherBuilder {
         }
     }
 
+    @Override
     public String getName() {
         return OP_MATCH;
     }

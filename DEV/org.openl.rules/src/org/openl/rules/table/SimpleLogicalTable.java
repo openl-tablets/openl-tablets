@@ -22,26 +22,32 @@ public class SimpleLogicalTable extends ALogicalTable {
         super(table);
     }
 
+    @Override
     public int getWidth() {
         return getSource().getWidth();
     }
 
+    @Override
     public int getHeight() {
         return getSource().getHeight();
     }
 
+    @Override
     public int findColumnStart(int gridOffset) {
         return gridOffset;
     }
 
+    @Override
     public int findRowStart(int gridOffset) {
         return gridOffset;
     }
 
+    @Override
     public int getColumnWidth(int column) {
         return 1;
     }
 
+    @Override
     public int getRowHeight(int row) {
         return 1;
     }
@@ -62,6 +68,7 @@ public class SimpleLogicalTable extends ALogicalTable {
      * @param height of the needed table.
      * @return {@link SimpleLogicalTable} 
      */
+    @Override
     public ILogicalTable getSubtable(int column, int row, int width, int height) {
         if (width == 0 || height == 0) {
             return null;

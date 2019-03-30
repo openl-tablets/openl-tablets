@@ -63,10 +63,12 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         throw new UnsupportedOperationException("Should not be called");
     }
 
+    @Override
     public IOpenClass getType() {
         return header.getType();
     }
 
+    @Override
     public void addTo(ModuleOpenClass openClass) {
         method = createMethodShell();
         openClass.addMethod(method);
@@ -133,6 +135,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
 
     protected abstract ExecutableRulesMethod createMethodShell();
 
+    @Override
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
         if (cxt.isExecutionMode()) {
             getMethod().setBoundNode(null);

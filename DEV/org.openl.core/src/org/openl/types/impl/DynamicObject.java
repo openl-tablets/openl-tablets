@@ -47,15 +47,18 @@ public class DynamicObject implements IDynamicObject {
         return fieldValues.containsKey(name);
     }
 
+    @Override
     public Object getFieldValue(String name) {
         return fieldValues.get(name);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Map<String, Object> getFieldValues() {
         return (HashMap<String, Object>) fieldValues.clone();
     }
 
+    @Override
     public IOpenClass getType() {
         return type;
     }
@@ -64,6 +67,7 @@ public class DynamicObject implements IDynamicObject {
         return type.getField(name) != null;
     }
 
+    @Override
     public void setFieldValue(String name, Object value) {
         fieldValues.put(name, value);
     }

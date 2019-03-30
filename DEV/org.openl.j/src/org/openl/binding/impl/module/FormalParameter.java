@@ -25,6 +25,7 @@ public class FormalParameter implements IFormalParameter {
     /**
      * @return
      */
+    @Override
     public String getName() {
         return name;
     }
@@ -32,6 +33,7 @@ public class FormalParameter implements IFormalParameter {
     /**
      * @return
      */
+    @Override
     public IOpenClass getType() {
         return type;
     }

@@ -35,30 +35,37 @@ public class NullOpenClass implements IOpenClass {
     private NullOpenClass() {
     }
 
+    @Override
     public IAggregateInfo getAggregateInfo() {
         return null;
     }
 
+    @Override
     public String getDisplayName(int mode) {
         return getName();
     }
 
+    @Override
     public IDomain<?> getDomain() {
         return null;
     }
 
+    @Override
     public IOpenField getField(String name) {
         return null;
     }
 
+    @Override
     public IOpenField getField(String fname, boolean strictMatch) {
         return null;
     }
 
+    @Override
     public IOpenField getIndexField() {
         return null;
     }
 
+    @Override
     public Class<?> getInstanceClass() {
         return null;
     }
@@ -68,18 +75,22 @@ public class NullOpenClass implements IOpenClass {
         return null;
     }
 
+    @Override
     public IMetaInfo getMetaInfo() {
         return null;
     }
 
+    @Override
     public IOpenMethod getMethod(String name, IOpenClass[] classes) {
         return null;
     }
 
+    @Override
     public String getName() {
         return "null-Class";
     }
 
+    @Override
     public String getJavaName() {
         return getName();
     }
@@ -89,22 +100,27 @@ public class NullOpenClass implements IOpenClass {
         return getName();
     }
 
+    @Override
     public IOpenField getVar(String fname, boolean strictMatch) {
         return null;
     }
 
+    @Override
     public boolean isAbstract() {
         return false;
     }
 
+    @Override
     public boolean isArray() {
         return false;
     }
 
+    @Override
     public IOpenClass getComponentClass() {
         return null;
     }
 
+    @Override
     public boolean isAssignableFrom(Class<?> c) {
         return true;
     }
@@ -115,18 +131,22 @@ public class NullOpenClass implements IOpenClass {
      * @see
      * org.openl.types.IOpenClass#isAssignableFrom(org.openl.types.IOpenClass)
      */
+    @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
         return ioc == this;
     }
 
+    @Override
     public boolean isAssignableFrom(IType type) {
         return false;
     }
 
+    @Override
     public boolean isInstance(Object instance) {
         return instance == null;
     }
 
+    @Override
     public boolean isSimple() {
         return true;
     }
@@ -136,49 +156,60 @@ public class NullOpenClass implements IOpenClass {
      *
      * @see org.openl.types.IOpenClass#newInstance()
      */
+    @Override
     public Object newInstance(IRuntimeEnv env) {
         return null;
     }
 
+    @Override
     public Object nullObject() {
         return null;
     }
 
+    @Override
     public void setMetaInfo(IMetaInfo info) {
     }
 
+    @Override
     public Iterable<IOpenClass> superClasses() {
         return Collections.emptyList();
     }
 
+    @Override
     public void addType(IOpenClass type) throws Exception {
     }
 
+    @Override
     public IOpenClass findType(String typeName) {
         // Default implementation
         return null;
     }
 
+    @Override
     public Collection<IOpenClass> getTypes() {
         // Default implementation
         return Collections.emptyList();
     }
 
+    @Override
     public Map<String, IOpenField> getFields() {
         // Default implementation
         return Collections.emptyMap();
     }
 
+    @Override
     public Map<String, IOpenField> getDeclaredFields() {
         // Default implementation
         return Collections.emptyMap();
     }
 
+    @Override
     public Collection<IOpenMethod> getMethods() {
         // Default implementation
         return Collections.emptyList();
     }
 
+    @Override
     public Collection<IOpenMethod> getDeclaredMethods() {
         // Default implementation
         return Collections.emptyList();

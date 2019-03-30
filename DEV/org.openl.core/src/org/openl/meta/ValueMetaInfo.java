@@ -22,6 +22,7 @@ public class ValueMetaInfo implements IMetaInfo {
      *
      * @see org.openl.meta.IMetaInfo#getDisplayValue(int)
      */
+    @Override
     public String getDisplayName(int mode) {
         switch (mode) {
             case SHORT:
@@ -42,6 +43,7 @@ public class ValueMetaInfo implements IMetaInfo {
         return shortName;
     }
 
+    @Override
     public String getSourceUrl() {
         if(source != null){
             return source.getUri();

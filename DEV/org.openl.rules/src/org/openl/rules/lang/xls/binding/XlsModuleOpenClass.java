@@ -146,6 +146,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     /**
      * Populate current module fields with data from dependent modules.
      */
+    @Override
     protected void initDependencies() {// Reduce iterators over dependencies for
                                        // compilation issue with lazy loading
         for (CompiledDependency dependency : this.getDependencies()) {
@@ -263,6 +264,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return WrapperLogic.wrapOpenMethod(openMethod, this);
     }
 
+    @Override
     public void addField(IOpenField openField) {
         Map<String, IOpenField> fields = fieldMap();
         IOpenField field = extractNonLazyMember(openField);

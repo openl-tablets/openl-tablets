@@ -28,15 +28,17 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
 
     private static final long serialVersionUID = -437788531108803012L;
 
-    public static final LongValue ZERO = new LongValue((long) 0);
-    public static final LongValue ONE = new LongValue((long) 1);
-    public static final LongValue MINUS_ONE = new LongValue((long) -1);
+    public static final LongValue ZERO = new LongValue(0);
+    public static final LongValue ONE = new LongValue(1);
+    public static final LongValue MINUS_ONE = new LongValue(-1);
 
     public static class LongValueAdapter extends XmlAdapter<Long, LongValue> {
+        @Override
         public LongValue unmarshal(Long val) throws Exception {
             return new LongValue(val);
         }
 
+        @Override
         public Long marshal(LongValue val) throws Exception {
             return val.getValue();
         }
@@ -337,7 +339,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
         //
         // validate(value1, value2, NumberOperations.POW);
         if (value1 == null) {
-            return value2 == null ? null : new org.openl.meta.LongValue((long) 0);
+            return value2 == null ? null : new org.openl.meta.LongValue(0);
         } else if (value2 == null) {
             return value1;
         }
@@ -415,7 +417,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @return the casted value to org.openl.meta.LongValue
      */
     public static org.openl.meta.LongValue autocast(byte x, org.openl.meta.LongValue y) {
-        return new org.openl.meta.LongValue((long) x);
+        return new org.openl.meta.LongValue(x);
     }
 
     /**
@@ -427,7 +429,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @return the casted value to org.openl.meta.LongValue
      */
     public static org.openl.meta.LongValue autocast(short x, org.openl.meta.LongValue y) {
-        return new org.openl.meta.LongValue((long) x);
+        return new org.openl.meta.LongValue(x);
     }
 
     /**
@@ -439,7 +441,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @return the casted value to org.openl.meta.LongValue
      */
     public static org.openl.meta.LongValue autocast(int x, org.openl.meta.LongValue y) {
-        return new org.openl.meta.LongValue((long) x);
+        return new org.openl.meta.LongValue(x);
     }
 
     /**
@@ -451,7 +453,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @return the casted value to org.openl.meta.LongValue
      */
     public static org.openl.meta.LongValue autocast(long x, org.openl.meta.LongValue y) {
-        return new org.openl.meta.LongValue((long) x);
+        return new org.openl.meta.LongValue(x);
     }
 
     /**
@@ -463,7 +465,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
      * @return the casted value to org.openl.meta.LongValue
      */
     public static org.openl.meta.LongValue autocast(char x, org.openl.meta.LongValue y) {
-        return new org.openl.meta.LongValue((long) x);
+        return new org.openl.meta.LongValue(x);
     }
 
     // Constructors
@@ -494,6 +496,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
     /**
      * Prints the value of the current variable
      */
+    @Override
     public String printValue() {
         return String.valueOf(value);
     }
@@ -655,12 +658,12 @@ public class LongValue extends ExplanationNumberValue<LongValue> implements Comp
 
     @Override
     public double doubleValue() {
-        return (double) value;
+        return value;
     }
 
     @Override
     public float floatValue() {
-        return (float) value;
+        return value;
     }
 
     @Override

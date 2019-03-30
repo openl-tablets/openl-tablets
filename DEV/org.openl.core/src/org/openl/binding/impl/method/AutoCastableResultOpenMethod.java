@@ -24,10 +24,12 @@ public final class AutoCastableResultOpenMethod extends AOpenMethodDelegator {
         this.methodCaller = methodCaller;
     }
 
+    @Override
     public IOpenClass getType() {
         return returnType;
     }
 
+    @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return cast.convert(methodCaller.invoke(target, params, env));
     }

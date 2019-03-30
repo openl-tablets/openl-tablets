@@ -30,46 +30,56 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         this.delegate = delegate;
     }
 
+    @Override
     public IOpenField findRange(String namespace,
             String rangeStartName,
             String rangeEndName) throws OpenLCompilationException {
         return delegate.findRange(namespace, rangeStartName, rangeEndName);
     }
 
+    @Override
     public void addError(SyntaxNodeException error) {
         delegate.addError(error);
     }
 
+    @Override
     public void addType(String namespace, IOpenClass type) throws OpenLCompilationException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public ILocalVar addVar(String namespace, String name, IOpenClass type) {
         return delegate.addVar(namespace, name, type);
     }
 
+    @Override
     public INodeBinder findBinder(ISyntaxNode node) {
         return delegate.findBinder(node);
     }
 
+    @Override
     public IOpenField findFieldFor(IOpenClass type, String fieldName, boolean strictMatch) {
         return delegate.findFieldFor(type, fieldName, strictMatch);
     }
 
+    @Override
     public IMethodCaller findMethodCaller(String namespace,
             String name,
             IOpenClass[] parTypes) {
         return delegate.findMethodCaller(namespace, name, parTypes);
     }
 
+    @Override
     public IOpenClass findType(String namespace, String typeName) {
         return delegate.findType(namespace, typeName);
     }
 
+    @Override
     public IOpenField findVar(String namespace, String name, boolean strictMatch) {
         return delegate.findVar(namespace, name, strictMatch);
     }
 
+    @Override
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {
         return delegate.getCast(from, to);
     }
@@ -83,30 +93,37 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         return delegate;
     }
 
+    @Override
     public SyntaxNodeException[] getErrors() {
         return delegate.getErrors();
     }
 
+    @Override
     public int getLocalVarFrameSize() {
         return delegate.getLocalVarFrameSize();
     }
 
+    @Override
     public OpenL getOpenL() {
         return delegate.getOpenL();
     }
 
+    @Override
     public IOpenClass getReturnType() {
         return delegate.getReturnType();
     }
 
+    @Override
     public List<SyntaxNodeException> popErrors() {
         return delegate.popErrors();
     }
 
+    @Override
     public void popLocalVarContext() {
         delegate.popLocalVarContext();
     }
 
+    @Override
     public void pushErrors() {
         delegate.pushErrors();
     }
@@ -121,14 +138,17 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         delegate.pushMessages();
     }
 
+    @Override
     public void pushLocalVarContext() {
         delegate.pushLocalVarContext();
     }
 
+    @Override
     public void setDelegate(IBindingContext delegate) {
         this.delegate = delegate;
     }
 
+    @Override
     public void setReturnType(IOpenClass type) {
         delegate.setReturnType(type);
     }
@@ -138,6 +158,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
      * 
      * @see org.openl.binding.IBindingContextDelegator#setTopDelegate(org.openl. binding .IBindingContext)
      */
+    @Override
     public void setTopDelegate(IBindingContext delegate) {
         if (this.delegate == null) {
             this.delegate = delegate;
@@ -149,6 +170,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         }
     }
 
+    @Override
     public boolean isExecutionMode() {
         return delegate.isExecutionMode();
     }
@@ -158,10 +180,12 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         delegate.setExecutionMode(exectionMode);
     }
 
+    @Override
     public Map<String, Object> getExternalParams() {
         return delegate.getExternalParams();
     }
 
+    @Override
     public void setExternalParams(Map<String, Object> params) {
         delegate.setExternalParams(params);
     }

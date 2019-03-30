@@ -189,6 +189,7 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
         }
     }
 
+    @Override
     public void write(ClassWriter classWriter) {
 
         GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, DEF_CONSTR, null, null, classWriter);

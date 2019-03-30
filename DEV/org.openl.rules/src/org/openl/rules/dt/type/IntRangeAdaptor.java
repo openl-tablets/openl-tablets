@@ -15,6 +15,7 @@ public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Integer getMax(IntRange range) {
         if (range == null) {
             return null;
@@ -32,6 +33,7 @@ public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Integer getMin(IntRange range) {
         if (range == null) {
             return null;

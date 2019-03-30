@@ -16,6 +16,7 @@ final class ArrayCast implements IOpenCast {
         this.distance = CastFactory.ARRAY_CAST_DISTANCE + openCast.getDistance();
     }
 
+    @Override
     public Object convert(Object from) {
         if (from == null) {
             return null;
@@ -35,10 +36,12 @@ final class ArrayCast implements IOpenCast {
         return convertedArray;
     }
 
+    @Override
     public int getDistance() {
         return distance;
     }
 
+    @Override
     public boolean isImplicit() {
         return openCast.isImplicit();
     }

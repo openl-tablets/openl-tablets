@@ -33,12 +33,14 @@ public class SimpleVM implements IOpenVM {
          * 
          * @see org.openl.IOpenRunner#run(java.lang.Object[])
          */
+        @Override
         public Object run(IBoundMethodNode node, Object[] params) throws OpenLRuntimeException {
             int frameSize = node.getLocalFrameSize();
 
             return node.evaluate(new SimpleRuntimeEnv(this, frameSize, params));
         }
 
+        @Override
         public Object run(IBoundMethodNode node, Object[] params, IRuntimeEnv env) throws OpenLRuntimeException {
             int frameSize = node.getLocalFrameSize();
 
@@ -106,14 +108,17 @@ public class SimpleVM implements IOpenVM {
          * 
          * @see org.openl.vm.IRuntimeEnv#getLocalFrame()
          */
+        @Override
         public Object[] getLocalFrame() {
             return (Object[]) frameStack.peek();
         }
 
+        @Override
         public IOpenRunner getRunner() {
             return runner;
         }
 
+        @Override
         public Object getThis() {
             if (thisStack.size() == 0) {
                 return null;
@@ -121,22 +126,27 @@ public class SimpleVM implements IOpenVM {
             return thisStack.peek();
         }
 
+        @Override
         public Object[] popLocalFrame() {
             return (Object[]) frameStack.pop();
         }
 
+        @Override
         public Object popThis() {
             return thisStack.pop();
         }
 
+        @Override
         public void pushLocalFrame(Object[] frame) {
             frameStack.push(frame);
         }
 
+        @Override
         public void pushThis(Object thisObject) {
             thisStack.push(thisObject);
         }
 
+        @Override
         public IRuntimeContext getContext() {
             if (contextStack.size() > 0) {
                 return (IRuntimeContext) contextStack.peek();
@@ -145,6 +155,7 @@ public class SimpleVM implements IOpenVM {
             throw new IllegalStateException("Context stack is empty!");
         }
 
+        @Override
         public void setContext(IRuntimeContext context) {
             if (context == null) {
                 context = buildDefaultRuntimeContext();
@@ -153,6 +164,7 @@ public class SimpleVM implements IOpenVM {
             pushContext(context);
         }
 
+        @Override
         public IRuntimeContext popContext() {
             if (contextStack.size() > 0) {
                 return (IRuntimeContext) contextStack.pop();
@@ -162,10 +174,12 @@ public class SimpleVM implements IOpenVM {
             }
         }
 
+        @Override
         public void pushContext(IRuntimeContext context) {
             contextStack.push(context);
         }
 
+        @Override
         public boolean isContextManagingSupported() {
             return true;
         }
@@ -181,10 +195,12 @@ public class SimpleVM implements IOpenVM {
      * 
      * @see org.openl.IOpenVM#run(org.openl.binding.IBoundCode)
      */
+    @Override
     public IOpenRunner getRunner() {
         return SIMPLE_RUNNER;
     }
 
+    @Override
     public IRuntimeEnv getRuntimeEnv() {
         return new SimpleRuntimeEnv();
     }

@@ -16,6 +16,7 @@ public class MemberBlockNode extends BlockNode implements IMemberBoundNode {
      * (non-Javadoc)
      * @see org.openl.binding.impl.module.IMemberBoundNode#addTo(org.openl.binding.impl.module.ModuleOpenClass)
      */
+    @Override
     public void addTo(ModuleOpenClass openClass) {
         for (int i = 0; i < children.length; i++) {
             ((IMemberBoundNode) children[i]).addTo(openClass);
@@ -26,9 +27,11 @@ public class MemberBlockNode extends BlockNode implements IMemberBoundNode {
      * (non-Javadoc)
      * @see org.openl.binding.impl.module.IMemberBoundNode#finalizeBind(org.openl.binding.IBindingContext)
      */
+    @Override
     public void finalizeBind(IBindingContext cxt) throws Exception {
     }
 
+    @Override
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
         for (int i = 0; i < children.length; i++) {
             ((IMemberBoundNode) children[i]).removeDebugInformation(cxt);

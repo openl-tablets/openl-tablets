@@ -73,6 +73,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
 
     String getPackageName();
 
+    @Override
     IOpenMethod getMethod(String name, IOpenClass[] classes);
 
     // ********* instance related methods ***********//
@@ -102,6 +103,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
      *         Java spec says that a corresponding method of java.lang.Class
      *         will return false in case of primitive types.
      */
+    @Override
     boolean isInstance(Object instance);
 
     /**

@@ -12,6 +12,7 @@ public class JavaEnumDomainAdaptor implements IDomainAdaptor {
         this.domain = domain;
     }
 
+    @Override
     public int getIndex(Object value) {
         if (value == null) {
             return -1;
@@ -19,22 +20,27 @@ public class JavaEnumDomainAdaptor implements IDomainAdaptor {
         return ((Enum<?>) value).ordinal();
     }
 
+    @Override
     public int getIntVarDomainType() {
         return IntVar.DOMAIN_BIT_FAST;
     }
 
+    @Override
     public int getMax() {
         return domain.size() - 1;
     }
 
+    @Override
     public int getMin() {
         return 0;
     }
 
+    @Override
     public Object getValue(int index) {
         return domain.getValue(index);
     }
 
+    @Override
     public IDomainAdaptor merge(IDomainAdaptor adaptor) {
         JavaEnumDomainAdaptor a = (JavaEnumDomainAdaptor) adaptor;
 

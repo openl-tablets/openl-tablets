@@ -127,6 +127,7 @@ public abstract class AGenericConfiguration extends AConfigurationElement {
      *
      * @see org.openl.conf.IConfigurationElement#validate(org.openl.conf.IConfigurableResourceContext)
      */
+    @Override
     public void validate(IConfigurableResourceContext cxt) {
         Class<?> implementingClass = ClassFactory
             .validateClassExistsAndPublic(implementingClassName, cxt.getClassLoader(), getUri());

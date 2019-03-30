@@ -83,12 +83,14 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
      * @see org.openl.rules.tbasic.ITableParserManager#
      *      getStructuredAlgorithmSpecification()
      */
+    @Override
     public TableParserSpecificationBean[] getAlgorithmSpecification() {
         TableParserSpecificationBean[] result = rulesWrapperInstance.getAlgorithmSpecification();
 
         return result;
     }
 
+    @Override
     public ConversionRuleBean[] getConversionRules() {
         lazyLoadConversionRules();
 
@@ -128,10 +130,12 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
         }
     }
 
+    @Override
     public String whatIsOperationsGroupName(List<String> groupedOperationNames) {
         return rulesWrapperInstance.whatIsOperationsGroupName(groupedOperationNames);
     }
 
+    @Override
     public String[] whatOperationsToGroup(String keyword) {
         return rulesWrapperInstance.whatOperationsToGroup(keyword);
     }

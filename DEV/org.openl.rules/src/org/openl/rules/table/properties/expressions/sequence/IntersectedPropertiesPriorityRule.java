@@ -9,6 +9,7 @@ public class IntersectedPropertiesPriorityRule implements IPriorityRule {
     private final DefaultPropertiesIntersectionFinder intersectionMatcher = new DefaultPropertiesIntersectionFinder();
     private final FilledPropertiesPriorityRule filledPropertiesRule = new FilledPropertiesPriorityRule();
 
+    @Override
     public int compare(ITableProperties tableProperties1, ITableProperties tableProperties2) {
         boolean nested = false;
         boolean contains = false;

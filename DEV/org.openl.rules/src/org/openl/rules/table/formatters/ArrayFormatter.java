@@ -59,6 +59,7 @@ public class ArrayFormatter implements IFormatter {
      * <code>NULL</code> if the income value is <code>NULL</code> or if
      * income value is not an array.
      */
+    @Override
     public String format(Object value) {
         String result = null;
         if (value != null) {
@@ -85,6 +86,7 @@ public class ArrayFormatter implements IFormatter {
      * @return array of elements. <code>NULL</code> if input is empty or can`t
      * get the component type of the array.
      */
+    @Override
     public Object parse(String value) {
         Object result = null;
         if (StringUtils.isNotBlank(value)) {

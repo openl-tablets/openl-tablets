@@ -10,8 +10,6 @@ import org.openl.types.impl.ComponentTypeArrayOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.DomainUtils;
 import org.openl.vm.IRuntimeEnv;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Finds alias values inside argument objects and checks if its value belongs to the corresponding {@code IDomain}

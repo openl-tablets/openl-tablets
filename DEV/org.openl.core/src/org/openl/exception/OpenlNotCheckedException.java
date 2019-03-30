@@ -35,10 +35,12 @@ public class OpenlNotCheckedException extends RuntimeException implements OpenLE
         this.sourceModule = sourceModule;
     }
 
+    @Override
     public ILocation getLocation() {        
         return location;
     }
 
+    @Override
     public IOpenSourceCodeModule getSourceModule() {
         return sourceModule;
     }

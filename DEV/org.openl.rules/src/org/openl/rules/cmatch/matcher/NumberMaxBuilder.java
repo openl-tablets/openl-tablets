@@ -14,6 +14,7 @@ public class NumberMaxBuilder extends AMatcherMapBuilder<ClassMinMaxMatcher> {
         put(primitiveClass, matcher);
     }
 
+    @Override
     public String getName() {
         return OP_MAX;
     }

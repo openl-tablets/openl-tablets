@@ -12,6 +12,7 @@ public abstract class AMatcherMapBuilder<M extends IMatcher> implements IMatcher
         map = new HashMap<>();
     }
 
+    @Override
     public IMatcher getInstanceIfSupports(IOpenClass type) {
         return map.get(type.getInstanceClass());
     }

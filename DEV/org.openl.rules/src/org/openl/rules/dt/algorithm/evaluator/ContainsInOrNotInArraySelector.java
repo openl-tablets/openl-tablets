@@ -30,6 +30,7 @@ public class ContainsInOrNotInArraySelector implements IIntSelector {
         this.adaptor = adaptor;
     }
 
+    @Override
     public boolean select(int ruleN) {
 
         if (condition.isEmpty(ruleN)) {

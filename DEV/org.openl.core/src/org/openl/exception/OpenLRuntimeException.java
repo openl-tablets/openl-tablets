@@ -69,6 +69,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
         return messageWriter.toString();
     }
 
+    @Override
     public ILocation getLocation() {
         if (node != null) {
             ISyntaxNode syntaxNode = node.getSyntaxNode();
@@ -79,6 +80,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
         return null;
     }
 
+    @Override
     public IOpenSourceCodeModule getSourceModule() {
         if (node != null) {
             ISyntaxNode syntaxNode = node.getSyntaxNode();

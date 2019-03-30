@@ -52,6 +52,7 @@ public class MethodParametersNode extends ABoundNode {
         return typeNode.getSourceLocation();
     }
 
+    @Override
     public IOpenClass getType() {
         return NullOpenClass.the;
     }

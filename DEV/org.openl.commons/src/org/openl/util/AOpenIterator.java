@@ -36,10 +36,12 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
             return (IOpenIterator<C>) this;
         }
 
+        @Override
         public boolean hasNext() {
             return false;
         }
 
+        @Override
         public T next() {
             throw new NoSuchElementException("EmptyIterator");
         }
@@ -63,10 +65,12 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
             this.it = it;
         }
 
+        @Override
         public boolean hasNext() {
             return it.hasNext();
         }
 
+        @Override
         public abstract C next();
     }
 
@@ -143,6 +147,7 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
         return new SelectIterator<X>(it, is);
     }
 
+    @Override
     public <C> IOpenIterator<C> collect(IConvertor<T, C> ic) {
         return new CollectIterator<T, C>(this, ic);
     }
@@ -150,6 +155,7 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
     // ////////////////////////////// Some useful OpenIterators
     // ///////////////////////////////////////////
 
+    @Override
     public void remove() {
         throw new IllegalStateException();
     }
@@ -161,10 +167,12 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
      * @return
      */
 
+    @Override
     public IOpenIterator<T> reverse() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public IOpenIterator<T> select(ISelector<T> is) {
         return new SelectIterator<T>(this, is);
     }
@@ -177,6 +185,7 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
      * @see count
      */
 
+    @Override
     public int size() {
         return UNKNOWN_SIZE;
     }

@@ -12,10 +12,12 @@ public class Dependency implements IDependency {
         this.node = node;
     }
 
+    @Override
     public DependencyType getType() {
         return type;
     }
 
+    @Override
     public IdentifierNode getNode() {
         return node;
     }

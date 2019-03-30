@@ -48,6 +48,7 @@ public class MethodBoundNode extends ATargetBoundNode {
 
     }
 
+    @Override
     public IOpenClass getType() {
         return boundMethod.getMethod().getType();
     }

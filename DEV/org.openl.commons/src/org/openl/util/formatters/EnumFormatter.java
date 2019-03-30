@@ -14,6 +14,7 @@ public class EnumFormatter implements IFormatter {
         this.enumClass = enumType;
     }
 
+    @Override
     public String format(Object value) {
 
         if (!(value instanceof Enum<?>)) {
@@ -24,6 +25,7 @@ public class EnumFormatter implements IFormatter {
         return EnumUtils.getName((Enum<?>) value);
     }
 
+    @Override
     public Object parse(String value) {
         if (value == null) {
             return null;

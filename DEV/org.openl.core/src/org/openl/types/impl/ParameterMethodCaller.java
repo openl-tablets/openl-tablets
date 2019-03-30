@@ -20,10 +20,12 @@ public class ParameterMethodCaller implements IMethodCaller {
         this.parameterNumber = parameterNumber;
     }
 
+    @Override
     public IOpenMethod getMethod() {
         return method;
     }
 
+    @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return params[parameterNumber];
     }

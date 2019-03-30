@@ -17,6 +17,7 @@ import org.openl.util.RangeWithBounds.BoundType;
  */
 public class RangeNodeBinder extends ANodeBinder {
 
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         IBoundNode[] children = bindChildren(node, bindingContext);

@@ -14,12 +14,14 @@ public class SetItalicAction extends AUndoableCellAction {
         this.italic = italic;
     }
 
+    @Override
     public void doAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
 
         grid.setCellFontItalic(getCol(), getRow(), italic);
     }
 
+    @Override
     public void undoAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
         grid.setCellFontItalic(getCol(), getRow(), !italic);

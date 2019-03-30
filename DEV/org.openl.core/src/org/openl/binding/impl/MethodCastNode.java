@@ -11,10 +11,12 @@ public class MethodCastNode extends CastNode implements IBoundMethodNode {
         super(null, bnode, cast, castedType);
     }
 
+    @Override
     public int getLocalFrameSize() {
         return ((IBoundMethodNode) children[0]).getLocalFrameSize();
     }
 
+    @Override
     public int getParametersSize() {
         return ((IBoundMethodNode) children[0]).getParametersSize();
     }

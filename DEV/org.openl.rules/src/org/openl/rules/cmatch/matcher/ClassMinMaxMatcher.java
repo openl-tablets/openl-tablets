@@ -16,11 +16,13 @@ public class ClassMinMaxMatcher implements IMatcher {
         }
     }
 
+    @Override
     public Object fromString(String checkValue) {
         IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(clazz);
         return convertor.parse(checkValue, null);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public boolean match(Object var, Object checkValue) {
         Comparable<Object> c1 = Comparable.class.cast(var);

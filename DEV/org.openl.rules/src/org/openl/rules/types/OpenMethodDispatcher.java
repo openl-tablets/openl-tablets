@@ -103,6 +103,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     /**
      * Gets the signature of method.
      */
+    @Override
     public IMethodSignature getSignature() {
         return delegate.getSignature();
     }
@@ -110,6 +111,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     /**
      * Gets the declaring class.
      */
+    @Override
     public IOpenClass getDeclaringClass() {
         return delegate.getDeclaringClass();
     }
@@ -117,6 +119,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     /**
      * Gets <code>null</code>. The decorator hasn't info about overloaded methods.
      */
+    @Override
     public IMemberMetaInfo getInfo() {
         return null;
     }
@@ -124,10 +127,12 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     /**
      * Gets the type of method.
      */
+    @Override
     public IOpenClass getType() {
         return delegate.getType();
     }
 
+    @Override
     public boolean isStatic() {
         return delegate.isStatic();
     }
@@ -140,6 +145,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     /**
      * Gets the user-friendly name.
      */
+    @Override
     public String getDisplayName(int mode) {
         return delegate.getDisplayName(mode);
     }
@@ -147,6 +153,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     /**
      * Gets the method name.
      */
+    @Override
     public String getName() {
         return delegate.getName();
     }
@@ -154,6 +161,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     /**
      * Gets <code>this</code>. The decorator can't resolve which overloaded method should be returned.
      */
+    @Override
     public IOpenMethod getMethod() {
         return this;
     }
@@ -170,6 +178,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     /**
      * Invokes appropriate method using runtime context.
      */
+    @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return Tracer.invoke(invokeInner, target, params, env, this);
     }

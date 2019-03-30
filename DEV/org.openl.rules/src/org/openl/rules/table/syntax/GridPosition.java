@@ -31,6 +31,7 @@ public class GridPosition implements IPosition {
      *
      * @see org.openl.util.text.IPosition#getAbsolutePosition(org.openl.util.text.TextInfo)
      */
+    @Override
     public int getAbsolutePosition(TextInfo info) {
         throw new UnsupportedOperationException();
     }
@@ -41,6 +42,7 @@ public class GridPosition implements IPosition {
      * @see org.openl.util.text.IPosition#getColumn(org.openl.util.text.TextInfo,
      *      int)
      */
+    @Override
     public int getColumn(TextInfo info, int tabSize) {
         return x;
     }
@@ -57,6 +59,7 @@ public class GridPosition implements IPosition {
      *
      * @see org.openl.util.text.IPosition#getLine(org.openl.util.text.TextInfo)
      */
+    @Override
     public int getLine(TextInfo info) {
         return y;
     }

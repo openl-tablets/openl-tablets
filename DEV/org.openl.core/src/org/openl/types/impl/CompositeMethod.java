@@ -43,6 +43,7 @@ public class CompositeMethod extends ExecutableMethod {
         return invokable != null ? invokable : methodBodyBoundNode != null;
     }
 
+    @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         initInvoker();
         return invoker.invoke(target, params, env);
@@ -72,21 +73,25 @@ public class CompositeMethod extends ExecutableMethod {
         dependencies.visit(getMethodBodyBoundNode());
     }
 
-	public BindingDependencies getDependencies() {
+	@Override
+    public BindingDependencies getDependencies() {
 		BindingDependencies dependencies = new BindingDependencies();
 		updateDependency(dependencies);
 		return dependencies;
 	}
 	
-	public Map<String, Object> getProperties() {
+	@Override
+    public Map<String, Object> getProperties() {
 		return null;
 	}
 
-	public ISyntaxNode getSyntaxNode() {
+	@Override
+    public ISyntaxNode getSyntaxNode() {
 		return null;
 	}
 
-	public String getSourceUrl() {
+	@Override
+    public String getSourceUrl() {
 		return null;
 	}
   

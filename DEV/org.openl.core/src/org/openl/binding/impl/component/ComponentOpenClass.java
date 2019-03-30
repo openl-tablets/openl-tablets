@@ -64,6 +64,7 @@ public class ComponentOpenClass extends ADynamicClass {
         return openl;
     }
 
+    @Override
     public Object newInstance(IRuntimeEnv env) {
         DynamicObject res = new DynamicObject(this);
         init.invoke(res, new Object[] {}, env);
@@ -77,34 +78,42 @@ public class ComponentOpenClass extends ADynamicClass {
             boundNodes.add(node);
         }
 
+        @Override
         public IOpenClass getDeclaringClass() {
             return ComponentOpenClass.this;
         }
 
+        @Override
         public String getDisplayName(int mode) {
             return ComponentOpenClass.this.getDisplayName(mode);
         }
 
+        @Override
         public IMemberMetaInfo getInfo() {
             return null;
         }
 
+        @Override
         public IOpenMethod getMethod() {
             return this;
         }
 
+        @Override
         public String getName() {
             return ComponentOpenClass.this.getName();
         }
 
+        @Override
         public IMethodSignature getSignature() {
             return IMethodSignature.VOID;
         }
 
+        @Override
         public IOpenClass getType() {
             return JavaOpenClass.VOID;
         }
 
+        @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             try {
                 env.pushThis(target);
@@ -119,6 +128,7 @@ public class ComponentOpenClass extends ADynamicClass {
             }
         }
 
+        @Override
         public boolean isStatic() {
             return false;
         }
@@ -131,38 +141,47 @@ public class ComponentOpenClass extends ADynamicClass {
 
     public class GetOpenClass implements IOpenMethod {
 
+        @Override
         public IOpenClass getDeclaringClass() {
             return ComponentOpenClass.this;
         }
 
+        @Override
         public String getDisplayName(int mode) {
             return getName();
         }
 
+        @Override
         public IMemberMetaInfo getInfo() {
             return null;
         }
 
+        @Override
         public IOpenMethod getMethod() {
             return this;
         }
 
+        @Override
         public String getName() {
             return "getOpenClass";
         }
 
+        @Override
         public IMethodSignature getSignature() {
             return IMethodSignature.VOID;
         }
 
+        @Override
         public IOpenClass getType() {
             return JavaOpenClass.getOpenClass(IOpenClass.class);
         }
 
+        @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             return ((DynamicObject) target).getType();
         }
 
+        @Override
         public boolean isStatic() {
             return false;
         }
@@ -179,10 +198,12 @@ public class ComponentOpenClass extends ADynamicClass {
             super("this", ComponentOpenClass.this);
         }
 
+        @Override
         public Object get(Object target, IRuntimeEnv env) {
             return target;
         }
 
+        @Override
         public void set(Object target, Object value, IRuntimeEnv env) {
             throw new RuntimeException("Can not assign to 'this'");
         }

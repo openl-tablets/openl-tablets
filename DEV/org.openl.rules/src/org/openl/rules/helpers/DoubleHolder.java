@@ -10,10 +10,12 @@ public class DoubleHolder implements IDoubleHolder {
         this.value = value;
     }
 
+    @Override
     public double getValue() {
         return value;
     }
 
+    @Override
     public void setValue(double value) {
         this.value = value;
     }

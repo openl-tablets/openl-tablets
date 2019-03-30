@@ -8,6 +8,7 @@ import org.openl.vm.Tracer;
 
 public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
 
+    @Override
     public Object invoke(ColumnMatch target, Object[] params, IRuntimeEnv env) {
 
         MatchNode checkTree = target.getCheckTree();

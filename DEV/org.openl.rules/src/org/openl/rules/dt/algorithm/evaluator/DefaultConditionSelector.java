@@ -18,6 +18,7 @@ public class DefaultConditionSelector implements IIntSelector {
         this.env = env;
     }
 
+    @Override
     public boolean select(int rule) {
         return condition.calculateCondition(rule, target, params, env).getBooleanValue();
     }

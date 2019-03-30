@@ -33,6 +33,7 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
      *
      * @see org.openl.binding.impl.module.IMemberBoundNode#addTo(org.openl.binding.impl.module.ModuleOpenClass)
      */
+    @Override
     public void addTo(ModuleOpenClass openClass) {
         openClass.addMethod(deferredMethod);
     }
@@ -54,6 +55,7 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
      *
      * @see org.openl.binding.impl.module.IMemberBoundNode#finalizeBind(org.openl.binding.IBindingContext)
      */
+    @Override
     public void finalizeBind(IBindingContext cxt) throws Exception {
         MethodBindingContext mbc = new MethodBindingContext(deferredMethod, cxt);
 
@@ -68,6 +70,7 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
      *
      * @see org.openl.binding.IBoundMethodNode#getLocalFrameSize()
      */
+    @Override
     public int getLocalFrameSize() {
         return localFrameSize;
     }
@@ -81,6 +84,7 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
      *
      * @see org.openl.binding.IBoundMethodNode#getParametersSize()
      */
+    @Override
     public int getParametersSize() {
         return parametersSize;
     }
@@ -90,10 +94,12 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
      *
      * @see org.openl.binding.IBoundNode#getType()
      */
+    @Override
     public IOpenClass getType() {
         return deferredMethod.getType();
     }
 
+    @Override
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
         //nothing to remove
     }

@@ -5,6 +5,7 @@ import org.openl.types.java.JavaLongNameTypeLibrary;
 
 public class JavaLongNameTypeConfiguration extends AConfigurationElement implements ITypeFactoryConfigurationElement {
 
+    @Override
     public void validate(IConfigurableResourceContext cxt) {
         // TODO Auto-generated method stub
 
@@ -12,6 +13,7 @@ public class JavaLongNameTypeConfiguration extends AConfigurationElement impleme
 
     private JavaLongNameTypeLibrary library;
     
+    @Override
     public synchronized ITypeLibrary getLibrary(IConfigurableResourceContext cxt) {
         if (library == null) {
             library = new JavaLongNameTypeLibrary(cxt.getClassLoader());

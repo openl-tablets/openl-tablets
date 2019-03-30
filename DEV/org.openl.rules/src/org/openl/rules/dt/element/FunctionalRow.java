@@ -78,14 +78,17 @@ public abstract class FunctionalRow implements IDecisionRow {
         this.scale = scale;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public CompositeMethod getMethod() {
         return method;
     }
 
+    @Override
     public IParameterDeclaration[] getParams() {
         return params;
     }
@@ -94,10 +97,12 @@ public abstract class FunctionalRow implements IDecisionRow {
         this.params = params;
     }
 
+    @Override
     public void clearParamValues() {
         storage = null;
     }
 
+    @Override
     public IOpenSourceCodeModule getSourceCodeModule() {
 
         if (method != null) {
@@ -107,6 +112,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         return null;
     }
 
+    @Override
     public int getNumberOfParams() {
         return params.length;
     }
@@ -150,10 +156,12 @@ public abstract class FunctionalRow implements IDecisionRow {
      * 
      * @return <code>TRUE</code> if table is horizontal.
      */
+    @Override
     public ILogicalTable getDecisionTable() {
         return decisionTable;
     }
 
+    @Override
     public String[] getParamPresentation() {
 
         int length = paramsTable.getHeight();
@@ -175,6 +183,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         return result;
     }
 
+    @Override
     public void prepare(IOpenClass methodType,
             IMethodSignature signature,
             OpenL openl,
@@ -352,6 +361,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         return newParams;
     }
 
+    @Override
     public ILogicalTable getValueCell(int column) {
         return decisionTable.getSubtable(column + IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, row, 1, 1);
     }

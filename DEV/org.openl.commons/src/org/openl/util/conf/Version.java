@@ -68,6 +68,7 @@ public class Version implements Comparable<Version> {
 
     static public class StandardVersionStartPatternFinder implements IVersionStartPatternFinder {
 
+        @Override
         public int findVersionStart(String s, int previousStart) {
             if (previousStart == -1) // just first search is a real one
             {
@@ -217,6 +218,7 @@ public class Version implements Comparable<Version> {
         }
     }
 
+    @Override
     public int compareTo(Version v) {
 
         for (int i = 0; i < version.length; i++) {

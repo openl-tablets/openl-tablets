@@ -28,6 +28,7 @@ public class VarArgsOpenMethod extends AOpenMethodDelegator {
         this.parameterCasts = parameterCasts;
     }
 
+    @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return methodCaller.invoke(target, modifyParameters(params), env);
     }

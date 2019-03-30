@@ -42,6 +42,7 @@ public class VarDeclarationNodeBinder extends ANodeBinder {
             cast);
     }
 
+    @Override
     public IBoundNode bind(ISyntaxNode unode, IBindingContext bindingContext) throws Exception {
 
         ISyntaxNode node = unode.getChild(0);

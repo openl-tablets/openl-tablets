@@ -16,18 +16,22 @@ import org.openl.rules.table.IGridRegion;
         return poiXlsRegion;
     }
     
+    @Override
     public int getBottom() {
         return poiXlsRegion.getLastRow();
     }
 
+    @Override
     public int getLeft() {
         return poiXlsRegion.getFirstColumn();
     }
 
+    @Override
     public int getRight() {
         return poiXlsRegion.getLastColumn();
     }
 
+    @Override
     public int getTop() {
         return poiXlsRegion.getFirstRow();
     }

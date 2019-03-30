@@ -14,6 +14,7 @@ import org.openl.types.IOpenClass;
  */
 public class IfNodeBinder extends ANodeBinder {
 
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
         IBoundNode conditionNode = bindChildNode(node.getChild(0), bindingContext);
 

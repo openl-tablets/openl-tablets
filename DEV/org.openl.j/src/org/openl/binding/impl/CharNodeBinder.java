@@ -20,6 +20,7 @@ public class CharNodeBinder extends ANodeBinder {
      * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv,
      * org.openl.binding.IBindingContext)
      */
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
         String s = node.getText();
         char c = s.charAt(1);

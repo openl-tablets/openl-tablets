@@ -23,6 +23,7 @@ public class UnaryNode extends ASyntaxNode {
         left.setParent(this);
     }
 
+    @Override
     public ISyntaxNode getChild(int i) {
         if (i == 0) {
             return left;
@@ -30,6 +31,7 @@ public class UnaryNode extends ASyntaxNode {
         throw new RuntimeException("UnaryOp has only one child, not " + (i + 1));
     }
 
+    @Override
     public int getNumberOfChildren() {
         return 1;
     }

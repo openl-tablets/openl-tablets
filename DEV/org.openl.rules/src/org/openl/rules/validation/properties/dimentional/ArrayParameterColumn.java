@@ -25,6 +25,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
         }
     }
 
+    @Override
     public String getCodeExpression() {
         MatchingExpression matchExpression = getProperty().getExpression();        
         String result = getMatchByDefaultCodeExpression(matchExpression);        
@@ -48,15 +49,18 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
         return result;
     }
 
+    @Override
     public String getTitle() {        
         return getProperty().getDisplayName();
     }
 
+    @Override
     public String getParameterDeclaration() {
         Class<?> componentType = getProperty().getType().getInstanceClass().getComponentType();
         return componentType.getSimpleName() + "[] " + getLocalParameterName();
     }
     
+    @Override
     public String getRuleValue(int ruleIndex, int localParameterIndex) {
         return getRules().getRule(ruleIndex).getPropertyValueAsString(getProperty().getName());
     }

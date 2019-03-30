@@ -60,6 +60,7 @@ public class SimpleRulesTableBuilder extends TableBuilder {
      *
      * @param signature method signature for the table.
      */
+    @Override
     public void writeHeader(String signature, ICellStyle style) {
         String headerText = IXlsTableNames.SIMPLE_DECISION_TABLE + " " + signature;
         super.writeHeader(headerText, style);

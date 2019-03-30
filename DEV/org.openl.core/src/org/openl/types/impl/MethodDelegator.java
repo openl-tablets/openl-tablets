@@ -15,39 +15,48 @@ public class MethodDelegator implements IOpenMethod {
 		this.methodCaller = methodCaller;
 	}
 	
-	public IMethodSignature getSignature() {
+	@Override
+    public IMethodSignature getSignature() {
 		return methodCaller.getMethod().getSignature();
 	}
 
-	public IOpenClass getDeclaringClass() {
+	@Override
+    public IOpenClass getDeclaringClass() {
 		return methodCaller.getMethod().getDeclaringClass();
 	}
 
-	public IMemberMetaInfo getInfo() {
+	@Override
+    public IMemberMetaInfo getInfo() {
 		return methodCaller.getMethod().getInfo();
 	}
 
-	public IOpenClass getType() {
+	@Override
+    public IOpenClass getType() {
 		return methodCaller.getMethod().getType();
 	}
 
-	public boolean isStatic() {
+	@Override
+    public boolean isStatic() {
 		return methodCaller.getMethod().isStatic();
 	}
 
-	public String getDisplayName(int mode) {
+	@Override
+    public String getDisplayName(int mode) {
 		return methodCaller.getMethod().getDisplayName(mode);
 	}
 
-	public String getName() {
+	@Override
+    public String getName() {
 		return methodCaller.getMethod().getName();
 	}
 
-	public IOpenMethod getMethod() {
+	@Override
+    public IOpenMethod getMethod() {
 		return methodCaller.getMethod();
 	}
 
-	public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+	@Override
+    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
 		return methodCaller.invoke(target, params, env);
 	}
 	

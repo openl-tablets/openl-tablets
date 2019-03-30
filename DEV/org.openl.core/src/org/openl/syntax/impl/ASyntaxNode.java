@@ -42,6 +42,7 @@ public abstract class ASyntaxNode implements ISyntaxNode {
         return location;
     }
 
+    @Override
     public IOpenSourceCodeModule getModule() {
         if (module != null) {
             return module;
@@ -52,14 +53,17 @@ public abstract class ASyntaxNode implements ISyntaxNode {
         return null;
     }
 
+    @Override
     public ISyntaxNode getParent() {
         return parent;
     }
 
+    @Override
     public void setParent(ISyntaxNode parent) {
         this.parent = parent;
     }
 
+    @Override
     public ILocation getSourceLocation() {
         if (location == null) {
             int n = getNumberOfChildren();
@@ -88,6 +92,7 @@ public abstract class ASyntaxNode implements ISyntaxNode {
      *
      * @see org.openl.parser.SyntaxNode#getType()
      */
+    @Override
     public String getType() {
         return type;
     }
@@ -96,6 +101,7 @@ public abstract class ASyntaxNode implements ISyntaxNode {
         type = string;
     }
 
+    @Override
     public void print(int level, StringBuilder buf) {
         int nkids = getNumberOfChildren();
 

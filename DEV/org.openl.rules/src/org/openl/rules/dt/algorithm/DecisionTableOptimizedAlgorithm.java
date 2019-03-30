@@ -438,6 +438,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
      * Memory optimization: clear condition values because this values will be used in index(only if it condition is not
      * used).
      */
+    @Override
     public void removeParamValuesForIndexedConditions() {
         for (ConditionToEvaluatorHolder pair : evaluators) {
             if (pair.isIndexed()) {
@@ -482,6 +483,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
      *
      * @return iterator over <b>rule indexes</b> - integer iterator.
      */
+    @Override
     public IIntIterator checkedRules(Object target, Object[] params, IRuntimeEnv env) {
         IIntIterator iterator = null;
         int conditionNumber = 0;

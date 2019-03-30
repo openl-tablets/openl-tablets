@@ -16,6 +16,7 @@ public class ContainsInArraySelector implements IIntSelector {
         this.value = value;
     }
 
+    @Override
     public boolean select(int ruleN) {
         if (condition.isEmpty(ruleN)) {
             return true;

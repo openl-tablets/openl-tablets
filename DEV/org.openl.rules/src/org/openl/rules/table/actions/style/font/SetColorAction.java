@@ -16,6 +16,7 @@ public class SetColorAction extends AUndoableCellAction {
         this.newColor = color;
     }
 
+    @Override
     public void doAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
 
@@ -25,6 +26,7 @@ public class SetColorAction extends AUndoableCellAction {
         grid.setCellFontColor(getCol(), getRow(), newColor);
     }
 
+    @Override
     public void undoAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
         grid.setCellFontColor(getCol(), getRow(), prevColor);

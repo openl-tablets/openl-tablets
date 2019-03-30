@@ -16,6 +16,7 @@ public abstract class UndoableRemoveAction extends UndoableEditTableAction {
     
     private IUndoableGridTableAction action;
 
+    @Override
     public void doAction(IGridTable table) {
         IGridRegion fullTableRegion = getOriginalRegion(table);
         if (!canPerformAction(fullTableRegion)) {
@@ -37,6 +38,7 @@ public abstract class UndoableRemoveAction extends UndoableEditTableAction {
 
     }
 
+    @Override
     public void undoAction(IGridTable table) {
         action.undoAction(table);
     }

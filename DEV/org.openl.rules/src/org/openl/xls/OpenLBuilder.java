@@ -19,6 +19,7 @@ import org.openl.rules.lang.xls.XlsVM;
  */
 public class OpenLBuilder extends BaseOpenLBuilder {
 
+    @Override
     public OpenL build(String category) {
 
         OpenL openl = new OpenL();

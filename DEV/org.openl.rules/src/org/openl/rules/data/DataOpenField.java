@@ -27,6 +27,7 @@ public class DataOpenField extends AOpenField implements IUriMember {
         this.declaringClass = declaringClass;
     }
     
+    @Override
     public String getUri() {
         return uri;
     }
@@ -53,6 +54,7 @@ public class DataOpenField extends AOpenField implements IUriMember {
         return true;
     }
 
+    @Override
     public Object get(Object target, IRuntimeEnv env) {
 
         Object data = ((IDynamicObject) target).getFieldValue(getName());
@@ -65,6 +67,7 @@ public class DataOpenField extends AOpenField implements IUriMember {
         return data;
     }
 
+    @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         ((IDynamicObject) target).setFieldValue(getName(), value);
     }

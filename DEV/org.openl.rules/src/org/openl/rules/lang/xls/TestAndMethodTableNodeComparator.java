@@ -6,6 +6,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 public class TestAndMethodTableNodeComparator implements Comparator<TableSyntaxNode> {
 
+    @Override
     public int compare(TableSyntaxNode tableSyntaxNode1, TableSyntaxNode tableSyntaxNode2) {
 
         String type1 = tableSyntaxNode1.getType();

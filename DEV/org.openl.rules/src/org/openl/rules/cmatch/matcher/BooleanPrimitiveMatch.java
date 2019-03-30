@@ -12,10 +12,12 @@ public class BooleanPrimitiveMatch implements IMatcherBuilder, IMatcher {
         convertor = String2DataConvertorFactory.getConvertor(boolean.class);
     }
 
+    @Override
     public Object fromString(String checkValue) {
         return convertor.parse(checkValue, null);
     }
 
+    @Override
     public IMatcher getInstanceIfSupports(IOpenClass type) {
         Class<?> c = type.getInstanceClass();
         if (c == boolean.class) {
@@ -25,10 +27,12 @@ public class BooleanPrimitiveMatch implements IMatcherBuilder, IMatcher {
         }
     }
 
+    @Override
     public String getName() {
         return OP_MATCH;
     }
 
+    @Override
     public boolean match(Object var, Object checkValue) {
         if (checkValue == null) {
             return false;

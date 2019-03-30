@@ -44,9 +44,11 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     }
 
     public static class DoubleValueAdapter extends XmlAdapter<Double,DoubleValue> {
+        @Override
         public DoubleValue unmarshal(Double val) throws Exception {
             return new DoubleValue(val);
         }
+        @Override
         public Double marshal(DoubleValue val) throws Exception {
             return val.doubleValue();
         }
@@ -408,7 +410,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
         //
         // validate(value1, value2, NumberOperations.POW);
         if (value1 == null) {
-            return value2 == null ? null : new org.openl.meta.DoubleValue((double) 0);
+            return value2 == null ? null : new org.openl.meta.DoubleValue(0);
         } else if (value2 == null) {
             return value1;
         }
@@ -482,7 +484,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @return the casted value to org.openl.meta.DoubleValue
      */
     public static org.openl.meta.DoubleValue autocast(byte x, org.openl.meta.DoubleValue y) {
-        return new org.openl.meta.DoubleValue((double) x);
+        return new org.openl.meta.DoubleValue(x);
     }
     /**
      * Is used to overload implicit cast operators from short to org.openl.meta.DoubleValue
@@ -491,7 +493,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @return the casted value to org.openl.meta.DoubleValue
      */
     public static org.openl.meta.DoubleValue autocast(short x, org.openl.meta.DoubleValue y) {
-        return new org.openl.meta.DoubleValue((double) x);
+        return new org.openl.meta.DoubleValue(x);
     }
     /**
      * Is used to overload implicit cast operators from int to org.openl.meta.DoubleValue
@@ -500,7 +502,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @return the casted value to org.openl.meta.DoubleValue
      */
     public static org.openl.meta.DoubleValue autocast(int x, org.openl.meta.DoubleValue y) {
-        return new org.openl.meta.DoubleValue((double) x);
+        return new org.openl.meta.DoubleValue(x);
     }
     /**
      * Is used to overload implicit cast operators from int to org.openl.meta.DoubleValue
@@ -509,7 +511,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @return the casted value to org.openl.meta.DoubleValue
      */
     public static org.openl.meta.DoubleValue autocast(char x, org.openl.meta.DoubleValue y) {
-        return new org.openl.meta.DoubleValue((double) x);
+        return new org.openl.meta.DoubleValue(x);
     }
     /**
      * Is used to overload implicit cast operators from long to org.openl.meta.DoubleValue
@@ -518,7 +520,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @return the casted value to org.openl.meta.DoubleValue
      */
     public static org.openl.meta.DoubleValue autocast(long x, org.openl.meta.DoubleValue y) {
-        return new org.openl.meta.DoubleValue((double) x);
+        return new org.openl.meta.DoubleValue(x);
     }
     /**
      * Is used to overload implicit cast operators from float to org.openl.meta.DoubleValue
@@ -527,7 +529,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @return the casted value to org.openl.meta.DoubleValue
      */
     public static org.openl.meta.DoubleValue autocast(float x, org.openl.meta.DoubleValue y) {
-        return new org.openl.meta.DoubleValue((double) x);
+        return new org.openl.meta.DoubleValue(x);
     }
     /**
      * Is used to overload implicit cast operators from double to org.openl.meta.DoubleValue
@@ -536,7 +538,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
      * @return the casted value to org.openl.meta.DoubleValue
      */
     public static org.openl.meta.DoubleValue autocast(double x, org.openl.meta.DoubleValue y) {
-        return new org.openl.meta.DoubleValue((double) x);
+        return new org.openl.meta.DoubleValue(x);
     }
 
     // Constructors
@@ -570,6 +572,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
     /**
     * Prints the value of the current variable
     */
+    @Override
     public String printValue() {
         return String.valueOf(value);
     }

@@ -17,6 +17,7 @@ import org.openl.syntax.impl.IdentifierNode;
  */
 public class WhereVarNodeBinder extends ANodeBinder {
 
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         String name = ((IdentifierNode) node.getChild(0)).getIdentifier();

@@ -22,6 +22,7 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
 
     private Map<String, Object> params;
 
+    @Override
     public synchronized String getCode() {
 
         if (code == null) {
@@ -41,10 +42,12 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
         return code;
     }
 
+    @Override
     public int getStartPosition() {
         return 0;
     }
 
+    @Override
     public synchronized String getUri() {
 
         if (uri == null) {
@@ -55,10 +58,12 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
 
     protected abstract String makeUri();
 
+    @Override
     public Map<String, Object> getParams() {
         return params;
     }
 
+    @Override
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }

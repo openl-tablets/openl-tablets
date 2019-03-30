@@ -272,6 +272,7 @@ public class CastFactory implements ICastFactory {
      * 
      * @return cast operation if it have been found; null - otherwise
      */
+    @Override
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {
         /* BEGIN: This is very cheap operations, so no needs to chache it */
         if (from == to || from.equals(to)) {

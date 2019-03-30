@@ -40,22 +40,27 @@ public class TransformedGridTable extends AGridTableDecorator {
         return transformer.getColumn(col, row);
     }
 
+    @Override
     public int getWidth() {
         return transformer.getWidth();
     }
 
+    @Override
     public int getHeight() {
         return transformer.getHeight();
     }
 
+    @Override
     public int getGridRow(int column, int row) {
         return table.getGridRow(getColumn(column, row), getRow(column, row));
     }
 
+    @Override
     public int getGridColumn(int column, int row) {
         return table.getGridColumn(getColumn(column, row), getRow(column, row));
     }
 
+    @Override
     public boolean isNormalOrientation() {
         return table.isNormalOrientation();
     }

@@ -38,6 +38,7 @@ public class VarDeclarationNode extends ABoundNode implements IMemberBoundNode {
      *
      * @see org.openl.binding.impl.module.IMemberBoundNode#addTo(org.openl.binding.impl.module.ModuleOpenClass)
      */
+    @Override
     public void addTo(ModuleOpenClass openClass) {
 
         openClass.addField(field);
@@ -65,6 +66,7 @@ public class VarDeclarationNode extends ABoundNode implements IMemberBoundNode {
      *
      * @see org.openl.binding.impl.module.IMemberBoundNode#finalizeBind(org.openl.binding.IBindingContext)
      */
+    @Override
     public void finalizeBind(IBindingContext cxt) throws Exception {
     }
 
@@ -78,6 +80,7 @@ public class VarDeclarationNode extends ABoundNode implements IMemberBoundNode {
         return JavaOpenClass.VOID;
     }
 
+    @Override
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
         // nothing to remove
     }

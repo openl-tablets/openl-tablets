@@ -30,6 +30,7 @@ public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBound
         return Algorithm.createAlgorithm(getHeader(), this);
     }
 
+    @Override
     public void finalizeBind(IBindingContext cxt) throws Exception {
         if (!cxt.isExecutionMode()) {
             getTableSyntaxNode().setMetaInfoReader(new AlgorithmMetaInfoReader(this));

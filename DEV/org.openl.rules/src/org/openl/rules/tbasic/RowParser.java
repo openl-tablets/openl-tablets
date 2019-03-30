@@ -104,6 +104,7 @@ public class RowParser implements IRowParser {
         return multilines;
     }
 
+    @Override
     public List<AlgorithmTreeNode> parse() throws SyntaxNodeException {
          List<AlgorithmTreeNode> nodes = prepareNodes();
 

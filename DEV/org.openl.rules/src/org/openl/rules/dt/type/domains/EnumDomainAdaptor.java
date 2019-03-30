@@ -25,6 +25,7 @@ public class EnumDomainAdaptor implements IDomainAdaptor {
         this.values = values;
     }
 
+    @Override
     public int getIndex(Object value) {
 
         for (int i = 0; i < values.length; i++) {
@@ -36,18 +37,22 @@ public class EnumDomainAdaptor implements IDomainAdaptor {
         return -1;
     }
 
+    @Override
     public int getIntVarDomainType() {
         return IntVar.DOMAIN_BIT_FAST;
     }
 
+    @Override
     public int getMax() {
         return values.length - 1;
     }
 
+    @Override
     public int getMin() {
         return 0;
     }
 
+    @Override
     public Object getValue(int index) {
         return values[index];
     }
@@ -64,6 +69,7 @@ public class EnumDomainAdaptor implements IDomainAdaptor {
         return values.length;
     }
 
+    @Override
     public IDomainAdaptor merge(IDomainAdaptor adaptor) {
         EnumDomainAdaptor a = (EnumDomainAdaptor)adaptor;
         

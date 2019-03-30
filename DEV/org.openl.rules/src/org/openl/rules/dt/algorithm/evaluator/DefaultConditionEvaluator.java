@@ -15,14 +15,17 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class DefaultConditionEvaluator implements IConditionEvaluator {
 
+    @Override
     public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
         return condition.getSourceCodeModule();
     }
 
+    @Override
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
         return new DefaultConditionSelector(condition, target, dtparams, env);
     }
 
+    @Override
     public boolean isIndexed() {
         return false;
     }
@@ -35,14 +38,17 @@ public class DefaultConditionEvaluator implements IConditionEvaluator {
     /**
      * No indexing for default evaluator
      */
+    @Override
     public ARuleIndex makeIndex(ICondition condition, IIntIterator it) {
         throw new UnsupportedOperationException("The evaluator does not support indexing");
     }
 
+    @Override
     public IDomain<?> getRuleParameterDomain(IBaseCondition condition) throws DomainCanNotBeDefined {
         throw new DomainCanNotBeDefined("Non-indexed Evaluator", getFormalSourceCode(condition).getCode());
     }
 
+    @Override
     public IDomain<?> getConditionParameterDomain(int paramIdx, IBaseCondition condition) throws DomainCanNotBeDefined {
         return null;
     }

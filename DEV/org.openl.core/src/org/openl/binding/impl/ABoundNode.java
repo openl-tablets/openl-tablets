@@ -29,10 +29,12 @@ public abstract class ABoundNode implements IBoundNode {
         this.children = children != null && children.length == 0 ? EMPTY : children;
     }
 
+    @Override
     public void assign(Object value, IRuntimeEnv env) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public final Object evaluate(IRuntimeEnv env) {
         try {
             return evaluateRuntime(env);
@@ -47,6 +49,7 @@ public abstract class ABoundNode implements IBoundNode {
 
     abstract protected Object evaluateRuntime(IRuntimeEnv env) throws Exception;
 
+    @Override
     public IOpenClass getType() {
         return NullOpenClass.the;
     }
@@ -65,10 +68,12 @@ public abstract class ABoundNode implements IBoundNode {
         return ch;
     }
 
+    @Override
     public IBoundNode[] getChildren() {
         return children;
     }
 
+    @Override
     public ISyntaxNode getSyntaxNode() {
         return syntaxNode;
     }
@@ -77,20 +82,25 @@ public abstract class ABoundNode implements IBoundNode {
         this.syntaxNode = syntaxNode;
     }
 
+    @Override
     public IBoundNode getTargetNode() {
         return null;
     }
 
+    @Override
     public boolean isLvalue() {
         return false;
     }
 
+    @Override
     public void updateAssignFieldDependency(BindingDependencies dependencies) {
     }
 
+    @Override
     public void updateDependency(BindingDependencies dependencies) {
     }
 
+    @Override
     public boolean isStaticTarget() {
         return false;
     }

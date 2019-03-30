@@ -40,10 +40,12 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
     }
 
     // TODO fix
+    @Override
     public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
+    @Override
     public IIntSelector getSelector(ICondition condition, Object target, Object[] params, IRuntimeEnv env) {
 
         Object value = condition.getEvaluator().invoke(target, params, env);
@@ -51,10 +53,12 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
         return new ContainsInOrNotInArraySelector(condition, value, target, params, this.adaptor, env);
     }
 
+    @Override
     public boolean isIndexed() {
         return true;
     }
 
+    @Override
     public ARuleIndex makeIndex(ICondition condition, IIntIterator iterator) {
 
         if (iterator.size() < 1) {
@@ -208,10 +212,12 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
         return 0;
     }
 
+    @Override
     public IDomain<? extends Object> getRuleParameterDomain(IBaseCondition condition) {
         return null;
     }
 
+    @Override
     public IDomain<? extends Object> getConditionParameterDomain(int paramIdx, IBaseCondition condition) {
         return null;
     }

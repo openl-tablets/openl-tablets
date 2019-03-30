@@ -15,34 +15,42 @@ public class SourceCodeModuleDelegator implements IOpenSourceCodeModule {
         this.src = src;
     }
 
+    @Override
     public InputStream getByteStream() {
         return src.getByteStream();
     }
 
+    @Override
     public Reader getCharacterStream() {
         return src.getCharacterStream();
     }
 
+    @Override
     public String getCode() {
         return src.getCode();
     }
 
+    @Override
     public int getStartPosition() {
         return src.getStartPosition();
     }
 
+    @Override
     public String getUri() {
         return src.getUri();
     }
 
+    @Override
     public Map<String, Object> getParams() {
         return params;
     }
 
+    @Override
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
 
+    @Override
     public boolean isModified() {
         return src.isModified();
     }

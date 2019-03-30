@@ -13,40 +13,49 @@ public abstract class ALogicalTable implements ILogicalTable {
         this.table = table;
     }
 
+    @Override
     public IGridTable getSource() {
         return table;
     }
 
+    @Override
     public ILogicalTable getColumn(int column) {
         return getSubtable(column, 0, 1, getHeight());
     }
 
+    @Override
     public ILogicalTable getColumns(int from) {
         return getColumns(from, getWidth() - 1);
     }
 
+    @Override
     public ILogicalTable getColumns(int from, int to) {
         int colsNum = to - from + 1;
         return getSubtable(from, 0, colsNum, getHeight());
     }
 
+    @Override
     public ILogicalTable getRow(int row) {
         return getSubtable(0, row, getWidth(), 1);
     }
 
+    @Override
     public ILogicalTable getRows(int from) {
         return getRows(from, getHeight() - 1);
     }
 
+    @Override
     public ILogicalTable getRows(int from, int to) {
         int rowsNum = to - from + 1;
         return getSubtable(0, from, getWidth(), rowsNum);
     }
 
+    @Override
     public ILogicalTable transpose() {
         return LogicalTableHelper.logicalTable(getSource().transpose());
     }
 
+    @Override
     public boolean isNormalOrientation() {        
         return getSource().isNormalOrientation();
     }

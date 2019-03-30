@@ -40,6 +40,7 @@ public class NaryNode extends ASyntaxNode {
      *
      * @see org.openl.parser.SyntaxNode#getNumberOfChildren()
      */
+    @Override
     public int getNumberOfChildren() {
         return nodes.length;
     }
@@ -49,6 +50,7 @@ public class NaryNode extends ASyntaxNode {
      *
      * @see org.openl.parser.SyntaxNode#getChild(int)
      */
+    @Override
     public ISyntaxNode getChild(int i) {
         return nodes[i];
     }

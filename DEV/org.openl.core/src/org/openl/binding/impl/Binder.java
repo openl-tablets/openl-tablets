@@ -48,30 +48,37 @@ public class Binder implements IOpenBinder {
         this.openl = openl;
     }
 
+    @Override
     public ICastFactory getCastFactory() {
         return castFactory;
     }
 
+    @Override
     public INameSpacedMethodFactory getMethodFactory() {
         return methodFactory;
     }
 
+    @Override
     public INodeBinderFactory getNodeBinderFactory() {
         return nodeBinderFactory;
     }
 
+    @Override
     public INameSpacedTypeFactory getTypeFactory() {
         return typeFactory;
     }
 
+    @Override
     public INameSpacedVarFactory getVarFactory() {
         return varFactory;
     }
 
+    @Override
     public IBindingContext makeBindingContext() {
         return new BindingContext(this, JavaOpenClass.VOID, openl);
     }
 
+    @Override
     public IBoundCode bind(IParsedCode parsedCode) {
         return bind(parsedCode, null);
     }
@@ -81,6 +88,7 @@ public class Binder implements IOpenBinder {
      *
      * @see org.openl.IOpenBinder#bind(org.openl.syntax.IParsedCode)
      */
+    @Override
     public IBoundCode bind(IParsedCode parsedCode, IBindingContext bindingContext) {
         if (bindingContext == null) {
             bindingContext = makeBindingContext();

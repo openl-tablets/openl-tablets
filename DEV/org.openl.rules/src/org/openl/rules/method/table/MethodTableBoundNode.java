@@ -43,6 +43,7 @@ public class MethodTableBoundNode extends AMethodBasedNode {
         return new TableMethod(getHeader(), null, this);
     }
 
+    @Override
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
         if (!bindingContext.isExecutionMode()) {
             getTableSyntaxNode().setMetaInfoReader(new MethodTableMetaInfoReader(this));

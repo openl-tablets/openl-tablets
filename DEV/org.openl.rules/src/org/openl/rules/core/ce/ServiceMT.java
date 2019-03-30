@@ -91,7 +91,7 @@ public final class ServiceMT {
             try {
                 Thread.currentThread().setContextClassLoader(classLoader);
                 if (env instanceof SimpleRulesRuntimeEnvMT) {
-                    runnable.run((SimpleRulesRuntimeEnv) env.clone());
+                    runnable.run(env.clone());
                 } else {
                     runnable.run(new SimpleRulesRuntimeEnvMT(env));
                 }

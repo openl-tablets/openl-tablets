@@ -27,6 +27,7 @@ public class NicePrinterAdaptor {
 
     static class MapEntryComparator<K, V> implements Comparator<Map.Entry<K, V>> {
 
+        @Override
         public int compare(Map.Entry<K, V> e1, Map.Entry<K, V> e2) {
 
             String key1 = String.valueOf(e1.getKey());
@@ -80,7 +81,7 @@ public class NicePrinterAdaptor {
     public Object getProperty(Object obj, String propertyName) {
         try {
             Method m = obj.getClass().getMethod(ClassUtils.getter(propertyName));
-            return (String) m.invoke(obj);
+            return m.invoke(obj);
         } catch (Exception t) {
             return null;
         }

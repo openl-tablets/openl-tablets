@@ -17,10 +17,12 @@ public class RoundingOperator {
 
     static class OpDown implements IRoundingOperator {
 
+        @Override
         public String[] getNames() {
             return new String[] { "DOWN" };
         }
 
+        @Override
         public double value(double value, double precision) {
             return Math.floor(value / precision) * precision;
         }
@@ -28,10 +30,12 @@ public class RoundingOperator {
 
     static class OpRound implements IRoundingOperator {
 
+        @Override
         public String[] getNames() {
             return new String[] { "ROUND" };
         }
 
+        @Override
         public double value(double value, double precision) {
             return (Math.round(value / precision)) * precision;
         }
@@ -39,10 +43,12 @@ public class RoundingOperator {
 
     static class OpUp implements IRoundingOperator {
 
+        @Override
         public String[] getNames() {
             return new String[] { "UP" };
         }
 
+        @Override
         public double value(double value, double precision) {
             return Math.ceil(value / precision) * precision;
         }

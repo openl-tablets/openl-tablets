@@ -19,10 +19,12 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
         this.preFetchedResult = preFetchResult(spreadsheet);
     }
 
+    @Override
     public boolean canInvoke() {
         return getInvokableMethod().getResultBuilder() != null;
     }
 
+    @Override
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
         SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(
                 getInvokableMethod(), (IDynamicObject) target, params, env,

@@ -20,26 +20,32 @@ public class InternalDatatypeClass implements IOpenMember{
         this.declaringClass = declaringClass;
     }
     
+    @Override
     public IOpenClass getDeclaringClass() {        
         return declaringClass;
     }
 
+    @Override
     public IMemberMetaInfo getInfo() {        
         return null;
     }
 
+    @Override
     public IOpenClass getType() {        
         return domainOpenClass;
     }
 
+    @Override
     public boolean isStatic() {        
         return false;
     }
 
+    @Override
     public String getDisplayName(int mode) {        
         return domainOpenClass.getName();
     }
 
+    @Override
     public String getName() {        
         return domainOpenClass.getName();
     }

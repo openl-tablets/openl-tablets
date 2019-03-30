@@ -8,4 +8,5 @@ package org.openl.rules.helpers;
  * 
  * @deprecated
  */
+@Deprecated
 public class DateTool extends org.openl.util.DateTool {}

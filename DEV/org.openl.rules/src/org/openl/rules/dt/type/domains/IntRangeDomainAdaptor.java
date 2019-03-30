@@ -11,26 +11,32 @@ public class IntRangeDomainAdaptor implements IDomainAdaptor {
         this.irange = irange;
     }
 
+    @Override
     public int getIndex(Object value) {
         return (Integer) value;// - irange.getMin();
     }
 
+    @Override
     public int getIntVarDomainType() {
         return IntVar.DOMAIN_PLAIN;
     }
 
+    @Override
     public int getMax() {
         return irange.getMax();
     }
 
+    @Override
     public int getMin() {
         return irange.getMin();
     }
 
+    @Override
     public Object getValue(int index) {
         return index; // irange.getMin();// + index;
     }
 
+    @Override
     public IDomainAdaptor merge(IDomainAdaptor adaptor) {
         IntRangeDomainAdaptor a = (IntRangeDomainAdaptor)adaptor;
         

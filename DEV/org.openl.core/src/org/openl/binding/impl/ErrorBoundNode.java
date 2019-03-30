@@ -15,6 +15,7 @@ public class ErrorBoundNode extends ABoundNode {
         super(node);
     }
 
+    @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
         throw new UnsupportedOperationException("You are trying to run openl code with a compile error in it");
     }

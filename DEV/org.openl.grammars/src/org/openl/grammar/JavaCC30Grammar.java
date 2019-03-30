@@ -16,30 +16,35 @@ import org.openl.util.text.IPosition;
  */
 public abstract class JavaCC30Grammar extends Grammar {
 
+    @Override
     public void parse(Reader r, String parseType) {
 
         ReInit(r);
         parseTopNode(parseType);
     }
 
+    @Override
     public void parseAsMethod(Reader r) {
 
         ReInit(r);
         parseTopNode("method.body");
     }
 
+    @Override
     public void parseAsMethodHeader(Reader r) {
 
         ReInit(r);
         parseTopNode("method.header");
     }
 
+    @Override
     public void parseAsModule(Reader r) {
 
         ReInit(r);
         parseTopNode("module");
     }
 
+    @Override
     public void parseAsType(Reader reader) {
 
         ReInit(reader);

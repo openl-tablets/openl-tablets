@@ -30,6 +30,7 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
     /**
      * Returns the Metainfo of the Object
      */
+    @Override
     public IMetaInfo getMetaInfo() {
         return metaInfo;
     }
@@ -37,6 +38,7 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
     /**
      * Sets the Metainfo of the Object
      */
+    @Override
     public void setMetaInfo(IMetaInfo info) {
         this.metaInfo = info;
     }
@@ -73,6 +75,7 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
     /**
      * Compares the current object with the <b>objectToCompare</b>
      */
+    @Override
     public int compareTo(ObjectValue objectToCompare) {
         int result = -1;
         if (value instanceof String && objectToCompare.getValue() instanceof String) {

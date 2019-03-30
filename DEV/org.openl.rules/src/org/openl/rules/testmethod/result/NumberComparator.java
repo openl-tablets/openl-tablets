@@ -18,6 +18,7 @@ class NumberComparator implements TestResultComparator {
         this.delta = delta;
     }
 
+    @Override
     public boolean isEqual(Object expectedResult, Object actualResult) {
         if (actualResult == null || expectedResult == null) {
             return actualResult == expectedResult;

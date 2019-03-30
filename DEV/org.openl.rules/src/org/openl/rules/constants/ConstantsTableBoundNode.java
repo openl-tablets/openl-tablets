@@ -51,6 +51,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
         this.openl = openl;
     }
 
+    @Override
     public void addTo(ModuleOpenClass openClass) {
     }
 

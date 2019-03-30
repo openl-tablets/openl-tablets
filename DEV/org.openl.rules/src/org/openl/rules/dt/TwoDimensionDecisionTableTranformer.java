@@ -41,10 +41,12 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
         return retTableWidth;
     }
 
+    @Override
     public int getHeight() {
         return dtHeaderHeight + lookupValuesTableWidth / retTableWidth * lookupValuesTableHeight;
     }
 
+    @Override
     public int getWidth() {
         return conditionsWidth + hConditionsCount + retTableWidth;
     }
@@ -54,6 +56,7 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
      * @param row The row of logical table.
      * @return Coordinates inside the source table.
      */
+    @Override
     public int getColumn(int col, int row) {
         int res;
         if (row < dtHeaderHeight) {
@@ -79,6 +82,7 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
      * @param row The row of logical table.
      * @return Coordinates inside the source table.
      */
+    @Override
     public int getRow(int col, int row) {
         int res;
         if (row < dtHeaderHeight) {

@@ -137,6 +137,7 @@ public class DoubleRange implements INumberRange {
         return compareLowerBound(range) <= 0 && compareUpperBound(range) >= 0;
     }
 
+    @Override
     public boolean containsNumber(Number num) {
         return contains(num.doubleValue());
     }

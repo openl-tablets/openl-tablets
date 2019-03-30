@@ -12,6 +12,7 @@ public final class CharRangeAdaptor implements IRangeAdaptor<CharRange, Characte
         return INSTANCE;
     }
 
+    @Override
     public Character getMax(CharRange range) {
         if (range == null) {
             return null;
@@ -26,6 +27,7 @@ public final class CharRangeAdaptor implements IRangeAdaptor<CharRange, Characte
         return (char) max;
     }
 
+    @Override
     public Character getMin(CharRange range) {
         if (range == null) {
             return null;

@@ -25,6 +25,7 @@ public class InterfaceClassGeneratorImpl implements InterfaceClassGenerator{
         this.excludes = excludes;       
     }
 
+    @Override
     public Class<?> generateInterface(String className, IOpenClass openClass, ClassLoader classLoader) throws Exception {
         boolean f1 = (includes == null) || (includes.length == 0);
         boolean f2 = (excludes == null) || (excludes.length == 0);

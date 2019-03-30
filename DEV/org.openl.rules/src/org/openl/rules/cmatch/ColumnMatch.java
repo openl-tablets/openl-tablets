@@ -50,6 +50,7 @@ public class ColumnMatch extends ExecutableRulesMethod {
         return columnScores;
     }
 
+    @Override
     public BindingDependencies getDependencies() {
         BindingDependencies dependencies = new RulesBindingDependencies();
         getBoundNode().updateDependency(dependencies);
@@ -64,6 +65,7 @@ public class ColumnMatch extends ExecutableRulesMethod {
         return rows;
     }
 
+    @Override
     public String getSourceUrl() {
         return getSyntaxNode().getUri();
     }
@@ -72,6 +74,7 @@ public class ColumnMatch extends ExecutableRulesMethod {
         return totalScore;
     }
 
+    @Override
     protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
         Object result = algorithmExecutor.invoke(this, params, env);
         if (result == null) {

@@ -22,6 +22,7 @@ public class AbsolutePosition implements IPosition {
      *
      * @see org.openl.util.text.Position#getAbsolutePosition(org.openl.util.text.TextInfo)
      */
+    @Override
     public int getAbsolutePosition(TextInfo info) {
         return pos;
     }
@@ -31,6 +32,7 @@ public class AbsolutePosition implements IPosition {
      *
      * @see org.openl.util.text.Position#getColumn(org.openl.util.text.TextInfo)
      */
+    @Override
     public int getColumn(TextInfo info, int tabsize) {
         int line = info.getLineIdx(pos);
         int start = info.getPosition(line);
@@ -43,6 +45,7 @@ public class AbsolutePosition implements IPosition {
      *
      * @see org.openl.util.text.Position#getLine(org.openl.util.text.TextInfo)
      */
+    @Override
     public int getLine(TextInfo info) {
         return info.getLineIdx(pos);
     }

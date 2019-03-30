@@ -21,18 +21,22 @@ public class GridRegion implements IGridRegion {
         this.right = right;
     }
 
+    @Override
     public int getBottom() {
         return bottom;
     }
 
+    @Override
     public int getLeft() {
         return left;
     }
 
+    @Override
     public int getRight() {
         return right;
     }
 
+    @Override
     public int getTop() {
         return top;
     }

@@ -28,6 +28,7 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
 
     // Save value from initial cell -> move region -> set value to destination
     // cell
+    @Override
     public void doAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
         IGridRegion rrFrom = grid.getRegionStartingAt(colFrom, rowFrom);
@@ -63,6 +64,7 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
 
     // Save value from destination cell -> move region back -> set value to
     // initial cell
+    @Override
     public void undoAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
 

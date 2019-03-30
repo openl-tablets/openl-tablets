@@ -22,6 +22,7 @@ public class MethodCaller implements IMethodCaller {
         this.method = method;
     }
 
+    @Override
     public IOpenMethod getMethod() {
         return method;
     }
@@ -31,6 +32,7 @@ public class MethodCaller implements IMethodCaller {
      *
      * @see org.openl.types.IMethodCaller#invoke(java.lang.Object[])
      */
+    @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return method.invoke(target, params, env);
     }

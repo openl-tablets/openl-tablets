@@ -28,6 +28,7 @@ public class VirtualSourceCodeModule extends ASourceCodeModule {
         return SOURCE_URI;
     }
 
+    @Override
     public InputStream getByteStream() {
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -40,10 +41,12 @@ public class VirtualSourceCodeModule extends ASourceCodeModule {
         }
     }
 
+    @Override
     public Reader getCharacterStream() {
         return new InputStreamReader(getByteStream());
     }
 
+    @Override
     public boolean isModified() {
         return false;
     }

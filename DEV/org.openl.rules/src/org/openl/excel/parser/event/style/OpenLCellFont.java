@@ -28,6 +28,7 @@ class OpenLCellFont implements ICellFont {
         return font.getFontName();
     }
 
+    @Override
     public int getSize() {
         return (short) (font.getFontHeight() / 20);
     }

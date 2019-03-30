@@ -35,10 +35,12 @@ public class OpenLCheckedException extends Exception implements OpenLException {
         this.sourceModule = sourceModule;
     }
 
+    @Override
     public ILocation getLocation() {
         return location;
     }
 
+    @Override
     public IOpenSourceCodeModule getSourceModule() {
         return sourceModule;
     }

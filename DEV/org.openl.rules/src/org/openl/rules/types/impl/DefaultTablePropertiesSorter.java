@@ -23,42 +23,51 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
         // <<< INSERT >>>
         maxMinPriorityRules.add(new ASimplePriorityRule<java.util.Date>("startRequestDate") {
 
+            @Override
             public String getOperationName() {
                 return "MAX";
             }
 
+            @Override
             public java.util.Date getProprtyValue(ITableProperties properties) {
                 return properties.getStartRequestDate();
             }
 
+            @Override
             public int compareNotNulls(java.util.Date propertyValue1, java.util.Date propertyValue2) {
                 return MAX(propertyValue1, propertyValue2);
             }
         });
         maxMinPriorityRules.add(new ASimplePriorityRule<java.util.Date>("endRequestDate") {
 
+            @Override
             public String getOperationName() {
                 return "MIN";
             }
 
+            @Override
             public java.util.Date getProprtyValue(ITableProperties properties) {
                 return properties.getEndRequestDate();
             }
 
+            @Override
             public int compareNotNulls(java.util.Date propertyValue1, java.util.Date propertyValue2) {
                 return MIN(propertyValue1, propertyValue2);
             }
         });
         maxMinPriorityRules.add(new ASimplePriorityRule<org.openl.rules.enumeration.OriginsEnum>("origin") {
 
+            @Override
             public String getOperationName() {
                 return "MAX";
             }
 
+            @Override
             public org.openl.rules.enumeration.OriginsEnum getProprtyValue(ITableProperties properties) {
                 return properties.getOrigin();
             }
 
+            @Override
             public int compareNotNulls(org.openl.rules.enumeration.OriginsEnum propertyValue1,
                     org.openl.rules.enumeration.OriginsEnum propertyValue2) {
                 return MAX(propertyValue1, propertyValue2);
@@ -84,12 +93,14 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
         };
     }
 
+    @Override
     public List<IOpenMethod> sort(Collection<IOpenMethod> candidates) {
         List<IOpenMethod> result = new ArrayList<>(candidates);
         Collections.sort(result, methodsComparator);
         return result;
     }
 
+    @Override
     public Comparator<IOpenMethod> getMethodsComparator() {
         return methodsComparator;
     }

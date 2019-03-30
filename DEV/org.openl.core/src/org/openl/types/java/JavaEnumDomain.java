@@ -14,6 +14,7 @@ public class JavaEnumDomain implements IDomain<Object> {
         this.enumClass = enumClass;
     }
 
+    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Iterator iterator() {
         return OpenIterator.fromArray(enumClass.getInstanceClass().getEnumConstants());
@@ -23,10 +24,12 @@ public class JavaEnumDomain implements IDomain<Object> {
         return enumClass.getInstanceClass().getEnumConstants().length;
     }
 
+    @Override
     public IType getElementType() {
         return enumClass;
     }
 
+    @Override
     public boolean selectObject(Object obj) {
         return enumClass.getInstanceClass().isInstance(obj);
     }

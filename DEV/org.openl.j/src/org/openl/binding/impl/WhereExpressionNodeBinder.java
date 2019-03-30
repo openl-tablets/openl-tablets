@@ -28,6 +28,7 @@ public class WhereExpressionNodeBinder extends ANodeBinder {
         return boundNodes;
     }
 
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         IBoundNode[] boundNodes = makeLocalVarsFromWhere(node.getChild(1), bindingContext);

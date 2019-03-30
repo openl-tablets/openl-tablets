@@ -33,15 +33,18 @@ public abstract class ADispatcherTableColumn implements IDecisionTableColumn {
         return matchExpression.getMatchExpression().getContextAttribute() + " == null || ";
     }
 
+    @Override
     public int getNumberOfLocalParameters() {
         // By default there is only one local parameter in condition.
         return 1;
     }
 
+    @Override
     public String getRuleValue(int ruleIndex) {
         return getRuleValue(ruleIndex, 0);
     }
 
+    @Override
     public String getColumnType() {
         return DecisionTableColumnHeaders.CONDITION.getHeaderKey();
     }

@@ -22,6 +22,7 @@ final class OneElementArrayCast implements IOpenCast, IOneElementArrayCast {
         this.distance = CastFactory.ONE_ELEMENT_ARRAY_CAST_DISTANCE + openCast.getDistance();
     }
 
+    @Override
     public Object convert(Object from) {
         if (from == null) {
             return null;
@@ -32,10 +33,12 @@ final class OneElementArrayCast implements IOpenCast, IOneElementArrayCast {
         return array;
     }
 
+    @Override
     public int getDistance() {
         return distance;
     }
 
+    @Override
     public boolean isImplicit() {
         return openCast.isImplicit();
     }

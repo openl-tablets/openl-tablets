@@ -14,10 +14,12 @@ public class XlsCellComment implements ICellComment {
         this.xlxComment = xlsComment;
     }
 
+    @Override
     public String getAuthor() {
         return xlxComment.getAuthor();
     }
 
+    @Override
     public String getText() {
         return xlxComment.getString().getString();
     }

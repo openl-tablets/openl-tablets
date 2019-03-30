@@ -6,6 +6,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 
 public class BExGrammarWithParsingHelp extends BExGrammar {
 	
+    @Override
     public void parseTopNode(String type) {
         try {
             if (type.equals("method.body"))

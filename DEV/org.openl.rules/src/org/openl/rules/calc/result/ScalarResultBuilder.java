@@ -17,6 +17,7 @@ public class ScalarResultBuilder implements IResultBuilder {
         this.openCast = openCast;
     }
 
+    @Override
     public Object makeResult(SpreadsheetResultCalculator result) {
         Object ret;
         if (!calculateAllCells) {

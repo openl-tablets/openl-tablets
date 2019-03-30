@@ -15,6 +15,7 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class PercentNodeBinder extends ANodeBinder {
 
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
 
         String s = node.getText();

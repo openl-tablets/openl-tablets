@@ -16,6 +16,7 @@ public class DateDomainCollector implements IDomainCollector {
 
     private List<Date> dateValues = new ArrayList<>();
 
+    @Override
     public void gatherDomains(Map<String, Object> methodProperties) {
         if (methodProperties != null) {
             for (String propertyName : propertiesToSearch) {
@@ -27,6 +28,7 @@ public class DateDomainCollector implements IDomainCollector {
         }
     }
 
+    @Override
     public IDomainAdaptor getGatheredDomain() {
         if (!dateValues.isEmpty()) {
             Collections.sort(dateValues);

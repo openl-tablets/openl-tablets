@@ -13,6 +13,7 @@ import org.openl.util.text.TextInfo;
 
 public class RangeVariableBinder extends ANodeBinder {
 
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         String text = node.getModule().getCode();

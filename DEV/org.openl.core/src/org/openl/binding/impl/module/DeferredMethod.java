@@ -44,6 +44,7 @@ public class DeferredMethod extends AMethod {
         return methodBodyNode;
     }
 
+    @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         try {
             env.pushThis(target);

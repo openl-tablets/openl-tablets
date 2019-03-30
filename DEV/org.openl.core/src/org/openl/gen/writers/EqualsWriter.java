@@ -26,6 +26,7 @@ public class EqualsWriter extends MethodWriter {
         super(beanNameWithPackage, allFields);
     }
 
+    @Override
     public void write(ClassWriter classWriter) {
         MethodVisitor mv;
         mv = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "equals", "(Ljava/lang/Object;)Z", null, null);

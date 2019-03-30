@@ -35,10 +35,12 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
     private final java.math.BigInteger value;
 
     public static class BigIntegerValueAdapter extends XmlAdapter<BigInteger, BigIntegerValue> {
+        @Override
         public BigIntegerValue unmarshal(BigInteger val) throws Exception {
             return new BigIntegerValue(val);
         }
 
+        @Override
         public BigInteger marshal(BigIntegerValue val) throws Exception {
             return val.getValue();
         }
@@ -505,6 +507,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> imp
     /**
      * Prints the value of the current variable
      */
+    @Override
     public String printValue() {
         return String.valueOf(value);
     }

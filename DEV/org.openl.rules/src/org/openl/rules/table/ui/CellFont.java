@@ -42,30 +42,37 @@ public class CellFont implements ICellFont {
         strikeout = cf.isStrikeout();
     }
 
+    @Override
     public short[] getFontColor() {
         return fontColor;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public int getSize() {
         return size;
     }
 
+    @Override
     public boolean isBold() {
         return bold;
     }
 
+    @Override
     public boolean isItalic() {
         return italic;
     }
 
+    @Override
     public boolean isStrikeout() {
         return strikeout;
     }
 
+    @Override
     public boolean isUnderlined() {
         return underlined;
     }

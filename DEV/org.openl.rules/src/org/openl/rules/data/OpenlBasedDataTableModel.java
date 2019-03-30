@@ -29,26 +29,32 @@ public class OpenlBasedDataTableModel implements ITableModel {
         this.hasColumnTitleRow = hasColumnTitleRow;
     }
 
+    @Override
     public boolean hasColumnTitleRow() {
         return hasColumnTitleRow;
     }
 
+    @Override
     public ColumnDescriptor[] getDescriptor() {
         return columnDescriptor;
     }
 
+    @Override
     public Class<?> getInstanceClass() {
         return type.getInstanceClass();
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public IOpenClass getType() {
         return type;
     }
 
+    @Override
     public Object newInstance() {
         return type.newInstance(openl.getVm().getRuntimeEnv());
     }

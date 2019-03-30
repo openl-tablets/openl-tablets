@@ -17,6 +17,7 @@ public class NumberMatchBuilder extends AMatcherMapBuilder<NumberMatchMatcher> {
         put(primitiveClass, matcher);
     }
 
+    @Override
     public String getName() {
         return OP_MATCH;
     }

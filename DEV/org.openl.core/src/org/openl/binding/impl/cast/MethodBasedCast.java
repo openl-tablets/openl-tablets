@@ -16,6 +16,7 @@ final class MethodBasedCast implements IOpenCast {
         this.nullObject = nullObject;
     }
 
+    @Override
     public Object convert(Object from) {
         if (from == null) {
             return null;
@@ -24,10 +25,12 @@ final class MethodBasedCast implements IOpenCast {
         return caller.invoke(null, params, null);
     }
 
+    @Override
     public int getDistance() {
         return distance;
     }
 
+    @Override
     public boolean isImplicit() {
         return implicit;
     }

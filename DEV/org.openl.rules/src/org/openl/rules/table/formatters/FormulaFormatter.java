@@ -19,6 +19,7 @@ public class FormulaFormatter implements IFormatter {
         this.formulaResultFormatter = formulaResultFormatter;
     }
 
+    @Override
     public String format(Object value) {
         if (formulaResultFormatter != null) {
             return formulaResultFormatter.format(value);
@@ -26,6 +27,7 @@ public class FormulaFormatter implements IFormatter {
         return value != null ? value.toString() : null;
     }
 
+    @Override
     public Object parse(String value) {
         return value;
     }

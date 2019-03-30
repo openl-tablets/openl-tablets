@@ -29,6 +29,7 @@ public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBou
         return new ColumnMatch(getHeader(), this);
     }
 
+    @Override
     public void finalizeBind(IBindingContext cxt) throws Exception {
         if (!cxt.isExecutionMode()) {
             getTableSyntaxNode().setMetaInfoReader(new ColumnMatchMetaInfoReader(this));

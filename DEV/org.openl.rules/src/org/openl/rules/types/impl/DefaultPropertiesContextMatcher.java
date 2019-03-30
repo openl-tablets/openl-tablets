@@ -14,6 +14,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
         initilaize();
     }
 
+    @Override
     public MatchingResult match(String propName, ITableProperties props, IRulesRuntimeContext context) {
         MatchingConstraint<?, ?> mc = constraints.get(propName);
 
@@ -23,6 +24,7 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
         return mc.match(props, context);
     }
 
+    @Override
     public void addConstraint(String propertyName, MatchingConstraint<?, ?> ctr) {
         constraints.put(propertyName, ctr);
     }

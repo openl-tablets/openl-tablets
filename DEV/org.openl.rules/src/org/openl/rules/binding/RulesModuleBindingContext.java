@@ -136,6 +136,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         throw new IllegalStateException();
     }
 
+    @Override
     protected synchronized void add(String namespace,
             String typeName,
             IOpenClass type) throws OpenLCompilationException {
@@ -194,6 +195,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     public static final class CurrentRuntimeContextMethod implements IOpenMethod {
         public static final String CURRENT_CONTEXT_METHOD_NAME = "getContext";
 
+        @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             IRulesRuntimeContext context = (IRulesRuntimeContext) env.getContext();
             try {
@@ -205,34 +207,42 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             }
         }
 
+        @Override
         public IOpenMethod getMethod() {
             return this;
         }
 
+        @Override
         public String getName() {
             return CURRENT_CONTEXT_METHOD_NAME;
         }
 
+        @Override
         public String getDisplayName(int mode) {
             return CURRENT_CONTEXT_METHOD_NAME;
         }
 
+        @Override
         public boolean isStatic() {
             return false;
         }
 
+        @Override
         public IOpenClass getType() {
             return JavaOpenClass.getOpenClass(IRulesRuntimeContext.class);
         }
 
+        @Override
         public IMemberMetaInfo getInfo() {
             return null;
         }
 
+        @Override
         public IOpenClass getDeclaringClass() {
             return null;
         }
 
+        @Override
         public IMethodSignature getSignature() {
             return IMethodSignature.VOID;
         }
@@ -246,38 +256,47 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     public static final class EmptyRuntimeContextMethod implements IOpenMethod {
         public static final String EMPTY_CONTEXT_METHOD_NAME = "emptyContext";
 
+        @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             return RulesRuntimeContextFactory.buildRulesRuntimeContext();
         }
 
+        @Override
         public IOpenMethod getMethod() {
             return this;
         }
 
+        @Override
         public String getName() {
             return EMPTY_CONTEXT_METHOD_NAME;
         }
 
+        @Override
         public String getDisplayName(int mode) {
             return EMPTY_CONTEXT_METHOD_NAME;
         }
 
+        @Override
         public boolean isStatic() {
             return false;
         }
 
+        @Override
         public IOpenClass getType() {
             return JavaOpenClass.getOpenClass(IRulesRuntimeContext.class);
         }
 
+        @Override
         public IMemberMetaInfo getInfo() {
             return null;
         }
 
+        @Override
         public IOpenClass getDeclaringClass() {
             return null;
         }
 
+        @Override
         public IMethodSignature getSignature() {
             return IMethodSignature.VOID;
         }
@@ -291,6 +310,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     public static final class RestoreRuntimeContextMethod implements IOpenMethod {
         public static final String RESTORE_CONTEXT_METHOD_NAME = "restoreContext";
 
+        @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             if (env.isContextManagingSupported()) {
                 env.popContext();
@@ -301,34 +321,42 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             return null;
         }
 
+        @Override
         public IOpenMethod getMethod() {
             return this;
         }
 
+        @Override
         public String getName() {
             return RESTORE_CONTEXT_METHOD_NAME;
         }
 
+        @Override
         public String getDisplayName(int mode) {
             return RESTORE_CONTEXT_METHOD_NAME;
         }
 
+        @Override
         public boolean isStatic() {
             return false;
         }
 
+        @Override
         public IOpenClass getType() {
             return JavaOpenClass.VOID;
         }
 
+        @Override
         public IMemberMetaInfo getInfo() {
             return null;
         }
 
+        @Override
         public IOpenClass getDeclaringClass() {
             return null;
         }
 
+        @Override
         public IMethodSignature getSignature() {
             return IMethodSignature.VOID;
         }
@@ -342,6 +370,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     public static final class SetRuntimeContextMethod implements IOpenMethod {
         public static final String SET_CONTEXT_METHOD_NAME = "setContext";
 
+        @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             if (env.isContextManagingSupported()) {
                 IRulesRuntimeContext runtimeContext = (IRulesRuntimeContext) params[0];
@@ -353,34 +382,42 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             return null;
         }
 
+        @Override
         public IOpenMethod getMethod() {
             return this;
         }
 
+        @Override
         public String getName() {
             return SET_CONTEXT_METHOD_NAME;
         }
 
+        @Override
         public String getDisplayName(int mode) {
             return SET_CONTEXT_METHOD_NAME;
         }
 
+        @Override
         public boolean isStatic() {
             return false;
         }
 
+        @Override
         public IOpenClass getType() {
             return JavaOpenClass.VOID;
         }
 
+        @Override
         public IMemberMetaInfo getInfo() {
             return null;
         }
 
+        @Override
         public IOpenClass getDeclaringClass() {
             return null;
         }
 
+        @Override
         public IMethodSignature getSignature() {
             return new MethodSignature(
                 new ParameterDeclaration(JavaOpenClass.getOpenClass(IRulesRuntimeContext.class), "context"));
@@ -396,6 +433,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     public static final class ModifyRuntimeContextMethod implements IOpenMethod {
         public static final String MODIFY_CONTEXT_METHOD_NAME = "modifyContext";
 
+        @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             if (env.isContextManagingSupported()) {
                 IRulesRuntimeContext runtimeContext = new RulesRuntimeContextDelegator(
@@ -409,34 +447,42 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             return null;
         }
 
+        @Override
         public IOpenMethod getMethod() {
             return this;
         }
 
+        @Override
         public String getName() {
             return MODIFY_CONTEXT_METHOD_NAME;
         }
 
+        @Override
         public String getDisplayName(int mode) {
             return MODIFY_CONTEXT_METHOD_NAME;
         }
 
+        @Override
         public boolean isStatic() {
             return false;
         }
 
+        @Override
         public IOpenClass getType() {
             return JavaOpenClass.VOID;
         }
 
+        @Override
         public IMemberMetaInfo getInfo() {
             return null;
         }
 
+        @Override
         public IOpenClass getDeclaringClass() {
             return null;
         }
 
+        @Override
         public IMethodSignature getSignature() {
             return new MethodSignature(new ParameterDeclaration(JavaOpenClass.STRING, "property"),
                 new ParameterDeclaration(JavaOpenClass.OBJECT, "value"));

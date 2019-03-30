@@ -27,6 +27,7 @@ public class MethodHeaderNodeBinder extends ANodeBinder {
      * (non-Javadoc)
      * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext)
      */
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         IBoundNode typeNode = bindChildNode(node.getChild(TYPE_NODE), bindingContext);

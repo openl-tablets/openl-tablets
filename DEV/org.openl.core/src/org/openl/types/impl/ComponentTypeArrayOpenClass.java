@@ -38,14 +38,17 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
         this.javaName = createJavaName(componentClass);
     }
 
+    @Override
     public IAggregateInfo getAggregateInfo() {
         return DynamicArrayAggregateInfo.aggregateInfo;
     }
 
+    @Override
     public Object newInstance(IRuntimeEnv env) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Iterable<IOpenClass> superClasses() {
         return Collections.emptyList();
     }
@@ -60,10 +63,12 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
         return componentClass;
     }
 
+    @Override
     public String getDisplayName(int mode) {
         return componentClass.getDisplayName(mode) + "[]";
     }
 
+    @Override
     public Class<?> getInstanceClass() {
         if (componentClass.getInstanceClass() != null) {
             return JavaOpenClass.makeArrayClass(componentClass.getInstanceClass());
@@ -87,6 +92,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
         return getInstanceClass().isInstance(instance);
     }
 
+    @Override
     public String getName() {
         return componentClass.getName() + "[]";
     }

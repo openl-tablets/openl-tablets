@@ -13,7 +13,6 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.INodeBinder;
-import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -59,6 +58,7 @@ public class BindingContext implements IBindingContext {
         this.openl = openl;
     }
 
+    @Override
     public void addError(SyntaxNodeException error) {
         errors.add(error);
     }
@@ -67,6 +67,7 @@ public class BindingContext implements IBindingContext {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void addType(String namespace, IOpenClass type) {
         throw new UnsupportedOperationException();
     }
@@ -76,6 +77,7 @@ public class BindingContext implements IBindingContext {
      * 
      * @see org.openl.binding.IBindingContext#addVar(java.lang.String, java.lang.String)
      */
+    @Override
     public ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException {
         return localFrame.addVar(namespace, name, type);
     }
@@ -85,16 +87,19 @@ public class BindingContext implements IBindingContext {
      * 
      * @see org.openl.binding.IBindingContext#findBinder(org.openl.syntax.ISyntaxNode )
      */
+    @Override
     public INodeBinder findBinder(ISyntaxNode node) {
         return binder.getNodeBinderFactory().getNodeBinder(node);
     }
 
+    @Override
     public IOpenField findFieldFor(IOpenClass type, String fieldName, boolean strictMatch) {
         return type.getField(fieldName, strictMatch);
     }
 
     private static final Object NOT_FOUND = "NOT_FOUND";
 
+    @Override
     public IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes) {
         MethodKey key = new MethodKey(namespace + ':' + name, parTypes, false, true);
         Map<MethodKey, Object> methodCache = ((Binder) binder).methodCache;
@@ -118,10 +123,12 @@ public class BindingContext implements IBindingContext {
      * 
      * @see org.openl.binding.IBindingContext#findType(java.lang.String, java.lang.String)
      */
+    @Override
     public IOpenClass findType(String namespace, String typeName) {
         return binder.getTypeFactory().getType(namespace, typeName);
     }
 
+    @Override
     public IOpenField findVar(String namespace, String name, boolean strictMatch) // throws
     // Exception
     {
@@ -142,6 +149,7 @@ public class BindingContext implements IBindingContext {
         return binder;
     }
 
+    @Override
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {
 
         return binder.getCastFactory().getCast(from, to);
@@ -156,28 +164,34 @@ public class BindingContext implements IBindingContext {
 
     private static final SyntaxNodeException[] NO_ERRORS = {};
 
+    @Override
     public SyntaxNodeException[] getErrors() {
         return errors.isEmpty() ? NO_ERRORS : errors.toArray(new SyntaxNodeException[0]);
     }
 
+    @Override
     public int getLocalVarFrameSize() {
         return localFrame.getLocalVarFrameSize();
     }
 
+    @Override
     public OpenL getOpenL() {
         return openl;
     }
 
+    @Override
     public IOpenClass getReturnType() {
         return returnType;
     }
 
+    @Override
     public List<SyntaxNodeException> popErrors() {
         List<SyntaxNodeException> tmp = errors;
         errors = errorStack.pop();
         return tmp;
     }
 
+    @Override
     public Collection<OpenLMessage> popMessages() {
         Collection<OpenLMessage> tmp = messages;
         messages = messagesStack.pop();
@@ -189,15 +203,18 @@ public class BindingContext implements IBindingContext {
      * 
      * @see org.openl.binding.IBindingContext#popLocalVarcontext()
      */
+    @Override
     public void popLocalVarContext() {
         localFrame.popLocalVarcontext();
     }
 
+    @Override
     public void pushErrors() {
         errorStack.push(errors);
         errors = new ArrayList<>();
     }
 
+    @Override
     public void pushMessages() {
         messagesStack.push(messages);
         messages = new LinkedHashSet<>();
@@ -208,10 +225,12 @@ public class BindingContext implements IBindingContext {
      * 
      * @see org.openl.binding.IBindingContext#pushLocalVarContext(org.openl.binding .ILocalVarContext)
      */
+    @Override
     public void pushLocalVarContext() {
         localFrame.pushLocalVarContext();
     }
 
+    @Override
     public void setReturnType(IOpenClass type) {
         if (returnType != NullOpenClass.the) {
             throw new RuntimeException("Can not override return type " + returnType.getName());
@@ -219,6 +238,7 @@ public class BindingContext implements IBindingContext {
         returnType = type;
     }
 
+    @Override
     public boolean isExecutionMode() {
         return executionMode;
     }
@@ -228,20 +248,24 @@ public class BindingContext implements IBindingContext {
         this.executionMode = exectionMode;
     }
 
+    @Override
     public Map<String, Object> getExternalParams() {
         return externalParams;
     }
 
+    @Override
     public void setExternalParams(Map<String, Object> externalParams) {
         this.externalParams = externalParams;
     }
 
+    @Override
     public IOpenField findRange(String namespace,
             String rangeStartName,
             String rangeEndName) throws FieldNotFoundException {
         throw new FieldNotFoundException("Range:", rangeStartName + ":" + rangeEndName, null);
     }
 
+    @Override
     public Collection<OpenLMessage> getMessages() {
         return Collections.unmodifiableCollection(messages);
     }

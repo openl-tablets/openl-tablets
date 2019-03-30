@@ -119,6 +119,7 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
         return indexes;
     }
 
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
         List<Integer> indexesOfArrayArguments = getIndexesOfArrayArguments();
         if (!indexesOfArrayArguments.isEmpty()) {

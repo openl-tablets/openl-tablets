@@ -2,7 +2,6 @@ package org.openl.binding.impl.module;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
-import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.LocalFrameBuilder;

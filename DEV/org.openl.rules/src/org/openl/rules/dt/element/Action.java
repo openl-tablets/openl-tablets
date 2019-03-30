@@ -37,26 +37,32 @@ public class Action extends FunctionalRow implements IAction {
         this.actionType = actionType;
     }
 
+    @Override
     public boolean isAction() {
         return true;
     }
 
+    @Override
     public boolean isCondition() {
         return false;
     }
 
+    @Override
     public boolean isReturnAction() {
         return ActionType.RETURN.equals(actionType);
     }
     
+    @Override
     public boolean isCollectReturnKeyAction() {
         return ActionType.COLLECT_RETURN_KEY.equals(actionType);
     }
     
+    @Override
     public boolean isCollectReturnAction() {
         return ActionType.COLLECT_RETURN.equals(actionType);
     }
 
+    @Override
     public Object executeAction(int ruleN, Object target, Object[] params, IRuntimeEnv env) {
 
         if (target instanceof IDynamicObject) {
@@ -115,6 +121,7 @@ public class Action extends FunctionalRow implements IAction {
         return type;
     }
 
+    @Override
     public void prepareAction(IOpenMethodHeader header,
             IMethodSignature signature,
             OpenL openl,

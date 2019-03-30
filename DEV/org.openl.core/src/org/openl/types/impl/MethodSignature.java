@@ -23,18 +23,22 @@ public class MethodSignature implements IMethodSignature {
         this.parameters = parameters;
     }
 
+    @Override
     public int getNumberOfParameters() {
         return parameters.length;
     }
 
+    @Override
     public String getParameterName(int i) {
         return parameters[i].getName();
     }
     
+    @Override
     public IOpenClass getParameterType(int i) {
         return parameters[i].getType();
     }
 
+    @Override
     public IOpenClass[] getParameterTypes() {
         IOpenClass[] parameterTypes = new IOpenClass[parameters.length];
 

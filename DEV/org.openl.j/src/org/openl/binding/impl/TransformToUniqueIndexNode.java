@@ -49,6 +49,7 @@ class TransformToUniqueIndexNode extends ABoundNode {
         return CollectionUtils.toArray(result, componentClass);
     }
 
+    @Override
     public IOpenClass getType() {
         return resultType;
     }

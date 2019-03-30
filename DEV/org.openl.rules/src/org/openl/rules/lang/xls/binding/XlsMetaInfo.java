@@ -15,10 +15,12 @@ public class XlsMetaInfo implements IMetaInfo {
      *
      * @see org.openl.meta.IMetaInfo#getDisplayName(int)
      */
+    @Override
     public String getDisplayName(int mode) {
         return null;
     }
 
+    @Override
     public String getSourceUrl() {
         return xlsModuleNode.getModule().getUri();
     }

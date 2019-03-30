@@ -5,6 +5,7 @@ public class GEMatchingExpression extends AMatchingExpression {
     public static final String OPERATION_NAME = "GE";
     private static final String OPERATION = ">=";
  
+    @Override
     public boolean isContextAttributeExpression() {
         return false;
     }

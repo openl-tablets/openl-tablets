@@ -11,14 +11,17 @@ public final class ThrowableVoidCast implements IOpenCast {
         // Use ThrowableVoidCast.instance.
     }
 
+    @Override
     public Object convert(Object from) {
         return null;
     }
 
+    @Override
     public int getDistance() {
         return CastFactory.THROWABLE_VOID_CAST_DISTANCE;
     }
 
+    @Override
     public boolean isImplicit() {
         return true;
     }

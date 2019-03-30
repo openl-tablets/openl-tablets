@@ -22,6 +22,7 @@ import org.openl.util.OpenIterator;
 public class DynamicArrayAggregateInfo extends AAggregateInfo {
     public static final DynamicArrayAggregateInfo aggregateInfo = new DynamicArrayAggregateInfo();
 
+    @Override
     public IOpenClass getComponentType(IOpenClass aggregateType) {
         if (aggregateType instanceof ComponentTypeArrayOpenClass) {
             return aggregateType.getComponentClass();
@@ -30,6 +31,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
         return null;
     }
 
+    @Override
     public IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType) {
         if (indexType == JavaOpenClass.INT || indexType.getInstanceClass() == Integer.class) {
             // if index type is int we return simple java array index.
@@ -61,10 +63,12 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
 
     }
 
+    @Override
     public Iterator<Object> getIterator(Object aggregate) {
         return OpenIterator.fromArrayObj(aggregate);
     }
 
+    @Override
     public boolean isAggregate(IOpenClass type) {
         return type instanceof ComponentTypeArrayOpenClass;
     }

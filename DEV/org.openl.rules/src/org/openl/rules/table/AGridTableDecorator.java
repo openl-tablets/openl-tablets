@@ -11,6 +11,7 @@ public abstract class AGridTableDecorator extends AGridTable {
         this.table = table;
     }
 
+    @Override
     public IGrid getGrid() {
         return table.getGrid();
     }

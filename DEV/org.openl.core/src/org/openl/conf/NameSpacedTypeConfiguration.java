@@ -54,6 +54,7 @@ public class NameSpacedTypeConfiguration extends AConfigurationElement {
         namespace = string;
     }
 
+    @Override
     public void validate(IConfigurableResourceContext cxt) {
         for (ITypeFactoryConfigurationElement confElem : factories) {
             confElem.validate(cxt);

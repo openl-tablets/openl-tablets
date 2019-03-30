@@ -22,6 +22,7 @@ public abstract class UndoableInsertAction extends UndoableEditTableAction {
         this.metaInfoWriter = metaInfoWriter;
     }
 
+    @Override
     public void doAction(IGridTable table) {
         IUndoableGridTableAction moveTableAction = null;
         if (!canPerformAction(table)) {
@@ -47,6 +48,7 @@ public abstract class UndoableInsertAction extends UndoableEditTableAction {
         }
     }
 
+    @Override
     public void undoAction(IGridTable table) {
         action.undoAction(table);
     }

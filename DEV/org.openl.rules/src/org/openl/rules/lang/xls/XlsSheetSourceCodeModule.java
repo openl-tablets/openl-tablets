@@ -26,14 +26,17 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule {
         this.workbookSource = workbookSource;
     }
 
+    @Override
     public InputStream getByteStream() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Reader getCharacterStream() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getCode() {
         return null;
     }
@@ -54,10 +57,12 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule {
         return sheetLoader;
     }
 
+    @Override
     public int getStartPosition() {
         return 0;
     }
 
+    @Override
     public String getUri() {
         return workbookSource.getUri() + "?" + XlsURLConstants.SHEET + "=" + StringTool.encodeURL(getSheetName());
     }
@@ -66,14 +71,17 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule {
         return workbookSource;
     }
 
+    @Override
     public Map<String, Object> getParams() {
         return params;
     }
 
+    @Override
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
 
+    @Override
     public boolean isModified() {
         return workbookSource.isModified();
     }

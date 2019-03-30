@@ -36,6 +36,7 @@ public class UndoableResizeMergedRegionAction implements IUndoableGridTableActio
         }
     }
 
+    @Override
     public void doAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
         grid.removeMergedRegion(initialRegion);
@@ -44,6 +45,7 @@ public class UndoableResizeMergedRegionAction implements IUndoableGridTableActio
         }
     }
 
+    @Override
     public void undoAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
         if (newRegion != null) {

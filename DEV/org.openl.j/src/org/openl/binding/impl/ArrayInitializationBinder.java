@@ -25,6 +25,7 @@ public class ArrayInitializationBinder extends ANodeBinder {
      * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode,
      *      org.openl.binding.IBindingContext)
      */
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
         return makeErrorNode("Array has always to be initialized with a type", node, bindingContext);
     }

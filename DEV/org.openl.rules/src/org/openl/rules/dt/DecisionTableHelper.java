@@ -78,6 +78,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
+import org.openl.types.impl.AOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringTool;
 import org.openl.util.text.TextInfo;
@@ -2221,7 +2222,7 @@ public final class DecisionTableHelper {
         }
 
         if (!type.isArray()) {
-            return Pair.of(type.getName() + "[]", JavaOpenClass.getArrayType(type, 1));
+            return Pair.of(type.getName() + "[]", AOpenClass.getArrayType(type, 1));
         } else {
             return Pair.of(type.getName(), type);
         }

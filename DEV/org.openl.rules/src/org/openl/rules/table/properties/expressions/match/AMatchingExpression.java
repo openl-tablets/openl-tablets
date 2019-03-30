@@ -9,6 +9,7 @@ public abstract class AMatchingExpression implements IMatchingExpression {
     private String operationName;
     private IMatchingExpression contextAttributeExpression;
     
+    @Override
     public IMatchingExpression getContextAttributeExpression() {
         return contextAttributeExpression;
     }
@@ -39,6 +40,7 @@ public abstract class AMatchingExpression implements IMatchingExpression {
         this.contextAttribute = contextAttribute;
     }
     
+    @Override
     public String getCodeExpression(String param) {
         if (StringUtils.isNotEmpty(param)) {
             return new StringBuilder(64).append(param).append(' ').append(getOperation()).append(' ').append(contextAttribute).toString();
@@ -46,6 +48,7 @@ public abstract class AMatchingExpression implements IMatchingExpression {
         return null;
     }
     
+    @Override
     public String getContextAttribute() {
         if (!isContextAttributeExpression()){
             return contextAttribute;
@@ -58,6 +61,7 @@ public abstract class AMatchingExpression implements IMatchingExpression {
         return operation;
     }
 
+    @Override
     public String getOperationName() {        
         return operationName;
     }

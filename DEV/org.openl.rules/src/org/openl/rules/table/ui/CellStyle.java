@@ -65,38 +65,47 @@ public class CellStyle implements ICellStyle {
         formatString = cellStyle.getFormatString();
     }
 
+    @Override
     public short[][] getBorderRGB() {
         return borderRGB;
     }
 
+    @Override
     public BorderStyle[] getBorderStyle() {
         return borderStyle;
     }
 
+    @Override
     public short[] getFillBackgroundColor() {
         return fillBackgroundColor;
     }
 
+    @Override
     public short[] getFillForegroundColor() {
         return fillForegroundColor;
     }
 
+    @Override
     public HorizontalAlignment getHorizontalAlignment() {
         return horizontalAlignment;
     }
 
+    @Override
     public int getIndent() {
         return indent;
     }
 
+    @Override
     public int getRotation() {
         return rotation;
     }
 
+    @Override
     public VerticalAlignment getVerticalAlignment() {
         return verticalAlignment;
     }
 
+    @Override
     public boolean isWrappedText() {
         return wrappedText;
     }
@@ -117,14 +126,17 @@ public class CellStyle implements ICellStyle {
         this.fillForegroundColor = fillForegroundColor;
     }
 
+    @Override
     public short getFillBackgroundColorIndex() {
         return fillBackgroundColorIndex;
     }
 
+    @Override
     public short getFillForegroundColorIndex() {
         return fillForegroundColorIndex;
     }
 
+    @Override
     public FillPatternType getFillPattern() {
         return fillPattern;
     }

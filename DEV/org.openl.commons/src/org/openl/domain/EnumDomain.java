@@ -19,10 +19,12 @@ public class EnumDomain<T> implements IDomain<T> {
 
         private BitSetIterator bsi = new BitSetIterator(bits);
 
+        @Override
         public boolean hasNext() {
             return bsi.hasNext();
         }
 
+        @Override
         public T next() {
             int idx = bsi.nextInt();
             return enumeration.allObjects[idx];
@@ -95,6 +97,7 @@ public class EnumDomain<T> implements IDomain<T> {
         return enumeration.equals(ed.enumeration) && bits.equals(ed.bits);
     }
 
+    @Override
     public IType getElementType() {
         return null;
     }
@@ -108,6 +111,7 @@ public class EnumDomain<T> implements IDomain<T> {
         return enumeration.hashCode() * 37 + bits.hashCode();
     }
 
+    @Override
     public Iterator<T> iterator() {
         return new EnumDomainIterator();
     }
@@ -134,6 +138,7 @@ public class EnumDomain<T> implements IDomain<T> {
         return new EnumDomain<T>(enumeration, copy);
     }
 
+    @Override
     public boolean selectObject(T obj) {
         return contains(obj);
     }

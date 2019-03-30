@@ -112,6 +112,7 @@ public class UniquePropertyValueValidator extends TablesValidator {
         List<IOpenMethod> outputCollection = CollectionUtils.findAll(methods,
             new CollectionUtils.Predicate<IOpenMethod>() {
 
+                @Override
                 public boolean evaluate(IOpenMethod method) {
                     if (method instanceof ITablePropertiesMethod) {
                         ITablePropertiesMethod executableMethod = (ITablePropertiesMethod) method;

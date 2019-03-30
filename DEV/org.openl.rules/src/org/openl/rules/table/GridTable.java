@@ -18,14 +18,17 @@ public class GridTable extends AGridTable {
         this(new GridRegion(top, left, bottom, right), grid);
     }
 
+    @Override
     public int getWidth() {
         return region.getRight() - region.getLeft() + 1;
     }
 
+    @Override
     public int getHeight() {
         return region.getBottom() - region.getTop() + 1;
     }
 
+    @Override
     public IGrid getGrid() {
         return grid;
     }
@@ -40,10 +43,12 @@ public class GridTable extends AGridTable {
         // Do nothing
     }
 
+    @Override
     public int getGridColumn(int column, int row) {
         return region.getLeft() + column;
     }
 
+    @Override
     public int getGridRow(int column, int row) {
         return region.getTop() + row;
     }
@@ -53,6 +58,7 @@ public class GridTable extends AGridTable {
         return region;
     }
 
+    @Override
     public boolean isNormalOrientation() {
         return true;
     }

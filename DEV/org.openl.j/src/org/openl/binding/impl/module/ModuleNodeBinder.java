@@ -23,6 +23,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
  */
 public class ModuleNodeBinder extends ANodeBinder {
 
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         // children should all have type IMemberBoundNode

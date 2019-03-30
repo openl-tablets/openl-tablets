@@ -24,6 +24,7 @@ public class NewNodeBinder extends ANodeBinder {
      * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv,
      * org.openl.binding.IBindingContext)
      */
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         int childrenCount = node.getNumberOfChildren();

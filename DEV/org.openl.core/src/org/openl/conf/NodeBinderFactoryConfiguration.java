@@ -66,6 +66,7 @@ public class NodeBinderFactoryConfiguration extends AConfigurationElement {
         return factory == null ? null : (INodeBinder) factory.getResource(cxt);
     }
 
+    @Override
     public void validate(IConfigurableResourceContext cxt) {
         for (Object factory : map.values()) {
             ((SingleBinderFactory) factory).validate(cxt);

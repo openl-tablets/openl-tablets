@@ -27,6 +27,7 @@ public class DecisionTableRuleNode implements IDecisionTableRuleNode {
         }
     }
 
+    @Override
     public int[] getRules() {
         if (rules == null) {
             if (nextIndex == null) {

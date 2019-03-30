@@ -8,6 +8,7 @@ public class BooleanFormatter implements IFormatter {
 
     private final Logger log = LoggerFactory.getLogger(BooleanFormatter.class);
 
+    @Override
     public String format(Object value) {
         if (!(value instanceof Boolean)) {
             log.debug("Should be Boolean: {}", value);
@@ -18,6 +19,7 @@ public class BooleanFormatter implements IFormatter {
         return bool.toString();
     }
 
+    @Override
     public Object parse(String value) {
         Boolean boolValue = BooleanUtils.toBooleanObject(value);
         if (boolValue == null) {

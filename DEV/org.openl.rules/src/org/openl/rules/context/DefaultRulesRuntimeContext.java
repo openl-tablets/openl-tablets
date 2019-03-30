@@ -37,6 +37,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
 
     private Map<String, Object> internalMap = new HashMap<>();
 
+    @Override
     public Object getValue(String name) {
         return internalMap.get(name);
     }
@@ -120,6 +121,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     // <<< INSERT >>>
+    @Override
     public IRuntimeContext clone() throws CloneNotSupportedException {
         DefaultRulesRuntimeContext defaultRulesRuntimeContext = (DefaultRulesRuntimeContext) super.clone();
         defaultRulesRuntimeContext.setCurrentDate(this.currentDate);
@@ -137,6 +139,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
         return defaultRulesRuntimeContext;
     }
 
+    @Override
     public void setValue(String name, Object value) {
         if ("currentDate".equals(name)) {
             setCurrentDate((java.util.Date)value);
@@ -201,10 +204,12 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private java.util.Date currentDate = null;
+    @Override
     public java.util.Date getCurrentDate() {
         return currentDate;
     }
 
+    @Override
     public void setCurrentDate(java.util.Date currentDate) {
         this.currentDate = currentDate;
         internalMap.put("currentDate", currentDate);
@@ -212,10 +217,12 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private java.util.Date requestDate = null;
+    @Override
     public java.util.Date getRequestDate() {
         return requestDate;
     }
 
+    @Override
     public void setRequestDate(java.util.Date requestDate) {
         this.requestDate = requestDate;
         internalMap.put("requestDate", requestDate);
@@ -223,10 +230,12 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private java.lang.String lob = null;
+    @Override
     public java.lang.String getLob() {
         return lob;
     }
 
+    @Override
     public void setLob(java.lang.String lob) {
         this.lob = lob;
         internalMap.put("lob", lob);
@@ -234,10 +243,12 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private java.lang.String nature = null;
+    @Override
     public java.lang.String getNature() {
         return nature;
     }
 
+    @Override
     public void setNature(java.lang.String nature) {
         this.nature = nature;
         internalMap.put("nature", nature);
@@ -245,10 +256,12 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.UsStatesEnum usState = null;
+    @Override
     public org.openl.rules.enumeration.UsStatesEnum getUsState() {
         return usState;
     }
 
+    @Override
     public void setUsState(org.openl.rules.enumeration.UsStatesEnum usState) {
         this.usState = usState;
         internalMap.put("usState", usState);
@@ -256,10 +269,12 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.CountriesEnum country = null;
+    @Override
     public org.openl.rules.enumeration.CountriesEnum getCountry() {
         return country;
     }
 
+    @Override
     public void setCountry(org.openl.rules.enumeration.CountriesEnum country) {
         this.country = country;
         internalMap.put("country", country);
@@ -267,10 +282,12 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.UsRegionsEnum usRegion = null;
+    @Override
     public org.openl.rules.enumeration.UsRegionsEnum getUsRegion() {
         return usRegion;
     }
 
+    @Override
     public void setUsRegion(org.openl.rules.enumeration.UsRegionsEnum usRegion) {
         this.usRegion = usRegion;
         internalMap.put("usRegion", usRegion);
@@ -278,10 +295,12 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.CurrenciesEnum currency = null;
+    @Override
     public org.openl.rules.enumeration.CurrenciesEnum getCurrency() {
         return currency;
     }
 
+    @Override
     public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum currency) {
         this.currency = currency;
         internalMap.put("currency", currency);
@@ -289,10 +308,12 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.LanguagesEnum lang = null;
+    @Override
     public org.openl.rules.enumeration.LanguagesEnum getLang() {
         return lang;
     }
 
+    @Override
     public void setLang(org.openl.rules.enumeration.LanguagesEnum lang) {
         this.lang = lang;
         internalMap.put("lang", lang);
@@ -300,10 +321,12 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.RegionsEnum region = null;
+    @Override
     public org.openl.rules.enumeration.RegionsEnum getRegion() {
         return region;
     }
 
+    @Override
     public void setRegion(org.openl.rules.enumeration.RegionsEnum region) {
         this.region = region;
         internalMap.put("region", region);
@@ -311,10 +334,12 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.CaProvincesEnum caProvince = null;
+    @Override
     public org.openl.rules.enumeration.CaProvincesEnum getCaProvince() {
         return caProvince;
     }
 
+    @Override
     public void setCaProvince(org.openl.rules.enumeration.CaProvincesEnum caProvince) {
         this.caProvince = caProvince;
         internalMap.put("caProvince", caProvince);
@@ -322,10 +347,12 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private org.openl.rules.enumeration.CaRegionsEnum caRegion = null;
+    @Override
     public org.openl.rules.enumeration.CaRegionsEnum getCaRegion() {
         return caRegion;
     }
 
+    @Override
     public void setCaRegion(org.openl.rules.enumeration.CaRegionsEnum caRegion) {
         this.caRegion = caRegion;
         internalMap.put("caRegion", caRegion);

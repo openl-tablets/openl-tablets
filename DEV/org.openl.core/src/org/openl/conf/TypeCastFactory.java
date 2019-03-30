@@ -79,6 +79,7 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
          * org.openl.newconf.IConfigurationElement#validate(org.openl.newconf.
          * IConfigurationContext)
          */
+        @Override
         public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
             ClassFactory.validateClassExistsAndPublic(libraryClassName, cxt.getClassLoader(), getUri());
             Class<?> implClass = ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
@@ -122,6 +123,7 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
      * @see org.openl.newconf.IConfigurationElement#validate(org.openl.newconf.
      * IConfigurationContext)
      */
+    @Override
     public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
         for (JavaCastComponent component : components) {
             component.validate(cxt);

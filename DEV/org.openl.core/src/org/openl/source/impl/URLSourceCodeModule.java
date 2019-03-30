@@ -74,6 +74,7 @@ public class URLSourceCodeModule extends ASourceCodeModule {
         }
     }
 
+    @Override
     public InputStream getByteStream() {
         try {
             return url.openStream();
@@ -82,6 +83,7 @@ public class URLSourceCodeModule extends ASourceCodeModule {
         }
     }
 
+    @Override
     public Reader getCharacterStream() {
         return new InputStreamReader(getByteStream());
     }
@@ -116,6 +118,7 @@ public class URLSourceCodeModule extends ASourceCodeModule {
         return url.toString();
     }
 
+    @Override
     public boolean isModified() {
         return getLastModified() != lastModified;
     }

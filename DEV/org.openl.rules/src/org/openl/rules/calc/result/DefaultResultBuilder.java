@@ -14,6 +14,7 @@ import org.openl.rules.table.Point;
  */
 public class DefaultResultBuilder implements IResultBuilder {
     
+    @Override
     public Object makeResult(SpreadsheetResultCalculator result) {    
         
         Object[][] resultArray = result.getValues();

@@ -102,6 +102,7 @@ public class SpreadsheetCell implements Invokable {
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Object invoke(Object spreadsheetResult, Object[] params, IRuntimeEnv env) {
         if (isValueCell() || isConstantCell()) {

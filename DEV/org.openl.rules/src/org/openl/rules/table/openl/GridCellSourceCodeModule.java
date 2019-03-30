@@ -70,15 +70,18 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
         return table.getCell(column, row);
     }
 
+    @Override
     public InputStream getByteStream() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Reader getCharacterStream() {
 
         return new FastStringReader(getCode());
     }
 
+    @Override
     public String getCode() {
         if (code == null) {
             initCode();
@@ -98,10 +101,12 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
         return "Cell";
     }
 
+    @Override
     public int getStartPosition() {
         return 0;
     }
 
+    @Override
     public String getUri() {
         if (uri == null) {
             initUri();
@@ -113,14 +118,17 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
         uri = table.getUri(column, row);
     }
 
+    @Override
     public Map<String, Object> getParams() {
         return params;
     }
 
+    @Override
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
 
+    @Override
     public boolean isModified() {
         return false;
     }

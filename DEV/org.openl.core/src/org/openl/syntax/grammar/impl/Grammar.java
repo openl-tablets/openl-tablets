@@ -22,6 +22,7 @@ public abstract class Grammar implements IGrammar {
      * (non-Javadoc)
      * @see org.openl.syntax.IGrammar#getErrors()
      */
+    @Override
     public SyntaxNodeException[] getErrors() {
 
         return syntaxBuilder.getSyntaxErrors();
@@ -39,6 +40,7 @@ public abstract class Grammar implements IGrammar {
      * (non-Javadoc)
      * @see org.openl.syntax.IGrammar#getTopNode()
      */
+    @Override
     public ISyntaxNode getTopNode() {
 
         return syntaxBuilder.getTopnode();
@@ -48,6 +50,7 @@ public abstract class Grammar implements IGrammar {
      * (non-Javadoc)
      * @see org.openl.syntax.IGrammar#setModule(org.openl.IOpenSourceCodeModule)
      */
+    @Override
     public void setModule(IOpenSourceCodeModule module) {
 
         syntaxBuilder.setModule(module);

@@ -32,6 +32,7 @@ public class JavaLibraryConfiguration extends AConfigurationElement implements I
      *
      * @see org.openl.newconf.IMethodFactoryConfigurationElement#getFactory()
      */
+    @Override
     public synchronized IOpenLibrary getLibrary(IConfigurableResourceContext cxt) {
         if (library == null) {
             library = new StaticClassLibrary();
@@ -53,6 +54,7 @@ public class JavaLibraryConfiguration extends AConfigurationElement implements I
      *
      * @see org.openl.newconf.IConfigurationElement#validate(org.openl.newconf.IConfigurationContext)
      */
+    @Override
     public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
         ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
     }

@@ -32,10 +32,12 @@ public abstract class AOpenField implements IOpenField {
      *
      * @see org.openl.types.IOpenMember#getDeclaringClass()
      */
+    @Override
     public IOpenClass getDeclaringClass() {
         return null;
     }
 
+    @Override
     public String getDisplayName(int mode) {
         return name;
     }
@@ -45,14 +47,17 @@ public abstract class AOpenField implements IOpenField {
      *
      * @see org.openl.types.IOpenMember#getInfo()
      */
+    @Override
     public IMemberMetaInfo getInfo() {
         return null;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public IOpenClass getType() {
         return type;
     }
@@ -62,6 +67,7 @@ public abstract class AOpenField implements IOpenField {
      *
      * @see org.openl.types.IOpenField#isConst()
      */
+    @Override
     public boolean isConst() {
         return false;
     }
@@ -71,6 +77,7 @@ public abstract class AOpenField implements IOpenField {
      *
      * @see org.openl.types.IOpenField#isReadable()
      */
+    @Override
     public boolean isReadable() {
         return true;
     }
@@ -80,6 +87,7 @@ public abstract class AOpenField implements IOpenField {
      *
      * @see org.openl.types.IOpenMember#isStatic()
      */
+    @Override
     public boolean isStatic() {
         return false;
     }
@@ -89,6 +97,7 @@ public abstract class AOpenField implements IOpenField {
      *
      * @see org.openl.types.IOpenField#isWritable()
      */
+    @Override
     public boolean isWritable() {
         return false;
     }

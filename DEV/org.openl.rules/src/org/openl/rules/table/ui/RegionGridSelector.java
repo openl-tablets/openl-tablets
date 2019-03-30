@@ -34,6 +34,7 @@ public class RegionGridSelector implements IGridSelector {
         return false;
     }
 
+    @Override
     public boolean selectCoords(int col, int row) {
         return contains(col, row) ^ exclude;
     }

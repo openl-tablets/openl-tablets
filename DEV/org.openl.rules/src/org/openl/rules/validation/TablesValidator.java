@@ -31,6 +31,7 @@ public abstract class TablesValidator implements IOpenLValidator {
         }
     }
 
+    @Override
     public ValidationResult validate(OpenL openl, IOpenClass openClass) {
 
         if (openClass instanceof XlsModuleOpenClass) {

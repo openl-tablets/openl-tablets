@@ -43,6 +43,7 @@ public class JavaImportTypeConfiguration extends AConfigurationElement implement
         }   
     }
 
+    @Override
     public synchronized ITypeLibrary getLibrary(IConfigurableResourceContext cxt) {
         if (library == null) {
             library = new JavaImportTypeLibrary(packages.toArray(new String[]{}), classes.toArray(new String[]{}), cxt.getClassLoader());
@@ -50,6 +51,7 @@ public class JavaImportTypeConfiguration extends AConfigurationElement implement
         return library;
     }
 
+    @Override
     public void validate(IConfigurableResourceContext cxt) {
     }
 

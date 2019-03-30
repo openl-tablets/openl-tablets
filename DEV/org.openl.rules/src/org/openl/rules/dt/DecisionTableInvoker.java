@@ -22,6 +22,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
         super(decisionTable);
     }
 
+    @Override
     public boolean canInvoke() {
         return getInvokableMethod().getAlgorithm() != null;
     }

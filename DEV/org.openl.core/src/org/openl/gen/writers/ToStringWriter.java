@@ -62,6 +62,7 @@ public class ToStringWriter extends MethodWriter {
         super(beanNameWithPackage, allFields);
     }
 
+    @Override
     public void write(ClassWriter classWriter) {
         MethodVisitor methodVisitor;
         methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "toString", "()Ljava/lang/String;", null, null);

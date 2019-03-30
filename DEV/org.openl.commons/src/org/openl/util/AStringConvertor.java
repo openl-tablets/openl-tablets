@@ -13,6 +13,7 @@ package org.openl.util;
  */
 public abstract class AStringConvertor<T> implements IConvertor<T, String> {
 
+    @Override
     public String convert(T obj) {
         return getStringValue(obj);
     }

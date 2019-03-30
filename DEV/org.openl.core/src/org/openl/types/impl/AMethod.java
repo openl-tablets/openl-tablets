@@ -22,6 +22,7 @@ public abstract class AMethod implements IOpenMethod, IModuleInfo {
     
     private String dependencyName;
     
+    @Override
     public String getModuleName() {
         return dependencyName;
     }
@@ -34,10 +35,12 @@ public abstract class AMethod implements IOpenMethod, IModuleInfo {
         this.header = header;
     }
 
+    @Override
     public IOpenClass getDeclaringClass() {
         return header.getDeclaringClass();
     }
 
+    @Override
     public String getDisplayName(int mode) {
         return MethodUtil.printSignature(this, mode);
     }
@@ -46,26 +49,32 @@ public abstract class AMethod implements IOpenMethod, IModuleInfo {
         return header;
     }
 
+    @Override
     public IMemberMetaInfo getInfo() {
         return header.getInfo();
     }
 
+    @Override
     public IOpenMethod getMethod() {
         return this;
     }
 
+    @Override
     public String getName() {
         return header.getName();
     }
 
+    @Override
     public IMethodSignature getSignature() {
         return header.getSignature();
     }
 
+    @Override
     public IOpenClass getType() {
         return header.getType();
     }
 
+    @Override
     public boolean isStatic() {
         return header.isStatic();
     }

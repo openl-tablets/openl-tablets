@@ -17,15 +17,18 @@ public class SingleValueExplanation<T extends ExplanationNumberValue<T>> impleme
 
     private IMetaInfo metaInfo;
 
+    @Override
     public IMetaInfo getMetaInfo() {
         return metaInfo;
     }
 
+    @Override
     public void setMetaInfo(IMetaInfo info) {
         metaInfo = info;
 
     }
 
+    @Override
     public String getDisplayName(int mode) {
         if (mode == SHORT) {
             return printValue();
@@ -35,6 +38,7 @@ public class SingleValueExplanation<T extends ExplanationNumberValue<T>> impleme
         }
     }
 
+    @Override
     public String getName() {
         if (metaInfo == null) {
             return null;
@@ -43,10 +47,12 @@ public class SingleValueExplanation<T extends ExplanationNumberValue<T>> impleme
         return metaInfo.getDisplayName(IMetaInfo.LONG);
     }
 
+    @Override
     public String printValue() {
         return getName();
     }
 
+    @Override
     public void setFullName(String name) {
         if (metaInfo == null) {
             metaInfo = new ValueMetaInfo();
@@ -56,6 +62,7 @@ public class SingleValueExplanation<T extends ExplanationNumberValue<T>> impleme
         }
     }
 
+    @Override
     public void setName(String name) {
         if (metaInfo == null) {
             metaInfo = new ValueMetaInfo();
@@ -65,14 +72,17 @@ public class SingleValueExplanation<T extends ExplanationNumberValue<T>> impleme
         }
     }
 
+    @Override
     public Iterable<? extends ITreeElement<T>> getChildren() {
         return Collections.EMPTY_LIST;
     }
 
+    @Override
     public boolean isLeaf() {
         return true;
     }
 
+    @Override
     public String getType() {
         return "value";
     }
@@ -80,6 +90,7 @@ public class SingleValueExplanation<T extends ExplanationNumberValue<T>> impleme
     /**
      * default implementation. right implementation should be in the object that will be shown.
      */
+    @Override
     public T getObject() {
         throw new UnsupportedOperationException("Should be overriden in childs");
     }

@@ -30,30 +30,37 @@ public class Condition extends FunctionalRow implements ICondition {
         super(name, row, table, scale);
     }
 
+    @Override
     public IConditionEvaluator getConditionEvaluator() {
         return conditionEvaluator;
     }
 
+    @Override
     public void setConditionEvaluator(IConditionEvaluator conditionEvaluator) {
         this.conditionEvaluator = conditionEvaluator;
     }
 
+    @Override
     public boolean isAction() {
         return false;
     }
 
+    @Override
     public boolean isCondition() {
         return true;
     }
 
+    @Override
     public IMethodCaller getEvaluator() {
         return evaluator == null ? getMethod() : evaluator;
     }
 
+    @Override
     public void setEvaluator(IMethodCaller evaluator) {
         this.evaluator = evaluator;
     }
     
+    @Override
     public DecisionValue calculateCondition(int ruleN, Object target, Object[] dtParams, IRuntimeEnv env) {
         if (target instanceof IDynamicObject) {
             target = new RuleExecutionObject(ruleExecutionType, (IDynamicObject) target, ruleN);
@@ -90,6 +97,7 @@ public class Condition extends FunctionalRow implements ICondition {
         return f;
     }
 
+    @Override
     public boolean isDependentOnAnyParams() {
 
         IParameterDeclaration[] params = getParams();
@@ -114,6 +122,7 @@ public class Condition extends FunctionalRow implements ICondition {
         return false;
     }
 
+    @Override
     protected IOpenSourceCodeModule getExpressionSource(IBindingContext bindingContext,
             OpenL openl,
             IOpenClass declaringClass,

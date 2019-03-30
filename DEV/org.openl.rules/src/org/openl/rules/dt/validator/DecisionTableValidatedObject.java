@@ -54,14 +54,17 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         return domainMap;
     }
 
+    @Override
     public IDecisionTable getDecisionTable() {
         return decisionTable;
     }
 
+    @Override
     public IConditionSelector getSelector() {
         return null;
     }
 
+    @Override
     public IConditionTransformer getTransformer() {
         return this;
     }
@@ -83,6 +86,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         return new HashMap<String, IDomainAdaptor>();
     }
 
+    @Override
     public IntVar makeSignatureVar(String parameterName, IOpenClass paramType, Constrainer constrainer) {
         IDomainAdaptor domain = getDomains().get(parameterName);
         if (domain == null) {
@@ -103,6 +107,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
     }
 
+    @Override
     public IOpenClass transformParameterType(IParameterDeclaration parameterDeclaration) { 
 
         Class<?> instanceClass = parameterDeclaration.getType().getInstanceClass();
@@ -130,6 +135,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         return null;
     }
         
+    @Override
     public Object transformLocalParameterValue(String name, IBaseCondition condition, Object value, DecisionTableAnalyzer dtan) {
         
         if (value != null && value.getClass().isArray())
@@ -175,6 +181,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         return result;
     }
 
+    @Override
     public IOpenClass transformSignatureType(IParameterDeclaration parameterDeclaration) {
 
         Class<?> instanceClass = parameterDeclaration.getType().getInstanceClass();
@@ -197,6 +204,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         return null;
     }
 
+    @Override
     public Object transformSignatureValueBack(String name, int intValue, DecisionTableAnalyzer dtAnalyzer) {        
         Object result = intValue;
         
@@ -227,6 +235,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
     
     
+    @Override
     public boolean isOverrideAscending() {
         //1. if return type is void, return false
         if (decisionTable.getMethod().getType() == JavaOpenClass.VOID)

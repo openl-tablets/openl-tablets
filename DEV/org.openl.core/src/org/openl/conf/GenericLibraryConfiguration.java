@@ -26,6 +26,7 @@ public class GenericLibraryConfiguration extends AGenericConfiguration implement
      *
      * @see org.openl.conf.IMethodFactoryConfigurationElement#getLibrary(org.openl.conf.IConfigurableResourceContext)
      */
+    @Override
     public synchronized IOpenLibrary getLibrary(IConfigurableResourceContext cxt) {
 
         if (library == null) {

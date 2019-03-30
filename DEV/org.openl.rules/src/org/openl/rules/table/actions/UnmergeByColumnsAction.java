@@ -21,6 +21,7 @@ public class UnmergeByColumnsAction implements IUndoableGridTableAction {
         this.region = region;
     }
 
+    @Override
     public void doAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
         createdRegions = new ArrayList<>();
@@ -42,6 +43,7 @@ public class UnmergeByColumnsAction implements IUndoableGridTableAction {
         }
     }
 
+    @Override
     public void undoAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
         for (IGridRegion region : createdRegions) {

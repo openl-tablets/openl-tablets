@@ -64,6 +64,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
         return DynamicArrayAggregateInfo.aggregateInfo;
     }
 
+    @Override
     public synchronized Iterable<IOpenClass> superClasses() {
         if (superClasses == null) {
             Class<?>[] interfaces = SpreadsheetResult.class.getInterfaces();

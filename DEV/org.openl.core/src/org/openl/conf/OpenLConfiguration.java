@@ -50,6 +50,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     private Map<String, IOpenFactoryConfiguration> openFactories = null;
 
+    @Override
     public synchronized void addOpenFactory(IOpenFactoryConfiguration opfc) {
         if (openFactories == null) {
             openFactories = new HashMap<>();
@@ -75,6 +76,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
      * @see org.openl.binding.ICastFactory#getCast(java.lang.String,
      * org.openl.types.IOpenClass, org.openl.types.IOpenClass)
      */
+    @Override
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {
         IOpenCast cast = typeCastFactory == null ? null : typeCastFactory.getCast(from, to, configurationContext);
         if (cast != null) {
@@ -142,10 +144,12 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return closestClass;
     }
 
+    @Override
     public IConfigurableResourceContext getConfigurationContext() {
         return configurationContext;
     }
 
+    @Override
     public synchronized IGrammar getGrammar() {
         if (grammarFactory == null) {
             return parent.getGrammar();
@@ -158,6 +162,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return grammarFactory;
     }
 
+    @Override
     public IMethodCaller getMethodCaller(String namespace,
             String name,
             IOpenClass[] params,
@@ -168,6 +173,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return MethodSearch.findMethod(name, params, casts, Arrays.asList(mcs));
     }
 
+    @Override
     public IOpenMethod[] getMethods(String namespace, String name) {
         IOpenMethod[] mcs = methodFactory == null ? new IOpenMethod[] {}
                                                   : methodFactory.getMethods(namespace, name, configurationContext);
@@ -213,6 +219,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return methodFactory;
     }
 
+    @Override
     public INodeBinder getNodeBinder(ISyntaxNode node) {
         INodeBinder binder = binderFactory == null ? null : binderFactory.getNodeBinder(node, configurationContext);
         if (binder != null) {
@@ -223,6 +230,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     Map<String, Map<String, IOpenClass>> cache = new HashMap<>();
 
+    @Override
     public IOpenClass getType(String namespace, String name) {
         Map<String, IOpenClass> namespaceCache = cache.computeIfAbsent(namespace, e -> new HashMap<>());
         if (namespaceCache.containsKey(name)) {
@@ -258,6 +266,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return uri;
     }
 
+    @Override
     public IOpenField getVar(String namespace, String name, boolean strictMatch) {
         IOpenField field = methodFactory == null ? null
                                                  : methodFactory

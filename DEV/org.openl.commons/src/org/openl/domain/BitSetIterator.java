@@ -41,6 +41,7 @@ public class BitSetIterator extends AIntIterator {
      * @since 1.4
      */
 
+    @Override
     public boolean hasNext() {
         if (!isNextReady) {
             nextBit = bits.nextSetBit(nextBit + 1);
@@ -54,6 +55,7 @@ public class BitSetIterator extends AIntIterator {
      *
      */
 
+    @Override
     public int nextInt() {
         if (!isNextReady) {
             nextBit = bits.nextSetBit(nextBit + 1);

@@ -20,14 +20,17 @@ public class TextInterval implements ILocation {
         this.end = end;
     }
 
+    @Override
     public IPosition getEnd() {
         return end;
     }
 
+    @Override
     public IPosition getStart() {
         return start;
     }
 
+    @Override
     public boolean isTextLocation() {
         return true;
     }

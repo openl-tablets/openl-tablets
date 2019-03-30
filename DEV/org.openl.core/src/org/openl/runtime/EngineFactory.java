@@ -147,6 +147,7 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
         }
     }
 
+    @Override
     public CompiledOpenClass getCompiledOpenClass() {
         if (compiledOpenClass == null) {
             compiledOpenClass = initializeOpenClass();

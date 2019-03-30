@@ -15,6 +15,7 @@ public abstract class DependencyManager implements IDependencyManager {
     
     private Map<String, CompiledDependency> compiledDependencies = new HashMap<>();  
     
+    @Override
     public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
 
         String dependencyName = dependency.getNode().getIdentifier();
@@ -35,6 +36,7 @@ public abstract class DependencyManager implements IDependencyManager {
         return compiledDependency;
     }
 
+    @Override
     public void reset(IDependency dependency) {
         String dependencyName = dependency.getNode().getIdentifier();
         if (compiledDependencies.containsKey(dependencyName)) {
@@ -42,6 +44,7 @@ public abstract class DependencyManager implements IDependencyManager {
         }
     }
 
+    @Override
     public void resetAll() {
     	compiledDependencies.clear();
     }
@@ -56,6 +59,7 @@ public abstract class DependencyManager implements IDependencyManager {
         this.executionMode = executionMode;
     }
 
+    @Override
     public boolean isExecutionMode() {
         return executionMode;
     }

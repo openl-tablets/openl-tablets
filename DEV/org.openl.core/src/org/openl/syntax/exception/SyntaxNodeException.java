@@ -21,6 +21,7 @@ public class SyntaxNodeException extends OpenLCompilationException {
         this.syntaxNode = syntaxNode;
     }
 
+    @Override
     public IOpenSourceCodeModule getSourceModule() {
 
         IOpenSourceCodeModule source = super.getSourceModule();

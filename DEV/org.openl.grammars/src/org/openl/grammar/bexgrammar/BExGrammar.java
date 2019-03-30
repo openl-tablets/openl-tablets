@@ -61,7 +61,8 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar implements BEx
     pos(line, col));
   }
 
-  public void parseTopNode(String type)
+  @Override
+public void parseTopNode(String type)
   {
     try
     {
@@ -7715,7 +7716,8 @@ syntaxBuilder.uop("block.top", null);
   }
 
   /** Reinitialise. */
-  public void ReInit(java.io.Reader stream) {
+  @Override
+public void ReInit(java.io.Reader stream) {
 	if (jj_input_stream == null) {
 	   jj_input_stream = new SimpleCharStream(stream, 1, 1);
 	} else {

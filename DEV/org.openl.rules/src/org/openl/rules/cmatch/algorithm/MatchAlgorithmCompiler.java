@@ -162,6 +162,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         }
     }
 
+    @Override
     public void compile(IBindingContext bindingContext, ColumnMatch columnMatch) throws SyntaxNodeException {
         int minRows = getSpecialRowCount() + 1;
         if (columnMatch.getRows().size() < minRows) {

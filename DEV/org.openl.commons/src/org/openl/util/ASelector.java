@@ -17,6 +17,7 @@ public abstract class ASelector<T> implements ISelector<T> {
             super(sel1, sel2);
         }
 
+        @Override
         public boolean select(T obj) {
             if (sel1.select(obj)) {
                 return sel2.select(obj);
@@ -73,6 +74,7 @@ public abstract class ASelector<T> implements ISelector<T> {
             return is.hashCode();
         }
 
+        @Override
         public boolean select(T obj) {
             return !is.select(obj);
         }
@@ -96,6 +98,7 @@ public abstract class ASelector<T> implements ISelector<T> {
             return myobj == null ? 0 : myobj.hashCode();
         }
 
+        @Override
         public boolean select(T obj) {
             if (myobj == obj) {
                 return true;
@@ -113,6 +116,7 @@ public abstract class ASelector<T> implements ISelector<T> {
             super(sel1, sel2);
         }
 
+        @Override
         public boolean select(T obj) {
             if (sel1.select(obj)) {
                 return true;
@@ -141,6 +145,7 @@ public abstract class ASelector<T> implements ISelector<T> {
             return value.hashCode() * 37 + convertor.hashCode();
         }
 
+        @Override
         public boolean select(T obj) {
             return value.equals(convertor.getStringValue(obj));
         }
@@ -151,6 +156,7 @@ public abstract class ASelector<T> implements ISelector<T> {
             super(sel1, sel2);
         }
 
+        @Override
         public boolean select(T obj) {
             return sel1.select(obj) ^ sel2.select(obj);
         }
@@ -160,6 +166,7 @@ public abstract class ASelector<T> implements ISelector<T> {
         return new ObjectSelector<T>(obj);
     }
 
+    @Override
     public ISelector<T> and(ISelector<T> isel) {
         return new ANDSelector<T>(this, isel);
     }
@@ -182,10 +189,12 @@ public abstract class ASelector<T> implements ISelector<T> {
         return redefinedHashCode();
     }
 
+    @Override
     public ISelector<T> not() {
         return new NOTSelector<T>(this);
     }
 
+    @Override
     public ISelector<T> or(ISelector<T> isel) {
         return new ORSelector<T>(this, isel);
     }
@@ -194,6 +203,7 @@ public abstract class ASelector<T> implements ISelector<T> {
         return System.identityHashCode(this);
     }
 
+    @Override
     public ISelector<T> xor(ISelector<T> isel) {
         return new XORSelector<T>(this, isel);
     }

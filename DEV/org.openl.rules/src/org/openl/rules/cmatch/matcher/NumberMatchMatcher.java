@@ -13,6 +13,7 @@ public class NumberMatchMatcher implements IMatcher {
         this.rangeClass = rangeClass;
     }
 
+    @Override
     public Object fromString(String checkValue) {
         if (checkValue.length() == 0) {
             return null;
@@ -39,6 +40,7 @@ public class NumberMatchMatcher implements IMatcher {
         return directClass;
     }
 
+    @Override
     public boolean match(Object var, Object checkValue) {
         if (checkValue == null) {
             return false;

@@ -64,6 +64,7 @@ public class DataTableUserDefinedTypeField extends DataTableField {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected List<DataTableField> getAvailableFields() {
         if (availableFields == null) {
             List<DataTableField> list = new ArrayList<>();
@@ -93,6 +94,7 @@ public class DataTableUserDefinedTypeField extends DataTableField {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isComplex() {
         return !getType().isSimple() && !getType().isArray() && !predefinedChecker.isPredefined(getType());
     }

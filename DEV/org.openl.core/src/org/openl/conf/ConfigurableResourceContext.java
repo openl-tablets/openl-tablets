@@ -54,6 +54,7 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
         this.properties = properties;
     }
 
+    @Override
     public Class<?> findClass(String className) {
         try {
             return getClassLoader().loadClass(className);
@@ -63,10 +64,12 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
         }
     }
 
+    @Override
     public URL findClassPathResource(String url) {
         return getClassLoader().getResource(url);
     }
 
+    @Override
     public File findFileSystemResource(String url) {
         File file = new File(url);
 
@@ -91,6 +94,7 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
      * org.openl.conf.IConfigurableResourceContext#findProperty(java.lang.String
      * )
      */
+    @Override
     public String findProperty(String propertyName) {
 
         String property = null;
@@ -106,6 +110,7 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
         return System.getProperty(propertyName);
     }
 
+    @Override
     public ClassLoader getClassLoader() {
 
         if (classLoader == null) {
@@ -120,6 +125,7 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
      * 
      * @see org.openl.conf.IConfigurableResourceContext#getConfiguration()
      */
+    @Override
     public IOpenLConfiguration getConfiguration() {
         return config;
     }

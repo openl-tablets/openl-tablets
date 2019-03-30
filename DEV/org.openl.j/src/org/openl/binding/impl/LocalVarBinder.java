@@ -43,6 +43,7 @@ public class LocalVarBinder extends ANodeBinder {
         return new LocalVarDeclarationNode(node, init == null ? null : new IBoundNode[] { init }, var);
     }
 
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         IBoundNode typeNode = bindChildNode(node.getChild(0), bindingContext);

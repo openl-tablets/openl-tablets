@@ -57,6 +57,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         return res;
     }
 
+    @Override
     public Object getFieldValue(String name) {
 
         IOpenField field = spreadsheet.getSpreadsheetType().getField(name);
@@ -73,6 +74,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         return getValue(row, column);
     }
 
+    @Override
     public Map<String, Object> getFieldValues() {
         throw new UnsupportedOperationException("Should not be called, this is only used in NicePrinter");
     }
@@ -85,6 +87,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         return spreadsheet;
     }
 
+    @Override
     public IOpenClass getType() {
         return spreadsheet.getSpreadsheetType();
     }
@@ -116,6 +119,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         return spreadsheet.getHeight();
     }
 
+    @Override
     public void setFieldValue(String name, Object value) {
         targetModule.setFieldValue(name, value);
     }

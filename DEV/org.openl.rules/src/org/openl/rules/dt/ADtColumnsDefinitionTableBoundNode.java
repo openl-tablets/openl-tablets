@@ -63,6 +63,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         this.tableName = tableName;
     }
 
+    @Override
     public void addTo(ModuleOpenClass openClass) {
         this.xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
     }
@@ -106,10 +107,12 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         return new ParameterDeclaration(type, name);
     }
 
+    @Override
     public IOpenClass getType() {
         return JavaOpenClass.VOID;
     }
 
+    @Override
     public void removeDebugInformation(IBindingContext cxt) {
     }
     
@@ -162,6 +165,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         return ArrayUtils.toPrimitive(t.toArray(new Integer[] {}));
     }
     
+    @Override
     public void finalizeBind(IBindingContext cxt) throws Exception {
         TableSyntaxNode tsn = getTableSyntaxNode();
         ILogicalTable tableBody = tsn.getTableBody();

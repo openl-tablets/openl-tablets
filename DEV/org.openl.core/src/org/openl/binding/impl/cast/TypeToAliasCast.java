@@ -34,6 +34,7 @@ final class TypeToAliasCast implements IOpenCast {
         distance = typeCast.getDistance() - 1;// This cast has higher priority
     }
 
+    @Override
     public Object convert(Object from) {
         if (typeCast != null) {
             from = typeCast.convert(from);
@@ -68,10 +69,12 @@ final class TypeToAliasCast implements IOpenCast {
         return from;
     }
 
+    @Override
     public int getDistance() {
         return distance;
     }
 
+    @Override
     public boolean isImplicit() {
         return true;
     }

@@ -19,6 +19,7 @@ public class ActionsTableBinder extends ADtColumnsDefinitionTableBinder {
         super(DEFAULT_TABLE_NAME_PREFIX);
     }
 
+    @Override
     protected ADtColumnsDefinitionTableBoundNode makeNode(TableSyntaxNode tsn,
             XlsModuleOpenClass module,
             OpenL openl,

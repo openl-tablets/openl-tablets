@@ -18,6 +18,7 @@ public class EnumDomainCollector implements IDomainCollector {
         this.propertyToSearch = propertyToSearch;
     }
     
+    @Override
     public void gatherDomains(Map<String, Object> methodProperties) {        
         if (methodProperties != null) {
             Object propvalue = methodProperties.get(propertyToSearch);
@@ -27,6 +28,7 @@ public class EnumDomainCollector implements IDomainCollector {
         }        
     }
     
+    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public IDomainAdaptor getGatheredDomain() {
         IDomainAdaptor result = null;

@@ -17,6 +17,7 @@ public class SetAlignmentAction extends AUndoableCellAction {
         this.newAlignment = alignment;
     }
 
+    @Override
     public void doAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
 
@@ -26,6 +27,7 @@ public class SetAlignmentAction extends AUndoableCellAction {
         grid.setCellAlignment(getCol(), getRow(), newAlignment);
     }
 
+    @Override
     public void undoAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
         grid.setCellAlignment(getCol(), getRow(), prevAlignment);

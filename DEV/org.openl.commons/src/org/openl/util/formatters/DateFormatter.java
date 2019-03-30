@@ -52,6 +52,7 @@ public class DateFormatter implements IFormatter {
         }
     }
 
+    @Override
     public String format(Object value) {
         if (!(value instanceof Date)) {
             log.debug("Should be Date: {}", value);
@@ -61,6 +62,7 @@ public class DateFormatter implements IFormatter {
         return format.format(value);
     }
 
+    @Override
     public Object parse(String value) {
         if (value == null) {
             return null;

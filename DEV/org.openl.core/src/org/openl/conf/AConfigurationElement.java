@@ -13,6 +13,7 @@ package org.openl.conf;
 public abstract class AConfigurationElement implements IConfigurationElement {
     private String uri;
 
+    @Override
     public String getUri() {
         return uri;
     }

@@ -25,6 +25,7 @@ public class JavaNoAggregateInfo extends AAggregateInfo {
      *
      * @see org.openl.types.IAggregateInfo#getComponentType(org.openl.types.IOpenClass)
      */
+    @Override
     public IOpenClass getComponentType(IOpenClass aggregateType) {
         return null;
     }
@@ -34,6 +35,7 @@ public class JavaNoAggregateInfo extends AAggregateInfo {
      *
      * @see org.openl.types.IAggregateInfo#getIndex(org.openl.types.IOpenClass)
      */
+    @Override
     public IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType) {
         return null;
     }
@@ -43,6 +45,7 @@ public class JavaNoAggregateInfo extends AAggregateInfo {
      *
      * @see org.openl.types.IAggregateInfo#getIterator(java.lang.Object)
      */
+    @Override
     public Iterator<Object> getIterator(Object aggregate) {
         return null;
     }
@@ -52,6 +55,7 @@ public class JavaNoAggregateInfo extends AAggregateInfo {
      *
      * @see org.openl.types.IAggregateInfo#isAggregate()
      */
+    @Override
     public boolean isAggregate(IOpenClass type) {
         return false;
     }

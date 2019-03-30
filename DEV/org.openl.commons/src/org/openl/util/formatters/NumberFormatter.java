@@ -40,6 +40,7 @@ public class NumberFormatter implements IFormatter {
         this(new DecimalFormat(format, createDecimalFormatSymbols(locale)));
     }
 
+    @Override
     public String format(Object value) {
         if (!(value instanceof Number)) {
             log.debug("Should be Number: {}", value);
@@ -48,6 +49,7 @@ public class NumberFormatter implements IFormatter {
         return format.format(value);
     }
 
+    @Override
     public Object parse(String value) {
         if (value == null) {
             return null;

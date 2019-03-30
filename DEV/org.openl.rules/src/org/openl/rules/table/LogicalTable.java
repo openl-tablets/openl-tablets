@@ -37,14 +37,17 @@ public class LogicalTable extends ALogicalTable {
             this.rowOffset = rowOffset;
     }
 
+    @Override
     public int getWidth() {
         return columnOffset.length - 1;
     }
 
+    @Override
     public int getHeight() {
         return rowOffset.length - 1;
     }
 
+    @Override
     public int findColumnStart(int gridOffset) throws TableException {
         for (int i = 0; i < columnOffset.length - 1; i++) {
             if (columnOffset[i] == gridOffset) {
@@ -57,6 +60,7 @@ public class LogicalTable extends ALogicalTable {
         throw new TableException("gridOffset is higher than table's width");
     }
 
+    @Override
     public int findRowStart(int gridOffset) throws TableException {
         for (int i = 0; i < rowOffset.length - 1; i++) {
             if (rowOffset[i] == gridOffset) {
@@ -69,14 +73,17 @@ public class LogicalTable extends ALogicalTable {
         throw new TableException("gridOffset is higher than table's height");
     }
 
+    @Override
     public int getColumnWidth(int column) {
         return columnOffset[column + 1] - columnOffset[column];
     }
 
+    @Override
     public int getRowHeight(int row) {
         return rowOffset[row + 1] - rowOffset[row];
     }
 
+    @Override
     public ILogicalTable getSubtable(int column, int row, int width, int height) {
         if (width == 0 || height == 0) {
             return null;

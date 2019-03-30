@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.openl.binding.exception.AmbiguousTypeException;
 import org.openl.conf.ClassFactory;
 import org.openl.types.IOpenClass;
 import org.openl.types.ITypeLibrary;
@@ -57,6 +56,7 @@ public class JavaImportTypeLibrary implements ITypeLibrary {
         return loader;
     }
 
+    @Override
     public synchronized IOpenClass getType(String typename) {
 
         IOpenClass oc = aliases.get(typename);

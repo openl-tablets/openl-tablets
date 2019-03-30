@@ -17,22 +17,27 @@ public class SingleCellGridTable extends AGridTableDecorator {
     }
 
 
+    @Override
     public int getGridColumn(int col, int row) {
         return table.getGridColumn(fromColumn + col, fromRow + row);
     }
 
+    @Override
     public int getGridRow(int col, int row) {
         return table.getGridRow(fromColumn + col, fromRow + row);
     }
 
+    @Override
     public int getHeight() {
         return 1;
     }
 
+    @Override
     public int getWidth() {
         return 1;
     }
 
+    @Override
     public boolean isNormalOrientation() {
         return table.isNormalOrientation();
     }

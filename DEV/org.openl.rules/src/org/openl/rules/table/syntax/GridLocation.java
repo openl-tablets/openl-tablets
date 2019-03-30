@@ -28,14 +28,17 @@ public class GridLocation implements ILocation {
             table.getGrid());
     }
 
+    @Override
     public IPosition getEnd() {
         return end;
     }
 
+    @Override
     public IPosition getStart() {
         return start;
     }
 
+    @Override
     public boolean isTextLocation() {
         return false;
     }

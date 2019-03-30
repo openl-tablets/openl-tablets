@@ -30,34 +30,42 @@ public class StringSourceCodeModule implements IOpenSourceCodeModule {
         this.uri = uri;
     }
 
+    @Override
     public InputStream getByteStream() {
         return new ByteArrayInputStream(code.getBytes());
     }
 
+    @Override
     public Reader getCharacterStream() {
         return new FastStringReader(code);
     }
 
+    @Override
     public String getCode() {
         return code;
     }
 
+    @Override
     public int getStartPosition() {
         return 0;
     }
 
+    @Override
     public String getUri() {
         return uri;
     }
 
+    @Override
     public Map<String, Object> getParams() {
         return params;
     }
 
+    @Override
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
 
+    @Override
     public boolean isModified() {
         return false;
     }

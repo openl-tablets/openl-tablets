@@ -50,6 +50,7 @@ public class TableMethod extends ExecutableRulesMethod {
         return (MethodTableBoundNode) getBoundNode();
     }
 
+    @Override
     protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
         if (invoker == null) {
             // create new instance of invoker.
@@ -58,6 +59,7 @@ public class TableMethod extends ExecutableRulesMethod {
         return invoker.invoke(target, params, env);
     }
 
+    @Override
     public BindingDependencies getDependencies() {
 
         BindingDependencies bindingDependencies = new RulesBindingDependencies();
@@ -66,6 +68,7 @@ public class TableMethod extends ExecutableRulesMethod {
         return bindingDependencies;
     }
 
+    @Override
     public String getSourceUrl() {
         return getSyntaxNode().getUri();
     }

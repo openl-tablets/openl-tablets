@@ -20,22 +20,27 @@ public class DateRangeDomainAdaptor implements IDomainAdaptor {
         this.domain = domain;
     }
 
+    @Override
     public int getIndex(Object value) {
         return domain.getIndex((Date) value);
     }
 
+    @Override
     public int getIntVarDomainType() {
         return IntVar.DOMAIN_PLAIN;
     }
 
+    @Override
     public int getMax() {
         return domain.getIndex(domain.getMax());
     }
 
+    @Override
     public int getMin() {
         return 0;
     }
 
+    @Override
     public Object getValue(int index) {
         return domain.getValue(index);
     }
@@ -45,6 +50,7 @@ public class DateRangeDomainAdaptor implements IDomainAdaptor {
         return "[" + getMin() + ";" + getMax() + "]";
     }
 
+    @Override
     public IDomainAdaptor merge(IDomainAdaptor adaptor) {
         DateRangeDomainAdaptor a = (DateRangeDomainAdaptor)adaptor;
         

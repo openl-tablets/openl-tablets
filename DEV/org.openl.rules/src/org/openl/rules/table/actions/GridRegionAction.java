@@ -26,6 +26,7 @@ public class GridRegionAction implements IUndoableGridTableAction {
         this.nRowsOrColumns = nRowsOrColumns;
     }
 
+    @Override
     public void doAction(IGridTable table) {
         switch (actionType) {
             case EXPAND:
@@ -37,6 +38,7 @@ public class GridRegionAction implements IUndoableGridTableAction {
         }
     }
 
+    @Override
     public void undoAction(IGridTable table) {
         switch (actionType) {
             case EXPAND:

@@ -18,48 +18,59 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public abstract class ArrayLengthOpenField implements IOpenField {
+    @Override
     public Object get(Object target, IRuntimeEnv env) {
         return getLength(target);
     }
 
+    @Override
     public IOpenClass getDeclaringClass() {
         return NullOpenClass.the;
     }
 
+    @Override
     public String getDisplayName(int mode) {
         return getName();
     }
 
+    @Override
     public IMemberMetaInfo getInfo() {
         return null;
     }
 
     public abstract int getLength(Object target);
 
+    @Override
     public String getName() {
         return "length";
     }
 
+    @Override
     public IOpenClass getType() {
         return JavaOpenClass.INT;
     }
 
+    @Override
     public boolean isConst() {
         return true;
     }
 
+    @Override
     public boolean isReadable() {
         return true;
     }
 
+    @Override
     public boolean isStatic() {
         return false;
     }
 
+    @Override
     public boolean isWritable() {
         return false;
     }
 
+    @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         throw new UnsupportedOperationException();
     }

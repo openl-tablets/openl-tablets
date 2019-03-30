@@ -23,6 +23,7 @@ public class RegionsPool {
             this.right = right;
         }
 
+        @Override
         public int compareTo(DisjointInterval o) {
             if (right < o.left) {
                 return -1;

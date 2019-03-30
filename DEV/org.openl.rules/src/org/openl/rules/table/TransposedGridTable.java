@@ -14,22 +14,27 @@ public class TransposedGridTable extends AGridTableDecorator {
         this.isNormalOrientation = !table.isNormalOrientation();
     }
 
+    @Override
     public int getGridColumn(int column, int row) {
         return table.getGridColumn(row, column);
     }
 
+    @Override
     public int getHeight() {
         return table.getWidth();
     }
 
+    @Override
     public int getGridRow(int column, int row) {
         return table.getGridRow(row, column);
     }
 
+    @Override
     public int getWidth() {
         return table.getHeight();
     }
 
+    @Override
     public boolean isNormalOrientation() {
         return isNormalOrientation;
     }

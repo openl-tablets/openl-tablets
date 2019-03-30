@@ -10,6 +10,7 @@ import org.openl.syntax.ISyntaxNode;
  */
 public class WhileNodeBinder extends ANodeBinder {
 
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         IBoundNode[] children = bindChildren(node, bindingContext);

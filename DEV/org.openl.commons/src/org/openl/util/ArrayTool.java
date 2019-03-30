@@ -17,14 +17,17 @@ public class ArrayTool {
             _array = array;
         }
 
+        @Override
         public boolean hasNext() {
             return _index < _size;
         }
 
+        @Override
         public T next() {
             return _array[_index++];
         }
 
+        @Override
         public void remove() {
             throw new UnsupportedOperationException("Should not be called");
         }

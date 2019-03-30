@@ -65,6 +65,7 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
         namespace = string;
     }
 
+    @Override
     public void validate(IConfigurableResourceContext cxt) {
         for (IMethodFactoryConfigurationElement factory : factories) {
             factory.validate(cxt);

@@ -26,10 +26,12 @@ public class TestUnitsResults implements INamedThing {
         return testSuite;
     }
 
+    @Override
     public String getName() {
         return testSuite.getDisplayName(INamedThing.SHORT);
     }
 
+    @Override
     public String getDisplayName(int mode) {
         return testSuite.getDisplayName(mode);
     }

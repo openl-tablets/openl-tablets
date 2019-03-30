@@ -25,7 +25,8 @@ public class TypeCastBinder extends ANodeBinder {
 	 * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode,
 	 * org.openl.binding.IBindingContext)
 	 */
-	public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
+	@Override
+    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
 			throws Exception {
 
 		IBoundNode[] children = bindChildren(node, bindingContext);

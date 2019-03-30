@@ -13,6 +13,7 @@ public class ScaleStorageBuilder implements IStorageBuilder {
         this.sb = sb;
     }
 
+    @Override
     public void writeObject(Object loadedValue, int index) {
         sb.writeObject(loadedValue, getStorageIndex(index));
     }
@@ -21,6 +22,7 @@ public class ScaleStorageBuilder implements IStorageBuilder {
         return scale.getActualIndex(index);
     }
 
+    @Override
     public int size() {
         return sb.size() * scale.getMultiplier();
     }

@@ -11,10 +11,12 @@ import org.openl.util.AOpenIterator;
  */
 public abstract class AIntIterator extends AOpenIterator<Integer> implements IIntIterator {
 
-	public Integer next() {
+	@Override
+    public Integer next() {
         return nextInt();
     }
 
+    @Override
     public IIntIterator select(IIntSelector selector) {
         return new IIntSelector.IntSelectIterator(this, selector);
     }

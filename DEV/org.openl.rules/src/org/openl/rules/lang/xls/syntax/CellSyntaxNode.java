@@ -14,10 +14,12 @@ public class CellSyntaxNode extends ASyntaxNode {
         return (GridCellSourceCodeModule) getModule();
     }
 
+    @Override
     public ISyntaxNode getChild(int i) {
         throw new IndexOutOfBoundsException("Cell Syntax Node is terminal node");
     }
 
+    @Override
     public int getNumberOfChildren() {
         return 0;
     }

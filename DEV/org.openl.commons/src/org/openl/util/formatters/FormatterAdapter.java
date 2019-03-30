@@ -12,11 +12,13 @@ import org.openl.util.print.DefaultFormat;
  */
 public class FormatterAdapter implements IFormatter {
 
+    @Override
     public String format(Object obj) {
         StringBuilder buf = new StringBuilder();
         return DefaultFormat.format(obj, buf).toString();
     }
 
+    @Override
     public Object parse(String value) {
         throw new UnsupportedOperationException("Should not be called, this is only to implement IFormatter interface.");
     }

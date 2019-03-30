@@ -9,6 +9,7 @@ package org.openl.syntax.exception.formatter;
  */
 public class IndexOutOfBoundsExceptionFormatter implements ExceptionMessageFormatter {
 
+    @Override
     public String format(Throwable error) {
         if (error instanceof ArrayIndexOutOfBoundsException) {
             return String.format("There is no index %s in the sequence", error.getMessage());

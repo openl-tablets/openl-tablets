@@ -29,6 +29,7 @@ public class UndoableMoveTableAction extends UndoableEditTableAction {
         return newRegion;
     }
 
+    @Override
     public void doAction(IGridTable table) {
         IGridTable fullTable = getOriginalTable(table);
         prevRegion = fullTable.getRegion();
@@ -44,6 +45,7 @@ public class UndoableMoveTableAction extends UndoableEditTableAction {
         }
     }
 
+    @Override
     public void undoAction(IGridTable table) {
         if (newRegion != null) {
             try {

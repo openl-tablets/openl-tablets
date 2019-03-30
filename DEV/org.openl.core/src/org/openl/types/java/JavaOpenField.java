@@ -27,6 +27,7 @@ public class JavaOpenField implements IOpenField {
         this.field = field;
     }
 
+    @Override
     public Object get(Object target, IRuntimeEnv env) {
         try {
             return field.get(target);
@@ -35,10 +36,12 @@ public class JavaOpenField implements IOpenField {
         }
     }
 
+    @Override
     public IOpenClass getDeclaringClass() {
         return JavaOpenClass.getOpenClass(field.getDeclaringClass());
     }
 
+    @Override
     public String getDisplayName(int mode) {
         return getName();
     }
@@ -48,6 +51,7 @@ public class JavaOpenField implements IOpenField {
      *
      * @see org.openl.types.IOpenMember#getInfo()
      */
+    @Override
     public IMemberMetaInfo getInfo() {
         return null;
     }
@@ -57,6 +61,7 @@ public class JavaOpenField implements IOpenField {
      *
      * @see org.openl.base.INamedThing#getName()
      */
+    @Override
     public String getName() {
         return field.getName();
     }
@@ -66,14 +71,17 @@ public class JavaOpenField implements IOpenField {
      *
      * @see org.openl.types.IOpenMember#getType()
      */
+    @Override
     public IOpenClass getType() {
         return JavaOpenClass.getOpenClass(field.getType());
     }
 
+    @Override
     public boolean isConst() {
         return Modifier.isFinal(field.getModifiers());
     }
 
+    @Override
     public boolean isReadable() {
         return true;
     }
@@ -83,14 +91,17 @@ public class JavaOpenField implements IOpenField {
      *
      * @see org.openl.types.IOpenMember#isStatic()
      */
+    @Override
     public boolean isStatic() {
         return Modifier.isStatic(field.getModifiers());
     }
 
+    @Override
     public boolean isWritable() {
         return true;
     }
 
+    @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         try {
             field.set(target, value);

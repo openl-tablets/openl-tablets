@@ -26,6 +26,7 @@ public class UndoableCompositeAction implements IUndoableGridTableAction {
         this.actions = Arrays.asList(gridActions);
     }
 
+    @Override
     public void doAction(IGridTable table) {
         for (Iterator<IUndoableGridTableAction> iter = actions.iterator(); iter.hasNext();) {
             IUndoableGridTableAction action = iter.next();
@@ -33,6 +34,7 @@ public class UndoableCompositeAction implements IUndoableGridTableAction {
         }
     }
 
+    @Override
     public void undoAction(IGridTable table) {
         for (ListIterator<IUndoableGridTableAction> iter = actions.listIterator(actions.size()); iter.hasPrevious();) {
             IUndoableGridTableAction action = iter.previous();

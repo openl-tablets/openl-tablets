@@ -87,12 +87,14 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
         this.current = from;
     }
 
+    @Override
     public final boolean hasNext() {
         return step > 0 ?  current < to : current > to ;
     }
 
     protected abstract T indexedElement(int i);
 
+    @Override
     public T next() {
     	int idx = current;
     	current += step;

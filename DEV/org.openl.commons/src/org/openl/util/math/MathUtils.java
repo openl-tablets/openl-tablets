@@ -330,7 +330,7 @@ public class MathUtils {
         }
         long sum = 0;
         for (long a : values) {
-            sum = sum + (long) a;
+            sum = sum + a;
         }
         return sum;
     }
@@ -515,7 +515,7 @@ public class MathUtils {
     public static float mod(float number, float divisor) {
         long quotient = quotient(number, divisor);
 
-        float intPart = (float) quotient;
+        float intPart = quotient;
         if (quotient < 0) {
             intPart--;
         }
@@ -525,7 +525,7 @@ public class MathUtils {
     public static double mod(double number, double divisor) {
         long quotient = quotient(number, divisor);
 
-        double intPart = (double) quotient;
+        double intPart = quotient;
         if (quotient < 0) {
             intPart--;
         }
@@ -604,15 +604,15 @@ public class MathUtils {
 
     // QUAOTIENT
     public static long quotient(byte number, byte divisor) {
-        return (long) (number / divisor);
+        return number / divisor;
     }
 
     public static long quotient(short number, short divisor) {
-        return (long) (number / divisor);
+        return number / divisor;
     }
 
     public static long quotient(int number, int divisor) {
-        return (long) (number / divisor);
+        return number / divisor;
     }
 
     public static long quotient(long number, long divisor) {

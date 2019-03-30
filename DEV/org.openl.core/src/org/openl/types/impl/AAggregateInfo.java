@@ -25,6 +25,7 @@ public abstract class AAggregateInfo implements IAggregateInfo {
         return getIndex(aggregateType, JavaOpenClass.INT);
     }
 
+    @Override
     public IOpenClass getIndexedAggregateType(IOpenClass componentType) {
         return getArrayType(componentType);
     }
@@ -34,6 +35,7 @@ public abstract class AAggregateInfo implements IAggregateInfo {
         return JavaOpenClass.getOpenClass(ary.getClass());
     }
 
+    @Override
     public Object makeIndexedAggregate(IOpenClass componentClass, int size) {
         return Array.newInstance(componentClass.getInstanceClass(), size);
     }

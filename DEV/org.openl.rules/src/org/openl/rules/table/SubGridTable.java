@@ -27,22 +27,27 @@ public class SubGridTable extends AGridTableDecorator {
         return region;
     }
 
+    @Override
     public int getGridColumn(int col, int row) {
         return table.getGridColumn(fromColumn + col, fromRow + row);
     }
 
+    @Override
     public int getGridRow(int col, int row) {
         return table.getGridRow(fromColumn + col, fromRow + row);
     }
 
+    @Override
     public int getHeight() {
         return height;
     }
 
+    @Override
     public int getWidth() {
         return width;
     }
 
+    @Override
     public boolean isNormalOrientation() {
         return table.isNormalOrientation();
     }

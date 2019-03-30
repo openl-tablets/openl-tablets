@@ -13,6 +13,7 @@ public abstract class AConditionBuilder implements IDecisionTableColumnBuilder {
         this.conditionNumber = conditionNumber;
     }
 
+    @Override
     public final int build(IWritableGrid gridModel, int numberOfRules, int columnStartIndex, int rowStartIndex) {
         writeColumnType(gridModel, columnStartIndex, rowStartIndex);
         writeCodeExpression(gridModel, columnStartIndex, rowStartIndex);

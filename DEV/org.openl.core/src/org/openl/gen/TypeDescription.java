@@ -47,6 +47,7 @@ public class TypeDescription {
         return typeDescriptor;
     }
 
+    @Override
     public String toString() {
         if (StringUtils.isNotBlank(typeName)) {
             return typeName;

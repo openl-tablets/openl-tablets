@@ -505,11 +505,13 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return fieldType;
     }
 
+    @Override
     public void addTo(ModuleOpenClass openClass) {
         InternalDatatypeClass internalClassMember = new InternalDatatypeClass(dataType, openClass);
         tableSyntaxNode.setMember(internalClassMember);
     }
 
+    @Override
     public void finalizeBind(IBindingContext cxt) throws Exception {
         if (!cxt.isExecutionMode()) {
             tableSyntaxNode.setMetaInfoReader(new DatatypeTableMetaInfoReader(this));
@@ -574,6 +576,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
     }
 
+    @Override
     public void removeDebugInformation(IBindingContext cxt) {
         // nothing to remove
     }

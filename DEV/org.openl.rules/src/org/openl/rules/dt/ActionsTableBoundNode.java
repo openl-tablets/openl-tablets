@@ -21,6 +21,7 @@ public class ActionsTableBoundNode extends ADtColumnsDefinitionTableBoundNode {
         super(tableSyntaxNode, openl);
     }
     
+    @Override
     protected void createAndAddDefinition(Map<String, List<IParameterDeclaration>> localParameters, IOpenMethodHeader header, CompositeMethod compositeMethod) {
         DTColumnsDefinition conditionDefinition = new DTColumnsDefinition(DTColumnsDefinitionType.ACTION,
             localParameters,

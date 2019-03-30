@@ -24,12 +24,14 @@ public class AliasDatatypeBoundNode implements IMemberBoundNode {
 		this.moduleOpenClass = moduleOpenClass;
 	}
 
-	public void addTo(ModuleOpenClass openClass) {
+	@Override
+    public void addTo(ModuleOpenClass openClass) {
 		InternalDatatypeClass internalClassMember = new InternalDatatypeClass(domainOpenClass, openClass);
 		tableSyntaxNode.setMember(internalClassMember);
 	}
 
-	public void finalizeBind(IBindingContext cxt) throws Exception {
+	@Override
+    public void finalizeBind(IBindingContext cxt) throws Exception {
         if (!cxt.isExecutionMode()) {
             tableSyntaxNode.setMetaInfoReader(new AliasDatatypeMetaInfoReader(this));
         }
@@ -38,6 +40,7 @@ public class AliasDatatypeBoundNode implements IMemberBoundNode {
 		moduleOpenClass.addType(domainOpenClass);
 	}
 
+    @Override
     public void removeDebugInformation(IBindingContext cxt) {
         //nothing to remove
     }

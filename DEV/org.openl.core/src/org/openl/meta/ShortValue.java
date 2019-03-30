@@ -32,10 +32,12 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
     public static final ShortValue MINUS_ONE = new ShortValue((short) -1);
 
     public static class ShortValueAdapter extends XmlAdapter<Short, ShortValue> {
+        @Override
         public ShortValue unmarshal(Short val) throws Exception {
             return new ShortValue(val);
         }
 
+        @Override
         public Short marshal(ShortValue val) throws Exception {
             return val.getValue();
         }
@@ -412,7 +414,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @return the casted value to org.openl.meta.ShortValue
      */
     public static org.openl.meta.ShortValue autocast(byte x, org.openl.meta.ShortValue y) {
-        return new org.openl.meta.ShortValue((short) x);
+        return new org.openl.meta.ShortValue(x);
     }
 
     /**
@@ -424,7 +426,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @return the casted value to org.openl.meta.ShortValue
      */
     public static org.openl.meta.ShortValue autocast(short x, org.openl.meta.ShortValue y) {
-        return new org.openl.meta.ShortValue((short) x);
+        return new org.openl.meta.ShortValue(x);
     }
 
     // Constructors
@@ -455,6 +457,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
     /**
      * Prints the value of the current variable
      */
+    @Override
     public String printValue() {
         return String.valueOf(value);
     }
@@ -630,22 +633,22 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
 
     @Override
     public double doubleValue() {
-        return (double) value;
+        return value;
     }
 
     @Override
     public float floatValue() {
-        return (float) value;
+        return value;
     }
 
     @Override
     public int intValue() {
-        return (int) value;
+        return value;
     }
 
     @Override
     public long longValue() {
-        return (long) value;
+        return value;
     }
 
     @Override

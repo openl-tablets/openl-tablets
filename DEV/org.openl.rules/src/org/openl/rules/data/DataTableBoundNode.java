@@ -46,6 +46,7 @@ public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundN
         return null;
     }
 
+    @Override
     public void addTo(ModuleOpenClass openClass) {
         
         TableSyntaxNode tableSyntaxNode = getTableSyntaxNode();
@@ -55,10 +56,12 @@ public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundN
         tableSyntaxNode.setMember(field);
     }
 
+    @Override
     public void finalizeBind(IBindingContext cxt) throws Exception {
         table.populate(module.getDataBase(), cxt);
     }
 
+    @Override
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
         field.setTable(null);
     }

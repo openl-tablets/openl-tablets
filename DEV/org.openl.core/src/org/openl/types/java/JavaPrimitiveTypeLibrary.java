@@ -9,7 +9,6 @@ package org.openl.types.java;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.binding.exception.AmbiguousTypeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.ITypeLibrary;
 
@@ -33,6 +32,7 @@ public class JavaPrimitiveTypeLibrary implements ITypeLibrary {
         classMap.put("boolean", JavaOpenClass.BOOLEAN);
         classMap.put("void", JavaOpenClass.VOID);
     }
+    @Override
     public IOpenClass getType(String typename) {
         return classMap.get(typename);
     }

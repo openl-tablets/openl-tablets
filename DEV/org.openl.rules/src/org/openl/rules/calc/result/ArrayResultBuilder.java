@@ -21,6 +21,7 @@ public class ArrayResultBuilder implements IResultBuilder {
         this.calculateAllCells = calculateAllCells;
     }
 
+    @Override
     public Object makeResult(SpreadsheetResultCalculator resultCalculator) {
         int size = cells.length;
         IAggregateInfo aggregateInfo = type.getAggregateInfo();

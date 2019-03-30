@@ -12,6 +12,7 @@ class CompositeCell implements ICell {
     private IGridRegion region;
     private ICell delegate;
     
+    @Override
     public ICell getTopLeftCellFromRegion() {
 		return delegate.getTopLeftCellFromRegion();
 	}
@@ -26,38 +27,47 @@ class CompositeCell implements ICell {
         this.delegate = delegate;  
     }
 
+    @Override
     public int getAbsoluteColumn() {
         return delegate.getAbsoluteColumn();
     }
 
+    @Override
     public int getAbsoluteRow() {
         return delegate.getAbsoluteRow();
     }
 
+    @Override
     public IGridRegion getAbsoluteRegion() {
         return new GridRegion(delegate.getRow(), delegate.getColumn(), delegate.getRow(), delegate.getColumn());
     }
 
+    @Override
     public int getColumn() {
         return column;
     }
 
+    @Override
     public int getRow() {
         return row;
     }
 
+    @Override
     public IGridRegion getRegion() {
         return region;
     }
 
+    @Override
     public ICellStyle getStyle() {
         return delegate.getStyle();
     }
 
+    @Override
     public ICellFont getFont() {
         return delegate.getFont();
     }
 
+    @Override
     public int getHeight() {
         if (region == null){
             return delegate.getHeight();
@@ -65,14 +75,17 @@ class CompositeCell implements ICell {
         return region.getBottom() - region.getTop() + 1;
     }
     
+    @Override
     public Object getObjectValue() {
         return delegate.getObjectValue();
     }
     
+    @Override
     public String getStringValue() {
         return delegate.getStringValue();
     }
 
+    @Override
     public int getWidth() {
         if (region == null){
             return delegate.getWidth();
@@ -80,38 +93,47 @@ class CompositeCell implements ICell {
         return region.getRight() - region.getLeft() + 1;
     }
 
+    @Override
     public String getFormula() {
         return delegate.getFormula();
     }
 
+    @Override
     public int getType() {
         return delegate.getType();
     }
 
+    @Override
     public String getUri() {
         return delegate.getUri();
     }
 
+    @Override
     public boolean getNativeBoolean() {
         return delegate.getNativeBoolean();
     }
 
+    @Override
     public double getNativeNumber() {
         return delegate.getNativeNumber();
     }
 
+    @Override
     public int getNativeType() {
         return delegate.getNativeType();
     }
 
+    @Override
     public boolean hasNativeType() {
         return delegate.hasNativeType();
     }
 
+    @Override
     public Date getNativeDate() {
         return delegate.getNativeDate();
     }
 
+    @Override
     public ICellComment getComment() {
         return delegate.getComment();
     }

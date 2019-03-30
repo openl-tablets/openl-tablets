@@ -55,11 +55,13 @@ public class TBasicContextHolderEnv implements IRuntimeEnv {
 		return env;
 	}
 	
-	public Object[] getLocalFrame() {
+	@Override
+    public Object[] getLocalFrame() {
 		return env.getLocalFrame();
 	}
 	
-	public IOpenRunner getRunner() {
+	@Override
+    public IOpenRunner getRunner() {
 		return env.getRunner();
 	}
 	
@@ -78,42 +80,52 @@ public class TBasicContextHolderEnv implements IRuntimeEnv {
 		return tbasicVm;
 	}
 	
-	public Object getThis() {
+	@Override
+    public Object getThis() {
 		return env.getThis();
 	}
 	
-	public Object[] popLocalFrame() {
+	@Override
+    public Object[] popLocalFrame() {
 		return env.popLocalFrame();
 	}
 	
-	public Object popThis() {
+	@Override
+    public Object popThis() {
 		return env.popThis();
 	}
 	
-	public void pushLocalFrame(Object[] frame) {
+	@Override
+    public void pushLocalFrame(Object[] frame) {
 		env.pushLocalFrame(frame);
 	}
 	
-	public void pushThis(Object thisObject) {
+	@Override
+    public void pushThis(Object thisObject) {
 		env.pushThis(thisObject);
 	}
 	
-	public IRuntimeContext getContext() {
+	@Override
+    public IRuntimeContext getContext() {
 		return env.getContext();
 	}
 	
-	public void setContext(IRuntimeContext context) {
+	@Override
+    public void setContext(IRuntimeContext context) {
 		env.setContext(context);
 	}
 
+    @Override
     public boolean isContextManagingSupported() {
         return env.isContextManagingSupported();
     }
 
+    @Override
     public IRuntimeContext popContext() {
         return env.popContext();
     }
 
+    @Override
     public void pushContext(IRuntimeContext context) {
         env.pushContext(context);
     }

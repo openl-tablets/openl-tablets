@@ -21,6 +21,7 @@ public class DefaultCompileContext implements ICompileContext {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addValidator(IOpenLValidator validator) {
         validators.add(validator);
     }
@@ -28,6 +29,7 @@ public class DefaultCompileContext implements ICompileContext {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addValidators(List<IOpenLValidator> validators) {
 
         for (IOpenLValidator validator : validators) {
@@ -38,6 +40,7 @@ public class DefaultCompileContext implements ICompileContext {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void removeValidator(IOpenLValidator validator) {
         validators.remove(validator);
     }
@@ -45,6 +48,7 @@ public class DefaultCompileContext implements ICompileContext {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void removeValidators() {
         validators = new CopyOnWriteArraySet<IOpenLValidator>();
     }
@@ -52,6 +56,7 @@ public class DefaultCompileContext implements ICompileContext {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Set<IOpenLValidator> getValidators() {
         return validators;
     }

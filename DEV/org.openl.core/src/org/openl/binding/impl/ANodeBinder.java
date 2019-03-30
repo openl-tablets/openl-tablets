@@ -300,6 +300,7 @@ public abstract class ANodeBinder implements INodeBinder {
      * @see org.openl.binding.INodeBinder#bindTarget(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext,
      * org.openl.types.IOpenClass)
      */
+    @Override
     public IBoundNode bindTarget(ISyntaxNode node,
             IBindingContext bindingContext,
             IBoundNode targetNode) throws Exception {
@@ -312,6 +313,7 @@ public abstract class ANodeBinder implements INodeBinder {
      * @see org.openl.binding.INodeBinder#bindType(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext,
      * org.openl.types.IOpenClass)
      */
+    @Override
     public IBoundNode bindType(ISyntaxNode node, IBindingContext bindingContext, IOpenClass type) throws Exception {
 
         IBoundNode boundNode = bindChildNode(node, bindingContext);

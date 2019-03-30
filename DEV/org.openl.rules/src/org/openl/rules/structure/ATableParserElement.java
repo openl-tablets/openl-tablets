@@ -9,10 +9,12 @@ public abstract class ATableParserElement implements ITableParserElement {
 
     ISelector<ILogicalTable> selector;
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public ILogicalTable parse(ILogicalTable unparsedTable, ITableObject tobj) {
         if (selector != null && !selector.select(unparsedTable)) {
             return unparsedTable;

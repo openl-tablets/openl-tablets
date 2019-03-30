@@ -21,6 +21,7 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class NewArrayNodeBinder extends ANodeBinder {
 
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         assertCountOfChild("New array node must have 1 subnode", node, 1);

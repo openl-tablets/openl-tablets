@@ -34,6 +34,7 @@ public interface IIntSelector {
             hasNext = false;
         }
 
+        @Override
         public boolean hasNext() {
             if (!hasNext) {
                 findNext();
@@ -41,6 +42,7 @@ public interface IIntSelector {
             return hasNext;
         }
 
+        @Override
         public int nextInt() {
             if (!hasNext()) {
                 throw new IllegalStateException();

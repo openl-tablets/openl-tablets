@@ -40,20 +40,24 @@ public class XlsCell implements ICell {
         this.gridModel = gridModel;
     }
 
+    @Override
     public ICellStyle getStyle() {
         Cell cell = getCell();
         if (cell == null) return null;
         return getCellStyle(cell);
     }
 
+    @Override
     public int getAbsoluteColumn() {
         return getColumn();
     }
 
+    @Override
     public int getAbsoluteRow() {
         return getRow();
     }
 
+    @Override
     public IGridRegion getAbsoluteRegion() {
         IGridRegion absoluteRegion = getRegion();
         if (absoluteRegion == null) {
@@ -62,10 +66,12 @@ public class XlsCell implements ICell {
         return absoluteRegion;
     }
 
+    @Override
     public int getColumn() {
         return column;
     }
 
+    @Override
     public ICellFont getFont() {
         Cell cell = getCell();
         if (cell == null) return null;
@@ -73,22 +79,27 @@ public class XlsCell implements ICell {
         return new XlsCellFont(font, gridModel.getSheetSource().getSheet().getWorkbook());
     }
 
+    @Override
     public int getRow() {
         return row;
     }
 
+    @Override
     public IGridRegion getRegion() {
         return region;
     }
 
+    @Override
     public int getHeight() {
         return height;
     }
 
+    @Override
     public int getWidth() {
         return width;
     }
 
+    @Override
     public Object getObjectValue() {
         if (region == null || isCurrentCellATopLeftCellInRegion()) {
             // If cell belongs to some merged region, we try to get merged value from it.
@@ -101,6 +112,7 @@ public class XlsCell implements ICell {
         }
     }
 
+    @Override
     public String getStringValue() {
         Object res = getObjectValue();
         return res == null ? null : String.valueOf(res);
@@ -153,6 +165,7 @@ public class XlsCell implements ICell {
         return null;
     }
 
+    @Override
     public String getFormula() {
         if (getCell() == null && region == null) {
             return null;
@@ -176,6 +189,7 @@ public class XlsCell implements ICell {
         return cell.getCellType() == CellType.FORMULA ? cell.getCellFormula() : null;
     }
 
+    @Override
     public int getType() {
         Cell cell = getCell();
         if (cell == null && region == null) {
@@ -196,14 +210,17 @@ public class XlsCell implements ICell {
         return topLeftCell.getType();
     }
 
+    @Override
     public String getUri() {
         return XlsUtil.xlsCellPresentation(column, row);
     }
 
+    @Override
     public boolean getNativeBoolean() {
         return true;
     }
 
+    @Override
     public double getNativeNumber() {
         Cell cell = getCell();
         if (cell == null) {
@@ -212,6 +229,7 @@ public class XlsCell implements ICell {
         return cell.getNumericCellValue();
     }
 
+    @Override
     public int getNativeType() {
         Cell cell = getCell();
         if (cell == null) {
@@ -225,6 +243,7 @@ public class XlsCell implements ICell {
         return getIGridCellType(type);
     }
 
+    @Override
     public boolean hasNativeType() {
         return true;
     }
@@ -234,6 +253,7 @@ public class XlsCell implements ICell {
      * null is cell is of type {@link IGrid#CELL_TYPE_NUMERIC} and is not formatted in excel as date.<br>
      * @throws IllegalStateException is the cell is of type {@link IGrid#CELL_TYPE_STRING}
      */
+    @Override
     public Date getNativeDate() {
         Cell cell = getCell();
         if (cell == null) {
@@ -255,6 +275,7 @@ public class XlsCell implements ICell {
         return null;
     }
 
+    @Override
     public ICellComment getComment() {
         Cell cell = getCell();
         if (cell != null) {

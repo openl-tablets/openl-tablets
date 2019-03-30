@@ -18,6 +18,7 @@ public class UndoableClearAction extends AUndoableCellAction {
         super(col, row, metaInfoWriter);
     }
 
+    @Override
     public void doAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
 
@@ -28,6 +29,7 @@ public class UndoableClearAction extends AUndoableCellAction {
         clearRegion(grid);
     }
 
+    @Override
     public void undoAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
 

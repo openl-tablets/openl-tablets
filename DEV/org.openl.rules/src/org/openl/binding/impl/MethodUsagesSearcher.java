@@ -38,6 +38,7 @@ public class MethodUsagesSearcher {
         /**
          * @return the start position of the method in code.
          */
+        @Override
         public int getStart() {
             return startPos;
         }
@@ -45,6 +46,7 @@ public class MethodUsagesSearcher {
         /**
          * @return the end position of the method in code.
          */
+        @Override
         public int getEnd() {
             return endPos;
         }

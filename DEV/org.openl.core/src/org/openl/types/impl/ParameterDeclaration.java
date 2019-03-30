@@ -20,14 +20,17 @@ public class ParameterDeclaration implements IParameterDeclaration {
         this.name = name;
     }
 
+    @Override
     public String getDisplayName(int mode) {
         return name;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public IOpenClass getType() {
         return type;
     }

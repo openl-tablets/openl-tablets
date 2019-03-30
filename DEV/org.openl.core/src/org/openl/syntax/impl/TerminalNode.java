@@ -22,6 +22,7 @@ public abstract class TerminalNode extends ASyntaxNode {
      * (non-Javadoc)
      * @see org.openl.parser.SyntaxNode#getChild(int)
      */
+    @Override
     public ISyntaxNode getChild(int i) {
         return null;
     }
@@ -30,6 +31,7 @@ public abstract class TerminalNode extends ASyntaxNode {
      * (non-Javadoc)
      * @see org.openl.parser.SyntaxNode#getNumberOfChildren()
      */
+    @Override
     public int getNumberOfChildren() {
         return 0;
     }

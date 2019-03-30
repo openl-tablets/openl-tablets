@@ -22,7 +22,8 @@ public class DatatypeMetaInfo implements IMetaInfo {
 		this.sourceUrl = sourceUrl;
 	}
 		
-	public String getDisplayName(int mode) {
+	@Override
+    public String getDisplayName(int mode) {
 		/* Default implementation.
 		 *  Don`t know if we need any displayName for Datatype.
 		 *  @author DLiauchuk
@@ -34,7 +35,8 @@ public class DatatypeMetaInfo implements IMetaInfo {
 		return getDisplayName(0);
 	}
 	
-	public String getSourceUrl() {
+	@Override
+    public String getSourceUrl() {
 		return sourceUrl;
 	}
 

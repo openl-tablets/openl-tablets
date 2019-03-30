@@ -24,6 +24,7 @@ public class PropertiesOpenField extends AOpenField {
     	return declaringClass;
     }
 
+    @Override
     public Object get(Object target, IRuntimeEnv env) {
         Object data = ((IDynamicObject) target).getFieldValue(getName());
 
@@ -40,6 +41,7 @@ public class PropertiesOpenField extends AOpenField {
         return true;
     }
 
+    @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         ((IDynamicObject) target).setFieldValue(getName(), value);
     }

@@ -28,6 +28,7 @@ public class GettersWriter extends MethodWriter {
         super(beanNameWithPackage, beanFields);
     }
 
+    @Override
     public void write(ClassWriter classWriter) {
         /*
          * ignore those fields that are of void type. In java it is impossible but possible in Openl, e.g. spreadsheet

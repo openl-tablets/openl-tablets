@@ -5,6 +5,7 @@ public class LTMatchingExpression extends AMatchingExpression {
     public static final String OPERATION_NAME = "LT";
     private static final String OPERATION = "<";
     
+    @Override
     public boolean isContextAttributeExpression() {
         return false;
     }

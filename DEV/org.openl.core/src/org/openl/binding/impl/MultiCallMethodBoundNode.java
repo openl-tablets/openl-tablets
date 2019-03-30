@@ -133,6 +133,7 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
         }
     }
     
+    @Override
     public IOpenClass getType() {
         return returnType;
     }

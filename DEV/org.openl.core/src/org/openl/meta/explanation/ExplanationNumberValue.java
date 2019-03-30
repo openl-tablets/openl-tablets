@@ -91,43 +91,53 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
         return explanation;
     }
 
+    @Override
     @XmlTransient
     public IMetaInfo getMetaInfo() {
         return getExplanation().getMetaInfo();
     }
     
+    @Override
     public void setMetaInfo(IMetaInfo metaInfo) {
         getExplanation().setMetaInfo(metaInfo);
     }
     
+    @Override
     public String getName() {
         return getExplanation().getName();
     }
     
+    @Override
     public String getDisplayName(int mode) {
         return getExplanation().getDisplayName(mode);
     }
 
+    @Override
     public void setFullName(String name) {
         getExplanation().setFullName(name);
     }
 
+    @Override
     public void setName(String name) {
         getExplanation().setName(name);
     }
 
+    @Override
     public Iterable<? extends ITreeElement<T>> getChildren() {
         return getExplanation().getChildren();
     }
 
+    @Override
     public boolean isLeaf() {
         return getExplanation().isLeaf();
     }
 
+    @Override
     public String getType() {
         return getExplanation().getType();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public T getObject() {    
         return (T) this;

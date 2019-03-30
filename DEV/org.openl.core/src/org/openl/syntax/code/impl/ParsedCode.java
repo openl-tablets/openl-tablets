@@ -58,6 +58,7 @@ public class ParsedCode implements IParsedCode {
         this.dependencies = dependencies;
     }
 
+    @Override
     public SyntaxNodeException[] getErrors() {
         return syntaxErrors;
     }
@@ -66,30 +67,37 @@ public class ParsedCode implements IParsedCode {
         return Collections.unmodifiableCollection(messages);
     }
 
+    @Override
     public IOpenSourceCodeModule getSource() {
         return source;
     }
 
+    @Override
     public ISyntaxNode getTopNode() {
         return topNode;
     }
 
+    @Override
     public Map<String, Object> getExternalParams() {
         return params;
     }
 
+    @Override
     public void setExternalParams(Map<String, Object> params) {
         this.params = params;
     }
 
+    @Override
     public Set<CompiledDependency> getCompiledDependencies() {
         return new HashSet<>(compiledDependencies);
     }
 
+    @Override
     public void setCompiledDependencies(Set<CompiledDependency> compiledDependencies) {
         this.compiledDependencies = new HashSet<>(compiledDependencies);
     }
 
+    @Override
     public IDependency[] getDependencies() {
         return dependencies;
     }

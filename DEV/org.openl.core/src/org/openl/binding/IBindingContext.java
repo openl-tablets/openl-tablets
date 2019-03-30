@@ -69,6 +69,7 @@ public interface IBindingContext extends ICastFactory {
 
     IOpenField findRange(String namespace, String rangeStartName, String rangeEndName) throws OpenLCompilationException;
 
+    @Override
     IOpenCast getCast(IOpenClass from, IOpenClass to);
 
     SyntaxNodeException[] getErrors();

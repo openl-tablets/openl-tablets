@@ -99,6 +99,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     }
 
+    @Override
     public TableSyntaxNode getDispatcherTable() {
         if (decisionTableOpenMethod == null) {
             DispatcherTablesBuilder dispTableBuilder = new DispatcherTablesBuilder(moduleOpenClass,

@@ -23,10 +23,12 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     private final String value;
     
     public static class StringValueAdapter extends XmlAdapter<String,StringValue> {
+        @Override
         public StringValue unmarshal(String val) throws Exception {
             return new StringValue(val);
         }
         
+        @Override
         public String marshal(StringValue val) throws Exception {
             return val.getValue();
         }
@@ -55,6 +57,7 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     /**
      * Returns a character at position 'index' of current StringValue variable
      */
+    @Override
     public char charAt(int index) {
         return value.charAt(index);
     }
@@ -62,6 +65,7 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     /**
      * Compares StringValue v with current StringValue variable
      */
+    @Override
     public int compareTo(StringValue v) {
         return value.compareTo(v.value);
     }
@@ -87,6 +91,7 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     /**
      * Returns the metainfo of current StringValue variable
      */
+    @Override
     public ValueMetaInfo getMetaInfo() {
         return metaInfo;
     }
@@ -116,6 +121,7 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     /**
      * Return the length of the value
      */
+    @Override
     public int length() {
         return value.length();
     }
@@ -123,6 +129,7 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     /**
      * Sets the metainfo for the value
      */
+    @Override
     public void setMetaInfo(IMetaInfo metaInfo) {
         if (metaInfo instanceof ValueMetaInfo) {
             setMetaInfo((ValueMetaInfo) metaInfo);
@@ -149,6 +156,7 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     /**
      * Returns a new character sequence that is a subsequence of this sequence.
      */
+    @Override
     public CharSequence subSequence(int start, int end) {
         return value.subSequence(start, end);
     }

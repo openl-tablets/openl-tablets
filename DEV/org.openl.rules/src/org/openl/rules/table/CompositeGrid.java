@@ -66,6 +66,7 @@ public class CompositeGrid extends AGrid {
         return new GridTable(0, 0, height - 1, width - 1, this);
     }
 
+    @Override
     public ICell getCell(int column, int row) {
         if (!vertical) { // Merge header for horizontal table parts
             Transform t = transform(0, 0);
@@ -121,6 +122,7 @@ public class CompositeGrid extends AGrid {
         return new CompositeCell(column, row, getRegionContaining(column, row), delegate);
     }
 
+    @Override
     public int getColumnWidth(int col) {
         Transform t = transform(col, 0);
         return t == null ? 100 : t.grid().getColumnWidth(t.getCol());
@@ -130,30 +132,37 @@ public class CompositeGrid extends AGrid {
         return height;
     }
 
+    @Override
     public int getMaxColumnIndex(int row) {
         return width - 1;
     }
 
+    @Override
     public int getMaxRowIndex() {
         return height - 1;
     }
 
+    @Override
     public IGridRegion getMergedRegion(int i) {
         return mergedRegions[i];
     }
 
+    @Override
     public int getMinColumnIndex(int row) {
         return 0;
     }
 
+    @Override
     public int getMinRowIndex() {
         return 0;
     }
 
+    @Override
     public int getNumberOfMergedRegions() {
         return mergedRegions.length;
     }
 
+    @Override
     public String getRangeUri(int colStart, int rowStart, int colEnd, int rowEnd) {
         Transform t1 = transform(colStart, rowStart);
         Transform t2 = transform(colEnd, rowEnd);
@@ -173,6 +182,7 @@ public class CompositeGrid extends AGrid {
         return t1.grid().getRangeUri(t1.getCol(), t1.getRow(), t2.getCol(), t2.getRow());
     }
 
+    @Override
     public String getUri() {
         Transform t = transform(0, 0);
         return t == null ? null : t.grid().getUri();
@@ -295,6 +305,7 @@ public class CompositeGrid extends AGrid {
         }
     }
 
+    @Override
     public boolean isEmpty(int col, int row) {
         Transform t = transform(col, row);
         return t == null || t.grid().isEmpty(t.getCol(), t.getRow());

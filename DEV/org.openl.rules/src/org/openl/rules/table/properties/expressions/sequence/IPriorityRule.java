@@ -17,5 +17,6 @@ public interface IPriorityRule extends Comparator<ITableProperties> {
      *         argument is more prior than, has the same priority to, or is less
      *         prior.
      */
+    @Override
     int compare(ITableProperties properties1, ITableProperties properties2);
 }

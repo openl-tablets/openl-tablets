@@ -31,6 +31,7 @@ public class BlockNode extends ABoundNode implements IBoundMethodNode {
      *
      * @see org.openl.binding.IBoundMethodNode#getLocalFrameSize()
      */
+    @Override
     public int getLocalFrameSize() {
         return localFrameSize;
     }
@@ -40,6 +41,7 @@ public class BlockNode extends ABoundNode implements IBoundMethodNode {
      *
      * @see org.openl.binding.IBoundMethodNode#getParametersSize()
      */
+    @Override
     public int getParametersSize() {
         return 0;
     }
@@ -49,6 +51,7 @@ public class BlockNode extends ABoundNode implements IBoundMethodNode {
      *
      * @see org.openl.binding.IBoundNode#getType()
      */
+    @Override
     public IOpenClass getType() {
         return (children == null || children.length == 0) ? NullOpenClass.the : children[children.length - 1].getType();
     }

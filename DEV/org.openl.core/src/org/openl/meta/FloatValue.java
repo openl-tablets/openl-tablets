@@ -29,15 +29,17 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
     private static final long serialVersionUID = -8235832583740963916L;
 
-    private static final FloatValue ZERO = new FloatValue((float) 0);
-    private static final FloatValue ONE = new FloatValue((float) 1);
-    private static final FloatValue MINUS_ONE = new FloatValue((float) -1);
+    private static final FloatValue ZERO = new FloatValue(0);
+    private static final FloatValue ONE = new FloatValue(1);
+    private static final FloatValue MINUS_ONE = new FloatValue(-1);
 
     public static class FloatValueAdapter extends XmlAdapter<Float, FloatValue> {
+        @Override
         public FloatValue unmarshal(Float val) throws Exception {
             return new FloatValue(val);
         }
 
+        @Override
         public Float marshal(FloatValue val) throws Exception {
             return val.getValue();
         }
@@ -398,7 +400,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
         //
         // validate(value1, value2, NumberOperations.POW);
         if (value1 == null) {
-            return value2 == null ? null : new org.openl.meta.FloatValue((float) 0);
+            return value2 == null ? null : new org.openl.meta.FloatValue(0);
         } else if (value2 == null) {
             return value1;
         }
@@ -476,7 +478,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @return the casted value to org.openl.meta.FloatValue
      */
     public static org.openl.meta.FloatValue autocast(byte x, org.openl.meta.FloatValue y) {
-        return new org.openl.meta.FloatValue((float) x);
+        return new org.openl.meta.FloatValue(x);
     }
 
     /**
@@ -488,7 +490,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @return the casted value to org.openl.meta.FloatValue
      */
     public static org.openl.meta.FloatValue autocast(short x, org.openl.meta.FloatValue y) {
-        return new org.openl.meta.FloatValue((float) x);
+        return new org.openl.meta.FloatValue(x);
     }
 
     /**
@@ -500,7 +502,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @return the casted value to org.openl.meta.FloatValue
      */
     public static org.openl.meta.FloatValue autocast(int x, org.openl.meta.FloatValue y) {
-        return new org.openl.meta.FloatValue((float) x);
+        return new org.openl.meta.FloatValue(x);
     }
 
     /**
@@ -512,7 +514,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @return the casted value to org.openl.meta.FloatValue
      */
     public static org.openl.meta.FloatValue autocast(char x, org.openl.meta.FloatValue y) {
-        return new org.openl.meta.FloatValue((float) x);
+        return new org.openl.meta.FloatValue(x);
     }
 
     /**
@@ -524,7 +526,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @return the casted value to org.openl.meta.FloatValue
      */
     public static org.openl.meta.FloatValue autocast(long x, org.openl.meta.FloatValue y) {
-        return new org.openl.meta.FloatValue((float) x);
+        return new org.openl.meta.FloatValue(x);
     }
 
     /**
@@ -536,7 +538,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
      * @return the casted value to org.openl.meta.FloatValue
      */
     public static org.openl.meta.FloatValue autocast(float x, org.openl.meta.FloatValue y) {
-        return new org.openl.meta.FloatValue((float) x);
+        return new org.openl.meta.FloatValue(x);
     }
 
     // Constructors
@@ -570,6 +572,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
     /**
      * Prints the value of the current variable
      */
+    @Override
     public String printValue() {
         return String.valueOf(value);
     }
@@ -756,7 +759,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
 
     @Override
     public double doubleValue() {
-        return (double) value;
+        return value;
     }
 
     @Override

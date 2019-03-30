@@ -26,12 +26,14 @@ public class DataBase implements IDataBase {
 
     private final Object lock = new Object();
 
+    @Override
     public ITable getTable(String name) {
         synchronized (lock) {
             return tables.get(name);
         }
     }
 
+    @Override
     public ITable registerTable(String tableName, TableSyntaxNode tsn) throws DuplicatedTableException {
         synchronized (lock) {
             ITable table = getTable(tableName);
@@ -53,6 +55,7 @@ public class DataBase implements IDataBase {
         }
     }
 
+    @Override
     public ITable registerNewTable(String tableName, TableSyntaxNode tsn) {
         synchronized (lock) {
             ITable table = makeNewTable(tableName, tsn);
@@ -62,6 +65,7 @@ public class DataBase implements IDataBase {
         }
     }
     
+    @Override
     public Set<ITable> getTables(){
         synchronized (lock) {
             Set<ITable> ret = new HashSet<>();
@@ -72,6 +76,7 @@ public class DataBase implements IDataBase {
         }
     }
     
+    @Override
     public void registerTable(ITable newTable) throws DuplicatedTableException{
         synchronized (lock) {
             ITable table = getTable(newTable.getName());
@@ -92,6 +97,7 @@ public class DataBase implements IDataBase {
         return new Table(tableName, tsn);
     }
 
+    @Override
     public void preLoadTable(ITable table,
             ITableModel dataModel,
             ILogicalTable dataWithTitles,

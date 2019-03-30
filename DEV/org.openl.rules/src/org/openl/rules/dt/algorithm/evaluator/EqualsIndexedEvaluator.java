@@ -38,21 +38,25 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
         this.openCast = openCast;
     }
 
+    @Override
     public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
         IOpenSourceCodeModule condSource = condition.getSourceCodeModule();
         return new StringSourceCodeModule("(" + condSource.getCode() + ") == " + condition.getParams()[0].getName(),
             condSource.getUri());
     }
 
+    @Override
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
         Object value = condition.getEvaluator().invoke(target, dtparams, env);
         return new EqualsSelector(condition, value, target, dtparams, env);
     }
 
+    @Override
     public boolean isIndexed() {
         return true;
     }
 
+    @Override
     public ARuleIndex makeIndex(ICondition condition, IIntIterator it) {
         if (it.size() < 1) {
             return null;
@@ -140,6 +144,7 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
         return uniqueVals == null ? 0 : uniqueVals.size();
     }
 
+    @Override
     protected IDomain<Object> indexedDomain(IBaseCondition condition) {
         int len = condition.getNumberOfRules();
         ArrayList<Object> list = new ArrayList<>(len);

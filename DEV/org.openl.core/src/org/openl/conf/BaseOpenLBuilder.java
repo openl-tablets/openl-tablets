@@ -14,6 +14,7 @@ public abstract class BaseOpenLBuilder implements IOpenLBuilder {
         return userEnvironmentContext;
     }
 
+    @Override
     public void setContexts(IConfigurableResourceContext resourceContext, IUserContext userEnvironmentContext) {
 
         this.resourceContext = resourceContext;

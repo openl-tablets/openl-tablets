@@ -116,6 +116,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
         return cells;
     }
 
+    @Override
     public BindingDependencies getDependencies() {
         BindingDependencies bindingDependencies = new RulesBindingDependencies();
         getBoundNode().updateDependency(bindingDependencies);
@@ -127,6 +128,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
         return resultBuilder;
     }
 
+    @Override
     public String getSourceUrl() {
         TableSyntaxNode syntaxNode = getSyntaxNode();
         return syntaxNode == null ? null : syntaxNode.getUri();
@@ -188,6 +190,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
         return columnNames;
     }
 
+    @Override
     protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
         return getInvoker().invoke(target, params, env);
     }

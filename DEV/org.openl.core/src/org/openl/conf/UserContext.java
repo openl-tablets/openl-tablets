@@ -31,10 +31,12 @@ public final class UserContext extends AUserContext {
         this.userHome = new File(userHome).getAbsolutePath();
     }
 
+    @Override
     public ClassLoader getUserClassLoader() {
         return userClassLoader;
     }
 
+    @Override
     public String getUserHome() {
         return userHome;
     }
@@ -67,10 +69,12 @@ public final class UserContext extends AUserContext {
 
     private Map<String, OpenL> openls = new HashMap<>();
 
+    @Override
     public OpenL getOpenL(String name) {
         return openls.get(name);
     }
 
+    @Override
     public void registerOpenL(String name, OpenL opl) {
         OpenL openl = openls.get(name);
         if (openl != null) {
@@ -79,10 +83,12 @@ public final class UserContext extends AUserContext {
         openls.put(name, opl);
     }
 
+    @Override
     public IOpenLConfiguration getOpenLConfiguration(String name) {
         return configurations.get(name);
     }
 
+    @Override
     public void registerOpenLConfiguration(String name, IOpenLConfiguration oplc) {
         IOpenLConfiguration configuration = configurations.get(name);
         if (configuration != null) {

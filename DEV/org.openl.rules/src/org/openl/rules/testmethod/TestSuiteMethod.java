@@ -132,6 +132,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         return (TestMethodBoundNode) super.getBoundNode();
     }
 
+    @Override
     public BindingDependencies getDependencies() {
         BindingDependencies bindingDependencies = new RulesBindingDependencies();
 
@@ -151,6 +152,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         return getTests().length;
     }
 
+    @Override
     public String getSourceUrl() {
         return getSyntaxNode().getUri();
     }
@@ -225,6 +227,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         return false;
     }
 
+    @Override
     protected TestUnitsResults innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
         return new TestSuite(this).invoke(target, env);
     }

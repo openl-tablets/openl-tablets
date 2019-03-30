@@ -39,6 +39,7 @@ public class LocalFrameBuilder {
          *
          * @see org.openl.types.IOpenField#get(java.lang.Object)
          */
+        @Override
         public Object get(Object target, IRuntimeEnv env) {
             Object res = env.getLocalFrame()[indexInLocalFrame];
 
@@ -51,10 +52,12 @@ public class LocalFrameBuilder {
          *
          * @see org.openl.types.IOpenMember#getDeclaringClass()
          */
+        @Override
         public IOpenClass getDeclaringClass() {
             return NullOpenClass.the;
         }
 
+        @Override
         public String getDisplayName(int mode) {
             return name;
         }
@@ -62,6 +65,7 @@ public class LocalFrameBuilder {
         /**
          * @return
          */
+        @Override
         public int getIndexInLocalFrame() {
             return indexInLocalFrame;
         }
@@ -71,6 +75,7 @@ public class LocalFrameBuilder {
          *
          * @see org.openl.types.IOpenMember#getInfo()
          */
+        @Override
         public IMemberMetaInfo getInfo() {
             return null;
         }
@@ -80,6 +85,7 @@ public class LocalFrameBuilder {
          *
          * @see org.openl.base.INamedThing#getName()
          */
+        @Override
         public String getName() {
             return name;
         }
@@ -87,6 +93,7 @@ public class LocalFrameBuilder {
         /**
          * @return
          */
+        @Override
         public String getNamespace() {
             return namespace;
         }
@@ -96,6 +103,7 @@ public class LocalFrameBuilder {
          *
          * @see org.openl.types.IOpenMember#getType()
          */
+        @Override
         public IOpenClass getType() {
             return type;
         }
@@ -105,6 +113,7 @@ public class LocalFrameBuilder {
          *
          * @see org.openl.types.IOpenField#isConst()
          */
+        @Override
         public boolean isConst() {
             return false;
         }
@@ -114,6 +123,7 @@ public class LocalFrameBuilder {
          *
          * @see org.openl.types.IOpenField#isReadable()
          */
+        @Override
         public boolean isReadable() {
             return true;
         }
@@ -123,6 +133,7 @@ public class LocalFrameBuilder {
          *
          * @see org.openl.types.IOpenMember#isStatic()
          */
+        @Override
         public boolean isStatic() {
             return false;
         }
@@ -132,6 +143,7 @@ public class LocalFrameBuilder {
          *
          * @see org.openl.types.IOpenField#isWritable()
          */
+        @Override
         public boolean isWritable() {
             return true;
         }
@@ -142,6 +154,7 @@ public class LocalFrameBuilder {
          * @see org.openl.types.IOpenField#set(java.lang.Object,
          *      java.lang.Object)
          */
+        @Override
         public void set(Object target, Object value, IRuntimeEnv env) {
             env.getLocalFrame()[indexInLocalFrame] = value;
         }

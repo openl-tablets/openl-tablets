@@ -69,6 +69,7 @@ public class MethodNodeBinder extends ANodeBinder {
         return methodCaller;
     }
 
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         IBoundNode errorNode = validateNode(node, bindingContext);

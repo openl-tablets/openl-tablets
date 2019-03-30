@@ -17,6 +17,7 @@ public class SimpleParameterColumn extends ADispatcherTableColumn {
         super(property, rules);
     }
 
+    @Override
     public String getCodeExpression() {
         String result;
 
@@ -35,16 +36,19 @@ public class SimpleParameterColumn extends ADispatcherTableColumn {
         return result;
     }
 
+    @Override
     public String getTitle() {
         return getProperty().getDisplayName();
     }
 
+    @Override
     public String getParameterDeclaration() {
         String propertyTypeName = getProperty().getType().getInstanceClass().getSimpleName();
         return String
             .format("%s %s%s", propertyTypeName, getProperty().getName(), ADispatcherTableColumn.LOCAL_PARAM_SUFFIX);
     }
 
+    @Override
     public String getRuleValue(int ruleIndex, int elementNum) {
         return getRules().getRule(ruleIndex).getPropertyValueAsString(getProperty().getName());
     }

@@ -20,6 +20,7 @@ public class OpenLRulesInvocationHandler extends OpenLInvocationHandler implemen
         super(openlInstance, openlEnv, methodMap);
     }
 
+    @Override
     public IRulesRuntimeContext getRuntimeContext() {
         return (IRulesRuntimeContext) getRuntimeEnv().getContext();
     }

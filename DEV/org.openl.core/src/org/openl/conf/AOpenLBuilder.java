@@ -15,6 +15,7 @@ import org.openl.vm.SimpleVM;
 
 public abstract class AOpenLBuilder extends BaseOpenLBuilder {
 
+    @Override
     public OpenL build(String openl) {
         OpenL op = new OpenL();
         op.setName(openl);

@@ -15,6 +15,7 @@ import org.openl.syntax.ISyntaxNode;
  */
 public class BExChainSuffixBinder extends ANodeBinder {
 
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         String nodeType = node.getType();

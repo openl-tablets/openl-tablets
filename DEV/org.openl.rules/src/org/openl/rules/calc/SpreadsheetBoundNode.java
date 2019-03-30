@@ -111,6 +111,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         structureBuilder.addCellFields(spreadsheetOpenClass, autoType);
     }
     
+    @Override
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
         super.finalizeBind(bindingContext);
 

@@ -36,6 +36,7 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
     private int uniqueKeysSize = -1;
     private int maxArrayLength = -1;
 
+    @Override
     public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
         IParameterDeclaration[] cparams = condition.getParams();
 
@@ -46,16 +47,19 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
         return new StringSourceCodeModule(code, conditionSource.getUri());
     }
 
+    @Override
     public IIntSelector getSelector(ICondition condition, Object target, Object[] params, IRuntimeEnv env) {
         Object value = condition.getEvaluator().invoke(target, params, env);
 
         return new ContainsInArraySelector(condition, value);
     }
 
+    @Override
     public boolean isIndexed() {
         return true;
     }
 
+    @Override
     public ARuleIndex makeIndex(ICondition condition, IIntIterator iterator) {
 
         if (iterator.size() < 1) {
@@ -169,6 +173,7 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
         uniqueKeysSize = uniqueVals == null ? 0 : uniqueVals.size();
     }
 
+    @Override
     protected IDomain<Object> indexedDomain(IBaseCondition condition) {
         int len = condition.getNumberOfRules();
         ArrayList<Object> list = new ArrayList<>(len);

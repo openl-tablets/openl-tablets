@@ -56,6 +56,7 @@ public class StringNodeBinder extends ANodeBinder {
         return (char) res;
     }
 
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         String s = node.getText();

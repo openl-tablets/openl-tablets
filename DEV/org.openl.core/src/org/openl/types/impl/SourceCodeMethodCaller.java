@@ -35,6 +35,7 @@ public class SourceCodeMethodCaller implements IMethodCaller {
         this.resultType = resultType;
     }
 
+    @Override
     public IOpenMethod getMethod() {
         if (method == null) {
             IOpenSourceCodeModule src = new StringSourceCodeModule(sourceCode, null);
@@ -43,12 +44,13 @@ public class SourceCodeMethodCaller implements IMethodCaller {
                 resultType == null ? JavaOpenClass.VOID : resultType,
                 signature,
                 null);
-            BindingContext cxt = new BindingContext((Binder) op.getBinder(), null, op);
+            BindingContext cxt = new BindingContext(op.getBinder(), null, op);
             method = OpenLManager.makeMethod(op, src, methodHeader, cxt);
         }
         return method;
     }
 
+    @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return getMethod().invoke(null, params, env);
     }

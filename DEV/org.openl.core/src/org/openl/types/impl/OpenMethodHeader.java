@@ -43,10 +43,12 @@ public class OpenMethodHeader implements IOpenMethodHeader {
      *
      * @see org.openl.types.IOpenMember#getDeclaringClass()
      */
+    @Override
     public IOpenClass getDeclaringClass() {
         return declaringClass;
     }
 
+    @Override
     public String getDisplayName(int mode) {
         return MethodUtil.printSignature(this, mode);
     }
@@ -56,6 +58,7 @@ public class OpenMethodHeader implements IOpenMethodHeader {
      *
      * @see org.openl.types.IOpenMember#getInfo()
      */
+    @Override
     public IMemberMetaInfo getInfo() {
         return info;
     }
@@ -65,10 +68,12 @@ public class OpenMethodHeader implements IOpenMethodHeader {
      *
      * @see org.openl.base.INamedThing#getName()
      */
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public IMethodSignature getSignature() {
         return signature;
     }
@@ -78,6 +83,7 @@ public class OpenMethodHeader implements IOpenMethodHeader {
      *
      * @see org.openl.types.IOpenMember#getType()
      */
+    @Override
     public IOpenClass getType() {
         return typeClass;
     }
@@ -87,6 +93,7 @@ public class OpenMethodHeader implements IOpenMethodHeader {
      *
      * @see org.openl.types.IOpenMember#isStatic()
      */
+    @Override
     public boolean isStatic() {
         return isStatic;
     }

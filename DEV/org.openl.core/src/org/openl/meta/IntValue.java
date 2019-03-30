@@ -27,15 +27,17 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
 
     private static final long serialVersionUID = -3821702883606493390L;
 
-    public static final IntValue ZERO = new IntValue((int) 0);
-    public static final IntValue ONE = new IntValue((int) 1);
-    public static final IntValue MINUS_ONE = new IntValue((int) -1);
+    public static final IntValue ZERO = new IntValue(0);
+    public static final IntValue ONE = new IntValue(1);
+    public static final IntValue MINUS_ONE = new IntValue(-1);
 
     public static class IntValueAdapter extends XmlAdapter<Integer, IntValue> {
+        @Override
         public IntValue unmarshal(Integer val) throws Exception {
             return new IntValue(val);
         }
 
+        @Override
         public Integer marshal(IntValue val) throws Exception {
             return val.getValue();
         }
@@ -332,7 +334,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
         //
         // validate(value1, value2, NumberOperations.POW);
         if (value1 == null) {
-            return value2 == null ? null : new org.openl.meta.IntValue((int) 0);
+            return value2 == null ? null : new org.openl.meta.IntValue(0);
         } else if (value2 == null) {
             return value1;
         }
@@ -410,7 +412,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @return the casted value to org.openl.meta.IntValue
      */
     public static org.openl.meta.IntValue autocast(byte x, org.openl.meta.IntValue y) {
-        return new org.openl.meta.IntValue((int) x);
+        return new org.openl.meta.IntValue(x);
     }
 
     /**
@@ -422,7 +424,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @return the casted value to org.openl.meta.IntValue
      */
     public static org.openl.meta.IntValue autocast(short x, org.openl.meta.IntValue y) {
-        return new org.openl.meta.IntValue((int) x);
+        return new org.openl.meta.IntValue(x);
     }
 
     /**
@@ -434,7 +436,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @return the casted value to org.openl.meta.IntValue
      */
     public static org.openl.meta.IntValue autocast(int x, org.openl.meta.IntValue y) {
-        return new org.openl.meta.IntValue((int) x);
+        return new org.openl.meta.IntValue(x);
     }
 
     /**
@@ -446,7 +448,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
      * @return the casted value to org.openl.meta.IntValue
      */
     public static org.openl.meta.IntValue autocast(char x, org.openl.meta.IntValue y) {
-        return new org.openl.meta.IntValue((int) x);
+        return new org.openl.meta.IntValue(x);
     }
 
     // Constructors
@@ -477,6 +479,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
     /**
      * Prints the value of the current variable
      */
+    @Override
     public String printValue() {
         return String.valueOf(value);
     }
@@ -643,12 +646,12 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
 
     @Override
     public double doubleValue() {
-        return (double) value;
+        return value;
     }
 
     @Override
     public float floatValue() {
-        return (float) value;
+        return value;
     }
 
     @Override
@@ -658,7 +661,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> implements Compar
 
     @Override
     public long longValue() {
-        return (long) value;
+        return value;
     }
 
     @Override

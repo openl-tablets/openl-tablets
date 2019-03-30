@@ -19,15 +19,18 @@ public class DateRangeDomain implements IDomain<Date> {
             current.add(Calendar.DAY_OF_MONTH, -1);
         }
 
+        @Override
         public boolean hasNext() {
             return current.before(max);
         }
 
+        @Override
         public Date next() {
             current.add(Calendar.DAY_OF_MONTH, 1);
             return current.getTime();
         }
 
+        @Override
         public void remove() {
         }
     }
@@ -94,6 +97,7 @@ public class DateRangeDomain implements IDomain<Date> {
         return cal.getTime();
     }
 
+    @Override
     public Iterator<Date> iterator() {
         return new DateIterator();
     }
@@ -108,10 +112,12 @@ public class DateRangeDomain implements IDomain<Date> {
         return (int) daysBetween(min, max) + 1;
     }
 
+    @Override
     public IType getElementType() {
         return null;
     }
 
+    @Override
     public boolean selectObject(Date obj) {
         return obj.before(max.getTime()) && obj.after(min.getTime());
     }

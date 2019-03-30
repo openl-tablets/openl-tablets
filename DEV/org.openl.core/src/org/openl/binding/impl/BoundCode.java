@@ -46,10 +46,12 @@ public class BoundCode implements IBoundCode {
      *
      * @see org.openl.binding.IBoundCode#getError()
      */
+    @Override
     public SyntaxNodeException[] getErrors() {
         return error;
     }
 
+    @Override
     public Collection<OpenLMessage> getMessages() {
         return Collections.unmodifiableCollection(messages);
     }
@@ -59,6 +61,7 @@ public class BoundCode implements IBoundCode {
      *
      * @see org.openl.binding.IBoundCode#getParsedCode()
      */
+    @Override
     public IParsedCode getParsedCode() {
         return parsedCode;
     }
@@ -68,6 +71,7 @@ public class BoundCode implements IBoundCode {
      *
      * @see org.openl.binding.IBoundCode#getTopNode()
      */
+    @Override
     public IBoundNode getTopNode() {
         return topNode;
     }

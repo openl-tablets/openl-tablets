@@ -53,22 +53,27 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
         source = buf.toString();
     }
 
+    @Override
     public InputStream getByteStream() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Reader getCharacterStream() {
         return new FastStringReader(source);
     }
 
+    @Override
     public String getCode() {
         return source;
     }
 
+    @Override
     public int getStartPosition() {
         return 0;
     }
 
+    @Override
     public String getUri() {
         for (int i = 0; i < modulesCount.length; i++) {
             if (modulesCount[i] > 0) {
@@ -78,14 +83,17 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
         return null;
     }
 
+    @Override
     public Map<String, Object> getParams() {
         return params;
     }
 
+    @Override
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
 
+    @Override
     public boolean isModified() {
         for (IOpenSourceCodeModule module : modules) {
             if (module.isModified()) {

@@ -14,6 +14,7 @@ import org.openl.syntax.impl.IdentifierNode;
  */
 public class IdentifierSequenceBinder extends ANodeBinder {
 
+    @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         String longName = concatChildren(node);

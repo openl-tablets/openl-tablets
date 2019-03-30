@@ -22,10 +22,12 @@ public class ClassMinMaxBuilder implements IMatcherBuilder {
         matcher = new ClassMinMaxMatcher(clazz, isMaxMode);
     }
 
+    @Override
     public IMatcher getInstanceIfSupports(IOpenClass type) {
         return (clazz == type.getInstanceClass()) ? matcher : null;
     }
 
+    @Override
     public String getName() {
         return (isMaxMode) ? OP_MAX : OP_MIN;
     }

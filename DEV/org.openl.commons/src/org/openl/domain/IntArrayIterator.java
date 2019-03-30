@@ -15,6 +15,7 @@ public class IntArrayIterator extends AIntIterator {
         this.ary = ary;
     }
 
+    @Override
     public boolean hasNext() {
         return current < ary.length;
     }
@@ -28,6 +29,7 @@ public class IntArrayIterator extends AIntIterator {
      *
      */
 
+    @Override
     public int nextInt() {
         return ary[current++];
     }

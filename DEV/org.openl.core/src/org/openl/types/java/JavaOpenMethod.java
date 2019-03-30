@@ -37,10 +37,12 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      *
      * @see org.openl.types.IOpenMember#getDeclaringClass()
      */
+    @Override
     public IOpenClass getDeclaringClass() {
         return JavaOpenClass.getOpenClass(method.getDeclaringClass());
     }
 
+    @Override
     public String getDisplayName(int mode) {
         return MethodUtil.printSignature(this, mode);
     }
@@ -50,6 +52,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      *
      * @see org.openl.types.IOpenMember#getInfo()
      */
+    @Override
     public IMemberMetaInfo getInfo() {
         return null;
     }
@@ -59,6 +62,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      *
      * @see org.openl.types.IMethodCaller#getMethod()
      */
+    @Override
     public IOpenMethod getMethod() {
         return this;
     }
@@ -68,6 +72,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      *
      * @see org.openl.base.INamedThing#getName()
      */
+    @Override
     public String getName() {
         return method.getName();
     }
@@ -77,6 +82,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      *
      * @see org.openl.types.IMethodSignature#getNumberOfParameters()
      */
+    @Override
     public int getNumberOfParameters() {
         return getParameterTypes().length;
     }
@@ -86,6 +92,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      *
      * @see org.openl.types.IMethodSignature#getParameterName(int)
      */
+    @Override
     public String getParameterName(int i) {
         return null;
     }
@@ -95,10 +102,12 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      *
      * @see org.openl.types.IMethodSignature#getParameterType(int)
      */
+    @Override
     public IOpenClass getParameterType(int i) {
         return getParameterTypes()[i];
     }
 
+    @Override
     public IOpenClass[] getParameterTypes() {
         if (parameterTypes == null) {
             synchronized (this) {
@@ -115,6 +124,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      *
      * @see org.openl.types.IOpenMethodHeader#getSignature()
      */
+    @Override
     public IMethodSignature getSignature() {
         return this;
     }
@@ -124,6 +134,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      *
      * @see org.openl.types.IOpenMember#getType()
      */
+    @Override
     public IOpenClass getType() {
         return JavaOpenClass.getOpenClass(method.getReturnType());
     }
@@ -133,6 +144,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      *
      * @see org.openl.types.IOpenMethod#invoke(java.lang.Object, java.lang.Object[])
      */
+    @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         try {
             return method.invoke(target, params);
@@ -152,6 +164,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      *
      * @see org.openl.types.IOpenMember#isStatic()
      */
+    @Override
     public boolean isStatic() {
         return Modifier.isStatic(method.getModifiers());
     }

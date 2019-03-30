@@ -13,6 +13,7 @@ public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {
         this.delegate = delegate;
     }
 
+    @Override
     public Object getValue(String name) {
         Object value = super.getValue(name);
         if(value == null){

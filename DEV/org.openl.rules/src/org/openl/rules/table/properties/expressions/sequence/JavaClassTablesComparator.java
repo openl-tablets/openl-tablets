@@ -21,6 +21,7 @@ public class JavaClassTablesComparator implements IPriorityRule {
         return comparator;
     }
 
+    @Override
     public int compare(ITableProperties properties1, ITableProperties properties2) {
         return comparator.compare(properties1, properties2);
     }

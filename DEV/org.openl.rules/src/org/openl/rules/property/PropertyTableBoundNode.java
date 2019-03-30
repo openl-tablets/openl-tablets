@@ -23,6 +23,7 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
         super(syntaxNode);
     }
 
+    @Override
     public void addTo(ModuleOpenClass openClass) {             
         TableSyntaxNode tsn = getTableSyntaxNode();
         if (tableName != null) {
@@ -38,6 +39,7 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
         return null;
     }
 
+    @Override
     public void finalizeBind(IBindingContext cxt) {
         // don`t need to finalize anything
     }
@@ -75,6 +77,7 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
         }
     }
 
+    @Override
     public void removeDebugInformation(IBindingContext cxt) {
         if (cxt.isExecutionMode() && field != null) {
             field.setPropertiesInstance(getTablePropertiesForExecutionMode(propertiesInstance));

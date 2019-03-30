@@ -37,6 +37,7 @@ public class XlsPreBinder extends XlsBinder {
         this.prebindHandler = prebindHandler;
     }
 
+    @Override
     protected void finilizeBind(IMemberBoundNode memberBoundNode,
             TableSyntaxNode tableSyntaxNode,
             RulesModuleBindingContext moduleContext) {

@@ -24,14 +24,17 @@ public class JavaListAggregateInfo extends AAggregateInfo {
 
     static class ListIndex implements IOpenIndex {
 
+        @Override
         public IOpenClass getElementType() {
             return JavaOpenClass.OBJECT;
         }
 
+        @Override
         public IOpenClass getIndexType() {
             return JavaOpenClass.INT;
         }
 
+        @Override
         @SuppressWarnings("unchecked")
         public Object getValue(Object container, Object index) {
             if (container == null || index == null) {
@@ -40,10 +43,12 @@ public class JavaListAggregateInfo extends AAggregateInfo {
             return ((List<Object>) container).get((Integer) index);
         }
 
+        @Override
         public boolean isWritable() {
             return true;
         }
 
+        @Override
         @SuppressWarnings("unchecked")
         public void setValue(Object container, Object index, Object value) {
             ((List<Object>) container).set((Integer) index, value);
@@ -52,10 +57,12 @@ public class JavaListAggregateInfo extends AAggregateInfo {
 
     public static final IAggregateInfo LIST_AGGREGATE = new JavaListAggregateInfo();
 
+    @Override
     public IOpenClass getComponentType(IOpenClass aggregateType) {
         return JavaOpenClass.OBJECT;
     }
 
+    @Override
     public IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType) {
         if (indexType != JavaOpenClass.INT && indexType.getInstanceClass() != Integer.class) {
             return null;
@@ -68,11 +75,13 @@ public class JavaListAggregateInfo extends AAggregateInfo {
         return new ListIndex();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Iterator<Object> getIterator(Object aggregate) {
         return ((Collection<Object>) aggregate).iterator();
     }
 
+    @Override
     public boolean isAggregate(IOpenClass type) {
         return List.class.isAssignableFrom(type.getInstanceClass());
     }

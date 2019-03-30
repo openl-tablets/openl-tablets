@@ -6,6 +6,7 @@ public abstract class AGrid implements IGrid {
 
     public static final String RANGE_SEPARATOR = ":";
 
+    @Override
     public IGridTable[] getTables() {
         return new GridSplitter(this).split();
     }
@@ -16,6 +17,7 @@ public abstract class AGrid implements IGrid {
      * @return URI to the table in the sheet. (e.g. <code>file:D:\work\Workspace\org.openl.tablets.tutorial4\rules
      * \main&wbName=Tutorial_4.xls&wsName=Vehicle-Scoring&range=B3:D12</code>)
      */
+    @Override
     public String getRangeUri(int colStart, int rowStart, int colEnd, int rowEnd) {
 
         if (colStart == colEnd && rowStart == rowEnd) {
@@ -34,6 +36,7 @@ public abstract class AGrid implements IGrid {
         return getUri() + "&" + XlsURLConstants.RANGE + "=" + range;
     }
 
+    @Override
     public IGridRegion getRegionContaining(int col, int row) {
         int nregions = getNumberOfMergedRegions();
         for (int i = 0; i < nregions; i++) {
@@ -45,6 +48,7 @@ public abstract class AGrid implements IGrid {
         return null;
     }
 
+    @Override
     public IGridRegion getRegionStartingAt(int colFrom, int rowFrom) {
         IGridRegion reg = getRegionContaining(colFrom, rowFrom);
         if (reg != null && reg.getLeft() == colFrom && reg.getTop() == rowFrom) {
@@ -53,14 +57,17 @@ public abstract class AGrid implements IGrid {
         return null;
     }
 
+    @Override
     public boolean isPartOfTheMergedRegion(int x, int y) {
         return getRegionContaining(x, y) != null;
     }
 
+    @Override
     public boolean isTopLeftCellInMergedRegion(int column, int row) {
         return getRegionStartingAt(column, row) != null;
     }
 
+    @Override
     public boolean isInOneMergedRegion(int firstCellColumn, int firstCellRow, int secondCellColumn, int secondCellRow) {
         IGridRegion region = getRegionContaining(firstCellColumn, firstCellRow);
         return region != null && org.openl.rules.table.IGridRegion.Tool

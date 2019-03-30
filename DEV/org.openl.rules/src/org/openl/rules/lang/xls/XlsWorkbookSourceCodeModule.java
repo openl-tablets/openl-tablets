@@ -97,6 +97,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator {
         return FileUtils.getName(uri);
     }
 
+    @Override
     public String getUri() {
         return src.getUri();
     }

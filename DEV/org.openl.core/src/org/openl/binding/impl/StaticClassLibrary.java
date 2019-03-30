@@ -40,10 +40,12 @@ public class StaticClassLibrary implements IOpenLibrary {
      * @see org.openl.binding.IMethodFactory#getMatchingMethod(java.lang.String,
      * java.lang.String, org.openl.types.IOpenClass[])
      */
+    @Override
     public IOpenMethod getMethod(String name, IOpenClass[] params) {
         return openClass.getMethod(name, params);
     }
     
+    @Override
     public IOpenField getVar(String name, boolean strictMatch) {
         //This method must return null! See EPBDS-6799.
         return null;

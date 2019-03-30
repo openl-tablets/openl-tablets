@@ -18,6 +18,7 @@ public class ArrayDomainCollector implements IDomainCollector {
         this.propertyToSearch = propertyToSearch;
     }
 
+    @Override
     public void gatherDomains(Map<String, Object> methodProperties) {        
         if (methodProperties != null) {
             Object[] propValues = (Object[])methodProperties.get(propertyToSearch);
@@ -31,6 +32,7 @@ public class ArrayDomainCollector implements IDomainCollector {
         }        
     }
 
+    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public IDomainAdaptor getGatheredDomain() {
         IDomainAdaptor result = null;

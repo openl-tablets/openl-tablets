@@ -16,6 +16,7 @@ public class SetIndentAction extends AUndoableCellAction {
         this.newIndent = indent;
     }
 
+    @Override
     public void doAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
 
@@ -25,6 +26,7 @@ public class SetIndentAction extends AUndoableCellAction {
         grid.setCellIndent(getCol(), getRow(), newIndent);
     }
 
+    @Override
     public void undoAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
         grid.setCellIndent(getCol(), getRow(), prevIndent);

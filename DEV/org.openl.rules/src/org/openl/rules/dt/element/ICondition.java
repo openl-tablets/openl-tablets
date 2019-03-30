@@ -9,10 +9,12 @@ public interface ICondition extends IBaseCondition, IDecisionRow {
 
     DecisionValue calculateCondition(int col, Object target, Object[] dtParams, IRuntimeEnv env);
 
+    @Override
     IConditionEvaluator getConditionEvaluator();
 
     void setConditionEvaluator(IConditionEvaluator iConditionEvaluator);
 
+    @Override
     IMethodCaller getEvaluator();
 
     void setEvaluator(IMethodCaller iMethodCaller);

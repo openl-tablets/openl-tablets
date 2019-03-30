@@ -20,6 +20,7 @@ public class JavaCC30Position implements IPosition {
      * (non-Javadoc)
      * @see org.openl.util.text.Position#getAbsolutePosition(org.openl.util.text.TextInfo)
      */
+    @Override
     public int getAbsolutePosition(TextInfo info) {
 
         if (jcc30line == 0) {
@@ -37,6 +38,7 @@ public class JavaCC30Position implements IPosition {
      * (non-Javadoc)
      * @see org.openl.util.text.Position#getColumn(org.openl.util.text.TextInfo, int)
      */
+    @Override
     public int getColumn(TextInfo info, int tabSize) {
 
         if (jcc30line == 0) {
@@ -54,6 +56,7 @@ public class JavaCC30Position implements IPosition {
      * (non-Javadoc)
      * @see org.openl.util.text.Position#getLine(org.openl.util.text.TextInfo)
      */
+    @Override
     public int getLine(TextInfo info) {
 
         return jcc30line - 1;

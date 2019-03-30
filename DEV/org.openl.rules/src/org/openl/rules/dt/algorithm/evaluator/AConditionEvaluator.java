@@ -9,6 +9,7 @@ public abstract class AConditionEvaluator implements IConditionEvaluator {
 
     private String optimizedSourceCode;
 
+    @Override
     public IDomain<? extends Object> getRuleParameterDomain(IBaseCondition condition) throws DomainCanNotBeDefined {
         IMethodCaller mc = condition.getEvaluator();
         if (mc instanceof ParameterMethodCaller)
@@ -16,6 +17,7 @@ public abstract class AConditionEvaluator implements IConditionEvaluator {
         throw new DomainCanNotBeDefined("Not a Simple Expression", getFormalSourceCode(condition).getCode());
     }
 
+    @Override
     public IDomain<?> getConditionParameterDomain(int paramIdx, IBaseCondition condition) throws DomainCanNotBeDefined {
         return indexedDomain(condition);
     }
@@ -24,10 +26,12 @@ public abstract class AConditionEvaluator implements IConditionEvaluator {
 
     protected abstract IDomain<? extends Object> indexedDomain(IBaseCondition condition) throws DomainCanNotBeDefined;
 
+    @Override
     public String getOptimizedSourceCode() {
         return optimizedSourceCode;
     }
 
+    @Override
     public void setOptimizedSourceCode(String optimizedSourceCode) {
         this.optimizedSourceCode = optimizedSourceCode;
     }

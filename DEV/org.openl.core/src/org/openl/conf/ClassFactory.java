@@ -221,6 +221,7 @@ public class ClassFactory extends AConfigurationElement {
      *
      * @see org.openl.newconf.IConfigurationElement#validate(org.openl.newconf.IConfigurationContext)
      */
+    @Override
     public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
         Class<?> c = validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
 

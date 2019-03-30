@@ -30,6 +30,7 @@ public class JavaTypeConfiguration extends AConfigurationElement implements ITyp
      *
      * @see org.openl.newconf.IMethodFactoryConfigurationElement#getFactory()
      */
+    @Override
     public synchronized ITypeLibrary getLibrary(IConfigurableResourceContext cxt) {
         if (library == null) {
             library = (ITypeLibrary) ClassFactory.newInstance(className, cxt, getUri());
@@ -49,6 +50,7 @@ public class JavaTypeConfiguration extends AConfigurationElement implements ITyp
      *
      * @see org.openl.newconf.IConfigurationElement#validate(org.openl.newconf.IConfigurationContext)
      */
+    @Override
     public void validate(IConfigurableResourceContext cxt) {
         Class<?> c = ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
         ClassFactory.validateSuper(c, ITypeLibrary.class, getUri());

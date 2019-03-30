@@ -17,10 +17,12 @@ public class DecisionTableParameterInfo implements IDecisionTableParameterInfo {
         return index;
     }
 
+    @Override
     public IParameterDeclaration getParameterDeclaration() {
         return row.getParams()[index];
     }
 
+    @Override
     public String getPresentation() {
         return row.getParamPresentation()[index];
     }
@@ -29,6 +31,7 @@ public class DecisionTableParameterInfo implements IDecisionTableParameterInfo {
         return row;
     }
 
+    @Override
     public Object getValue(int ruleN) {
         return row.getParamValue(index, ruleN);
     }

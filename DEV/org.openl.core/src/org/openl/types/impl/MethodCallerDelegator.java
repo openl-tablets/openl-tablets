@@ -16,10 +16,12 @@ public class MethodCallerDelegator implements IMethodCaller {
         return delegate;
     }
 
+    @Override
     public IOpenMethod getMethod() {
         return delegate.getMethod();
     }
 
+    @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return delegate.invoke(target, params, env);
     }

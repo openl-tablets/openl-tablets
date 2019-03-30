@@ -3392,7 +3392,7 @@ public class RulesUtils {
      */
 
     public static <T> T[] add(T[] array, int index, T element) {
-        return (T[]) ArrayUtils.add(array, index, element);
+        return ArrayUtils.add(array, index, element);
     }
 
     /**

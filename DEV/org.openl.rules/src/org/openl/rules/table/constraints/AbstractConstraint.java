@@ -14,6 +14,7 @@ public abstract class AbstractConstraint implements Constraint {
         this.value = value;
     }
 
+    @Override
     public String getValue() {
         return value;
     }

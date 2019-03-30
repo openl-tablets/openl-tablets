@@ -18,6 +18,7 @@ public final class CastsLinkageCast implements IOpenCast {
         }
     }
 
+    @Override
     public Object convert(Object from) {
         if (from == null) {
             return null;
@@ -30,10 +31,12 @@ public final class CastsLinkageCast implements IOpenCast {
         return ret;
     }
 
+    @Override
     public int getDistance() {
         return distance;
     }
 
+    @Override
     public boolean isImplicit() {
         return false;
     }

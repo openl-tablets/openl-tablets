@@ -41,14 +41,17 @@ public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
         this.endPosition = endPosition;
     }
 
+    @Override
     public InputStream getByteStream() {
         return null;
     }
 
+    @Override
     public Reader getCharacterStream() {
         return new FastStringReader(getCode());
     }
 
+    @Override
     public String getCode() {
         String code = baseModule.getCode();
 
@@ -56,6 +59,7 @@ public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
         return code.substring(startPosition, end);
     }
 
+    @Override
     public int getStartPosition() {
         return startPosition;
     }
@@ -64,18 +68,22 @@ public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
         return baseModule;
     }
 
+    @Override
     public String getUri() {
         return baseModule.getUri();
     }
 
+    @Override
     public Map<String, Object> getParams() {
         return params;
     }
 
+    @Override
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
 
+    @Override
     public boolean isModified() {
         return baseModule.isModified();
     }

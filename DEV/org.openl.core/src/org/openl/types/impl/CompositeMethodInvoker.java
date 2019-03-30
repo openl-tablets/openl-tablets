@@ -64,7 +64,8 @@ public class CompositeMethodInvoker implements Invokable {
         }
     }
 
-	public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+	@Override
+    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         try {
             env.pushThis(target);
             IOpenRunner runner = env.getRunner();

@@ -36,6 +36,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
     private boolean hasAliasTypeParams;
     private IOpenCast[] aliasDatatypesCasts;
 
+    @Override
     public String getUri() {
         if (this.uri == null) {
             throw new IllegalStateException("Table uri isn't defined in the method!");
@@ -188,6 +189,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
         return boundNode;
     }
 
+    @Override
     public Map<String, Object> getProperties() {
         if (getMethodProperties() != null) {
             return getMethodProperties().getAllProperties();
@@ -196,6 +198,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
 
     }
 
+    @Override
     public ITableProperties getMethodProperties() {
         return properties;
     }
@@ -213,6 +216,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
      * Overridden to get access to {@link TableSyntaxNode} from current
      * implementation.
      */
+    @Override
     public TableSyntaxNode getSyntaxNode() {
         if (boundNode != null) {
             return boundNode.getTableSyntaxNode();

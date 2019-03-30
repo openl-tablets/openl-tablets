@@ -48,10 +48,12 @@ public class Algorithm extends AlgorithmFunction {
         initProperties(getSyntaxNode().getTableProperties());
     }
 
+    @Override
     public String getSourceUrl() {
         return getSyntaxNode().getUri();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
         if (invoker == null) {
@@ -88,6 +90,7 @@ public class Algorithm extends AlgorithmFunction {
         return thisClass;
     }
 
+    @Override
     public BindingDependencies getDependencies() {
         BindingDependencies bindingDependencies = new RulesBindingDependencies();
         getBoundNode().updateDependency(bindingDependencies);

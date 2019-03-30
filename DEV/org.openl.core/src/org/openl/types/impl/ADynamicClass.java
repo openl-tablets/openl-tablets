@@ -74,6 +74,7 @@ public abstract class ADynamicClass extends AOpenClass {
         return methodMap;
     }
 
+    @Override
     public IOpenMethod getMethod(String name, IOpenClass[] classes) {
         return getMethod(name, classes, false);
     }
@@ -115,14 +116,17 @@ public abstract class ADynamicClass extends AOpenClass {
         return fieldMap;
     }
 
+    @Override
     public IAggregateInfo getAggregateInfo() {
         return JavaNoAggregateInfo.NO_AGGREGATE;
     }
 
+    @Override
     public String getDisplayName(int mode) {
         return name;
     }
 
+    @Override
     public Class<?> getInstanceClass() {
         return instanceClass;
     }
@@ -140,6 +144,7 @@ public abstract class ADynamicClass extends AOpenClass {
         invalidateInternalData();
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -154,18 +159,22 @@ public abstract class ADynamicClass extends AOpenClass {
         return instanceClass.getPackage().getName();
     }
 
+    @Override
     public boolean isAssignableFrom(Class<?> c) {
         return instanceClass.isAssignableFrom(c);
     }
 
+    @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
         return instanceClass.isAssignableFrom(ioc.getInstanceClass());
     }
 
+    @Override
     public boolean isInstance(Object instance) {
         return instanceClass.isInstance(instance);
     }
 
+    @Override
     public Iterable<IOpenClass> superClasses() {
         return Collections.emptyList();
     }

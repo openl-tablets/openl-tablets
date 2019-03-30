@@ -35,6 +35,7 @@ public class FieldDescription {
         return typeDescription.isArray();
     }
 
+    @Override
     public String toString() {
         return typeDescription.toString();
     }

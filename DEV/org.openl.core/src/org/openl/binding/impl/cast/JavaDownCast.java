@@ -20,6 +20,7 @@ final class JavaDownCast implements IOpenCast {
         this.castFactory = castFactory;
     }
 
+    @Override
     public Object convert(Object from) {
         if (from == null){
             return null;
@@ -46,6 +47,7 @@ final class JavaDownCast implements IOpenCast {
      * @see org.openl.types.IOpenCast#getDistance(org.openl.types.IOpenClass,
      * org.openl.types.IOpenClass)
      */
+    @Override
     public int getDistance() {
         return CastFactory.JAVA_DOWN_CAST_DISTANCE;
     }
@@ -55,6 +57,7 @@ final class JavaDownCast implements IOpenCast {
      * 
      * @see org.openl.types.IOpenCast#isImplicit()
      */
+    @Override
     public boolean isImplicit() {
         return false;
     }
