@@ -73,12 +73,13 @@ public class VarDeclarationNode extends ABoundNode implements IMemberBoundNode {
      *
      * @see org.openl.binding.IBoundNode#getType()
      */
+    @Override
     public IOpenClass getType() {
         return JavaOpenClass.VOID;
     }
 
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
-        //nothing to remove
+        // nothing to remove
     }
-    
+
 }

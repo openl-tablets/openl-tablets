@@ -23,10 +23,10 @@ import org.openl.types.impl.DynamicObjectField;
 public class VarDeclarationNodeBinder extends ANodeBinder {
 
     private final IBoundNode createVarDeclarationNode(ISyntaxNode node,
-                                                      String name,
-                                                      ISyntaxNode initializationNode,
-                                                      IOpenClass varType,
-                                                      IBindingContext bindingContext) throws Exception {
+            String name,
+            ISyntaxNode initializationNode,
+            IOpenClass varType,
+            IBindingContext bindingContext) throws Exception {
 
         IBoundNode init = null;
         IOpenCast cast = null;
@@ -48,7 +48,7 @@ public class VarDeclarationNodeBinder extends ANodeBinder {
         IBoundNode typeNode = bindChildNode(node.getChild(0), bindingContext);
         IOpenClass varType = typeNode.getType();
 
-        List<IBoundNode> boundNodes = new ArrayList<IBoundNode>();
+        List<IBoundNode> boundNodes = new ArrayList<>();
 
         for (int i = 1; i < node.getNumberOfChildren(); ++i) {
             // we may get basically 2 different situations here, either just

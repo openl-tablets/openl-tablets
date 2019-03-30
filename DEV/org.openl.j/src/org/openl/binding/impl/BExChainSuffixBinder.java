@@ -29,8 +29,6 @@ public class BExChainSuffixBinder extends ANodeBinder {
 
         IBoundNode target = bindChildNode(node.getChild(targetInd), bindingContext);
         
-        IBoundNode result = bindTargetNode(node.getChild(chainInd), bindingContext, target);
-
-        return result;
+        return bindTargetNode(node.getChild(chainInd), bindingContext, target);
     }
 }

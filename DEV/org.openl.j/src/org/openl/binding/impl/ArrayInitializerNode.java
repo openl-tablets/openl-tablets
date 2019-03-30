@@ -49,6 +49,7 @@ public class ArrayInitializerNode extends ABoundNode {
      *
      * @see org.openl.binding.IBoundNode#getType()
      */
+    @Override
     public IOpenClass getType() {
         return type;
     }

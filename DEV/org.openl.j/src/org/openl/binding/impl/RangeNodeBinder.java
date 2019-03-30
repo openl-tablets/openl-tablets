@@ -31,15 +31,15 @@ public class RangeNodeBinder extends ANodeBinder {
 
         String type = node.getType();
         if (type.contains("brackets")) {
-            range = bindBrackets(children, bindingContext);
+            range = bindBrackets(children);
         } else if (type.contains("binary")) {
-            range = bindBinary(children, type, bindingContext);
+            range = bindBinary(children, type);
         } else if (type.contains("number")) {
-            range = bindNumber(children, bindingContext);
+            range = bindNumber(children);
         } else if (type.contains("unary.prefix")) {
-            range = bindPrefix(children, type, bindingContext);
+            range = bindPrefix(children, type);
         } else if (type.contains("unary.suffix")) {
-            range = bindSuffix(children, type, bindingContext);
+            range = bindSuffix(children, type);
         }
 
         if (range == null) {
@@ -49,7 +49,7 @@ public class RangeNodeBinder extends ANodeBinder {
         return new LiteralBoundNode(node, range, JavaOpenClass.getOpenClass(RangeWithBounds.class));
     }
 
-    private RangeWithBounds bindBrackets(IBoundNode[] children, IBindingContext bindingContext) {
+    private RangeWithBounds bindBrackets(IBoundNode[] children) {
         int minBoundIndex = -1;
         int maxBoundIndex = -1;
 
@@ -85,13 +85,13 @@ public class RangeNodeBinder extends ANodeBinder {
         return new RangeWithBounds(min, max, leftBoundType, rightBoundType);
     }
 
-    private RangeWithBounds bindBinary(IBoundNode[] children, String type, IBindingContext bindingContext) {
+    private RangeWithBounds bindBinary(IBoundNode[] children, String type) {
         Number val = (Number) ((LiteralBoundNode) children[0]).getValue();
         Number val2 = (Number) ((LiteralBoundNode) children[1]).getValue();
 
         if (val.doubleValue() > val2.doubleValue()) {
-            throw new OpenLRuntimeException(String.format("%s must be more or equal than %s", val2.toString(), val
-                    .toString()));
+            throw new OpenLRuntimeException(
+                String.format("%s must be more or equal than %s", val2.toString(), val.toString()));
         }
 
         if (type.endsWith("minus") || type.endsWith("ddot")) {
@@ -104,12 +104,12 @@ public class RangeNodeBinder extends ANodeBinder {
         return null;
     }
 
-    private RangeWithBounds bindNumber(IBoundNode[] children, IBindingContext bindingContext) {
+    private RangeWithBounds bindNumber(IBoundNode[] children) {
         Number val = (Number) ((LiteralBoundNode) children[0]).getValue();
         return new RangeWithBounds(val, val);
     }
 
-    private RangeWithBounds bindPrefix(IBoundNode[] children, String type, IBindingContext bindingContext) {
+    private RangeWithBounds bindPrefix(IBoundNode[] children, String type) {
         Number val = (Number) ((LiteralBoundNode) children[0]).getValue();
 
         if (type.endsWith("lt")) {
@@ -127,7 +127,7 @@ public class RangeNodeBinder extends ANodeBinder {
         return null;
     }
 
-    private RangeWithBounds bindSuffix(IBoundNode[] children, String type, IBindingContext bindingContext) {
+    private RangeWithBounds bindSuffix(IBoundNode[] children, String type) {
         Number val = (Number) ((LiteralBoundNode) children[0]).getValue();
 
         if (type.endsWith("plus") || type.endsWith("and.more")) {
@@ -138,7 +138,7 @@ public class RangeNodeBinder extends ANodeBinder {
         }
         return null;
     }
-    
+
     private Number getMax(Number number) {
 
         if (number.getClass() == Double.class) {

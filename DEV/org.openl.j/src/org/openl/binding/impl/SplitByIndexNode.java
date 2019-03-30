@@ -86,6 +86,7 @@ class SplitByIndexNode extends ABoundNode {
         return result;
     }
 
+    @Override
     public IOpenClass getType() {
 
         IOpenClass containerType = targetNode.getType();

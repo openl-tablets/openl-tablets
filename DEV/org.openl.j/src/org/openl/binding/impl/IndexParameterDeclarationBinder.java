@@ -9,57 +9,47 @@ import org.openl.vm.IRuntimeEnv;
 
 public class IndexParameterDeclarationBinder extends ANodeBinder {
 
-	@Override
-	public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
-			throws Exception {
+    @Override
+    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
-		ISyntaxNode nameSyntaxNode;
-		ISyntaxNode typeSyntaxNode;
-		IBoundNode typeBoundNode = null;
-		
-		if (node.getNumberOfChildren() == 1)
-		{
-			nameSyntaxNode = node.getChild(0);
-		}
-		else
-		{
-		     typeSyntaxNode =   node.getChild(0);
-		     typeBoundNode = bindChildNode(typeSyntaxNode, bindingContext);
-			 nameSyntaxNode = node.getChild(1);
-			
-		}
-		
-		String name = ((IdentifierNode)nameSyntaxNode).getIdentifier();
+        ISyntaxNode nameSyntaxNode;
+        ISyntaxNode typeSyntaxNode;
+        IBoundNode typeBoundNode = null;
 
-		
-		
-		return new IndexParameterNode(node, typeBoundNode, name);
-	}
+        if (node.getNumberOfChildren() == 1) {
+            nameSyntaxNode = node.getChild(0);
+        } else {
+            typeSyntaxNode = node.getChild(0);
+            typeBoundNode = bindChildNode(typeSyntaxNode, bindingContext);
+            nameSyntaxNode = node.getChild(1);
 
-	static public class IndexParameterNode extends ABoundNode {
+        }
+        String name = ((IdentifierNode) nameSyntaxNode).getIdentifier();
+        return new IndexParameterNode(node, typeBoundNode, name);
+    }
 
+    public static class IndexParameterNode extends ABoundNode {
+        private final String name;
+        private final IBoundNode typeBoundNode;
 
-		private final String name;
-		private final IBoundNode typeBoundNode;
-		
-		IndexParameterNode(ISyntaxNode syntaxNode, IBoundNode typeBoundNode, String name) {
-			super(syntaxNode, typeBoundNode);
-			this.name = name;
-			this.typeBoundNode = typeBoundNode;
-		}
+        IndexParameterNode(ISyntaxNode syntaxNode, IBoundNode typeBoundNode, String name) {
+            super(syntaxNode, typeBoundNode);
+            this.name = name;
+            this.typeBoundNode = typeBoundNode;
+        }
 
-		@Override
-		protected Object evaluateRuntime(IRuntimeEnv env) {
-			return null;
-		}
+        @Override
+        protected Object evaluateRuntime(IRuntimeEnv env) {
+            return null;
+        }
 
-		@Override
-		public IOpenClass getType() {
-			return typeBoundNode == null ? null : typeBoundNode.getType() ;
-		}
+        @Override
+        public IOpenClass getType() {
+            return typeBoundNode == null ? null : typeBoundNode.getType();
+        }
 
-		public String getName() {
-			return name;
-		}
-	}
+        public String getName() {
+            return name;
+        }
+    }
 }

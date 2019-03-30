@@ -45,8 +45,8 @@ public class BinaryOpNodeOr extends ABoundNode {
         }
     }
 
+    @Override
     public IOpenClass getType() {
-
         return JavaOpenClass.BOOLEAN;
     }
 

@@ -110,7 +110,7 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
     }
 
     private List<Integer> getIndexesOfArrayArguments() {
-        List<Integer> indexes = new ArrayList<Integer>();
+        List<Integer> indexes = new ArrayList<>();
         for (int i = 0; i < argumentsTypes.length; i++) {
             if (argumentsTypes[i].isArray()) {
                 indexes.add(i);
@@ -121,11 +121,11 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
 
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
         List<Integer> indexesOfArrayArguments = getIndexesOfArrayArguments();
-        if (indexesOfArrayArguments.size() > 0) {
+        if (!indexesOfArrayArguments.isEmpty()) {
             IOpenClass[] unwrappedArgumentsTypes = new IOpenClass[argumentsTypes.length];
             System.arraycopy(argumentsTypes, 0, unwrappedArgumentsTypes, 0, argumentsTypes.length);
 
-            ArrayDeque<Integer> arrayArgArguments = new ArrayDeque<Integer>();
+            ArrayDeque<Integer> arrayArgArguments = new ArrayDeque<>();
             return getMultiCallMethodNode(node, bindingContext, unwrappedArgumentsTypes,
                     arrayArgArguments, indexesOfArrayArguments, 0);
         } else {

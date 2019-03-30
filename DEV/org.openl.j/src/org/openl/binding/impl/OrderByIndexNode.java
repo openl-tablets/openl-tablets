@@ -81,6 +81,7 @@ class OrderByIndexNode extends ABoundNode {
         return CollectionUtils.toArray(objects, instanceClass);
     }
 
+    @Override
     public IOpenClass getType() {
         IOpenClass type = targetNode.getType();
         if (type.isArray()) {

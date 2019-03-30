@@ -45,6 +45,7 @@ class SelectAllIndexNode extends ABoundNode {
         return CollectionUtils.toArray(firedElements, instanceClass);
     }
 
+    @Override
     public IOpenClass getType() {
         IOpenClass type = targetNode.getType();
         if (type.isArray()) {

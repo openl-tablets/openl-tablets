@@ -2,7 +2,6 @@ package org.openl.binding.impl;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundNode;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
@@ -27,7 +26,7 @@ public class IndexNode extends ATargetBoundNode {
     }
 
     @Override
-    public void assign(Object value, IRuntimeEnv env) throws OpenLRuntimeException {
+    public void assign(Object value, IRuntimeEnv env) {
         Object target = getTarget(env);
 
         index.setValue(target, children[0].evaluate(env), value);
@@ -43,6 +42,7 @@ public class IndexNode extends ATargetBoundNode {
      *
      * @see org.openl.binding.IBoundNode#getType()
      */
+    @Override
     public IOpenClass getType() {
         return index.getElementType();
     }

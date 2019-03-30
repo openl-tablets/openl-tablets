@@ -48,7 +48,7 @@ public class LocalVarBinder extends ANodeBinder {
         IBoundNode typeNode = bindChildNode(node.getChild(0), bindingContext);
         IOpenClass varType = typeNode.getType();
 
-        List<IBoundNode> boundNodes = new ArrayList<IBoundNode>();
+        List<IBoundNode> boundNodes = new ArrayList<>();
 
         for (int i = 1; i < node.getNumberOfChildren(); ++i) {
 

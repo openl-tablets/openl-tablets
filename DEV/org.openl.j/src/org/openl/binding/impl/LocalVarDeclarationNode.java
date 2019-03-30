@@ -41,6 +41,7 @@ public class LocalVarDeclarationNode extends ABoundNode {
      *
      * @see org.openl.binding.IBoundNode#getType()
      */
+    @Override
     public IOpenClass getType() {
         return JavaOpenClass.VOID;
     }

@@ -33,6 +33,7 @@ public class ReturnNode extends ABoundNode {
      *
      * @see org.openl.binding.IBoundNode#getType()
      */
+    @Override
     public IOpenClass getType() {
         return children.length == 0 ? NullOpenClass.the : children[0].getType();
     }

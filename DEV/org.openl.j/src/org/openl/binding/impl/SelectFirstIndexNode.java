@@ -39,6 +39,7 @@ class SelectFirstIndexNode extends ABoundNode {
         return null;
     }
 
+    @Override
     public IOpenClass getType() {
         IOpenClass type = targetNode.getType();
         return type.getAggregateInfo().getComponentType(type);
