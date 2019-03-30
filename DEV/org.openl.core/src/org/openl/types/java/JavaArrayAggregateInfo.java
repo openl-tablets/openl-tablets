@@ -20,7 +20,7 @@ import org.openl.util.OpenIterator;
  */
 public class JavaArrayAggregateInfo extends AAggregateInfo {
 
-    static public final IAggregateInfo ARRAY_AGGREGATE = new JavaArrayAggregateInfo();
+    public static final IAggregateInfo ARRAY_AGGREGATE = new JavaArrayAggregateInfo();
 
     /*
      * (non-Javadoc)

@@ -10,8 +10,6 @@ import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Element in array/list/map field
@@ -20,7 +18,6 @@ import org.slf4j.LoggerFactory;
  */
 
 public class CollectionElementField extends AOpenField {
-    private final Logger log = LoggerFactory.getLogger(CollectionElementField.class);
     private int elementIndex;
     private Object mapKey;
     private IOpenField field;
@@ -161,6 +158,7 @@ public class CollectionElementField extends AOpenField {
         }
     }
 
+    @Override
     public boolean isWritable() {
         return true;
     }

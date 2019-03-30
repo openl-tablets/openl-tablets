@@ -2,6 +2,7 @@ package org.openl.rules.overload;
 
 import org.junit.Test;
 import org.openl.rules.TestUtils;
+import org.openl.rules.testmethod.TestUnitsResults;
 
 public class TestMethodOverloadSupportTest {
 
@@ -12,6 +13,6 @@ public class TestMethodOverloadSupportTest {
     }
 
     public interface ITestI {
-        void driverRiskTest();
+        TestUnitsResults driverRiskTest();
     }
 }

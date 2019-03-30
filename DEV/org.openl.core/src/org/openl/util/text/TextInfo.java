@@ -20,7 +20,7 @@ public class TextInfo {
 
     int[] lineTable;
 
-    static public int getColumn(String line, int linePos, int tabsize) {
+    public static int getColumn(String line, int linePos, int tabsize) {
         int col = 0;
         for (int i = 0; i < linePos; i++) {
             if (line.charAt(i) == '\t') {
@@ -32,7 +32,7 @@ public class TextInfo {
         return col;
     }
 
-    static public int getPosition(String line, int column, int tabsize) {
+    public static int getPosition(String line, int column, int tabsize) {
         if (column == 0) {
             return 0;
         }
@@ -89,18 +89,18 @@ public class TextInfo {
     protected void scanText() {
         boolean isCR = false;
         boolean isLF = true;
-        List<Integer> table = new ArrayList<Integer>();
+        List<Integer> table = new ArrayList<>();
 
         for (int i = 0; i < text.length(); ++i) {
             char c = text.charAt(i);
 
             if (isLF) {
                 isLF = false;
-                table.add(new Integer(i));
+                table.add(i);
             } else if (isCR) {
                 isCR = false;
                 if (c != '\n') {
-                    table.add(new Integer(i));
+                    table.add(i);
                 }
             }
 
@@ -114,7 +114,7 @@ public class TextInfo {
         // TODO SAM: No test case yet.
         // To have: lineIdx(text.length()) == totalLines()
         if (isLF || isCR) {
-            table.add(new Integer(text.length()));
+            table.add(text.length());
         }
 
         lineTable = new int[table.size()];

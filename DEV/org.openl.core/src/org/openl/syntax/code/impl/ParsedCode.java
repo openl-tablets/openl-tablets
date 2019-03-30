@@ -83,11 +83,11 @@ public class ParsedCode implements IParsedCode {
     }
 
     public Set<CompiledDependency> getCompiledDependencies() {
-        return new HashSet<CompiledDependency>(compiledDependencies);
+        return new HashSet<>(compiledDependencies);
     }
 
     public void setCompiledDependencies(Set<CompiledDependency> compiledDependencies) {
-        this.compiledDependencies = new HashSet<CompiledDependency>(compiledDependencies);
+        this.compiledDependencies = new HashSet<>(compiledDependencies);
     }
 
     public IDependency[] getDependencies() {

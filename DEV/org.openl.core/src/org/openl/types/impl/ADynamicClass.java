@@ -21,7 +21,7 @@ import org.openl.types.java.JavaOpenMethod;
  * @author snshor
  *
  */
-public abstract class ADynamicClass extends AOpenClass {    
+public abstract class ADynamicClass extends AOpenClass {
 
     private final String name;
 
@@ -41,7 +41,7 @@ public abstract class ADynamicClass extends AOpenClass {
             IOpenField existedField = fields.get(field.getName());
             if (existedField != field) {
                 throw new DuplicatedFieldException("", field.getName());
-            }else {
+            } else {
                 return;
             }
         }
@@ -50,15 +50,15 @@ public abstract class ADynamicClass extends AOpenClass {
 
         addFieldToLowerCaseMap(field);
     }
-    
+
     @Override
     protected Map<MethodKey, IOpenMethod> initMethodMap() {
         Map<MethodKey, IOpenMethod> methodMap = super.initMethodMap();
-        if (methodMap == STUB){
-            methodMap = new HashMap<MethodKey, IOpenMethod>(4);
+        if (methodMap == STUB) {
+            methodMap = new HashMap<>(4);
         }
-        
-        if (instanceClass != null && !DynamicObject.class.isAssignableFrom(instanceClass)){
+
+        if (instanceClass != null && !DynamicObject.class.isAssignableFrom(instanceClass)) {
             Method[] mm = instanceClass.getDeclaredMethods();
             if (isPublic(instanceClass)) {
                 for (int i = 0; i < mm.length; i++) {
@@ -70,14 +70,14 @@ public abstract class ADynamicClass extends AOpenClass {
                 }
             }
         }
-        
+
         return methodMap;
     }
-    
+
     public IOpenMethod getMethod(String name, IOpenClass[] classes) {
         return getMethod(name, classes, false);
     }
-    
+
     public IOpenMethod getMethod(String name, IOpenClass[] classes, boolean strict) {
         IOpenMethod method = super.getMethod(name, classes);
         if (method != null && strict) {
@@ -89,12 +89,12 @@ public abstract class ADynamicClass extends AOpenClass {
         }
         return method;
     }
-    
+
     @Override
     protected Map<MethodKey, IOpenMethod> initConstructorMap() {
         Map<MethodKey, IOpenMethod> constructorMap = super.initConstructorMap();
-        if (constructorMap == STUB){
-            constructorMap = new HashMap<MethodKey, IOpenMethod>(1);
+        if (constructorMap == STUB) {
+            constructorMap = new HashMap<>(1);
         }
         Constructor<?>[] cc = instanceClass.getDeclaredConstructors();
         for (int i = 0; i < cc.length; i++) {
@@ -107,14 +107,10 @@ public abstract class ADynamicClass extends AOpenClass {
         return constructorMap;
     }
 
-    public void addMethod(IOpenMethod method) {
-        super.addMethod(method);
-    }
-
     @Override
     protected Map<String, IOpenField> fieldMap() {
-        if(fieldMap == null){
-            fieldMap = new HashMap<String, IOpenField>();
+        if (fieldMap == null) {
+            fieldMap = new HashMap<>();
         }
         return fieldMap;
     }
@@ -138,7 +134,7 @@ public abstract class ADynamicClass extends AOpenClass {
     protected boolean isPublic(Member member) {
         return Modifier.isPublic(member.getModifiers());
     }
-    
+
     public void setInstanceClass(Class<?> instanceClass) {
         this.instanceClass = instanceClass;
         invalidateInternalData();

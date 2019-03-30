@@ -33,7 +33,7 @@ public class JavaPrimitiveTypeLibrary implements ITypeLibrary {
         classMap.put("boolean", JavaOpenClass.BOOLEAN);
         classMap.put("void", JavaOpenClass.VOID);
     }
-    public IOpenClass getType(String typename) throws AmbiguousTypeException {
+    public IOpenClass getType(String typename) {
         return classMap.get(typename);
     }
 }

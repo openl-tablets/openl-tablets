@@ -11,7 +11,6 @@ import org.openl.IOpenVM;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.IBoundNode;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.exception.OpenlNotCheckedException;
 import org.openl.runtime.DefaultRuntimeContext;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.util.fast.FastStack;

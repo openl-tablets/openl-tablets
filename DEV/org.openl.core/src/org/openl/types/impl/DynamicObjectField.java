@@ -42,7 +42,6 @@ public class DynamicObjectField extends AOpenField {
 
     @Override
     public boolean isWritable() {
-        // TODO check final attribute
         return true;
     }
 

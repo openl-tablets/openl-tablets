@@ -18,17 +18,7 @@ public class BinaryNode extends ASyntaxNode {
     private ISyntaxNode left;
     private ISyntaxNode right;
 
-    // public BinaryNode(String type, TextInterval pos, ISyntaxNode left,
-    // ISyntaxNode right, Map properties, IOpenSourceCodeModule module)
-    // {
-    //
-    // super(type, pos, properties, module);
-    // this.left = left;
-    // this.right = right;
-    // }
-
     public BinaryNode(String type, ILocation pos, ISyntaxNode left, ISyntaxNode right, IOpenSourceCodeModule module) {
-
         super(type, pos, module);
         this.left = left;
         this.right = right;

@@ -50,7 +50,7 @@ public class JavaListAggregateInfo extends AAggregateInfo {
         }
     }
 
-    static public final IAggregateInfo LIST_AGGREGATE = new JavaListAggregateInfo();
+    public static final IAggregateInfo LIST_AGGREGATE = new JavaListAggregateInfo();
 
     public IOpenClass getComponentType(IOpenClass aggregateType) {
         return JavaOpenClass.OBJECT;
@@ -65,7 +65,7 @@ public class JavaListAggregateInfo extends AAggregateInfo {
             return null;
         }
 
-        return makeListIndex(aggregateType);
+        return new ListIndex();
     }
 
     @SuppressWarnings("unchecked")
@@ -85,9 +85,4 @@ public class JavaListAggregateInfo extends AAggregateInfo {
         }
         return list;
     }
-
-    private IOpenIndex makeListIndex(IOpenClass aggregateType) {
-        return new ListIndex();
-    }
-
 }

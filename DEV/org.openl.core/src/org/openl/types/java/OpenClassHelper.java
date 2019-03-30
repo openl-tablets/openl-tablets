@@ -6,7 +6,10 @@ import java.util.List;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 
-public class OpenClassHelper {
+public final class OpenClassHelper {
+    
+    private OpenClassHelper() {
+    }
 
     public static synchronized IOpenClass getOpenClass(IOpenClass moduleOpenClass, Class<?> classToFind) {
         IOpenClass result = null;
@@ -32,7 +35,7 @@ public class OpenClassHelper {
         IOpenClass result = null;
         for (IOpenClass datatypeClass : internalTypes) {
             //getInstanceClass() for DomainOpenClass returns simple type == enum type
-            if (!(datatypeClass instanceof DomainOpenClass) && classToFind.getName().equals(datatypeClass.getInstanceClass().getName())) {
+            if (!(datatypeClass instanceof DomainOpenClass) && classToFind.equals(datatypeClass.getInstanceClass())) {
 
                 result = datatypeClass;
                 break;
@@ -46,7 +49,7 @@ public class OpenClassHelper {
             return IOpenClass.EMPTY;
         }
 
-        List<IOpenClass> openClassList = new ArrayList<IOpenClass>();
+        List<IOpenClass> openClassList = new ArrayList<>();
 
         for (Class<?> classToFind : classesToFind) {
             openClassList.add(getOpenClass(moduleOpenClass, classToFind));

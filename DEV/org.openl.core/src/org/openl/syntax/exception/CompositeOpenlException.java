@@ -9,21 +9,23 @@ import org.openl.message.OpenLMessage;
 
 /**
  * Added possibility to handle list of {@link OpenLMessage}.
- *  
+ * 
  */
 public class CompositeOpenlException extends CompositeSyntaxNodeException {
-   
+
     private static final long serialVersionUID = 5130142151601932536L;
-    
-    private Collection<OpenLMessage> errorMessages = new ArrayList<OpenLMessage>();
-    
-    public CompositeOpenlException(String message, SyntaxNodeException[] errors, Collection<OpenLMessage> errorMessages) {
+
+    private Collection<OpenLMessage> errorMessages = new ArrayList<>();
+
+    public CompositeOpenlException(String message,
+            SyntaxNodeException[] errors,
+            Collection<OpenLMessage> errorMessages) {
         super(message, errors);
         if (errorMessages != null) {
-            this.errorMessages = new ArrayList<OpenLMessage>(errorMessages); 
+            this.errorMessages = new ArrayList<>(errorMessages);
         }
     }
-    
+
     @Override
     public String getMessage() {
         String superMessage = super.getMessage();
@@ -34,15 +36,16 @@ public class CompositeOpenlException extends CompositeSyntaxNodeException {
 
         for (OpenLMessage message : errorMessages) {
             printWriter.println(message);
-            printWriter.println("-------------------------------------------------------------------------------------");
+            printWriter
+                .println("-------------------------------------------------------------------------------------");
         }
 
         printWriter.close();
-        
-        return new StringBuilder().append(superMessage).append(stringWriter.toString()).toString(); 
+
+        return new StringBuilder().append(superMessage).append(stringWriter.toString()).toString();
     }
-    
+
     public OpenLMessage[] getErrorMessages() {
-        return new ArrayList<OpenLMessage>(errorMessages).toArray(new OpenLMessage[errorMessages.size()]); 
+        return new ArrayList<OpenLMessage>(errorMessages).toArray(new OpenLMessage[errorMessages.size()]);
     }
 }

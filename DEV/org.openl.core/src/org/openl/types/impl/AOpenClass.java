@@ -50,7 +50,7 @@ public abstract class AOpenClass implements IOpenClass {
 
         if (uniqueLowerCaseFieldMap.containsKey(lname)) {
             initNonUniqueMap();
-            List<IOpenField> ff = new ArrayList<IOpenField>(2);
+            List<IOpenField> ff = new ArrayList<>(2);
             ff.add(uniqueLowerCaseFieldMap.get(lname));
             ff.add(f);
             nonUniqueLowerCaseFieldMap.put(lname, ff);
@@ -65,7 +65,7 @@ public abstract class AOpenClass implements IOpenClass {
     protected abstract Map<String, IOpenField> fieldMap();
 
     public Map<String, IOpenField> getFields() {
-        Map<String, IOpenField> fields = new HashMap<String, IOpenField>();
+        Map<String, IOpenField> fields = new HashMap<>();
         Iterable<IOpenClass> superClasses = superClasses();
         for (IOpenClass superClass : superClasses) {
             fields.putAll(superClass.getFields());
@@ -75,7 +75,7 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     public Map<String, IOpenField> getDeclaredFields() {
-        return new HashMap<String, IOpenField>(fieldMap());
+        return new HashMap<>(fieldMap());
     }
 
     public static IOpenClass getArrayType(IOpenClass openClass, int dim) {
@@ -87,11 +87,7 @@ public abstract class AOpenClass implements IOpenClass {
                 for (int j = 0; j < dim; j++) {
                     domainOpenClassName.append("[]");
                 }
-                DomainOpenClass domainArrayType = new DomainOpenClass(domainOpenClassName.toString(),
-                    arrayType,
-                    openClass.getDomain(),
-                    null);
-                return domainArrayType;
+                return new DomainOpenClass(domainOpenClassName.toString(), arrayType, openClass.getDomain(), null);
             } else {
                 return arrayType;
             }
@@ -126,7 +122,7 @@ public abstract class AOpenClass implements IOpenClass {
                 return searchFieldFromSuperClass(fname, strictMatch);
             }
         }
-        
+
         String lfname = fname.toLowerCase();
 
         Map<String, IOpenField> uniqueLowerCaseFields = getUniqueLowerCaseFieldMap();
@@ -212,7 +208,7 @@ public abstract class AOpenClass implements IOpenClass {
 
     private void initNonUniqueMap() {
         if (nonUniqueLowerCaseFieldMap == null) {
-            nonUniqueLowerCaseFieldMap = new HashMap<String, List<IOpenField>>();
+            nonUniqueLowerCaseFieldMap = new HashMap<>();
         }
     }
 
@@ -246,7 +242,7 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     private void makeLowerCaseMaps() {
-        uniqueLowerCaseFieldMap = new HashMap<String, IOpenField>();
+        uniqueLowerCaseFieldMap = new HashMap<>();
 
         for (IOpenField field : getFields().values()) {
             addFieldToLowerCaseMap(field);
@@ -298,13 +294,12 @@ public abstract class AOpenClass implements IOpenClass {
                     methodMap = initMethodMap();
                 }
                 if (methodMap == STUB) {
-                    methodMap = new HashMap<MethodKey, IOpenMethod>(4);
+                    methodMap = new HashMap<>(4);
                 }
             }
         }
         MethodKey key = new MethodKey(method);
-        final IOpenMethod existMethod = methodMap.put(key, method);
-        return existMethod;
+        return methodMap.put(key, method);
     }
 
     private IOpenMethod putConstructor(IOpenMethod method) {
@@ -314,22 +309,21 @@ public abstract class AOpenClass implements IOpenClass {
                     constructorMap = initConstructorMap();
                 }
                 if (constructorMap == STUB) {
-                    constructorMap = new HashMap<MethodKey, IOpenMethod>(4);
+                    constructorMap = new HashMap<>(4);
                 }
             }
         }
         MethodKey key = new MethodKey(method);
-        final IOpenMethod existConstructor = constructorMap.put(key, method);
-        return existConstructor;
+        return constructorMap.put(key, method);
     }
 
-    protected void addMethod(IOpenMethod method) {
+    public void addMethod(IOpenMethod method) {
         MethodKey key = new MethodKey(method);
         final IOpenMethod existMethod = putMethod(method);
         if (existMethod != null) {
-            throw new DuplicatedMethodException(
-                "Method '" + key + "' is already defined in class '" + getName() + "'",
-                existMethod, method);
+            throw new DuplicatedMethodException("Method '" + key + "' is already defined in class '" + getName() + "'",
+                existMethod,
+                method);
         }
         invalidateInternalData();
     }
@@ -340,7 +334,8 @@ public abstract class AOpenClass implements IOpenClass {
         if (existCostructor != null) {
             throw new DuplicatedMethodException(
                 "Constructor '" + key + "' is already defined in class '" + getName() + "'",
-                existCostructor, method);
+                existCostructor,
+                method);
         }
     }
 
@@ -493,16 +488,11 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     public static Map<String, List<IOpenMethod>> buildMethodNameMap(Iterable<IOpenMethod> methods) {
-        Map<String, List<IOpenMethod>> res = new HashMap<String, List<IOpenMethod>>();
+        Map<String, List<IOpenMethod>> res = new HashMap<>();
 
         for (IOpenMethod m : methods) {
             String name = m.getName();
-
-            List<IOpenMethod> list = res.get(name);
-            if (list == null) {
-                list = new LinkedList<IOpenMethod>();
-                res.put(name, list);
-            }
+            List<IOpenMethod> list = res.computeIfAbsent(name, e -> new LinkedList<>());
             list.add(m);
         }
 

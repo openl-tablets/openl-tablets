@@ -161,7 +161,7 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     private Map<String, IOpenField> initalizeFields() {
-        Map<String, IOpenField> fields = new HashMap<String, IOpenField>();
+        Map<String, IOpenField> fields = new HashMap<>();
         Field[] ff = instanceClass.getDeclaredFields();
 
         if (isPublic(instanceClass)) {
@@ -285,7 +285,7 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     protected Map<MethodKey, IOpenMethod> initMethodMap() {
-        Map<MethodKey, IOpenMethod> methods = new HashMap<MethodKey, IOpenMethod>();
+        Map<MethodKey, IOpenMethod> methods = new HashMap<>();
         Method[] mm = instanceClass.getDeclaredMethods();
         if (isPublic(instanceClass)) {
             for (int i = 0; i < mm.length; i++) {
@@ -304,7 +304,7 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     protected Map<MethodKey, IOpenMethod> initConstructorMap() {
-        Map<MethodKey, IOpenMethod> constructors = new HashMap<MethodKey, IOpenMethod>();
+        Map<MethodKey, IOpenMethod> constructors = new HashMap<>();
 
         Constructor<?>[] cc = instanceClass.getDeclaredConstructors();
         for (int i = 0; i < cc.length; i++) {
@@ -459,7 +459,7 @@ public class JavaOpenClass extends AOpenClass {
         }
     }
 
-    static private class JavaPrimitiveClass extends JavaOpenClass {
+    private static class JavaPrimitiveClass extends JavaOpenClass {
         private Class<?> wrapperClass;
 
         private Object nullObject;
@@ -483,8 +483,8 @@ public class JavaOpenClass extends AOpenClass {
 
     private static class JavaOpenInterface extends JavaOpenClass {
 
-        private Map<Method, BeanOpenField> getters = new HashMap<Method, BeanOpenField>();
-        private Map<Method, BeanOpenField> setters = new HashMap<Method, BeanOpenField>();
+        private Map<Method, BeanOpenField> getters = new HashMap<>();
+        private Map<Method, BeanOpenField> setters = new HashMap<>();
 
         @SuppressWarnings("unused")
         private Class<?> proxyClass;
@@ -506,7 +506,7 @@ public class JavaOpenClass extends AOpenClass {
 
         protected JavaOpenInterface(Class<?> instanceClass) {
             super(instanceClass);
-            proxyClass = Proxy.getProxyClass(instanceClass.getClassLoader(), new Class[] { instanceClass });
+            proxyClass = Proxy.getProxyClass(instanceClass.getClassLoader(), instanceClass);
 
         }
 

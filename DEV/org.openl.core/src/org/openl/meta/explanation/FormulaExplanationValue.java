@@ -14,7 +14,8 @@ public class FormulaExplanationValue<T extends ExplanationNumberValue<T>> extend
 
     private Formulas operand;
 
-    private T v1, v2;
+    private T v1;
+    private T v2;
 
     public FormulaExplanationValue(T v1, T v2, Formulas operand) {
         this.v1 = v1;

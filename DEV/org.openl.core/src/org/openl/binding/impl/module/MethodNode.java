@@ -35,7 +35,6 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
      */
     public void addTo(ModuleOpenClass openClass) {
         openClass.addMethod(deferredMethod);
-
     }
 
     @Override

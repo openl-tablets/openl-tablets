@@ -4,7 +4,11 @@ import java.math.BigInteger;
 
 import org.openl.meta.*;
 
-public class IntegerValuesUtils {
+public final class IntegerValuesUtils {
+    
+    private IntegerValuesUtils() {
+    }
+    
     public static boolean isIntegerValue(Class<?> clazz) {
         return byte.class.equals(clazz)
                 || short.class.equals(clazz)

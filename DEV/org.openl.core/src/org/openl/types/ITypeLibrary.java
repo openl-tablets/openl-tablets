@@ -6,13 +6,11 @@
 
 package org.openl.types;
 
-import org.openl.binding.exception.AmbiguousTypeException;
-
 /**
  * @author snshor
  *
  */
 public interface ITypeLibrary {
 
-    IOpenClass getType(String typename) throws AmbiguousTypeException;
+    IOpenClass getType(String typename);
 }

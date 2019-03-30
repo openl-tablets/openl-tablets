@@ -27,58 +27,72 @@ public class DatatypeOpenMethod extends JavaOpenMethod {
         this.type = type;
     }
 
+    @Override
     public IOpenClass getDeclaringClass() {
         return declaringClass;
     }
 
+    @Override
     public String getDisplayName(int mode) {
         return MethodUtil.printSignature(this, mode);
     }
 
+    @Override
     public IMemberMetaInfo getInfo() {
         return null;
     }
 
+    @Override
     public IOpenMethod getMethod() {
         return this;
     }
 
+    @Override
     public String getName() {
         return method.getName();
     }
 
+    @Override
     public int getNumberOfParameters() {
         return getParameterTypes().length;
     }
 
+    @Override
     public String getParameterName(int i) {
         return null;
     }
 
+    @Override
     public IOpenClass getParameterType(int i) {
         return getParameterTypes()[i];
     }
 
+    @Override
     public IOpenClass[] getParameterTypes() {
         return parameterTypes;
     }
 
+    @Override
     public IMethodSignature getSignature() {
         return this;
     }
 
+    @Override
     public IOpenClass getType() {
         return type;
     }
 
+    @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return method.invoke(target, params, env);
     }
 
+    @Override
     public boolean isStatic() {
         return method.isStatic();
     }
 
+    @Override
     public Method getJavaMethod() {
         return method.getJavaMethod();
     }

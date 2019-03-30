@@ -35,7 +35,7 @@ public final class JavaOpenClassCache {
      * memory leak. Classes added to javaClassCache will not be garbage collected. TODO use better cache implementation
      * instead
      */
-    private Map<Class<?>, JavaOpenClass> cache = new ReferenceMap<Class<?>, JavaOpenClass>(
+    private Map<Class<?>, JavaOpenClass> cache = new ReferenceMap<>(
         AbstractReferenceMap.ReferenceStrength.SOFT,
         AbstractReferenceMap.ReferenceStrength.SOFT);
 
@@ -44,7 +44,7 @@ public final class JavaOpenClassCache {
     }
 
     private static Map<Class<?>, JavaOpenClass> initializeJavaClassCache() {
-        Map<Class<?>, JavaOpenClass> javaClassCache = new HashMap<Class<?>, JavaOpenClass>();
+        Map<Class<?>, JavaOpenClass> javaClassCache = new HashMap<>();
         javaClassCache.put(int.class, JavaOpenClass.INT);
         javaClassCache.put(Integer.class, new JavaOpenClass(Integer.class, true));
         javaClassCache.put(long.class, JavaOpenClass.LONG);

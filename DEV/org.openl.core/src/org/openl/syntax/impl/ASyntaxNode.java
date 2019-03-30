@@ -26,13 +26,10 @@ public abstract class ASyntaxNode implements ISyntaxNode {
 
     public ASyntaxNode(String type,
             ILocation location,
-            // Map<String, String> properties,
             IOpenSourceCodeModule module) {
         this.type = type;
         this.location = location;
-        // this.properties = properties;
         this.module = module;
-        // this.namespace = namespace;
     }
 
     private static void printSpace(int level, StringBuilder buf) {

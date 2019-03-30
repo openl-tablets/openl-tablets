@@ -157,9 +157,6 @@ public abstract class AEngineFactory {
 
     protected void validateReturnType(IOpenMethod openMethod, Method interfaceMethod) {
         Class<?> returnType = interfaceMethod.getReturnType();
-        if (Void.TYPE.equals(returnType) && "org.openl.rules.testmethod.TestSuiteMethod".equals(openMethod.getClass().getName())) {
-            return;
-        }
         Class<?> openClassReturnType = openMethod.getType().getInstanceClass();
         boolean isAssignable = ClassUtils.isAssignable(openClassReturnType, returnType);
         if (!isAssignable) {

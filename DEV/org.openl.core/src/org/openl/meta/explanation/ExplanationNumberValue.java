@@ -30,13 +30,13 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
     /** Formula constructor */
     public ExplanationNumberValue(T dv1, T dv2, Formulas operand) {
         /** initialize explanation for formula value */
-        this.explanation = new FormulaExplanationValue<T>(dv1, dv2, operand);
+        this.explanation = new FormulaExplanationValue<>(dv1, dv2, operand);
     }
     
     /** Function constructor */
     public ExplanationNumberValue(NumberOperations function, T[] params) {
         /** initialize explanation for function value */
-        this.explanation = new FunctionExplanationValue<T>(function, params);
+        this.explanation = new FunctionExplanationValue<>(function, params);
     }
     
     /** Casting constructor */
@@ -86,7 +86,7 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
      */
     private ExplanationForNumber<T> getExplanation() {
         if (explanation == null) {
-            explanation = new SingleValueExplanation<T>();
+            explanation = new SingleValueExplanation<>();
         }
         return explanation;
     }

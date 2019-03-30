@@ -61,8 +61,9 @@ public final class MethodKey {
 
         int firstParamToConvert = -1;
         for (int i = 0; i < originalParams.length; i++) {
-            if (originalParams[i] instanceof JavaOpenClass)
+            if (originalParams[i] instanceof JavaOpenClass) {
                 continue;
+            }
             firstParamToConvert = i;
             break;
         }

@@ -16,9 +16,6 @@ import org.openl.util.tree.ITreeElement;
 public class SingleValueExplanation<T extends ExplanationNumberValue<T>> implements ExplanationForNumber<T> {
 
     private IMetaInfo metaInfo;
-    
-    public SingleValueExplanation() {
-    }
 
     public IMetaInfo getMetaInfo() {
         return metaInfo;
@@ -30,12 +27,11 @@ public class SingleValueExplanation<T extends ExplanationNumberValue<T>> impleme
     }
 
     public String getDisplayName(int mode) {
-        switch (mode) {
-            case SHORT:
-                return printValue();
-            default:
-                String name = metaInfo == null ? null : getMetaInfo().getDisplayName(mode);
-                return name == null ? printValue() : name + "(" + printValue() + ")";
+        if (mode == SHORT) {
+            return printValue();
+        } else {
+            String name = metaInfo == null ? null : getMetaInfo().getDisplayName(mode);
+            return name == null ? printValue() : name + "(" + printValue() + ")";
         }
     }
 
@@ -82,8 +78,7 @@ public class SingleValueExplanation<T extends ExplanationNumberValue<T>> impleme
     }
 
     /**
-     * default implementation. right implementation should be in the object that
-     * will be shown.
+     * default implementation. right implementation should be in the object that will be shown.
      */
     public T getObject() {
         throw new UnsupportedOperationException("Should be overriden in childs");

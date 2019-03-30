@@ -15,24 +15,17 @@ public class OpenLInvocationHandler implements IOpenLInvocationHandler, IEngineW
     private Object openlInstance;
     private Map<Method, IOpenMember> methodMap;
 
-    public OpenLInvocationHandler(Object openlInstance,
-            Map<Method, IOpenMember> methodMap) {
+    public OpenLInvocationHandler(Object openlInstance, Map<Method, IOpenMember> methodMap) {
         this.openlInstance = openlInstance;
         this.methodMap = methodMap;
     }
 
-    public OpenLInvocationHandler(Object openlInstance, IRuntimeEnv openlEnv,
-            Map<Method, IOpenMember> methodMap) {
+    public OpenLInvocationHandler(Object openlInstance, IRuntimeEnv openlEnv, Map<Method, IOpenMember> methodMap) {
         this(openlInstance, methodMap);
         setRuntimeEnv(openlEnv);
     }
 
-    private ThreadLocal<IRuntimeEnv> env = new ThreadLocal<IRuntimeEnv>() {
-        @Override
-        protected IRuntimeEnv initialValue() {
-            return makeRuntimeEnv();
-        }
-    };
+    private ThreadLocal<IRuntimeEnv> env = ThreadLocal.withInitial(this::makeRuntimeEnv);
 
     public IRuntimeEnv makeRuntimeEnv() {
         return new SimpleVM().getRuntimeEnv();
@@ -42,7 +35,7 @@ public class OpenLInvocationHandler implements IOpenLInvocationHandler, IEngineW
     public Object getInstance() {
         return openlInstance;
     }
-    
+
     @Override
     public Object getTarget() {
         return getInstance();
@@ -62,7 +55,7 @@ public class OpenLInvocationHandler implements IOpenLInvocationHandler, IEngineW
     protected Map<Method, IOpenMember> getMethodMap() {
         return methodMap;
     }
-    
+
     @Override
     public void release() {
         env.remove();

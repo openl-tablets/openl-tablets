@@ -131,19 +131,18 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.types.IOpenMethod#invoke(java.lang.Object,
-     * java.lang.Object[])
+     * @see org.openl.types.IOpenMethod#invoke(java.lang.Object, java.lang.Object[])
      */
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         try {
             return method.invoke(target, params);
         } catch (InvocationTargetException t) {
-            String msg = "Failure in the method: " + method + " on the target: " + String
-                .valueOf(target) + " with values: [" + StringUtils.join(params, "], [") + "]. Cause: " + t.getTargetException().getMessage();
+            String msg = "Failure in the method: " + method + " on the target: " + target + " with values: [" + StringUtils
+                .join(params, "], [") + "]. Cause: " + t.getTargetException().getMessage();
             throw new OpenLRuntimeException(msg, t);
         } catch (Exception t) {
-            String msg = "Failure in the method: " + method + " on the target: " + String
-                .valueOf(target) + " with values: [" + StringUtils.join(params, "], [") + "]. Cause: " + t.getMessage();
+            String msg = "Failure in the method: " + method + " on the target: " + target + " with values: [" + StringUtils
+                .join(params, "], [") + "]. Cause: " + t.getMessage();
             throw new OpenLRuntimeException(msg, t);
         }
     }

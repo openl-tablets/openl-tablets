@@ -28,7 +28,7 @@ public final class OpenClassUtils {
         }
         return findParentClass(t1, t2);
     }
-    
+
     public static IOpenClass findParentClass(IOpenClass class1, IOpenClass class2) {
         if (NullOpenClass.isAnyNull(class1)) {
             return class2;
@@ -36,7 +36,7 @@ public final class OpenClassUtils {
         if (NullOpenClass.isAnyNull(class2)) {
             return class1;
         }
-        
+
         if (class1.isArray() && class2.isArray()) {
             int dim = 0;
             while (class1.isArray() && class2.isArray()) {
@@ -54,8 +54,8 @@ public final class OpenClassUtils {
         if (class1.getInstanceClass() == null && class2.getInstanceClass() == null) {
             return class1;
         }
-        
-        //If class1 is NULL literal
+
+        // If class1 is NULL literal
         if (class1.getInstanceClass() == null) {
             if (class2.getInstanceClass().isPrimitive()) {
                 return null;
@@ -64,7 +64,7 @@ public final class OpenClassUtils {
             }
         }
 
-        //If class2 is NULL literal
+        // If class2 is NULL literal
         if (class2.getInstanceClass() == null) {
             if (class1.getInstanceClass().isPrimitive()) {
                 return null;
@@ -72,7 +72,7 @@ public final class OpenClassUtils {
                 return class1;
             }
         }
-        
+
         if (class1.getInstanceClass().isPrimitive() || class2.getInstanceClass().isPrimitive()) { // If
                                                                                                   // one
                                                                                                   // is
@@ -82,7 +82,7 @@ public final class OpenClassUtils {
             }
             return null;
         }
-        Set<Class<?>> superClasses = new HashSet<Class<?>>();
+        Set<Class<?>> superClasses = new HashSet<>();
         Class<?> clazz = class1.getInstanceClass();
         superClasses.add(clazz);
         while (!clazz.isInterface() && !Object.class.equals(clazz)) {

@@ -12,7 +12,7 @@ public enum CollectionType {
     public boolean isList() {
         return LIST.equals(this);
     }
-    
+
     public boolean isMap() {
         return MAP.equals(this);
     }

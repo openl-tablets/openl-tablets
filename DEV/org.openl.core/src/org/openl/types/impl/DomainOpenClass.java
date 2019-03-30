@@ -84,7 +84,7 @@ public class DomainOpenClass implements IOpenClass {
     }
 
     @Override
-    public IOpenMethod getConstructor(IOpenClass[] params) throws AmbiguousMethodException {
+    public IOpenMethod getConstructor(IOpenClass[] params) {
         return baseClass.getConstructor(params);
     }
 

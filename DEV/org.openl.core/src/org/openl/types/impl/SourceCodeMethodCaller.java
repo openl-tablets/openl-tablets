@@ -39,11 +39,10 @@ public class SourceCodeMethodCaller implements IMethodCaller {
         if (method == null) {
             IOpenSourceCodeModule src = new StringSourceCodeModule(sourceCode, null);
             OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
-            IOpenClass returnType = resultType;
-            if (returnType == null) {
-                returnType = JavaOpenClass.VOID;
-            }
-            OpenMethodHeader methodHeader = new OpenMethodHeader("run", resultType, signature, null);
+            OpenMethodHeader methodHeader = new OpenMethodHeader("run",
+                resultType == null ? JavaOpenClass.VOID : resultType,
+                signature,
+                null);
             BindingContext cxt = new BindingContext((Binder) op.getBinder(), null, op);
             method = OpenLManager.makeMethod(op, src, methodHeader, cxt);
         }

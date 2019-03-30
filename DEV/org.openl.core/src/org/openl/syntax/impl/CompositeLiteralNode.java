@@ -10,6 +10,7 @@ final class CompositeLiteralNode extends NaryNode  {
         super(type, pos, nodes, module);
     }
 
+    @Override
     public String getText() {
         StringBuilder sb = new StringBuilder();
         ISyntaxNode[] nodes = getNodes(); 

@@ -80,12 +80,7 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
     @Override
     protected IRuntimeEnvBuilder getRuntimeEnvBuilder() {
         if (runtimeEnvBuilder == null) {
-            runtimeEnvBuilder = new IRuntimeEnvBuilder() {
-                @Override
-                public IRuntimeEnv buildRuntimeEnv() {
-                    return new SimpleVM().getRuntimeEnv();
-                }
-            };
+            runtimeEnvBuilder = () -> new SimpleVM().getRuntimeEnv();
         }
         return runtimeEnvBuilder;
     }

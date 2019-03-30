@@ -24,9 +24,9 @@ import org.openl.util.RuntimeExceptionWrapper;
  */
 public class JavaImportTypeLibrary implements ITypeLibrary {
 
-    private Map<String, IOpenClass> aliases = new HashMap<String, IOpenClass>();
+    private Map<String, IOpenClass> aliases = new HashMap<>();
 
-    private Set<String> notFound = new HashSet<String>();
+    private Set<String> notFound = new HashSet<>();
 
     private String[] importPackages;
 
@@ -57,7 +57,7 @@ public class JavaImportTypeLibrary implements ITypeLibrary {
         return loader;
     }
 
-    public synchronized IOpenClass getType(String typename) throws AmbiguousTypeException {
+    public synchronized IOpenClass getType(String typename) {
 
         IOpenClass oc = aliases.get(typename);
         if (oc != null) {

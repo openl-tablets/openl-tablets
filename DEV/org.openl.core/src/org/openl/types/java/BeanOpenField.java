@@ -26,7 +26,9 @@ public class BeanOpenField implements IOpenField {
     Method readMethod;
     Method writeMethod;
 
-    static public void collectFields(Map<String, IOpenField> map, Class<?> c, Map<Method, BeanOpenField> getters,
+    public static void collectFields(Map<String, IOpenField> map,
+            Class<?> c,
+            Map<Method, BeanOpenField> getters,
             Map<Method, BeanOpenField> setters) {
 
         if (c.isInterface()) {
@@ -81,10 +83,10 @@ public class BeanOpenField implements IOpenField {
 
                 }
                 BeanOpenField bf = new BeanOpenField(pd);
-                
+
                 if (field == null || !java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
-                	map.put(fieldName, bf);
-                	if (getters != null) {
+                    map.put(fieldName, bf);
+                    if (getters != null) {
                         if (pd.getReadMethod() != null) {
                             getters.put(pd.getReadMethod(), bf);
                         }
@@ -94,7 +96,7 @@ public class BeanOpenField implements IOpenField {
                             setters.put(pd.getWriteMethod(), bf);
                         }
                     }
-                } 
+                }
             }
         } catch (Throwable t) {
             throw RuntimeExceptionWrapper.wrap(t);
@@ -145,66 +147,33 @@ public class BeanOpenField implements IOpenField {
         return getName();
     }
 
-    /**
-     *
-     */
-
     public IMemberMetaInfo getInfo() {
-        // TODO Auto-generated method stub
         return null;
     }
-
-    /**
-     *
-     */
 
     public String getName() {
         return descriptor.getName();
     }
 
-    /**
-     *
-     */
-
     public IOpenClass getType() {
         return JavaOpenClass.getOpenClass(descriptor.getPropertyType());
     }
-
-    /**
-     *
-     */
 
     public boolean isConst() {
         return false;
     }
 
-    /**
-     *
-     */
-
     public boolean isReadable() {
         return readMethod != null;
     }
-
-    /**
-     *
-     */
 
     public boolean isStatic() {
         return false;
     }
 
-    /**
-     *
-     */
-
     public boolean isWritable() {
         return writeMethod != null;
     }
-
-    /**
-     *
-     */
 
     public void set(Object target, Object value, IRuntimeEnv env) {
         try {
