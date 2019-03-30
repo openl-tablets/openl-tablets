@@ -2,9 +2,9 @@ package org.openl.rules.table;
 
 /**
  * Fully implementation for {@link ILogicalTable} interface.<br>
- * Logical Table consists of logical columns and rows (created as a result of
- * merged cells). Each merged region is taken as one cell.<br> 
- * Use {@link LogicalTableHelper#logicalTable(IGridTable)} 
+ * Logical Table consists of logical columns and rows (created as a result of merged cells). Each merged region is taken
+ * as one cell.<br>
+ * Use {@link LogicalTableHelper#logicalTable(IGridTable)}
  * {@link LogicalTableHelper#logicalTable(IGridTable, ILogicalTable, ILogicalTable)} to correctly construct this object.
  * 
  * @author snshor
@@ -27,19 +27,15 @@ public class LogicalTable extends ALogicalTable {
         if (columnOffset == null) {
             int width = LogicalTableHelper.calcLogicalColumns(table);
             this.columnOffset = LogicalTableHelper.calculateColumnOffsets(width, table);
-        }
-        else
+        } else
             this.columnOffset = columnOffset;
 
         if (rowOffset == null) {
             int height = LogicalTableHelper.calcLogicalRows(table);
             this.rowOffset = LogicalTableHelper.calculateRowOffsets(height, table);
-        }
-        else
+        } else
             this.rowOffset = rowOffset;
     }
-
-
 
     public int getWidth() {
         return columnOffset.length - 1;
@@ -90,8 +86,8 @@ public class LogicalTable extends ALogicalTable {
         int startColumn = columnOffset[column];
         int endColumn = columnOffset[column + width];
 
-        return LogicalTableHelper.logicalTable(
-                getSource().getSubtable(startColumn, startRow, endColumn - startColumn, endRow - startRow));
+        return LogicalTableHelper
+            .logicalTable(getSource().getSubtable(startColumn, startRow, endColumn - startColumn, endRow - startRow));
     }
 
     public int[] getRowOffset() {

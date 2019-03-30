@@ -38,8 +38,8 @@ public class AlgorithmCompilerTool {
      *
      * @throws SyntaxNodeException
      */
-    public static AlgorithmTreeNode extractOperationNode(List<AlgorithmTreeNode> candidateNodes, String instruction)
-            throws SyntaxNodeException {
+    public static AlgorithmTreeNode extractOperationNode(List<AlgorithmTreeNode> candidateNodes,
+            String instruction) throws SyntaxNodeException {
         AlgorithmTreeNode operationNode = null;
 
         // Get the name of the operation: e.g. VAR, IF, WHILE, etc
@@ -53,10 +53,13 @@ public class AlgorithmCompilerTool {
         }
 
         if (operationNode == null) {
-            IOpenSourceCodeModule errorSource = candidateNodes.get(0).getAlgorithmRow().getOperation()
-                    .asSourceCodeModule();
-            throw SyntaxNodeExceptionUtils.createError(String.format("Compilation failure. Can't find %s in operations sequence %s",
-                    operationName, candidateNodes), errorSource);
+            IOpenSourceCodeModule errorSource = candidateNodes.get(0)
+                .getAlgorithmRow()
+                .getOperation()
+                .asSourceCodeModule();
+            throw SyntaxNodeExceptionUtils.createError(String
+                .format("Compilation failure. Can't find %s in operations sequence %s", operationName, candidateNodes),
+                errorSource);
         }
         return operationNode;
     }
@@ -66,7 +69,7 @@ public class AlgorithmCompilerTool {
     }
 
     public static Map<String, AlgorithmTreeNode> getAllDeclaredLables(List<AlgorithmTreeNode> nodesToSearch) {
-        Map<String, AlgorithmTreeNode> labels = new HashMap<String, AlgorithmTreeNode>();
+        Map<String, AlgorithmTreeNode> labels = new HashMap<>();
         for (AlgorithmTreeNode node : nodesToSearch) {
             for (StringValue labelOfNode : node.getLabels()) {
                 labels.put(labelOfNode.getValue(), node);
@@ -82,8 +85,8 @@ public class AlgorithmCompilerTool {
      * @return
      * @throws SyntaxNodeException
      */
-    public static StringValue getCellContent(List<AlgorithmTreeNode> candidateNodes, String instruction)
-            throws SyntaxNodeException {
+    public static StringValue getCellContent(List<AlgorithmTreeNode> candidateNodes,
+            String instruction) throws SyntaxNodeException {
         // Field of the AlgorithmRow.class, that also is the column in the TBasic table
         //
         String fieldName = extractFieldName(instruction);
@@ -91,9 +94,12 @@ public class AlgorithmCompilerTool {
         IOpenField codeField = JavaOpenClass.getOpenClass(AlgorithmRow.class).getField(fieldName);
 
         if (codeField == null) {
-            IOpenSourceCodeModule errorSource = candidateNodes.get(0).getAlgorithmRow().getOperation()
-                    .asSourceCodeModule();
-            throw SyntaxNodeExceptionUtils.createError(String.format("Compilation failure. Can't find '%s' field", fieldName), errorSource);
+            IOpenSourceCodeModule errorSource = candidateNodes.get(0)
+                .getAlgorithmRow()
+                .getOperation()
+                .asSourceCodeModule();
+            throw SyntaxNodeExceptionUtils
+                .createError(String.format("Compilation failure. Can't find '%s' field", fieldName), errorSource);
         }
 
         // Get the operation node from the candidate nodes, that suits to the given instruction
@@ -112,7 +118,7 @@ public class AlgorithmCompilerTool {
         AlgorithmTreeNode lastOperation = nodes.get(nodes.size() - 1);
         if (lastOperation.getSpecificationKeyword().startsWith(TBasicSpecificationKey.END.toString())) {
             lastOperation = getLastExecutableOperation(nodes.subList(0, nodes.size() - 1));
-        } else if (lastOperation.getChildren().size() > 0) {
+        } else if (!lastOperation.getChildren().isEmpty()) {
             lastOperation = getLastExecutableOperation(lastOperation.getChildren());
         }
         return lastOperation;
@@ -129,8 +135,8 @@ public class AlgorithmCompilerTool {
         AlgorithmTreeNode currentNodeToProcess = nodesToProcess.get(firstNodeIndex);
         String currentNodeKeyword = currentNodeToProcess.getSpecificationKeyword();
 
-        String[] operationNamesToGroup = AlgorithmTableParserManager.getInstance().whatOperationsToGroup(
-                currentNodeKeyword);
+        String[] operationNamesToGroup = AlgorithmTableParserManager.getInstance()
+            .whatOperationsToGroup(currentNodeKeyword);
 
         if (operationNamesToGroup != null) {
             List<String> operationsToGroupWithCurrent = Arrays.asList(operationNamesToGroup);
@@ -164,8 +170,8 @@ public class AlgorithmCompilerTool {
      * @param instruction
      * @return
      */
-    public static AlgorithmOperationSource getOperationSource(List<AlgorithmTreeNode> nodesToCompile, String instruction)
-            throws SyntaxNodeException {
+    public static AlgorithmOperationSource getOperationSource(List<AlgorithmTreeNode> nodesToCompile,
+            String instruction) throws SyntaxNodeException {
 
         AlgorithmTreeNode sourceNode;
         String operationValueName = null;

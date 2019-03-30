@@ -12,7 +12,7 @@ public class EnumDomainCollector implements IDomainCollector {
     
     private String propertyToSearch;
     
-    private Set<Object> enumProp = new HashSet<Object>();
+    private Set<Object> enumProp = new HashSet<>();
 
     public EnumDomainCollector(String propertyToSearch) {
         this.propertyToSearch = propertyToSearch;

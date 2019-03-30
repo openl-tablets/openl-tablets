@@ -62,7 +62,7 @@ public class OpenLBuilder extends AOpenLBuilder {
             org.openl.rules.helpers.DateRange.class.getName()};
 
     @Override
-    public OpenL build(String category) throws OpenConfigurationException {
+    public OpenL build(String category) {
         OpenL.getInstance(OpenL.OPENL_J_NAME, getUserEnvironmentContext());
         return super.build(category);
     }

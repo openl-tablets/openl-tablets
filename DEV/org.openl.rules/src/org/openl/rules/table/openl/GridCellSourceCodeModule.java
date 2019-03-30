@@ -26,19 +26,17 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
     private IGridTable table;
     private String code;
 
-    // TableSyntaxNode parent;
-
     private int row;
     private int column;
 
     private String uri;
-    
+
     private Map<String, Object> params;
 
     public GridCellSourceCodeModule(IGridTable table) {
         this(table, 0, 0, null);
     }
-    
+
     public IGridTable getTable() {
         return table;
     }
@@ -53,8 +51,7 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
         this.table = table;
         this.column = column;
         this.row = row;
-//         this.parent = parent;
-        update(bindingContext);        
+        update(bindingContext);
     }
 
     public void update(IBindingContext bindingContext) {
@@ -68,8 +65,8 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
             this.table = null;
         }
     }
-    
-    public ICell getCell(){
+
+    public ICell getCell() {
         return table.getCell(column, row);
     }
 
@@ -127,7 +124,7 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
     public boolean isModified() {
         return false;
     }
-    
+
     @Override
     public String toString() {
         if (StringUtils.isNotBlank(code)) {
@@ -135,5 +132,5 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
         }
         return super.toString();
     }
-    
+
 }

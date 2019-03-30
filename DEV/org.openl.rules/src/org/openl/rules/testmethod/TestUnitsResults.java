@@ -34,7 +34,7 @@ public class TestUnitsResults implements INamedThing {
         return testSuite.getDisplayName(mode);
     }
 
-    public ArrayList<ITestUnit> getTestUnits() {
+    public List<ITestUnit> getTestUnits() {
         return testUnits;
     }
 

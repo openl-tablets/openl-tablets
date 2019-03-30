@@ -17,7 +17,7 @@ public abstract class DataTableField {
     private String foreignKeyTable;
     private String foreignKeyColumn;
     
-    private List<DataTableField> aggregatedFields = new ArrayList<DataTableField>();
+    private List<DataTableField> aggregatedFields = new ArrayList<>();
 
     /**
      * Create a field with a given technical name and business name

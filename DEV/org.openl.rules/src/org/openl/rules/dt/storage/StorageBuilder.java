@@ -18,9 +18,6 @@ public abstract class StorageBuilder<T> implements IStorageBuilder<T> {
 
     public abstract void writeFormula(Object formula, int index);
 
-    @Override
-    public abstract IStorage<T> optimizeAndBuild();
-
     protected abstract void checkMinMax(Object loadedValue);
 
     @Override
@@ -49,9 +46,6 @@ public abstract class StorageBuilder<T> implements IStorageBuilder<T> {
             writeValue((T) loadedValue, index);
         }
     }
-
-    @Override
-    public abstract int size();
 
     public StorageInfo getInfo() {
         return info;

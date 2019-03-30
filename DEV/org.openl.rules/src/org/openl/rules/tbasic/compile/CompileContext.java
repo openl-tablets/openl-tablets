@@ -21,9 +21,9 @@ public class CompileContext {
     private Map<String, AlgorithmTreeNode> existingLables;
 
     public CompileContext() {
-        operations = new ArrayList<RuntimeOperation>();
-        localLabelsRegister = new HashMap<String, RuntimeOperation>();
-        existingLables = new HashMap<String, AlgorithmTreeNode>();
+        operations = new ArrayList<>();
+        localLabelsRegister = new HashMap<>();
+        existingLables = new HashMap<>();
     }
 
     public Map<String, AlgorithmTreeNode> getExistingLables() {
@@ -63,7 +63,8 @@ public class CompileContext {
     public void registerNewLabel(String labelName, AlgorithmTreeNode sourceNode) throws SyntaxNodeException {
         if (isLabelRegistered(labelName)) {
             IOpenSourceCodeModule errorSource = sourceNode.getAlgorithmRow().getOperation().asSourceCodeModule();
-            throw SyntaxNodeExceptionUtils.createError("Such label has been already declared : \"" + labelName + "\".", errorSource);
+            throw SyntaxNodeExceptionUtils.createError("Such label has been already declared : \"" + labelName + "\".",
+                errorSource);
         } else {
             existingLables.put(labelName, sourceNode);
         }
@@ -74,7 +75,8 @@ public class CompileContext {
             localLabelsRegister.put(labelName, labeledOperation);
         } else {
             IOpenSourceCodeModule errorSource = labeledOperation.getSourceCode().getSourceModule();
-            throw SyntaxNodeExceptionUtils.createError("Such lablel isn't declared : \"" + labelName + "\".", errorSource);
+            throw SyntaxNodeExceptionUtils.createError("Such lablel isn't declared : \"" + labelName + "\".",
+                errorSource);
         }
     }
 

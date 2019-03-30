@@ -23,8 +23,8 @@ public class UnmergeByColumnsAction implements IUndoableGridTableAction {
 
     public void doAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
-        createdRegions = new ArrayList<IGridRegion>();
-        removedRegions = new ArrayList<IGridRegion>();
+        createdRegions = new ArrayList<>();
+        removedRegions = new ArrayList<>();
         for (int row = region.getTop(); row <= region.getBottom(); row++) {
             for (int column = region.getLeft(); column < region.getRight(); column++) {
                 IGridRegion mergedRegion = grid.getRegionStartingAt(column, row);

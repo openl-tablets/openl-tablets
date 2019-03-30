@@ -1,13 +1,12 @@
 package org.openl.rules.helpers;
 
-import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
-import org.openl.rules.helpers.ARangeParser.ParseStruct;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.Objects;
+
+import org.openl.rules.helpers.ARangeParser.ParseStruct;
+import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 
 public class DateRange {
 
@@ -17,12 +16,10 @@ public class DateRange {
     private final BoundType lowerBoundType;
     private final BoundType upperBoundType;
 
-    @SuppressWarnings("WeakerAccess")
     public DateRange(Date bound) {
         this(bound, bound, BoundType.INCLUDING, BoundType.INCLUDING);
     }
 
-    @SuppressWarnings("WeakerAccess")
     public DateRange(Date lowerBound, Date upperBound) {
         this(lowerBound, upperBound, BoundType.INCLUDING, BoundType.INCLUDING);
     }

@@ -125,7 +125,7 @@ public class TestTableBuilder extends TableBuilder {
     public static Map<String, String> getParams(TableSyntaxNode executableNode) {
     	ExecutableMethod executableMethod = getExecutableMethod(executableNode);
         if (executableMethod != null) {
-            Map<String, String> params = new LinkedHashMap<String, String>();
+            Map<String, String> params = new LinkedHashMap<>();
             IMethodSignature tableHeaderSignature = executableMethod.getHeader().getSignature();
             for (int i = 0; i < tableHeaderSignature.getNumberOfParameters(); i++) {
                 String paramName = tableHeaderSignature.getParameterName(i);

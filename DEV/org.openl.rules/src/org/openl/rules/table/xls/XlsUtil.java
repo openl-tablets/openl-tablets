@@ -2,6 +2,9 @@ package org.openl.rules.table.xls;
 
 public final class XlsUtil {
 
+    private XlsUtil() {
+    }
+
     public static String xlsCellPresentation(int x, int y) {
         StringBuilder buf = new StringBuilder();
         int div = 'Z' - 'A' + 1;

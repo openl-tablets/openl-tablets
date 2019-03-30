@@ -10,7 +10,7 @@ import java.util.ArrayList;
  */
 public class Constraints {
 
-    private List<Constraint> constraints = new ArrayList<Constraint>();
+    private List<Constraint> constraints = new ArrayList<>();
     private String constraintsStr;
 
     public Constraints() {
@@ -36,7 +36,7 @@ public class Constraints {
 
     public void setAll(List<Constraint> constraints) {
         if (CollectionUtils.isNotEmpty(constraints)) {
-            this.constraints = new ArrayList<Constraint>(constraints);
+            this.constraints = new ArrayList<>(constraints);
         }
     }
 

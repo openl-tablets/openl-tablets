@@ -52,8 +52,7 @@ public final class WrapperLogic {
                 env1 = tBasicContextHolderEnv.getEnv();
             }
         }
-        SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) env1;
-        return simpleRulesRuntimeEnv;
+        return (SimpleRulesRuntimeEnv) env1;
     }
 
     private static IOpenMethod extractMethod(SimpleRulesRuntimeEnv simpleRulesRuntimeEnv, IOpenMethod method) {

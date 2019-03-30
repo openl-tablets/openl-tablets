@@ -14,9 +14,9 @@ public class IntRangeParser {
 
     private static final IntRangeParser INSTANCE = new IntRangeParser();
 
-    private final static String INT_PATTERN = "\\$?(-?(?:\\d{1,10},){0,10}\\d{1,10})([KMB]?)";
+    private static final String INT_PATTERN = "\\$?(-?(?:\\d{1,10},){0,10}\\d{1,10})([KMB]?)";
 
-    protected final RangeParser PARSERS[] = { new SimpleRangeParser(),
+    protected final RangeParser[] PARSERS = { new SimpleRangeParser(),
             new RangeWithBracketsParser(),
             new PrefixRangeParser(),
             new SuffixRangeParser(),
@@ -31,7 +31,7 @@ public class IntRangeParser {
         return INSTANCE;
     }
 
-    private final static int MAX_RANGE_POSSIBLE_LENGTH = 50;
+    private static final int MAX_RANGE_POSSIBLE_LENGTH = 50;
 
     public RangeWithBounds parse(String range) {
         if (range != null && range.length() <= MAX_RANGE_POSSIBLE_LENGTH) {

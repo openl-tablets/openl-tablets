@@ -6,7 +6,10 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class TableSyntaxNodeHelper {
+public final class TableSyntaxNodeHelper {
+
+    private TableSyntaxNodeHelper() {
+    }
 
     private static final Pattern REGEX = Pattern.compile("[ ,()\t\n\r\\[\\]]");
 
@@ -17,7 +20,7 @@ public class TableSyntaxNodeHelper {
     public static String getTableName(TableSyntaxNode tableSyntaxNode) {
         String methodName = StringUtils.EMPTY;
         String[] tokens = REGEX.split(getSignature(tableSyntaxNode));
-        if (tokens.length > 3){
+        if (tokens.length > 3) {
             List<String> notEmptyTokens = new ArrayList<>();
             for (String token : tokens) {
                 if (!token.isEmpty()) {

@@ -33,11 +33,11 @@ public class BooleanOperator {
     }
 
     public boolean compare(double i1, double i2) {
-        return operator.compare(new Double(i1), new Double(i2));
+        return operator.compare(i1, i2);
     }
 
     public boolean compare(int i1, int i2) {
-        return operator.compare(new Integer(i1), new Integer(i2));
+        return operator.compare(i1, i2);
     }
 
     interface ComparableOperator {

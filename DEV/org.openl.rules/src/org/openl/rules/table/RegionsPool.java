@@ -15,7 +15,8 @@ public class RegionsPool {
      * Two intervals that intersects are equal.
      */
     private static class DisjointInterval implements Comparable<DisjointInterval> {
-        private int left, right;
+        private int left;
+        private int right;
 
         public DisjointInterval(int left, int right) {
             this.left = left;
@@ -37,7 +38,7 @@ public class RegionsPool {
      * Fast regions pool. This is map that gives for each row another map that
      * contains disjoint intervals covered by some region.
      */
-    private Map<Integer, Map<DisjointInterval, IGridRegion>> pool = new HashMap<Integer, Map<DisjointInterval, IGridRegion>>();
+    private Map<Integer, Map<DisjointInterval, IGridRegion>> pool = new HashMap<>();
 
     /**
      * Instantiates the pool.
@@ -62,7 +63,7 @@ public class RegionsPool {
         for (int row = region.getTop(); row <= region.getBottom(); row++) {
             Map<DisjointInterval, IGridRegion> regionsMap = pool.get(row);
             if (regionsMap == null) {
-                regionsMap = new TreeMap<DisjointInterval, IGridRegion>();
+                regionsMap = new TreeMap<>();
                 pool.put(row, regionsMap);
             }
             regionsMap.put(new DisjointInterval(region.getLeft(), region.getRight()), region);

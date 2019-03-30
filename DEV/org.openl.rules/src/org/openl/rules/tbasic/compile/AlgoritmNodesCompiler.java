@@ -8,7 +8,6 @@ import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.TBasicSpecificationKey;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.Runnable;
 import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
@@ -24,7 +23,7 @@ public class AlgoritmNodesCompiler {
     private ParameterConverterManager parameterConverter;
     private OperationFactory operationFactory;
 
-    private List<OperationAnalyzer> operationAnalyzers = new ArrayList<OperationAnalyzer>();
+    private List<OperationAnalyzer> operationAnalyzers = new ArrayList<>();
 
     {
         operationAnalyzers.add(new CommonOperations());
@@ -186,7 +185,7 @@ public class AlgoritmNodesCompiler {
         }
 
         String operationType = conversionStep.getOperationType();
-        List<RuntimeOperation> emittedOperations = new ArrayList<RuntimeOperation>();
+        List<RuntimeOperation> emittedOperations = new ArrayList<>();
         for (OperationAnalyzer analyzer : operationAnalyzers) {
             if (analyzer.suits(operationType)) {
                 List<RuntimeOperation> operations = analyzer.getOperations(nodesToCompile, conversionStep);

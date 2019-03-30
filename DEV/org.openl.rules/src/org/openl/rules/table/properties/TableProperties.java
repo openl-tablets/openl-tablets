@@ -544,7 +544,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
      */
     public Map<String, Object> getAllDimensionalProperties() {
         if (allDimensionalProperties == null) {
-            Map<String, Object> tmp = new HashMap<String, Object>();
+            Map<String, Object> tmp = new HashMap<>();
             Map<String, Object> props = getAllProperties();
             for (Map.Entry<String, Object> property : props.entrySet()) {
                 String propName = property.getKey();

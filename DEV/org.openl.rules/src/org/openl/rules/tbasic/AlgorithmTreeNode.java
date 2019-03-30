@@ -14,8 +14,8 @@ public class AlgorithmTreeNode {
     private final List<AlgorithmTreeNode> children;
 
     public AlgorithmTreeNode() {
-        children = new ArrayList<AlgorithmTreeNode>();
-        labels = new LinkedList<StringValue>();
+        children = new ArrayList<>();
+        labels = new LinkedList<>();
     }
 
     public void add(AlgorithmTreeNode node) {

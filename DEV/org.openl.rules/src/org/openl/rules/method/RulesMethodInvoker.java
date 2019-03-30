@@ -41,10 +41,10 @@ public abstract class RulesMethodInvoker<T extends ExecutableRulesMethod> implem
     /**
      * Checks if it is possible to invoke invokable object.
      */
-    abstract protected boolean canInvoke();
+    protected abstract boolean canInvoke();
 
     /**
      * Invoke for simple run operation.
      */
-    abstract protected Object invokeSimple(Object target, Object[] params, IRuntimeEnv env);
+    protected abstract Object invokeSimple(Object target, Object[] params, IRuntimeEnv env);
 }

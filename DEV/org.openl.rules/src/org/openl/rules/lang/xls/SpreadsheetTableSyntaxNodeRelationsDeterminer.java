@@ -21,10 +21,9 @@ public class SpreadsheetTableSyntaxNodeRelationsDeterminer implements TableSynta
             }
 
             String methodName2 = TableSyntaxNodeHelper.getTableName(dependsOnNode);
-            if (StringUtils.isNotBlank(methodName2)) {
-                if (extractor1.getDependentSignatureSpreadsheetTypes().contains(methodName2)) {
-                    return true;
-                }
+            if (StringUtils.isNotBlank(methodName2) && extractor1.getDependentSignatureSpreadsheetTypes()
+                .contains(methodName2)) {
+                return true;
             }
             return false;
         }

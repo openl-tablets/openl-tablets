@@ -13,10 +13,8 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
 
 /**
- * Table Basic Algorithm component for internal subroutines and functions. It
- * can be run only inside call hierarchy of parent Algorithm. However, it
- * doesn't have any links to parent Algorithm, but relies on invocation
- * arguments.
+ * Table Basic Algorithm component for internal subroutines and functions. It can be run only inside call hierarchy of
+ * parent Algorithm. However, it doesn't have any links to parent Algorithm, but relies on invocation arguments.
  */
 public class AlgorithmSubroutineMethod extends AlgorithmFunction {
 
@@ -62,8 +60,7 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.types.IMethodCaller#invoke(java.lang.Object,
-     *      java.lang.Object[], org.openl.vm.IRuntimeEnv)
+     * @see org.openl.types.IMethodCaller#invoke(java.lang.Object, java.lang.Object[], org.openl.vm.IRuntimeEnv)
      */
     protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
         assert env instanceof TBasicContextHolderEnv;
@@ -88,20 +85,17 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
     public void setLabels(Map<String, RuntimeOperation> localLabelsRegister) {
         labels = localLabelsRegister;
     }
-	
-	public BindingDependencies getDependencies() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	public Map<String, Object> getProperties() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public BindingDependencies getDependencies() {
+        return null;
+    }
 
-	public TableSyntaxNode getSyntaxNode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Map<String, Object> getProperties() {
+        return null;
+    }
+
+    public TableSyntaxNode getSyntaxNode() {
+        return null;
+    }
 
 }

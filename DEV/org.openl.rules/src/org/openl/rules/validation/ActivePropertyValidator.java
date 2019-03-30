@@ -44,7 +44,7 @@ public class ActivePropertyValidator extends TablesValidator {
 
         for (DimensionPropertiesMethodKey key : groupedMethods.keySet()) {
             List<TableSyntaxNode> methodsGroup = groupedMethods.get(key);
-            List<TableSyntaxNode> activeExecutableMethodTable = new ArrayList<TableSyntaxNode>();
+            List<TableSyntaxNode> activeExecutableMethodTable = new ArrayList<>();
             int activeTableFoundCount = 0;
 
             for (TableSyntaxNode executableMethodTable : methodsGroup) {
@@ -85,7 +85,7 @@ public class ActivePropertyValidator extends TablesValidator {
 
     private Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupExecutableMethods(
             TableSyntaxNode[] tableSyntaxNodes) {
-        Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupedMethods = new HashMap<DimensionPropertiesMethodKey, List<TableSyntaxNode>>();
+        Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupedMethods = new HashMap<>();
 
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
             if (tsn.getMember() instanceof ExecutableRulesMethod) {

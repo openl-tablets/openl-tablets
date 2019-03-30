@@ -14,6 +14,9 @@ import org.openl.util.RuntimeExceptionWrapper;
  *
  */
 class AlgorithmErrorHelper {
+    
+    private AlgorithmErrorHelper() {
+    }
 
     /**
      * Create exception with specified message and makes reference to source of

@@ -25,8 +25,8 @@ public class XlsModuleSyntaxNode extends NaryNode {
 
     private OpenlSyntaxNode openlNode;
 
-    private Set<String> imports = new HashSet<String>();
-    private Set<String> libraries = new HashSet<String>();
+    private Set<String> imports = new HashSet<>();
+    private Set<String> libraries = new HashSet<>();
 
     public XlsModuleSyntaxNode(WorkbookSyntaxNode[] nodes,
             IOpenSourceCodeModule module,
@@ -46,7 +46,7 @@ public class XlsModuleSyntaxNode extends NaryNode {
     public void addImport(String value) {
         imports.add(value);
     }
-    
+
     public OpenlSyntaxNode getOpenlNode() {
         return openlNode;
     }
@@ -54,7 +54,7 @@ public class XlsModuleSyntaxNode extends NaryNode {
     public WorkbookSyntaxNode[] getWorkbookSyntaxNodes() {
         return (WorkbookSyntaxNode[]) getNodes();
     }
-    
+
     private TableSyntaxNode[] tableSyntaxNodes = null;
 
     public TableSyntaxNode[] getXlsTableSyntaxNodes() {
@@ -73,7 +73,7 @@ public class XlsModuleSyntaxNode extends NaryNode {
     }
 
     private void buildXlsTableSyntaxNodes() {
-        List<TableSyntaxNode> tsnodes = new ArrayList<TableSyntaxNode>();
+        List<TableSyntaxNode> tsnodes = new ArrayList<>();
         for (WorkbookSyntaxNode wbsn : getWorkbookSyntaxNodes()) {
             for (TableSyntaxNode tableSyntaxNode : wbsn.getTableSyntaxNodes()) {
                 tsnodes.add(tableSyntaxNode);
@@ -83,7 +83,7 @@ public class XlsModuleSyntaxNode extends NaryNode {
     }
 
     public TableSyntaxNode[] getXlsTableSyntaxNodesWithoutErrors() {
-        List<TableSyntaxNode> resultNodes = new ArrayList<TableSyntaxNode>();
+        List<TableSyntaxNode> resultNodes = new ArrayList<>();
         for (TableSyntaxNode node : getXlsTableSyntaxNodes()) {
             if (node.hasErrors()) {
                 continue;

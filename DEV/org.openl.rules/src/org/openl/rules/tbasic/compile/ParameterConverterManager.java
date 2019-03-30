@@ -26,7 +26,7 @@ public class ParameterConverterManager {
 
     private LabelManager labelManager;
 
-    private Map<Class, ParameterConverter> parameterConverters = new HashMap<Class, ParameterConverter>();
+    private Map<Class<?>, ParameterConverter> parameterConverters = new HashMap<>();
 
     {
         parameterConverters.put(String.class, new StringConverter());

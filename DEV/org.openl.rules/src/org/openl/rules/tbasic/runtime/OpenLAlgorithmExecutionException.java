@@ -9,16 +9,9 @@ package org.openl.rules.tbasic.runtime;
  */
 public class OpenLAlgorithmExecutionException extends RuntimeException {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -6258532512965806620L;
 
-    /**
-     *
-     */
     public OpenLAlgorithmExecutionException() {
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -26,7 +19,6 @@ public class OpenLAlgorithmExecutionException extends RuntimeException {
      */
     public OpenLAlgorithmExecutionException(String message) {
         super(message);
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -35,7 +27,6 @@ public class OpenLAlgorithmExecutionException extends RuntimeException {
      */
     public OpenLAlgorithmExecutionException(String message, Throwable cause) {
         super(message, cause);
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -43,7 +34,6 @@ public class OpenLAlgorithmExecutionException extends RuntimeException {
      */
     public OpenLAlgorithmExecutionException(Throwable cause) {
         super(cause);
-        // TODO Auto-generated constructor stub
     }
 
 }

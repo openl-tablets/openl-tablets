@@ -119,7 +119,7 @@ public class XlsBinder implements IOpenBinder {
     public static synchronized Map<String, AXlsTableBinder> getBinderFactory() {
 
         if (binderFactory == null) {
-            binderFactory = new HashMap<String, AXlsTableBinder>();
+            binderFactory = new HashMap<>();
 
             for (int i = 0; i < BINDERS.length; i++) {
 
@@ -269,7 +269,7 @@ public class XlsBinder implements IOpenBinder {
             ASelector<ISyntaxNode> conditionsSelector = getSelector(XlsNodeTypes.XLS_CONDITIONS);
             ASelector<ISyntaxNode> actionsSelector = getSelector(XlsNodeTypes.XLS_ACTIONS);
             ASelector<ISyntaxNode> returnsSelector = getSelector(XlsNodeTypes.XLS_RETURNS);
-            
+
             ISelector<ISyntaxNode> dtDefinitionSelector = conditionsSelector.or(returnsSelector).or(actionsSelector);
 
             ISelector<ISyntaxNode> notPropertiesAndNotDatatypeAndNotConstantsSelector = propertiesSelector.not()
@@ -307,17 +307,17 @@ public class XlsBinder implements IOpenBinder {
              * using of inheritance feature at this step.
              */
             TableSyntaxNode[] processedDatatypeNodes = DatatypesSorter.sort(datatypeNodes, moduleContext); // Rewrite
-                                                                                                                 // this
-                                                                                                                 // sorter
-                                                                                                                 // with
-                                                                                                                 // TableSyntaxNodeRelationsUtils
+                                                                                                           // this
+                                                                                                           // sorter
+                                                                                                           // with
+                                                                                                           // TableSyntaxNodeRelationsUtils
 
             bindInternal(moduleNode, moduleOpenClass, processedDatatypeNodes, openl, moduleContext);
 
-            //Conditions && Returns && Actions
+            // Conditions && Returns && Actions
             TableSyntaxNode[] dtHeaderDefinitionsNodes = selectNodes(moduleNode, dtDefinitionSelector);
-            //bindInternal(moduleNode, moduleOpenClass, conditionsNodes, openl, moduleContext);
-            
+            // bindInternal(moduleNode, moduleOpenClass, conditionsNodes, openl, moduleContext);
+
             // Select nodes excluding Properties, Datatype, Spreadsheet, Test,
             // RunMethod tables
             TableSyntaxNode[] commonTables = selectNodes(moduleNode, commonTablesSelector);
@@ -338,7 +338,8 @@ public class XlsBinder implements IOpenBinder {
 
             TableSyntaxNode[] dts = selectTableSyntaxNodes(moduleNode, dtSelector);
 
-            TableSyntaxNode[] commonAndSpreadsheetTables = ArrayUtils.addAll(ArrayUtils.addAll(ArrayUtils.addAll(dtHeaderDefinitionsNodes ,dts), spreadsheets),
+            TableSyntaxNode[] commonAndSpreadsheetTables = ArrayUtils.addAll(
+                ArrayUtils.addAll(ArrayUtils.addAll(dtHeaderDefinitionsNodes, dts), spreadsheets),
                 commonTables);
             bindInternal(moduleNode, moduleOpenClass, commonAndSpreadsheetTables, openl, moduleContext);
 
@@ -372,7 +373,7 @@ public class XlsBinder implements IOpenBinder {
     }
 
     private StringValueSelector<ISyntaxNode> getSelector(String selectorValue) {
-        return new ASelector.StringValueSelector<ISyntaxNode>(selectorValue, new SyntaxNodeConvertor());
+        return new ASelector.StringValueSelector<>(selectorValue, new SyntaxNodeConvertor());
     }
 
     /**
@@ -516,7 +517,7 @@ public class XlsBinder implements IOpenBinder {
             ISelector<ISyntaxNode> childSelector,
             Comparator<TableSyntaxNode> nodesComparator) {
 
-        ArrayList<TableSyntaxNode> childSyntaxNodes = new ArrayList<TableSyntaxNode>();
+        ArrayList<TableSyntaxNode> childSyntaxNodes = new ArrayList<>();
 
         for (TableSyntaxNode tsn : moduleSyntaxNode.getXlsTableSyntaxNodes()) {
 
@@ -565,7 +566,7 @@ public class XlsBinder implements IOpenBinder {
 
     private Set<String> extractCustomSpreadsheetResultTypes(TableSyntaxNode[] tableSyntaxNodes,
             RulesModuleBindingContext moduleContext) {
-        Set<String> customSpreadsheetResultTypeNames = new HashSet<String>();
+        Set<String> customSpreadsheetResultTypeNames = new HashSet<>();
         if (OpenLSystemProperties.isCustomSpreadsheetType(moduleContext.getExternalParams())) {
             for (int i = 0; i < tableSyntaxNodes.length; i++) {
                 if (isSpreadsheetResultTableSyntaxNode(tableSyntaxNodes[i])) {
@@ -655,7 +656,7 @@ public class XlsBinder implements IOpenBinder {
                 String headerSource = aExecutableNodeBinder.createHeaderSource(tableSyntaxNode, moduleContext)
                     .getCode();
                 String[] tokens = REGEX.split(headerSource);
-                List<String> notEmptyTokens = new ArrayList<String>();
+                List<String> notEmptyTokens = new ArrayList<>();
                 for (String token : tokens) {
                     if (!token.isEmpty()) {
                         notEmptyTokens.add(token);

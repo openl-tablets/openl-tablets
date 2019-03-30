@@ -27,21 +27,17 @@ public class DecisionTableAnalyzer {
 
     private IDecisionTable decisionTable;
 
-    private Map<IBaseDecisionRow, ConditionAnalyzer> conditionAnalyzers = new HashMap<IBaseDecisionRow, ConditionAnalyzer>();
-    private Map<String, DecisionTableParamDescription> usedParamsFromSignature = new HashMap<String, DecisionTableParamDescription>();
+    private Map<IBaseDecisionRow, ConditionAnalyzer> conditionAnalyzers = new HashMap<>();
+    private Map<String, DecisionTableParamDescription> usedParamsFromSignature = new HashMap<>();
 
     public DecisionTableAnalyzer(IDecisionTable decisionTable) {
-
         this.decisionTable = decisionTable;
 
         init(decisionTable);
     }
 
     private void init(IDecisionTable decisionTable) {
-
         int n = decisionTable.getNumberOfConditions();
-        
-       
 
         for (int i = 0; i < n; ++i) {
             conditionAnalyzers.put(decisionTable.getConditionRows()[i], new ConditionAnalyzer(decisionTable.getConditionRows()[i]));
@@ -49,14 +45,11 @@ public class DecisionTableAnalyzer {
     }
 
     public boolean containsFormula(IBaseDecisionRow row) {
-
-
     	int len = row.getNumberOfRules();
         for (int ruleN = 0; ruleN < len; ruleN++) {
-
-        	if (row.hasFormula(ruleN))
+        	if (row.hasFormula(ruleN)) {
         		return true;
-        	
+        	}
         }
 
         return false;
@@ -139,7 +132,7 @@ public class DecisionTableAnalyzer {
 
         IMethodSignature methodSignature = decisionTable.getSignature();
 
-        List<IParameterDeclaration> paramDeclarations = new ArrayList<IParameterDeclaration>();
+        List<IParameterDeclaration> paramDeclarations = new ArrayList<>();
 
          for (IOpenField openField : bindingDependecies.getFieldsMap().values()) {
 

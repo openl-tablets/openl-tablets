@@ -9,11 +9,9 @@ public class WorksheetSyntaxNode extends NaryNode {
     public WorksheetSyntaxNode(TableSyntaxNode[] nodes, XlsSheetSourceCodeModule module) {
         super(XlsNodeTypes.XLS_WORKSHEET.toString(), null, nodes, module);
     }
-    
-    public TableSyntaxNode[] getTableSyntaxNodes()
-    {
+
+    public TableSyntaxNode[] getTableSyntaxNodes() {
         return (TableSyntaxNode[]) getNodes();
     }
-    
 
 }

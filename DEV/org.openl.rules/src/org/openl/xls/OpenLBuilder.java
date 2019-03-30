@@ -9,7 +9,6 @@ package org.openl.xls;
 import org.openl.IOpenParser;
 import org.openl.OpenL;
 import org.openl.conf.BaseOpenLBuilder;
-import org.openl.conf.OpenConfigurationException;
 import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.rules.lang.xls.XlsParser;
 import org.openl.rules.lang.xls.XlsVM;
@@ -20,7 +19,7 @@ import org.openl.rules.lang.xls.XlsVM;
  */
 public class OpenLBuilder extends BaseOpenLBuilder {
 
-    public OpenL build(String category) throws OpenConfigurationException {
+    public OpenL build(String category) {
 
         OpenL openl = new OpenL();
 

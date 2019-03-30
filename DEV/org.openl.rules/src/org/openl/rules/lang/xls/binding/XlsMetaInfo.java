@@ -16,7 +16,6 @@ public class XlsMetaInfo implements IMetaInfo {
      * @see org.openl.meta.IMetaInfo#getDisplayName(int)
      */
     public String getDisplayName(int mode) {
-        // TODO Auto-generated method stub
         return null;
     }
 

@@ -48,8 +48,7 @@ public class XlsCellStyle implements ICellStyle {
             return null;
         }
 
-        return toRgb(
-                xlsStyle.getFillBackgroundColorColor());
+        return toRgb(xlsStyle.getFillBackgroundColorColor());
     }
 
     @Override
@@ -63,8 +62,7 @@ public class XlsCellStyle implements ICellStyle {
             return null;
         }
 
-        return toRgb(
-                xlsStyle.getFillForegroundColorColor());
+        return toRgb(xlsStyle.getFillForegroundColorColor());
     }
 
     @Override

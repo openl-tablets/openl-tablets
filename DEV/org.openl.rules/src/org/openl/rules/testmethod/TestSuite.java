@@ -52,7 +52,9 @@ public class TestSuite implements INamedThing {
         return tests[testNumber];
     }
 
-    public TestUnitsResults invokeParallel(TestSuiteExecutor testSuiteExecutor, final IOpenClass openClass, final long ntimes) {
+    public TestUnitsResults invokeParallel(TestSuiteExecutor testSuiteExecutor,
+            final IOpenClass openClass,
+            final long ntimes) {
         final int THREAD_COUNT = testSuiteExecutor.getThreadCount();
         Executor threadPoolExecutor = testSuiteExecutor.getExecutor();
 
@@ -61,20 +63,17 @@ public class TestSuite implements INamedThing {
         final ITestUnit[] testUnitResultsArray = new ITestUnit[getNumberOfTests()];
         for (int i = 0; i < THREAD_COUNT; i++) {
             final int numThread = i;
-            Runnable runnable = new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        for (int j = 0; j < getNumberOfTests(); j++) {
-                            if (j % THREAD_COUNT == numThread) {
-                                testUnitResultsArray[j] = executeTest(openClass, j, ntimes);
-                            }
+            Runnable runnable = () -> {
+                try {
+                    for (int j = 0; j < getNumberOfTests(); j++) {
+                        if (j % THREAD_COUNT == numThread) {
+                            testUnitResultsArray[j] = executeTest(openClass, j, ntimes);
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } finally {
-                        countDownLatch.countDown();
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    countDownLatch.countDown();
                 }
             };
             threadPoolExecutor.execute(runnable);
@@ -132,9 +131,8 @@ public class TestSuite implements INamedThing {
     }
 
     /**
-     * @return <code>true</code> in case this test suite is virtual, and
-     *         <code>false</code> if this test suite corresponds to particular
-     *         test table.
+     * @return <code>true</code> in case this test suite is virtual, and <code>false</code> if this test suite
+     *         corresponds to particular test table.
      */
     public boolean isVirtualTestSuite() {
         return testSuiteMethod == null;

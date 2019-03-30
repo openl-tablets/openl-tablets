@@ -22,14 +22,12 @@ import org.openl.types.java.JavaOpenConstructor;
 import org.openl.util.ClassUtils;
 
 /**
- * The factory class that provides methods to generate interface class using
- * methods (rules) of IOpenClass.
+ * The factory class that provides methods to generate interface class using methods (rules) of IOpenClass.
  * 
  */
 public class InterfaceGenerator {
 
-    public static final int PUBLIC_ABSTRACT_INTERFACE = Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT
-            + Opcodes.ACC_INTERFACE;
+    public static final int PUBLIC_ABSTRACT_INTERFACE = Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT + Opcodes.ACC_INTERFACE;
     public static final int PUBLIC_ABSTRACT = Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT;
     public static final String JAVA_LANG_OBJECT = "java/lang/Object";
     private static final RuleInfo[] EMPTY_RULES = new RuleInfo[0];
@@ -39,13 +37,13 @@ public class InterfaceGenerator {
      * 
      * @param className name of result class
      * @param rules collection of rules what will be used as interface methods
-     * @param classLoader class loader what will be used to load generated
-     *            interface
+     * @param classLoader class loader what will be used to load generated interface
      * @return generated interface
      * @throws Exception if an error has occurred
      */
-    public static Class<?> generateInterface(String className, RuleInfo[] rules, ClassLoader classLoader)
-            throws Exception {
+    public static Class<?> generateInterface(String className,
+            RuleInfo[] rules,
+            ClassLoader classLoader) throws Exception {
 
         ClassWriter classWriter = new ClassWriter(0);
 
@@ -69,10 +67,9 @@ public class InterfaceGenerator {
         //
         return Class.forName(className, true, classLoader);
     }
-    
+
     /**
-     * Generates interface class using methods and fields of given IOpenClass
-     * instance.
+     * Generates interface class using methods and fields of given IOpenClass instance.
      * 
      * @throws Exception if an error has occurred
      */
@@ -89,7 +86,7 @@ public class InterfaceGenerator {
         List<RuleInfo> rules = new ArrayList<RuleInfo>();
 
         Set<MethodKey> methodsInClass = new HashSet<MethodKey>();
-        
+
         final Collection<IOpenMethod> methods = openClass.getMethods();
         for (IOpenMethod method : methods) {
             if (!isIgnoredMember(method)) {
@@ -104,17 +101,15 @@ public class InterfaceGenerator {
 
         final Collection<IOpenField> fields = openClass.getFields().values();
         for (IOpenField field : fields) {
-            if (!isIgnoredMember(field)) {
-                if (field.isReadable()) {
-                    RuleInfo ruleInfo = getRuleInfoForField(field);
-                    boolean isMember = isMember(ruleInfo, includes, excludes);
-                    if (isMember) {
-                        MethodKey key = new MethodKey(ruleInfo.getName(), IOpenClass.EMPTY);
-                        //Skip getter for field if method is defined with the same signature.
-                        if (!methodsInClass.contains(key)) {
-                            rules.add(ruleInfo);
-                            methodsInClass.add(key);
-                        }
+            if (!isIgnoredMember(field) && field.isReadable()) {
+                RuleInfo ruleInfo = getRuleInfoForField(field);
+                boolean isMember = isMember(ruleInfo, includes, excludes);
+                if (isMember) {
+                    MethodKey key = new MethodKey(ruleInfo.getName(), IOpenClass.EMPTY);
+                    // Skip getter for field if method is defined with the same signature.
+                    if (!methodsInClass.contains(key)) {
+                        rules.add(ruleInfo);
+                        methodsInClass.add(key);
                     }
                 }
             }
@@ -144,17 +139,17 @@ public class InterfaceGenerator {
         return isMember;
     }
 
-    private static String getRuleInfoSignature(RuleInfo ruleInfo){
+    private static String getRuleInfoSignature(RuleInfo ruleInfo) {
         StringBuilder sb = new StringBuilder();
         sb.append(ruleInfo.getReturnType().getCanonicalName());
         sb.append(" ");
         sb.append(ruleInfo.getName());
         sb.append("(");
         boolean first = true;
-        for (Class<?> paramType : ruleInfo.getParamTypes()){
-            if (first){
+        for (Class<?> paramType : ruleInfo.getParamTypes()) {
+            if (first) {
                 first = false;
-            }else{
+            } else {
                 sb.append(", ");
             }
             sb.append(paramType.getCanonicalName());
@@ -162,20 +157,19 @@ public class InterfaceGenerator {
         sb.append(")");
         return sb.toString();
     }
-    
+
     /**
-     * Generates interface class using methods and fields of given IOpenClass
-     * instance.
+     * Generates interface class using methods and fields of given IOpenClass instance.
      * 
      * @param className name of result class
      * @param openClass IOpenClass instance
-     * @param classLoader class loader what will be used to load generated
-     *            interface
+     * @param classLoader class loader what will be used to load generated interface
      * @return generated interface
      * @throws Exception if an error has occurred
      */
-    public static Class<?> generateInterface(String className, IOpenClass openClass, ClassLoader classLoader)
-            throws Exception {
+    public static Class<?> generateInterface(String className,
+            IOpenClass openClass,
+            ClassLoader classLoader) throws Exception {
         return generateInterface(className, openClass, classLoader, null, null);
     }
 
@@ -191,9 +185,7 @@ public class InterfaceGenerator {
         Class<?>[] paramTypes = new Class<?>[0];
         Class<?> returnType = field.getType().getInstanceClass();
 
-        RuleInfo ruleInfo = createRuleInfo(methodName, paramTypes, returnType);
-
-        return ruleInfo;
+        return createRuleInfo(methodName, paramTypes, returnType);
     }
 
     /**
@@ -210,9 +202,7 @@ public class InterfaceGenerator {
 
         Class<?>[] paramTypes = getInstanceClasses(paramClasses);
 
-        RuleInfo ruleInfo = createRuleInfo(methodName, paramTypes, returnType);
-
-        return ruleInfo;
+        return createRuleInfo(methodName, paramTypes, returnType);
     }
 
     /**
@@ -237,12 +227,11 @@ public class InterfaceGenerator {
      * Checks that given member is ignored.
      * 
      * @param member member (method or field)
-     * @return <code>true</code> - if member should be ignored (will be skipped
-     *         due interface generation phase), <code>false</code> - otherwise
+     * @return <code>true</code> - if member should be ignored (will be skipped due interface generation phase),
+     *         <code>false</code> - otherwise
      */
     private static boolean isIgnoredMember(IOpenMember member) {
-        return member instanceof JavaOpenConstructor
-                || member instanceof ThisField || member instanceof GetOpenClass || member instanceof TestSuiteMethod;
+        return member instanceof JavaOpenConstructor || member instanceof ThisField || member instanceof GetOpenClass || member instanceof TestSuiteMethod;
     }
 
     /**
@@ -276,7 +265,7 @@ public class InterfaceGenerator {
      */
     private static Class<?>[] getInstanceClasses(IOpenClass[] openClasses) {
 
-        List<Class<?>> classes = new ArrayList<Class<?>>();
+        List<Class<?>> classes = new ArrayList<>();
 
         if (openClasses != null) {
             for (IOpenClass openClass : openClasses) {

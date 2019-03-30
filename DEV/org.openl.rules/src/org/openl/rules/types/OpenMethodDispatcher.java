@@ -38,8 +38,7 @@ import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 
 /**
- * Class that decorates the <code>IOpenMehtod</code> interface for method
- * overload support.
+ * Class that decorates the <code>IOpenMehtod</code> interface for method overload support.
  * 
  * @author Alexey Gamanovich
  * 
@@ -47,9 +46,8 @@ import org.openl.vm.Tracer;
 public abstract class OpenMethodDispatcher implements IOpenMethod {
 
     /**
-     * Delegate method. Used as a descriptor of method for all overloaded
-     * version to delegate requests about method info such as signature, name,
-     * etc.
+     * Delegate method. Used as a descriptor of method for all overloaded version to delegate requests about method info
+     * such as signature, name, etc.
      */
     private IOpenMethod delegate;
 
@@ -61,9 +59,9 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     /**
      * List of method candidates.
      */
-    private List<IOpenMethod> candidates = new ArrayList<IOpenMethod>();
+    private List<IOpenMethod> candidates = new ArrayList<>();
     private Map<Integer, DimensionPropertiesMethodKey> candidatesToDimensionKey = new HashMap<>();
-    
+
     private final Invokable invokeInner = new Invokable() {
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
@@ -117,8 +115,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     }
 
     /**
-     * Gets <code>null</code>. The decorator hasn't info about overloaded
-     * methods.
+     * Gets <code>null</code>. The decorator hasn't info about overloaded methods.
      */
     public IMemberMetaInfo getInfo() {
         return null;
@@ -155,8 +152,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     }
 
     /**
-     * Gets <code>this</code>. The decorator can't resolve which overloaded
-     * method should be returned.
+     * Gets <code>this</code>. The decorator can't resolve which overloaded method should be returned.
      */
     public IOpenMethod getMethod() {
         return this;
@@ -166,7 +162,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         return Collections.unmodifiableList(candidates);
     }
 
-    private Map<UUID, IOpenMethod> cache = new LinkedHashMap<UUID, IOpenMethod>();
+    private Map<UUID, IOpenMethod> cache = new LinkedHashMap<>();
     private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
     private static final int MAX_ELEMENTS_IN_CAHCE = 1000;
@@ -179,10 +175,11 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     }
 
     /**
-     * Finds appropriate method using runtime context. This method used to optimize runtime where the same method is used more that one time.
+     * Finds appropriate method using runtime context. This method used to optimize runtime where the same method is
+     * used more that one time.
      */
     public IOpenMethod findMatchingMethod(IRuntimeEnv env) {
-     // Gets the runtime context.
+        // Gets the runtime context.
         //
         IRuntimeContext context = env.getContext();
 
@@ -231,7 +228,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         if (method instanceof IOpenMethodWrapper) {
             method = ((IOpenMethodWrapper) method).getDelegate();
         }
-        
+
         return method;
     }
 
@@ -272,23 +269,19 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     }
 
     /**
-     * In case we have several versions of one table we should add only the
-     * newest or active version of table.
+     * In case we have several versions of one table we should add only the newest or active version of table.
      * 
      * @param newMethod The methods that we are trying to add.
      * @param key Method key of these methods based on signature.
      * @param existedMethod The existing method.
      */
-    protected IOpenMethod useActiveOrNewerVersion(IOpenMethod existedMethod,
-            IOpenMethod newMethod,
-            MethodKey key) throws DuplicatedMethodException {
+    protected IOpenMethod useActiveOrNewerVersion(IOpenMethod existedMethod, IOpenMethod newMethod, MethodKey key) {
         int compareResult = TableVersionComparator.getInstance().compare(existedMethod, newMethod);
         if (compareResult > 0) {
             return newMethod;
         } else if (compareResult == 0) {
             /**
-             * Throw the error with the right message for the case when the
-             * methods are equal
+             * Throw the error with the right message for the case when the methods are equal
              */
             if (newMethod instanceof IUriMember && existedMethod instanceof IUriMember) {
                 if (!UriMemberHelper.isTheSame((IUriMember) newMethod, (IUriMember) existedMethod)) {
@@ -305,15 +298,15 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     private int searchTheSameMethod(DimensionPropertiesMethodKey newMethodPropertiesKey) {
         for (Map.Entry<Integer, DimensionPropertiesMethodKey> it : candidatesToDimensionKey.entrySet()) {
             DimensionPropertiesMethodKey existedMethodPropertiesKey = it.getValue();
-            if (existedMethodPropertiesKey.hashCode() == newMethodPropertiesKey.hashCode() &&
-                    newMethodPropertiesKey.equals(existedMethodPropertiesKey)) {
+            if (existedMethodPropertiesKey.hashCode() == newMethodPropertiesKey.hashCode() && newMethodPropertiesKey
+                .equals(existedMethodPropertiesKey)) {
                 return it.getKey();
             }
         }
         return -1;
     }
 
-    private Set<MethodKey> candidateKeys = new HashSet<MethodKey>();
+    private Set<MethodKey> candidateKeys = new HashSet<>();
 
     /**
      * Try to add method as overloaded version of decorated method.
@@ -354,12 +347,10 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                     if (!candidateKeys.contains(candidateKey)) {
                         if (candidate instanceof IMemberMetaInfo) {
                             IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) candidate;
-                            if (memberMetaInfo.getSyntaxNode() != null) {
-                                if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
-                                    SyntaxNodeException error = SyntaxNodeExceptionUtils
-                                        .createError(e.getMessage(), e, memberMetaInfo.getSyntaxNode());
-                                    ((TableSyntaxNode) memberMetaInfo.getSyntaxNode()).addError(error);
-                                }
+                            if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
+                                SyntaxNodeException error = SyntaxNodeExceptionUtils
+                                    .createError(e.getMessage(), e, memberMetaInfo.getSyntaxNode());
+                                ((TableSyntaxNode) memberMetaInfo.getSyntaxNode()).addError(error);
                             }
                         }
                         candidateKeys.add(candidateKey);

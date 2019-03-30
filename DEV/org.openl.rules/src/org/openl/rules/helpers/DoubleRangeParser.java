@@ -16,7 +16,7 @@ public class DoubleRangeParser {
 
     private static final String DOUBLE_PATTERN = "\\$?(-?(?:\\d{1,30},){0,30}\\d{1,30}\\.?\\d*)([KMB]?)";
 
-    protected final RangeParser PARSERS[] = { new SimpleRangeParser(),
+    protected static final RangeParser[] PARSERS = { new SimpleRangeParser(),
             new RangeWithBracketsParser(),
             new PrefixRangeParser(),
             new SuffixRangeParser(),
@@ -31,7 +31,7 @@ public class DoubleRangeParser {
         return INSTANCE;
     }
 
-    private final static int MAX_RANGE_POSSIBLE_LENGTH = 100;
+    private static final int MAX_RANGE_POSSIBLE_LENGTH = 100;
 
     public RangeWithBounds parse(String range) {
         if (range != null && range.length() <= MAX_RANGE_POSSIBLE_LENGTH) {

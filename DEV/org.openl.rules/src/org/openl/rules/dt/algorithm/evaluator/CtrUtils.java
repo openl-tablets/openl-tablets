@@ -7,7 +7,10 @@ import org.openl.ie.constrainer.IntExp;
 /**
  * Used inside OpenL rules.
  */
-public class CtrUtils {
+public final class CtrUtils {
+
+    private CtrUtils() {
+    }
 
     public static IntBoolExp containsCtr(int[] ary, IntExp exp) {
 

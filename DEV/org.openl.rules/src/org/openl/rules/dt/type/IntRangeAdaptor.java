@@ -3,7 +3,7 @@ package org.openl.rules.dt.type;
 import org.openl.rules.helpers.IntRange;
 
 public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
-    private final static IntRangeAdaptor INSTANCE = new IntRangeAdaptor();
+    private static final IntRangeAdaptor INSTANCE = new IntRangeAdaptor();
 
     private IntRangeAdaptor() {
     }

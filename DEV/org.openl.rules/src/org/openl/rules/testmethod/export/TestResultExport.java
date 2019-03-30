@@ -41,17 +41,17 @@ public class TestResultExport extends ResultExport {
             boolean okField = parameter.getStatus() == TestStatus.TR_OK;
 
             Cell cell = createCell(row,
-                    colNum++,
-                    parameter.getActualValue(),
-                    okField ? styles.resultSuccess : styles.resultFailure);
+                colNum++,
+                parameter.getActualValue(),
+                okField ? styles.resultSuccess : styles.resultFailure);
 
             if (!okField) {
-                String expected = "Expected: ";
+                StringBuilder expected = new StringBuilder("Expected: ");
                 Object expectedValue = getSimpleValue(parameter.getExpectedValue());
                 if (expectedValue != null) {
-                    expected += FormattersManager.format(expectedValue);
+                    expected.append(FormattersManager.format(expectedValue));
                 }
-                setCellComment(cell, expected);
+                setCellComment(cell, expected.toString());
             }
         }
     }

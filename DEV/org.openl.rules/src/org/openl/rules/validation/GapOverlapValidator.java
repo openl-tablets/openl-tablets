@@ -90,13 +90,10 @@ public class GapOverlapValidator extends TablesValidator {
     }
 
     private Map<String, IDomainAdaptor> gatherDomains(IDecisionTable dt) throws Exception {
-        Map<String, IDomainAdaptor> domainsMap = new HashMap<String, IDomainAdaptor>();
+        Map<String, IDomainAdaptor> domainsMap = new HashMap<>();
         DecisionTableAnalyzer analyzer = new DecisionTableAnalyzer(dt);
 
         for (IBaseCondition condition : dt.getConditionRows()) {
-            // List<IParameterDeclaration> parameters =
-            // getAllParameters(condition, analyzer);
-
             IParameterDeclaration[] pd = analyzer.referencedSignatureParams(condition);
             for (int i = 0; i < pd.length; i++) {
                 IDomain<?> domain = pd[i].getType().getDomain();
@@ -127,41 +124,6 @@ public class GapOverlapValidator extends TablesValidator {
         }
         return domainsMap;
     }
-
-    /**
-     * @return all parameter declarations: from signature and local from
-     *         condition
-     */
-    // private List<IParameterDeclaration> getAllParameters(ICondition
-    // condition, DecisionTableAnalyzer analyzer) {
-    // List<IParameterDeclaration> result = new
-    // ArrayList<IParameterDeclaration>();
-    // IParameterDeclaration[] paramDeclarations = condition.getParams();
-    // result.addAll(Arrays.asList(paramDeclarations));
-    // IParameterDeclaration[] referencedSignatureParams =
-    // analyzer.referencedSignatureParams(condition);
-    // result.addAll(Arrays.asList(referencedSignatureParams));
-    // return result;
-    // }
-
-    /**
-     * @param condition Condition to check for variables without domain.
-     * @return <code>null</code> if there is no variables without domain
-     *         otherwise the domain for variables without domain.
-     */
-    // private IDomain<?>
-    // findDomainForConditionVariables(List<IParameterDeclaration> parameters,
-    // ICondition condition,
-    // DecisionTableAnalyzer analyzer) {
-    // IDomain<?> domain = null;
-    // for (IParameterDeclaration parameter : parameters) {
-    // domain = parameter.getType().getDomain();
-    // if (domain == null) {
-    // domain = analyzer.gatherDomainFromValues(parameter, condition);
-    // }
-    // }
-    // return domain;
-    // }
 
     private static boolean isValidatableMethod(ExecutableRulesMethod executableMethod) {
         return executableMethod.getMethodProperties() != null && ValidateDTEnum.ON

@@ -27,15 +27,12 @@ public class TablePartProcessor {
 
     private Collection<OpenLMessage> messages = new LinkedHashSet<>();
 
-    public TablePartProcessor() {
-    }
-
     /**
      * 
      * @return a list of TableParts with tables merged
      */
     public List<TablePart> mergeAllNodes() {
-        List<TablePart> tables = new ArrayList<TablePart>();
+        List<TablePart> tables = new ArrayList<>();
         for (SortedSet<TablePart> set : tableParts.values()) {
             try {
                 TablePart mergedTable = validateAndMerge(set);
@@ -126,7 +123,7 @@ public class TablePartProcessor {
         return new GridTableSourceCodeModule(table);
     }
 
-    Map<String, TreeSet<TablePart>> tableParts = new HashMap<String, TreeSet<TablePart>>();
+    Map<String, TreeSet<TablePart>> tableParts = new HashMap<>();
 
     public void register(IGridTable table, XlsSheetSourceCodeModule source) throws OpenLCompilationException {
         TablePart tablePart = new TablePart(table, source);
@@ -134,7 +131,8 @@ public class TablePartProcessor {
         addToParts(tablePart);
     }
 
-    private static final Pattern PATTERN = Pattern.compile("\\w+\\s+(\\w+)\\s+(column|row)\\s+(\\d+)\\s+of\\s+(\\d+)\\s*($)");
+    private static final Pattern PATTERN = Pattern
+        .compile("\\w+\\s+(\\w+)\\s+(column|row)\\s+(\\d+)\\s+of\\s+(\\d+)\\s*($)");
 
     private void parseHeader(TablePart tablePart) throws OpenLCompilationException {
 
@@ -162,12 +160,7 @@ public class TablePartProcessor {
 
     private synchronized void addToParts(TablePart tablePart) throws OpenLCompilationException {
         String key = tablePart.getPartName();
-        TreeSet<TablePart> set = tableParts.get(key);
-        if (set == null) {
-            set = new TreeSet<TablePart>();
-            tableParts.put(key, set);
-        }
-
+        TreeSet<TablePart> set = tableParts.computeIfAbsent(key, e -> new TreeSet<>());
         boolean res = set.add(tablePart);
         if (!res) {
             String message = "Duplicated TablePart part # = " + tablePart.getPart();

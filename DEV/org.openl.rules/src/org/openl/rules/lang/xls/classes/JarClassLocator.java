@@ -25,7 +25,7 @@ public class JarClassLocator implements ClassLocator {
     }
 
     public JarClassLocator(List<? extends LocatorExceptionHandler> handlers) {
-        this.handlers = new ArrayList<LocatorExceptionHandler>(handlers);
+        this.handlers = new ArrayList<>(handlers);
     }
 
     /**
@@ -38,8 +38,8 @@ public class JarClassLocator implements ClassLocator {
     }
 
     /**
-     * Find all classes in a given path. If a class cannot be loaded, it is
-     * skipped (in our case we don't need such classes).
+     * Find all classes in a given path. If a class cannot be loaded, it is skipped (in our case we don't need such
+     * classes).
      * 
      * @param pathURL path to the jar
      * @param packageName The package name for classes found inside the path
@@ -59,7 +59,7 @@ public class JarClassLocator implements ClassLocator {
             return Collections.emptySet();
         }
 
-        Set<Class<?>> classes = new HashSet<Class<?>>();
+        Set<Class<?>> classes = new HashSet<>();
         ZipInputStream zip = null;
         try {
             zip = new ZipInputStream(jar.openStream());
@@ -77,7 +77,6 @@ public class JarClassLocator implements ClassLocator {
                                 for (LocatorExceptionHandler handler : handlers) {
                                     handler.handleClassInstatiateException(t);
                                 }
-                                continue;
                             }
                         }
                     }

@@ -172,7 +172,7 @@ public abstract class ARangeParser<T> {
         }
     }
 
-    private static abstract class AParser<T> implements RangeParser<T> {
+    private abstract static class AParser<T> implements RangeParser<T> {
 
         private final Pattern pattern;
         final RangeBoundAdapter<T> adapter;
@@ -214,8 +214,8 @@ public abstract class ARangeParser<T> {
             EXCLUDING
         }
 
-        final T min, max;
-
+        final T min;
+        final T max;
         final BoundType leftBoundType;
         final BoundType rightBoundType;
 

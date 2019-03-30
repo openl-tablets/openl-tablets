@@ -38,7 +38,6 @@ public abstract class OpenLEvaluationOperation extends RuntimeOperation {
         if (openLStatement != null) {
             resultValue = openLStatement.invoke(environment.getTbasicTarget(), environment.getTbasicParams(),
                     environment);
-            ;
         }
 
         return resultValue;

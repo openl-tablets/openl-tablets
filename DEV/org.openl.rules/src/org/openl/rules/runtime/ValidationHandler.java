@@ -20,8 +20,6 @@ import org.slf4j.LoggerFactory;
  */
 class ValidationHandler {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
     void validateProxyArguments(IMethodSignature methodSignature, IRuntimeEnv env, Object[] args) {
         if (args == null || args.length == 0) {
             return;

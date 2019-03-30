@@ -54,7 +54,7 @@ public class RoundingOperator {
 
     static final OpRound OP_ROUND = new OpRound();
 
-    static public IRoundingOperator[] operators = { OP_UP, OP_DOWN, OP_ROUND };
+    public static final IRoundingOperator[] OPERATORS = { OP_UP, OP_DOWN, OP_ROUND };
 
     IRoundingOperator operator;
 
@@ -63,11 +63,11 @@ public class RoundingOperator {
             throw new RuntimeException("RoundingOperator's name must not be null");
         }
 
-        for (int i = 0; i < operators.length; i++) {
+        for (int i = 0; i < OPERATORS.length; i++) {
 
-            for (int j = 0; j < operators[i].getNames().length; j++) {
-                if (operators[i].getNames()[j].equalsIgnoreCase(op)) {
-                    return operators[i];
+            for (int j = 0; j < OPERATORS[i].getNames().length; j++) {
+                if (OPERATORS[i].getNames()[j].equalsIgnoreCase(op)) {
+                    return OPERATORS[i];
                 }
             }
         }

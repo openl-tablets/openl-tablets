@@ -9,6 +9,9 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
 class OpenMethodDispatcherHelper {
+    
+    private OpenMethodDispatcherHelper() {
+    }
 
     /**
      * Some of the list values from income parameters may be wrapped by
@@ -21,7 +24,7 @@ class OpenMethodDispatcherHelper {
      */
 
     static List<IOpenMethod> extractMethods(IOpenClass openClass) {
-        List<IOpenMethod> result = new ArrayList<IOpenMethod>();
+        List<IOpenMethod> result = new ArrayList<>();
         extractMethods(openClass.getMethods(), result);
         return result;
     }

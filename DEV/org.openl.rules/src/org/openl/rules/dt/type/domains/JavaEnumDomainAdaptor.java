@@ -7,7 +7,7 @@ import org.openl.ie.constrainer.IntVar;
 public class JavaEnumDomainAdaptor implements IDomainAdaptor {
 
     private JavaEnumDomain domain;
-    
+
     public JavaEnumDomainAdaptor(JavaEnumDomain domain) {
         this.domain = domain;
     }
@@ -15,8 +15,8 @@ public class JavaEnumDomainAdaptor implements IDomainAdaptor {
     public int getIndex(Object value) {
         if (value == null) {
             return -1;
-        } 
-        return ((Enum<?>)value).ordinal();
+        }
+        return ((Enum<?>) value).ordinal();
     }
 
     public int getIntVarDomainType() {
@@ -24,7 +24,7 @@ public class JavaEnumDomainAdaptor implements IDomainAdaptor {
     }
 
     public int getMax() {
-        return domain.size() -1;
+        return domain.size() - 1;
     }
 
     public int getMin() {
@@ -36,14 +36,13 @@ public class JavaEnumDomainAdaptor implements IDomainAdaptor {
     }
 
     public IDomainAdaptor merge(IDomainAdaptor adaptor) {
-        JavaEnumDomainAdaptor a = (JavaEnumDomainAdaptor)adaptor;
-        
-        if (domain.getEnumClass() != a.domain.getEnumClass())
+        JavaEnumDomainAdaptor a = (JavaEnumDomainAdaptor) adaptor;
+
+        if (domain.getEnumClass() != a.domain.getEnumClass()) {
             throw new RuntimeException("Wrong use of JavaEnumDomain for " + domain.getEnumClass().getName());
-        
+        }
+
         return this;
     }
 
-    
-    
 }

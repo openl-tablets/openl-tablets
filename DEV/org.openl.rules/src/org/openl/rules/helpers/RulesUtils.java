@@ -7,7 +7,6 @@ package org.openl.rules.helpers;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -3430,7 +3429,7 @@ public class RulesUtils {
      *         null), in which case it will have the same type as the element.
      */
     public static <T> T[] add(T[] array, T element) {
-        return (T[]) ArrayUtils.add(array, element);
+        return ArrayUtils.add(array, element);
     }
 
     /**

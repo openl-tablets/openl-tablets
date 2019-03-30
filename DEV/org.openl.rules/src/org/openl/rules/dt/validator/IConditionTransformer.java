@@ -3,7 +3,6 @@
  */
 package org.openl.rules.dt.validator;
 
-
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
@@ -22,7 +21,7 @@ public interface IConditionTransformer {
 
     Object transformLocalParameterValue(String name,
             IBaseCondition condition,
-            Object value,            
+            Object value,
             DecisionTableAnalyzer analyzer);
 
     IOpenClass transformSignatureType(IParameterDeclaration parameterDeclaration);

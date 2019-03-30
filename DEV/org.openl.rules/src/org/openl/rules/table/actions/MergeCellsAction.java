@@ -21,7 +21,7 @@ public class MergeCellsAction implements IUndoableGridTableAction {
 
     public void doAction(IGridTable table) {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
-        removedRegions = new ArrayList<IGridRegion>();
+        removedRegions = new ArrayList<>();
         int nregions = grid.getNumberOfMergedRegions();
         for (int i = 0; i < nregions; i++) {
             IGridRegion reg = grid.getMergedRegion(i);

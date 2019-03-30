@@ -22,7 +22,7 @@ public class DirectoryClassLocator implements ClassLocator {
     }
 
     public DirectoryClassLocator(List<? extends LocatorExceptionHandler> handlers) {
-        this.handlers = new ArrayList<LocatorExceptionHandler>(handlers);
+        this.handlers = new ArrayList<>(handlers);
     }
 
     /**
@@ -35,12 +35,11 @@ public class DirectoryClassLocator implements ClassLocator {
     }
 
     /**
-     * Find all classes in a given directory. If a class cannot be loaded, it is
-     * skipped (in our case we don't need such classes).
+     * Find all classes in a given directory. If a class cannot be loaded, it is skipped (in our case we don't need such
+     * classes).
      * 
      * @param pathURL path to the directory
-     * @param packageName The package name for classes found inside the
-     *            directory
+     * @param packageName The package name for classes found inside the directory
      * @param classLoader a ClassLoader that is used to load a classes
      * @return Found classes
      */
@@ -57,7 +56,7 @@ public class DirectoryClassLocator implements ClassLocator {
             return Collections.emptySet();
         }
 
-        Set<Class<?>> classes = new HashSet<Class<?>>();
+        Set<Class<?>> classes = new HashSet<>();
         if (!directory.exists()) {
             return classes;
         }
@@ -66,9 +65,7 @@ public class DirectoryClassLocator implements ClassLocator {
 
         for (File file : files) {
             String fileName = file.getName();
-            if (file.isDirectory()) {
-                continue;
-            } else {
+            if (!file.isDirectory()) {
                 String suffix = ".class";
                 if (fileName.endsWith(suffix) && !fileName.contains("$")) {
                     try {
@@ -80,7 +77,6 @@ public class DirectoryClassLocator implements ClassLocator {
                         for (LocatorExceptionHandler handler : handlers) {
                             handler.handleClassInstatiateException(t);
                         }
-                        continue;
                     }
                 }
             }

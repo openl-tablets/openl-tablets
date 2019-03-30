@@ -51,7 +51,7 @@ public class AlgorithmOpenClass extends ComponentOpenClass {
     }
 
     private Map<String, IOpenField> filterFields(Map<String, IOpenField> fields) {
-        Map<String, IOpenField> visibleFields = new HashMap<String, IOpenField>();
+        Map<String, IOpenField> visibleFields = new HashMap<>();
         for (Entry<String, IOpenField> entry : fields.entrySet()) {
             if (!invisibleFields.contains(entry.getKey())) {
                 visibleFields.put(entry.getKey(), entry.getValue());

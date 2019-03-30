@@ -48,8 +48,8 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
                         ITableProperties propsB = PropertiesHelper.getTableProperties(methods[j]);
                         Map<String, Object> propertiesB = propsB.getAllDimensionalProperties();
 
-                        Set<String> usedKeys = new HashSet<String>(); // Performance
-                                                                      // improvement
+                        Set<String> usedKeys = new HashSet<>(); // Performance
+                                                                // improvement
                         for (String propKey : propertiesA.keySet()) {
                             if (OverlapState.NOT_OVERLAP == overlapState) {
                                 break;
@@ -113,11 +113,7 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
         return ValidationUtils.withMessages(messages);
     }
 
-    OverlapState loopInternal(OverlapState overlapState,
-            String[] vResult,
-            String propKey,
-            Object prop,
-            Object p) {
+    OverlapState loopInternal(OverlapState overlapState, String[] vResult, String propKey, Object prop, Object p) {
         if (prop == null && p == null) { // Go to next
             return overlapState;
         }
@@ -249,12 +245,10 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
 
     private void addValidationWarn(Collection<OpenLMessage> messages, String message, IOpenMethod method) {
         IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) method;
-        if (memberMetaInfo.getSyntaxNode() != null) {
-            if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
-                messages.add(
-                    OpenLMessagesUtils.newWarnMessage("Ambiguous definition of properties values. Details: " + message,
-                        memberMetaInfo.getSyntaxNode()));
-            }
+        if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
+            messages
+                .add(OpenLMessagesUtils.newWarnMessage("Ambiguous definition of properties values. Details: " + message,
+                    memberMetaInfo.getSyntaxNode()));
         }
     }
 

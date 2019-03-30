@@ -38,7 +38,7 @@ public class WorkbookSyntaxNode extends NaryNode {
     }
 
     private void buildTableSyntaxNodes() {
-        List<TableSyntaxNode> tnodes = new ArrayList<TableSyntaxNode>();
+        List<TableSyntaxNode> tnodes = new ArrayList<>();
         WorksheetSyntaxNode[] sheetNodes = getWorksheetSyntaxNodes();
 
         for (WorksheetSyntaxNode sheetNode : sheetNodes) {

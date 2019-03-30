@@ -23,7 +23,7 @@ public abstract class UndoableRemoveAction extends UndoableEditTableAction {
         }
         int numberToRemove = getNumberToRemove(table);
         
-        List<IUndoableGridTableAction> actions = new ArrayList<IUndoableGridTableAction>();
+        List<IUndoableGridTableAction> actions = new ArrayList<>();
         IUndoableGridTableAction ua = performAction(numberToRemove, fullTableRegion, table);
         actions.add(ua);
         GridRegionAction allTable = getGridRegionAction(fullTableRegion, numberToRemove);

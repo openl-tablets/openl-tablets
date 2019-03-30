@@ -63,7 +63,7 @@ public class DispatcherTablesBuilder {
     }
 
     private List<MatchingOpenMethodDispatcher> getAllMethodDispatchers(){
-        List<MatchingOpenMethodDispatcher> dispatchers = new ArrayList<MatchingOpenMethodDispatcher>();
+        List<MatchingOpenMethodDispatcher> dispatchers = new ArrayList<>();
         for (IOpenMethod method : moduleOpenClass.getMethods()) {
             if (method instanceof MatchingOpenMethodDispatcher) {
                 dispatchers.add((MatchingOpenMethodDispatcher) method);

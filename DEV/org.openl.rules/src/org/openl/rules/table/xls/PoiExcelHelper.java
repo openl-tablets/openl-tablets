@@ -10,7 +10,10 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.*;
 
-public class PoiExcelHelper {
+public final class PoiExcelHelper {
+    
+    private PoiExcelHelper() {
+    }
 
     /** For more information, see {@link HSSFWorkbook#MAX_STYLES} */
     private static final short MAX_STYLES = 4030;

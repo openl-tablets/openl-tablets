@@ -54,7 +54,7 @@ public final class TableVersionComparator implements Comparator<ITableProperties
         return secondNodeVersion.compareTo(firstNodeVersion);
     }
 
-    private static Version DEFAULT_VERSION = Version.parseVersion("0.0.0", 0, "..");
+    private static final Version DEFAULT_VERSION = Version.parseVersion("0.0.0", 0, "..");
 
     private static Version parseVersionForComparison(String version) {
         if (version == null) {

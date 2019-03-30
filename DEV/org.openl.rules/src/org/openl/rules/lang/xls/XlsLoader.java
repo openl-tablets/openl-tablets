@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 /**
  * @author snshor
  */
@@ -56,7 +57,7 @@ public class XlsLoader {
     private OpenlSyntaxNode openl;
 
     private List<SyntaxNodeException> errors = new ArrayList<>();
-    
+
     private Collection<OpenLMessage> messages = new LinkedHashSet<>();
 
     private Set<String> preprocessedWorkBooks = new HashSet<>();
@@ -185,12 +186,10 @@ public class XlsLoader {
                     try {
                         Matcher matcher = Pattern.compile("<([^<>]+)>").matcher(include);
                         matcher.find();
-                        System.out.println(matcher.group(1));
-
                         src = includeSeeker.findInclude(matcher.group(1));
-                    }catch (Exception e) {
+                    } catch (Exception e) {
                         messages.addAll(OpenLMessagesUtils.newErrorMessages(e));
-                        
+
                     }
                     if (src == null) {
                         registerIncludeError(tableSyntaxNode, table, i, include, null);

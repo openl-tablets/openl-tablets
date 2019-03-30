@@ -13,8 +13,6 @@ public abstract class AMatchingExpression implements IMatchingExpression {
         return contextAttributeExpression;
     }
     
-    public abstract boolean isContextAttributeExpression();
-    
     public AMatchingExpression(String operationName, IMatchingExpression matchingExpression) {
         this.operationName = operationName;
               

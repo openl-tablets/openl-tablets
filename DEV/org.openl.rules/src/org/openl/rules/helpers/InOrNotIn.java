@@ -8,14 +8,15 @@ package org.openl.rules.helpers;
  *
  */
 public class InOrNotIn {
-    static final String IN = "IN", NOT_IN = "NOT IN";
+    private static final String IN = "IN";
+    private static final String NOT_IN = "NOT IN";
 
     boolean in;
 
     public InOrNotIn(String str) {
-        if (str.toUpperCase().equals(IN)) {
+        if (IN.equalsIgnoreCase(str)) {
             in = true;
-        } else if (str.toUpperCase().equals(NOT_IN)) {
+        } else if (NOT_IN.equalsIgnoreCase(str)) {
             in = false;
         } else {
             throw new RuntimeException();

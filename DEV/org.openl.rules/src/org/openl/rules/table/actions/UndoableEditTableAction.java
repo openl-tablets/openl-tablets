@@ -20,9 +20,6 @@ public abstract class UndoableEditTableAction implements IUndoableGridTableActio
     public static final boolean INSERT = true;
     public static final boolean REMOVE = false;
 
-    public UndoableEditTableAction() {
-    }
-
     public static IGridTable getOriginalTable(IGridTable table) {
         return GridTableUtils.getOriginalTable(table);
     }

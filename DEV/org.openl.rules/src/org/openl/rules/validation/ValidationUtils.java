@@ -8,7 +8,10 @@ import org.openl.message.Severity;
 import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationStatus;
 
-public class ValidationUtils {
+public final class ValidationUtils {
+
+    private ValidationUtils() {
+    }
 
     static ValidationResult withMessages(Collection<OpenLMessage> messages) {
         if (messages == null || messages.isEmpty()) {

@@ -29,7 +29,6 @@ public class StringRange {
         validate();
     }
 
-    @SuppressWarnings("WeakerAccess")
     public StringRange(String source) {
         ParseStruct<String> range = StringRangeParser.getInstance().parse(source);
         this.lowerBound = range.min;

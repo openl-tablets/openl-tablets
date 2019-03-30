@@ -37,7 +37,7 @@ public abstract class TablesValidator implements IOpenLValidator {
 
             // Get all table syntax nodes of xls module.
             //
-            Set<TableSyntaxNode> tableSyntaxNodes = new HashSet<TableSyntaxNode>();
+            Set<TableSyntaxNode> tableSyntaxNodes = new HashSet<>();
 
             findAllTableSyntaxNodes(tableSyntaxNodes, openClass);
 

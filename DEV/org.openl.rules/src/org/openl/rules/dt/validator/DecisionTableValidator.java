@@ -21,11 +21,11 @@ import org.openl.types.IOpenClass;
  */
 public final class DecisionTableValidator implements IValidator {
     private static final DecisionTableValidator INSTANCE = new DecisionTableValidator();
-    
-    private DecisionTableValidator(){
+
+    private DecisionTableValidator() {
     }
-    
-    public static DecisionTableValidator getInstance(){
+
+    public static DecisionTableValidator getInstance() {
         return INSTANCE;
     }
 
@@ -42,7 +42,7 @@ public final class DecisionTableValidator implements IValidator {
     public IValidationResult validate(IValidatedObject validatedObject, OpenL openl) {
         return new ValidationAlgorithm((IDecisionTableValidatedObject) validatedObject, openl).validate();
     }
-    
+
     /**
      * Provides unique name for Condition parameters
      * 
@@ -50,7 +50,7 @@ public final class DecisionTableValidator implements IValidator {
      * @param pname
      * @return
      */
-    
+
     static public String getUniqueConditionParamName(IBaseCondition condition, String pname) {
         return condition.getName() + "_" + pname;
     }

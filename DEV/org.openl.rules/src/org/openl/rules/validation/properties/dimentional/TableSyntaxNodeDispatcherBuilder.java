@@ -9,7 +9,6 @@ import java.util.Map;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.MethodUtil;
-import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenLCompilationException;
@@ -59,7 +58,7 @@ import org.slf4j.LoggerFactory;
 class TableSyntaxNodeDispatcherBuilder {
 
     private final Logger log = LoggerFactory.getLogger(TableSyntaxNodeDispatcherBuilder.class);
-    
+
     // LinkedHashMap to save the sequence of params
     static final LinkedHashMap<String, IOpenClass> INCOME_PARAMS;
     static final String AUXILIARY_METHOD_DELIMETER = "$";
@@ -81,7 +80,7 @@ class TableSyntaxNodeDispatcherBuilder {
             }
         }
     }
-    
+
     private RulesModuleBindingContext moduleContext;
     private XlsModuleOpenClass moduleOpenClass;
     private MatchingOpenMethodDispatcher dispatcher;
@@ -427,9 +426,7 @@ class TableSyntaxNodeDispatcherBuilder {
         }
 
         @Override
-        public IMethodCaller findMethodCaller(String namespace,
-                String name,
-                IOpenClass[] parTypes) throws AmbiguousMethodException {
+        public IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes) {
             IOpenMethod auxiliaryMethod = auxiliaryMethods.get(new MethodKey(name, parTypes));
             if (auxiliaryMethod == null) {
                 return super.findMethodCaller(namespace, name, parTypes);

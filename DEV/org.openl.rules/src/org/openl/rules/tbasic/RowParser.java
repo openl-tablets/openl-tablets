@@ -149,7 +149,7 @@ public class RowParser implements IRowParser {
 
     private List<AlgorithmTreeNode> prepareNodes() {
         // cut off commented rows, pack labels
-        List<AlgorithmTreeNode> nodes = new ArrayList<AlgorithmTreeNode>();
+        List<AlgorithmTreeNode> nodes = new ArrayList<>();
 
         AlgorithmTreeNode lastNode = new AlgorithmTreeNode();
         for (AlgorithmRow row : rows) {

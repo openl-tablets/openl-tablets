@@ -36,7 +36,6 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule {
 
     public String getCode() {
         return null;
-        // throw new UnsupportedOperationException();
     }
 
     public String getDisplayName() {

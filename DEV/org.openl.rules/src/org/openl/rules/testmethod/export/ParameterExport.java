@@ -48,7 +48,6 @@ class ParameterExport extends BaseExport {
             final Cursor start = new Cursor(rowNum, colNum);
             Cursor lowestRight = writeHeaderForFields(sheet, start, test, nonEmptyFields);
             rowNum = lowestRight.getRowNum() + 1;
-            colNum = FIRST_COLUMN;
 
             rowNum = writeValuesForFields(sheet, new Cursor(rowNum, colNum), test, nonEmptyFields);
 
@@ -372,7 +371,7 @@ class ParameterExport extends BaseExport {
         return values;
     }
 
-    private final static class WriteTask implements Comparable<WriteTask> {
+    private static final class WriteTask implements Comparable<WriteTask> {
         private final Cursor cursor;
         private final Object value;
         private final CellStyle style;

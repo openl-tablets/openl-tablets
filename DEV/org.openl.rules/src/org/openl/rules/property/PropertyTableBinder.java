@@ -37,8 +37,10 @@ public class PropertyTableBinder extends DataNodeBinder {
     private static final String SCOPE_PROPERTY_NAME = "scope";
 
     @Override
-    public IMemberBoundNode preBind(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt, XlsModuleOpenClass module)
-        throws Exception {
+    public IMemberBoundNode preBind(TableSyntaxNode tsn,
+            OpenL openl,
+            IBindingContext cxt,
+            XlsModuleOpenClass module) throws Exception {
 
         assert cxt instanceof RulesModuleBindingContext;
 
@@ -60,13 +62,15 @@ public class PropertyTableBinder extends DataNodeBinder {
         TableProperties propertiesInstance = ((TableProperties[]) propertyTable.getDataArray())[0];
         propertiesInstance.setPropertiesSection(tsn.getTable().getRows(1)); // Skip header
         propertiesInstance.setCurrentTableType(tsn.getType());
-        
-        PropertiesChecker.checkProperties(cxt, propertiesInstance.getAllProperties().keySet(), tsn, 
+
+        PropertiesChecker.checkProperties(cxt,
+            propertiesInstance.getAllProperties().keySet(),
+            tsn,
             InheritanceLevel.getEnumByValue(propertiesInstance.getPropertyValueAsString(SCOPE_PROPERTY_NAME)));
-        
+
         tsn.setTableProperties(propertiesInstance);
 
-        analysePropertiesNode(tsn, propertiesInstance, (RulesModuleBindingContext) cxt, propertyNode);
+        analysePropertiesNode(tsn, propertiesInstance, (RulesModuleBindingContext) cxt);
 
         propertyNode.setPropertiesInstance(propertiesInstance);
 
@@ -93,32 +97,29 @@ public class PropertyTableBinder extends DataNodeBinder {
     }
 
     /**
-     * Checks if current property table is a module level property or a category
-     * level. Adds it to <code>{@link RulesModuleBindingContext}</code>. <br>
-     * If module level properties already exists, or there are properties for
-     * the category with the same name throws an
+     * Checks if current property table is a module level property or a category level. Adds it to
+     * <code>{@link RulesModuleBindingContext}</code>. <br>
+     * If module level properties already exists, or there are properties for the category with the same name throws an
      * <code>{@link DuplicatedPropertiesTableException}</code>.
      * 
      * @param tableSyntaxNode <code>{@link TableSyntaxNode}</code>.
      * @param propertiesInstance <code>{@link TableProperties}</code>.
      * @param bindingContext <code>{@link RulesModuleBindingContext}</code>.
      * @param propertyNode Bound node for current property table.
-     * @throws DuplicatedPropertiesTableException if module level properties
-     *             already exists, or there are properties for the category with
-     *             the same name.
+     * @throws DuplicatedPropertiesTableException if module level properties already exists, or there are properties for
+     *             the category with the same name.
      */
     private void analysePropertiesNode(TableSyntaxNode tableSyntaxNode,
             TableProperties propertiesInstance,
-            RulesModuleBindingContext bindingContext,
-            PropertyTableBoundNode propertyNode) throws SyntaxNodeException {
+            RulesModuleBindingContext bindingContext) throws SyntaxNodeException {
 
         String scope = propertiesInstance.getScope();
 
         if (scope != null) {
             if (isModuleProperties(scope)) {
-                processModuleProperties(tableSyntaxNode, propertiesInstance, bindingContext, propertyNode);
+                processModuleProperties(tableSyntaxNode, propertiesInstance, bindingContext);
             } else if (isCategoryProperties(scope)) {
-                processCategoryProperties(tableSyntaxNode, propertiesInstance, bindingContext, propertyNode);
+                processCategoryProperties(tableSyntaxNode, propertiesInstance, bindingContext);
             } else {
                 String message = String.format("Value of the property '%s' is neither '%s' or '%s'",
                     SCOPE_PROPERTY_NAME,
@@ -136,14 +137,13 @@ public class PropertyTableBinder extends DataNodeBinder {
 
     private void processCategoryProperties(TableSyntaxNode tableSyntaxNode,
             TableProperties propertiesInstance,
-            RulesModuleBindingContext bindingContext,
-            PropertyTableBoundNode propertyNode) throws SyntaxNodeException {
+            RulesModuleBindingContext bindingContext) throws SyntaxNodeException {
 
         String category = getCategoryToApplyProperties(tableSyntaxNode, propertiesInstance);
         String key = RulesModuleBindingContext.CATEGORY_PROPERTIES_KEY + category;
         InheritanceLevel currentLevel = InheritanceLevel.CATEGORY;
 
-        checkPropertiesLevel(currentLevel, propertiesInstance, tableSyntaxNode, bindingContext);
+        checkPropertiesLevel(currentLevel, propertiesInstance, tableSyntaxNode);
 
         if (!bindingContext.isTableSyntaxNodeExist(key)) {
             bindingContext.registerTableSyntaxNode(key, tableSyntaxNode);
@@ -156,8 +156,7 @@ public class PropertyTableBinder extends DataNodeBinder {
 
     private void checkPropertiesLevel(InheritanceLevel currentLevel,
             TableProperties propertiesInstance,
-            TableSyntaxNode tableSyntaxNode,
-            IBindingContext bindingContext) throws SyntaxNodeException {
+            TableSyntaxNode tableSyntaxNode) throws SyntaxNodeException {
 
         for (String propertyNameToCheck : propertiesInstance.getAllProperties().keySet()) {
 
@@ -173,14 +172,13 @@ public class PropertyTableBinder extends DataNodeBinder {
 
     private void processModuleProperties(TableSyntaxNode tableSyntaxNode,
             TableProperties propertiesInstance,
-            RulesModuleBindingContext bindingContext,
-            PropertyTableBoundNode propertyNode) throws SyntaxNodeException {
+            RulesModuleBindingContext bindingContext) throws SyntaxNodeException {
 
         String key = RulesModuleBindingContext.MODULE_PROPERTIES_KEY;
 
         InheritanceLevel currentLevel = InheritanceLevel.MODULE;
 
-        checkPropertiesLevel(currentLevel, propertiesInstance, tableSyntaxNode, bindingContext);
+        checkPropertiesLevel(currentLevel, propertiesInstance, tableSyntaxNode);
 
         if (!bindingContext.isTableSyntaxNodeExist(key)) {
             bindingContext.registerTableSyntaxNode(key, tableSyntaxNode);
@@ -220,9 +218,8 @@ public class PropertyTableBinder extends DataNodeBinder {
         return InheritanceLevel.CATEGORY.getDisplayName().equals(scope);
     }
 
-    protected ATableBoundNode makeNode(TableSyntaxNode tsn,
-            XlsModuleOpenClass module,
-            IBindingContext bindingContext) {
+    @Override
+    protected ATableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module, IBindingContext bindingContext) {
         PropertyTableBoundNode boundNode = new PropertyTableBoundNode(tsn);
 
         if (!bindingContext.isExecutionMode()) {

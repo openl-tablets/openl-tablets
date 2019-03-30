@@ -6,7 +6,10 @@ import org.openl.util.StringTool;
 /**
  * Created by Andrei Ostrovski on 14.06.14.
  */
-public class TableUtils {
+public final class TableUtils {
+    
+    private TableUtils() {
+    }
 
     public static String makeTableId(String uri) {
         if (uri == null) {

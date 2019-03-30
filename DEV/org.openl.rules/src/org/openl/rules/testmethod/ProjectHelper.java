@@ -20,7 +20,7 @@ public final class ProjectHelper {
     }
 
     public static TestSuiteMethod[] allTesters(IOpenClass openClass) {
-        List<TestSuiteMethod> res = new ArrayList<TestSuiteMethod>();
+        List<TestSuiteMethod> res = new ArrayList<>();
         for (IOpenMethod tester : openClass.getMethods()) {
             if (isTester(tester)) {
                 res.add((TestSuiteMethod) tester);
@@ -35,10 +35,8 @@ public final class ProjectHelper {
     }
 
     /**
-     * Checks if the tester is instance of {@link TestSuiteMethod}, if it has
-     * any parameters for testing(see
-     * {@link TestSuiteMethod#isRunmethodTestable()}) and if there is no errors
-     * in it.
+     * Checks if the tester is instance of {@link TestSuiteMethod}, if it has any parameters for testing(see
+     * {@link TestSuiteMethod#isRunmethodTestable()}) and if there is no errors in it.
      * 
      * @param tester instance of method that is considered to be a test.
      * @return true if tester is valid {@link TestSuiteMethod}.
@@ -47,7 +45,8 @@ public final class ProjectHelper {
         if (tester instanceof TestSuiteMethod) {
             try {
                 TestSuiteMethod testSuiteMethod = (TestSuiteMethod) tester;
-                return !testSuiteMethod.isRunmethod() && testSuiteMethod.isRunmethodTestable() && (testSuiteMethod.getSyntaxNode() == null || !testSuiteMethod.getSyntaxNode().hasErrors());
+                return !testSuiteMethod.isRunmethod() && testSuiteMethod.isRunmethodTestable() && (testSuiteMethod
+                    .getSyntaxNode() == null || !testSuiteMethod.getSyntaxNode().hasErrors());
             } catch (Exception e) {
                 Logger log = LoggerFactory.getLogger(ProjectHelper.class);
                 log.error(e.getMessage(), e);
@@ -59,15 +58,13 @@ public final class ProjectHelper {
     }
 
     /**
-     * Get tests for tested method that have filled rules rows data for testing
-     * its functionality. Run methods and tests with empty test cases are not
-     * being processed. If you need to get all test methods, including run
-     * methods and empty ones, use
-     * {@link #isTestForMethod(IOpenMethod, IOpenMethod)}.
+     * Get tests for tested method that have filled rules rows data for testing its functionality. Run methods and tests
+     * with empty test cases are not being processed. If you need to get all test methods, including run methods and
+     * empty ones, use {@link #isTestForMethod(IOpenMethod, IOpenMethod)}.
      */
     public static IOpenMethod[] testers(IOpenMethod tested) {
 
-        List<IOpenMethod> res = new ArrayList<IOpenMethod>();
+        List<IOpenMethod> res = new ArrayList<>();
         for (IOpenMethod tester : tested.getDeclaringClass().getMethods()) {
             if (isTester(tester) && isTestForMethod(tester, tested)) {
                 res.add(tester);
@@ -79,9 +76,8 @@ public final class ProjectHelper {
     }
 
     /**
-     * If tester is an instance of {@link TestSuiteMethod} and tested method
-     * object in tester is equal to tested we consider tester is test for tested
-     * method.
+     * If tester is an instance of {@link TestSuiteMethod} and tested method object in tester is equal to tested we
+     * consider tester is test for tested method.
      */
     public static boolean isTestForMethod(IOpenMethod tester, IOpenMethod tested) {
         if (!(tester instanceof TestSuiteMethod)) {
@@ -91,10 +87,9 @@ public final class ProjectHelper {
         if (toTest == tested) {
             return true;
         }
-        if (toTest instanceof OpenMethodDispatcher) {
-            if (((OpenMethodDispatcher) toTest).getCandidates().contains(tested)) {
-                return true;
-            }
+        if (toTest instanceof OpenMethodDispatcher && ((OpenMethodDispatcher) toTest).getCandidates()
+            .contains(tested)) {
+            return true;
         }
         if (tested instanceof MethodDelegator) {
             return isTestForMethod(tester, tested.getMethod());

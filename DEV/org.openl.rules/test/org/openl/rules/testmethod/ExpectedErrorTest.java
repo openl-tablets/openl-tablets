@@ -29,7 +29,7 @@ public class ExpectedErrorTest {
 
         IOpenMethod helloTest = openClass.getMethod("HelloTest", new IOpenClass[0]);
         TestUnitsResults res = (TestUnitsResults) helloTest.invoke(target, new Object[0], env);
-        ArrayList<ITestUnit> testUnits = res.getTestUnits();
+        List<ITestUnit> testUnits = res.getTestUnits();
 
         assertEquals("Expected Good Evening", TestStatus.TR_OK, testUnits.get(0).getResultStatus());
         assertEquals("Expected user error 'Incorrect argument'", TestStatus.TR_OK, testUnits.get(1).getResultStatus());

@@ -20,7 +20,7 @@ import org.openl.source.IOpenSourceCodeModule;
 public class GridTableSourceCodeModule implements IOpenSourceCodeModule {
 
     IGridTable table;
-    
+
     private Map<String, Object> params;
 
     public GridTableSourceCodeModule(IGridTable table) {
@@ -30,10 +30,6 @@ public class GridTableSourceCodeModule implements IOpenSourceCodeModule {
     public InputStream getByteStream() {
         throw new UnsupportedOperationException();
     }
-
-    /**
-     *
-     */
 
     public Reader getCharacterStream() {
         throw new UnsupportedOperationException();
@@ -63,5 +59,5 @@ public class GridTableSourceCodeModule implements IOpenSourceCodeModule {
     public boolean isModified() {
         return false;
     }
-    
+
 }

@@ -154,10 +154,8 @@ public class BaseTestUnit implements ITestUnit {
     private boolean isFieldEqual(IOpenField field, Object expectedFieldValue, Object actualFieldValue) {
         // Get delta for field if setted
         Double columnDelta = null;
-        if (field instanceof PrecisionFieldChain) {
-            if (((PrecisionFieldChain) field).hasDelta()) {
-                columnDelta = ((PrecisionFieldChain) field).getDelta();
-            }
+        if (field instanceof PrecisionFieldChain && ((PrecisionFieldChain) field).hasDelta()) {
+            columnDelta = ((PrecisionFieldChain) field).getDelta();
         }
         Class<?> clazz = field.getType().getInstanceClass();
         TestResultComparator comparator = TestResultComparatorFactory.getComparator(clazz, columnDelta);

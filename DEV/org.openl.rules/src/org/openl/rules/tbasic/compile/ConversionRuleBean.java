@@ -21,7 +21,7 @@ public class ConversionRuleBean {
     private volatile List<ConversionRuleStep> convertionSteps;
 
     private List<ConversionRuleStep> extractConversionSteps() {
-        ArrayList<ConversionRuleStep> steps = new ArrayList<ConversionRuleStep>(operationType.length);
+        ArrayList<ConversionRuleStep> steps = new ArrayList<>(operationType.length);
 
         for (int i = 0; i < operationType.length; i++) {
             String theOperationType = operationType[i];

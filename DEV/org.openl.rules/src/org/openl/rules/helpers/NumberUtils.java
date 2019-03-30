@@ -7,7 +7,10 @@ import org.openl.meta.BigDecimalValue;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.FloatValue;
 
-public class NumberUtils {
+public final class NumberUtils {
+
+    private NumberUtils() {
+    }
 
     public static boolean isFloatPointNumber(Object object) {
 
@@ -19,12 +22,11 @@ public class NumberUtils {
     }
 
     public static boolean isFloatPointType(Class<?> clazz) {
-        if (clazz != null) {
-            if (float.class.equals(clazz) || double.class.equals(clazz) || Float.class.equals(clazz) || FloatValue.class
-                .isAssignableFrom(clazz) || Double.class.equals(clazz) || DoubleValue.class
-                    .isAssignableFrom(clazz) || BigDecimal.class.equals(clazz) || BigDecimalValue.class.equals(clazz)) {
-                return true;
-            }
+        if (clazz != null && float.class.equals(clazz) || double.class.equals(clazz) || Float.class
+            .equals(clazz) || FloatValue.class.isAssignableFrom(clazz) || Double.class
+                .equals(clazz) || DoubleValue.class.isAssignableFrom(clazz) || BigDecimal.class
+                    .equals(clazz) || BigDecimalValue.class.equals(clazz)) {
+            return true;
         }
         return false;
     }
@@ -34,12 +36,12 @@ public class NumberUtils {
         if (Float.class.equals(object.getClass())) {
             return Double.valueOf(object.toString());
         }
-        
+
         if (FloatValue.class.isAssignableFrom(object.getClass())) {
             return Double.valueOf(object.toString());
         }
 
-        if  (Double.class.equals(object.getClass())) {
+        if (Double.class.equals(object.getClass())) {
             return (Double) object;
         }
 
@@ -50,7 +52,7 @@ public class NumberUtils {
         if (BigDecimal.class.equals(object.getClass())) {
             return ((BigDecimal) object).doubleValue();
         }
-        
+
         if (BigDecimalValue.class.equals(object.getClass())) {
             return ((BigDecimalValue) object).doubleValue();
         }
@@ -69,7 +71,7 @@ public class NumberUtils {
         if (BigDecimalValue.class.isAssignableFrom(object.getClass())) {
             return BigDecimalValue.cast((BigDecimalValue) object, (DoubleValue) null);
         }
-        
+
         return new DoubleValue(convertToDouble(object));
     }
 
@@ -87,63 +89,61 @@ public class NumberUtils {
 
         return null;
     }
-    
-	/**
-	 * Gets the scale of the income value.
-	 * Note that if the value will be of type {@link Float} or {@link FloatValue}, the scale will be 
-	 * defined via value.doubleValue() method call.
-	 * And the scale will differ from the income.
-	 * 
-	 * @param value
-	 * @return number of values after the comma
-	 * 
-	 * @throws {@link NullPointerException} if the income is <code>null</code>
-	 */
-    public static int getScale(Number value) {
-    	if (value == null) {    		
-			throw new NullPointerException("Null value is not supported");
-		}
-    	
-    	if (value instanceof BigDecimal) {
-    		/**
-    		 * If BigDecimal the scale can be taken directly
-    		 */
-    		return ((BigDecimal)value).scale();
-    	}
-    	
-    	if (value instanceof BigDecimalValue) {
-    		/**
-    		 * If BigDecimalValue the scale can be taken directly
-    		 */
-    		return ((BigDecimalValue)value).getValue().scale();
-    	}
-    	
-    	if (isFloatPointNumber(value)) {
-    		/**
-    		 * Process as float point value
-    		 */
-    		return getScale(convertToDouble(value).doubleValue()); 
-    	} else {
-    		/**
-    		 * Process as integer value
-    		 */
-    		return BigDecimal.valueOf(value.longValue()).scale();
-    	}
-    }
-    
-    public static int getScale(double value) {
-    	if (!Double.isNaN(value) && !Double.isInfinite(value)) {
-    		BigDecimal decimal = BigDecimal.valueOf(value);
 
-			return decimal.scale();
-    	}
-    	return 0;
+    /**
+     * Gets the scale of the income value. Note that if the value will be of type {@link Float} or {@link FloatValue},
+     * the scale will be defined via value.doubleValue() method call. And the scale will differ from the income.
+     * 
+     * @param value
+     * @return number of values after the comma
+     * 
+     * @throws {@link NullPointerException} if the income is <code>null</code>
+     */
+    public static int getScale(Number value) {
+        if (value == null) {
+            throw new NullPointerException("Null value is not supported");
+        }
+
+        if (value instanceof BigDecimal) {
+            /**
+             * If BigDecimal the scale can be taken directly
+             */
+            return ((BigDecimal) value).scale();
+        }
+
+        if (value instanceof BigDecimalValue) {
+            /**
+             * If BigDecimalValue the scale can be taken directly
+             */
+            return ((BigDecimalValue) value).getValue().scale();
+        }
+
+        if (isFloatPointNumber(value)) {
+            /**
+             * Process as float point value
+             */
+            return getScale(convertToDouble(value).doubleValue());
+        } else {
+            /**
+             * Process as integer value
+             */
+            return BigDecimal.valueOf(value.longValue()).scale();
+        }
     }
-    
+
+    public static int getScale(double value) {
+        if (!Double.isNaN(value) && !Double.isInfinite(value)) {
+            BigDecimal decimal = BigDecimal.valueOf(value);
+
+            return decimal.scale();
+        }
+        return 0;
+    }
+
     public static int getScale(float value) {
         return getScale(Double.valueOf(Float.toString(value)));
     }
-    
+
     public static Class<?> getNumericPrimitive(Class<?> wrapperClass) {
         if (Byte.class.equals(wrapperClass)) {
             return byte.class;
@@ -160,5 +160,5 @@ public class NumberUtils {
         }
         return null;
     }
-    
+
 }

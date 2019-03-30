@@ -58,7 +58,7 @@ public class ArgumentCachingStorage {
         initCurrentStep();
     }
 
-    private static abstract class CalculationStep {
+    private abstract static class CalculationStep {
         private Object member;
 
         public CalculationStep(Object member) {
@@ -127,7 +127,7 @@ public class ArgumentCachingStorage {
 
     public void makeForwardStepForOriginalCalculation(Object member) {
         if (this.originalCalculationSteps == null) {
-            this.originalCalculationSteps = new LinkedList<CalculationStep>();
+            this.originalCalculationSteps = new LinkedList<>();
         }
         this.originalCalculationSteps.add(new ForwardCalculationStep(member));
     }
@@ -143,7 +143,7 @@ public class ArgumentCachingStorage {
 
     public void makeBackwardStepForOriginalCalculation(Object member, Object result) {
         if (this.originalCalculationSteps == null) {
-            this.originalCalculationSteps = new LinkedList<CalculationStep>();
+            this.originalCalculationSteps = new LinkedList<>();
         }
         this.originalCalculationSteps.add(new BackwardCalculationStep(member, result));
     }
@@ -227,7 +227,7 @@ public class ArgumentCachingStorage {
     }
 
     static class Storage {
-        private final Map<Object, Data> storage = new WeakHashMap<Object, Data>();
+        private final Map<Object, Data> storage = new WeakHashMap<>();
 
         private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 

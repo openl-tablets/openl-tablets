@@ -31,7 +31,7 @@ public class ConversionRulesController {
     public ConversionRuleBean getConvertionRule(List<AlgorithmTreeNode> nodesToCompile) throws SyntaxNodeException {
         assert nodesToCompile.size() > 0;
 
-        List<String> groupedOperationNames = new ArrayList<String>(nodesToCompile.size());
+        List<String> groupedOperationNames = new ArrayList<>(nodesToCompile.size());
 
         for (AlgorithmTreeNode node : nodesToCompile) {
             groupedOperationNames.add(node.getSpecificationKeyword().toUpperCase());

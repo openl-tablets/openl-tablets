@@ -46,7 +46,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
     private static final int TESTED_METHOD_INDEX = 1;
     private static final int TABLE_NAME_INDEX = 2;
     private static final AtomicInteger counter = new AtomicInteger();
-    
+
     @Override
     protected ATableBoundNode makeNode(TableSyntaxNode tableSyntaxNode,
             XlsModuleOpenClass module,
@@ -89,12 +89,8 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         }
 
         List<IOpenMethod> testedMethods = CollectionUtils.findAll(module.getMethods(),
-            new CollectionUtils.Predicate<IOpenMethod>() {
-                @Override
-                public boolean evaluate(IOpenMethod method) {
-                    return methodName.equals(method.getName());
-                }
-            });
+            e -> methodName.equals(e.getName()));
+
         if (testedMethods.isEmpty()) {
             throw new MethodNotFoundException(methodName);
         }
@@ -115,7 +111,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         SyntaxNodeException[] errors = tableSyntaxNode.getErrors();
         Collection<OpenLMessage> bestMessages = null;
         SyntaxNodeException[] bestBindingContextErrors = null;
-        
+
         for (IOpenMethod testedMethod : testedMethods) {
             tableSyntaxNode.clearErrors();
             if (errors != null) {
@@ -123,8 +119,9 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                     tableSyntaxNode.addError(error);
                 }
             }
-            TestMethodBoundNode testMethodBoundNode = (TestMethodBoundNode) makeNode(tableSyntaxNode, module,
-                    bindingContext);
+            TestMethodBoundNode testMethodBoundNode = (TestMethodBoundNode) makeNode(tableSyntaxNode,
+                module,
+                bindingContext);
             TestSuiteMethod testSuite = new TestSuiteMethod(testedMethod, header, testMethodBoundNode);
             testMethodBoundNode.setTestSuite(testSuite);
             TestMethodOpenClass testMethodOpenClass = new TestMethodOpenClass(tableName, testedMethod);
@@ -148,7 +145,8 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                 testMethodBoundNode.setTable(dataTable);
                 if (testMethodBoundNode.getTableSyntaxNode()
                     .hasErrors() && (bestCaseErrors == null || bestCaseErrors.length > testMethodBoundNode
-                        .getTableSyntaxNode().getErrors().length)) {
+                        .getTableSyntaxNode()
+                        .getErrors().length)) {
                     bestCaseErrors = testMethodBoundNode.getTableSyntaxNode().getErrors();
                     bestCaseTestMethodBoundNode = testMethodBoundNode;
                     bestCaseOpenMethod = testedMethod;
@@ -196,23 +194,25 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                 }
             }
             bestCaseTestMethodBoundNode.setTable(bestDataTable);
-            
+
             DataNodeBinder.putSubTableForBussinesView(tableSyntaxNode, bestTestMethodOpenClass);
 
             for (SyntaxNodeException error : bestCaseErrors) {
                 tableSyntaxNode.addError(error);
             }
-            
+
             for (OpenLMessage message : bestMessages) {
                 bindingContext.addMessage(message);
             }
-            
+
             for (SyntaxNodeException syntaxNodeException : bestBindingContextErrors) {
                 bindingContext.addError(syntaxNodeException);
             }
 
-            if (bindingContext.isExecutionMode() && ((TableSyntaxNode) bestCaseTestMethodBoundNode.getSyntaxNode()).hasErrors()) {
-                // In execution mode we don't need test tables that can't be run because of errors (even if isKeepTestsInExecutionMode() == true)
+            if (bindingContext.isExecutionMode() && ((TableSyntaxNode) bestCaseTestMethodBoundNode.getSyntaxNode())
+                .hasErrors()) {
+                // In execution mode we don't need test tables that can't be run because of errors (even if
+                // isKeepTestsInExecutionMode() == true)
                 return null;
             }
 

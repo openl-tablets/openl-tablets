@@ -30,12 +30,7 @@ public abstract class AOpenLRulesEngineFactory extends AOpenLEngineFactory {
     @Override
     protected IRuntimeEnvBuilder getRuntimeEnvBuilder() {
         if (runtimeEnvBuilder == null) {
-            runtimeEnvBuilder = new IRuntimeEnvBuilder() {
-                @Override
-                public IRuntimeEnv buildRuntimeEnv() {
-                    return new SimpleRulesVM().getRuntimeEnv();
-                }
-            };
+            runtimeEnvBuilder = () -> new SimpleRulesVM().getRuntimeEnv();
         }
         return runtimeEnvBuilder;
     }
@@ -47,7 +42,8 @@ public abstract class AOpenLRulesEngineFactory extends AOpenLEngineFactory {
 
     @Override
     protected final InvocationHandler prepareInvocationHandler(Object openClassInstance,
-            Map<Method, IOpenMember> methodMap, IRuntimeEnv runtimeEnv) {
+            Map<Method, IOpenMember> methodMap,
+            IRuntimeEnv runtimeEnv) {
         return new OpenLRulesInvocationHandler(openClassInstance, runtimeEnv, methodMap);
     }
 }

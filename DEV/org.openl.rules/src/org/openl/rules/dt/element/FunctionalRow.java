@@ -485,9 +485,7 @@ public abstract class FunctionalRow implements IDecisionRow {
             return new ParameterDeclaration(type, paramName);
         }
 
-        String name = nodes[1].getIdentifier();
-
-        return new ParameterDeclaration(type, name);
+        return new ParameterDeclaration(type, nodes[1].getIdentifier());
     }
 
     @Override

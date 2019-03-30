@@ -42,6 +42,7 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
         // don`t need to finalize anything
     }
 
+    @Override
     public IOpenClass getType() {
         return JavaOpenClass.getOpenClass(propertiesInstance.getClass());
     }    

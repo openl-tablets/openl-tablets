@@ -1,7 +1,5 @@
 package org.openl.rules.table;
 
-import java.io.IOException;
-
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.openl.rules.table.ui.ICellStyle;
 

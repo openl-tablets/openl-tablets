@@ -2,14 +2,14 @@ package org.openl.rules.lang.xls.load;
 
 import org.openl.source.IOpenSourceCodeModule;
 
-public abstract class WorkbookLoaders {
+public final class WorkbookLoaders {
+    
+    private WorkbookLoaders() {
+    }
+    
     private static final WorkbookLoaderFactory DEFAULT_FACTORY = new LazyWorkbookLoaderFactory(true);
-    private static ThreadLocal<WorkbookLoaderFactory> workbookLoaderFactoryHolder = new ThreadLocal<WorkbookLoaderFactory>() {
-        @Override
-        protected WorkbookLoaderFactory initialValue() {
-            return DEFAULT_FACTORY;
-        }
-    };
+    private static ThreadLocal<WorkbookLoaderFactory> workbookLoaderFactoryHolder = ThreadLocal
+        .withInitial(() -> DEFAULT_FACTORY);
 
     public static void setCurrentFactory(WorkbookLoaderFactory factory) {
         workbookLoaderFactoryHolder.set(factory);

@@ -32,9 +32,8 @@ public class XlsUrlParser implements XlsURLConstants {
     }
     
     public void parse(String url) {
-
         String file;
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         int indexQuestionMark = url.indexOf('?');
         if (indexQuestionMark >= 0) {
             file = url.substring(0, indexQuestionMark);

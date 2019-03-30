@@ -15,7 +15,7 @@ import java.util.*;
 public class ClassFinder {
     private final Logger log = LoggerFactory.getLogger(ClassFinder.class);
 
-    private Map<String, ClassLocator> locators = new HashMap<String, ClassLocator>();
+    private Map<String, ClassLocator> locators = new HashMap<>();
 
     public ClassFinder() {
         this(Arrays.asList(new LoggingExceptionHandler()));
@@ -58,7 +58,7 @@ public class ClassFinder {
             return new Class[0];
         }
 
-        Set<Class<?>> classes = new HashSet<Class<?>>();
+        Set<Class<?>> classes = new HashSet<>();
 
         while (resources.hasMoreElements()) {
             URL resource = resources.nextElement();

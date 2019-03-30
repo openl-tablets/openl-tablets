@@ -49,7 +49,7 @@ public class DTColumnsDefinition {
     public Collection<IParameterDeclaration> getLocalParameters() {
         return localParameters.values()
             .stream()
-            .flatMap(e -> e.stream())
+            .flatMap(Collection::stream)
             .filter(e -> e != null && e.getName() != null)
             .collect(Collectors.toCollection(ArrayList::new));
     }

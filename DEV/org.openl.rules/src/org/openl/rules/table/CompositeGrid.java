@@ -196,7 +196,7 @@ public class CompositeGrid extends AGrid {
      * 
      */
     private void initMergedRegions() {
-        ArrayList<IGridRegion> mergedRegionsList = new ArrayList<IGridRegion>();
+        ArrayList<IGridRegion> mergedRegionsList = new ArrayList<>();
 
         // hash set of source grids for every table
         HashSet<IGrid> gridSet = getGridSet();
@@ -237,7 +237,7 @@ public class CompositeGrid extends AGrid {
     }
 
     private HashSet<IGrid> getGridSet() {
-        HashSet<IGrid> gridSet = new HashSet<IGrid>();
+        HashSet<IGrid> gridSet = new HashSet<>();
 
         for (int i = 0; i < gridTables.length; i++) {
             gridSet.add(gridTables[i].getGrid());

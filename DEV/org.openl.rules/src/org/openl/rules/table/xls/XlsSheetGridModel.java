@@ -77,7 +77,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         setCellValue(reg.getLeft(), reg.getTop(), topLeftCellValue);
         getMergedRegionsPool().add(reg);
         return getSheet()
-                .addMergedRegion(new CellRangeAddress(reg.getTop(), reg.getBottom(), reg.getLeft(), reg.getRight()));
+            .addMergedRegion(new CellRangeAddress(reg.getTop(), reg.getBottom(), reg.getLeft(), reg.getRight()));
     }
 
     private RegionsPool getMergedRegionsPool() {
@@ -145,7 +145,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         PoiExcelHelper.copyCellValue(cellFrom, cellTo);
         PoiExcelHelper.copyCellStyle(cellFrom, cellTo, sheet);
         cellTo.removeCellComment();
-        // PoiExcelHelper.copyCellComment(cellFrom, cellTo);
     }
 
     public IGridRegion findEmptyRect(int width, int height) {
@@ -196,12 +195,10 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     }
 
     /**
-     * Gets the URI to the table by table region. Just calls
-     * {@link XlsSheetGridModel#getRangeUri(int, int, int, int)}.
+     * Gets the URI to the table by table region. Just calls {@link XlsSheetGridModel#getRangeUri(int, int, int, int)}.
      * 
      * @param region Table region.
-     * @return URI to the table in the sheet. (e.g.
-     *         <code>file:D:\work\Workspace\org.openl.tablets.tutorial4\rules
+     * @return URI to the table in the sheet. (e.g. <code>file:D:\work\Workspace\org.openl.tablets.tutorial4\rules
      * \main&wbName=Tutorial_4.xls&wsName=Vehicle-Scoring&range=B3:D12</code>)
      */
     public String getRangeUri(IGridRegion region) {
@@ -218,7 +215,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     public String getUri() {
         return sheetSource == null ? "" : sheetSource.getUri();// + "#" + name;
-
     }
 
     public boolean isEmpty(int x, int y) {
@@ -300,12 +296,12 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         if (style instanceof XlsCellStyle) {
             newPoiStyle = ((XlsCellStyle) style).getXlsStyle();
             newPoiStyle.cloneStyleFrom(newPoiStyle);
-        }/* else if (style instanceof org.openl.rules.table.ui.CellStyle) {
-            styleToClone = poiCell.getCellStyle();
-            newPoiStyle.cloneStyleFrom(styleToClone);
-            
-            setCellStyle(newPoiStyle, style);
-        }*/ else {
+        } /*
+           * else if (style instanceof org.openl.rules.table.ui.CellStyle) { styleToClone = poiCell.getCellStyle();
+           * newPoiStyle.cloneStyleFrom(styleToClone);
+           * 
+           * setCellStyle(newPoiStyle, style); }
+           */ else {
             newPoiStyle = PoiExcelHelper.createCellStyle(sheet.getWorkbook());
             styleToClone = poiCell.getCellStyle();
             newPoiStyle.cloneStyleFrom(styleToClone);
@@ -313,10 +309,10 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
         poiCell.setCellStyle(newPoiStyle);
     }
-    
+
     /*
      * Set only BorderStyle and BorderRGB properties
-     * */
+     */
     public void setCellBorderStyle(int col, int row, ICellStyle style) {
         if (style == null) {
             // no needs to set absent styles.
@@ -327,15 +323,15 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         CellStyle newPoiStyle = PoiExcelHelper.createCellStyle(sheet.getWorkbook());
 
         newPoiStyle.cloneStyleFrom(poiCell.getCellStyle());
-        
+
         if (style.getBorderStyle() != null) {
             BorderStyle[] borderStyle = style.getBorderStyle();
-            
+
             newPoiStyle.setBorderTop(borderStyle[0]);
             newPoiStyle.setBorderRight(borderStyle[1]);
             newPoiStyle.setBorderBottom(borderStyle[2]);
             newPoiStyle.setBorderLeft(borderStyle[3]);
-            
+
         }
 
         if (style.getBorderRGB() != null) {

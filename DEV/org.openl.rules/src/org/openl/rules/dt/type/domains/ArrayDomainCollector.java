@@ -12,7 +12,7 @@ public class ArrayDomainCollector implements IDomainCollector {
 
     private String propertyToSearch; 
     
-    private Set<Object> arrayEnumProperties = new HashSet<Object>();
+    private Set<Object> arrayEnumProperties = new HashSet<>();
     
     public ArrayDomainCollector(String propertyToSearch) {
         this.propertyToSearch = propertyToSearch;

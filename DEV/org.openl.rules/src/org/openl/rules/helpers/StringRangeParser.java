@@ -17,15 +17,15 @@ public final class StringRangeParser extends ARangeParser<String> {
     private final RangeParser[] parsers;
     private final Pattern[] patterns;
     private final Pattern skipPattern;
-    
-    private final static String SKIP_PATTERN = "\\s*(\\S+)\\s*-\\s*(\\S+)\\s*";
-    
-    private final static String BRACKETS_PATTERN = "\\s*([\\[(])\\s*(\\S+)\\s*(?:[-;…]|\\.{3}|\\.{2})\\s*(\\S+)\\s*([])])\\s*";
-    private final static String MIN_MAX_PATTERN = "\\s*(\\S+)\\s*([-…]|\\.{3}|\\.{2})\\s*(\\S+)\\s*";
-    private final static String VERBAL_PATTERN = "\\s*(\\S+)\\s*(\\+|and more|or less)\\s*";
-    private final static String MORE_LESS_PATTERN = "\\s*(<|>|>=|<=|less than|more than)\\s*(\\S+)\\s*";
-    private final static String RANGE_MORE_LESS_PATTERN = "\\s*(<=?|>=?)\\s*(\\S+)\\s*(<=?|>=?)\\s*(\\S+)\\s*";
-    private final static String SIMPLE_PATTERN = "\\s*(\\S+)\\s*";
+
+    private static final String SKIP_PATTERN = "\\s*(\\S+)\\s*-\\s*(\\S+)\\s*";
+
+    private static final String BRACKETS_PATTERN = "\\s*([\\[(])\\s*(\\S+)\\s*(?:[-;…]|\\.{3}|\\.{2})\\s*(\\S+)\\s*([])])\\s*";
+    private static final String MIN_MAX_PATTERN = "\\s*(\\S+)\\s*([-…]|\\.{3}|\\.{2})\\s*(\\S+)\\s*";
+    private static final String VERBAL_PATTERN = "\\s*(\\S+)\\s*(\\+|and more|or less)\\s*";
+    private static final String MORE_LESS_PATTERN = "\\s*(<|>|>=|<=|less than|more than)\\s*(\\S+)\\s*";
+    private static final String RANGE_MORE_LESS_PATTERN = "\\s*(<=?|>=?)\\s*(\\S+)\\s*(<=?|>=?)\\s*(\\S+)\\s*";
+    private static final String SIMPLE_PATTERN = "\\s*(\\S+)\\s*";
 
     private StringRangeParser() {
         StringRangeBoundAdapter adapter = new StringRangeBoundAdapter();
@@ -34,7 +34,7 @@ public final class StringRangeParser extends ARangeParser<String> {
                 Pattern.compile(VERBAL_PATTERN),
                 Pattern.compile(MORE_LESS_PATTERN),
                 Pattern.compile(RANGE_MORE_LESS_PATTERN),
-                Pattern.compile(SIMPLE_PATTERN)};
+                Pattern.compile(SIMPLE_PATTERN) };
         skipPattern = Pattern.compile(SKIP_PATTERN);
         parsers = new RangeParser[] { new BracketsParser<>(patterns[0], adapter),
                 new MinMaxParser<>(patterns[1], adapter),
@@ -60,10 +60,7 @@ public final class StringRangeParser extends ARangeParser<String> {
             return true;
         }
         m = skipPattern.matcher(value);
-        if (m.matches()) {
-            return true;
-        }
-        return false;
+        return m.matches();
     }
 
     public static StringRangeParser getInstance() {

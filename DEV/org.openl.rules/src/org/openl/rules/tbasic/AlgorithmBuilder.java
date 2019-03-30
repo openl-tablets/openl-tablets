@@ -59,8 +59,12 @@ public class AlgorithmBuilder {
                 algorithmOperations.add(specification.getKeyword());
             }
             String[] algorithmOperationsArray = algorithmOperations.toArray(new String[0]);
-            CELL_META_INFO = new CellMetaInfo(new DomainOpenClass("operation",
-                JavaOpenClass.STRING, new EnumDomain<>(algorithmOperationsArray), null), false);
+            CELL_META_INFO = new CellMetaInfo(
+                new DomainOpenClass("operation",
+                    JavaOpenClass.STRING,
+                    new EnumDomain<>(algorithmOperationsArray),
+                    null),
+                false);
         } catch (Throwable e) {
             Logger logger = LoggerFactory.getLogger(AlgorithmBuilder.class);
             logger.error(e.getMessage(), e);
@@ -83,11 +87,11 @@ public class AlgorithmBuilder {
     }
 
     public void build(ILogicalTable tableBody) throws Exception {
-        
+
         if (tableBody == null) {
             throw SyntaxNodeExceptionUtils.createError("Invalid table. Provide table body", null, tsn);
         }
-        
+
         if (tableBody.getHeight() <= 2) {
             throw SyntaxNodeExceptionUtils.createError("Unsufficient rows. Must be more than 2!", null, tsn);
         }
@@ -97,8 +101,8 @@ public class AlgorithmBuilder {
         // parse data, row=2..*
         List<AlgorithmRow> algorithmRows = buildRows(tableBody);
 
-        RowParser rowParser = new RowParser(algorithmRows, AlgorithmTableParserManager.getInstance()
-                .getAlgorithmSpecification());
+        RowParser rowParser = new RowParser(algorithmRows,
+            AlgorithmTableParserManager.getInstance().getAlgorithmSpecification());
 
         List<AlgorithmTreeNode> parsedNodes = rowParser.parse();
 
@@ -133,8 +137,10 @@ public class AlgorithmBuilder {
                     value = StringUtils.EMPTY;
                 }
 
-                StringValue sv = new StringValue(value, CELL + r + UNDERSCORE + c, null, new GridCellSourceCodeModule(grid,
-                        c, r, bindingContext));
+                StringValue sv = new StringValue(value,
+                    CELL + r + UNDERSCORE + c,
+                    null,
+                    new GridCellSourceCodeModule(grid, c, r, bindingContext));
 
                 setRowField(aRow, column.id, sv);
                 if (OPERATION.equalsIgnoreCase(column.id)) {
@@ -142,11 +148,10 @@ public class AlgorithmBuilder {
                     int i = (cellStyle == null) ? 0 : cellStyle.getIndent();
                     aRow.setOperationLevel(i);
 
-                    if (!bindingContext.isExecutionMode()) {
-                        if (tsn.getMetaInfoReader() instanceof AlgorithmMetaInfoReader) {
-                            int operationColumn = grid.getCell(c, r).getAbsoluteColumn();
-                            ((AlgorithmMetaInfoReader) tsn.getMetaInfoReader()).setOperationColumn(operationColumn);
-                        }
+                    if (!bindingContext.isExecutionMode() && tsn
+                        .getMetaInfoReader() instanceof AlgorithmMetaInfoReader) {
+                        int operationColumn = grid.getCell(c, r).getAbsoluteColumn();
+                        ((AlgorithmMetaInfoReader) tsn.getMetaInfoReader()).setOperationColumn(operationColumn);
                     }
                 }
             }

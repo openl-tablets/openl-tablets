@@ -20,7 +20,7 @@ public class LabelManager {
 
         @Override
         public boolean equals(Object other) {
-            if (other == null || !(other instanceof LabelType)) {
+            if (!(other instanceof LabelType)) {
                 return false;
             }
 
@@ -68,7 +68,7 @@ public class LabelManager {
 
     private Map<LabelType, String> currentLabels;
     private boolean isLoopOperationSet;
-    private Stack<Map<LabelType, String>> labelsStack = new Stack<Map<LabelType, String>>();
+    private Stack<Map<LabelType, String>> labelsStack = new Stack<>();
 
     private int nextLabelNumber;
 
@@ -165,8 +165,8 @@ public class LabelManager {
 
         // label should contain 1 or 2 parts, first with label name, second with
         // loop keyword
-        if (instructionParts.length < 1 || instructionParts.length > 2
-                || (instructionParts.length == 2 && !loopKeyword.equals(instructionParts[1]))) {
+        if (instructionParts.length < 1 || instructionParts.length > 2 || (instructionParts.length == 2 && !loopKeyword
+            .equals(instructionParts[1]))) {
             // FIXME
             throw new RuntimeException("Bad gen label instruction....");
         }
@@ -187,13 +187,14 @@ public class LabelManager {
         if (currentLabels != null) {
             labelsStack.push(currentLabels);
         }
-        currentLabels = new HashMap<LabelType, String>();
+        currentLabels = new HashMap<>();
         this.isLoopOperationSet = isLoopOperationSet;
 
     }
-    
+
     /**
      * Checks if the label instructions represents are return instruction.
+     * 
      * @param labelInstruction
      * @return true if label instruction is a return one.
      */

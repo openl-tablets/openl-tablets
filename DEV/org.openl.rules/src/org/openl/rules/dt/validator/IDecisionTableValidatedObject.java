@@ -12,7 +12,7 @@ import org.openl.rules.validator.IValidatedObject;
  *
  */
 public interface IDecisionTableValidatedObject extends IValidatedObject {
-    
+
     IDecisionTable getDecisionTable();
 
     @Deprecated
@@ -26,7 +26,7 @@ public interface IDecisionTableValidatedObject extends IValidatedObject {
      * @return true if the {@link IDecisionTable} allows for ascending override (usually true for DT that return value)
      * @see CDecisionTable#isOverrideAscending()
      */
-    
+
     boolean isOverrideAscending();
 
 }

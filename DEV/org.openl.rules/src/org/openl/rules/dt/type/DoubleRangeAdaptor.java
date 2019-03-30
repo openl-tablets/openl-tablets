@@ -4,7 +4,7 @@ import org.openl.rules.helpers.DoubleRange;
 import org.openl.util.RangeWithBounds.BoundType;
 
 public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Double> {
-    private final static DoubleRangeAdaptor INSTANCE = new DoubleRangeAdaptor();
+    private static final DoubleRangeAdaptor INSTANCE = new DoubleRangeAdaptor();
     
     private DoubleRangeAdaptor(){
     }

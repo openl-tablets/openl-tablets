@@ -20,8 +20,7 @@ import java.net.URL;
 import java.util.Map;
 
 /**
- * Simple engine factory Requiring only source of rules and generates interface
- * for it if service interface not defined.
+ * Simple engine factory Requiring only source of rules and generates interface for it if service interface not defined.
  *
  * @author PUdalau, Marat Kamalov
  */
@@ -37,7 +36,8 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
             throw new IllegalArgumentException("interfaceClassGenerator argument must not be null");
         }
         if (super.getInterfaceClass() != null) {
-            log.warn("Rules engine factory has already had interface class. Interface class generator has been ignored!");
+            log.warn(
+                "Rules engine factory has already had interface class. Interface class generator has been ignored!");
         }
         this.interfaceClassGenerator = interfaceClassGenerator;
     }
@@ -80,11 +80,11 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
         super(RULES_XLS_OPENL_NAME, source, userHome);
         super.setInterfaceClass(interfaceClass);
     }
-    
+
     public RulesEngineFactory(URL source) {
         super(RULES_XLS_OPENL_NAME, source);
     }
-    
+
     public RulesEngineFactory(URL source, Class<T> interfaceClass) {
         super(RULES_XLS_OPENL_NAME, source);
         if (interfaceClass == null) {
@@ -102,7 +102,10 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
         super(openlName, sourceCode);
     }
 
-    public RulesEngineFactory(String openlName, String userHome, IOpenSourceCodeModule sourceCode, Class<T> interfaceClass) {
+    public RulesEngineFactory(String openlName,
+            String userHome,
+            IOpenSourceCodeModule sourceCode,
+            Class<T> interfaceClass) {
         super(openlName, sourceCode, userHome);
         super.setInterfaceClass(interfaceClass);
     }
@@ -120,7 +123,6 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
         super(openlName, sourceFile, userHome);
     }
 
-    
     /**
      * Added to allow using other openl names, such as org.openl.xls.ce
      */
@@ -155,8 +157,8 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
                     return interfaceClass;
                 } catch (ClassNotFoundException e) {
                     @SuppressWarnings("unchecked")
-                    Class<T> interfaceClass = (Class<T>) interfaceClassGenerator.generateInterface(className, openClass,
-                            classLoader);
+                    Class<T> interfaceClass = (Class<T>) interfaceClassGenerator
+                        .generateInterface(className, openClass, classLoader);
                     setInterfaceClass(interfaceClass);
                     return interfaceClass;
                 }
@@ -170,7 +172,7 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
 
     @Override
     protected Class<?>[] prepareInstanceInterfaces() {
-        return new Class[]{getInterfaceClass(), IEngineWrapper.class, IRulesRuntimeContextProvider.class};
+        return new Class[] { getInterfaceClass(), IEngineWrapper.class, IRulesRuntimeContextProvider.class };
     }
 
     private IRuntimeEnvBuilder runtimeEnvBuilder = null;
@@ -178,19 +180,15 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
     @Override
     protected IRuntimeEnvBuilder getRuntimeEnvBuilder() {
         if (runtimeEnvBuilder == null) {
-            runtimeEnvBuilder = new IRuntimeEnvBuilder() {
-                @Override
-                public IRuntimeEnv buildRuntimeEnv() {
-                    return new SimpleRulesVM().getRuntimeEnv();
-                }
-            };
+            runtimeEnvBuilder = () -> new SimpleRulesVM().getRuntimeEnv();
         }
         return runtimeEnvBuilder;
     }
 
     @Override
-    protected InvocationHandler prepareInvocationHandler(Object openClassInstance, Map<Method, IOpenMember> methodMap,
-                                                         IRuntimeEnv runtimeEnv) {
+    protected InvocationHandler prepareInvocationHandler(Object openClassInstance,
+            Map<Method, IOpenMember> methodMap,
+            IRuntimeEnv runtimeEnv) {
         return new OpenLRulesInvocationHandler(openClassInstance, runtimeEnv, methodMap);
     }
 }

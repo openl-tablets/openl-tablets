@@ -47,13 +47,15 @@ public class CellKey {
         return String.format("row: %d, col: %d", row, col);
     }
 
-
-    private static CellKey ZERO_ZERO = new CellKey(0, 0);
-    private static CellKey ZERO_ONE = new CellKey(0, 1);
-    private static CellKey ONE_ZERO = new CellKey(1, 0);
-    private static CellKey ONE_ONE = new CellKey(1, 1);
+    private static final CellKey ZERO_ZERO = new CellKey(0, 0);
+    private static final CellKey ZERO_ONE = new CellKey(0, 1);
+    private static final CellKey ONE_ZERO = new CellKey(1, 0);
+    private static final CellKey ONE_ONE = new CellKey(1, 1);
 
     public static final class CellKeyFactory {
+        private CellKeyFactory() {
+        }
+        
         public static CellKey getCellKey(int col, int row) {
             if (col == 0 && row == 0) {
                 return ZERO_ZERO;
@@ -63,8 +65,7 @@ public class CellKey {
                 return ONE_ZERO;
             } else if (col == 1 && row == 1) {
                 return ONE_ONE;
-            }
-            else {
+            } else {
                 return new CellKey(col, row);
             }
         }

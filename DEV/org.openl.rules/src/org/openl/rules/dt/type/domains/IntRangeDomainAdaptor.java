@@ -12,7 +12,7 @@ public class IntRangeDomainAdaptor implements IDomainAdaptor {
     }
 
     public int getIndex(Object value) {
-        return ((Integer) value);// - irange.getMin();
+        return (Integer) value;// - irange.getMin();
     }
 
     public int getIntVarDomainType() {

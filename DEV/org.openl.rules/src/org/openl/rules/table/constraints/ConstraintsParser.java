@@ -5,11 +5,15 @@ import org.openl.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConstraintsParser {
-    public static String CONSTRAINTS_SEPARATOR = "&";
+public final class ConstraintsParser {
+
+    private ConstraintsParser() {
+    }
+
+    public static final String CONSTRAINTS_SEPARATOR = "&";
 
     public static List<Constraint> parse(String value) {
-        List<Constraint> constraints = new ArrayList<Constraint>();
+        List<Constraint> constraints = new ArrayList<>();
         ConstraintFactory constraintFactory = new ConstraintFactory();
 
         if (StringUtils.isNotBlank(value)) {

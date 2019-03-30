@@ -326,14 +326,12 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         IOpenMethod m = decorateForMultimoduleDispatching(method);
 
         // Workaround needed to set the module name in the method while compile
-        if (m instanceof AMethod) {
-            if (((AMethod) m).getModuleName() == null) {
-                XlsMetaInfo metaInfo = getXlsMetaInfo();
-                if (metaInfo != null) {
-                    IOpenSourceCodeModule sourceCodeModule = metaInfo.getXlsModuleNode().getModule();
-                    if (sourceCodeModule instanceof IModuleInfo) {
-                        ((AMethod) m).setModuleName(((IModuleInfo) sourceCodeModule).getModuleName());
-                    }
+        if (m instanceof AMethod && ((AMethod) m).getModuleName() == null) {
+            XlsMetaInfo metaInfo = getXlsMetaInfo();
+            if (metaInfo != null) {
+                IOpenSourceCodeModule sourceCodeModule = metaInfo.getXlsModuleNode().getModule();
+                if (sourceCodeModule instanceof IModuleInfo) {
+                    ((AMethod) m).setModuleName(((IModuleInfo) sourceCodeModule).getModuleName());
                 }
             }
         }

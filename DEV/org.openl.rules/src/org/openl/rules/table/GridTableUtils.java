@@ -36,7 +36,7 @@ public class GridTableUtils {
     public static List<IGridRegion> getGridRegions(ILogicalTable table) {
         int height = table.getHeight();
         int width = table.getWidth();
-        List<IGridRegion> regions = new ArrayList<IGridRegion>();
+        List<IGridRegion> regions = new ArrayList<>();
 
         // Go through all possible cells
         for (int row = 0; row < height; row++) {

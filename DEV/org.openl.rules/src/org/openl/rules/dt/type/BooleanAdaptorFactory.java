@@ -5,6 +5,9 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 
 public class BooleanAdaptorFactory {
+    
+    private BooleanAdaptorFactory() {
+    }
 
     private static final String BOOLEAN_VALUE = "booleanValue";
 

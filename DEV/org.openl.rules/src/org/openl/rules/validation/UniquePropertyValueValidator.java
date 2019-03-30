@@ -38,7 +38,7 @@ public class UniquePropertyValueValidator extends TablesValidator {
         ExecutableRulesMethod[] executableActiveMethods = selectActiveMethods(
             OpenMethodDispatcherHelper.extractMethods(openClass));
 
-        Map<Object, ExecutableRulesMethod> values = new HashMap<Object, ExecutableRulesMethod>();
+        Map<Object, ExecutableRulesMethod> values = new HashMap<>();
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
 
         for (ExecutableRulesMethod method : executableActiveMethods) {

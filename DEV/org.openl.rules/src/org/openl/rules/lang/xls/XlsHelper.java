@@ -22,19 +22,22 @@ import org.openl.util.Log;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInterval;
 
-public abstract class XlsHelper {
+public final class XlsHelper {
+
+    private XlsHelper() {
+    }
 
     private static Map<String, String> tableHeaders;
     static {
 
         if (XlsHelper.tableHeaders == null) {
-            XlsHelper.tableHeaders = new HashMap<String, String>();
+            XlsHelper.tableHeaders = new HashMap<>();
             XlsHelper.tableHeaders.put(IXlsTableNames.CONSTANTS, XlsNodeTypes.XLS_CONSTANTS.toString());
-            
+
             XlsHelper.tableHeaders.put(IXlsTableNames.DECISION_TABLE, XlsNodeTypes.XLS_DT.toString());
             XlsHelper.tableHeaders.put(IXlsTableNames.DECISION_TABLE2, XlsNodeTypes.XLS_DT.toString());
             XlsHelper.tableHeaders.put(IXlsTableNames.SIMPLE_DECISION_TABLE, XlsNodeTypes.XLS_DT.toString());
-            
+
             XlsHelper.tableHeaders.put(IXlsTableNames.SMART_DECISION_TABLE, XlsNodeTypes.XLS_DT.toString());
             XlsHelper.tableHeaders.put(IXlsTableNames.SIMPLE_DECISION_LOOKUP, XlsNodeTypes.XLS_DT.toString());
             XlsHelper.tableHeaders.put(IXlsTableNames.SMART_DECISION_LOOKUP, XlsNodeTypes.XLS_DT.toString());
@@ -85,15 +88,14 @@ public abstract class XlsHelper {
             return makeJavaIdentifier(file);
 
         } catch (MalformedURLException e) {
-            if(VirtualSourceCodeModule.SOURCE_URI.equals(uri)){
+            if (VirtualSourceCodeModule.SOURCE_URI.equals(uri)) {
                 return "VirtualModule";
-            }else{
+            } else {
                 Log.error("Error URI to name conversion", e);
                 return "UndefinedXlsType";
             }
         }
     }
-
 
     private static String makeJavaIdentifier(String src) {
         StringBuilder buf = new StringBuilder();
@@ -109,52 +111,56 @@ public abstract class XlsHelper {
         return buf.toString();
     }
 
-    public static TableSyntaxNode createTableSyntaxNode(IGridTable table, XlsSheetSourceCodeModule source) throws
-                                                                                                           OpenLCompilationException {
+    public static TableSyntaxNode createTableSyntaxNode(IGridTable table,
+            XlsSheetSourceCodeModule source) throws OpenLCompilationException {
         GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
         IdentifierNode[] headerTokens = Tokenizer.tokenize(src, " \n\r");
-        if (headerTokens.length == 0){
-            headerTokens = new IdentifierNode[]{Tokenizer.firstToken(src, " \n\r")};
+        if (headerTokens.length == 0) {
+            headerTokens = new IdentifierNode[] { Tokenizer.firstToken(src, " \n\r") };
         }
         IdentifierNode headerToken = headerTokens[0];
         String header = headerTokens[0].getIdentifier();
-        String xls_type = tableHeaders.get(header);
+        String xlsType = tableHeaders.get(header);
 
-        if (xls_type == null) {
-            xls_type = XlsNodeTypes.XLS_OTHER.toString();
+        if (xlsType == null) {
+            xlsType = XlsNodeTypes.XLS_OTHER.toString();
         }
-        
-        //Collect token concatenation
+
+        // Collect token concatenation
         List<String> collectParameters = new ArrayList<String>();
         boolean isCollect = false;
-        if (header.equals(IXlsTableNames.SIMPLE_DECISION_TABLE) || header.equals(IXlsTableNames.SMART_DECISION_TABLE)
-                || header.equals(IXlsTableNames.SIMPLE_DECISION_LOOKUP) || header.equals(IXlsTableNames.SMART_DECISION_LOOKUP)){
-            if (headerTokens.length > 1 && headerTokens[1].getIdentifier().equals(IXlsTableNames.COLLECT)){
+        if (header.equals(IXlsTableNames.SIMPLE_DECISION_TABLE) || header
+            .equals(IXlsTableNames.SMART_DECISION_TABLE) || header
+                .equals(IXlsTableNames.SIMPLE_DECISION_LOOKUP) || header.equals(IXlsTableNames.SMART_DECISION_LOOKUP)) {
+            if (headerTokens.length > 1 && headerTokens[1].getIdentifier().equals(IXlsTableNames.COLLECT)) {
                 isCollect = true;
-                if (headerTokens.length > 2 && headerTokens[2].getIdentifier().equals(IXlsTableNames.COLLECT_AS)){
+                if (headerTokens.length > 2 && headerTokens[2].getIdentifier().equals(IXlsTableNames.COLLECT_AS)) {
                     int i = 3;
                     collectParameters.add(headerTokens[i].getIdentifier());
-                    if (i < headerTokens.length && headerTokens[i + 1].getIdentifier().equals(IXlsTableNames.COLLECT_AND)){
+                    if (i < headerTokens.length && headerTokens[i + 1].getIdentifier()
+                        .equals(IXlsTableNames.COLLECT_AND)) {
                         i = i + 2;
                         collectParameters.add(headerTokens[i].getIdentifier());
                     }
-                    ILocation location = new TextInterval(headerToken.getLocation().getStart(), headerTokens[i].getLocation().getEnd());
+                    ILocation location = new TextInterval(headerToken.getLocation().getStart(),
+                        headerTokens[i].getLocation().getEnd());
                     headerToken = new IdentifierNode(headerToken.getType(), location, header, headerToken.getModule());
-                }else{
-                    ILocation location = new TextInterval(headerToken.getLocation().getStart(), headerTokens[1].getLocation().getEnd());
+                } else {
+                    ILocation location = new TextInterval(headerToken.getLocation().getStart(),
+                        headerTokens[1].getLocation().getEnd());
                     headerToken = new IdentifierNode(headerToken.getType(), location, header, headerToken.getModule());
                 }
             }
         }
 
         HeaderSyntaxNode headerNode;
-        if (XlsNodeTypes.XLS_SPREADSHEET.toString().equals(xls_type)) {
+        if (XlsNodeTypes.XLS_SPREADSHEET.toString().equals(xlsType)) {
             headerNode = new SpreadsheetHeaderNode(src, headerToken);
         } else {
-            headerNode = new HeaderSyntaxNode(src, headerToken, isCollect, collectParameters.toArray(new String[]{}));
+            headerNode = new HeaderSyntaxNode(src, headerToken, isCollect, collectParameters.toArray(new String[] {}));
         }
 
         GridLocation pos = new GridLocation(table);
-        return new TableSyntaxNode(xls_type, pos, source, table, headerNode);
+        return new TableSyntaxNode(xlsType, pos, source, table, headerNode);
     }
 }

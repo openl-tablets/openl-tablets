@@ -15,9 +15,9 @@ public class VirtualSourceCodeModule extends ASourceCodeModule {
 
     public static final String SOURCE_URI = "<virtual_uri>";
     public static final String VIRTUAL_SHEET_NAME = "$virtual_sheet$";
-    
+
     private Workbook workbook;
-    
+
     public VirtualSourceCodeModule() {
         workbook = new HSSFWorkbook();
         workbook.createSheet(VIRTUAL_SHEET_NAME);
@@ -50,5 +50,5 @@ public class VirtualSourceCodeModule extends ASourceCodeModule {
 
     @Override
     public void resetModified() {
-    } 
+    }
 }

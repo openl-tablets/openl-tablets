@@ -24,8 +24,7 @@ import org.openl.types.IOpenMethod;
 /**
  * Represents group of methods(rules) overloaded by dimension properties.
  * 
- * TODO: refactor invoke functionality. Use
- * {@link org.openl.rules.method.RulesMethodInvoker}.
+ * TODO: refactor invoke functionality. Use {@link org.openl.rules.method.RulesMethodInvoker}.
  */
 public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     // The fields below hold only algorithms and they don't change during
@@ -81,19 +80,21 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         switch (selected.size()) {
             case 0:
                 IOpenMethod candidateMethod = candidates.iterator().next();
-                throw new OpenLRuntimeException(
-                    String.format("No matching methods with name '%3$s' for the context. Details: \n%1$s\nContext: %2$s",
-                        toString(candidates),
-                        context.toString(), candidateMethod.getName()));
+                throw new OpenLRuntimeException(String.format(
+                    "No matching methods with name '%3$s' for the context. Details: \n%1$s\nContext: %2$s",
+                    toString(candidates),
+                    context.toString(),
+                    candidateMethod.getName()));
             case 1:
                 IOpenMethod matchingMethod = selected.iterator().next();
                 return matchingMethod;
             default:
                 IOpenMethod method = selected.iterator().next();
-                throw new OpenLRuntimeException( 
+                throw new OpenLRuntimeException(
                     String.format("Ambiguous dispatch for method '%3$s'. Details: \n%1$s\nContext: %2$s",
                         toString(selected),
-                        context.toString(), method.getName()));
+                        context.toString(),
+                        method.getName()));
         }
 
     }
@@ -163,9 +164,8 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                         ITableProperties candidateProperties = PropertiesHelper.getTableProperties(candidate);
                         if (mostPriority.size() == 1) {
                             propsLoop: for (String propName : notNullPropertyNames) {
-                                switch (intersectionMatcher.match(propName,
-                                    candidateProperties,
-                                    mostPriorityProperties)) {
+                                switch (intersectionMatcher
+                                    .match(propName, candidateProperties, mostPriorityProperties)) {
                                     case NESTED:
                                         nested = true;
                                         break;
@@ -239,22 +239,19 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     }
 
     private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
-        List<IOpenMethod> nomatched = new ArrayList<IOpenMethod>();
+        List<IOpenMethod> nomatched = new ArrayList<>();
 
         List<String> notNullPropertyNames = getNotNullPropertyNames(context);
 
         for (IOpenMethod method : selected) {
             ITableProperties props = PropertiesHelper.getTableProperties(method);
 
-            propsLoop: {
-                for (String propName : notNullPropertyNames) {
-                    MatchingResult res = matcher.match(propName, props, context);
+            for (String propName : notNullPropertyNames) {
+                MatchingResult res = matcher.match(propName, props, context);
 
-                    switch (res) {
-                        case NO_MATCH:
-                            nomatched.add(method);
-                            break propsLoop;
-                    }
+                if (MatchingResult.NO_MATCH.equals(res)) {
+                    nomatched.add(method);
+                    break;
                 }
             }
         }
@@ -266,22 +263,22 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
         StringBuilder builder = new StringBuilder();
         builder.append("Candidates: {\n");
-        
+
         boolean g = false;
-        
+
         for (IOpenMethod method : methods) {
-            if (g){
+            if (g) {
                 builder.append(",\n");
-            }else{
+            } else {
                 g = true;
             }
             builder.append("{");
             ITableProperties tableProperties = PropertiesHelper.getTableProperties(method);
             boolean f = false;
-            for (Entry<String, Object> entry : tableProperties.getAllDimensionalProperties().entrySet()){
-                if (f){
+            for (Entry<String, Object> entry : tableProperties.getAllDimensionalProperties().entrySet()) {
+                if (f) {
                     builder.append(", ");
-                }else{
+                } else {
                     f = true;
                 }
                 builder.append(entry.getKey());
@@ -303,12 +300,12 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         }
         return candidatesSorted;
     }
-    
+
     @Override
     public IOpenClass getType() {
-        //Use types from declaring types. For customspreadsheetresult types.
+        // Use types from declaring types. For customspreadsheetresult types.
         IOpenClass type = getDeclaringClass().findType(super.getType().getName());
-        if (type == null){
+        if (type == null) {
             return super.getType();
         }
         return type;
@@ -316,7 +313,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     // <<< INSERT MatchingProperties >>>
     private List<String> getNotNullPropertyNames(IRulesRuntimeContext context) {
-        List<String> propNames = new ArrayList<String>();
+        List<String> propNames = new ArrayList<>();
 
         if (context.getCurrentDate() != null) {
             propNames.add("effectiveDate");
@@ -364,5 +361,5 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         return propNames;
     }
 
-// <<< END INSERT MatchingProperties >>>
+    // <<< END INSERT MatchingProperties >>>
 }

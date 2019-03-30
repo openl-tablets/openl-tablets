@@ -50,13 +50,11 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
         IGridTable table = tableSyntaxNode.getGridTable();
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(table, bindingContext);
         
-        SubTextSourceCodeModule headerSource = new SubTextSourceCodeModule(source, tableSyntaxNode.getHeader()
+        return new SubTextSourceCodeModule(source, tableSyntaxNode.getHeader()
             .getHeaderToken()
             .getSourceLocation()
             .getEnd()
             .getAbsolutePosition(new TextInfo(source.getCode())));
-        
-        return headerSource;
     }
 
     public OpenMethodHeader createHeader(TableSyntaxNode tableSyntaxNode, OpenL openl, IBindingContext bindingContext) throws SyntaxNodeException{
@@ -110,7 +108,7 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
         // Dimensional properties and version
         //
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
-        List<Object> values = new ArrayList<Object>();
+        List<Object> values = new ArrayList<>();
 
         for (String property : TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames()) {
             values.add(tableProperties.getPropertyValue(property));

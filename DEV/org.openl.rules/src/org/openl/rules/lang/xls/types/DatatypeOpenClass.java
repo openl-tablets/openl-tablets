@@ -49,8 +49,8 @@ public class DatatypeOpenClass extends ADynamicClass {
     private byte[] bytecode;
 
     /**
-     * User has a possibility to set the package (by table properties mechanism)
-     * where he wants to generate datatype beans classes.
+     * User has a possibility to set the package (by table properties mechanism) where he wants to generate datatype
+     * beans classes.
      */
     public DatatypeOpenClass(String name, String packageName) {
         // NOTE! The instance class during the construction is null.
@@ -103,8 +103,7 @@ public class DatatypeOpenClass extends ADynamicClass {
     }
 
     /**
-     * Used {@link LinkedHashMap} to store fields in order as them defined in
-     * DataType table
+     * Used {@link LinkedHashMap} to store fields in order as them defined in DataType table
      */
     @Override
     protected LinkedHashMap<String, IOpenField> fieldMap() {
@@ -131,7 +130,7 @@ public class DatatypeOpenClass extends ADynamicClass {
     }
 
     private Map<String, IOpenField> initializeFields() {
-        Map<String, IOpenField> fields = new LinkedHashMap<String, IOpenField>();
+        Map<String, IOpenField> fields = new LinkedHashMap<>();
         Iterable<IOpenClass> superClasses = superClasses();
         for (IOpenClass superClass : superClasses) {
             fields.putAll(superClass.getFields());
@@ -170,8 +169,7 @@ public class DatatypeOpenClass extends ADynamicClass {
     }
 
     /**
-     * Override super class implementation to provide possibility to compare
-     * datatypes with info about their fields
+     * Override super class implementation to provide possibility to compare datatypes with info about their fields
      *
      * @author DLiauchuk
      */
@@ -181,9 +179,8 @@ public class DatatypeOpenClass extends ADynamicClass {
     }
 
     /**
-     * Override super class implementation to provide possibility to compare
-     * datatypes with info about their fields Is used in {@link XlsBinder}
-     * (method filterDependencyTypes)
+     * Override super class implementation to provide possibility to compare datatypes with info about their fields Is
+     * used in {@link XlsBinder} (method filterDependencyTypes)
      *
      * @author DLiauchuk
      */

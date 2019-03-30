@@ -53,9 +53,8 @@ public class DecisionTableValidationResult implements IValidationResult {
             Object[] values = new Object[names.length];
 
             for (int j = 0; j < values.length; j++) {
-                values[j] = transformer.transformSignatureValueBack(names[j],
-                    overlappings[i].getSolutionValues()[j],
-                    analyzer);
+                values[j] = transformer
+                    .transformSignatureValueBack(names[j], overlappings[i].getSolutionValues()[j], analyzer);
             }
 
             DecisionTableOverlapping tableOverlapping = new DecisionTableOverlapping(overlappings[i].getOverlapped(),
@@ -80,9 +79,8 @@ public class DecisionTableValidationResult implements IValidationResult {
             Object[] values = new Object[names.length];
 
             for (int j = 0; j < values.length; j++) {
-                values[j] = transformer.transformSignatureValueBack(names[j],
-                    uncovered[i].getSolutionValues()[j],
-                    analyzer);
+                values[j] = transformer
+                    .transformSignatureValueBack(names[j], uncovered[i].getSolutionValues()[j], analyzer);
             }
 
             tableUncovered[i] = new DecisionTableUncovered(new ArrayOfNamedValues(names, values));
@@ -104,38 +102,33 @@ public class DecisionTableValidationResult implements IValidationResult {
     }
 
     public boolean hasProblems() {
-        
+
         return hasErrors() || hasWarnings();
-//        return overlappings != null && overlappings.length > 0 || uncovered != null && uncovered.length > 0;
+        // return overlappings != null && overlappings.length > 0 || uncovered != null && uncovered.length > 0;
     }
-    
+
     public boolean hasErrors() {
-        return getOverlappingBlocks().size() > 0 || uncovered != null && uncovered.length > 0;
+        return !getOverlappingBlocks().isEmpty() || uncovered != null && uncovered.length > 0;
     }
 
     public boolean hasWarnings() {
-        return getOverlappingPartialOverlaps().size() > 0;
+        return !getOverlappingPartialOverlaps().isEmpty();
     }
-    
-    
-    public List<DecisionTableOverlapping> getOverlappingBlocks()
-    {
+
+    public List<DecisionTableOverlapping> getOverlappingBlocks() {
         return selectOverlappings(OverlappingStatus.BLOCK);
     }
 
-    public List<DecisionTableOverlapping> getOverlappingPartialOverlaps()
-    {
+    public List<DecisionTableOverlapping> getOverlappingPartialOverlaps() {
         return selectOverlappings(OverlappingStatus.PARTIAL);
     }
-    
-    public List<DecisionTableOverlapping> getOverlappingOverrides()
-    {
+
+    public List<DecisionTableOverlapping> getOverlappingOverrides() {
         return selectOverlappings(OverlappingStatus.OVERRIDE);
     }
-    
 
     private List<DecisionTableOverlapping> selectOverlappings(OverlappingStatus status) {
-        List<DecisionTableOverlapping> res = new ArrayList<DecisionTableOverlapping>();
+        List<DecisionTableOverlapping> res = new ArrayList<>();
         if (overlappings == null)
             return res;
         for (int i = 0; i < overlappings.length; i++) {
@@ -150,17 +143,17 @@ public class DecisionTableValidationResult implements IValidationResult {
         StringBuilder validationResultDetails = new StringBuilder();
 
         if (getUncovered().length > 0) {
-            validationResultDetails.append(String.format("There is an uncovered case for values: %s\r\n",
-                Arrays.asList(getUncovered())));
+            validationResultDetails
+                .append(String.format("There is an uncovered case for values: %s\r\n", Arrays.asList(getUncovered())));
         }
 
-//        if (getOverlappings().length > 0) {
-//            validationResultDetails.append(String.format("There is an overlap: %s", Arrays.asList(getOverlappings())));
-//        }
-        
+        // if (getOverlappings().length > 0) {
+        // validationResultDetails.append(String.format("There is an overlap: %s", Arrays.asList(getOverlappings())));
+        // }
+
         int maxCounter = 3;
         int cnt = 0;
-        
+
         for (DecisionTableOverlapping ovl : getOverlappingBlocks()) {
             if (++cnt < maxCounter)
                 validationResultDetails.append(ovl.toString()).append("\r\n");
@@ -170,15 +163,15 @@ public class DecisionTableValidationResult implements IValidationResult {
             if (++cnt <= maxCounter)
                 validationResultDetails.append(ovl.toString()).append("\r\n");
         }
-        
+
         for (DecisionTableOverlapping ovl : getOverlappingOverrides()) {
             if (++cnt <= maxCounter)
                 validationResultDetails.append(ovl.toString()).append("\r\n");
         }
-        
+
         if (cnt > maxCounter)
-            validationResultDetails.append(String.format("  %d more ...", (cnt-maxCounter)));
-        
+            validationResultDetails.append(String.format("  %d more ...", (cnt - maxCounter)));
+
         return validationResultDetails.toString();
     }
 

@@ -72,11 +72,10 @@ public class TableSyntaxNode extends NaryNode {
             errors = new ArrayList<>();
         }
         for (SyntaxNodeException exception : errors) {
-            if (Objects.equals(exception.getMessage(), error.getMessage())) {
-                if (error.getSourceLocation().equals(exception.getSourceLocation())) {
-                    log.warn("Skip duplicated message: " + error.getMessage(), error);
-                    return;
-                }
+            if (Objects.equals(exception.getMessage(), error.getMessage()) && error.getSourceLocation()
+                .equals(exception.getSourceLocation())) {
+                log.warn("Skip duplicated message: " + error.getMessage(), error);
+                return;
             }
         }
         errors.add(error);

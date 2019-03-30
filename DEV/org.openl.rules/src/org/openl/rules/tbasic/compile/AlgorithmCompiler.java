@@ -60,7 +60,7 @@ public class AlgorithmCompiler {
 
     private Map<String, OperationPreprocessor> operationPreprocessors = new HashMap<String, OperationPreprocessor>();
 
-    private Stack<Collection<IOpenField>> variablesStack = new Stack<Collection<IOpenField>>();
+    private Stack<Collection<IOpenField>> variablesStack = new Stack<>();
 
     {
         operationPreprocessors.put(OperationType.COMPILE.toString(), new CompilePreprocessor());
@@ -202,7 +202,7 @@ public class AlgorithmCompiler {
         // find first RETURN operation
         List<AlgorithmTreeNode> returnNodes = findFirstReturn(children);
 
-        if (returnNodes == null || returnNodes.size() == 0) {
+        if (returnNodes == null || returnNodes.isEmpty()) {
             StringValue lastAction = AlgorithmCompilerTool.getLastExecutableOperation(children)
                 .getAlgorithmRow()
                 .getAction();
@@ -274,7 +274,7 @@ public class AlgorithmCompiler {
     private void initialization(Algorithm algorithm) throws SyntaxNodeException {
         labelManager = new LabelManager();
         thisTargetClass = new AlgorithmOpenClass(generateOpenClassName(), context.getOpenL());
-        
+
         variablesStack.push(new ArrayList<IOpenField>());
         initNewInternalVariable("ERROR", getTypeOfField(new StringValue("new RuntimeException()")));
         initNewInternalVariable("Error Message", getTypeOfField(new StringValue("\"Error!\"")));

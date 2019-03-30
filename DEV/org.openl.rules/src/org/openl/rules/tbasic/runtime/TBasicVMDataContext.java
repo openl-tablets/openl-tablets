@@ -6,8 +6,7 @@ import java.util.Map;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 
 /**
- * The <code>TBasicVMDataContext</code> contains context for running
- * <code>TBasicVM</code>.
+ * The <code>TBasicVMDataContext</code> contains context for running <code>TBasicVM</code>.
  */
 public class TBasicVMDataContext {
     private List<RuntimeOperation> operations;
@@ -21,7 +20,8 @@ public class TBasicVMDataContext {
      * @param labels
      * @param isMainMethodContext
      */
-    public TBasicVMDataContext(List<RuntimeOperation> operations, Map<String, RuntimeOperation> labels,
+    public TBasicVMDataContext(List<RuntimeOperation> operations,
+            Map<String, RuntimeOperation> labels,
             boolean isMainMethod) {
         assert operations != null;
         // assert operations.size() > 0;
@@ -38,7 +38,7 @@ public class TBasicVMDataContext {
      * @return The first operation.
      */
     public RuntimeOperation getFirstOperation() {
-        return operations.size() > 0 ? operations.get(0) : null;
+        return !operations.isEmpty() ? operations.get(0) : null;
     }
 
     /**
@@ -78,8 +78,8 @@ public class TBasicVMDataContext {
                 nextOperation = operations.get(indexOfNext);
             }
         } else {
-            throw AlgorithmErrorHelper.createExecutionException(
-                    "Can't find the next operation after the specified one", operation);
+            throw AlgorithmErrorHelper.createExecutionException("Can't find the next operation after the specified one",
+                operation);
         }
 
         return nextOperation;

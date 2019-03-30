@@ -38,7 +38,7 @@ public abstract class ARuleIndex implements IRuleIndex {
     public abstract Iterable<? extends DecisionTableRuleNode> nodes();
 
     public int[] collectRules() {
-        Set<Integer> set = new HashSet<Integer>();
+        Set<Integer> set = new HashSet<>();
 
         for (DecisionTableRuleNode node : nodes()) {
             int[] rules = node.getRules();

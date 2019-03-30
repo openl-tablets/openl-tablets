@@ -17,11 +17,11 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
     private volatile boolean ignoreRecalculate = true;
     private volatile boolean originalCalculation = true;
     private ArgumentCachingStorage argumentCachingStorage = new ArgumentCachingStorage();
-    
+
     public SimpleRulesRuntimeEnv() {
         super();
     }
-    
+
     private SimpleRulesRuntimeEnv(SimpleRulesRuntimeEnv env) {
         super(env);
         this.argumentCachingStorage = env.argumentCachingStorage;
@@ -35,7 +35,7 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
     public IRuntimeEnv clone() {
         return new SimpleRulesRuntimeEnv(this);
     }
-    
+
     public FastStack cloneContextStack() {
         return (FastStack) contextStack.clone();
     }
@@ -44,7 +44,7 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
     protected IRuntimeContext buildDefaultRuntimeContext() {
         return RulesRuntimeContextFactory.buildRulesRuntimeContext();
     }
-    
+
     public boolean isMethodArgumentsCacheEnable() {
         return methodArgumentsCacheEnable;
     }
@@ -60,7 +60,7 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
     public void setMethodArgumentsCacheEnable(boolean enable) {
         this.methodArgumentsCacheEnable = enable;
     }
-    
+
     public boolean isIgnoreRecalculation() {
         return ignoreRecalculate;
     }
@@ -84,34 +84,34 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
     public IOpenClass getTopClass() {
         return topClass;
     }
-    
+
     public void setTopClass(IOpenClass topClass) {
         this.topClass = topClass;
     }
 
     private IOpenClass topClass;
-    
+
     private Queue<RecursiveAction> actionStack = null;
-    
+
     public void pushAction(RecursiveAction action) {
         if (actionStack == null) {
             actionStack = new LinkedList<>();
         }
         actionStack.add(action);
     }
-    
+
     public boolean joinActionIfExists() {
         if (actionStack != null && !actionStack.isEmpty()) {
-            RecursiveAction action = (RecursiveAction) actionStack.poll();
+            RecursiveAction action = actionStack.poll();
             action.join();
             return true;
         }
         return false;
     }
-    
+
     public boolean cancelActionIfExists() {
         if (actionStack != null && !actionStack.isEmpty()) {
-            RecursiveAction action = (RecursiveAction) actionStack.poll();
+            RecursiveAction action = actionStack.poll();
             action.cancel(true);
             return true;
         }

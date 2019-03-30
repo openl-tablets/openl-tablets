@@ -18,7 +18,7 @@ class DispatcherTableRules {
     private List<ITableProperties> dimensionTableProperties;
     
     DispatcherTableRules(List<ITableProperties> dimensionTableProperties) {
-        if (dimensionTableProperties == null || dimensionTableProperties.size() == 0) {
+        if (dimensionTableProperties == null || dimensionTableProperties.isEmpty()) {
             throw new OpenlNotCheckedException("The list of dimension properties in dispatcher table cannot be empty");
         }
         this.dimensionTableProperties = new ArrayList<>(dimensionTableProperties);

@@ -1,7 +1,6 @@
 package org.openl.rules.table;
 
 import org.openl.rules.table.syntax.XlsURLConstants;
-import org.openl.util.StringTool;
 
 public abstract class AGrid implements IGrid {
 
@@ -14,8 +13,7 @@ public abstract class AGrid implements IGrid {
     /**
      * Gets the URI to the table by its four coordinates on the sheet.
      *
-     * @return URI to the table in the sheet. (e.g.
-     *         <code>file:D:\work\Workspace\org.openl.tablets.tutorial4\rules
+     * @return URI to the table in the sheet. (e.g. <code>file:D:\work\Workspace\org.openl.tablets.tutorial4\rules
      * \main&wbName=Tutorial_4.xls&wsName=Vehicle-Scoring&range=B3:D12</code>)
      */
     public String getRangeUri(int colStart, int rowStart, int colEnd, int rowEnd) {
@@ -26,7 +24,8 @@ public abstract class AGrid implements IGrid {
             if (region == null || (region.getRight() == region.getLeft() && region.getBottom() == region.getTop())) {
                 return getUri() + "&" + "cell=" + cell.getUri();
             } else {
-                String range = getCell(region.getLeft(), region.getTop()).getUri() + RANGE_SEPARATOR + getCell(region.getRight(), region.getBottom()).getUri();
+                String range = getCell(region.getLeft(), region.getTop())
+                    .getUri() + RANGE_SEPARATOR + getCell(region.getRight(), region.getBottom()).getUri();
                 return getUri() + "&" + XlsURLConstants.RANGE + "=" + range;
             }
         }
@@ -58,16 +57,13 @@ public abstract class AGrid implements IGrid {
         return getRegionContaining(x, y) != null;
     }
 
-
     public boolean isTopLeftCellInMergedRegion(int column, int row) {
         return getRegionStartingAt(column, row) != null;
     }
 
     public boolean isInOneMergedRegion(int firstCellColumn, int firstCellRow, int secondCellColumn, int secondCellRow) {
         IGridRegion region = getRegionContaining(firstCellColumn, firstCellRow);
-        if (region != null && org.openl.rules.table.IGridRegion.Tool.contains(region, secondCellColumn, secondCellRow)) {
-            return true;
-        }
-        return false;
+        return region != null && org.openl.rules.table.IGridRegion.Tool
+            .contains(region, secondCellColumn, secondCellRow);
     }
 }

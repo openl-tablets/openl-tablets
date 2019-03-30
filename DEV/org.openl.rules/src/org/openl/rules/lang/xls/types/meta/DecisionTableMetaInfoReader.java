@@ -81,7 +81,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             IBaseCondition[] conditionRows = decisionTable.getConditionRows();
             IBaseAction[] actionRows = decisionTable.getActionRows();
 
-            saveSimpleRulesMetaInfo(decisionTable, region);
+            saveSimpleRulesMetaInfo(region);
             saveCompoundReturnColumn(region);
 
             if (conditionRows != null) {
@@ -231,7 +231,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         return sb.toString();
     }
 
-    private void saveSimpleRulesMetaInfo(DecisionTable decisionTable, IGridRegion region) {
+    private void saveSimpleRulesMetaInfo(IGridRegion region) {
         for (Map.Entry<CellKey, HeaderMetaInfo> entry : simpleRulesConditionMap.entrySet()) {
             setMetaInfo(entry.getKey(), entry.getValue(), region, this::buildStringForCondition);
         }

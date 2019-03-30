@@ -9,12 +9,12 @@ import org.openl.types.IOpenMethod;
 import java.util.*;
 
 public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
-    private List<Comparator<ITableProperties>> maxMinPriorityRules = new ArrayList<Comparator<ITableProperties>>();
-    private List<Comparator<ITableProperties>> tablesPriorityRules = new ArrayList<Comparator<ITableProperties>>();
+    private List<Comparator<ITableProperties>> maxMinPriorityRules = new ArrayList<>();
+    private List<Comparator<ITableProperties>> tablesPriorityRules = new ArrayList<>();
 
     private Comparator<IOpenMethod> methodsComparator;
-    
-    public DefaultTablePropertiesSorter(){ 
+
+    public DefaultTablePropertiesSorter() {
         initTablesPriorityRules();
         initMethodsComparator();
     }
@@ -59,35 +59,33 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
                 return properties.getOrigin();
             }
 
-            public int compareNotNulls(org.openl.rules.enumeration.OriginsEnum propertyValue1, org.openl.rules.enumeration.OriginsEnum propertyValue2) {
+            public int compareNotNulls(org.openl.rules.enumeration.OriginsEnum propertyValue1,
+                    org.openl.rules.enumeration.OriginsEnum propertyValue2) {
                 return MAX(propertyValue1, propertyValue2);
             }
         });
-// <<< END INSERT >>>
+        // <<< END INSERT >>>
         tablesPriorityRules.addAll(maxMinPriorityRules);
         tablesPriorityRules.add(new IntersectedPropertiesPriorityRule());
     }
 
     private void initMethodsComparator() {
-        methodsComparator = new Comparator<IOpenMethod>() {
-
-            public int compare(IOpenMethod o1, IOpenMethod o2) {
-                ITableProperties tableProperties1 = PropertiesHelper.getTableProperties(o1);
-                ITableProperties tableProperties2 = PropertiesHelper.getTableProperties(o2);
-                int comparisonResult = 0;
-                for(Comparator<ITableProperties> tablesPriorityRule : tablesPriorityRules){
-                    comparisonResult = tablesPriorityRule.compare(tableProperties1, tableProperties2);
-                    if(comparisonResult != 0){
-                        break;
-                    }
+        methodsComparator = (o1, o2) -> {
+            ITableProperties tableProperties1 = PropertiesHelper.getTableProperties(o1);
+            ITableProperties tableProperties2 = PropertiesHelper.getTableProperties(o2);
+            int comparisonResult = 0;
+            for (Comparator<ITableProperties> tablesPriorityRule : tablesPriorityRules) {
+                comparisonResult = tablesPriorityRule.compare(tableProperties1, tableProperties2);
+                if (comparisonResult != 0) {
+                    break;
                 }
-                return comparisonResult;
             }
+            return comparisonResult;
         };
     }
 
     public List<IOpenMethod> sort(Collection<IOpenMethod> candidates) {
-        List<IOpenMethod> result = new ArrayList<IOpenMethod>(candidates);
+        List<IOpenMethod> result = new ArrayList<>(candidates);
         Collections.sort(result, methodsComparator);
         return result;
     }

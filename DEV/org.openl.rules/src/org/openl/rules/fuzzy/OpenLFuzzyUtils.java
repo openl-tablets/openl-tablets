@@ -23,26 +23,14 @@ public final class OpenLFuzzyUtils {
     private static final double ACCEPTABLE_SIMILARITY_VALUE = 0.85;
     private static final int DEEP_LEVEL = 5;
 
-    public static ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[][]>>> openlClassRecursivelyCacheForSetterMethods = new ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[][]>>>() {
-        @Override
-        protected Map<IOpenClass, Map<Token, IOpenMethod[][]>> initialValue() {
-            return new HashMap<IOpenClass, Map<Token, IOpenMethod[][]>>();
-        }
-    };
+    private static final ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[][]>>> openlClassRecursivelyCacheForSetterMethods = ThreadLocal
+        .withInitial(HashMap::new);
 
-    public static ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[][]>>> openlClassRecursivelyCacheForGetterMethods = new ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[][]>>>() {
-        @Override
-        protected Map<IOpenClass, Map<Token, IOpenMethod[][]>> initialValue() {
-            return new HashMap<IOpenClass, Map<Token, IOpenMethod[][]>>();
-        }
-    };
+    private static final ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[][]>>> openlClassRecursivelyCacheForGetterMethods = ThreadLocal
+        .withInitial(HashMap::new);
 
-    public static ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[]>>> openlClassCacheForSetterMethods = new ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[]>>>() {
-        @Override
-        protected Map<IOpenClass, Map<Token, IOpenMethod[]>> initialValue() {
-            return new HashMap<IOpenClass, Map<Token, IOpenMethod[]>>();
-        }
-    };
+    private static final ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[]>>> openlClassCacheForSetterMethods = ThreadLocal
+        .withInitial(HashMap::new);
 
     public static void clearCaches() {
         openlClassCacheForSetterMethods.remove();
@@ -54,8 +42,8 @@ public final class OpenLFuzzyUtils {
         Map<IOpenClass, Map<Token, IOpenMethod[]>> cache = openlClassCacheForSetterMethods.get();
         Map<Token, IOpenMethod[]> ret = cache.get(openClass);
         if (ret == null) {
-            ret = new HashMap<Token, IOpenMethod[]>();
-            Map<Token, LinkedList<IOpenMethod>> map = new HashMap<Token, LinkedList<IOpenMethod>>();
+            ret = new HashMap<>();
+            Map<Token, LinkedList<IOpenMethod>> map = new HashMap<>();
             if (!openClass.isSimple()) {
                 for (IOpenMethod method : openClass.getMethods()) {
                     if (!method.isStatic() && method.getSignature().getNumberOfParameters() == 1 && method.getName()
@@ -78,7 +66,7 @@ public final class OpenLFuzzyUtils {
                         }
 
                         if (m == null) {
-                            m = new LinkedList<IOpenMethod>();
+                            m = new LinkedList<>();
                             m.add(method);
                             map.put(new Token(t, 0), m);
                         } else {
@@ -125,8 +113,8 @@ public final class OpenLFuzzyUtils {
         }
         Map<Token, IOpenMethod[][]> ret = cache.get(openClass);
         if (ret == null) {
-            Map<String, Integer> distanceMap = new HashMap<String, Integer>(); // For
-                                                                               // optimization
+            Map<String, Integer> distanceMap = new HashMap<>(); // For
+                                                                // optimization
             Map<Token, LinkedList<LinkedList<IOpenMethod>>> map = null;
             if (StringUtils.isBlank(tokenPrefix)) {
                 map = buildTokensMapToOpenClassMethodsRecursively(openClass, distanceMap, 0, setterMethods);
@@ -141,12 +129,12 @@ public final class OpenLFuzzyUtils {
                 map = updatedMap;
             }
 
-            Map<Token, LinkedList<IOpenMethod>[]> tmp = new HashMap<Token, LinkedList<IOpenMethod>[]>();
+            Map<Token, LinkedList<IOpenMethod>[]> tmp = new HashMap<>();
             for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : map.entrySet()) {
                 tmp.put(entry.getKey(), entry.getValue().toArray(new LinkedList[] {}));
             }
 
-            ret = new HashMap<Token, IOpenMethod[][]>();
+            ret = new HashMap<>();
             for (Entry<Token, LinkedList<IOpenMethod>[]> entry : tmp.entrySet()) {
                 IOpenMethod[][] m = new IOpenMethod[entry.getValue().length][];
                 int i = 0;
@@ -179,7 +167,7 @@ public final class OpenLFuzzyUtils {
         if (deepLevel >= DEEP_LEVEL) {
             return Collections.emptyMap();
         }
-        Map<Token, LinkedList<LinkedList<IOpenMethod>>> ret = new HashMap<Token, LinkedList<LinkedList<IOpenMethod>>>();
+        Map<Token, LinkedList<LinkedList<IOpenMethod>>> ret = new HashMap<>();
         if (!openClass.isSimple()) {
             for (IOpenMethod method : openClass.getMethods()) {
                 boolean g;
@@ -195,7 +183,7 @@ public final class OpenLFuzzyUtils {
                         continue;
                     }
                     String t = OpenLFuzzyUtils.toTokenString(fieldName);
-                    LinkedList<IOpenMethod> methods = new LinkedList<IOpenMethod>();
+                    LinkedList<IOpenMethod> methods = new LinkedList<>();
                     methods.add(method);
                     LinkedList<LinkedList<IOpenMethod>> x = null;
                     for (Entry<Token, LinkedList<LinkedList<IOpenMethod>>> entry : ret.entrySet()) {
@@ -206,7 +194,7 @@ public final class OpenLFuzzyUtils {
                         }
                     }
                     if (x == null) {
-                        x = new LinkedList<LinkedList<IOpenMethod>>();
+                        x = new LinkedList<>();
                         ret.put(new Token(t, deepLevel), x);
                         x.add(methods);
                         distanceMap.put(t, deepLevel);
@@ -250,7 +238,7 @@ public final class OpenLFuzzyUtils {
                             for (LinkedList<IOpenMethod> y : entry.getValue()) {
                                 y.addFirst(method);
                                 if (x1 == null) {
-                                    x1 = new LinkedList<LinkedList<IOpenMethod>>();
+                                    x1 = new LinkedList<>();
                                     x1.add(y);
                                     ret.put(new Token(k, entry.getKey().getDistance() + 1), x1);
                                     distanceMap.put(k, entry.getKey().getDistance() + 1);
@@ -276,7 +264,7 @@ public final class OpenLFuzzyUtils {
     }
 
     private static String[] concatTokens(String[] tokens, String pattern) {
-        List<String> t = new ArrayList<String>();
+        List<String> t = new ArrayList<>();
         StringBuilder sbBuilder = new StringBuilder();
         boolean g = false;
         for (String s : tokens) {
@@ -299,7 +287,7 @@ public final class OpenLFuzzyUtils {
     }
 
     private static String[] cleanUpTokens(String[] tokens) {
-        List<String> t = new ArrayList<String>();
+        List<String> t = new ArrayList<>();
         for (String token : tokens) {
             String s = token.trim().toLowerCase();
             if (s.isEmpty()) {
@@ -356,7 +344,7 @@ public final class OpenLFuzzyUtils {
         String[] sortedSourceTokens = new String[sourceTokens.length];
         System.arraycopy(sourceTokens, 0, sortedSourceTokens, 0, sourceTokens.length);
         Arrays.sort(sortedSourceTokens);
-        int f[] = new int[tokensList.length];
+        int[] f = new int[tokensList.length];
         int max = 0;
         for (int i = 0; i < tokensList.length; i++) {
             String[] sortedTokens = new String[tokensList[i].length];
@@ -433,7 +421,7 @@ public final class OpenLFuzzyUtils {
                 }
             }
         } else {
-            List<Token> ret = new ArrayList<Token>();
+            List<Token> ret = new ArrayList<>();
             int best = 0;
             int bestL = Integer.MAX_VALUE;
             for (int i = 0; i < tokensList.length; i++) {

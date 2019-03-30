@@ -20,7 +20,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author DLiauchuk
  */
-public class PropertiesChecker {
+public final class PropertiesChecker {
+    
+    private PropertiesChecker() {
+    }
 
     /**
      * We need to check loaded properties that all values are appropriate for
