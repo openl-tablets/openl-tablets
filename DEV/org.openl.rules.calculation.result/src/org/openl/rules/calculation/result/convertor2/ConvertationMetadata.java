@@ -29,7 +29,7 @@ public class ConvertationMetadata {
         this.spreadsheetResult = spreadsheetResult;
     }
     
-    private Map<String, SpreadsheetResultPoint> data = new HashMap<String, SpreadsheetResultPoint>();
+    private Map<String, SpreadsheetResultPoint> data = new HashMap<>();
     
     public void addPropertyMetadata(String propertyName, int rowIndex, int columnIndex){
         data.put(propertyName, new SpreadsheetResultPoint(rowIndex, columnIndex));        
@@ -65,7 +65,7 @@ public class ConvertationMetadata {
         return nestedRowIndex;
     }
     
-    public static enum NestedType{
+    public enum NestedType{
         ARRAY, SINGLE
     }
 }

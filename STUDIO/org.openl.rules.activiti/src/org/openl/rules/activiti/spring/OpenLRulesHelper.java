@@ -33,15 +33,15 @@ public final class OpenLRulesHelper {
     }
 
     @SuppressWarnings("rawtypes")
-    private Map<String, DeploymentCache<ProjectEngineFactory>> cache = new HashMap<String, DeploymentCache<ProjectEngineFactory>>();
+    private Map<String, DeploymentCache<ProjectEngineFactory>> cache = new HashMap<>();
 
-    private Map<String, DeploymentCache<Object>> cacheInstance = new HashMap<String, DeploymentCache<Object>>();
+    private Map<String, DeploymentCache<Object>> cacheInstance = new HashMap<>();
 
     public Object getInstance(String deploymentId, String resource) {
         // First find in cache
         DeploymentCache<Object> deploymentCache = cacheInstance.get(deploymentId);
         if (deploymentCache == null) {
-            deploymentCache = new DefaultDeploymentCache<Object>();
+            deploymentCache = new DefaultDeploymentCache<>();
             cacheInstance.put(deploymentId, deploymentCache);
         }
         Object instance = deploymentCache.get(resource);
@@ -63,14 +63,14 @@ public final class OpenLRulesHelper {
         cache.remove(deploymentId);
         cacheInstance.remove(deploymentId);
     }
-    
+
     @SuppressWarnings("rawtypes")
     public void clear(String deploymentId, String resource) {
         DeploymentCache<ProjectEngineFactory> deploymentCache = cache.get(deploymentId);
-        if (deploymentCache != null){
+        if (deploymentCache != null) {
             deploymentCache.remove(resource);
         }
-        
+
         DeploymentCache<Object> dCache = cacheInstance.get(deploymentId);
         if (dCache != null) {
             dCache.remove(resource);
@@ -87,11 +87,9 @@ public final class OpenLRulesHelper {
                 DeploymentEntity.class);
 
         // First find in cache
-        DeploymentCache<ProjectEngineFactory> deploymentCache = cache.get(deploymentId);
-        if (deploymentCache == null) {
-            deploymentCache = new DefaultDeploymentCache<ProjectEngineFactory>();
-            cache.put(deploymentId, deploymentCache);
-        }
+        DeploymentCache<ProjectEngineFactory> deploymentCache = cache.computeIfAbsent(deploymentId,
+            e -> new DefaultDeploymentCache<ProjectEngineFactory>());
+
         ProjectEngineFactory<Object> projectEngineFactory = deploymentCache.get(resource);
         if (projectEngineFactory != null) {
             return projectEngineFactory;
@@ -103,8 +101,9 @@ public final class OpenLRulesHelper {
                 RulesDeploy rulesDeploy = ResourceUtils.readRulesDeploy(openlProjectFolder);
 
                 SimpleProjectEngineFactoryBuilder simpleProjectEngineFactoryBuilder = new SimpleProjectEngineFactoryBuilder()
-                    .setExecutionMode(true).setProject(openlProjectFolder.getCanonicalPath()).setWorkspace(
-                        openlProjectFolder.getCanonicalPath());
+                    .setExecutionMode(true)
+                    .setProject(openlProjectFolder.getCanonicalPath())
+                    .setWorkspace(openlProjectFolder.getCanonicalPath());
                 if (rulesDeploy != null) {
                     simpleProjectEngineFactoryBuilder.setProvideRuntimeContext(rulesDeploy.isProvideRuntimeContext());
                     if (rulesDeploy.getServiceClass() != null) {

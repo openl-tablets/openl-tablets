@@ -73,6 +73,7 @@ public class ResultValue {
         return convert(Double.class);
     }
 
+    @Override
     public String toString() {
         return convert(String.class);
     }

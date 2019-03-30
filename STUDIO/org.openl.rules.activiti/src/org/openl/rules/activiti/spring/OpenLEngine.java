@@ -29,58 +29,55 @@ public class OpenLEngine {
         ObjectToDataOpenCastConvertor convertor = new ObjectToDataOpenCastConvertor();
 
         for (Method method : methods) {
-            if (method.getName().equals(methodName)) {
-                if (args.length == method.getParameterTypes().length) {
-                    boolean f = true;
-                    IOpenCast[] openCasts = new IOpenCast[args.length];
-                    for (int i = 0; i < args.length; i++) {
-                        if (args[i] != null) {
-                            IOpenCast openCast = convertor
-                                .getConvertor(method.getParameterTypes()[i], args[i].getClass());
-                            if (openCast == null) {
-                                f = false;
-                                break;
-                            }
-                            openCasts[i] = openCast;
+            if (method.getName().equals(methodName) && args.length == method.getParameterTypes().length) {
+                boolean f = true;
+                IOpenCast[] openCasts = new IOpenCast[args.length];
+                for (int i = 0; i < args.length; i++) {
+                    if (args[i] != null) {
+                        IOpenCast openCast = convertor.getConvertor(method.getParameterTypes()[i], args[i].getClass());
+                        if (openCast == null) {
+                            f = false;
+                            break;
                         }
+                        openCasts[i] = openCast;
                     }
-                    if (f) {
-                        if (bestMethod == null) {
-                            bestMethod = method;
-                            bestOpenCasts = openCasts;
-                        } else {
-                            if (bestDistance < 0) {
-                                int maxdiff = 0;
-                                int ndiff = 0;
-                                int i = 0;
-                                for (IOpenCast cast : bestOpenCasts) {
-                                    if (cast == null || args[i].getClass() == bestMethod.getParameterTypes()[i]) {
-                                        continue;
-                                    }
-                                    maxdiff = Math.max(maxdiff, cast.getDistance());
-                                    ndiff++;
-                                    i++;
-                                }
-                                bestDistance = maxdiff * 100 + ndiff;
-                            }
-
+                }
+                if (f) {
+                    if (bestMethod == null) {
+                        bestMethod = method;
+                        bestOpenCasts = openCasts;
+                    } else {
+                        if (bestDistance < 0) {
                             int maxdiff = 0;
                             int ndiff = 0;
                             int i = 0;
-                            for (IOpenCast cast : openCasts) {
-                                if (cast == null || args[i].getClass() == method.getParameterTypes()[i]) {
+                            for (IOpenCast cast : bestOpenCasts) {
+                                if (cast == null || args[i].getClass() == bestMethod.getParameterTypes()[i]) {
                                     continue;
                                 }
                                 maxdiff = Math.max(maxdiff, cast.getDistance());
                                 ndiff++;
                                 i++;
                             }
-                            int distance = maxdiff * 100 + ndiff;
-                            if (bestDistance > distance) {
-                                bestMethod = method;
-                                bestOpenCasts = openCasts;
-                                bestDistance = distance;
+                            bestDistance = maxdiff * 100 + ndiff;
+                        }
+
+                        int maxdiff = 0;
+                        int ndiff = 0;
+                        int i = 0;
+                        for (IOpenCast cast : openCasts) {
+                            if (cast == null || args[i].getClass() == method.getParameterTypes()[i]) {
+                                continue;
                             }
+                            maxdiff = Math.max(maxdiff, cast.getDistance());
+                            ndiff++;
+                            i++;
+                        }
+                        int distance = maxdiff * 100 + ndiff;
+                        if (bestDistance > distance) {
+                            bestMethod = method;
+                            bestOpenCasts = openCasts;
+                            bestDistance = distance;
                         }
                     }
                 }
@@ -97,14 +94,13 @@ public class OpenLEngine {
                 params[i] = args[i];
             }
         }
-        Object result = bestMethod.invoke(target, params);
-        return result;
+        return bestMethod.invoke(target, params);
     }
 
     public IRulesRuntimeContext buildRuntimeContext(DelegateExecution execution) {
         return IRulesRuntimeContextUtils.buildRuntimeContext(execution);
     }
-    
+
     public ResultValue execute(DelegateExecution execution,
             String resource,
             String methodName,
@@ -120,10 +116,8 @@ public class OpenLEngine {
         Class<?> interfaceClass = projectEngineFactory.getInterfaceClass();
         assert interfaceClass != null; // Always Non-null
 
-        Object result = org.openl.rules.activiti.spring.OpenLEngine.findAndInvokeMethod(methodName,
-            instance,
-            interfaceClass,
-            args);
+        Object result = org.openl.rules.activiti.spring.OpenLEngine
+            .findAndInvokeMethod(methodName, instance, interfaceClass, args);
 
         return new ResultValue(result);
 

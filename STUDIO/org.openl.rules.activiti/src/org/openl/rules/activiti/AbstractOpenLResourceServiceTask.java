@@ -85,9 +85,7 @@ public abstract class AbstractOpenLResourceServiceTask<T> implements JavaDelegat
             }
         }
 
-        SimpleProjectEngineFactory<T> simpleProjectEngineFactory = simpleProjectEngineFactoryBuilder.build();
-
-        return simpleProjectEngineFactory;
+        return simpleProjectEngineFactoryBuilder.build();
     }
 
     protected final SimpleProjectEngineFactory<T> getSimpleProjectEngineFactory(
@@ -122,7 +120,4 @@ public abstract class AbstractOpenLResourceServiceTask<T> implements JavaDelegat
             return interfaceClass;
         }
     }
-
-    public abstract void execute(DelegateExecution execution) throws Exception;
-
 }

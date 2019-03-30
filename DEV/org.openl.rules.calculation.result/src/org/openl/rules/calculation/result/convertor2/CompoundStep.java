@@ -40,9 +40,6 @@ public class CompoundStep extends CodeStep {
 
     private List<CalculationStep> steps = new ArrayList<>();
 
-    public CompoundStep() {
-    }
-    
     /**
      * Add a step
      * 

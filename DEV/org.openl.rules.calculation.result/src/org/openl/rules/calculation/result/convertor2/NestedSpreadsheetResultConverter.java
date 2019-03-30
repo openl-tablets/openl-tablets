@@ -71,7 +71,7 @@ public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q exten
      * @return converted result, represented in flat structure.
      */
     public List<CalculationStep> process(SpreadsheetResult spreadsheetResult) {
-        List<CalculationStep> steps = new ArrayList<CalculationStep>();
+        List<CalculationStep> steps = new ArrayList<>();
         if (spreadsheetResult != null) {
             int height = spreadsheetResult.getHeight();
             RowFilter rowFilter = conf.buildRowFilter();

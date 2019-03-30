@@ -24,7 +24,7 @@ public class MethodInvokeResourceServiceTask extends AbstractOpenLResourceServic
     @Override
     protected IRulesRuntimeContext buildRuntimeContext(DelegateExecution execution) {
         Object runtimeContext = execution.getVariable("runtimeContext");
-        if (runtimeContext != null && runtimeContext instanceof IRulesRuntimeContext) {
+        if (runtimeContext instanceof IRulesRuntimeContext) {
             return (IRulesRuntimeContext) runtimeContext;
         }
         
@@ -38,10 +38,10 @@ public class MethodInvokeResourceServiceTask extends AbstractOpenLResourceServic
 
         IOpenMethod openMethod = null;
         int methodCount = 0;
-        for (IOpenMethod method : methods) {
-            if (methodValue.equals(method.getName())) {
+        for (IOpenMethod m : methods) {
+            if (methodValue.equals(m.getName())) {
                 methodCount++;
-                openMethod = method;
+                openMethod = m;
             }
         }
 
