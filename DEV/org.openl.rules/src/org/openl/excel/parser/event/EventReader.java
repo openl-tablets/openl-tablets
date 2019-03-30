@@ -28,7 +28,7 @@ public class EventReader implements ExcelReader {
     }
 
     @Override
-    public List<? extends SheetDescriptor> getSheets() throws ExcelParseException {
+    public List<? extends SheetDescriptor> getSheets() {
         if (listener == null) {
             initialize();
         }
@@ -36,7 +36,7 @@ public class EventReader implements ExcelReader {
     }
 
     @Override
-    public Object[][] getCells(SheetDescriptor sheet) throws ExcelParseException {
+    public Object[][] getCells(SheetDescriptor sheet) {
         if (listener == null) {
             initialize();
         }

@@ -79,10 +79,8 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
             if (openCast != null) {
                 value = openCast.convert(value);
             }
-            if (comparatorBasedMap) {
-                if (!(value instanceof Comparable<?>)) {
-                    throw new IllegalArgumentException("Invalid state! Index based on comparable interface!");
-                }
+            if (comparatorBasedMap && !(value instanceof Comparable<?>)) {
+                throw new IllegalArgumentException("Invalid state! Index based on comparable interface!");
             }
             if (map == null) {
                 if (NumberUtils.isFloatPointNumber(value)) {
@@ -99,11 +97,10 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
                     nodeMap = new HashMap<>();
                 }
             }
-            DecisionTableRuleNodeBuilder dtrb = map.get(value);
-            if (dtrb == null) {
-                dtrb = new DecisionTableRuleNodeBuilder(emptyBuilder);
-                map.put(value, dtrb);
-            }
+
+            DecisionTableRuleNodeBuilder dtrb = map.computeIfAbsent(value,
+                e -> new DecisionTableRuleNodeBuilder(emptyBuilder));
+
             dtrb.addRule(i);
 
         }
@@ -115,10 +112,7 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
             nodeMap = Collections.emptyMap();
         }
 
-        EqualsIndex index = new EqualsIndex(emptyBuilder.makeNode(), nodeMap);
-
-        return index;
-
+        return new EqualsIndex(emptyBuilder.makeNode(), nodeMap);
     }
 
     @Override
@@ -148,21 +142,21 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
 
     protected IDomain<Object> indexedDomain(IBaseCondition condition) {
         int len = condition.getNumberOfRules();
-        ArrayList<Object> list = new ArrayList<Object>(len);
-        HashSet<Object> set = new HashSet<Object>(len);
+        ArrayList<Object> list = new ArrayList<>(len);
+        HashSet<Object> set = new HashSet<>(len);
 
         for (int ruleN = 0; ruleN < len; ruleN++) {
-            if (condition.isEmpty(ruleN))
+            if (condition.isEmpty(ruleN)) {
                 continue;
+            }
             Object key = condition.getParamValue(0, ruleN);
-            if (key == null)
+            if (key == null || !set.add(key)) {
                 continue;
-            if (!set.add(key))
-                continue;
+            }
             list.add(key);
         }
 
-        return new EnumDomain<Object>(list.toArray());
+        return new EnumDomain<>(list.toArray());
     }
 
     @Override

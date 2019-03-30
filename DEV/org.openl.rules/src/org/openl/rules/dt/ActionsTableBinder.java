@@ -12,19 +12,18 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  * 
  */
 public class ActionsTableBinder extends ADtColumnsDefinitionTableBinder {
-    
+
     private static final String DEFAULT_TABLE_NAME_PREFIX = "Actions: ";
-    
+
     public ActionsTableBinder() {
         super(DEFAULT_TABLE_NAME_PREFIX);
     }
-    
+
     protected ADtColumnsDefinitionTableBoundNode makeNode(TableSyntaxNode tsn,
             XlsModuleOpenClass module,
             OpenL openl,
             IBindingContext bindingContext) {
-        ActionsTableBoundNode boundNode = new ActionsTableBoundNode(tsn, openl);
-        return boundNode;
+        return new ActionsTableBoundNode(tsn, openl);
     }
 
 }

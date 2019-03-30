@@ -30,12 +30,10 @@ public final class CommentsCollector implements HSSFShapeContainer {
 
     @Override
     public void setCoordinates(int x1, int y1, int x2, int y2) {
-
     }
 
     @Override
     public void clear() {
-
     }
 
     @Override

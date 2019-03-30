@@ -77,7 +77,6 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setLocked(boolean locked) {
-
     }
 
     @Override
@@ -97,7 +96,6 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setAlignment(HorizontalAlignment align) {
-
     }
 
     @Override
@@ -122,7 +120,6 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setVerticalAlignment(VerticalAlignment align) {
-
     }
 
     @Override
@@ -137,7 +134,6 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setRotation(short rotation) {
-
     }
 
     @Override
@@ -148,7 +144,7 @@ class PoiCellStyle implements CellStyle {
             return rotation;
         }
         if (rotation > 90) {
-            //This is actually the 4th quadrant
+            // This is actually the 4th quadrant
             rotation = (short) (90 - rotation);
         }
         return rotation;
@@ -166,7 +162,6 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setBorderLeft(BorderStyle border) {
-
     }
 
     @Override
@@ -196,7 +191,6 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setBorderTop(BorderStyle border) {
-
     }
 
     @Override
@@ -236,7 +230,6 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setRightBorderColor(short color) {
-
     }
 
     @Override
@@ -246,7 +239,6 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setTopBorderColor(short color) {
-
     }
 
     @Override
@@ -302,7 +294,6 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setFillForegroundColor(short bg) {
-
     }
 
     @Override
@@ -317,12 +308,10 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void cloneStyleFrom(CellStyle source) {
-
     }
 
     @Override
     public void setShrinkToFit(boolean shrinkToFit) {
-
     }
 
     @Override

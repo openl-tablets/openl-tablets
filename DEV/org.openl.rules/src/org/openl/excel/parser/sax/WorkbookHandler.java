@@ -30,14 +30,12 @@ public class WorkbookHandler extends DefaultHandler {
             sheetDescriptors.add(new SAXSheetDescriptor(name, sheetDescriptors.size(), referenceId));
         } else if ("workbookPr".equals(localName)) {
             String date1904 = attributes.getValue("date1904");
-            if (date1904 != null) {
-                if (isTrue(date1904)) {
-                    // If the dateCompatibility attribute is 0 or false, this attribute is ignored.
-                    // By default dateCompatibility is true.
-                    String dateCompatibility = attributes.getValue("dateCompatibility");
-                    if (dateCompatibility == null || isTrue(dateCompatibility)) {
-                        use1904Windowing = true;
-                    }
+            if (date1904 != null && isTrue(date1904)) {
+                // If the dateCompatibility attribute is 0 or false, this attribute is ignored.
+                // By default dateCompatibility is true.
+                String dateCompatibility = attributes.getValue("dateCompatibility");
+                if (dateCompatibility == null || isTrue(dateCompatibility)) {
+                    use1904Windowing = true;
                 }
             }
         }

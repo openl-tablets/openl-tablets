@@ -30,14 +30,12 @@ public final class DatatypesSorter {
 
         List<TopoGraphNode<TableSyntaxNode>> nodes = wrapAll(datatypes, bindingContext);
         Set<TopoGraphNode<TableSyntaxNode>> sorted = new TopologicalSort<TableSyntaxNode>().sort(nodes);
-        TableSyntaxNode[] tableSyntaxNodes = unwrapAll(sorted);
-
-        return tableSyntaxNodes;
+        return unwrapAll(sorted);
     }
 
     private static List<TopoGraphNode<TableSyntaxNode>> wrapAll(Map<String, TableSyntaxNode> datatypes,
             IBindingContext bindingContext) {
-        List<TopoGraphNode<TableSyntaxNode>> toSort = new ArrayList<TopoGraphNode<TableSyntaxNode>>();
+        List<TopoGraphNode<TableSyntaxNode>> toSort = new ArrayList<>();
         for (TableSyntaxNode datatype : datatypes.values()) {
             toSort.add(wrap(datatype, datatypes, bindingContext, new HashMap<String, TopoGraphNode<TableSyntaxNode>>()));
         }
@@ -96,7 +94,7 @@ public final class DatatypesSorter {
 
     private static Map<String, TableSyntaxNode> createTypesMap(IBindingContext bindingContext, TableSyntaxNode[] nodes) {
 
-        Map<String, TableSyntaxNode> map = new LinkedHashMap<String, TableSyntaxNode>();
+        Map<String, TableSyntaxNode> map = new LinkedHashMap<>();
 
         for (TableSyntaxNode tsn : nodes) {
 

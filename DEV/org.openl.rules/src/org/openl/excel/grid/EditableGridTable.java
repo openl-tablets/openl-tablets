@@ -12,6 +12,7 @@ public class EditableGridTable extends GridTable {
         this.grid = (ParsedGrid) delegate.getGrid();
     }
 
+    @Override
     public IGrid getGrid() {
         return grid.isEditing() ? grid.getWritableGrid() : super.getGrid();
     }

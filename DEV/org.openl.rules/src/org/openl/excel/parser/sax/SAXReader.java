@@ -47,7 +47,7 @@ public class SAXReader implements ExcelReader {
     }
 
     @Override
-    public List<SAXSheetDescriptor> getSheets() throws ExcelParseException {
+    public List<SAXSheetDescriptor> getSheets() {
         if (sheets == null) {
             try (OPCPackage pkg = OPCPackage.open(fileName, PackageAccess.READ)) {
 
@@ -73,7 +73,7 @@ public class SAXReader implements ExcelReader {
     }
 
     @Override
-    public Object[][] getCells(SheetDescriptor sheet) throws ExcelParseException {
+    public Object[][] getCells(SheetDescriptor sheet) {
         SAXSheetDescriptor saxSheet = (SAXSheetDescriptor) sheet;
         try (OPCPackage pkg = OPCPackage.open(fileName, PackageAccess.READ)) {
             XSSFReader r = new XSSFReader(pkg);
@@ -157,7 +157,7 @@ public class SAXReader implements ExcelReader {
         }
     }
 
-    private void parseStyles(XSSFReader r, OPCPackage pkg) throws ExcelParseException {
+    private void parseStyles(XSSFReader r, OPCPackage pkg) {
         List<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.STYLES.getContentType());
         if (parts.isEmpty()) {
             return;

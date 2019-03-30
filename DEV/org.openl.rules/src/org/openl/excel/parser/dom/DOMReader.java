@@ -38,14 +38,15 @@ public class DOMReader implements ExcelReader {
     }
 
     public DOMReader(InputStream is) {
-        // Save to temp file because using an InputStream has a higher memory footprint than using a File. See POI javadocs.
+        // Save to temp file because using an InputStream has a higher memory footprint than using a File. See POI
+        // javadocs.
         tempFile = FileTool.toTempFile(is, "stream.xls");
         this.fileName = tempFile.getAbsolutePath();
         ExcelUtils.configureZipBombDetection();
     }
 
     @Override
-    public List<? extends SheetDescriptor> getSheets() throws ExcelParseException {
+    public List<? extends SheetDescriptor> getSheets() {
         try {
             initializeWorkbook();
             int numberOfSheets = workbook.getNumberOfSheets();
@@ -61,7 +62,7 @@ public class DOMReader implements ExcelReader {
     }
 
     @Override
-    public Object[][] getCells(SheetDescriptor sheet) throws ExcelParseException {
+    public Object[][] getCells(SheetDescriptor sheet) {
         DOMSheetDescriptor domSheet = (DOMSheetDescriptor) sheet;
         try {
             initializeWorkbook();
@@ -150,7 +151,7 @@ public class DOMReader implements ExcelReader {
     }
 
     @Override
-    public boolean isUse1904Windowing() throws ExcelParseException {
+    public boolean isUse1904Windowing() {
         try {
             initializeWorkbook();
 

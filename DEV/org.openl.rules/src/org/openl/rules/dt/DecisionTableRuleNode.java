@@ -4,7 +4,7 @@ import org.openl.domain.IIntIterator;
 import org.openl.domain.IntArrayIterator;
 import org.openl.rules.dt.index.IRuleIndex;
 
-public class DecisionTableRuleNode  implements IDecisionTableRuleNode{
+public class DecisionTableRuleNode implements IDecisionTableRuleNode {
 
     static final int[] ZERO_ARRAY = new int[0];
     private int[] rules;
@@ -27,15 +27,14 @@ public class DecisionTableRuleNode  implements IDecisionTableRuleNode{
         }
     }
 
-
     public int[] getRules() {
-    	if (rules == null) {
-            if (nextIndex == null)
+        if (rules == null) {
+            if (nextIndex == null) {
                 throw new RuntimeException("Internal Error: nextIndex is null when rules is null");
-
+            }
             return nextIndex.collectRules();
         }
-    	
+
         return rules;
     }
 

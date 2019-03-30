@@ -5,9 +5,8 @@ package org.openl.rules.dt.algorithm.evaluator;
 
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
-import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.IBaseConditionEvaluator;
+import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.IRuleIndex;
 import org.openl.vm.IRuntimeEnv;
 

@@ -475,7 +475,7 @@ public class DataTableBindHelper {
             ITable table,
             ILogicalTable descriptorRows) {
         int width = descriptorRows.getWidth();
-        List<IdentifierNode[]> identifiers = new ArrayList<IdentifierNode[]>();
+        List<IdentifierNode[]> identifiers = new ArrayList<>();
         for (int columnNum = 0; columnNum < width; columnNum++) {
 
             GridCellSourceCodeModule cellSourceModule = getCellSourceModule(descriptorRows, columnNum);
@@ -786,10 +786,8 @@ public class DataTableBindHelper {
     }
 
     private static void processError(IBindingContext bindingContext, ITable table, SyntaxNodeException error) {
-        if (table != null) {
-            if (table.getTableSyntaxNode() != null) {
-                table.getTableSyntaxNode().addError(error);
-            }
+        if (table != null && table.getTableSyntaxNode() != null) {
+            table.getTableSyntaxNode().addError(error);
         }
         bindingContext.addError(error);
     }

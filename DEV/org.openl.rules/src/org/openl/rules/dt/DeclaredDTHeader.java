@@ -7,7 +7,7 @@ class DeclaredDTHeader extends DTHeader {
     IParameterDeclaration[][] columnParameters;
     CompositeMethod compositeMethod;
     MatchedDefinition matchedDefinition;
-    
+
     public DeclaredDTHeader(int[] methodParameterIndexes,
             CompositeMethod compositeMethod,
             IParameterDeclaration[][] columnParameters,
@@ -24,37 +24,37 @@ class DeclaredDTHeader extends DTHeader {
     boolean isReturn() {
         return matchedDefinition.getDtColumnsDefinition().isReturn();
     }
-    
+
     @Override
     boolean isCondition() {
         return matchedDefinition.getDtColumnsDefinition().isCondition();
     }
-    
+
     @Override
     boolean isHCondition() {
         return false;
     }
-    
+
     @Override
     boolean isAction() {
         return matchedDefinition.getDtColumnsDefinition().isAction();
     }
-    
+
     CompositeMethod getCompositeMethod() {
         return compositeMethod;
     }
-    
+
     @Override
     String getStatement() {
         return matchedDefinition.getStatement();
     }
-    
+
     IParameterDeclaration[][] getColumnParameters() {
         return columnParameters;
     }
-    
+
     public MatchedDefinition getMatchedDefinition() {
         return matchedDefinition;
     }
-    
+
 }

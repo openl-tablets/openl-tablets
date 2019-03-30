@@ -3,6 +3,9 @@ package org.openl.rules.convertor;
 import java.util.Locale;
 
 class LocaleDependConvertor {
+    
+    private LocaleDependConvertor() {
+    }
 
     private static final String LOCALE_COUNTRY = "US";
     private static final String LOCALE_LANG = "en";

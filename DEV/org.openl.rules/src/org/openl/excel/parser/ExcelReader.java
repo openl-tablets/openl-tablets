@@ -8,7 +8,7 @@ public interface ExcelReader extends AutoCloseable {
     /**
      * Get all sheet descriptors
      */
-    List<? extends SheetDescriptor> getSheets() throws ExcelParseException;
+    List<? extends SheetDescriptor> getSheets();
 
     /**
      * Parse and get all cells from a given sheet
@@ -16,7 +16,7 @@ public interface ExcelReader extends AutoCloseable {
      * @param sheet sheet to parse
      * @return parsed objects with types as in Excel
      */
-    Object[][] getCells(SheetDescriptor sheet) throws ExcelParseException;
+    Object[][] getCells(SheetDescriptor sheet);
 
     /**
      * Sometimes we need to convert parsed double value to date.
@@ -26,7 +26,7 @@ public interface ExcelReader extends AutoCloseable {
      *
      * @return The setting for a given workbook
      */
-    boolean isUse1904Windowing() throws ExcelParseException;
+    boolean isUse1904Windowing();
 
     /**
      * Get styles for a given table

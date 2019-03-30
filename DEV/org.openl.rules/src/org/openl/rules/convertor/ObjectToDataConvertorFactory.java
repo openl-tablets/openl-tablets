@@ -79,8 +79,7 @@ public class ObjectToDataConvertorFactory {
     }
 
     /**
-     * Contains static method as a private field for constructing new objects of
-     * appropriate type.
+     * Contains static method as a private field for constructing new objects of appropriate type.
      * 
      * @author DLiauchuk
      *
@@ -112,12 +111,11 @@ public class ObjectToDataConvertorFactory {
             return data;
         }
 
-        static public CopyConvertor the = new CopyConvertor();
+        public static CopyConvertor the = new CopyConvertor();
     }
 
     /**
-     * Convertor that looks for the instance method 'getValue' for conversion to
-     * the appropriate type.
+     * Convertor that looks for the instance method 'getValue' for conversion to the appropriate type.
      * 
      * @author DLiauchuk
      *
@@ -147,59 +145,27 @@ public class ObjectToDataConvertorFactory {
 
     static {
         try {
-            convertors.put(new ClassCastPair(Integer.class, IntRange.class), new IObjectToDataConvertor() {
+            convertors.put(new ClassCastPair(Integer.class, IntRange.class), e -> new IntRange((Integer) e));
 
-                public Object convert(Object data) {
-                    return new IntRange((Integer) data);
-                }
+            convertors.put(new ClassCastPair(int.class, IntRange.class), e -> new IntRange((Integer) e));
 
-            });
-
-            convertors.put(new ClassCastPair(int.class, IntRange.class), new IObjectToDataConvertor() {
-
-                public Object convert(Object data) {
-                    return new IntRange((Integer) data);
-                }
-
-            });
-
-            convertors.put(new ClassCastPair(Double.class, DoubleValue.class), new IObjectToDataConvertor() {
-
-                public Object convert(Object data) {
-                    return new DoubleValue((Double) data);
-                }
-
-            });
+            convertors.put(new ClassCastPair(Double.class, DoubleValue.class), e -> new DoubleValue((Double) e));
             convertors.put(new ClassCastPair(Double.class, double.class), CopyConvertor.the);
             convertors.put(new ClassCastPair(double.class, Double.class), CopyConvertor.the);
             convertors.put(new ClassCastPair(int.class, Integer.class), CopyConvertor.the);
             convertors.put(new ClassCastPair(Integer.class, int.class), CopyConvertor.the);
 
-            convertors.put(new ClassCastPair(double.class, DoubleValue.class), new IObjectToDataConvertor() {
-
-                public Object convert(Object data) {
-                    return new DoubleValue((Double) data);
-                }
+            convertors.put(new ClassCastPair(double.class, DoubleValue.class), e -> new DoubleValue((Double) e));
+            convertors.put(new ClassCastPair(Date.class, Calendar.class), e -> {
+                Calendar cal = Calendar.getInstance(LocaleDependConvertor.getLocale());
+                cal.setTime((Date) e);
+                return cal;
             });
 
-            convertors.put(new ClassCastPair(Date.class, Calendar.class), new IObjectToDataConvertor() {
-
-                public Object convert(Object data) {
-                    Calendar cal = Calendar.getInstance(LocaleDependConvertor.getLocale());
-                    cal.setTime((Date) data);
-                    return cal;
-                }
-
-            });
-
-            convertors.put(new ClassCastPair(Date.class, Calendar.class), new IObjectToDataConvertor() {
-
-                public Object convert(Object data) {
-                    Calendar cal = Calendar.getInstance(LocaleDependConvertor.getLocale());
-                    cal.setTime((Date) data);
-                    return cal;
-                }
-
+            convertors.put(new ClassCastPair(Date.class, Calendar.class), e -> {
+                Calendar cal = Calendar.getInstance(LocaleDependConvertor.getLocale());
+                cal.setTime((Date) e);
+                return cal;
             });
 
             /*
@@ -220,12 +186,7 @@ public class ObjectToDataConvertorFactory {
         }
     }
 
-    public static final IObjectToDataConvertor NO_Convertor = new IObjectToDataConvertor() {
-        public Object convert(Object data) {
-            throw new UnsupportedOperationException();
-        }
-
-    };
+    public static final IObjectToDataConvertor NO_Convertor = e -> new UnsupportedOperationException();
 
     /**
      * @return NO_Convertor if value is not convertable to expected type.

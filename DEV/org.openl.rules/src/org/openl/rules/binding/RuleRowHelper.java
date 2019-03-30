@@ -57,7 +57,10 @@ import org.openl.util.StringPool;
 import org.openl.util.StringTool;
 import org.openl.util.text.LocationUtils;
 
-public class RuleRowHelper {
+public final class RuleRowHelper {
+    
+    private RuleRowHelper() {
+    }
 
     private static final String COMMENTARY = "//";
     public static final String ARRAY_ELEMENTS_SEPARATOR_ESCAPER = "\\";

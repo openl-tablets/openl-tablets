@@ -8,7 +8,8 @@ import org.openl.rules.dt.DecisionTable;
 
 public class IndexInfo {
 
-    int fromCondition = 0, toCondition; // defines a range of conditions to be included in the index
+    int fromCondition;
+    int toCondition; // defines a range of conditions to be included in the index
     private DecisionTable table;
     private int toRule;
 

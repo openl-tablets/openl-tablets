@@ -59,15 +59,7 @@ public class DataOpenField extends AOpenField implements IUriMember {
 
         if (data == null) {
             data = this.data;
-
-            //if target is spreadsheet result we mustn't set value to spreadsheet cell. Because this result isn't final value of a cell
-//            if (target instanceof DynamicObject) {
-//                boolean isDynamicObject = !(target instanceof DelegatedDynamicObject) 
-//                        || ((DelegatedDynamicObject) target).isAssignableFrom(DynamicObject.class);
-//                if (isDynamicObject) {
-                    ((IDynamicObject) target).setFieldValue(getName(), data);
-//                }
-//            }
+            ((IDynamicObject) target).setFieldValue(getName(), data);
         }
 
         return data;

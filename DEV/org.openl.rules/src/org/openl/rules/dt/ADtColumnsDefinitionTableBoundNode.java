@@ -194,7 +194,6 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 tableBody = tableBodyT;
                 tableStructure = tableStructureT;
                 headerIndexes = headerIndexesT;
-                w = tableStructureT.length;
             }
         }
 
@@ -289,14 +288,14 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                         
                         j = j + pCodeTable.getCell(0, 0).getHeight();
                         if (j1 <= j || j >= d) {
-                            if (parametersForMergedTitle.size() > 1) {
-                                if (parametersForMergedTitle.stream().anyMatch(Objects::isNull)) {
-                                    GridCellSourceCodeModule eGridCellSourceCodeModule = new GridCellSourceCodeModule(
-                                        nullPCodeTable,
-                                        cxt);
-                                    String errMsg = "Parameter cell format: <type> <name>";
-                                    throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, eGridCellSourceCodeModule);
-                                }
+                            if (parametersForMergedTitle.size() > 1 && parametersForMergedTitle.stream()
+                                .anyMatch(Objects::isNull)) {
+                                GridCellSourceCodeModule eGridCellSourceCodeModule = new GridCellSourceCodeModule(
+                                    nullPCodeTable,
+                                    cxt);
+                                String errMsg = "Parameter cell format: <type> <name>";
+                                throw SyntaxNodeExceptionUtils
+                                    .createError(errMsg, null, null, eGridCellSourceCodeModule);
                             }
                             
                             localParameters.put(title, parametersForMergedTitle);
@@ -306,7 +305,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                     
                     IParameterDeclaration[] allParameterDeclarations = localParameters.values()
                         .stream()
-                        .flatMap(e -> e.stream())
+                        .flatMap(List::stream)
                         .filter(e -> e != null && e.getName() != null)
                         .collect(Collectors.toList())
                         .toArray(new IParameterDeclaration[] {});

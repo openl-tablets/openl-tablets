@@ -64,7 +64,7 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
         Set<Object> allValues = null;
 
         DecisionTableRuleNodeBuilder copyRules = new DecisionTableRuleNodeBuilder();
-        List<Set<?>> valueSets = new ArrayList<Set<?>>();
+        List<Set<?>> valueSets = new ArrayList<>();
 
         boolean globalComparatorBasedSet = false;
         boolean globalSmartFloatComparatorIsUsed = false;
@@ -75,7 +75,7 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
             copyRules.addRule(i);
 
             if (condition.isEmpty(i)) {
-                valueSets.add(Collections.EMPTY_SET);
+                valueSets.add(Collections.emptySet());
                 continue;
             }
 

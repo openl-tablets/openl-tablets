@@ -9,6 +9,7 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
         super(declaringClass, name, type);
     }
     
+    @Override
     public Object get(Object target, IRuntimeEnv env) {
         if (target == null) {
             return getType().nullObject();
@@ -24,6 +25,7 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
         return true;
     }
 
+    @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         SpreadsheetResult spreadsheetResult = (SpreadsheetResult) target;
         spreadsheetResult.setFieldValue(getName(), value);

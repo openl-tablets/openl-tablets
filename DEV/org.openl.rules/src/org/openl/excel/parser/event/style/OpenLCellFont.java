@@ -8,7 +8,7 @@ import org.apache.poi.ss.usermodel.Font;
 import org.openl.rules.table.ui.ICellFont;
 
 class OpenLCellFont implements ICellFont {
-    private final static short BOLDWEIGHT_BOLD = 0x2bc;
+    private static final short BOLDWEIGHT_BOLD = 0x2bc;
 
     private final FontRecord font;
     private final PaletteRecord palette;

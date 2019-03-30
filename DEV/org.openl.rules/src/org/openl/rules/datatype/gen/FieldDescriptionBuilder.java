@@ -5,23 +5,25 @@ import org.openl.gen.writers.DefaultValue;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class FieldDescriptionBuilder {
 
-    private static final Map<String, Class> classMap = new HashMap<String, Class>(8, 1) {
-        {
-            put("int", int.class);
-            put("long", long.class);
-            put("char", char.class);
-            put("short", short.class);
-            put("byte", byte.class);
-            put("double", double.class);
-            put("float", float.class);
-            put("boolean", boolean.class);
-        }
-    };
+    private static final Map<String, Class<?>> CLASSMAP = Collections
+        .unmodifiableMap(new HashMap<String, Class<?>>(8, 1) {
+            {
+                put("int", int.class);
+                put("long", long.class);
+                put("char", char.class);
+                put("short", short.class);
+                put("byte", byte.class);
+                put("double", double.class);
+                put("float", float.class);
+                put("boolean", boolean.class);
+            }
+        });
 
     private final String typeName;
     private String defaultValueAsString;
@@ -55,7 +57,7 @@ public class FieldDescriptionBuilder {
      * @return
      */
     private Class<?> getType() {
-        Class cl = classMap.get(typeName);
+        Class<?> cl = CLASSMAP.get(typeName);
         if (cl != null) {
             return cl;
         }

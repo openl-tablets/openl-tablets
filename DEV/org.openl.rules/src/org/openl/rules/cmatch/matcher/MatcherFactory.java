@@ -9,7 +9,11 @@ import java.util.Map;
 import org.openl.types.IOpenClass;
 
 public class MatcherFactory {
-    private static final Map<String, List<IMatcherBuilder>> matcherBuilders = new HashMap<String, List<IMatcherBuilder>>();
+    
+    private MatcherFactory() {
+    }
+    
+    private static final Map<String, List<IMatcherBuilder>> matcherBuilders = new HashMap<>();
 
     static {
         // = (match)
@@ -50,7 +54,7 @@ public class MatcherFactory {
         List<IMatcherBuilder> builders = matcherBuilders.get(operationName);
 
         if (builders == null) {
-            builders = new ArrayList<IMatcherBuilder>();
+            builders = new ArrayList<>();
             matcherBuilders.put(operationName, builders);
         } else {
             if (builders.contains(builder)) {

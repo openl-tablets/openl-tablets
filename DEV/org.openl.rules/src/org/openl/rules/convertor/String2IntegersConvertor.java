@@ -4,7 +4,8 @@ import java.text.DecimalFormat;
 
 abstract class String2IntegersConvertor<T extends Number> extends String2NumberConverter<T> {
 
-    private final long min, max;
+    private final long min;
+    private final long max;
 
     String2IntegersConvertor(long min, long max) {
         this.min = min;

@@ -75,9 +75,9 @@ public final class ServiceMT {
 
     private static class RunnableRecursiveAction extends RecursiveAction {
         private static final long serialVersionUID = -6827837658658403954L;
-        private Runnable runnable;
-        private SimpleRulesRuntimeEnv env;
-        private ClassLoader classLoader;
+        private final Runnable runnable;
+        private final SimpleRulesRuntimeEnv env;
+        private final ClassLoader classLoader;
 
         private RunnableRecursiveAction(Runnable runnable, SimpleRulesRuntimeEnv env, ClassLoader classLoader) {
             this.runnable = runnable;

@@ -183,10 +183,9 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
 
             for (int j = 0; j < plen; j++) {
                 Object key = Array.get(ary, j);
-                if (key == null)
+                if (key == null || !set.add(key)) {
                     continue;
-                if (!set.add(key))
-                    continue;
+                }
                 list.add(key);
             }
         }

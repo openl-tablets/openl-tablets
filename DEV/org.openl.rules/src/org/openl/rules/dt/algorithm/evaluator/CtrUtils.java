@@ -9,7 +9,7 @@ import org.openl.ie.constrainer.IntExp;
  */
 public class CtrUtils {
 
-    static public IntBoolExp containsCtr(int[] ary, IntExp exp) {
+    public static IntBoolExp containsCtr(int[] ary, IntExp exp) {
 
         if (ary == null || ary.length == 0)
             return IntBoolExpConst.getIntBoolExpConst(exp.constrainer(), false);
@@ -24,7 +24,7 @@ public class CtrUtils {
 
     }
 
-    static public IntBoolExp containsCtr(Integer[] ary, IntExp exp) {
+    public static IntBoolExp containsCtr(Integer[] ary, IntExp exp) {
         IntBoolExp b = IntBoolExpConst.getIntBoolExpConst(exp.constrainer(), true);
 
         for (Integer integer : ary) {

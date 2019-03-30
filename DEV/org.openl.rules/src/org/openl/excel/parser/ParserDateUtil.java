@@ -7,9 +7,6 @@ import org.apache.poi.ss.usermodel.DateUtil;
 
 public final class ParserDateUtil {
 
-    public ParserDateUtil() {
-    }
-
     private static class CacheKey {
         int formatIndex;
         String formatString;
@@ -53,12 +50,7 @@ public final class ParserDateUtil {
 
     public boolean isADateFormat(int formatIndex, String formatString) {
         CacheKey key = new CacheKey(formatIndex, formatString);
-        Boolean f = cache.get(key);
-        if (f == null) {
-            f = DateUtil.isADateFormat(formatIndex, formatString);
-            cache.put(key, f);
-        }
-        return f;
+        return cache.computeIfAbsent(key, e -> DateUtil.isADateFormat(formatIndex, formatString));
     }
 
     public void reset() {

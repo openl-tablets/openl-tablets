@@ -6,7 +6,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class MatchAlgorithmFactory {
-    private static final Map<String, IMatchAlgorithmCompilerBuilder> builders = new LinkedHashMap<String, IMatchAlgorithmCompilerBuilder>();
+    
+    private MatchAlgorithmFactory() {
+    }
+    
+    private static final Map<String, IMatchAlgorithmCompilerBuilder> builders = new LinkedHashMap<>();
     private static IMatchAlgorithmCompilerBuilder defaultBuilder = null;
 
     static {

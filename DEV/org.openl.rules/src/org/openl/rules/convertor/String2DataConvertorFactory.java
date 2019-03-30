@@ -32,11 +32,11 @@ public class String2DataConvertorFactory {
     private static HashMap<Class<?>, IString2DataConvertor<?>> convertors;
 
     @SuppressWarnings("rawtypes")
-    private static Map<Class<?>, IString2DataConvertor> convertorsCache = new WeakHashMap<Class<?>, IString2DataConvertor>();
+    private static Map<Class<?>, IString2DataConvertor> convertorsCache = new WeakHashMap<>();
     private static ReadWriteLock convertorsLock = new ReentrantReadWriteLock();
     
     static {
-        convertors = new HashMap<Class<?>, IString2DataConvertor<?>>();
+        convertors = new HashMap<>();
         convertors.put(Object.class, new String2StringConvertor());
         convertors.put(int.class, new String2IntConvertor());
         convertors.put(double.class, new String2DoubleConvertor());
@@ -148,7 +148,7 @@ public class String2DataConvertorFactory {
         Lock writeLock = convertorsLock.writeLock();
         try {
             writeLock.lock();
-            List<Class<?>> toRemove = new ArrayList<Class<?>>();
+            List<Class<?>> toRemove = new ArrayList<>();
             for (Class<?> clazz : convertorsCache.keySet()) {
                 if (convertors.containsKey(clazz)) {
                     // Don't remove common converters

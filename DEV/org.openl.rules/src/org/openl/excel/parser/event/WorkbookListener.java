@@ -90,12 +90,7 @@ public class WorkbookListener implements HSSFListener {
                     sheetIndex++;
 
                     if (!sheetsSorted) {
-                        Collections.sort(sheets, new Comparator<EventSheetDescriptor>() {
-                            @Override
-                            public int compare(EventSheetDescriptor o1, EventSheetDescriptor o2) {
-                                return o1.getOffset() - o2.getOffset();
-                            }
-                        });
+                        Collections.sort(sheets, (o1, o2) -> o1.getOffset() - o2.getOffset());
                         sheetsSorted = true;
                     }
                 }

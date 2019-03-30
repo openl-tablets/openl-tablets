@@ -24,14 +24,14 @@ class SimpleBeanByteCodeGenerator extends POJOByteCodeGenerator {
         this.methodName = methodName;
     }
 
-    private void add_args(ClassWriter classWriter, Map<String, FieldDescription> beanFields) {
-        Type OBJECT_TYPE = Type.getType(Object.class);
+    private void addArgs(ClassWriter classWriter, Map<String, FieldDescription> beanFields) {
+        Type objectType = Type.getType(Object.class);
         Type beanType = Type.getType(getBeanNameDescriptor());
 
-        Method _args = Method.getMethod("java.lang.Object[] _args()");
-        GeneratorAdapter ag = new GeneratorAdapter(Opcodes.ACC_PUBLIC, _args, null, null, classWriter);
+        Method args = Method.getMethod("java.lang.Object[] _args()");
+        GeneratorAdapter ag = new GeneratorAdapter(Opcodes.ACC_PUBLIC, args, null, null, classWriter);
         ag.push(beanFields.size()); // array length
-        ag.newArray(OBJECT_TYPE); // ar = new Object[size]
+        ag.newArray(objectType); // ar = new Object[size]
 
         int i = 0;
         for (Map.Entry<String, FieldDescription> field : beanFields.entrySet()) {
@@ -42,7 +42,7 @@ class SimpleBeanByteCodeGenerator extends POJOByteCodeGenerator {
             ag.loadThis(); // this.
             ag.getField(beanType, field.getKey(), fieldType); // field
             ag.valueOf(fieldType); // value = Type.valueOf(this.field)
-            ag.arrayStore(OBJECT_TYPE); // ar[i]=value;
+            ag.arrayStore(objectType); // ar[i]=value;
 
             i++;
         }
@@ -50,13 +50,13 @@ class SimpleBeanByteCodeGenerator extends POJOByteCodeGenerator {
         ag.endMethod();
     }
 
-    private void add_types(ClassWriter classWriter, Map<String, FieldDescription> beanFields) {
-        Type CLASS_TYPE = Type.getType(Class.class);
+    private void addTypes(ClassWriter classWriter, Map<String, FieldDescription> beanFields) {
+        Type classType = Type.getType(Class.class);
 
-        Method _types = Method.getMethod("java.lang.Class[] _types()");
-        GeneratorAdapter tg = new GeneratorAdapter(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, _types, null, null, classWriter);
+        Method types = Method.getMethod("java.lang.Class[] _types()");
+        GeneratorAdapter tg = new GeneratorAdapter(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, types, null, null, classWriter);
         tg.push(beanFields.size()); // array length
-        tg.newArray(CLASS_TYPE); // ar = new Object[size]
+        tg.newArray(classType); // ar = new Object[size]
 
         int i = 0;
         for (Map.Entry<String, FieldDescription> field : beanFields.entrySet()) {
@@ -65,7 +65,7 @@ class SimpleBeanByteCodeGenerator extends POJOByteCodeGenerator {
             tg.dup();// ar
             tg.push(i); // index
             tg.push(fieldType); // value = Type.class
-            tg.arrayStore(CLASS_TYPE); // ar[i]=value;
+            tg.arrayStore(classType); // ar[i]=value;
 
             i++;
         }
@@ -74,9 +74,9 @@ class SimpleBeanByteCodeGenerator extends POJOByteCodeGenerator {
         tg.endMethod();
     }
 
-    private void add_method(ClassWriter classWriter, String methodName) {
-        Method _method = Method.getMethod("java.lang.String _method()");
-        GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, _method, null, null, classWriter);
+    private void addMethod(ClassWriter classWriter, String methodName) {
+        Method method = Method.getMethod("java.lang.String _method()");
+        GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, method, null, null, classWriter);
         mg.push(methodName);
         mg.returnValue();
         mg.endMethod();
@@ -85,9 +85,9 @@ class SimpleBeanByteCodeGenerator extends POJOByteCodeGenerator {
     @Override
     protected void visitExtraByteCodeGeneration(ClassWriter classWriter) {
         if (methodName != null) {
-            add_args(classWriter, getBeanFields());
-            add_types(classWriter, getBeanFields());
-            add_method(classWriter, methodName);
+            addArgs(classWriter, getBeanFields());
+            addTypes(classWriter, getBeanFields());
+            addMethod(classWriter, methodName);
         }
     }
 }

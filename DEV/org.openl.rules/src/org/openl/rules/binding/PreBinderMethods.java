@@ -8,8 +8,8 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 
 class PreBinderMethods {
-    private Map<IOpenMethodHeader, IOpenMethod> binderMethods = new HashMap<IOpenMethodHeader, IOpenMethod>();
-    private Map<String, IOpenMethod> binderMethodsByName = new HashMap<String, IOpenMethod>();
+    private Map<IOpenMethodHeader, IOpenMethod> binderMethods = new HashMap<>();
+    private Map<String, IOpenMethod> binderMethodsByName = new HashMap<>();
 
     public IOpenMethod get(String name) {
         return binderMethodsByName.get(name);

@@ -6,8 +6,7 @@ import java.util.*;
  * Created by dl on 4/16/14.
  */
 public class TopologicalSort<T> {
-    public Set<TopoGraphNode<T>> sort(final Collection<TopoGraphNode<T>> nodes)
-            throws IllegalStateException {
+    public Set<TopoGraphNode<T>> sort(final Collection<TopoGraphNode<T>> nodes) {
         final LinkedHashSet<TopoGraphNode<T>> order = new LinkedHashSet<>();
         final Set<TopoGraphNode<T>> visited = new HashSet<>();
 

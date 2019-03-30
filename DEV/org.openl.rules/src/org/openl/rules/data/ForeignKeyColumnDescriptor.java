@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -299,6 +300,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     /**
      * Returns <code>TRUE</code> if instance has foreign key table.
      */
+    @Override
     public boolean isReference() {
         return foreignKeyTable != null;
     }
@@ -406,11 +408,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     // searches null value elements and removes them.
                     //
 
-                    List<Object> values = CollectionUtils.findAll(cellValues, new CollectionUtils.Predicate<Object>() {
-                        public boolean evaluate(Object arg) {
-                            return arg != null;
-                        }
-                    });
+                    List<Object> values = CollectionUtils.findAll(cellValues, Objects::nonNull);
 
                     int size = values.size();
                     IOpenClass componentType;

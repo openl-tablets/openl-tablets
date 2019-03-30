@@ -28,7 +28,7 @@ public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
 
         assert cxt instanceof RulesModuleBindingContext;
 
-        ADtColumnsDefinitionTableBoundNode action = (ADtColumnsDefinitionTableBoundNode) makeNode(tsn, module, openl, cxt);
+        ADtColumnsDefinitionTableBoundNode action = makeNode(tsn, module, openl, cxt);
 
         String tableName = parseHeader(tsn);
         if (tableName == null) {

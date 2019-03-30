@@ -35,7 +35,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
         }
     }
 
-    private Map<String, Object> internalMap = new HashMap<String, Object>();
+    private Map<String, Object> internalMap = new HashMap<>();
 
     public Object getValue(String name) {
         return internalMap.get(name);

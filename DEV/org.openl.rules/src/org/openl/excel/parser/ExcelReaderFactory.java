@@ -26,19 +26,19 @@ public abstract class ExcelReaderFactory {
     private ExcelReaderFactory() {
     }
 
-    public final ExcelReader create(String fileName) throws ExcelParseException {
+    public final ExcelReader create(String fileName) {
         return create(fileName, null);
     }
 
-    public final ExcelReader create(InputStream inputStream) throws ExcelParseException {
+    public final ExcelReader create(InputStream inputStream) {
         return create(null, inputStream);
     }
 
-    protected abstract ExcelReader create(String fileName, InputStream inputStream) throws ExcelParseException;
+    protected abstract ExcelReader create(String fileName, InputStream inputStream);
 
     private static class SequentialExcelReaderFactory extends ExcelReaderFactory {
         @Override
-        public ExcelReader create(String fileName, final InputStream is) throws ExcelParseException {
+        public ExcelReader create(String fileName, final InputStream is) {
             boolean useFile = fileName != null;
 
             if (useFile && is != null) {
@@ -49,7 +49,8 @@ public abstract class ExcelReaderFactory {
             try {
                 tempStream = FileMagic.prepareToCheckMagic(useFile ? new FileInputStream(fileName) : is);
 
-                // Opening the file by name is preferred because using an InputStream has a higher memory footprint than using a File
+                // Opening the file by name is preferred because using an InputStream has a higher memory footprint than
+                // using a File
                 if (isXlsx(tempStream)) {
                     return useFile ? new SAXReader(fileName) : new SAXReader(tempStream);
                 } else {
@@ -61,9 +62,10 @@ public abstract class ExcelReaderFactory {
                 IOUtils.closeQuietly(tempStream);
             }
         }
+
         /**
-         * Checking file extension is not enough: sometimes file has incorrect extension,
-         * sometimes we don't have file name at all (only input stream).
+         * Checking file extension is not enough: sometimes file has incorrect extension, sometimes we don't have file
+         * name at all (only input stream).
          */
         private static boolean isXlsx(InputStream is) throws IOException {
             FileMagic fm = FileMagic.valueOf(is);
