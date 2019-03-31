@@ -34,6 +34,7 @@ public class GoalSetMin extends GoalImpl {
         // _minI = _constrainer.addUndoableInt(min,"min");
     }
 
+    @Override
     public Goal execute() throws Failure {
         // Debug.print("\nExecute "+this);
         _exp.setMin(_min);

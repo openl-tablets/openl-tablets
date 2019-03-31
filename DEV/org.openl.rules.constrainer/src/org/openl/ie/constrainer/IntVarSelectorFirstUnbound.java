@@ -35,6 +35,7 @@ public class IntVarSelectorFirstUnbound implements IntVarSelector {
     /**
      * Selects the first unbound variables in the vector _intvars.
      */
+    @Override
     public int select() {
         int size = _intvars.size();
         for (int i = 0; i < size; i++) {

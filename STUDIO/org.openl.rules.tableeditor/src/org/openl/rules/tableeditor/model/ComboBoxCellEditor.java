@@ -33,6 +33,7 @@ public class ComboBoxCellEditor implements ICellEditor {
         this.displayValues = displayValues;
     }
 
+    @Override
     public EditorTypeResponse getEditorTypeAndMetadata() {
         EditorTypeResponse typeResponse = new EditorTypeResponse(CE_COMBO);
         typeResponse.setParams(new ComboBoxParam(choices, displayValues));

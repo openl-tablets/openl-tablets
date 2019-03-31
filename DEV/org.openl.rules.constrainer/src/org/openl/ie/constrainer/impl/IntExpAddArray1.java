@@ -186,10 +186,12 @@ public final class IntExpAddArray1 extends IntExpImpl {
         return true;
     }
 
+    @Override
     public int max() {
         return _domainC.max();
     }
 
+    @Override
     public int min() {
         return _domainC.min();
     }
@@ -237,6 +239,7 @@ public final class IntExpAddArray1 extends IntExpImpl {
         }
     }
 
+    @Override
     public void setMax(int max) throws Failure {
 
         if (max >= _domainC.max()) {
@@ -261,6 +264,7 @@ public final class IntExpAddArray1 extends IntExpImpl {
         // System.out.println("---- set max:" + max + " in " + this);
     }
 
+    @Override
     public void setMin(int min) throws Failure {
 
         if (min <= _domainC.min()) {

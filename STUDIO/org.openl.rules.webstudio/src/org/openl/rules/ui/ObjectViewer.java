@@ -22,6 +22,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
  * 
  * @deprecated
  */
+@Deprecated
 public final class ObjectViewer {
 
     private ObjectViewer() {

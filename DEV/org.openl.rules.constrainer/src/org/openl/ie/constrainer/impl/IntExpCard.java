@@ -109,6 +109,7 @@ public final class IntExpCard extends IntExpImpl {
 
     public void bindAll() throws Failure {
         IntExp.IntDomainIterator it = new IntExp.IntDomainIterator() {
+            @Override
             public boolean doSomethingOrStop(int i) throws Failure {
                 if (i == _vars.size()) {
                     return true;
@@ -136,10 +137,12 @@ public final class IntExpCard extends IntExpImpl {
     }
     /* EO additions */
 
+    @Override
     public int max() {
         return _possible_required.max();
     }
 
+    @Override
     public int min() {
         return _possible_required.min();
     }
@@ -156,6 +159,7 @@ public final class IntExpCard extends IntExpImpl {
 
     public void removeUnbounds() throws Failure {
         IntExp.IntDomainIterator it = new IntExp.IntDomainIterator() {
+            @Override
             public boolean doSomethingOrStop(int i) throws Failure {
                 if (i == _vars.size()) {
                     return true;
@@ -171,12 +175,14 @@ public final class IntExpCard extends IntExpImpl {
         _indexes.iterateDomain(it);
     }
 
+    @Override
     public void setMax(int max) throws Failure {
         if (max == min()) {
             removeUnbounds();
         }
     }
 
+    @Override
     public void setMin(int min) throws Failure {
         if (min == max()) {
             bindAll();

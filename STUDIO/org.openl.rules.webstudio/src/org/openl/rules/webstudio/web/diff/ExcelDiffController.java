@@ -25,6 +25,7 @@ public class ExcelDiffController extends AbstractDiffController {
         this.filesToCompare = new ArrayList<>(filesToCompare);
     }
 
+    @Override
     public String compare() {
         if (filesToCompare.size() >= MAX_FILES_COUNT) {
             File file1 = filesToCompare.get(0);

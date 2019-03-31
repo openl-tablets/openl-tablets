@@ -14,6 +14,7 @@ public class SimpleDiffTreePrinter extends DiffTreePrinter {
         super(tree, out);
     }
 
+    @Override
     public void print() {
         printRoot(tree, 0);
     }

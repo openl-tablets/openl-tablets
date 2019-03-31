@@ -13,6 +13,7 @@ public abstract class AGridFilter implements IGridFilter {
         this.selector = selector;
     }
 
+    @Override
     public IGridSelector getGridSelector() {
         return selector;
     }

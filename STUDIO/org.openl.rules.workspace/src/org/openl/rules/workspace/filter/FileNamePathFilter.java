@@ -27,6 +27,7 @@ public class FileNamePathFilter implements PathFilter {
      *
      * @return if filter accepts given filename
      */
+    @Override
     public boolean accept(String filename) {
         for (Pattern pattern : patterns) {
             if (pattern.matcher(filename).matches()) {

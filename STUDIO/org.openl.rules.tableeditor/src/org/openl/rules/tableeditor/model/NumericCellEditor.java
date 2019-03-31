@@ -10,6 +10,7 @@ public class NumericCellEditor implements ICellEditor {
         this.params = new RangeParam(min, max, intOnly);
     }
 
+    @Override
     public EditorTypeResponse getEditorTypeAndMetadata() {
         EditorTypeResponse typeResponse = new EditorTypeResponse(CE_NUMERIC);
         typeResponse.setParams(params);

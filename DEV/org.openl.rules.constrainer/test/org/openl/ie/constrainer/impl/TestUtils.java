@@ -103,6 +103,7 @@ public class TestUtils {
             _value = value;
         }
 
+        @Override
         public boolean isTrue(int i) {
             return (i == _value);
         };
@@ -119,6 +120,7 @@ public class TestUtils {
             _value = value;
         }
 
+        @Override
         public boolean isTrue(int i) {
             return i > _value;
         };

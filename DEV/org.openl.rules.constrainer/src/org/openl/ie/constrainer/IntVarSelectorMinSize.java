@@ -35,6 +35,7 @@ public class IntVarSelectorMinSize implements IntVarSelector {
     /**
      * Selects the unbound variable with the smallest domain. If all variables are bound, returns -1.
      */
+    @Override
     public int select() {
         int min = Integer.MAX_VALUE;
         int min_var = -1;

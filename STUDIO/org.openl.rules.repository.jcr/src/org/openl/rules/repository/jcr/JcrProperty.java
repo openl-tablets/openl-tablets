@@ -70,14 +70,17 @@ public class JcrProperty implements org.openl.rules.common.Property {
         return c;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public ValueType getType() {
         return type;
     }
 
+    @Override
     public Object getValue() {
         return value;
     }
@@ -110,20 +113,24 @@ public class JcrProperty implements org.openl.rules.common.Property {
         }
     }
 
+    @Override
     public Date getDate() throws PropertyException {
         checkType(ValueType.DATE);
         return (Date) value;
     }
 
+    @Override
     public String getString() {
         return value.toString();
     }
     
+    @Override
     public void setValue(Date value) throws PropertyException {
         checkType(ValueType.DATE);
         this.value = value;
     }
 
+    @Override
     public void setValue(String value) throws PropertyException {
         checkType(ValueType.STRING);
         this.value = value;

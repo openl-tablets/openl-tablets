@@ -43,15 +43,17 @@ public class TreeFile extends AbstractTreeNode {
         return UiConst.ICON_FILE;
     }
 
+    @Override
     public String getType() {
         return UiConst.TYPE_FILE;
     }
 
     @Override
     public String getId() {
-        return AbstractTreeNode.FILE_PREFIX + super.getId();
+        return TreeNode.FILE_PREFIX + super.getId();
     }
 
+    @Override
     public Map<Object, TreeNode> getElements() {
         return null;
     }

@@ -20,6 +20,7 @@ public class WorkspaceUserImpl implements WorkspaceUser {
      * Compare two users. <p/> Note: comparison is based on name of users, not
      * IDs.
      */
+    @Override
     public int compareTo(WorkspaceUser o) {
         return userName.compareTo(o.getUserName());
     }
@@ -59,10 +60,12 @@ public class WorkspaceUserImpl implements WorkspaceUser {
         return sb.toString();
     }
 
+    @Override
     public String getUserId() {
         return userId;
     }
 
+    @Override
     public String getUserName() {
         return userName;
     }

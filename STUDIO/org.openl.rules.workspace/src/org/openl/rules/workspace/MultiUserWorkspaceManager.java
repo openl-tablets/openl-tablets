@@ -66,6 +66,7 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
      * UserWorkspace should notify manager that life cycle of the workspace is
      * ended and it must be removed from cache.
      */
+    @Override
     public void workspaceReleased(UserWorkspace workspace) {
         workspace.removeWorkspaceListener(this);
         userWorkspaces.remove(workspace.getUser().getUserId());

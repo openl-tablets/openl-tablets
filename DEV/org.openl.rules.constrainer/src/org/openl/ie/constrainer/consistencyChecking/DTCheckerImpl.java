@@ -49,22 +49,27 @@ public class DTCheckerImpl implements DTChecker {
             }
         }
 
+        @Override
         public IntBoolExp getRule(int i) {
             return _rules[i];
         }
 
+        @Override
         public IntBoolExp[] getRules() {
             return _rules;
         }
 
+        @Override
         public IntVar getVar(int i) {
             return (IntVar) _vars.get(i);
         }
 
+        @Override
         public IntExpArray getVars() {
             return _vars;
         }
 
+        @Override
         public boolean isOverrideAscending() {
             return overrideAscending;
         }
@@ -78,6 +83,7 @@ public class DTCheckerImpl implements DTChecker {
                 super(c);
             }
 
+            @Override
             public Goal execute() throws Failure {
                 _uncoveredRegions.add(new Uncovered(_dt.getVars()));
                 return null;
@@ -86,6 +92,7 @@ public class DTCheckerImpl implements DTChecker {
 
         private Constrainer C = null;
 
+        @Override
         public List<Uncovered> check() {
             IntBoolExp[] rules = _dt.getRules();
             C = rules[0].constrainer();
@@ -118,18 +125,22 @@ public class DTCheckerImpl implements DTChecker {
         _opChecker = new OverlappingCheckerImpl2(_dt);
     }
 
+    @Override
     public List<Uncovered> checkCompleteness() {
         return _cpChecker.check();
     }
 
+    @Override
     public List<Overlapping> checkOverlappings() {
         return _opChecker.check();
     }
 
+    @Override
     public CDecisionTable getDT() {
         return _dt;
     }
 
+    @Override
     public void setDT(CDecisionTable dtable) {
         _dt = dtable;
     }

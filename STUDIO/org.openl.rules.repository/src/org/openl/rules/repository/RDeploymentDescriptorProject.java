@@ -10,6 +10,7 @@ public interface RDeploymentDescriptorProject extends RCommonProject, REntity {
 
     RProjectDescriptor createProjectDescriptor(String name) throws RRepositoryException;
 
+    @Override
     RVersion getActiveVersion();
 
     /**
@@ -22,6 +23,7 @@ public interface RDeploymentDescriptorProject extends RCommonProject, REntity {
 
     RDeploymentDescriptorProject getProjectVersion(CommonVersion version) throws RRepositoryException;
 
+    @Override
     List<RVersion> getVersionHistory() throws RRepositoryException;
 
     void setProjectDescriptors(Collection<RProjectDescriptor> projectDescriptors) throws RRepositoryException;

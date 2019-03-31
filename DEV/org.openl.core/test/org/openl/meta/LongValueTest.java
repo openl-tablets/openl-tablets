@@ -2,9 +2,6 @@ package org.openl.meta;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import org.junit.Test;
 
 public class LongValueTest {
@@ -55,7 +52,7 @@ public class LongValueTest {
     }
 
     private LongValue[] getTestArray() {
-        return new LongValue[] { new LongValue((long) 10), new LongValue((long) 100), new LongValue((long) 5) };
+        return new LongValue[] { new LongValue(10), new LongValue(100), new LongValue(5) };
     }
 
     @Test

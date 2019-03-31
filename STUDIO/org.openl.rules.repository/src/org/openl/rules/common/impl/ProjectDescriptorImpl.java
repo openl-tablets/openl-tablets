@@ -14,10 +14,12 @@ public class ProjectDescriptorImpl implements ProjectDescriptor {
         this.projectVersion = projectVersion;
     }
 
+    @Override
     public String getProjectName() {
         return projectName;
     }
 
+    @Override
     public CommonVersion getProjectVersion() {
         return projectVersion;
     }
@@ -26,6 +28,7 @@ public class ProjectDescriptorImpl implements ProjectDescriptor {
         projectVersion = new CommonVersionImpl(version);
     }
 
+    @Override
     public void setProjectVersion(CommonVersion version) throws ProjectException {
         projectVersion = new CommonVersionImpl(version);
     }

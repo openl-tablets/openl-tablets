@@ -14,22 +14,27 @@ public class DiffElementImpl implements DiffElement {
         this.projection = projection;
     }
 
+    @Override
     public DiffStatus getDiffStatus() {
         return diffStatus;
     }
 
+    @Override
     public boolean isHierarhyEqual() {
         return hierarhyEqual;
     }
 
+    @Override
     public boolean isChildrenEqual() {
         return childrenEqual;
     }
 
+    @Override
     public boolean isSelfEqual() {
         return selfEqual;
     }
 
+    @Override
     public Projection getProjection() {
         return projection;
     }

@@ -75,6 +75,7 @@ public final class ConstraintExpMoreValue extends ConstraintImpl {
         _opposite = null;
     }
 
+    @Override
     public Goal execute() throws Failure {
         _exp.setMin(_value + 1); // may fail
         _exp.attachObserver(new ObserverMoreValue());

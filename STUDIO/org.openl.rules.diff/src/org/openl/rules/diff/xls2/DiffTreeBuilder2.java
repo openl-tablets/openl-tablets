@@ -18,11 +18,13 @@ import org.openl.rules.table.IGridTable;
 
 public class DiffTreeBuilder2 extends DiffTreeBuilderImpl {
     // @Override
+    @Override
     public DiffTreeNode compare(Projection[] projections) {
         throw new UnsupportedOperationException("Use compare()!");
     }
 
     // @Override
+    @Override
     protected void buildTree(DiffTreeNodeImpl root, Projection[] projections) {
         throw new UnsupportedOperationException("It uses own builder! Must not use inherited one!");
     }

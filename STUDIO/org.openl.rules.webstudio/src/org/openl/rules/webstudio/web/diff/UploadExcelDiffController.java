@@ -38,6 +38,7 @@ public class UploadExcelDiffController extends ExcelDiffController {
         uploadedFiles.add(file);
     }
 
+    @Override
     public String compare() {
         // Fix Ctrl+R in browser
         if (uploadedFiles.size() >= MAX_FILES_COUNT) {
@@ -64,6 +65,7 @@ public class UploadExcelDiffController extends ExcelDiffController {
         return null;
     }
 
+    @Override
     public void compare(List<File> files) {
         setFilesToCompare(files);
         super.compare();

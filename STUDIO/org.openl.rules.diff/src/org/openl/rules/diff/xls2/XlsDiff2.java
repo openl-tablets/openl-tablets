@@ -103,6 +103,7 @@ public class XlsDiff2 {
         // 1. Simple cases
         iterate(new IterClosure() {
             // @Override
+            @Override
             public boolean remove(XlsTable t1, XlsTable t2) {
                 if (t1.getSheetName().equals(t2.getSheetName())) {
                     String s1 = t1.getLocation().getStart().toString();
@@ -132,6 +133,7 @@ public class XlsDiff2 {
         // 2. Sheet and name seems the same
         iterate(new IterClosure() {
             // @Override
+            @Override
             public boolean remove(XlsTable t1, XlsTable t2) {
                 if (t1.getSheetName().equals(t2.getSheetName())) {
                     boolean sameName = t1.getTableName().equals(t2.getTableName());

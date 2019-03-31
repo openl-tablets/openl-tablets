@@ -190,6 +190,7 @@ public class JavaOpenClassTest {
     }
 
     public static class Extended extends MyType {
+        @Override
         public void method1(int i, double j) {
         }
 

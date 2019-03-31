@@ -11,6 +11,7 @@ import org.openl.types.java.JavaOpenClass;
 class CollectionCellFilter extends AGridFilter {
     static CollectionCellFilter INSTANCE = new CollectionCellFilter();
 
+    @Override
     public FormattedCell filterFormat(FormattedCell cell) {
         Object cellValue = cell.getObjectValue();
         if (cellValue != null) {

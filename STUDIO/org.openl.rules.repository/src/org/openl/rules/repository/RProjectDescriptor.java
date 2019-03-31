@@ -9,6 +9,7 @@ public interface RProjectDescriptor extends ProjectDescriptor<RVersion> {
      * 
      * @return name of project
      */
+    @Override
     String getProjectName();
 
     /**
@@ -16,7 +17,9 @@ public interface RProjectDescriptor extends ProjectDescriptor<RVersion> {
      * 
      * @return version of project
      */
+    @Override
     RVersion getProjectVersion();
 
+    @Override
     void setProjectVersion(RVersion version) throws RRepositoryException;
 }

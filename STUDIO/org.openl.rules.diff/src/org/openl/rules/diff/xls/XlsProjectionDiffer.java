@@ -5,6 +5,7 @@ import org.openl.rules.diff.hierarchy.Projection;
 
 public class XlsProjectionDiffer extends ProjectionDifferImpl {
 //  @Override
+    @Override
     public boolean compare(Projection original, Projection other) {
         // TODO compare XLS tables here
         // Sometimes there is no reason to create Big Tree with Projections

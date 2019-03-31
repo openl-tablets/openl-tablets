@@ -34,6 +34,7 @@ public class GoalRemoveValue extends GoalImpl {
         // _valueI = _constrainer.addUndoableInt(value,"remove");
     }
 
+    @Override
     public Goal execute() throws Failure {
         // Debug.print("\nExecute "+this);
         _exp.removeValue(_value);

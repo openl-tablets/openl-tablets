@@ -76,6 +76,7 @@ public class RuntimeContextInstantiationStrategyEnhancer extends AbstractService
      * @return {@link InvocationHandler} instance
      * @throws Exception
      */
+    @Override
     protected InvocationHandler makeInvocationHandler(Object instanceObject) throws Exception {
         Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(),
                 getOriginalInstantiationStrategy().getInstanceClass());

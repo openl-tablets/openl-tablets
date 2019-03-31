@@ -34,14 +34,17 @@ public class LockInfoImpl implements LockInfo {
         }
     }
 
+    @Override
     public Date getLockedAt() {
         return lockedAt;
     }
 
+    @Override
     public WorkspaceUser getLockedBy() {
         return lockedBy;
     }
 
+    @Override
     public boolean isLocked() {
         return isLocked;
     }

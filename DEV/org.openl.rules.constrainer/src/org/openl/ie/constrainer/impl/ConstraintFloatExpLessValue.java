@@ -47,6 +47,7 @@ public final class ConstraintFloatExpLessValue extends ConstraintImpl {
         _opposite = null;
     }
 
+    @Override
     public Goal execute() throws Failure {
         class ObserverFloatLessValue extends Observer {
             @Override

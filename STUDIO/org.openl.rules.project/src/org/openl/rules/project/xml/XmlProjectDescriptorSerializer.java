@@ -94,6 +94,7 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         this.postProcess = postProcess;
     }
 
+    @Override
     public String serialize(ProjectDescriptor source) {
         clean(source);
         return xstream.toXML(source);
@@ -102,6 +103,7 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
     /**
      * @throws com.thoughtworks.xstream.XStreamException if the object cannot be deserialized
      */
+    @Override
     public ProjectDescriptor deserialize(InputStream source) {
         ProjectDescriptor descriptor = (ProjectDescriptor) xstream.fromXML(source);
         if (postProcess) {

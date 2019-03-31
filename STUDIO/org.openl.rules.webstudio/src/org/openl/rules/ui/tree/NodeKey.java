@@ -29,6 +29,7 @@ public class NodeKey implements Comparable<Object> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int compareTo(Object arg0) {
 
         NodeKey key = (NodeKey) arg0;

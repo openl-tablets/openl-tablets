@@ -46,6 +46,7 @@ public class TestBean {
 
     public static final Comparator<TestUnitsResults> TEST_COMPARATOR = new Comparator<TestUnitsResults>() {
 
+        @Override
         public int compare(TestUnitsResults t1, TestUnitsResults t2) {
             if (t2 != null && t1 != null) {
                 int cmp = t2.getNumberOfFailures() - t1.getNumberOfFailures();

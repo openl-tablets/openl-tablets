@@ -23,6 +23,7 @@ public class BenchmarkOrder implements Comparable<BenchmarkOrder> {
         this.info = info;
     }
 
+    @Override
     public int compareTo(BenchmarkOrder arg0) {
         double x = info.drunsunitsec() - arg0.info.drunsunitsec();
         return x > 0 ? -1 : x == 0 ? 0 : 1;

@@ -59,6 +59,7 @@ public class JcrVersion implements RVersion {
         lastModified = version.getProperty("jcr:created").getDate().getTime();
     }
 
+    @Override
     public int compareTo(CommonVersion o) {
         return version.compareTo(o);
     }
@@ -75,10 +76,12 @@ public class JcrVersion implements RVersion {
         return compareTo((JcrVersion) obj) == 0;
     }
 
+    @Override
     public Date getCreated() {
         return lastModified;
     }
 
+    @Override
     public CommonUser getCreatedBy() {
         if (modifiedBy == null) {
             return new CommonUserImpl("system");
@@ -88,10 +91,12 @@ public class JcrVersion implements RVersion {
     }
     // --- protected
 
+    @Override
     public String getRevision() {
         return version.getRevision();
     }
 
+    @Override
     public String getVersionName() {
         return version.getVersionName();
     }
@@ -159,10 +164,12 @@ public class JcrVersion implements RVersion {
         node.setProperty(ArtefactProperties.PROP_REVISION, version.getRevision());
     }
     
+    @Override
     public int getMajor() {
         return version.getMajor();
     }
 
+    @Override
     public int getMinor() {
         return version.getMinor();
     }

@@ -14,6 +14,7 @@ public class DirectedEdgeFactory<V> implements EdgeFactory<V, DirectedEdge<V>> {
         this.edgeClass = directedEdgeClass;
     }
 
+    @Override
     public DirectedEdge<V> createEdge(V sourceVertex, V targetVertex) {
         try {
             DirectedEdge<V> edge = edgeClass.newInstance();

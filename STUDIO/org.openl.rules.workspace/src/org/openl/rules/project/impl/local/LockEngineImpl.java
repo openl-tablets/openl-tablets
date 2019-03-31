@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.Properties;
 
 import org.openl.rules.common.LockInfo;
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.LockException;
 import org.openl.util.IOUtils;

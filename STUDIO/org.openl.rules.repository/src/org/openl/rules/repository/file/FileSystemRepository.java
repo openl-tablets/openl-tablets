@@ -34,6 +34,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
         this.root = new File(path);
     }
 
+    @Override
     public void initialize() throws RRepositoryException {
         try {
             init();

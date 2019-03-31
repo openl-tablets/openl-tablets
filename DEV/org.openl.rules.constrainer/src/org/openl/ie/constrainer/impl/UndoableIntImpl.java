@@ -76,6 +76,7 @@ public final class UndoableIntImpl extends UndoableImpl implements UndoableInt {
         _value = value;
     }
 
+    @Override
     public Undo createUndo() {
         return UndoUndoableInt.getUndo();
     }
@@ -87,6 +88,7 @@ public final class UndoableIntImpl extends UndoableImpl implements UndoableInt {
         _value = value;
     }
 
+    @Override
     public void setValue(int value) {
         if (value != _value) {
             addUndo();
@@ -104,6 +106,7 @@ public final class UndoableIntImpl extends UndoableImpl implements UndoableInt {
         return name() + "[" + _value + "]";
     }
 
+    @Override
     public int value() {
         return _value;
     }

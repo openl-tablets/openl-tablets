@@ -3,7 +3,6 @@ package org.openl.ie.constrainer.impl;
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
-import org.openl.ie.constrainer.IntArray;
 import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntVar;
 import org.openl.ie.constrainer.Subject;
@@ -179,10 +178,12 @@ public final class IntExpEnum extends IntExpImpl {
         }
     }
 
+    @Override
     public int max() {
         return _values[_index.max()];
     }
 
+    @Override
     public int min() {
         return _values[_index.min()];
     }
@@ -200,6 +201,7 @@ public final class IntExpEnum extends IntExpImpl {
         }
     }
 
+    @Override
     public void setMax(int M) throws Failure {
         if (M >= max()) {
             return;
@@ -236,6 +238,7 @@ public final class IntExpEnum extends IntExpImpl {
 
     }
 
+    @Override
     public void setMin(int m) throws Failure {
         if (m <= min()) {
             return;

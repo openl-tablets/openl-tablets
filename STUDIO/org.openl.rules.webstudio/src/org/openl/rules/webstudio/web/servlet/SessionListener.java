@@ -43,6 +43,7 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
     // <listener-class>org.openl.rules.webstudio.SessionListener</listener-class>
     // </listener>
 
+    @Override
     public void sessionCreated(HttpSessionEvent event) {
         HttpSession session = event.getSession();
         log.debug("sessionCreated: {}", session);
@@ -58,6 +59,7 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         }
     }
 
+    @Override
     public void sessionDestroyed(HttpSessionEvent event) {
         HttpSession session = event.getSession();
         log.debug("sessionDestroyed: {}", session);
@@ -81,6 +83,7 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         }
     }
 
+    @Override
     public void sessionDidActivate(HttpSessionEvent event) {
         HttpSession session = event.getSession();
         log.debug("sessionDidActivate: {}", session);
@@ -92,6 +95,7 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         }
     }
 
+    @Override
     public void sessionWillPassivate(HttpSessionEvent event) {
         HttpSession session = event.getSession();
         log.debug("sessionWillPassivate: {}", session);

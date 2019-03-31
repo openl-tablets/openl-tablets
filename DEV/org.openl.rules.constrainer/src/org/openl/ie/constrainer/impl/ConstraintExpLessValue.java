@@ -74,6 +74,7 @@ public final class ConstraintExpLessValue extends ConstraintImpl {
         }
     }
 
+    @Override
     public Goal execute() throws Failure {
         _exp.setMax(_value - 1); // may fail
         _exp.attachObserver(new ObserverLessValue());

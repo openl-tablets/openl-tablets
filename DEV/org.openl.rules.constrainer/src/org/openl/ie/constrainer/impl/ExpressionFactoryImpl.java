@@ -105,10 +105,12 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
             _args = args;
         }
 
+        @Override
         public Object[] args() {
             return _args;
         }
 
+        @Override
         public Class clazz() {
             return _clazz;
         }
@@ -268,6 +270,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
         }
     }
 
+    @Override
     public Undo createUndo() {
         return UndoExpressionFactory.getUndo();
     }
@@ -279,10 +282,12 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
         return (Expression) _expressions.get(key);
     }
 
+    @Override
     public Expression getExpression(Class clazz, Object[] args) {
         return getExpression(clazz, args, args2types(args));
     }
 
+    @Override
     public Expression getExpression(Class clazz, Object[] args, Class[] types) {
         ExpressionKey key = (_getFromCache || _putInCache ? new ExpressionKeyImpl(clazz, args) : null);
         Expression exp = (_getFromCache ? findExpression(key) : null);
@@ -328,10 +333,12 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
         return s.toString();
     }
 
+    @Override
     public boolean useCache() {
         return _useCache;
     }
 
+    @Override
     public void useCache(boolean flag) {
         _useCache = flag;
         _getFromCache = flag;

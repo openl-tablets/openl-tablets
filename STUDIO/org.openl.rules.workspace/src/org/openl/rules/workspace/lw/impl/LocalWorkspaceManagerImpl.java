@@ -66,6 +66,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         return workspace;
     }
 
+    @Override
     public LocalWorkspace getWorkspace(WorkspaceUser user) throws WorkspaceException {
         String userId = user.getUserId();
         LocalWorkspaceImpl lwi = localWorkspaces.get(userId);
@@ -108,6 +109,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         this.enableLocks = enableLocks;
     }
 
+    @Override
     public void workspaceReleased(LocalWorkspace workspace) {
         workspace.removeWorkspaceListener(this);
         localWorkspaces.remove(((LocalWorkspaceImpl) workspace).getUser().getUserId());

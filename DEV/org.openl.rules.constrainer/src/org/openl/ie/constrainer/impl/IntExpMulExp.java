@@ -447,10 +447,12 @@ public final class IntExpMulExp extends IntExpImpl {
         return (_exp1.isLinear() && _exp2.isLinear());
     }
 
+    @Override
     public int max() {
         return _product.max();
     }
 
+    @Override
     public int min() {
         return _product.min();
     }
@@ -467,6 +469,7 @@ public final class IntExpMulExp extends IntExpImpl {
         _product.reattachObserver(observer);
     }
 
+    @Override
     public void setMax(int max) throws Failure {
         // System.out.println("setmax: " + max + " in " + this);
 
@@ -484,6 +487,7 @@ public final class IntExpMulExp extends IntExpImpl {
         _calc.setMax(max);
     }
 
+    @Override
     public void setMin(int min) throws Failure {
         // System.out.println("setmin: " + min + " in " + this);
 

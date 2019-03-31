@@ -47,6 +47,7 @@ public class GoalInstantiate extends GoalImpl {
         public NonRecursiveImpl() {
         }
 
+        @Override
         public Goal instantiate(int chosen_value) throws Failure {
             Goal goal_value = new GoalSetValue(_intvar, chosen_value);
 
@@ -87,6 +88,7 @@ public class GoalInstantiate extends GoalImpl {
             }
         }
 
+        @Override
         public Goal instantiate(int chosen_value) throws Failure {
             _goal_value.value(chosen_value);
 
@@ -148,6 +150,7 @@ public class GoalInstantiate extends GoalImpl {
     /**
      * An implementation of the instantiation algorithm for the integer variable using value selector.
      */
+    @Override
     public Goal execute() throws Failure {
         if (_intvar.size() == 1) {
             return null;

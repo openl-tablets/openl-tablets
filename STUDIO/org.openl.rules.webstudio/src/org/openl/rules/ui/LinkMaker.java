@@ -15,6 +15,7 @@ class LinkMaker extends AGridFilter {
         this.requestId = requestId;
     }
 
+    @Override
     public FormattedCell filterFormat(FormattedCell cell) {
         Object value = cell.getObjectValue();
         if (value instanceof ExplanationNumberValue<?>) {

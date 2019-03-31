@@ -70,6 +70,7 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
      * @return {@link InvocationHandler} instance
      * @throws Exception
      */
+    @Override
     protected InvocationHandler makeInvocationHandler(Object originalInstance) throws Exception {
         Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(),
                 getOriginalInstantiationStrategy().getInstanceClass());

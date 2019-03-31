@@ -300,34 +300,42 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
         return UndoIntBoolVar.getBoolVarUndo();
     }
 
+    @Override
     public int domainType() {
         return DOMAIN_BOOL;
     }
 
+    @Override
     public void forceInsert(int val) {
         abort("Temporary method???");
     }
 
+    @Override
     public void forceMax(int max) {
         _max = max;
     }
 
+    @Override
     public void forceMin(int min) {
         _min = min;
     }
 
+    @Override
     public void forceSize(int max) {
         abort("Temporary method???");
     }
 
+    @Override
     public Goal instantiate() {
         return new GoalInstantiate(this);
     }
 
+    @Override
     public int max() {
         return _max;
     }
 
+    @Override
     public int min() {
         return _min;
     }
@@ -337,6 +345,7 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
         notifyObservers(IntEventBool.getEvent(this, _min == 1));
     }
 
+    @Override
     public void setMax(int max) throws Failure {
         if (max < _min) {
             _constrainer.fail("set max bool var");
@@ -355,6 +364,7 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
         }
     }
 
+    @Override
     public void setMin(int min) throws Failure {
         if (min > _max) {
             _constrainer.fail("set min bool var");
@@ -373,6 +383,7 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
         }
     }
 
+    @Override
     public void removeValue(int value) throws Failure {
         if (value == 1)
             setMax(0);

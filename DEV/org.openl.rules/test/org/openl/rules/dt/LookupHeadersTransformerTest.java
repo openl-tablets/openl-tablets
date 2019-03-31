@@ -27,7 +27,7 @@ public class LookupHeadersTransformerTest {
         RulesEngineFactory<ILookupTableTest> engineFactory = new RulesEngineFactory<ILookupTableTest>(SRC,
                 ILookupTableTest.class);
 
-        instance = (ILookupTableTest) engineFactory.newEngineInstance();
+        instance = engineFactory.newEngineInstance();
     }
 
 //    @Test

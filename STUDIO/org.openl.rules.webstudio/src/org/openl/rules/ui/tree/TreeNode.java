@@ -28,6 +28,7 @@ public class TreeNode<T> implements ITreeNode<T> {
     /**
      *{@inheritDoc}
      */
+    @Override
     public void addChild(Object key, ITreeNode<T> child) {
         elements.put(key, child);
     }
@@ -35,6 +36,7 @@ public class TreeNode<T> implements ITreeNode<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public ITreeNode<T> getChild(Object key) {
         return elements.get(key);
     }
@@ -42,6 +44,7 @@ public class TreeNode<T> implements ITreeNode<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Iterable<? extends org.openl.util.tree.ITreeElement<T>> getChildren() {
         return elements.values();
     }
@@ -62,6 +65,7 @@ public class TreeNode<T> implements ITreeNode<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public T getObject() {
         return object;
     }
@@ -69,6 +73,7 @@ public class TreeNode<T> implements ITreeNode<T> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getType() {
         return type;
     }
@@ -78,6 +83,7 @@ public class TreeNode<T> implements ITreeNode<T> {
      * 
      * @return <code>true</code> if node is leaf; <code>false</code> - otherwise
      */
+    @Override
     public boolean isLeaf() {
 
         return elements == null || elements.isEmpty();

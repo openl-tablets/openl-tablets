@@ -2,7 +2,6 @@ package org.openl.rules.ui.tablewizard;
 
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -22,13 +21,8 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.meta.BigDecimalValue;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.ByteValue;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.FloatValue;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ShortValue;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -341,6 +335,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
             this.type = type;
         }
 
+        @Override
         public DomainTypeHolder clone() {
             return new DomainTypeHolder(this.name, this.type, this.iterable);
         }

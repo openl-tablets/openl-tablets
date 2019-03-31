@@ -58,105 +58,130 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
         }
     }
 
+    @Override
     public DirectedEdge<ExecutableMethod> addEdge(
             ExecutableMethod sourceVertex, ExecutableMethod targetVertex) {        
         return graph.addEdge(sourceVertex, targetVertex);
     }
 
+    @Override
     public boolean addEdge(ExecutableMethod sourceVertex, ExecutableMethod targetVertex,
             DirectedEdge<ExecutableMethod> e) {        
         return graph.addEdge(sourceVertex, targetVertex, e);
     }
 
+    @Override
     public boolean addVertex(ExecutableMethod v) {        
         return graph.addVertex(v);
     }
 
+    @Override
     public boolean containsEdge(DirectedEdge<ExecutableMethod> e) {        
         return graph.containsEdge(e);
     }
 
+    @Override
     public boolean containsEdge(ExecutableMethod sourceVertex, ExecutableMethod targetVertex) {        
         return graph.containsEdge(sourceVertex, targetVertex);
     }
 
+    @Override
     public boolean containsVertex(ExecutableMethod v) {
         return graph.containsVertex(v);
     }
 
+    @Override
     public Set<DirectedEdge<ExecutableMethod>> edgeSet() {        
         return graph.edgeSet();
     }
 
+    @Override
     public Set<DirectedEdge<ExecutableMethod>> edgesOf(ExecutableMethod vertex) {        
         return graph.edgesOf(vertex);
     }
 
+    @Override
     public Set<DirectedEdge<ExecutableMethod>> getAllEdges(ExecutableMethod sourceVertex,
             ExecutableMethod targetVertex) {        
         return graph.getAllEdges(sourceVertex, targetVertex);
     }
 
+    @Override
     public DirectedEdge<ExecutableMethod> getEdge(ExecutableMethod sourceVertex,
             ExecutableMethod targetVertex) {
         return graph.getEdge(sourceVertex, targetVertex);
     }
 
+    @Override
     public EdgeFactory<ExecutableMethod, DirectedEdge<ExecutableMethod>> getEdgeFactory() {        
         return graph.getEdgeFactory();
     }
 
+    @Override
     public ExecutableMethod getEdgeSource(DirectedEdge<ExecutableMethod> e) {        
         return graph.getEdgeSource(e);
     }
 
+    @Override
     public ExecutableMethod getEdgeTarget(DirectedEdge<ExecutableMethod> e) {        
         return graph.getEdgeTarget(e);
     }
 
+    @Override
     public double getEdgeWeight(DirectedEdge<ExecutableMethod> e) {        
         return graph.getEdgeWeight(e);
     }
 
+    @Override
     public boolean removeAllEdges(Collection<? extends DirectedEdge<ExecutableMethod>> edges) {        
         return graph.removeAllEdges(edges);
     }
 
+    @Override
     public Set<DirectedEdge<ExecutableMethod>> removeAllEdges(ExecutableMethod sourceVertex,
             ExecutableMethod targetVertex) {        
         return graph.removeAllEdges(sourceVertex, targetVertex);
     }
 
+    @Override
     public boolean removeAllVertices(Collection<? extends ExecutableMethod> vertices) {        
         return graph.removeAllVertices(vertices);
     }
 
+    @Override
     public boolean removeEdge(DirectedEdge<ExecutableMethod> e) {
         return graph.removeEdge(e);
     }
 
+    @Override
     public DirectedEdge<ExecutableMethod> removeEdge(ExecutableMethod sourceVertex,
             ExecutableMethod targetVertex) {
         return graph.removeEdge(sourceVertex, targetVertex);
     }
 
+    @Override
     public boolean removeVertex(ExecutableMethod v) {        
         return graph.removeVertex(v);
     }
 
+    @Override
     public Set<ExecutableMethod> vertexSet() {        
         return graph.vertexSet();
     }
     
+    @Override
     public int inDegreeOf(ExecutableMethod arg0) {        
         return graph.inDegreeOf(arg0);
     }
+    @Override
     public Set<DirectedEdge<ExecutableMethod>> incomingEdgesOf(ExecutableMethod arg0) {        
         return graph.incomingEdgesOf(arg0);
     }
+    @Override
     public int outDegreeOf(ExecutableMethod arg0) {        
         return graph.outDegreeOf(arg0);
     }
+    @Override
     public Set<DirectedEdge<ExecutableMethod>> outgoingEdgesOf(ExecutableMethod arg0) {        
         return graph.outgoingEdgesOf(arg0);
     }

@@ -16,30 +16,37 @@ public interface RVersion extends CommonVersion {
     
     RVersion NON_DEFINED_VERSION = new RVersion() {
         
+        @Override
         public int compareTo(CommonVersion o) {
             return -1;
         }
         
+        @Override
         public String getVersionName() {
             return "NO_VERSION";
         }
         
+        @Override
         public String getRevision() {
             return "0";
         }
         
+        @Override
         public int getMinor() {
             return 0;
         }
         
+        @Override
         public int getMajor() {
             return 0;
         }
         
+        @Override
         public CommonUser getCreatedBy() {
             return new CommonUserImpl(null);
         }
         
+        @Override
         public Date getCreated() {
             return null;
         }

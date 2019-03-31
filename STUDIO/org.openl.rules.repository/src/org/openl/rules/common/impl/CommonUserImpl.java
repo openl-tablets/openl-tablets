@@ -10,6 +10,7 @@ public class CommonUserImpl implements CommonUser {
         this.userName = userName;
     }
 
+    @Override
     public String getUserName() {
         return userName;
     }

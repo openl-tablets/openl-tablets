@@ -8,6 +8,7 @@ import org.openl.rules.diff.hierarchy.ProjectionProperty;
 
 public class ProjectionDifferImpl implements ProjectionDiffer {
     // @Override
+    @Override
     public boolean compare(Projection original, Projection other) {
         Map<String, ProjectionProperty> map1 = buildMap(original);
         Map<String, ProjectionProperty> map2 = buildMap(other);

@@ -21,31 +21,37 @@ public class AbstractProjection implements Projection {
     }
 
 //    @Override
+    @Override
     public List<Projection> getChildren() {
         return Collections.unmodifiableList(children);
     }
 
 //    @Override
+    @Override
     public String getType() {
         return type;
     }
 
 //    @Override
+    @Override
     public String getName() {
         return name;
     }
 
 //    @Override
+    @Override
     public Collection<ProjectionProperty> getProperties() {
         return properties.getAll();
     }
 
 //  @Override
+    @Override
     public ProjectionProperty getProperty(String propertyName) {
         return properties.get(propertyName);
     }
 
 //  @Override
+    @Override
     public Object getPropertyValue(String propertyName) {
         ProjectionProperty p = properties.get(propertyName);
         return (p == null) ? p : p.getRawValue();

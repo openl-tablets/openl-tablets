@@ -14,6 +14,7 @@ public class AllFilter<T> extends ASelector<T> implements IFilter<T>  {
      * @param obj object to check
      * @return true
      */
+    @Override
     public boolean select(T obj) {
         return true;
     }
@@ -24,6 +25,7 @@ public class AllFilter<T> extends ASelector<T> implements IFilter<T>  {
      * @param aClass a class to check
      * @return true
      */
+    @Override
     public boolean supports(Class<?> aClass) {
         return true;
     }

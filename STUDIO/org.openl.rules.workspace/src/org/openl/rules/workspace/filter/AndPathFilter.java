@@ -28,6 +28,7 @@ public class AndPathFilter implements PathFilter {
      *
      * @return if filter accepts given filename
      */
+    @Override
     public boolean accept(String filename) {
         for (PathFilter filter : filters) {
             if (!filter.accept(filename)) {

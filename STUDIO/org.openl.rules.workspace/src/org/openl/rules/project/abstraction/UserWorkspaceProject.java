@@ -27,6 +27,7 @@ public abstract class UserWorkspaceProject extends AProject {
         return user;
     }
 
+    @Override
     public boolean isOpenedForEditing() {
         return isOpened() && (!isLocked() || isLockedByMe());
     }
@@ -67,6 +68,7 @@ public abstract class UserWorkspaceProject extends AProject {
         close(user);
     }
 
+    @Override
     public void delete() throws ProjectException {
         delete(user);
     }

@@ -12,7 +12,6 @@ import org.openl.meta.DoubleValue;
 import org.openl.rules.TestUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
-import org.openl.rules.runtime.RulesEngineFactory;
 
 public class RulesPrioritySortingTest {
     public interface ITestI extends IRulesRuntimeContextProvider {

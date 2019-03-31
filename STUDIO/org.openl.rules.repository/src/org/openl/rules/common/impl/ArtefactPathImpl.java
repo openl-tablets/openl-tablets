@@ -94,11 +94,13 @@ public class ArtefactPathImpl implements ArtefactPath {
     }
 
     /** {@inheritDoc} */
+    @Override
     public Collection<String> getSegments() {
         return segments;
     }
 
     /** {@inheritDoc} */
+    @Override
     public String getStringValue() {
         if (stringValue == null) {
             StringBuilder result = new StringBuilder();
@@ -119,6 +121,7 @@ public class ArtefactPathImpl implements ArtefactPath {
         return stringValue;
     }
 
+    @Override
     public String getStringValue(int skip) {
         StringBuilder result = new StringBuilder();
         if (skip < segmentCount()) {
@@ -139,15 +142,18 @@ public class ArtefactPathImpl implements ArtefactPath {
     }
 
     /** {@inheritDoc} */
+    @Override
     public String segment(int index) {
         return segments.get(index);
     }
 
     /** {@inheritDoc} */
+    @Override
     public int segmentCount() {
         return segments.size();
     }
 
+    @Override
     public ArtefactPath withoutFirstSegment() {
         LinkedList<String> relativeSegments = new LinkedList<>();
         boolean isFisrt = true;
@@ -163,6 +169,7 @@ public class ArtefactPathImpl implements ArtefactPath {
         return new ArtefactPathImpl(relativeSegments);
     }
 
+    @Override
     public ArtefactPath withoutSegment(int segmentIndex) {
         LinkedList<String> relativeSegments = new LinkedList<>();
         Iterator<String> segmentIterator = segments.iterator();
@@ -177,6 +184,7 @@ public class ArtefactPathImpl implements ArtefactPath {
         return new ArtefactPathImpl(relativeSegments);
     }
 
+    @Override
     public ArtefactPath withSegment(String segment) {
         ArtefactPathImpl api = new ArtefactPathImpl(this);
         api.addSegment(segment);

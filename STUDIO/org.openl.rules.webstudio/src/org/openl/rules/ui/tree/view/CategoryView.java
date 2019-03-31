@@ -20,18 +20,22 @@ public class CategoryView implements RulesTreeView {
         new TableVersionTreeNodeBuilder()
     };
 
+    @Override
     public String getName() {
     	return "category";
     }
     
+    @Override
     public String getDisplayName() {
     	return "Category";
     }
 
+    @Override
     public String getDescription() {
     	return "Provides categorized view";
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public TreeNodeBuilder[] getBuilders() {
         return sorters;

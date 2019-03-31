@@ -43,15 +43,17 @@ public class TreeFolder extends AbstractTreeNode {
         return getIcon();
     }
 
+    @Override
     public String getType() {
         return UiConst.TYPE_FOLDER;
     }
 
     @Override
     public String getId() {
-        return AbstractTreeNode.FOLDER_PREFIX + super.getId();
+        return TreeNode.FOLDER_PREFIX + super.getId();
     }
 
+    @Override
     public Map<Object, TreeNode> getElements() {
         if (elements == null && !isLeafOnly()) {
             elements = new LinkedHashMap<>();

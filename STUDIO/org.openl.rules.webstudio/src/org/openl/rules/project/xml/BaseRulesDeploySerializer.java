@@ -26,10 +26,12 @@ public class BaseRulesDeploySerializer<T> implements IRulesDeploySerializer {
         this.rulesDeployVersionConverter = rulesDeployVersionConverter;
     }
 
+    @Override
     public String serialize(RulesDeploy source) {
         return xstream.toXML(rulesDeployVersionConverter.toOldVersion(source));
     }
 
+    @Override
     public RulesDeploy deserialize(InputStream source) {
         @SuppressWarnings("unchecked")
         T oldVersion = (T) xstream.fromXML(source);

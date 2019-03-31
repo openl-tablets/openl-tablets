@@ -237,10 +237,12 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         return executionMode;
     }
 
+    @Override
     public boolean isSingleModuleMode() {
         return singleModuleMode;
     }
 
+    @Override
     public boolean isProvideRuntimeContext() {
         return provideRuntimeContext;
     }
@@ -249,6 +251,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         return provideVariations;
     }
 
+    @Override
     public Class<?> getInterfaceClass() throws RulesInstantiationException,
                                         ProjectResolvingException,
                                         ClassNotFoundException {
@@ -263,10 +266,12 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         return generatedInterfaceClass;
     }
 
+    @Override
     public Map<String, Object> getExternalParameters() {
         return externalParameters;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public T newInstance() throws RulesInstantiationException, ProjectResolvingException, ClassNotFoundException {
         return (T) getRulesInstantiationStrategy().instantiate();
@@ -341,6 +346,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         return rulesInstantiationStrategy;
     }
 
+    @Override
     public CompiledOpenClass getCompiledOpenClass() throws RulesInstantiationException,
             ProjectResolvingException,
             ClassNotFoundException {

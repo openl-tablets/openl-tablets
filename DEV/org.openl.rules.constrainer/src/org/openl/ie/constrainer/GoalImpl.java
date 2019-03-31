@@ -37,6 +37,7 @@ public abstract class GoalImpl extends ConstrainerObjectImpl implements Goal {
         // c.addGoal(this);
     }
 
+    @Override
     public boolean toContinue(ChoicePointLabel label, boolean restore) {
         return constrainer().toContinue(label, restore);
     }

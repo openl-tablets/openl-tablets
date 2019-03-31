@@ -98,6 +98,7 @@ public final class ConstraintFloatExpEqualsExp extends ConstraintImpl {
         }
     }
 
+    @Override
     public Goal execute() throws Failure {
         minmax(); // may fail
         ObserverFloatEqual observer = new ObserverFloatEqual();

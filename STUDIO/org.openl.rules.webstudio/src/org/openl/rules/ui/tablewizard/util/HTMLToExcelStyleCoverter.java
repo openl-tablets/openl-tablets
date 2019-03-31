@@ -185,7 +185,7 @@ public class HTMLToExcelStyleCoverter {
                 try {
                     hssfColor = palette.addColor((byte) rgbColor[0], (byte) rgbColor[1], (byte) rgbColor[2]);
                 } catch (Exception e) {
-                    HSSFColor similarColor = palette.findSimilarColor((int)rgbColor[0], (int)rgbColor[1], (int)rgbColor[2]);
+                    HSSFColor similarColor = palette.findSimilarColor(rgbColor[0], rgbColor[1], rgbColor[2]);
                     palette.setColorAtIndex(similarColor.getIndex(), (byte) rgbColor[0], (byte) rgbColor[1], (byte) rgbColor[2]);
                     hssfColor = palette.getColor(similarColor.getIndex());
                 }

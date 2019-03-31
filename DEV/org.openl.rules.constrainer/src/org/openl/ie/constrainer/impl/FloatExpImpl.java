@@ -19,6 +19,7 @@ public abstract class FloatExpImpl extends ExpressionImpl implements FloatExp {
         super(c, name);
     }
 
+    @Override
     public FloatExp add(double value) {
         // optimization for the case when the Expression is bounded
         if (bound()) {
@@ -28,10 +29,12 @@ public abstract class FloatExpImpl extends ExpressionImpl implements FloatExp {
         return getFloatExp(FloatExpAddValue.class, this, value);
     }
 
+    @Override
     public boolean bound() {
         return FloatCalc.eq(min(), max());
     }
 
+    @Override
     public String domainToString() {
         double min = min();
         double max = max();
@@ -44,82 +47,102 @@ public abstract class FloatExpImpl extends ExpressionImpl implements FloatExp {
         }
     }
 
+    @Override
     public IntBoolExp eq(double value) {
         return eq(getFloatExp(FloatExpConst.class, value));
     }
 
+    @Override
     public IntBoolExp eq(FloatExp exp) {
         return getIntBoolExp(IntBoolExpFloatEqExp.class, this, exp);
     }
 
+    @Override
     public IntBoolExp eq(int value) {
         return eq((double) value);
     }
 
+    @Override
     public IntBoolExp ge(double value) {
         return ge(getFloatExp(FloatExpConst.class, value));
     }
 
+    @Override
     public IntBoolExp ge(FloatExp exp) {
         return getIntBoolExp(IntBoolExpFloatLessExp.class, exp, this);
     }
 
+    @Override
     public IntBoolExp ge(int value) {
         return ge((double) value);
     }
 
+    @Override
     public IntBoolExp gt(double value) {
         return ge(value);
     }
 
+    @Override
     public IntBoolExp gt(FloatExp exp) {
         return ge(exp);
     }
 
+    @Override
     public IntBoolExp gt(int value) {
         return gt((double) value);
     }
 
+    @Override
     public boolean isLinear() {
         return false;
     }
 
+    @Override
     public IntBoolExp le(double value) {
         return le(getFloatExp(FloatExpConst.class, value));
     }
 
+    @Override
     public IntBoolExp le(FloatExp exp) {
         return getIntBoolExp(IntBoolExpFloatLessExp.class, this, exp);
     }
 
+    @Override
     public IntBoolExp le(int value) {
         return le((double) value);
     }
 
+    @Override
     public Constraint lessOrEqual(double value) {
         return new ConstraintFloatExpLessValue(this, value);
     }
 
+    @Override
     public IntBoolExp lt(double value) {
         return le(value);
     }
 
+    @Override
     public IntBoolExp lt(FloatExp exp) {
         return le(exp);
     }
 
+    @Override
     public IntBoolExp lt(int value) {
         return lt((double) value);
     }
 
+    @Override
     public FloatExp mod(double c) {
         throw new UnsupportedOperationException("mod");
     }
 
+    @Override
     public FloatExp mod(int c) {
         throw new UnsupportedOperationException("mod");
     }
 
+    @Override
     public Constraint moreOrEqual(double value) {
         return new ConstraintFloatExpMoreValue(this, value);
     }
@@ -129,6 +152,7 @@ public abstract class FloatExpImpl extends ExpressionImpl implements FloatExp {
     public void propagate() throws Failure {
     }
 
+    @Override
     public void removeRange(double min, double max) throws Failure {
         if (min < min()) {
             setMin(max);
@@ -137,6 +161,7 @@ public abstract class FloatExpImpl extends ExpressionImpl implements FloatExp {
         }
     }
 
+    @Override
     public double size() {
         return max() - min();
     }
@@ -151,6 +176,7 @@ public abstract class FloatExpImpl extends ExpressionImpl implements FloatExp {
         return name() + domainToString();
     }
 
+    @Override
     public double value() throws Failure {
         /*
          * if (!bound ()) { constrainer ().fail ("Attempt to get value of the unbound float expresion " + this); }

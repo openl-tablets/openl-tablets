@@ -27,6 +27,7 @@ public class TransparentColorFilter implements IColorFilter {
         this.transparency = transparency;
     }
 
+    @Override
     public short[] filterColor(short[] color) {
         short[] res = new short[3];
 

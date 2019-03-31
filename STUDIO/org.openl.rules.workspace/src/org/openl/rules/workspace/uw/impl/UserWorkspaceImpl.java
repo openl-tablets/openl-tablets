@@ -24,6 +24,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final Logger log = LoggerFactory.getLogger(UserWorkspaceImpl.class);
 
     private static final Comparator<AProject> PROJECTS_COMPARATOR = new Comparator<AProject>() {
+        @Override
         public int compare(AProject o1, AProject o2) {
             return o1.getName().compareToIgnoreCase(o2.getName());
         }
@@ -58,14 +59,17 @@ public class UserWorkspaceImpl implements UserWorkspace {
         userDProjects = new HashMap<>();
     }
 
+    @Override
     public void activate() {
         refresh();
     }
 
+    @Override
     public void addWorkspaceListener(UserWorkspaceListener listener) {
         listeners.add(listener);
     }
 
+    @Override
     public void copyDDProject(ADeploymentProject project, String name) throws ProjectException {
         ADeploymentProject newProject = designTimeRepository.createDeploymentConfigurationBuilder(name)
                 .user(getUser())
@@ -77,6 +81,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         refresh();
     }
 
+    @Override
     public ADeploymentProject createDDProject(String name) throws RepositoryException {
         if (deploymentsRefreshNeeded) {
             refreshDeploymentProjects();
@@ -89,10 +94,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return ddProject;
     }
 
+    @Override
     public AProject createProject(String name) throws ProjectException {
         return designTimeRepository.createProject(name);
     }
 
+    @Override
     public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
         String projectName = artefactPath.segment(0);
         AProject uwp = getProject(projectName);
@@ -101,6 +108,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return uwp.getArtefactByPath(pathInProject);
     }
 
+    @Override
     public ADeploymentProject getDDProject(String name) throws ProjectException {
         refreshDeploymentProjects();
         ADeploymentProject deploymentProject;
@@ -121,6 +129,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 .build();
     }
 
+    @Override
     public List<ADeploymentProject> getDDProjects() throws ProjectException {
         refreshDeploymentProjects();
 
@@ -133,20 +142,24 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return result;
     }
 
+    @Override
     public DesignTimeRepository getDesignTimeRepository() {
         return designTimeRepository;
     }
 
     // --- protected
 
+    @Override
     public LocalWorkspace getLocalWorkspace() {
         return localWorkspace;
     }
 
+    @Override
     public RulesProject getProject(String name) throws ProjectException {
         return getProject(name, true);
     }
 
+    @Override
     public RulesProject getProject(String name, boolean refreshBefore) throws ProjectException {
         if (refreshBefore || projectsRefreshNeeded) {
             refreshRulesProjects();
@@ -164,6 +177,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return uwp;
     }
 
+    @Override
     public Collection<RulesProject> getProjects() {
         return getProjects(true);
     }
@@ -184,10 +198,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return result;
     }
 
+    @Override
     public WorkspaceUser getUser() {
         return user;
     }
 
+    @Override
     public boolean hasDDProject(String name) {
         if (deploymentsRefreshNeeded) {
             try {
@@ -205,6 +221,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return designTimeRepository.hasDDProject(name);
     }
 
+    @Override
     public boolean hasProject(String name) {
         synchronized (userRulesProjects) {
             if (projectsRefreshNeeded) {
@@ -217,6 +234,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return localWorkspace.hasProject(name) || designTimeRepository.hasProject(name);
     }
 
+    @Override
     public void passivate() {
         synchronized (userRulesProjects) {
             userRulesProjects.clear();
@@ -229,6 +247,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         scheduleDeploymentsRefresh();
     }
 
+    @Override
     public void refresh() {
         localWorkspace.refresh();
         scheduleProjectsRefresh();
@@ -367,6 +386,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         }
     }
 
+    @Override
     public void release() {
         localWorkspace.release();
         synchronized (userRulesProjects) {
@@ -384,10 +404,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
         }
     }
 
+    @Override
     public void removeWorkspaceListener(UserWorkspaceListener listener) {
         listeners.remove(listener);
     }
 
+    @Override
     public void uploadLocalProject(String name) throws ProjectException {
         try {
             AProject createdProject = createProject(name);

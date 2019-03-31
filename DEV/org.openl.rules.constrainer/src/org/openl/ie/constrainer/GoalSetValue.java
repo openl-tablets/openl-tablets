@@ -52,6 +52,7 @@ public class GoalSetValue extends GoalImpl {
      * @throws Failure if such a value is out of domain or doesn't satisfy to some of the constraints associated with a
      *             given IntExp variable and so can't be assigned to it.
      */
+    @Override
     public Goal execute() throws Failure {
         // Debug.print("\nExecute "+this);
         _exp.setValue(_value);

@@ -12,11 +12,13 @@ public class PropertyNode extends TreeNode {
     }
 
 //    @Override
+    @Override
     public DiffStatus getStatus() {
         return DiffStatus.DIFFERS;
     }
 
 //    @Override
+    @Override
     public String getIcon() {
         // TODO use UiConst.ICON_DIFF_DIFFERS
         String icon = "/webresource/images/diff/propmodified.gif";
@@ -24,11 +26,13 @@ public class PropertyNode extends TreeNode {
     }
 
 //    @Override
+    @Override
     public String getName() {
         return title;
     }
 
 //    @Override
+    @Override
     public String getType() {
         return "property";
     }

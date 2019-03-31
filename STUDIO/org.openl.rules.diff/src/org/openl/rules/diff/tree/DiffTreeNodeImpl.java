@@ -7,10 +7,12 @@ public class DiffTreeNodeImpl implements DiffTreeNode {
     private List<DiffTreeNode> children;
     private DiffElement[] elements;
 
+    @Override
     public List<DiffTreeNode> getChildren() {
         return children;
     }
 
+    @Override
     public DiffElement[] getElements() {
         return elements;
     }
@@ -23,6 +25,7 @@ public class DiffTreeNodeImpl implements DiffTreeNode {
         this.elements = elements;
     }
 
+    @Override
     public DiffElement getElement(int idx) {
         return elements[idx];
     }

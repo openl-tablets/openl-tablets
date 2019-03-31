@@ -246,7 +246,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
         final StringBuilder strSid = new StringBuilder("S-");
 
         // Revision
-        strSid.append(Integer.toString((int) sid[0]));
+        strSid.append(Integer.toString(sid[0]));
 
         // The count of sub-authorities
         final int subAuthoritiesCount = sid[1] & 0xFF;

@@ -42,6 +42,7 @@ public class RepositoryFileExtensionFilter extends ASelector<AProjectArtefact> i
         }
     }
 
+    @Override
     public boolean select(AProjectArtefact artefact) {
         for (String ext : extensions) {
             if (artefact.getName().endsWith(ext)) {
@@ -51,6 +52,7 @@ public class RepositoryFileExtensionFilter extends ASelector<AProjectArtefact> i
         return false;
     }
 
+    @Override
     public boolean supports(Class<?> aClass) {
         return AProjectResource.class.isAssignableFrom(aClass);
     }

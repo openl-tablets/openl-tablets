@@ -30,6 +30,7 @@ public abstract class UndoableImpl extends ConstrainerObjectImpl implements Undo
         super(c, name);
     }
 
+    @Override
     public void addUndo() {
         Undo undo_object = createUndo();
         undo_object.undoable(this);
@@ -37,10 +38,12 @@ public abstract class UndoableImpl extends ConstrainerObjectImpl implements Undo
         constrainer().addUndo(undo_object);
     }
 
+    @Override
     public boolean undone() {
         return false;
     }
 
+    @Override
     public void undone(boolean b) {
     }
 

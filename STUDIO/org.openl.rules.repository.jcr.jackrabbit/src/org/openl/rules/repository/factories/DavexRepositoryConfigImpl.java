@@ -35,20 +35,24 @@ public class DavexRepositoryConfigImpl implements RepositoryConfig {
         service = createService(uri);
     }
 
+    @Override
     public CacheBehaviour getCacheBehaviour() {
         return cacheBehaviour;
     }
 
+    @Override
     public int getItemCacheSize() {
         return itemCacheSize;
     }
 
+    @Override
     public int getPollTimeout() {
         return POLL_TIMEOUT;
     }
 
     private static RepositoryService createService(String uri) throws RepositoryException {
         BatchReadConfig brc = new BatchReadConfig() {
+            @Override
             public int getDepth(Path path, PathResolver pathResolver) throws NamespaceException {
                 return 4;
             }
@@ -56,6 +60,7 @@ public class DavexRepositoryConfigImpl implements RepositoryConfig {
         return new RepositoryServiceImpl(uri, brc);
     }
 
+    @Override
     public RepositoryService getRepositoryService() throws RepositoryException {
         return service;
     }

@@ -32,40 +32,49 @@ abstract public class IntBoolExpImpl extends IntExpImpl implements IntBoolExp {
         super(c, name);
     }
 
+    @Override
     public IntBoolExp and(boolean value) {
         return value ? (IntBoolExp) this : IntBoolExpConst.getIntBoolExpConst(constrainer(), false);
     }
 
+    @Override
     public IntBoolExp and(IntBoolExp exp) {
         // return new IntBoolExpAnd(this, exp);
         return getIntBoolExp(IntBoolExpAnd.class, this, exp);
     }
 
+    @Override
     public Constraint asConstraint() {
         return this.equals(1);
     }
 
+    @Override
     public boolean isFalse() {
         return max() == 0;
     }
 
+    @Override
     public boolean isTrue() {
         return min() == 1;
     }
 
+    @Override
     public IntBoolExp or(boolean value) {
         return value ? (IntBoolExp) IntBoolExpConst.getIntBoolExpConst(constrainer(), true) : this;
     }
 
+    @Override
     public IntBoolExp or(IntBoolExp exp) {
         // return new IntBoolExpOr(this, exp);
         return getIntBoolExp(IntBoolExpOr.class, this, exp);
     }
 
+    @Override
     public void setFalse() throws Failure {
         setMax(0);
     }
 
+    @Override
     public void setTrue() throws Failure {
         setMin(1);
     }

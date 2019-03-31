@@ -53,6 +53,7 @@ public class TestDescriptionTest {
         when(method.getSignature()).thenReturn(signature);
 
         when(method.invoke(any(), any(Object[].class), any(IRuntimeEnv.class))).thenAnswer(new Answer<Void>() {
+            @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
                 Object[] params = (Object[]) invocation.getArguments()[1];
 
@@ -71,6 +72,7 @@ public class TestDescriptionTest {
         when(signature.getNumberOfParameters()).thenReturn(arguments.length);
 
         when(signature.getParameterName(anyInt())).thenAnswer(new Answer<String>() {
+            @Override
             public String answer(InvocationOnMock invocation) throws Throwable {
                 return "param" + invocation.getArguments()[0];
             }

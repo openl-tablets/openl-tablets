@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
@@ -50,7 +51,7 @@ public class ProjectDescriptorHelper {
                 streamReader.next();
 
                 switch (streamReader.getEventType()) {
-                    case XMLStreamReader.START_ELEMENT:
+                    case XMLStreamConstants.START_ELEMENT:
                         if (!"descriptor".equals(streamReader.getLocalName())) {
                             result = parseListOfDescripors(streamReader);
                         } else {
@@ -58,10 +59,10 @@ public class ProjectDescriptorHelper {
                                 "An inappropriate element <" + streamReader.getLocalName() + ">");
                         }
                         break;
-                    case XMLStreamReader.END_ELEMENT:
+                    case XMLStreamConstants.END_ELEMENT:
                         throw new IllegalStateException(
                             "An inappropriate closing element </" + streamReader.getLocalName() + ">");
-                    case XMLStreamReader.END_DOCUMENT:
+                    case XMLStreamConstants.END_DOCUMENT:
                         return result;
 
                 }
@@ -80,7 +81,7 @@ public class ProjectDescriptorHelper {
         while (streamReader.hasNext()) {
             streamReader.next();
             switch (streamReader.getEventType()) {
-                case XMLStreamReader.START_ELEMENT:
+                case XMLStreamConstants.START_ELEMENT:
                     if ("descriptor".equals(streamReader.getLocalName())) {
                         result.add(parseDescripor(streamReader));
                     } else {
@@ -88,7 +89,7 @@ public class ProjectDescriptorHelper {
                             "An inappropriate element <" + streamReader.getLocalName() + ">");
                     }
                     break;
-                case XMLStreamReader.END_ELEMENT:
+                case XMLStreamConstants.END_ELEMENT:
                     if (!"descriptors".equals(streamReader.getLocalName())) {
                         throw new IllegalStateException(
                             "An inappropriate closing element </" + streamReader.getLocalName() + ">");
@@ -106,7 +107,7 @@ public class ProjectDescriptorHelper {
             streamReader.next();
 
             switch (streamReader.getEventType()) {
-                case XMLStreamReader.START_ELEMENT:
+                case XMLStreamConstants.START_ELEMENT:
                     String localName = streamReader.getLocalName();
                     if ("projectName".equals(localName)) {
                         projectName = parseElementAsString("projectName", streamReader);
@@ -116,7 +117,7 @@ public class ProjectDescriptorHelper {
                         throw new IllegalStateException("An inappropriate element <" + localName + ">");
                     }
                     break;
-                case XMLStreamReader.END_ELEMENT:
+                case XMLStreamConstants.END_ELEMENT:
                     if (!"descriptor".equals(streamReader.getLocalName())) {
                         throw new IllegalStateException(
                             "An inappropriate closing element </" + streamReader.getLocalName() + ">");
@@ -134,10 +135,10 @@ public class ProjectDescriptorHelper {
             streamReader.next();
 
             switch (streamReader.getEventType()) {
-                case XMLStreamReader.CHARACTERS:
+                case XMLStreamConstants.CHARACTERS:
                     result = streamReader.getText();
                     break;
-                case XMLStreamReader.END_ELEMENT:
+                case XMLStreamConstants.END_ELEMENT:
                     if (!element.equals(streamReader.getLocalName())) {
                         throw new IllegalStateException(
                             "An inappropriate closing element </" + streamReader.getLocalName() + ">");

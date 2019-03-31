@@ -39,6 +39,7 @@ public class FloatVarSelectorMinSizeMin implements FloatVarSelector {
      * Selects the unbound variable with the smallest domain. If there are two variables with the same size, it will
      * select the variable with the minimal minimum. If all variables are bound, returns -1.
      */
+    @Override
     public int select() {
         double min_size = Double.POSITIVE_INFINITY;
         double min_min = Double.POSITIVE_INFINITY;

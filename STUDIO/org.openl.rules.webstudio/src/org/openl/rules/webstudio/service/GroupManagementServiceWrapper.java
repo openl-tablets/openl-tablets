@@ -12,6 +12,7 @@ public class GroupManagementServiceWrapper implements GroupManagementService {
         this.delegate = delegate;
     }
 
+    @Override
     public List<Group> getGroups() {
         if (delegate == null) {
             return Collections.emptyList();
@@ -19,6 +20,7 @@ public class GroupManagementServiceWrapper implements GroupManagementService {
         return delegate.getGroups();
     }
 
+    @Override
     public Group getGroupByName(String name) {
         if (delegate == null) {
             return null;
@@ -27,10 +29,12 @@ public class GroupManagementServiceWrapper implements GroupManagementService {
         return delegate.getGroupByName(name);
     }
 
+    @Override
     public boolean isGroupExist(String name) {
         return delegate != null && delegate.isGroupExist(name);
     }
 
+    @Override
     public void addGroup(Group group) {
         if (delegate == null) {
             return;
@@ -38,6 +42,7 @@ public class GroupManagementServiceWrapper implements GroupManagementService {
         delegate.addGroup(group);
     }
 
+    @Override
     public void updateGroup(String name, Group group) {
         if (delegate == null) {
             return;
@@ -45,6 +50,7 @@ public class GroupManagementServiceWrapper implements GroupManagementService {
         delegate.updateGroup(name, group);
     }
 
+    @Override
     public void deleteGroup(String name) {
         if (delegate == null) {
             return;

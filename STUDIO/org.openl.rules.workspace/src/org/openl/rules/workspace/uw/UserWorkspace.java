@@ -49,10 +49,12 @@ public interface UserWorkspace extends ProjectsContainer {
     
     WorkspaceUser getUser();
 
+    @Override
     RulesProject getProject(String name) throws ProjectException;
 
     RulesProject getProject(String name, boolean refreshBefore) throws ProjectException;
 
+    @Override
     Collection<RulesProject> getProjects();
 
     Collection<RulesProject> getProjects(boolean refreshBefore);

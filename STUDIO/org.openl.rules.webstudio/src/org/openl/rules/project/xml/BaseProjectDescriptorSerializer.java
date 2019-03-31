@@ -32,6 +32,7 @@ public class BaseProjectDescriptorSerializer<T> implements IProjectDescriptorSer
         xstream.allowTypeHierarchy(String.class);
     }
 
+    @Override
     public String serialize(ProjectDescriptor source) {
         return xstream.toXML(projectDescriptorVersionConverter.toOldVersion(source));
     }
@@ -39,6 +40,7 @@ public class BaseProjectDescriptorSerializer<T> implements IProjectDescriptorSer
     /**
      * @throws com.thoughtworks.xstream.XStreamException if the object cannot be deserialized
      */
+    @Override
     public ProjectDescriptor deserialize(InputStream source) {
         @SuppressWarnings("unchecked")
         T oldVersion = (T) xstream.fromXML(source);

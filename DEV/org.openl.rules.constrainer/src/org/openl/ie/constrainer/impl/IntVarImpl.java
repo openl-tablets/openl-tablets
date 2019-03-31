@@ -133,22 +133,27 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
         return _domain.toString();
     }
 
+    @Override
     public int domainType() {
         return _domain.type();
     }
 
+    @Override
     public void forceInsert(int val) {
         _domain.forceInsert(val);
     }
 
+    @Override
     public void forceMax(int val) {
         _domain.forceMax(val);
     }
 
+    @Override
     public void forceMin(int val) {
         _domain.forceMin(val);
     }
 
+    @Override
     public void forceSize(int val) {
         _domain.forceSize(val);
     }
@@ -157,6 +162,7 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
         return _history;
     }
 
+    @Override
     public Goal instantiate() {
         return new GoalInstantiate(this);
     }
@@ -171,10 +177,12 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
         _domain.iterateDomain(it);
     }
 
+    @Override
     public int max() {
         return _domain.max();
     }
 
+    @Override
     public int min() {
         return _domain.min();
     }
@@ -205,6 +213,7 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
         }
     }
 
+    @Override
     public void setMax(int max) throws Failure {
         if (_domain.setMax(max)) {
             _history.setMax(max());
@@ -212,6 +221,7 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
         }
     }
 
+    @Override
     public void setMin(int min) throws Failure {
         if (_domain.setMin(min)) {
             _history.setMin(min());

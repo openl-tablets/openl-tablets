@@ -348,6 +348,7 @@ public final class IntExpArray extends ConstrainerObjectImpl {
     public void sortByDependents() // not optimized
     {
         sort(new Comparator<IntExp>() {
+            @Override
             public int compare(IntExp o1, IntExp o2) {
                 return o2.allDependents().size() - o1.allDependents().size();
             }

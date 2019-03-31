@@ -105,13 +105,13 @@ public class TestResultExportTest {
                 assertNotNull(workbook.getSheet("Parameters 1"));
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
-                int rowNum = TestResultExport.FIRST_ROW;
+                int rowNum = BaseExport.FIRST_ROW;
                 rowNum = checkDriverPremiumTest(sheet, rowNum);
 
-                rowNum += TestResultExport.SPACE_BETWEEN_RESULTS + 1;
+                rowNum += BaseExport.SPACE_BETWEEN_RESULTS + 1;
                 rowNum = checkPolicyPremiumTest(sheet, rowNum);
 
-                rowNum += TestResultExport.SPACE_BETWEEN_RESULTS + 1;
+                rowNum += BaseExport.SPACE_BETWEEN_RESULTS + 1;
                 rowNum = checkVehiclePremiumTest(sheet, rowNum);
                 assertEquals(rowNum, sheet.getLastRowNum());
             }
@@ -134,17 +134,17 @@ public class TestResultExportTest {
                 assertNotNull(workbook.getSheet("Parameters 3"));
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
-                int rowNum = TestResultExport.FIRST_ROW;
+                int rowNum = BaseExport.FIRST_ROW;
                 rowNum = checkDriverPremiumTest(sheet, rowNum);
                 assertEquals(rowNum, sheet.getLastRowNum());
 
                 sheet = workbook.getSheetAt(1);
-                rowNum = TestResultExport.FIRST_ROW;
+                rowNum = BaseExport.FIRST_ROW;
                 rowNum = checkPolicyPremiumTest(sheet, rowNum);
                 assertEquals(rowNum, sheet.getLastRowNum());
 
                 sheet = workbook.getSheetAt(2);
-                rowNum = TestResultExport.FIRST_ROW;
+                rowNum = BaseExport.FIRST_ROW;
                 rowNum = checkVehiclePremiumTest(sheet, rowNum);
                 assertEquals(rowNum, sheet.getLastRowNum());
             }
@@ -166,7 +166,7 @@ public class TestResultExportTest {
                 assertNotNull(workbook.getSheet("Parameters 1"));
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
-                int rowNum = TestResultExport.FIRST_ROW;
+                int rowNum = BaseExport.FIRST_ROW;
                 assertRowText(sheet.getRow(rowNum), "HelloTest");
 
                 rowNum++;
@@ -208,7 +208,7 @@ public class TestResultExportTest {
                 assertEquals(2, workbook.getNumberOfSheets());
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
-                int rowNum = TestResultExport.FIRST_ROW;
+                int rowNum = BaseExport.FIRST_ROW;
                 assertRowText(sheet.getRow(rowNum), "HelloTest");
 
                 rowNum++;
@@ -228,7 +228,7 @@ public class TestResultExportTest {
                 assertNotNull(workbook.getSheet("Parameters 1"));
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
-                int rowNum = TestResultExport.FIRST_ROW;
+                int rowNum = BaseExport.FIRST_ROW;
                 assertRowText(sheet.getRow(rowNum), "HelloTest");
 
                 rowNum++;
@@ -252,7 +252,7 @@ public class TestResultExportTest {
 
                 // Test the case when parameter is referenced by primary key
                 XSSFSheet sheet = workbook.getSheetAt(0);
-                int rowNum = TestResultExport.FIRST_ROW;
+                int rowNum = BaseExport.FIRST_ROW;
                 assertRowText(sheet.getRow(rowNum), "DriverPremiumTest1");
 
                 rowNum++;
@@ -279,7 +279,7 @@ public class TestResultExportTest {
                 assertComments(row, 3, null, null, null);
 
                 // Test the case when parameter is referenced by field name despite that data table is with primary key
-                rowNum += TestResultExport.SPACE_BETWEEN_RESULTS + 1;
+                rowNum += BaseExport.SPACE_BETWEEN_RESULTS + 1;
                 assertRowText(sheet.getRow(rowNum), "DriverPremiumTest2");
 
                 rowNum++;
@@ -325,15 +325,15 @@ public class TestResultExportTest {
                 assertNotNull(workbook.getSheet("Parameters 2"));
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
-                int rowNum = TestResultExport.FIRST_ROW;
+                int rowNum = BaseExport.FIRST_ROW;
                 rowNum = checkDriverPremiumTest(sheet, rowNum);
 
-                rowNum += TestResultExport.SPACE_BETWEEN_RESULTS + 1;
+                rowNum += BaseExport.SPACE_BETWEEN_RESULTS + 1;
                 rowNum = checkPolicyPremiumTest(sheet, rowNum);
                 assertEquals(rowNum, sheet.getLastRowNum());
 
                 sheet = workbook.getSheetAt(1);
-                rowNum = TestResultExport.FIRST_ROW;
+                rowNum = BaseExport.FIRST_ROW;
                 rowNum = checkVehiclePremiumTest(sheet, rowNum);
                 assertEquals(rowNum, sheet.getLastRowNum());
             }
@@ -357,7 +357,7 @@ public class TestResultExportTest {
                 assertNotNull(workbook.getSheet("Parameters 1"));
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
-                int rowNum = TestResultExport.FIRST_ROW;
+                int rowNum = BaseExport.FIRST_ROW;
                 assertRowText(sheet.getRow(rowNum), "TestDataDReturnTest7");
 
                 rowNum++;
@@ -473,7 +473,7 @@ public class TestResultExportTest {
     }
 
     private void assertRowText(XSSFRow row, String... values) {
-        int column = TestResultExport.FIRST_COLUMN;
+        int column = BaseExport.FIRST_COLUMN;
 
         String sheetName = row.getSheet().getSheetName();
         for (String value : values) {
@@ -487,7 +487,7 @@ public class TestResultExportTest {
     }
 
     private void assertRowColors(XSSFRow row, Integer... colors) {
-        int column = TestResultExport.FIRST_COLUMN;
+        int column = BaseExport.FIRST_COLUMN;
 
         XSSFSheet sheet = row.getSheet();
         String sheetName = sheet.getSheetName();
@@ -504,7 +504,7 @@ public class TestResultExportTest {
     private void assertComments(XSSFRow row, int firstResultColumn, String... expectedTexts) {
         int columnNum = firstResultColumn;
         for (String expectedText : expectedTexts) {
-            XSSFComment comment = row.getCell(TestResultExport.FIRST_COLUMN + columnNum).getCellComment();
+            XSSFComment comment = row.getCell(BaseExport.FIRST_COLUMN + columnNum).getCellComment();
 
             if (expectedText == null) {
                 assertNull(comment);

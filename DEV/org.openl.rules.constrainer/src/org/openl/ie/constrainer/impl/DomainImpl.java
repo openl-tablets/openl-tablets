@@ -32,14 +32,17 @@ public class DomainImpl implements Domain {
         _max = max;
     }
 
+    @Override
     public Constrainer constrainer() {
         return _variable.constrainer();
     }
 
+    @Override
     public boolean contains(int value) {
         return (value >= _min && value <= _max);
     }
 
+    @Override
     public void forceInsert(int val) {
     }
 
@@ -49,18 +52,22 @@ public class DomainImpl implements Domain {
      * Integer(v)); } } return elements; }
      */
 
+    @Override
     public void forceMax(int max) {
         _max = max;
         // check("forceMax(" + max + ")");
     }
 
+    @Override
     public void forceMin(int min) {
         _min = min;
     }
 
+    @Override
     public void forceSize(int val) {
     }
 
+    @Override
     public void iterateDomain(IntExp.IntDomainIterator it) throws Failure {
         for (int i = _min; i <= _max; ++i) {
             if (!it.doSomethingOrStop(i)) {
@@ -69,10 +76,12 @@ public class DomainImpl implements Domain {
         }
     }
 
+    @Override
     public int max() {
         return _max;
     }
 
+    @Override
     public int min() {
         return _min;
     }
@@ -86,6 +95,7 @@ public class DomainImpl implements Domain {
      * @param max
      * @throws Failure
      */
+    @Override
     public boolean removeRange(int min, int max) throws Failure {
         boolean is_removed = false;
         if (min <= _min && max >= _max) {
@@ -101,6 +111,7 @@ public class DomainImpl implements Domain {
     }
 
     // Prohibited in this implementation!
+    @Override
     public boolean removeValue(int value) throws Failure {
         // Debug.print(this+".removeValue("+value+")");
         if (value == min()) {
@@ -113,6 +124,7 @@ public class DomainImpl implements Domain {
         return false;
     }
 
+    @Override
     public boolean setMax(int M) throws Failure {
         if (M >= _max) {
             return false;
@@ -131,6 +143,7 @@ public class DomainImpl implements Domain {
         return true;
     }
 
+    @Override
     public boolean setMin(int m) throws Failure {
         if (m <= _min) {
             return false;
@@ -149,6 +162,7 @@ public class DomainImpl implements Domain {
         return true;
     }
 
+    @Override
     public boolean setValue(int value) throws Failure {
         // Debug.print("setValue " + value);
         if (_min == value && _max == value) {
@@ -172,6 +186,7 @@ public class DomainImpl implements Domain {
         return true;
     }
 
+    @Override
     public int size() {
         return (_max - _min + 1);
     }
@@ -186,10 +201,12 @@ public class DomainImpl implements Domain {
         return "[" + min() + ((size() == 1) ? "" : ";" + max()) + "]";
     }
 
+    @Override
     public int type() {
         return IntVar.DOMAIN_PLAIN;
     }
 
+    @Override
     public void variable(IntVar var) {
         _variable = var;
     }

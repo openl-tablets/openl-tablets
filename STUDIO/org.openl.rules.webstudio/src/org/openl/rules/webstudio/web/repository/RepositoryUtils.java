@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class RepositoryUtils {
     public static final Comparator<AProjectArtefact> ARTEFACT_COMPARATOR = new Comparator<AProjectArtefact>() {
+        @Override
         public int compare(AProjectArtefact o1, AProjectArtefact o2) {
             if (o1.isFolder() == o2.isFolder()) {
                 return o1.getName().compareTo(o2.getName());
@@ -41,6 +42,7 @@ public final class RepositoryUtils {
     /**
      * @deprecated
      */
+    @Deprecated
     public static RulesUserSession getRulesUserSession() {
         return (RulesUserSession) FacesUtils.getSessionParam(Constants.RULES_USER_SESSION);
     }
@@ -49,6 +51,7 @@ public final class RepositoryUtils {
      * @return user's workspace or <code>null</code>
      * @deprecated
      */
+    @Deprecated
     public static UserWorkspace getWorkspace() {
         final Logger log = LoggerFactory.getLogger(RepositoryUtils.class);
         try {

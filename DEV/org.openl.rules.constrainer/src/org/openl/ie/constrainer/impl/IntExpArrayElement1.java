@@ -75,6 +75,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
             copyOfAry = createCopyOfIntExpArray(_ary);
         }
 
+        @Override
         public void arrayElementMax(int oldmax, int max, int idx) throws Failure {
             if (max < _element.min()) {
                 _index.removeValue(idx);
@@ -85,6 +86,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
             varCopy.setMax(max);
         }
 
+        @Override
         public void arrayElementMin(int oldmin, int min, int idx) throws Failure {
             if (min > _element.max()) {
                 _index.removeValue(idx);
@@ -95,12 +97,14 @@ public class IntExpArrayElement1 extends IntExpImpl {
             varCopy.setMin(min);
         }
 
+        @Override
         public void arrayElementRemove(int removedValue, int idx) throws Failure {
             decreaseUsageCounter(removedValue);
             IntVar varCopy = (IntVar) copyOfAry.get(idx);
             varCopy.removeValue(removedValue);
         }
 
+        @Override
         public void arrayElementValue(int value, int idx) throws Failure {
             IntVar varCopy = (IntVar) copyOfAry.get(idx);
             if ((value < _element.min()) || (value > _element.max())) {
@@ -171,6 +175,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
             }
         }
 
+        @Override
         public void indexMax(int oldmax, int max) throws Failure {
             FindMinMaxIterator iter = FindMinMaxIterator.getIterator(_index, _ary);
             _index.iterateDomain(iter);
@@ -189,6 +194,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
             _copyOfIndex.setMax(max);
         }/**/
 
+        @Override
         public void indexMin(int oldmin, int min) throws Failure {
             FindMinMaxIterator iter = FindMinMaxIterator.getIterator(_index, _ary);
             _index.iterateDomain(iter);
@@ -207,6 +213,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
             _copyOfIndex.setMin(min);
         }/**/
 
+        @Override
         public void indexRemove(int removedValue) throws Failure {
             if (_copyOfIndex.contains(removedValue)) {
                 decreaseUsageCounter(copyOfAry.get(removedValue).min(),
@@ -218,6 +225,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
         }/**/
 
         /**/
+        @Override
         public void indexValue(int value) throws Failure {
 
             _element.setMin(_ary.get(value).min());
@@ -232,22 +240,26 @@ public class IntExpArrayElement1 extends IntExpImpl {
             _copyOfIndex.setValue(value);
         }
 
+        @Override
         public void resultMax(int max) throws Failure {
             RemoveFromElementMaxIterator it = RemoveFromElementMaxIterator.getIterator(_index, _ary, max);
             _index.iterateDomain(it);
             it.free();
         }
 
+        @Override
         public void resultMin(int min) throws Failure {
             RemoveFromElementMinIterator it = RemoveFromElementMinIterator.getIterator(_index, _ary, min);
             _index.iterateDomain(it);
             it.free();
         }
 
+        @Override
         public void resultRemove(int value) throws Failure {
             ;
         }
 
+        @Override
         public void resultValue(int value) throws Failure {
             SetValueFromElementIterator it = SetValueFromElementIterator.getIterator(_index, _ary, value);
             _index.iterateDomain(it);
@@ -378,6 +390,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
             return iter;
         }
 
+        @Override
         public boolean doSomethingOrStop(int idx) throws Failure {
             extract.set(source.get(idx), cnt++);
             return true;
@@ -448,6 +461,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
             return it;
         }
 
+        @Override
         public boolean doSomethingOrStop(int idx) throws Failure {
             if (ary.elementAt(idx).max() > max) {
                 max = ary.elementAt(idx).max();
@@ -489,6 +503,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
             return it;
         }
 
+        @Override
         public boolean doSomethingOrStop(int idx) throws Failure {
             if (ary.elementAt(idx).contains(value)) {
                 foundIndex = idx;
@@ -594,6 +609,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
             return it;
         }
 
+        @Override
         public boolean doSomethingOrStop(int idx) throws Failure {
             int arrayElementMin = ary.elementAt(idx).min();
             if (max < arrayElementMin) {
@@ -627,6 +643,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
             return it;
         }
 
+        @Override
         public boolean doSomethingOrStop(int idx) throws Failure {
             int arrayElementMax = ary.elementAt(idx).max();
             if (min > arrayElementMax) {
@@ -660,6 +677,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
             return it;
         }
 
+        @Override
         public boolean doSomethingOrStop(int idx) throws Failure {
             if (!ary.elementAt(idx).contains(value)) {
                 index.removeValue(idx);
@@ -685,28 +703,33 @@ public class IntExpArrayElement1 extends IntExpImpl {
             _observers = observers;
         }
 
+        @Override
         public void arrayElementMax(int oldmax, int max, int idx) throws Failure {
             if (_element.min() > max) {
                 _index.removeValue(idx);
             }
         }
 
+        @Override
         public void arrayElementMin(int oldmin, int min, int idx) throws Failure {
             if (_element.max() < min) {
                 _index.removeValue(idx);
             }
         }
 
+        @Override
         public void arrayElementRemove(int value, int idx) throws Failure {
             ;
         }
 
+        @Override
         public void arrayElementValue(int value, int idx) throws Failure {
             if ((value > _element.max()) || (value < _element.min())) {
                 _index.removeValue(idx);
             }
         }
 
+        @Override
         public void indexMax(int oldmax, int max) throws Failure {
             for (int i = oldmax; i > max; i--) {
                 if ((_observers[i] != null)) {
@@ -716,6 +739,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
             updateResultDomainFromIndex();
         }
 
+        @Override
         public void indexMin(int oldmin, int min) throws Failure {
             for (int i = oldmin; i < min; i++) {
                 if ((_observers[i] != null)) {
@@ -725,10 +749,12 @@ public class IntExpArrayElement1 extends IntExpImpl {
             updateResultDomainFromIndex();
         }
 
+        @Override
         public void indexRemove(int value) throws Failure {
             _ary.get(value).detachObserver(_observers[value]);
         }
 
+        @Override
         public void indexValue(int value) throws Failure {
             for (int i = 0; i < _ary.size(); i++) {
                 if ((_observers[i] != null) && (i != value)) {
@@ -739,22 +765,26 @@ public class IntExpArrayElement1 extends IntExpImpl {
             _element.setMax(_ary.get(value).max());
         }
 
+        @Override
         public void resultMax(int max) throws Failure {
             RemoveFromElementMaxIterator it = RemoveFromElementMaxIterator.getIterator(_index, _ary, max);
             _index.iterateDomain(it);
             it.free();
         }
 
+        @Override
         public void resultMin(int min) throws Failure {
             RemoveFromElementMinIterator it = RemoveFromElementMinIterator.getIterator(_index, _ary, min);
             _index.iterateDomain(it);
             it.free();
         }
 
+        @Override
         public void resultRemove(int value) throws Failure {
             ;
         }
 
+        @Override
         public void resultValue(int value) throws Failure {
             SetValueFromElementIterator it = SetValueFromElementIterator.getIterator(_index, _ary, value);
             _index.iterateDomain(it);
@@ -788,6 +818,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
             _val = value;
         }
 
+        @Override
         public boolean doSomethingOrStop(int idx) throws Failure {
             if (_ary.get(idx).contains(_val)) {
                 cnt++;
@@ -990,6 +1021,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
         int valCounter = 0;
 
         class IntExpComparator implements java.util.Comparator {
+            @Override
             public int compare(Object a1, Object a2) {
 
                 if (((IntExp) a1).min() < ((IntExp) a2).min()) {
@@ -1031,10 +1063,12 @@ public class IntExpArrayElement1 extends IntExpImpl {
         return valFinally;
     }
 
+    @Override
     public int max() {
         return _element.max();
     }
 
+    @Override
     public int min() {
         return _element.min();
     }
@@ -1050,10 +1084,12 @@ public class IntExpArrayElement1 extends IntExpImpl {
         _element.removeValue(value);
     }
 
+    @Override
     public void setMax(int max) throws Failure {
         _element.setMax(max);
     }
 
+    @Override
     public void setMin(int min) throws Failure {
         _element.setMin(min);
     }

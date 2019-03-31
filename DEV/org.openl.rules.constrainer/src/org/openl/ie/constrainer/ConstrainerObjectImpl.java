@@ -47,22 +47,27 @@ public class ConstrainerObjectImpl implements ConstrainerObject {
         Constrainer.abort(msg);
     }
 
+    @Override
     final public Constrainer constrainer() {
         return _constrainer;
     }
 
+    @Override
     final public String name() {
         return _name;
     }
 
+    @Override
     public void name(String name) {
         _name = name;
     }
 
+    @Override
     public Object object() {
         return _object;
     }
 
+    @Override
     public void object(Object o) {
         _object = o;
     }

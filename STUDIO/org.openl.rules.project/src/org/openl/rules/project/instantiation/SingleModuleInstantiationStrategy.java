@@ -49,6 +49,7 @@ public abstract class SingleModuleInstantiationStrategy extends CommonRulesInsta
         return classLoader;
     }
 
+    @Override
     protected ClassLoader initClassLoader() {
         ProjectDescriptor project = getModule().getProject();
         return new SimpleBundleClassLoader(project.getClassPathUrls(), Thread.currentThread().getContextClassLoader());

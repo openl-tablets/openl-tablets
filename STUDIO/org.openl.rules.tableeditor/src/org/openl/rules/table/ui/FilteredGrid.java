@@ -43,6 +43,7 @@ public class FilteredGrid extends AGrid {
         }
     }
 
+    @Override
     public ICell getCell(int column, int row) {
         if (isEmpty(column, row)) {
             delegate.getCell(column, row);
@@ -61,54 +62,67 @@ public class FilteredGrid extends AGrid {
         return cellToFormat;
     }
 
+    @Override
     public int getColumnWidth(int col) {
         return delegate.getColumnWidth(col);
     }
 
+    @Override
     public int getMaxColumnIndex(int row) {
         return delegate.getMaxColumnIndex(row);
     }
 
+    @Override
     public int getMaxRowIndex() {
         return delegate.getMaxRowIndex();
     }
 
+    @Override
     public IGridRegion getMergedRegion(int i) {
         return delegate.getMergedRegion(i);
     }
 
+    @Override
     public int getMinColumnIndex(int row) {
         return delegate.getMaxColumnIndex(row);
     }
 
+    @Override
     public int getMinRowIndex() {
         return delegate.getMinRowIndex();
     }
 
+    @Override
     public int getNumberOfMergedRegions() {
         return delegate.getNumberOfMergedRegions();
     }
 
+    @Override
     public String getRangeUri(int colStart, int rowStart, int colEnd, int rowEnd) {
         return delegate.getRangeUri(colStart, rowStart, colEnd, rowEnd);
     }
 
+    @Override
     public IGridRegion getRegionStartingAt(int colFrom, int rowFrom) {
         return delegate.getRegionStartingAt(colFrom, rowFrom);
     }
 
+    @Override
     public String getUri() {
         return delegate.getUri();
     }
 
+    @Override
     public boolean isEmpty(int col, int row) {
         return delegate.isEmpty(col, row);
     }
 
+    @Override
     public boolean isPartOfTheMergedRegion(int col, int row) {
         return delegate.isPartOfTheMergedRegion(col, row);
     }
 
+    @Override
     public IGridRegion getRegionContaining(int column, int row) {
         return delegate.getRegionContaining(column, row);
     }

@@ -87,6 +87,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
         throw new ProjectException(String.format("Project descriptor '%s' is not found", name));
     }
 
+    @Override
     public void openVersion(String version) {
         modifiedDescriptors = false;
         openedVersion = new ADeploymentProject(getUser(), getRepository(), getFolderPath(), version, lockEngine);
@@ -120,6 +121,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
         }
     }
 
+    @Override
     public boolean isOpened() {
         return openedVersion != null; //|| isOpenedForEditing();
     }

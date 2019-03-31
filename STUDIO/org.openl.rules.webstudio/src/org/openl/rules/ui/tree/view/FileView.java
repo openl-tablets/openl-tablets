@@ -18,18 +18,22 @@ public class FileView implements RulesTreeView {
         new TableVersionTreeNodeBuilder()
     };
 
+    @Override
     public String getName() {
     	return "file";
     }
     
+    @Override
     public String getDisplayName() {
     	return "File";
     }
 
+    @Override
     public String getDescription() {
     	return "Organize projects by physical location";
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public TreeNodeBuilder[] getBuilders() {
         return sorters;

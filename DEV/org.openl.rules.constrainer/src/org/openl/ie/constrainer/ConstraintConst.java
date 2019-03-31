@@ -31,6 +31,7 @@ public final class ConstraintConst extends ConstraintImpl {
         _flag = flag;
     }
 
+    @Override
     public Goal execute() throws Failure {
         if (!_flag) {
             constrainer().fail("Const");

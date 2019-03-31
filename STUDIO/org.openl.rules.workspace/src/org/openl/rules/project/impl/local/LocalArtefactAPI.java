@@ -93,36 +93,44 @@ public class LocalArtefactAPI implements ArtefactAPI {
         return source;
     }
 
+    @Override
     public Map<String, Object> getProps() {
         return props;
     }
 
+    @Override
     public void setProps(Map<String, Object> props) throws PropertyException {
         this.props = props;
         notifyModified();
     }
 
+    @Override
     public void addProperty(String name, ValueType type, Object value) throws PropertyException {
         properties.addProperty(new PropertyImpl(name, type, value));
         notifyModified();
     }
 
+    @Override
     public Collection<Property> getProperties() {
         return properties.getProperties();
     }
 
+    @Override
     public Property getProperty(String name) throws PropertyException {
         return properties.getProperty(name);
     }
 
+    @Override
     public boolean hasProperty(String name) {
         return properties.hasProperty(name);
     }
 
+    @Override
     public Property removeProperty(String name) throws PropertyException {
         return properties.removeProperty(name);
     }
 
+    @Override
     public void delete(CommonUser user) throws ProjectException {
         boolean success;
         try {
@@ -139,18 +147,22 @@ public class LocalArtefactAPI implements ArtefactAPI {
         }
     }
 
+    @Override
     public ArtefactPath getArtefactPath() {
         return path;
     }
 
+    @Override
     public String getName() {
         return source.getName();
     }
 
+    @Override
     public boolean isFolder() {
         return source.isDirectory();
     }
 
+    @Override
     public ProjectVersion getVersion() {
         return currentVersion;
     }
@@ -160,6 +172,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
         notifyModified();
     }
 
+    @Override
     public List<ProjectVersion> getVersions() {
         if (versions == null) {
             versions = new ArrayList<>();
@@ -193,23 +206,28 @@ public class LocalArtefactAPI implements ArtefactAPI {
         private long creationDate;
     }
 
+    @Override
     public LockInfo getLockInfo() {
         return LockInfoImpl.NO_LOCK;
     }
 
+    @Override
     public void lock(CommonUser user) throws ProjectException {
         // TODO Auto-generated method stub
     }
 
+    @Override
     public void unlock(CommonUser user) throws ProjectException {
         // TODO Auto-generated method stub
     }
 
+    @Override
     public ArtefactAPI getVersion(CommonVersion version) {
         // TODO Auto-generated method stub
         return this;
     }
 
+    @Override
     public void removeAllProperties() throws PropertyException {
         properties.removeAll();
     }
@@ -219,6 +237,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
         return new File(workspace.getLocation(), projectName);
     }
     
+    @Override
     public void commit(CommonUser user, int revision) throws ProjectException {
         modified = false;
         creationDate = source.lastModified();

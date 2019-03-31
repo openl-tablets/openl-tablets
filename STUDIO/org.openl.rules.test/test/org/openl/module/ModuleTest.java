@@ -196,7 +196,7 @@ public class ModuleTest extends TestCase {
 
         OpenMethodHeader methodHeader = new OpenMethodHeader("foo", retType, signature, null);
 
-        BindingContext cxt = new BindingContext((Binder) op.getBinder(), null, op);
+        BindingContext cxt = new BindingContext(op.getBinder(), null, op);
 
         IOpenMethod method = OpenLManager.makeMethod(op, src, methodHeader, cxt);
 
@@ -242,7 +242,7 @@ public class ModuleTest extends TestCase {
 
         OpenMethodHeader methodHeader = new OpenMethodHeader("foo", JavaOpenClass.VOID, signature, null);
 
-        BindingContext cxt = new BindingContext((Binder) op.getBinder(), null, op);
+        BindingContext cxt = new BindingContext(op.getBinder(), null, op);
 
         IOpenMethod method = OpenLManager.makeMethod(op, src, methodHeader, cxt);
 
@@ -258,7 +258,7 @@ public class ModuleTest extends TestCase {
 
         OpenMethodHeader methodHeader = new OpenMethodHeader("foo", retType, signature, null);
 
-        BindingContext cxt = new BindingContext((Binder) op.getBinder(), null, op);
+        BindingContext cxt = new BindingContext(op.getBinder(), null, op);
 
         ModuleBindingContext moduleContext = new ModuleBindingContext(cxt, module);
 

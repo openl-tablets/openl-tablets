@@ -133,10 +133,12 @@ public final class IntExpAddArray extends IntExpImpl {
         return true;
     }
 
+    @Override
     public int max() {
         return _sum.max();
     }
 
+    @Override
     public int min() {
         return _sum.min();
     }
@@ -184,6 +186,7 @@ public final class IntExpAddArray extends IntExpImpl {
         }
     }
 
+    @Override
     public void setMax(int max) throws Failure {
 
         if (max >= max()) {
@@ -206,6 +209,7 @@ public final class IntExpAddArray extends IntExpImpl {
         // System.out.println("---- set max:" + max + " in " + this);
     }
 
+    @Override
     public void setMin(int min) throws Failure {
 
         if (min <= min()) {

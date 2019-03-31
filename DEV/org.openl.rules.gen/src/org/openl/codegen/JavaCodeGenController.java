@@ -53,6 +53,7 @@ public class JavaCodeGenController implements ICodeGenController {
         map.put(Severity.class, (value, gen, sb) -> gen.genLiteralErrorSeverity((Severity) value, sb));
     }
 
+    @Override
     public StringBuilder processLiteralValue(Object value, ICodeGen gen, StringBuilder sb) {
 
         if (value == null) {

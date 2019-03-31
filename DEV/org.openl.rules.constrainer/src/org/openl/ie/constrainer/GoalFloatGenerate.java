@@ -58,6 +58,7 @@ public class GoalFloatGenerate extends GoalImpl {
     /**
      * Instantiates all variables in the order defined by the variable selector.
      */
+    @Override
     public Goal execute() throws Failure {
         int index = _var_selector.select();
 

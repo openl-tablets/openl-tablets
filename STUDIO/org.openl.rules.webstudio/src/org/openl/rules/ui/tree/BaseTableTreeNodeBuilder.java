@@ -12,6 +12,7 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
     /**
      * {@inheritDoc}
      */
+    @Override
     public ITreeNode<Object> makeNode(TableSyntaxNode tableSyntaxNode, int i) {
 
         Object nodeObject = makeObject(tableSyntaxNode);
@@ -36,6 +37,7 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
     /**
      * {@inheritDoc}
      */
+    @Override
     public Comparable<?> makeKey(TableSyntaxNode tableSyntaxNode) {
         return makeKey(tableSyntaxNode, 0);
     }
@@ -43,6 +45,7 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
     /**
      * {@inheritDoc}
      */
+    @Override
     public Comparable<?> makeKey(TableSyntaxNode tableSyntaxNode, int i) {
 
         Object nodeObject = makeObject(tableSyntaxNode);
@@ -53,6 +56,7 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isUnique(TableSyntaxNode tableSyntaxNode) {
         return false;
     }
@@ -60,6 +64,7 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
         return true;
     }

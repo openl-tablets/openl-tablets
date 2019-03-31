@@ -28,10 +28,12 @@ public class ProjectTreeNode extends TreeNode<Object> implements INamedThing {
         return displayName;
     }
 
+    @Override
     public String getDisplayName(int mode) {
         return displayName[mode];
     }
 
+    @Override
     public String getName() {
         return getDisplayName(SHORT);
     }

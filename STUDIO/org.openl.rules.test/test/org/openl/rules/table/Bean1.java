@@ -57,6 +57,7 @@ public class Bean1 {
         bref = bean1;
     }
 
+    @Override
     public String toString() {
         return key + ":" + name + ":" + intvalue + ":" + (bref == null ? "n/a" : bref.key);
     }

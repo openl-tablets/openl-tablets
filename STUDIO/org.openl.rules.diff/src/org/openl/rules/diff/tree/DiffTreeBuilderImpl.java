@@ -18,10 +18,12 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
         this.projectionDiffer = projectionDiffer;
     }
 
+    @Override
     public DiffTreeNode compare(Projection p1, Projection p2) {
         return compare(new Projection[]{p1, p2});
     }
 
+    @Override
     public DiffTreeNode compare(Projection[] projections) {
         if (projections.length < 2) {
             throw new IllegalArgumentException("At least 2 elements are required!");
@@ -195,6 +197,7 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
             type = p.getType();
         }
 
+        @Override
         public int compareTo(ProjectionKey o) {
             int diff = type.compareTo(o.type);
             if (diff == 0) {

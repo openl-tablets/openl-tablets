@@ -112,6 +112,7 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
         _unboundsCounter = size;
     }
 
+    @Override
     public boolean bound() {
         for (int i = 0; i < _set.size(); i++) {
             if (!_set.get(i).bound()) {
@@ -121,6 +122,7 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
         return true;
     }
 
+    @Override
     public boolean contains(Set anotherSet) {
         if (!_values2index.keySet().containsAll(anotherSet)) {
             return false;
@@ -135,6 +137,7 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
         return true;
     }
 
+    @Override
     public Goal generate() {
         return new GoalGenerate(_set);
     }
@@ -144,6 +147,7 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
         return (IntBoolVar) _set.get(idx);
     }
 
+    @Override
     public IntSetVar intersectionWith(IntSetVar anotherSet) {
         if (anotherSet instanceof IntSetVarImpl) {
             return intersectionWith((IntSetVarImpl) anotherSet);
@@ -181,6 +185,7 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
         return result;
     }
 
+    @Override
     public boolean possible(int value) {
         return (hasElem(value).max() == 1);
     }
@@ -189,18 +194,22 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
     public void propagate() throws Failure {
     }
 
+    @Override
     public void remove(int val) throws Failure {
         hasElem(val).setFalse();
     }
 
+    @Override
     public void require(int val) throws Failure {
         hasElem(val).setTrue();
     }
 
+    @Override
     public boolean required(int value) {
         return (hasElem(value).min() == 1);
     }
 
+    @Override
     public Set requiredSet() {
         java.util.HashSet values = new java.util.HashSet();
         Iterator iter = _values2index.keySet().iterator();
@@ -214,6 +223,7 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
         return values;
     }
 
+    @Override
     public IntSetVar unionWith(IntSetVar anotherSet) {
         if (anotherSet instanceof IntSetVarImpl) {
             return unionWith((IntSetVarImpl) anotherSet);
@@ -270,6 +280,7 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
         return result;
     }
 
+    @Override
     public Set value() throws Failure {
         if (!bound()) {
             constrainer().fail("Attempt to get value of the unbound variable " + this);

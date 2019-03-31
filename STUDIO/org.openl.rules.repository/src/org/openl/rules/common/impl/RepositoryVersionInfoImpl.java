@@ -28,18 +28,22 @@ public class RepositoryVersionInfoImpl implements VersionInfo {
         this.modifiedBy = modifiedBy;
     }
 
+    @Override
     public Date getCreatedAt() {
         return createdAt;
     }
 
+    @Override
     public String getCreatedBy() {
         return createdBy;
     }
     
+    @Override
     public Date getModifiedAt() {
         return modifiedAt;
     }
 
+    @Override
     public String getModifiedBy() {
         return modifiedBy;
     }

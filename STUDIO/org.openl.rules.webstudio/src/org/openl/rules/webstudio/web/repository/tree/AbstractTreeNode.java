@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.faces.model.SelectItem;
@@ -122,6 +121,7 @@ public abstract class AbstractTreeNode implements TreeNode {
      * @param child a node to be added as child
      * @return self-reference on the node
      */
+    @Override
     public TreeNode add(TreeNode child) {
         addChild(child.getId(), child);
         return this;
@@ -137,12 +137,15 @@ public abstract class AbstractTreeNode implements TreeNode {
         child.setParent(this);
     }
 
+    @Override
     public void addChild(Object id, org.richfaces.model.TreeNode child) {
     }
 
+    @Override
     public void insertChild(int index, Object id, org.richfaces.model.TreeNode child) {
     }
 
+    @Override
     public int indexOf(Object id) {
         return 0;
     }
@@ -168,6 +171,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     /**
      * Clears children. Works recursively.
      */
+    @Override
     public void clear() {
         if (getElements() != null) {
             // recursion
@@ -182,6 +186,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     /**
      * @see TreeNode#getChild(Object)
      */
+    @Override
     public TreeNode getChild(Object id) {
         checkLeafOnly();
 
@@ -199,11 +204,13 @@ public abstract class AbstractTreeNode implements TreeNode {
         return null;
     }
 
+    @Override
     public List<TreeNode> getChildNodes() {
         // elements are sorted already
         return new ArrayList<>(getElements().values());
     }
 
+    @Override
     public Iterator<Object> getChildrenKeysIterator() {
         Iterator<Object> result;
 
@@ -218,6 +225,7 @@ public abstract class AbstractTreeNode implements TreeNode {
         return result;
     }
 
+    @Override
     public AProjectArtefact getData() {
         return data;
     }
@@ -246,6 +254,7 @@ public abstract class AbstractTreeNode implements TreeNode {
      */
     public abstract String getIconLeaf();
 
+    @Override
     public String getId() {
         return id;
     }
@@ -255,6 +264,7 @@ public abstract class AbstractTreeNode implements TreeNode {
      *
      * @return name of node in tree
      */
+    @Override
     public String getName() {
         return name;
     }
@@ -262,10 +272,12 @@ public abstract class AbstractTreeNode implements TreeNode {
     /**
      * @see TreeNode#getParent()
      */
+    @Override
     public TreeNode getParent() {
         return parent;
     }
 
+    @Override
     public String getVersionName() {
         if (data instanceof AProject) {
             ProjectVersion version = data.getVersion();
@@ -282,6 +294,7 @@ public abstract class AbstractTreeNode implements TreeNode {
         return node == null ? null : (RulesProject) node.getData();
     }
 
+    @Override
     public Collection<ProjectVersion> getVersions() {
         if (data != null) {
             RulesProject project = findProjectContainingCurrentArtefact();
@@ -336,33 +349,40 @@ public abstract class AbstractTreeNode implements TreeNode {
         return selectItems.toArray(new SelectItem[selectItems.size()]);
     }
 
+    @Override
     public boolean isLeafOnly() {
         return isLeafOnly;
     }
 
+    @Override
     public boolean isLeaf() {
         return isLeafOnly || getData() instanceof AProjectFolder && !((AProjectFolder) getData()).hasArtefacts();
     }
 
+    @Override
     public void removeChild(Object id) {
         checkLeafOnly();
 
         getElements().remove(id);
     }
 
+    @Override
     public void removeChildren() {
         checkLeafOnly();
         getElements().clear();
     }
 
+    @Override
     public void setData(AProjectArtefact data) {
         this.data = data;
     }
 
+    @Override
     public void setParent(TreeNode parent) {
         this.parent = parent;
     }
 
+    @Override
     public void refresh(){
         data.refresh();
     }

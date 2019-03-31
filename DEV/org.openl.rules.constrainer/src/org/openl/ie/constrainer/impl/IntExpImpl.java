@@ -37,62 +37,75 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
         super(constrainer, name);
     }
 
+    @Override
     public IntExp add(int value) {
         // return new IntExpAddValue(this,value);
         return getIntExp(IntExpAddValue.class, this, value);
     }
 
+    @Override
     public IntExp add(IntExp exp) {
         // return new IntExpAddExp(this,exp);
         return getIntExp(IntExpAddExp.class, this, exp);
     }
 
+    @Override
     public boolean bound() {
         return min() == max();
     }
 
+    @Override
     public boolean contains(int value) // better to be redefined in subclasses
     {
         return (value >= min() && value <= max());
     }
 
+    @Override
     public String domainToString() {
         return domainToString(min(), max());
     }
 
+    @Override
     public IntBoolExp eq(int value) {
         // return new IntBoolExpEqValue(this, value);
         return getIntBoolExp(IntBoolExpEqValue.class, this, value);
     }
 
+    @Override
     public Constraint equals(int value) // this == value
     {
         return new ConstraintExpEqualsValue(this, value);
     }
 
+    @Override
     public Constraint equals(IntExp exp) // this == exp
     {
         return new ConstraintExpEqualsExp(this, exp);
     }
 
+    @Override
     public IntBoolExp ge(int value) {
         return gt(value - 1);
     }
 
+    @Override
     public IntBoolExp gt(int value) {
         // return gt(new IntExpConst(_constrainer, value));
         return gt(getIntExp(IntExpConst.class, value));
     }
 
+    @Override
     public IntBoolExp gt(IntExp exp) {
         // return new IntBoolExpLessExp(exp, this);
         return getIntBoolExp(IntBoolExpLessExp.class, exp, this);
     }
 
+    @Override
     public boolean isLinear() {
         return false;
     }
 
+    @Override
     public void iterateDomain(IntExp.IntDomainIterator it) throws Failure {
         for (int i = min(); i <= max(); ++i) {
             if (contains(i)) {
@@ -104,15 +117,18 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
         }
     }
 
+    @Override
     public IntBoolExp le(int value) {
         return lt(value + 1);
     }
 
+    @Override
     public IntBoolExp lt(int value) {
         // return lt(new IntExpConst(_constrainer, value));
         return lt(getIntExp(IntExpConst.class, value));
     }
 
+    @Override
     public IntBoolExp lt(IntExp exp) {
         // return new IntBoolExpLessExp(this,exp);
         return getIntBoolExp(IntBoolExpLessExp.class, this, exp);
@@ -157,6 +173,7 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
     public void propagate() throws Failure {
     }
 
+    @Override
     public void removeRange(int min, int max) throws Failure {
         /*
          * commented by SV 02.06.03 by SV due to domain improvements if(min > max) throw new
@@ -172,6 +189,7 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
     protected void removeRangeInternal(int min, int max) throws Failure {
     }
 
+    @Override
     public void removeValue(int value) throws Failure {
         int min, max;
         if (value == (min = min())) {
@@ -187,11 +205,13 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
     protected void removeValueInternal(int value) throws Failure {
     }
 
+    @Override
     public void setValue(int value) throws Failure {
         setMin(value);
         setMax(value);
     }
 
+    @Override
     public int size() // better to be redefined in subclasses
     {
         return max() - min() + 1;
@@ -207,6 +227,7 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
         return name() + domainToString();
     }
 
+    @Override
     public int value() throws Failure {
         int min = min();
 
@@ -217,6 +238,7 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
         return min;
     }
 
+    @Override
     public int valueUnsafe() {
         return min();
     }

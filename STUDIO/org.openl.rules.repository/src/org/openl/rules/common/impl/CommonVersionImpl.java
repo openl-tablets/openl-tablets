@@ -51,6 +51,7 @@ public class CommonVersionImpl implements CommonVersion {
         }
     }
 
+    @Override
     public int compareTo(CommonVersion o) {
         /*Version with the same Revisions always equal*/
         if (revision.equals(o.getRevision())) {
@@ -98,18 +99,22 @@ public class CommonVersionImpl implements CommonVersion {
         return compareTo((CommonVersion) o) == 0;
     }
 
+    @Override
     public int getMajor() {
         return major;
     }
 
+    @Override
     public int getMinor() {
         return minor;
     }
 
+    @Override
     public String getRevision() {
         return revision;
     }
 
+    @Override
     public String getVersionName() {
         if (versionName == null) {
             if (major != MAX_MM_INT && minor != MAX_MM_INT && major != -1 && minor != -1) {

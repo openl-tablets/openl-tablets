@@ -128,10 +128,12 @@ public final class FloatExpAddValue extends FloatExpImpl {
         return _exp.isLinear();
     }
 
+    @Override
     public double max() {
         return _exp.max() + _value;
     }
 
+    @Override
     public double min() {
         return _exp.min() + _value;
     }
@@ -146,14 +148,17 @@ public final class FloatExpAddValue extends FloatExpImpl {
     // _exp.removeValue(value - _value);
     // }
 
+    @Override
     public void setMax(double max) throws Failure {
         _exp.setMax(max - _value);
     }
 
+    @Override
     public void setMin(double min) throws Failure {
         _exp.setMin(min - _value);
     }
 
+    @Override
     public void setValue(double value) throws Failure {
         _exp.setValue(value - _value);
     }

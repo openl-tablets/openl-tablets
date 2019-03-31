@@ -374,6 +374,7 @@ public class TableCopier extends TableCreationWizard {
      *
      * @return new properties
      */
+    @Override
     protected Map<String, Object> buildProperties() {
         Map<String, Object> newProperties = new LinkedHashMap<>();
         if (WebStudioUtils.getWebStudio().isUpdateSystemProperties()) {

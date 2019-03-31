@@ -1,7 +1,6 @@
 package org.openl.rules.project.impl.local;
 
 import org.openl.rules.common.LockInfo;
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.LockEngine;
 
 public class DummyLockEngine implements LockEngine {

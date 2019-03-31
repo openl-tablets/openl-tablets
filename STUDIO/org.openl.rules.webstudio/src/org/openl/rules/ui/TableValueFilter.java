@@ -23,6 +23,7 @@ class TableValueFilter extends AGridFilter {
         this.startY = t.getGridRow(0, 0) + table.getRow(0).getSource().getHeight();
     }
 
+    @Override
     public FormattedCell filterFormat(FormattedCell cell) {
         ILogicalTable table = res.getLogicalTable();
 

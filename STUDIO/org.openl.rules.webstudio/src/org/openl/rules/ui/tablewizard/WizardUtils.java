@@ -2,7 +2,6 @@ package org.openl.rules.ui.tablewizard;
 
 import java.lang.reflect.Modifier;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;

@@ -19,6 +19,7 @@ public class StartupListener implements ServletContextListener {
 
     private final Logger log = LoggerFactory.getLogger(StartupListener.class);
 
+    @Override
     public void contextInitialized(ServletContextEvent event) {
         ServletContext context = event.getServletContext();
         String name = context.getServletContextName();
@@ -62,6 +63,7 @@ public class StartupListener implements ServletContextListener {
         }
     }
 
+    @Override
     public void contextDestroyed(ServletContextEvent event) {
         String name = event.getServletContext().getServletContextName();
         log.info("{} is down.", name);

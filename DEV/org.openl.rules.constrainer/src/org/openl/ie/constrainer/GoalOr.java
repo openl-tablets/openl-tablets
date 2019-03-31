@@ -45,6 +45,7 @@ public class GoalOr extends GoalImpl {
     /**
      * Sets the choice point in the constrainer.
      */
+    @Override
     public Goal execute() throws Failure {
         // Debug.print("Execute "+this);
         constrainer().setChoicePoint(_g1, _g2, _label);

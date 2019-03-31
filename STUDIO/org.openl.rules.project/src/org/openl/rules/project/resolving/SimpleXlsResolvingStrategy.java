@@ -25,6 +25,7 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleXlsResolvingStrategy.class);
 
+    @Override
     public boolean isRulesProject(File folder) {
         if (!folder.isDirectory()) {
             return false;
@@ -40,6 +41,7 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
         return false;
     }
 
+    @Override
     public ProjectDescriptor resolveProject(File folder) throws ProjectResolvingException {
         Map<String, Module> modules = new TreeMap<>();
         try {

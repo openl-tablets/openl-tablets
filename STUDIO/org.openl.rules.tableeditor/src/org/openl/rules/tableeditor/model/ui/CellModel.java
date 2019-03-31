@@ -159,14 +159,17 @@ public class CellModel implements ICellModel {
         return buf.toString();
     }
 
+    @Override
     public BorderStyle[] getBorderStyle() {
         return borderStyle;
     }
 
+    @Override
     public int getColspan() {
         return colspan;
     }
 
+    @Override
     public String getContent(boolean showFormulas) {
         if (showFormulas && hasFormula) {
             return convertContent(formula);
@@ -175,6 +178,7 @@ public class CellModel implements ICellModel {
         }
     }
 
+    @Override
     public ICellFont getFont() {
         return font;
     }
@@ -277,14 +281,17 @@ public class CellModel implements ICellModel {
         return column;
     }
 
+    @Override
     public int getIndent() {
         return indent;
     }
 
+    @Override
     public short[] getRgbBackground() {
         return rgbBackground;
     }
 
+    @Override
     public int getRowspan() {
         return rowspan;
     }
@@ -293,6 +300,7 @@ public class CellModel implements ICellModel {
         return valign;
     }
 
+    @Override
     public boolean isReal() {
         return true;
     }
@@ -310,18 +318,22 @@ public class CellModel implements ICellModel {
         borderStyle[dir] = bStyle;
     }
 
+    @Override
     public void setBorderStyle(BorderStyle[] borderStyle) {
         this.borderStyle = borderStyle;
     }
 
+    @Override
     public void setColspan(int colspan) {
         this.colspan = colspan;
     }
 
+    @Override
     public void setContent(String content) {
         this.content = content;
     }
 
+    @Override
     public void setFont(ICellFont font) {
         this.font = font;
     }
@@ -330,14 +342,17 @@ public class CellModel implements ICellModel {
         this.halign = halign;
     }
 
+    @Override
     public void setIndent(int indent) {
         this.indent = indent;
     }
 
+    @Override
     public void setRgbBackground(short[] rgbBackground) {
         this.rgbBackground = rgbBackground;
     }
 
+    @Override
     public void setRowspan(int rowspan) {
         this.rowspan = rowspan;
     }
@@ -350,23 +365,28 @@ public class CellModel implements ICellModel {
         this.width = width;
     }
 
+    @Override
     public boolean hasFormula() {
         return hasFormula;
     }
 
+    @Override
     public void setFormula(String formula) {
         this.formula = "=" + formula;
         hasFormula = true;
     }
 
+    @Override
     public String getFormula() {
         return formula;
     }
 
+    @Override
     public String getComment() {
         return comment;
     }
 
+    @Override
     public void setComment(String comment) {
         this.comment = comment;
     }

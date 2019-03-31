@@ -84,10 +84,12 @@ public class FloatVarImpl extends FloatExpImpl implements FloatVar {
         return UndoFloatVar.getFloatVarUndo();
     }
 
+    @Override
     public void forceMax(double max) {
         _domain.forceMax(max);
     }
 
+    @Override
     public void forceMin(double min) {
         _domain.forceMin(min);
     }
@@ -96,6 +98,7 @@ public class FloatVarImpl extends FloatExpImpl implements FloatVar {
         return _history;
     }
 
+    @Override
     public Goal instantiate() {
         return new GoalFloatInstantiate(this);
     }
@@ -105,10 +108,12 @@ public class FloatVarImpl extends FloatExpImpl implements FloatVar {
         return true;
     }
 
+    @Override
     public double max() {
         return _domain.max();
     }
 
+    @Override
     public double min() {
         return _domain.min();
     }
@@ -118,6 +123,7 @@ public class FloatVarImpl extends FloatExpImpl implements FloatVar {
         _history.propagate();
     }
 
+    @Override
     public void setMax(double max) throws Failure {
         // Debug.print(this+".setMax("+max+")");
         if (_domain.setMax(max)) {
@@ -126,6 +132,7 @@ public class FloatVarImpl extends FloatExpImpl implements FloatVar {
         }
     }
 
+    @Override
     public void setMin(double min) throws Failure {
         // Debug.print(this+".setMin("+min+")");
         if (_domain.setMin(min)) {
@@ -134,6 +141,7 @@ public class FloatVarImpl extends FloatExpImpl implements FloatVar {
         }
     }
 
+    @Override
     public void setValue(double value) throws Failure {
         // Debug.print(this+".setValue("+value+")");
         if (_domain.setValue(value)) {

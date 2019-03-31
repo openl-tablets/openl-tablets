@@ -18,6 +18,7 @@ public class PropertiesContainerImpl implements PropertiesContainer {
     }
 
     /** {@inheritDoc} */
+    @Override
     public void addProperty(Property property) throws PropertyException {
         String name = property.getName();
         Property existing = properties.get(name);
@@ -41,11 +42,13 @@ public class PropertiesContainerImpl implements PropertiesContainer {
     }
 
     /** {@inheritDoc} */
+    @Override
     public Collection<Property> getProperties() {
         return properties.values();
     }
 
     /** {@inheritDoc} */
+    @Override
     public Property getProperty(String name) throws PropertyException {
         Property property = properties.get(name);
         if (property == null) {
@@ -56,6 +59,7 @@ public class PropertiesContainerImpl implements PropertiesContainer {
     }
 
     /** {@inheritDoc} */
+    @Override
     public boolean hasProperty(String name) {
         return properties.containsKey(name);
     }
@@ -68,6 +72,7 @@ public class PropertiesContainerImpl implements PropertiesContainer {
     }
 
     /** {@inheritDoc} */
+    @Override
     public Property removeProperty(String name) throws PropertyException {
         // throws exception if no prop with such name
         Property prop = getProperty(name);

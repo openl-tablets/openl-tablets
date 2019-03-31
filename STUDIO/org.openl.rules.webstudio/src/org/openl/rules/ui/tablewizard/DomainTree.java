@@ -18,7 +18,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -209,7 +208,7 @@ public class DomainTree {
         Collection<IOpenClass> unsortedClasses = treeElements.values();
         List<IOpenClass> sortedClasses = new ArrayList<>(unsortedClasses);
         Collections.sort(sortedClasses,
-            (s1, s2) -> s1.getDisplayName(IOpenClass.SHORT).compareTo(s2.getDisplayName(IOpenClass.SHORT)));
+            (s1, s2) -> s1.getDisplayName(INamedThing.SHORT).compareTo(s2.getDisplayName(INamedThing.SHORT)));
         return sortedClasses;
     }
 

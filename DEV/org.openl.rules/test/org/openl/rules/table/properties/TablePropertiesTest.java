@@ -137,7 +137,7 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
         assertTrue(allProperties.containsKey(PROPERTY_DESCRIPTION));
 
         // check that property was overriden on TABLE level.
-        assertEquals("tableLevelCreatedBy", (String) allProperties.get(PROPERTY_CREATED_BY));
+        assertEquals("tableLevelCreatedBy", allProperties.get(PROPERTY_CREATED_BY));
 
         // check that CATEGORY properties are inherited.
         assertTrue(allProperties.containsKey(PROPERTY_LOB));
@@ -145,7 +145,7 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
         assertTrue(allProperties.containsKey(PROPERTY_REGION));
 
         // check that property was overriden on CATEGORY level.
-        assertEquals("categoryLevelBuildPhase", (String) allProperties.get(PROPERTY_BUILD_PHASE));
+        assertEquals("categoryLevelBuildPhase", allProperties.get(PROPERTY_BUILD_PHASE));
 
         // check that MODULE properties are inherited.
         assertTrue(allProperties.containsKey(PROPERTY_EXPIRATION_DATE));

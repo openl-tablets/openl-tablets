@@ -80,6 +80,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         return new ModuleFileSourceCodeModule(url, getModule().getName());
     }
  
+    @Override
     @SuppressWarnings("unchecked")
     protected RulesEngineFactory<?> getEngineFactory() {
         Class<Object> serviceClass;

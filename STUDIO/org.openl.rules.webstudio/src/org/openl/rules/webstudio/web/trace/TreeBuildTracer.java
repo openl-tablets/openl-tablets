@@ -124,6 +124,7 @@ public final class TreeBuildTracer extends Tracer {
                 return null;
             }
 
+            @Override
             public Object getResult() {
                 return null;
             }

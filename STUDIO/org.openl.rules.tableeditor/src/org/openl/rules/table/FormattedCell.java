@@ -21,6 +21,7 @@ public class FormattedCell implements ICell {
 
     private ICell delegate;
 
+    @Override
     public ICell getTopLeftCellFromRegion() {
 		return delegate.getTopLeftCellFromRegion();
 	}
@@ -45,14 +46,17 @@ public class FormattedCell implements ICell {
         this.metaInfo = cellMetaInfo;
     }
 
+    @Override
     public ICellStyle getStyle() {
         return style;
     }
 
+    @Override
     public ICellFont getFont() {
         return font;
     }
 
+    @Override
     public Object getObjectValue() {
         return objectValue;
     }
@@ -80,70 +84,87 @@ public class FormattedCell implements ICell {
         this.formattedValue = formattedValue;
     }
 
+    @Override
     public int getAbsoluteColumn() {
         return delegate.getAbsoluteColumn();
     }
 
+    @Override
     public int getAbsoluteRow() {
         return delegate.getAbsoluteRow();
     }
 
+    @Override
     public IGridRegion getAbsoluteRegion() {
         return delegate.getAbsoluteRegion();
     }
 
+    @Override
     public int getRow() {
         return delegate.getRow();
     }
 
+    @Override
     public int getColumn() {
         return delegate.getColumn();
     }
 
+    @Override
     public IGridRegion getRegion() {
         return delegate.getRegion();
     }
 
+    @Override
     public int getHeight() {
         return delegate.getHeight();
     }
 
+    @Override
     public String getStringValue() {
         return delegate.getStringValue();
     }
 
+    @Override
     public int getWidth() {
         return delegate.getWidth();
     }
 
+    @Override
     public String getFormula() {
         return delegate.getFormula();
     }
 
+    @Override
     public int getType() {
         return delegate.getType();
     }
 
+    @Override
     public String getUri() {
         return delegate.getUri();
     }
 
+    @Override
     public boolean getNativeBoolean() {
         return delegate.getNativeBoolean();
     }
 
+    @Override
     public double getNativeNumber() {
         return delegate.getNativeNumber();
     }
 
+    @Override
     public int getNativeType() {
         return delegate.getNativeType();
     }
 
+    @Override
     public boolean hasNativeType() {
         return delegate.hasNativeType();
     }
 
+    @Override
     public Date getNativeDate() {
         return delegate.getNativeDate();
     }
@@ -152,6 +173,7 @@ public class FormattedCell implements ICell {
         return metaInfo;
     }
 
+    @Override
     public ICellComment getComment() {
         return delegate.getComment();
     }

@@ -72,6 +72,7 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
     public static class SecondClassWithMethods extends ClassWithMethods implements Serializable {
         private static final long serialVersionUID = 1L;
 
+        @Override
         public String method1(int arg1, double arg2) {
             return "M4";
         };

@@ -32,6 +32,7 @@ class XlsNumberFormatter implements IFormatter {
         this.locale = locale;
     }
 
+    @Override
     public String format(Object value) {
         if (!(value instanceof Number)) {
             log.debug("Should be Number: {}", value);
@@ -51,6 +52,7 @@ class XlsNumberFormatter implements IFormatter {
         return formattedDate;
     }
 
+    @Override
     public Object parse(String value) {
         NumberFormatter numberFormatter = new NumberFormatter(locale);
         return numberFormatter.parse(value);

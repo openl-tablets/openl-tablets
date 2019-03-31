@@ -3,7 +3,6 @@ package org.openl.rules.project.xml;
 import java.io.*;
 import java.util.Properties;
 
-import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;

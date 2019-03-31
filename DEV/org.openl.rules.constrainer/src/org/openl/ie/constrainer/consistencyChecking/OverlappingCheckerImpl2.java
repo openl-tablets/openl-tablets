@@ -54,6 +54,7 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
             this.overlappingRules = ovlRules;
         }
 
+        @Override
         public Goal execute() throws Failure {
             Overlapping over = new Overlapping(_dt.getVars());
             for (int i = 0; i < _dt.getRules().length; i++) {
@@ -165,6 +166,7 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
         return !flag;
     }
 
+    @Override
     public List<Overlapping> check() {
         checkInternal();
         return overlappings;

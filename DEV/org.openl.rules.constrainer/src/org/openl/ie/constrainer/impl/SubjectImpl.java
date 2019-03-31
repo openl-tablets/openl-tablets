@@ -171,6 +171,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
         }
     }
 
+    @Override
     public Collection allDependents() {
         HashSet dependendts = new HashSet();
 
@@ -197,6 +198,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
         return dependendts;
     }
 
+    @Override
     public void attachObserver(Observer observer) {
         // Debug.on(); Debug.print(this + " Attach: " + observer); Debug.off();
         _observers.addElement(observer);
@@ -204,10 +206,12 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
         constrainer().addUndo(UndoAttachObserver.getUndo(this, observer));
     }
 
+    @Override
     public Undo createUndo() {
         return UndoSubject.getUndo();
     }
 
+    @Override
     public void detachObserver(Observer observer) {
 
         // Debug.on(); Debug.print(this + " Detach: " + observer); Debug.off();
@@ -215,26 +219,31 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
         constrainer().addUndo(UndoDetachObserver.getUndo(this, observer));
     }
 
+    @Override
     public void forcedAttachObserver(Observer observer) {
         // Debug.on(); Debug.print(this + " AttachForced: " + observer);
         // Debug.off();
         _observers.addElement(observer);
     }
 
+    @Override
     public void forcedDetachObserver(Observer observer) {
         // Debug.on(); Debug.print(this + " DetachForced: " + observer);
         // Debug.off();
         _observers.removeElement(observer);
     }
 
+    @Override
     public void forcePublisherMask(int mask) {
         _publisher_mask = mask;
     }
 
+    @Override
     public void inProcess(boolean flag) {
         _in_process = flag;
     }
 
+    @Override
     final public void notifyObservers(EventOfInterest interest) throws Failure {
         // Debug.on(); Debug.print("* "+interest); Debug.off();
         // FastVector observers = (FastVector)_observers.clone();
@@ -255,16 +264,20 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
     public void onMaskChange() {
     }
 
+    @Override
     public abstract void propagate() throws Failure;
 
+    @Override
     public void publish(int mask) {
         publisherMask(_publisher_mask | mask);
     }
 
+    @Override
     public int publisherMask() {
         return _publisher_mask;
     }
 
+    @Override
     public void publisherMask(int mask) {
 
         if (mask != _publisher_mask) {
@@ -276,10 +289,12 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
         }
     }
 
+    @Override
     public void reattachObserver(Observer observer) {
         publisherMask(_publisher_mask | observer.subscriberMask());
     }
 
+    @Override
     public void trace() {
         class ObserverTraceAll extends Observer {
             @Override
@@ -302,6 +317,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
         attachObserver(new ObserverTraceAll());
     }
 
+    @Override
     public void trace(int event_type) {
         class ObserverTrace extends Observer {
             private int _event_type;

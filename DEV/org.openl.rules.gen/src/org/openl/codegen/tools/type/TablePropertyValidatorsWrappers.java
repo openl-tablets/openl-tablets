@@ -1,10 +1,7 @@
 package org.openl.codegen.tools.type;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 
 public class TablePropertyValidatorsWrappers {

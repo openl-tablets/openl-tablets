@@ -28,6 +28,7 @@ public class LocalFolderAPI extends LocalArtefactAPI implements FolderAPI {
         }
     }
 
+    @Override
     public LocalArtefactAPI getArtefact(String name) throws ProjectException {
         File[] files = source.listFiles();
         if (files != null) {
@@ -40,6 +41,7 @@ public class LocalFolderAPI extends LocalArtefactAPI implements FolderAPI {
         throw new ProjectException(String.format("Artefact with name '%s' is" + " not found", name));
     }
 
+    @Override
     public boolean hasArtefact(String name) {
         File[] files = source.listFiles();
         if (files != null) {
@@ -52,6 +54,7 @@ public class LocalFolderAPI extends LocalArtefactAPI implements FolderAPI {
         return false;
     }
 
+    @Override
     public LocalFolderAPI addFolder(String name) throws ProjectException {
         File newFolder = new File(source, name);
         if (!newFolder.mkdir() && !newFolder.exists()) {
@@ -62,6 +65,7 @@ public class LocalFolderAPI extends LocalArtefactAPI implements FolderAPI {
         return localFolder;
     }
 
+    @Override
     public LocalResourceAPI addResource(String name, InputStream content) throws ProjectException {
         File newFile = new File(source, name);
 
@@ -82,6 +86,7 @@ public class LocalFolderAPI extends LocalArtefactAPI implements FolderAPI {
         }
     }
 
+    @Override
     public Collection<? extends LocalArtefactAPI> getArtefacts() {
         List<LocalArtefactAPI> artefacts = new ArrayList<LocalArtefactAPI>();
         File[] files = source.listFiles(((LocalWorkspaceImpl) workspace).getLocalWorkspaceFileFilter());

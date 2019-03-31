@@ -150,10 +150,12 @@ public final class IntExpAddValue extends IntExpImpl {
         return _exp.isLinear();
     }
 
+    @Override
     public int max() {
         return _exp.max() + _value;
     }
 
+    @Override
     public int min() {
         return _exp.min() + _value;
     }
@@ -168,10 +170,12 @@ public final class IntExpAddValue extends IntExpImpl {
         _exp.removeValue(value - _value);
     }
 
+    @Override
     public void setMax(int max) throws Failure {
         _exp.setMax(max - _value);
     }
 
+    @Override
     public void setMin(int min) throws Failure {
 
         // System.out.println("++++ Set min: " + min + " in " + this);

@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
-import org.openl.rules.project.model.Module;
 import org.openl.runtime.AEngineFactory;
 
 public abstract class CommonRulesInstantiationStrategy implements RulesInstantiationStrategy {

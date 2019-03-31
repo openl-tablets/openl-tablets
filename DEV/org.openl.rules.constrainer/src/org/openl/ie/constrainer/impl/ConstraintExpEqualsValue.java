@@ -43,6 +43,7 @@ public final class ConstraintExpEqualsValue extends ConstraintImpl {
         _value = value;
     }
 
+    @Override
     public Goal execute() throws Failure {
         class ObserverEqualValue extends Observer {
             @Override

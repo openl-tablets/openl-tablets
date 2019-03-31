@@ -37,32 +37,38 @@ public class PropertyImpl implements Property {
     }
 
     /** {@inheritDoc} */
+    @Override
     public Date getDate() throws PropertyException {
         checkType(ValueType.DATE);
         return (Date) value;
     }
 
     /** {@inheritDoc} */
+    @Override
     public String getName() {
         return name;
     }
 
     /** {@inheritDoc} */
+    @Override
     public String getString() {
         return value.toString();
     }
 
     /** {@inheritDoc} */
+    @Override
     public ValueType getType() {
         return type;
     }
 
     /** {@inheritDoc} */
+    @Override
     public Object getValue() {
         return value;
     }
 
     /** {@inheritDoc} */
+    @Override
     public void setValue(Date value) throws PropertyException {
         checkType(ValueType.DATE);
         this.value = value;
@@ -71,6 +77,7 @@ public class PropertyImpl implements Property {
     // --- protected
 
     /** {@inheritDoc} */
+    @Override
     public void setValue(String value) throws PropertyException {
         checkType(ValueType.STRING);
         this.value = value;

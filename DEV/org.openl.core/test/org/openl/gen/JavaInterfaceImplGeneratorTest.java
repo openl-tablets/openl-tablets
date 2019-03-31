@@ -95,6 +95,7 @@ public class JavaInterfaceImplGeneratorTest {
 
         void setField2(int field1);
 
+        @Override
         void someMethod();
 
     }

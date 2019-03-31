@@ -45,26 +45,26 @@ public class RemOperatorTest {
 
     @Test
     public void testInt() {
-        assertEquals("passed", instance.testRemInt((int) 22, (int) 11));
-        assertEquals("not passed", instance.testRemInt((int) 3, (int) 2));
+        assertEquals("passed", instance.testRemInt(22, 11));
+        assertEquals("not passed", instance.testRemInt(3, 2));
     }
 
     @Test
     public void testLong() {
-        assertEquals("passed", instance.testRemLong((long) 1000, (long) 500));
-        assertEquals("not passed", instance.testRemLong((long) 5, (long) 2));
+        assertEquals("passed", instance.testRemLong(1000, 500));
+        assertEquals("not passed", instance.testRemLong(5, 2));
     }
 
     @Test
     public void testFloat() {
         assertEquals("passed", instance.testRemFloat((float) 4.44, (float) 2.22));
-        assertEquals("not passed", instance.testRemFloat((float) 5.57, (float) 44));
+        assertEquals("not passed", instance.testRemFloat((float) 5.57, 44));
     }
 
     @Test
     public void testDouble() {
-        assertEquals("passed", instance.testRemDouble((double) 4.44, (double) 2.22));
-        assertEquals("not passed", instance.testRemDouble((double) 5.57, (double) 44));
+        assertEquals("passed", instance.testRemDouble(4.44, 2.22));
+        assertEquals("not passed", instance.testRemDouble(5.57, 44));
     }
 
     @Test
@@ -81,29 +81,29 @@ public class RemOperatorTest {
 
     @Test
     public void testIntValue() {
-        assertEquals("passed", instance.testRemIntValue(new IntValue((int) 22), new IntValue((int) 11)));
-        assertEquals("not passed", instance.testRemIntValue(new IntValue((int) 3), new IntValue((int) 2)));
+        assertEquals("passed", instance.testRemIntValue(new IntValue(22), new IntValue(11)));
+        assertEquals("not passed", instance.testRemIntValue(new IntValue(3), new IntValue(2)));
     }
 
     @Test
     public void testLongValue() {
-        assertEquals("passed", instance.testRemLongValue(new LongValue((long) 1000), new LongValue((long) 500)));
-        assertEquals("not passed", instance.testRemLongValue(new LongValue((long) 5), new LongValue((long) 2)));
+        assertEquals("passed", instance.testRemLongValue(new LongValue(1000), new LongValue(500)));
+        assertEquals("not passed", instance.testRemLongValue(new LongValue(5), new LongValue(2)));
     }
 
     @Test
     public void testFloatValue() {
         assertEquals("passed", instance.testRemFloatValue(new FloatValue((float) 4.44), new FloatValue((float) 2.22)));
         assertEquals("not passed",
-            instance.testRemFloatValue(new FloatValue((float) 5.57), new FloatValue((float) 44)));
+            instance.testRemFloatValue(new FloatValue((float) 5.57), new FloatValue(44)));
     }
 
     @Test
     public void testDoubleValue() {
         assertEquals("passed",
-            instance.testRemDoubleValue(new DoubleValue((double) 4.44), new DoubleValue((double) 2.22)));
+            instance.testRemDoubleValue(new DoubleValue(4.44), new DoubleValue(2.22)));
         assertEquals("not passed",
-            instance.testRemDoubleValue(new DoubleValue((double) 5.57), new DoubleValue((double) 44)));
+            instance.testRemDoubleValue(new DoubleValue(5.57), new DoubleValue(44)));
     }
 
     @Test

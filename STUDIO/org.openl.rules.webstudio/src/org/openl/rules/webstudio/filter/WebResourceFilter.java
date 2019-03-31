@@ -33,9 +33,11 @@ public class WebResourceFilter implements Filter {
 
     private FilterConfig filterConfig;
 
+    @Override
     public void destroy() {
     }
 
+    @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
 
@@ -68,6 +70,7 @@ public class WebResourceFilter implements Filter {
         }
     }
 
+    @Override
     public void init(FilterConfig filterConfig) {
         this.filterConfig = filterConfig;
     }

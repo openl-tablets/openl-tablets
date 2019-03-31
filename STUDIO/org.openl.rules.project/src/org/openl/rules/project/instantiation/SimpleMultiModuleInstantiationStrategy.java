@@ -69,6 +69,7 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     protected RulesEngineFactory<?> getEngineFactory() {
         Class<?> serviceClass;

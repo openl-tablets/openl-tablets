@@ -24,6 +24,7 @@ public interface IntSetVar extends Subject, IntSetEvent.IntSetEventConstants, ja
 
     public boolean possible(int value);
 
+    @Override
     public void propagate() throws Failure;
 
     public void remove(int val) throws Failure;

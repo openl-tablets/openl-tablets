@@ -43,10 +43,12 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
         return xstream;
     }
 
+    @Override
     public String serialize(RulesDeploy source) {
         return xstream.toXML(source);
     }
 
+    @Override
     public RulesDeploy deserialize(InputStream source) {
         return (RulesDeploy) xstream.fromXML(source);
     }

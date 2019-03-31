@@ -35,10 +35,12 @@ public final class FloatExpConst extends FloatExpImpl {
         return new ConstraintConst(constrainer(), _const <= value);
     }
 
+    @Override
     public double max() {
         return _const;
     }
 
+    @Override
     public double min() {
         return _const;
     }
@@ -52,18 +54,21 @@ public final class FloatExpConst extends FloatExpImpl {
     public void propagate() throws Failure {
     }
 
+    @Override
     public void setMax(double max) throws Failure {
         if (max < _const) {
             constrainer().fail("max<const");
         }
     }
 
+    @Override
     public void setMin(double min) throws Failure {
         if (min > _const) {
             constrainer().fail("min>const");
         }
     }
 
+    @Override
     public void setValue(double value) throws Failure {
         if (value != _const) {
             constrainer().fail("value!=const");

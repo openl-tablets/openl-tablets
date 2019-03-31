@@ -47,6 +47,7 @@ public class JcrLock implements RLock {
         return c;
     }
 
+    @Override
     public Date getLockedAt() {
         try {
             if (lockNode.hasProperty(ArtefactProperties.PROP_LOCKED_AT)) {
@@ -59,6 +60,7 @@ public class JcrLock implements RLock {
         return null;
     }
 
+    @Override
     public CommonUser getLockedBy() {
         try {
             if (lockNode.hasProperty(ArtefactProperties.PROP_LOCKED_BY)) {
@@ -72,6 +74,7 @@ public class JcrLock implements RLock {
         return null;
     }
 
+    @Override
     public boolean isLocked() {
         try {
             return lockNode != null && (lockNode.hasProperty(ArtefactProperties.PROP_LOCKED_BY));
@@ -81,6 +84,7 @@ public class JcrLock implements RLock {
         }
     }
 
+    @Override
     public void lock(CommonUser user) throws RRepositoryException {
         try {
             if (lockNode == null) {
@@ -105,6 +109,7 @@ public class JcrLock implements RLock {
         }
     }
 
+    @Override
     public void unlock(CommonUser user) throws RRepositoryException {
         try {
             if (lockNode == null) {

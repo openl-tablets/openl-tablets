@@ -20,6 +20,7 @@ class ExpectedResultFilter extends AGridFilter {
         this.spreadsheetCellsForTest = new HashMap<>(spreadsheetCellsForTest);
     }
 
+    @Override
     public FormattedCell filterFormat(FormattedCell cell) {
         Point cellCoordinates = new Point(cell.getAbsoluteColumn(), cell.getAbsoluteRow());
 

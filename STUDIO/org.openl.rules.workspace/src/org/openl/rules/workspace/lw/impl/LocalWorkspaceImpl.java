@@ -47,6 +47,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         loadProjects();
     }
 
+    @Override
     public void addWorkspaceListener(LocalWorkspaceListener listener) {
         listeners.add(listener);
     }
@@ -56,6 +57,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         return localRepository;
     }
 
+    @Override
     public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
         String projectName = artefactPath.segment(0);
         AProject lp = getProject(projectName);
@@ -64,10 +66,12 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         return lp.getArtefactByPath(pathInProject);
     }
 
+    @Override
     public File getLocation() {
         return location;
     }
 
+    @Override
     public AProject getProject(String name) throws ProjectException {
         AProject lp;
         synchronized (localProjects) {
@@ -80,6 +84,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         return lp;
     }
 
+    @Override
     public Collection<AProject> getProjects() {
         synchronized (localProjects) {
             return localProjects.values();
@@ -90,6 +95,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         return user;
     }
 
+    @Override
     public boolean hasProject(String name) {
         synchronized (localProjects) {
             return (localProjects.get(name) != null);
@@ -123,6 +129,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         }
     }
 
+    @Override
     public void refresh() {
         // check existing
         synchronized (localProjects) {
@@ -131,6 +138,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         loadProjects();
     }
 
+    @Override
     public void release() {
         synchronized (localProjects) {
             localProjects.clear();
@@ -143,12 +151,14 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         }
     }
 
+    @Override
     public void removeProject(String name) throws ProjectException {
         AProject project = getProject(name);
         notifyRemoved(project);
         project.delete(user);
     }
 
+    @Override
     public boolean removeWorkspaceListener(LocalWorkspaceListener listener) {
         return listeners.remove(listener);
     }

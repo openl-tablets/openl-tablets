@@ -5,6 +5,7 @@ public class SuperBeanA implements ISuperBeanA {
     private String superField1;
     private Integer superField2;
 
+    @Override
     public String getSuperField1() {
         return superField1;
     }
@@ -13,6 +14,7 @@ public class SuperBeanA implements ISuperBeanA {
         this.superField1 = superField1;
     }
 
+    @Override
     public Integer getSuperField2() {
         return superField2;
     }

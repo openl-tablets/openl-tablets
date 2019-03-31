@@ -16,8 +16,6 @@ package org.openl.ie.constrainer;
 ///////////////////////////////////////////////////////////////////////////////
 import java.util.Collection;
 
-import org.openl.ie.tools.FastVector;
-
 /**
  * An interface for the subject in the observer-subject (or subscriber-publisher) design pattern.
  */

@@ -40,7 +40,7 @@ public class BigDecimalvalueTest {
     public void testAutocastInt() {
         BigDecimalValue expectedResult = new BigDecimalValue("12");
 
-        BigDecimalValue result = BigDecimalValue.autocast((int) 12, null);
+        BigDecimalValue result = BigDecimalValue.autocast(12, null);
 
         assertEquals(expectedResult, result);
     }
@@ -68,7 +68,7 @@ public class BigDecimalvalueTest {
     public void testAutocastDouble() {
         BigDecimalValue expectedResult = new BigDecimalValue("12.23");
 
-        BigDecimalValue result = BigDecimalValue.autocast((double) 12.23, null);
+        BigDecimalValue result = BigDecimalValue.autocast(12.23, null);
 
         assertEquals(expectedResult, result);
     }

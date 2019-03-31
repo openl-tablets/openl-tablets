@@ -52,6 +52,7 @@ public class GoalSetMax extends GoalImpl {
      * @return Null if the upper limit of a domain was successfully changed
      * @throws Failure
      */
+    @Override
     public Goal execute() throws Failure {
         // Debug.print("\nExecute "+this);
         _exp.setMax(_max);

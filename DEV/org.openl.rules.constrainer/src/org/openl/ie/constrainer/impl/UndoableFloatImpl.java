@@ -76,6 +76,7 @@ public final class UndoableFloatImpl extends UndoableOnceImpl implements Undoabl
         _value = value;
     }
 
+    @Override
     public Undo createUndo() {
         return UndoUndoableFloat.getUndo();
     }
@@ -87,6 +88,7 @@ public final class UndoableFloatImpl extends UndoableOnceImpl implements Undoabl
         _value = value;
     }
 
+    @Override
     public void setValue(double value) {
         if (value != _value) {
             addUndo();
@@ -104,6 +106,7 @@ public final class UndoableFloatImpl extends UndoableOnceImpl implements Undoabl
         return name() + "[" + _value + "]";
     }
 
+    @Override
     public double value() {
         return _value;
     }

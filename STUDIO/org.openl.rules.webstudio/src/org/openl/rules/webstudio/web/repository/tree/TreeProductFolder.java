@@ -29,6 +29,7 @@ public class TreeProductFolder extends TreeFolder {
         }
     }
     
+    @Override
     public String getType() {
         return UiConst.TYPE_PRODUCTION_FOLDER;
     }

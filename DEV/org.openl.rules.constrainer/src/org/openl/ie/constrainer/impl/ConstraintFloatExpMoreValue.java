@@ -47,6 +47,7 @@ public final class ConstraintFloatExpMoreValue extends ConstraintImpl {
         _opposite = null;
     }
 
+    @Override
     public Goal execute() throws Failure {
         class ObserverFloatMoreValue extends Observer {
             @Override

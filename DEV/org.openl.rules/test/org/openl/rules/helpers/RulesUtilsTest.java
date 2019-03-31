@@ -15,7 +15,6 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.exception.OpenLRuntimeException;
@@ -1143,7 +1142,7 @@ public class RulesUtilsTest {
 
     @Test
     public void testLongValueQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientLongValue(new LongValue(25), new LongValue((long) 12)));
+        assertEquals(new LongValue(2), instance.testQuaotientLongValue(new LongValue(25), new LongValue(12)));
     }
 
     @Test
@@ -1188,7 +1187,7 @@ public class RulesUtilsTest {
 
     @Test
     public void testLongTypeQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientLongType((long) 25, (long) 12));
+        assertEquals(new LongValue(2), instance.testQuaotientLongType(25, 12));
     }
 
     @Test
@@ -1231,7 +1230,7 @@ public class RulesUtilsTest {
 
     @Test
     public void testLongQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientLong(Long.valueOf((long) 25), Long.valueOf((long) 12)));
+        assertEquals(new LongValue(2), instance.testQuaotientLong(Long.valueOf(25), Long.valueOf(12)));
     }
 
     @Test
@@ -1264,8 +1263,8 @@ public class RulesUtilsTest {
 
     @Test
     public void testLongValueMod() {
-        assertEquals(new LongValue((long) 1),
-            instance.testModLongValue(new LongValue((long) 10), new LongValue((long) 3)));
+        assertEquals(new LongValue(1),
+            instance.testModLongValue(new LongValue(10), new LongValue(3)));
     }
 
     @Test
@@ -1305,7 +1304,7 @@ public class RulesUtilsTest {
 
     @Test
     public void testLongMod() {
-        assertEquals(new Long((long) 1), instance.testModLong(new Long((long) 10), new Long((long) 3)));
+        assertEquals(new Long(1), instance.testModLong(new Long(10), new Long(3)));
     }
 
     @Test
@@ -1341,7 +1340,7 @@ public class RulesUtilsTest {
 
     @Test
     public void testLongModType() {
-        assertEquals((long) 1, instance.testModLongType((long) 10, (long) 3));
+        assertEquals(1, instance.testModLongType(10, 3));
     }
 
     @Test
@@ -1617,17 +1616,17 @@ public class RulesUtilsTest {
 
     @Test
     public void testLongTypeSlice() {
-        assertArrayEquals(new long[] { (long) 3, (long) 4, (long) 5, (long) 6, (long) 7 },
+        assertArrayEquals(new long[] { 3, 4, 5, 6, 7 },
             instance.testSliceLongType(
-                new long[] { (long) 1, (long) 2, (long) 3, (long) 4, (long) 5, (long) 6, (long) 7 },
+                new long[] { 1, 2, 3, 4, 5, 6, 7 },
                 2));
     }
 
     @Test
     public void testLongTypeSliceEndIndex() {
-        assertArrayEquals(new long[] { (long) 3, (long) 4, (long) 5 },
+        assertArrayEquals(new long[] { 3, 4, 5 },
             instance.testSliceLongType(
-                new long[] { (long) 1, (long) 2, (long) 3, (long) 4, (long) 5, (long) 6, (long) 7 },
+                new long[] { 1, 2, 3, 4, 5, 6, 7 },
                 2,
                 5));
     }
@@ -1667,32 +1666,32 @@ public class RulesUtilsTest {
 
     @Test
     public void testDoubleTypeSlice() {
-        assertArrayEquals(new double[] { (double) 3.3, (double) 4.4, (double) 5.5, (double) 6.6, (double) 7.7 },
+        assertArrayEquals(new double[] { 3.3, 4.4, 5.5, 6.6, 7.7 },
             instance
                 .testSliceDoubleType(
-                    new double[] { (double) 1.1,
-                            (double) 2.2,
-                            (double) 3.3,
-                            (double) 4.4,
-                            (double) 5.5,
-                            (double) 6.6,
-                            (double) 7.7 },
+                    new double[] { 1.1,
+                            2.2,
+                            3.3,
+                            4.4,
+                            5.5,
+                            6.6,
+                            7.7 },
                     2),
             0.0001f);
     }
 
     @Test
     public void testDoubleTypeSliceEndIndex() {
-        assertArrayEquals(new double[] { (double) 3.3, (double) 4.4, (double) 5.5 },
+        assertArrayEquals(new double[] { 3.3, 4.4, 5.5 },
             instance
                 .testSliceDoubleType(
-                    new double[] { (double) 1.1,
-                            (double) 2.2,
-                            (double) 3.3,
-                            (double) 4.4,
-                            (double) 5.5,
-                            (double) 6.6,
-                            (double) 7.7 },
+                    new double[] { 1.1,
+                            2.2,
+                            3.3,
+                            4.4,
+                            5.5,
+                            6.6,
+                            7.7 },
                     2,
                     5),
             0.0001f);
@@ -2370,10 +2369,10 @@ public class RulesUtilsTest {
 
     @Test
     public void testObjectIndexOf() {
-        assertEquals(-1, instance.testIndexOfObject(null, (Object) 3));
-        assertEquals(-1, instance.testIndexOfObject(new Object[] { 1, 2, 3, 4, 5 }, (Object) 9));
+        assertEquals(-1, instance.testIndexOfObject(null, 3));
+        assertEquals(-1, instance.testIndexOfObject(new Object[] { 1, 2, 3, 4, 5 }, 9));
         assertEquals(-1, instance.testIndexOfObject(new Object[] { 1, 2, 3, 4, 5 }, null));
-        assertEquals(2, instance.testIndexOfObject(new Object[] { 1, 2, 3, 4, 5 }, (Object) 3));
+        assertEquals(2, instance.testIndexOfObject(new Object[] { 1, 2, 3, 4, 5 }, 3));
     }
 
     @Test

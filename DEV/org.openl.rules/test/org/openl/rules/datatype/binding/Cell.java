@@ -40,14 +40,17 @@ public class Cell implements ICell {
     public Cell() {
     }
 
+    @Override
     public int getAbsoluteColumn() {
         return getColumn();
     }
 
+    @Override
     public int getAbsoluteRow() {
         return getRow();
     }
 
+    @Override
     public IGridRegion getAbsoluteRegion() {
         IGridRegion absoluteRegion = getRegion();
         if (absoluteRegion == null) {
@@ -56,6 +59,7 @@ public class Cell implements ICell {
         return absoluteRegion;
     }
 
+    @Override
     public int getRow() {
         return row;
     }
@@ -64,6 +68,7 @@ public class Cell implements ICell {
         this.row = row;
     }
 
+    @Override
     public int getColumn() {
         return column;
     }
@@ -72,6 +77,7 @@ public class Cell implements ICell {
         this.column = col;
     }
 
+    @Override
     public int getWidth() {
         return width;
     }
@@ -80,6 +86,7 @@ public class Cell implements ICell {
         this.width = width;
     }
 
+    @Override
     public int getHeight() {
         return height;
     }
@@ -88,6 +95,7 @@ public class Cell implements ICell {
         this.height = height;
     }
 
+    @Override
     public ICellStyle getStyle() {
         return style;
     }
@@ -96,6 +104,7 @@ public class Cell implements ICell {
         this.style = style;
     }
 
+    @Override
     public Object getObjectValue() {
         return objectValue;
     }
@@ -104,6 +113,7 @@ public class Cell implements ICell {
         this.objectValue = objectValue;
     }
 
+    @Override
     public String getStringValue() {
         return stringValue;
     }
@@ -112,6 +122,7 @@ public class Cell implements ICell {
         this.stringValue = stringValue;
     }
 
+    @Override
     public ICellFont getFont() {
         return font;
     }
@@ -120,6 +131,7 @@ public class Cell implements ICell {
         this.font = font;
     }
 
+    @Override
     public IGridRegion getRegion() {
         return region;
     }
@@ -128,6 +140,7 @@ public class Cell implements ICell {
         this.region = region;
     }
 
+    @Override
     public String getFormula() {
         return formula;
     }
@@ -136,6 +149,7 @@ public class Cell implements ICell {
         this.formula = formula;
     }
 
+    @Override
     public int getType() {
         return type;
     }
@@ -144,6 +158,7 @@ public class Cell implements ICell {
         this.type = type;
     }
 
+    @Override
     public String getUri() {
         return uri;
     }
@@ -152,25 +167,31 @@ public class Cell implements ICell {
         this.uri = uri;
     }
 
+    @Override
     public boolean getNativeBoolean() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Date getNativeDate() {
         throw new UnsupportedOperationException();
     }
+    @Override
     public double getNativeNumber() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public int getNativeType() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean hasNativeType() {
         return false;
     }
 
+    @Override
     public ICellComment getComment() {
         return comment;
     }

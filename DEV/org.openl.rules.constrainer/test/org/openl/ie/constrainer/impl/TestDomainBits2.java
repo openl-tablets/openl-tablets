@@ -156,6 +156,7 @@ public class TestDomainBits2 extends TestCase {
             db.iterateDomain(new IntExp.IntDomainIterator() {
                 private int idx = 0;
 
+                @Override
                 public boolean doSomethingOrStop(int val) throws Failure {
                     values[idx++] = val;
                     return true;

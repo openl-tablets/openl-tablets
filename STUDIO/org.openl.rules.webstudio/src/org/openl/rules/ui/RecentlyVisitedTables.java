@@ -163,6 +163,7 @@ public class RecentlyVisitedTables {
             }
         }
 
+        @Override
         public boolean equals(Object obj) {
             if (obj == null) {
                 return false;
@@ -181,6 +182,7 @@ public class RecentlyVisitedTables {
             return  Objects.equals(getId(), wrapper.getId());
         }
         
+        @Override
         public int hashCode() {
             return Objects.hashCode(getId());
         }

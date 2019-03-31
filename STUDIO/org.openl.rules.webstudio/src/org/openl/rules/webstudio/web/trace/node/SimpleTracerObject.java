@@ -20,14 +20,17 @@ public abstract class SimpleTracerObject implements ITracerObject {
         return type;
     }
 
+    @Override
     public void setParent(ITracerObject parentTraceObject) {
         parent = parentTraceObject;
     }
 
+    @Override
     public ITracerObject getParent() {
         return parent;
     }
 
+    @Override
     public void addChild(ITracerObject child) {
         if (children == null) {
             children = new ArrayList<>();
@@ -37,6 +40,7 @@ public abstract class SimpleTracerObject implements ITracerObject {
         child.setParent(this);
     }
 
+    @Override
     public Iterable<ITracerObject> getChildren() {
         if (children == null) {
             return Collections.emptyList();
@@ -44,6 +48,7 @@ public abstract class SimpleTracerObject implements ITracerObject {
         return children;
     }
 
+    @Override
     public boolean isLeaf() {
         return children == null;
     }

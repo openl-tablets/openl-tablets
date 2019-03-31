@@ -28,6 +28,7 @@ public class IntValueSelectorMin implements IntValueSelector {
     /**
      * Returns the minimal value from the domain of the variable.
      */
+    @Override
     public int select(IntVar intvar) {
         return intvar.min();
     }

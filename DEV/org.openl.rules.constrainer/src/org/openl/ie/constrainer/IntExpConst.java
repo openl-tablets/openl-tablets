@@ -92,6 +92,7 @@ public class IntExpConst extends IntExpImpl {
      *
      * @return The value of expression e.g. const
      */
+    @Override
     final public int max() {
         return _const;
     }
@@ -101,6 +102,7 @@ public class IntExpConst extends IntExpImpl {
      *
      * @return The value of expression
      */
+    @Override
     final public int min() {
         return _const;
     }
@@ -131,6 +133,7 @@ public class IntExpConst extends IntExpImpl {
      *
      * @param max the value to be checked
      */
+    @Override
     final public void setMax(int max) throws Failure {
         if (max < _const) {
             constrainer().fail("max<const");
@@ -142,6 +145,7 @@ public class IntExpConst extends IntExpImpl {
      *
      * @param min the value to be checked
      */
+    @Override
     final public void setMin(int min) throws Failure {
         if (min > _const) {
             constrainer().fail("min>const");

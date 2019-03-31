@@ -2,9 +2,6 @@ package org.openl.rules.helpers;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.math.BigDecimal;
 
 import org.junit.Test;
@@ -31,7 +28,7 @@ public class NumberUtilsTest {
 
     @Test
     public void testGetNumberScale() {
-        assertEquals(3, NumberUtils.getScale((Number) new Double(12.678)));
+        assertEquals(3, NumberUtils.getScale(new Double(12.678)));
         assertEquals(0, NumberUtils.getScale(new Integer(12)));
         assertEquals(0, NumberUtils.getScale(new Integer(0)));
 

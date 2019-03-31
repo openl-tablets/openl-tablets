@@ -10,11 +10,13 @@ public class AbstractProperty implements ProjectionProperty {
     }
 
     // @Override
+    @Override
     public String getName() {
         return name;
     }
 
     // @Override
+    @Override
     public Object getRawValue() {
         return rawValue;
     }

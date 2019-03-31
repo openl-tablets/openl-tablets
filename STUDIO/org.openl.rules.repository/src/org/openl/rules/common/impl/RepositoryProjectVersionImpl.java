@@ -63,6 +63,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         this.deleted = deleted;
     }
 
+    @Override
     public int compareTo(CommonVersion o) {
         if (revision.equals(o.getRevision())) {
             return 0;
@@ -93,22 +94,27 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         return this == o || o instanceof ProjectVersion && compareTo((ProjectVersion) o) == 0;
     }
 
+    @Override
     public int getMajor() {
         return major;
     }
 
+    @Override
     public int getMinor() {
         return minor;
     }
 
+    @Override
     public String getRevision() {
         return revision;
     }
 
+    @Override
     public VersionInfo getVersionInfo() {
         return versionInfo;
     }
 
+    @Override
     public String getVersionName() {
         if (versionName == null) {
             if (major != MAX_MM_INT && minor != MAX_MM_INT && major != -1 && minor != -1) {
@@ -132,6 +138,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         return result;
     }
 
+    @Override
     public Map<String, Object> getVersionProperties() {
         return versionProperties;
     }

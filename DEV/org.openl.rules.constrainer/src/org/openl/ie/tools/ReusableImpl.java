@@ -32,15 +32,18 @@ public class ReusableImpl implements Reusable {
     }
 
     // public final void free()
+    @Override
     public void free() {
         // if (_factory != null)
         _factory.freeElement(this);
     }
 
+    @Override
     public final ReusableFactory getFactory() {
         return _factory;
     }
 
+    @Override
     public final void setFactory(ReusableFactory factory) {
         _factory = factory;
     }

@@ -182,10 +182,12 @@ public final class IntExpAddExp extends IntExpImpl {
         return (_exp1.isLinear() && _exp2.isLinear());
     }
 
+    @Override
     public int max() {
         return _sum.max();
     }
 
+    @Override
     public int min() {
         return _sum.min();
     }
@@ -223,6 +225,7 @@ public final class IntExpAddExp extends IntExpImpl {
         }
     }
 
+    @Override
     public void setMax(int max) throws Failure {
         if (max >= _sum.max()) {
             return;
@@ -238,6 +241,7 @@ public final class IntExpAddExp extends IntExpImpl {
         }
     }
 
+    @Override
     public void setMin(int min) throws Failure {
 
         if (min <= _sum.min()) {

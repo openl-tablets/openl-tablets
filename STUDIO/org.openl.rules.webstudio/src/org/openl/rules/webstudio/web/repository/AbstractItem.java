@@ -28,6 +28,7 @@ public abstract class AbstractItem implements Serializable, Comparable<AbstractI
     /**
      * By default items are ordered by name.
      */
+    @Override
     public int compareTo(AbstractItem o) {
         return name.compareTo(o.name);
     }

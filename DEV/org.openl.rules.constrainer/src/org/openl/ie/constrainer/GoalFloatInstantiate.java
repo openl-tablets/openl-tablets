@@ -34,6 +34,7 @@ public class GoalFloatInstantiate extends GoalImpl {
     /**
      * An implementation of the dichotomize instantiation algorithm for the floating-point variable.
      */
+    @Override
     public Goal execute() throws Failure {
         // Debug.on();Debug.print("Execute "+this+ " with " + _var);Debug.off();
         if (_var.bound()) {

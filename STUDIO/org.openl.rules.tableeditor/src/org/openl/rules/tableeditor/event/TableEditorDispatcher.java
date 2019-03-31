@@ -22,9 +22,11 @@ public class TableEditorDispatcher implements PhaseListener {
 
     private static final String AJAX_MATCH = "ajax/";
 
+    @Override
     public void afterPhase(PhaseEvent event) {
     }
 
+    @Override
     public void beforePhase(PhaseEvent event) {
         FacesContext context = event.getFacesContext();
         ExternalContext extContext = event.getFacesContext().getExternalContext();
@@ -112,6 +114,7 @@ public class TableEditorDispatcher implements PhaseListener {
         return "#{" + Constants.TABLE_EDITOR_CONTROLLER_NAME + "." + request + '}';
     }
 
+    @Override
     public PhaseId getPhaseId() {
         return PhaseId.RENDER_RESPONSE;
     }

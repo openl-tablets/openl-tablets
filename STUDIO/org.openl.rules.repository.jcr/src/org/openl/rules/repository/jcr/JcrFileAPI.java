@@ -54,6 +54,7 @@ public class JcrFileAPI extends JcrEntityAPI implements ResourceAPI {
     }
 
     /** {@inheritDoc} */
+    @Override
     public InputStream getContent() throws ProjectException {
         try {
             return NodeUtil.getFileNodeContent(node());
@@ -82,6 +83,7 @@ public class JcrFileAPI extends JcrEntityAPI implements ResourceAPI {
     }
 
     /** {@inheritDoc} */
+    @Override
     public void setContent(InputStream inputStream) throws ProjectException {
         try {
             Node n = node();

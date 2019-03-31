@@ -51,6 +51,7 @@ public class ATableTracerNode extends SimpleTracerObject {
         return prefix;
     }
 
+    @Override
     public Object[] getParameters() {
         return params;
     }

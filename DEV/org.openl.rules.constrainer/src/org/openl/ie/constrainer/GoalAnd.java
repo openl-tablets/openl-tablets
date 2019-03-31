@@ -77,6 +77,7 @@ public class GoalAnd extends GoalImpl {
      * @return Null if succeeds
      * @throws Failure if one of it's subgoals fails
      */
+    @Override
     public Goal execute() throws Failure {
         // Debug.print("Execute "+this);
         constrainer().pushOnExecutionStack(_g2);

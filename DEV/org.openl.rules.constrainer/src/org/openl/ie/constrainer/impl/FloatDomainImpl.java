@@ -41,10 +41,12 @@ public class FloatDomainImpl implements FloatDomain {
         _max = max;
     }
 
+    @Override
     public Constrainer constrainer() {
         return _variable.constrainer();
     }
 
+    @Override
     public boolean contains(double value) {
         if (value < _min - Constrainer.FLOAT_PRECISION || value > _max + Constrainer.FLOAT_PRECISION) {
             return false;
@@ -52,22 +54,27 @@ public class FloatDomainImpl implements FloatDomain {
         return true;
     }
 
+    @Override
     public void forceMax(double M) {
         _max = M;
     }
 
+    @Override
     public void forceMin(double m) {
         _min = m;
     }
 
+    @Override
     public double max() {
         return _max;
     }
 
+    @Override
     public double min() {
         return _min;
     }
 
+    @Override
     public boolean setMax(double M) throws Failure {
         if (M > _max) {
             return false;
@@ -80,6 +87,7 @@ public class FloatDomainImpl implements FloatDomain {
         return true;
     }
 
+    @Override
     public boolean setMin(double m) throws Failure {
         if (m < _min) {
             return false;
@@ -92,6 +100,7 @@ public class FloatDomainImpl implements FloatDomain {
         return true;
     }
 
+    @Override
     public boolean setValue(double value) throws Failure {
         if (!contains(value)) {
             constrainer().fail("attempt to set invalid value for " + _variable);
@@ -105,6 +114,7 @@ public class FloatDomainImpl implements FloatDomain {
         return true;
     }
 
+    @Override
     public double size() {
         return _max - _min;
     }
@@ -119,6 +129,7 @@ public class FloatDomainImpl implements FloatDomain {
         return "[" + _min + ".." + _max + (_variable.bound() ? ("(" + (_min + _max) / 2 + ")") : "") + "]";
     }
 
+    @Override
     public void variable(FloatVar var) {
         _variable = var;
     }

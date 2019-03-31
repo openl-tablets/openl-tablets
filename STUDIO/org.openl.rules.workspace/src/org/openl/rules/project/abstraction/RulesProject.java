@@ -90,6 +90,7 @@ public class RulesProject extends UserWorkspaceProject {
         }
     }
 
+    @Override
     public void close(CommonUser user) throws ProjectException {
         try {
             if (localFolderName != null) {
@@ -185,6 +186,7 @@ public class RulesProject extends UserWorkspaceProject {
         return lockInfo.isLocked() ? lockInfo.getLockedBy().getUserName() : "";
     }
 
+    @Override
     public ProjectVersion getVersion() {
         String historyVersion = getHistoryVersion();
         if (historyVersion == null) {
@@ -234,6 +236,7 @@ public class RulesProject extends UserWorkspaceProject {
         return versions;
     }
 
+    @Override
     public boolean isLocalOnly() {
         return designFolderName == null;
     }
@@ -242,10 +245,12 @@ public class RulesProject extends UserWorkspaceProject {
         return localFolderName == null;
     }
 
+    @Override
     public boolean isOpened() {
         return getRepository() == localRepository;
     }
 
+    @Override
     public void openVersion(String version) throws ProjectException {
         AProject designProject = new AProject(designRepository, designFolderName, version);
 
@@ -290,6 +295,7 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     // Is Opened for Editing by me? -- in LW + locked by me
+    @Override
     public boolean isOpenedForEditing() {
         return !isLocalOnly() && super.isOpenedForEditing() && !isRepositoryOnly();
     }

@@ -27,6 +27,7 @@ public class PredefinedTemplatesResolver extends TemplatesResolver {
         return PREDEFINED_CATEGORIES;
     }
 
+    @Override
     protected List<String> resolveTemplates(String category) {
         List<String> templateNames = new ArrayList<>();
 
@@ -51,6 +52,7 @@ public class PredefinedTemplatesResolver extends TemplatesResolver {
         return templateNames;
     }
 
+    @Override
     public ProjectFile[] getProjectFiles(String category, String templateName) {
         String url = TEMPLATES_PATH + category + "/" + templateName;
 

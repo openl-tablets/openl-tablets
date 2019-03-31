@@ -14,6 +14,7 @@ public class ArrayCellEditor implements ICellEditor {
         this.params.setIntOnly(intOnly);
     }
 
+    @Override
     public EditorTypeResponse getEditorTypeAndMetadata() {
         EditorTypeResponse typeResponse = new EditorTypeResponse(CE_ARRAY);
         typeResponse.setParams(params);

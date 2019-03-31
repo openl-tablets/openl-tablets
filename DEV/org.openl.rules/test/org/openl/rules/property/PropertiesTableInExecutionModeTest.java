@@ -46,13 +46,13 @@ public class PropertiesTableInExecutionModeTest {
 
             Map<String, Object> moduleProperties = tableProperties.getModuleProperties();
             assertTrue(moduleProperties.size() == 3);
-            assertEquals(InheritanceLevel.MODULE.getDisplayName(), (String) moduleProperties.get("scope"));
-            assertEquals("Any phase", (String) moduleProperties.get("buildPhase"));
-            assertEquals(ValidateDTEnum.ON, (ValidateDTEnum) moduleProperties.get("validateDT"));
+            assertEquals(InheritanceLevel.MODULE.getDisplayName(), moduleProperties.get("scope"));
+            assertEquals("Any phase", moduleProperties.get("buildPhase"));
+            assertEquals(ValidateDTEnum.ON, moduleProperties.get("validateDT"));
 
             Map<String, Object> categoryProperties = tableProperties.getCategoryProperties();
             assertTrue(categoryProperties.size() == 4);
-            assertEquals(InheritanceLevel.CATEGORY.getDisplayName(), (String) categoryProperties.get("scope"));
+            assertEquals(InheritanceLevel.CATEGORY.getDisplayName(), categoryProperties.get("scope"));
             assertEquals("newLob", ((String[]) categoryProperties.get("lob"))[0]);
             assertEquals(UsRegionsEnum.SE.name(), ((UsRegionsEnum[]) categoryProperties.get("usregion"))[0].name());
             assertEquals(RegionsEnum.NCSA.name(), ((RegionsEnum[]) categoryProperties.get("region"))[0].name());

@@ -29,15 +29,18 @@ public class MockRuntimeEnv implements IRuntimeEnv {
 		pushLocalFrame(aLocalFrame);
 	}
 	
-	public Object[] getLocalFrame() {
+	@Override
+    public Object[] getLocalFrame() {
 		return frameStack.peek();
 	}
 	
-	public IOpenRunner getRunner() {
+	@Override
+    public IOpenRunner getRunner() {
 		return runner;
 	}
 	
-	public Object getThis() {
+	@Override
+    public Object getThis() {
 		if (thisStack.isEmpty()) {
 			return null;
 		} else {
@@ -45,38 +48,47 @@ public class MockRuntimeEnv implements IRuntimeEnv {
 		}
 	}
 	
-	public Object[] popLocalFrame() {
+	@Override
+    public Object[] popLocalFrame() {
 		return frameStack.pop();
 	}
 	
-	public Object popThis() {
+	@Override
+    public Object popThis() {
 		return thisStack.pop();
 	}
 	
-	public void pushLocalFrame(Object[] frame) {
+	@Override
+    public void pushLocalFrame(Object[] frame) {
 		frameStack.push(frame);
 	}
 	
-	public void pushThis(Object thisObject) {
+	@Override
+    public void pushThis(Object thisObject) {
 		thisStack.push(thisObject);
 	}
 	
-	public IRuntimeContext getContext() {
+	@Override
+    public IRuntimeContext getContext() {
 		return context;
 	}
 	
-	public void setContext(IRuntimeContext context) {
+	@Override
+    public void setContext(IRuntimeContext context) {
 		this.context = context;
 	}
 
+    @Override
     public boolean isContextManagingSupported() {
         return false;
     }
 
+    @Override
     public IRuntimeContext popContext() {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void pushContext(IRuntimeContext context) {
         throw new UnsupportedOperationException();
     }

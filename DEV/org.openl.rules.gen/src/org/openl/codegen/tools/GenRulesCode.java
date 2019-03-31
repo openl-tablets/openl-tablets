@@ -75,6 +75,7 @@ public class GenRulesCode {
         FileCodeGen fileGen = new FileCodeGen(sourceFilePath, TMP_FILE);
         fileGen.processFile(new ICodeGenAdaptor() {
 
+            @Override
             public void processInsertTag(String line, StringBuilder sb) {
 
                 JavaCodeGen jcgen = new JavaCodeGen();
@@ -87,6 +88,7 @@ public class GenRulesCode {
                     sb);
             }
 
+            @Override
             public void processEndInsertTag(String line, StringBuilder sb) {
             }
         });
@@ -249,6 +251,7 @@ public class GenRulesCode {
         FileCodeGen fileGen = new FileCodeGen(sourceFilePath, TMP_FILE);
         fileGen.processFile(new ICodeGenAdaptor() {
 
+            @Override
             public void processInsertTag(String line, StringBuilder sb) {
 
                 try {
@@ -259,6 +262,7 @@ public class GenRulesCode {
                 }
             }
 
+            @Override
             public void processEndInsertTag(String line, StringBuilder sb) {
             }
         });

@@ -13,6 +13,7 @@ public class GreyColorFilter implements IColorFilter {
         this.brightness = brightness;
     }
 
+    @Override
     public short[] filterColor(short[] color) {
 
         if (color == null) {

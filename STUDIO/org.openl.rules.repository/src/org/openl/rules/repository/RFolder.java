@@ -39,6 +39,7 @@ public interface RFolder extends REntity {
      *
      * @throws RRepositoryException
      */
+    @Override
     void delete() throws RRepositoryException;
 
     /**

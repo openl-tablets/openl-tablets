@@ -36,6 +36,7 @@ public class IntValueSelectorMinMax implements IntValueSelector {
     /**
      * Returns the minimal or maximal value from the domain of the variable.
      */
+    @Override
     public int select(IntVar intvar) {
         int value;
         if (_min) {

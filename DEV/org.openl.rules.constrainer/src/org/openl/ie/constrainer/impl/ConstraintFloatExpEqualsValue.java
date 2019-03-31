@@ -47,6 +47,7 @@ public final class ConstraintFloatExpEqualsValue extends ConstraintImpl {
 
     }
 
+    @Override
     public Goal execute() throws Failure {
         class ObserverFloatEqualValue extends Observer {
             @Override

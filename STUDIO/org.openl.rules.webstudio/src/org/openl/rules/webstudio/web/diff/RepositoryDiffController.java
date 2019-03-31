@@ -231,6 +231,7 @@ public class RepositoryDiffController extends AbstractDiffController {
         return null;
     }
 
+    @Override
     public String compare() {
         if (StringUtils.isEmpty(selectedExcelFileUW) || StringUtils.isEmpty(selectedExcelFileRepo)) {
             System.err.println("exit");

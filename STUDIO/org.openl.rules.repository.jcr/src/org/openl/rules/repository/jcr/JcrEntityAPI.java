@@ -12,8 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jcr.*;
-import javax.jcr.Property;
-
 import java.util.*;
 
 /**
@@ -46,6 +44,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         loadProps();
     }
 
+    @Override
     public void addProperty(String name, ValueType type, Object value) throws PropertyException {
         if (hasProperty(name)) {
             removeProperty(name);
@@ -90,10 +89,12 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         return sb.toString();
     }
 
+    @Override
     public Collection<org.openl.rules.common.Property> getProperties() {
         return properties.values();
     }
 
+    @Override
     public org.openl.rules.common.Property getProperty(String name) throws PropertyException {
         org.openl.rules.common.Property rp = properties.get(name);
 
@@ -115,10 +116,12 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         return rp;
     }
 
+    @Override
     public Map<String, Object> getProps() {
         return props;
     }
 
+    @Override
     public boolean hasProperty(String name) {
         if (properties.containsKey(name)) {
             return true;
@@ -175,6 +178,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         return propValue;
     }
 
+    @Override
     public org.openl.rules.common.Property removeProperty(String name) throws PropertyException {
         org.openl.rules.common.Property rp = getProperty(name);
 
@@ -210,6 +214,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         }
     }
 
+    @Override
     public void setProps(Map<String, Object> props) throws PropertyException {
         if (props == null) {
             return;
@@ -243,6 +248,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         return getLock().isLocked();
     }
 
+    @Override
     public void lock(CommonUser user) throws ProjectException {
         try {
             getLock().lock(user);
@@ -251,6 +257,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         }
     }
 
+    @Override
     public void unlock(CommonUser user) throws ProjectException {
         try {
             getLock().unlock(user);
@@ -268,6 +275,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         }
     }
 
+    @Override
     public void delete(CommonUser user) throws ProjectException {
         try {
             if (isLocked()) {
@@ -279,14 +287,17 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         }
     }
 
+    @Override
     public ArtefactPath getArtefactPath() {
         return path;
     }
 
+    @Override
     public boolean isFolder() {
         return false;
     }
 
+    @Override
     public ProjectVersion getVersion() {
         // FIXME
         RVersion rv = getActiveVersion();
@@ -295,6 +306,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         return new RepositoryProjectVersionImpl(rv, rvii);
     }
 
+    @Override
     public List<ProjectVersion> getVersions() {
         // FIXME
         LinkedList<ProjectVersion> vers = new LinkedList<>();
@@ -358,6 +370,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         return createRepositoryProjectVersion(verHist.get(index), modifiedAt, modifiedBy);
     }
 
+    @Override
     public LockInfo getLockInfo() {
         // FIXME
         try {
@@ -368,6 +381,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         }
     }
 
+    @Override
     public void commit(CommonUser user, int revision) throws ProjectException {
         try {
             Node n = node();
@@ -391,6 +405,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         }
     }
 
+    @Override
     public JcrEntityAPI getVersion(CommonVersion version) throws RRepositoryException {
         try {
             Node frozenNode = NodeUtil.getNode4Version(node(), version);
@@ -400,6 +415,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         }
     }
 
+    @Override
     public void removeAllProperties() throws PropertyException {
         List<String> propertyNames = new ArrayList<>(properties.keySet());
         for (String propertyName : propertyNames) {

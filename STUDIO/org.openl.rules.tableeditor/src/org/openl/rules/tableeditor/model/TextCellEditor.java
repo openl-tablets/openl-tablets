@@ -4,6 +4,7 @@ import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeRespons
 
 public class TextCellEditor implements ICellEditor {
 
+    @Override
     public EditorTypeResponse getEditorTypeAndMetadata() {
         return new EditorTypeResponse(CE_TEXT);
     }

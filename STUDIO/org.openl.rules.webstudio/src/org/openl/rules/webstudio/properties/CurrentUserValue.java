@@ -10,6 +10,7 @@ import org.openl.rules.webstudio.security.CurrentUserInfo;
  */
 public class CurrentUserValue implements ISystemValue {
 
+    @Override
     public Object getValue() {
         CurrentUserInfo usInfo = new CurrentUserInfo();
         return usInfo.getUserName();

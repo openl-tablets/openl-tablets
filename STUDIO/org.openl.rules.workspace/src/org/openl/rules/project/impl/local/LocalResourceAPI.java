@@ -30,6 +30,7 @@ public class LocalResourceAPI extends LocalArtefactAPI implements ResourceAPI {
         }
     }
 
+    @Override
     public InputStream getContent() throws ProjectException {
         try {
             return new FileInputStream(source);
@@ -43,6 +44,7 @@ public class LocalResourceAPI extends LocalArtefactAPI implements ResourceAPI {
         return source.length();
     }
 
+    @Override
     public void setContent(InputStream inputStream) throws ProjectException {
         FileOutputStream fos = null;
         try {

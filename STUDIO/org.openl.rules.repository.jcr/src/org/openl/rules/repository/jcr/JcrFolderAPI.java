@@ -54,6 +54,7 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
         this(node, path, false);
     }
 
+    @Override
     public JcrFileAPI addResource(String name, InputStream content) throws ProjectException {
         try {
             JcrFileAPI file = JcrFileAPI.createFile(this, name, getArtefactPath().withSegment(name));
@@ -64,6 +65,7 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
         }
     }
 
+    @Override
     public JcrFolderAPI addFolder(String name) throws ProjectException {
         try {
             return JcrFolderAPI.createFolder(this, name, getArtefactPath().withSegment(name));
@@ -129,6 +131,7 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
         }
     }
 
+    @Override
     public JcrEntityAPI getArtefact(String name) throws ProjectException {
         try {
             Node n = node().getNode(name);
@@ -150,6 +153,7 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
         }
     }
 
+    @Override
     public boolean hasArtefact(String name) {
         try {
             return node().hasNode(name);
@@ -161,6 +165,7 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
         }
     }
 
+    @Override
     public Collection<? extends JcrEntityAPI> getArtefacts() {
         List<JcrEntityAPI> artefacts = new ArrayList<>();
         try {

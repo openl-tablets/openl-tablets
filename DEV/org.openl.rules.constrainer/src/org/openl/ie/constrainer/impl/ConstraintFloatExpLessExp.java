@@ -103,6 +103,7 @@ public final class ConstraintFloatExpLessExp extends ConstraintImpl {
         _opposite = null;
     }
 
+    @Override
     public Goal execute() throws Failure {
         _exp1.attachObserver(new ObserverExp1Min());
         _exp2.attachObserver(new ObserverExp2Max());

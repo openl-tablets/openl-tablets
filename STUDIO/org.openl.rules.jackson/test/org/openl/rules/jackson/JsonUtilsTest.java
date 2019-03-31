@@ -1,7 +1,5 @@
 package org.openl.rules.jackson;
 
-import java.io.IOException;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.openl.meta.ByteValue;
@@ -30,13 +28,13 @@ public class JsonUtilsTest {
             "{\"results\":[[\"ROW1COLUMN1\",\"ROW1COLUMN2\"],[\"ROW2COLUMN1\",\"ROW2COLUMN2\"]],\"columnNames\":[\"Column1\",\"Column2\"],\"rowNames\":[\"Row1\",\"Row2\"]}",
             json);
 
-        SpreadsheetResult spResult = (SpreadsheetResult) JsonUtils.fromJSON("{\"results\":[[\"ROW1COLUMN1\",\"ROW1COLUMN2\"],[\"ROW2COLUMN1\",\"ROW2COLUMN2\"]],\"columnNames\":[\"Column1\",\"Column2\"],\"rowNames\":[\"Row1\",\"Row2\"],\"columnTitles\":[\"Row1\",\"Row2\"]}", SpreadsheetResult.class);
+        SpreadsheetResult spResult = JsonUtils.fromJSON("{\"results\":[[\"ROW1COLUMN1\",\"ROW1COLUMN2\"],[\"ROW2COLUMN1\",\"ROW2COLUMN2\"]],\"columnNames\":[\"Column1\",\"Column2\"],\"rowNames\":[\"Row1\",\"Row2\"],\"columnTitles\":[\"Row1\",\"Row2\"]}", SpreadsheetResult.class);
 
         Assert.assertArrayEquals(spreadsheetResult.getColumnNames(), spResult.getColumnNames());
         Assert.assertArrayEquals(spreadsheetResult.getRowNames(), spResult.getRowNames());
         Assert.assertArrayEquals(spreadsheetResult.getResults(), spResult.getResults());
         
-        spResult = (SpreadsheetResult) JsonUtils.fromJSON(json, SpreadsheetResult.class);
+        spResult = JsonUtils.fromJSON(json, SpreadsheetResult.class);
 
         Assert.assertArrayEquals(spreadsheetResult.getColumnNames(), spResult.getColumnNames());
         Assert.assertArrayEquals(spreadsheetResult.getRowNames(), spResult.getRowNames());
@@ -48,15 +46,15 @@ public class JsonUtilsTest {
     public void openLValueTypesTest() throws Exception {
         Assert.assertEquals("25", JsonUtils.toJSON(new ByteValue((byte) 25)));
         Assert.assertEquals("25", JsonUtils.toJSON(new ShortValue((short) 25)));
-        Assert.assertEquals("25", JsonUtils.toJSON(new IntValue((int) 25)));
-        Assert.assertEquals("25", JsonUtils.toJSON(new LongValue((long) 25)));
+        Assert.assertEquals("25", JsonUtils.toJSON(new IntValue(25)));
+        Assert.assertEquals("25", JsonUtils.toJSON(new LongValue(25)));
         Assert.assertEquals("2.5", JsonUtils.toJSON(new FloatValue(2.5f)));
         Assert.assertEquals("2.5", JsonUtils.toJSON(new DoubleValue(2.5d)));
 
         Assert.assertEquals(new ByteValue((byte) 25), JsonUtils.fromJSON("25", ByteValue.class));
         Assert.assertEquals(new ShortValue((short) 25), JsonUtils.fromJSON("25", ShortValue.class));
-        Assert.assertEquals(new IntValue((int) 25), JsonUtils.fromJSON("25", IntValue.class));
-        Assert.assertEquals(new LongValue((long) 25), JsonUtils.fromJSON("25", LongValue.class));
+        Assert.assertEquals(new IntValue(25), JsonUtils.fromJSON("25", IntValue.class));
+        Assert.assertEquals(new LongValue(25), JsonUtils.fromJSON("25", LongValue.class));
         Assert.assertEquals(new FloatValue(2.5f), JsonUtils.fromJSON("2.5", FloatValue.class));
         Assert.assertEquals(new DoubleValue(2.5d), JsonUtils.fromJSON("2.5", DoubleValue.class));
 

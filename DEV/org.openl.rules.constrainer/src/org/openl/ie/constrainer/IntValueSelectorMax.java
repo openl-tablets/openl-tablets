@@ -26,6 +26,7 @@ public class IntValueSelectorMax implements IntValueSelector {
     /**
      * Return the maximal value from the domain of the variable.
      */
+    @Override
     public int select(IntVar intvar) {
         return intvar.max();
     }

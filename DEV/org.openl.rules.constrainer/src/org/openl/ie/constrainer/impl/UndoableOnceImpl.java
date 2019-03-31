@@ -40,6 +40,7 @@ public abstract class UndoableOnceImpl extends ConstrainerObjectImpl implements 
         _undone = false;
     }
 
+    @Override
     public void addUndo() {
         if (!_undone) {
             _undone = true;
@@ -55,11 +56,13 @@ public abstract class UndoableOnceImpl extends ConstrainerObjectImpl implements 
         _undone = false;
     }
 
+    @Override
     public final boolean undone() {
         return _undone;
         // return false;
     }
 
+    @Override
     public final void undone(boolean b) {
         _undone = b;
     }

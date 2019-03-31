@@ -31,6 +31,7 @@ public class ColorGridFilter extends AGridFilter {
         this.scope = scope;
     }
 
+    @Override
     public FormattedCell filterFormat(FormattedCell formattedCell) {
         if ((scope & FONT) != 0) {
             CellFont cellFont = (CellFont) formattedCell.getFont();
