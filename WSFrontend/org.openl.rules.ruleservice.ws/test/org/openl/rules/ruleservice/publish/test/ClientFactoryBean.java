@@ -60,6 +60,7 @@ final class ClientFactoryBean implements FactoryBean<Object> {
         this.clientProxyFactoryBean = clientProxyFactoryBean;
     }
 
+    @Override
     public Class<?> getObjectType() {
         if (getClientProxyFactoryBean() == null) {
             throw new IllegalStateException("clientProxyFactoryBean can't be null");
@@ -70,6 +71,7 @@ final class ClientFactoryBean implements FactoryBean<Object> {
         return getClientProxyFactoryBean().getServiceClass();
     }
 
+    @Override
     public boolean isSingleton() {
         return true;
     }
@@ -89,6 +91,7 @@ final class ClientFactoryBean implements FactoryBean<Object> {
         http.setClient(httpClientPolicy);
     }
 
+    @Override
     public Object getObject() throws Exception {
         return create();
     }

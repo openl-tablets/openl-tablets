@@ -34,6 +34,7 @@ public class RuleServiceImpl implements RuleService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void redeploy(ServiceDescription serviceDescription) throws RuleServiceDeployException,
                                                                 RuleServiceUndeployException {
         OpenLService service = ruleServicePublisher.getServiceByName(serviceDescription.getName());
@@ -59,6 +60,7 @@ public class RuleServiceImpl implements RuleService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void undeploy(String serviceName) throws RuleServiceUndeployException {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName arg must not be null.");
@@ -88,6 +90,7 @@ public class RuleServiceImpl implements RuleService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Collection<OpenLService> getServices() {
         Collection<OpenLService> services = ruleServicePublisher.getServices();
         return new ArrayList<>(services);
@@ -96,6 +99,7 @@ public class RuleServiceImpl implements RuleService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public OpenLService getServiceByName(String serviceName) {
         return ruleServicePublisher.getServiceByName(serviceName);
     }
@@ -103,6 +107,7 @@ public class RuleServiceImpl implements RuleService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void deploy(ServiceDescription serviceDescription) throws RuleServiceDeployException {
         OpenLService service = ruleServicePublisher.getServiceByName(serviceDescription.getName());
         if (service != null) {

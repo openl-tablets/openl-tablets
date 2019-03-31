@@ -29,6 +29,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void registerService(OpenLService service) {
         if (service == null) {
             throw new IllegalArgumentException("service argument must not be null!");
@@ -42,6 +43,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void unregisterService(String serviceName) {
         Objects.requireNonNull(serviceName, "serviceName argument can't be null!");
         runningServices.remove(serviceName);
@@ -52,10 +54,12 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
         return new ArrayList<>(runningServices.values());
     }
 
+    @Override
     public java.util.Collection<String> getServiceNames() {
         return new ArrayList<>(runningServices.keySet());
     };
 
+    @Override
     public OpenLService findServiceByName(String serviceName) {
         Objects.requireNonNull(serviceName, "serviceName argument can't be null!");
         return runningServices.get(serviceName);
@@ -64,6 +68,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Object execute(String serviceName,
             String ruleName,
             Class<?>[] inputParamsTypes,
@@ -110,6 +115,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Object execute(String serviceName, String ruleName, Object... params) throws MethodInvocationException {
         Objects.requireNonNull(serviceName, "serviceName argument can't be null!");
         Objects.requireNonNull(ruleName, "ruleName argument can't be null!");
@@ -130,6 +136,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Object getValue(String serviceName, String fieldName) throws MethodInvocationException {
         Objects.requireNonNull(serviceName, "serviceName argument can't be null!");
         Objects.requireNonNull(fieldName, "ieldName argument can't be null!!");

@@ -106,10 +106,12 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
         }
     }
 
+    @Override
     public Collection<OpenLService> getServices() {
         return new ArrayList<>(runningServices.keySet());
     }
 
+    @Override
     public OpenLService getServiceByName(String name) {
         for (OpenLService service : runningServices.keySet()) {
             if (service.getName().equals(name)) {

@@ -49,6 +49,7 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
         limit = lim;
     }
 
+    @Override
     public void handleMessage(Message message) {
         store(message);
     }

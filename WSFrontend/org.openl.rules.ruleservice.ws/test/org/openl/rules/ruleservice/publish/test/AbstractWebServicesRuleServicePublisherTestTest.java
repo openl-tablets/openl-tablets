@@ -41,7 +41,7 @@ public class AbstractWebServicesRuleServicePublisherTestTest extends AbstractWeb
         Object result = method.invoke(client, RulesRuntimeContextFactory.buildRulesRuntimeContext());
         assertTrue(result instanceof String[]);
         String[] coverages = (String[]) result;
-        assertEquals(2, (long)coverages.length);
+        assertEquals(2, coverages.length);
     }
 
     @Test

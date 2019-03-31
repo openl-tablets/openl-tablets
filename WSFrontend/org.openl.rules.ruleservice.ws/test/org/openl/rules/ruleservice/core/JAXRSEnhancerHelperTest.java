@@ -136,7 +136,7 @@ public class JAXRSEnhancerHelperTest {
     public void testMethodWithAnnotation1() throws Exception {
         Class<?> enchancedClass = createService(TestAnnotatedInterface1.class);
         Method someMethod = enchancedClass.getMethod("someMethod", String.class, String.class);
-        Path path = (Path) someMethod.getAnnotation(Path.class);
+        Path path = someMethod.getAnnotation(Path.class);
         Assert.assertNotNull(path);
         Assert.assertEquals("/someMethod/{arg1}/{arg2}", path.value());
         Assert.assertNotNull(someMethod.getAnnotation(GET.class));
@@ -172,7 +172,7 @@ public class JAXRSEnhancerHelperTest {
             }
         }
         Assert.assertNotNull(someMethod);
-        Path path = (Path) someMethod.getAnnotation(Path.class);
+        Path path = someMethod.getAnnotation(Path.class);
         Assert.assertNotNull(path);
         Assert.assertEquals("/someMethod", path.value());
         Assert.assertNotNull(someMethod.getAnnotation(POST.class));
@@ -197,7 +197,7 @@ public class JAXRSEnhancerHelperTest {
             }
         }
         Assert.assertNotNull(someMethod);
-        Path path = (Path) someMethod.getAnnotation(Path.class);
+        Path path = someMethod.getAnnotation(Path.class);
         Assert.assertNotNull(path);
         Assert.assertEquals("/value", path.value());
         Assert.assertNotNull(someMethod.getAnnotation(POST.class));

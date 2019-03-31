@@ -17,6 +17,7 @@ import org.apache.cxf.binding.corba.wsdl.W3CConstants;
 
 public class AegisDatabindingFactoryBean extends AbstractAegisDatabindingFactoryBean{ 
 
+    @Override
     protected void registerOpenLTypes(TypeMapping typeMapping) {
 		loadAegisTypeClassAndRegister("org.openl.meta.StringValue",
                 org.openl.rules.ruleservice.databinding.aegis.org.openl.meta.StringValueType.class, W3CConstants.NT_SCHEMA_STRING, typeMapping);
@@ -38,7 +39,8 @@ public class AegisDatabindingFactoryBean extends AbstractAegisDatabindingFactory
                 org.openl.rules.ruleservice.databinding.aegis.org.openl.meta.BigDecimalValueType.class, W3CConstants.NT_SCHEMA_DECIMAL, typeMapping);
 	}
 
-	protected void registerCustomJavaTypes(TypeMapping typeMapping) {
+	@Override
+    protected void registerCustomJavaTypes(TypeMapping typeMapping) {
 		//CUSTOM JAVA TYPES REGISTER
         loadAegisTypeClassAndRegister(Character.class, CharacterAsStringType.class, W3CConstants.NT_SCHEMA_INT, typeMapping);
         loadAegisTypeClassAndRegister(char.class, CharacterAsStringType.class, W3CConstants.NT_SCHEMA_INT, typeMapping);

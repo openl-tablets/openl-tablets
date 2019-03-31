@@ -17,6 +17,7 @@ public class LazyInitBeanFactoryPostProcessor implements BeanFactoryPostProcesso
         this.lazyBeanNames = lazyBeanNames;
     }
     
+    @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
         for (String beanName : beanFactory.getBeanDefinitionNames()) {
             if (lazyBeanNames.contains(beanName)){

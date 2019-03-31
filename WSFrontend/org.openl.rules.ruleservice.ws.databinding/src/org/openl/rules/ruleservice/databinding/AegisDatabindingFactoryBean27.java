@@ -17,6 +17,7 @@ import org.apache.cxf.common.util.XMLSchemaQNames;
 
 public class AegisDatabindingFactoryBean27 extends AbstractAegisDatabindingFactoryBean { 
     
+    @Override
     protected void registerOpenLTypes(TypeMapping typeMapping) {
         loadAegisTypeClassAndRegister("org.openl.meta.StringValue",
             org.openl.rules.ruleservice.databinding.aegis.org.openl.meta.StringValueType.class, XMLSchemaQNames.XSD_STRING, typeMapping);
@@ -38,6 +39,7 @@ public class AegisDatabindingFactoryBean27 extends AbstractAegisDatabindingFacto
                 org.openl.rules.ruleservice.databinding.aegis.org.openl.meta.BigDecimalValueType.class, XMLSchemaQNames.XSD_DECIMAL, typeMapping);
     }
 
+    @Override
     protected void registerCustomJavaTypes(TypeMapping typeMapping) {
         //CUSTOM JAVA TYPES REGISTER
         loadAegisTypeClassAndRegister(Character.class, CharacterAsStringType.class, XMLSchemaQNames.XSD_INT, typeMapping);

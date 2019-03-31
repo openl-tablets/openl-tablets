@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 
 /**
  * Bean to unpack jar with rules.xml to defined folder. This bean is used by
@@ -181,6 +182,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         }
     }
 
+    @Override
     public void afterPropertiesSet() throws IOException {
         if (!isEnabled()){
             return;
@@ -216,7 +218,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         }
         
         PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
-        Resource[] resources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+        Resource[] resources = prpr.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         for (Resource rulesXmlResource : resources) {
             File file = null;
             try {
@@ -257,7 +259,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
             log.info("Unpacking '{}' into '{}' was completed.", file.getAbsolutePath(), destDirectory);
         }
         
-        Resource[] deploymentResources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + DEPLOYMENT_DESCRIPTOR_FILE_NAME);        
+        Resource[] deploymentResources = prpr.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + DEPLOYMENT_DESCRIPTOR_FILE_NAME);        
         if (!isUnpackAllJarsInOneDeployment()){
             for (Resource deploymentResource : deploymentResources) {
                 File file = null;

@@ -23,6 +23,7 @@ public abstract class RulesDeployerRestServiceInitializingBean implements Initia
 
     public abstract RulesDeployerRestController getRulesDeployerRestController();
 
+    @Override
     public void afterPropertiesSet() {
         if (isEnabled) {
             JAXRSServerFactoryBean serverFactory = getJAXRSServerFactory();

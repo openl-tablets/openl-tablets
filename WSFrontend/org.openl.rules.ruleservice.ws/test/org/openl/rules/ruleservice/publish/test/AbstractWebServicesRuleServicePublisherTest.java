@@ -130,7 +130,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
      * @throws ServiceNotFoundException occurs if service with specified name not deployed
      */
     protected <T> T getClient(String serviceName, Class<T> clazz) throws ServiceNotFoundException {
-        return (T) getClient(serviceName, null, clazz);
+        return getClient(serviceName, null, clazz);
     }
 
     /**
@@ -143,7 +143,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
      * @throws ServiceNotFoundException occurs if service with specified name not deployed
      */
     protected <T> T getClient(String serviceName, String address, Class<T> clazz) throws ServiceNotFoundException {
-        return (T) getClient(serviceName, address, clazz, null);
+        return getClient(serviceName, address, clazz, null);
     }
 
     /**

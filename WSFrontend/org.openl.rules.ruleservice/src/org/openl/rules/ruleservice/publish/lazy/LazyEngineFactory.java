@@ -146,6 +146,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         this.externalParameters = externalParameters;
     }
 
+    @Override
     public CompiledOpenClass getCompiledOpenClass() {
         if (compiledOpenClass == null) {
             compiledOpenClass = initializeOpenClass();

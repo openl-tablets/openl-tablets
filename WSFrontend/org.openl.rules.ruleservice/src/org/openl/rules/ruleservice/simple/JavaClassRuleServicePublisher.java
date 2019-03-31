@@ -31,6 +31,7 @@ public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher 
     /**
      * {@inheritDoc}
      */
+    @Override
     public Collection<OpenLService> getServices() {
         Collection<OpenLService> services = runningServices.values();
         return new ArrayList<OpenLService>(services);
@@ -39,6 +40,7 @@ public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher 
     /**
      * {@inheritDoc}
      */
+    @Override
     public OpenLService getServiceByName(String serviceName) {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument must not be null!");

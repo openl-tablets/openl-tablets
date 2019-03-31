@@ -10,7 +10,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.cxf.common.injection.NoJSR250Annotations;
-import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.LoggingMessage;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.io.CacheAndWriteOutputStream;
@@ -54,6 +53,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
         limit = lim;
     }
 
+    @Override
     public void handleMessage(Message message) {
         final OutputStream os = message.getContent(OutputStream.class);
         final Writer iowriter = message.getContent(Writer.class);
@@ -133,6 +133,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
             lim = limit == -1 ? Integer.MAX_VALUE : limit;
         }
 
+        @Override
         public void write(int c) throws IOException {
             super.write(c);
             if (out2 != null && count < lim) {
@@ -141,6 +142,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
             count++;
         }
 
+        @Override
         public void write(char[] cbuf, int off, int len) throws IOException {
             super.write(cbuf, off, len);
             if (out2 != null && count < lim) {
@@ -149,6 +151,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
             count += len;
         }
 
+        @Override
         public void write(String str, int off, int len) throws IOException {
             super.write(str, off, len);
             if (out2 != null && count < lim) {
@@ -157,6 +160,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
             count += len;
         }
 
+        @Override
         public void close() throws IOException {
             LoggingMessage buffer = setupBuffer(message);
             if (count >= lim) {
@@ -232,10 +236,12 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
             this.lim = limit == -1 ? Integer.MAX_VALUE : limit;
         }
 
+        @Override
         public void onFlush(CachedOutputStream cos) {
 
         }
 
+        @Override
         public void onClose(CachedOutputStream cos) {
             LoggingMessage buffer = setupBuffer(message);
 

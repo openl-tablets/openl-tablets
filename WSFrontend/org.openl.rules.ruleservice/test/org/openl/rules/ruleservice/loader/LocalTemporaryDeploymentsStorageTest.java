@@ -21,7 +21,6 @@ import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.db.DBRepository;
 import org.openl.rules.repository.db.JdbcDBRepositoryFactory;
-import org.openl.rules.workspace.deploy.DeployUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;

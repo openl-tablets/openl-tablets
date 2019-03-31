@@ -59,6 +59,7 @@ public abstract class LazyField extends LazyMember<IOpenField> implements IOpenF
         return lazyField;
     }
 
+    @Override
     public IOpenField getMember() {
         IOpenField cachedMember = getCachedMember();
         if (cachedMember != null) {
@@ -75,22 +76,27 @@ public abstract class LazyField extends LazyMember<IOpenField> implements IOpenF
         }
     }
 
+    @Override
     public Object get(Object target, IRuntimeEnv env) {
         return getMember().get(target, env);
     }
 
+    @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         getMember().set(target, value, env);
     }
 
+    @Override
     public boolean isConst() {
         return getOriginal().isConst();
     }
 
+    @Override
     public boolean isReadable() {
         return getOriginal().isReadable();
     }
 
+    @Override
     public boolean isWritable() {
         return getOriginal().isWritable();
     }

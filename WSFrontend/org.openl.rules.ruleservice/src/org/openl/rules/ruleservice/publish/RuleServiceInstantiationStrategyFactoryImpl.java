@@ -36,6 +36,7 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
     }
 
     /** {@inheritDoc} */
+    @Override
     public RulesInstantiationStrategy getStrategy(ServiceDescription serviceDescription, IDependencyManager dependencyManager) {
         Collection<Module> modules = serviceDescription.getModules();
         int moduleSize = modules.size();

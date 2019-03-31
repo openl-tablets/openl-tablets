@@ -99,6 +99,7 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
      *
      * @return member in compiled module.
      */
+    @Override
     public IOpenMethod getMember() {
         IOpenMethod cachedMember = getCachedMember();
         if (cachedMember != null) {
@@ -115,6 +116,7 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
         }
     }
 
+    @Override
     public IMethodSignature getSignature() {
         return getOriginal().getSignature();
     }
@@ -138,10 +140,12 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
         }
     }
 
+    @Override
     public IOpenMethod getMethod() {
         return this;
     }
 
+    @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return getMember().invoke(target, params, env);
     }

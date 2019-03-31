@@ -23,7 +23,8 @@ public class JAXRSInvocationHandler implements IOpenLInvocationHandler {
 		this.methodMap = methodMap;
 	}
 	
-	public Object getTarget() {
+	@Override
+    public Object getTarget() {
         return target;
     }
 

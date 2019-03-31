@@ -205,6 +205,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     /**
      * {@inheritDoc}
      */
+    @Override
     public OpenLService createService(final ServiceDescription serviceDescription) {
         log.debug("Resoliving modules for service '{}'.", serviceDescription.getName());
         Collection<Module> modules = serviceDescription.getModules();
@@ -225,6 +226,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         }
 
         final OpenLService openLService = builder.build(new AbstractOpenLServiceInitializer() {
+            @Override
             public void init(OpenLService openLService) throws RuleServiceInstantiationException {
                 try {
                     initService(serviceDescription, getDependencyManager(serviceDescription), openLService);

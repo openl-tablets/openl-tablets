@@ -3,7 +3,9 @@ package org.openl.rules.ruleservice.publish.lazy;
 import java.io.IOException;
 
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -53,10 +55,10 @@ public final class OpenLEhCacheHolder {
         if (cacheManager == null) {
             PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
             Resource[] resources = prpr
-                .getResources(PathMatchingResourcePatternResolver.CLASSPATH_URL_PREFIX + OPENL_EHCACHE_FILE_NAME);
+                .getResources(ResourceLoader.CLASSPATH_URL_PREFIX + OPENL_EHCACHE_FILE_NAME);
             if (resources == null || resources.length == 0) {
                 resources = prpr.getResources(
-                    PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + OPENL_EHCACHE_FILE_NAME);
+                    ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + OPENL_EHCACHE_FILE_NAME);
             }
             if (resources == null || resources.length == 0) {
                 throw new IllegalStateException(OPENL_EHCACHE_FILE_NAME + " hasn't been found!");

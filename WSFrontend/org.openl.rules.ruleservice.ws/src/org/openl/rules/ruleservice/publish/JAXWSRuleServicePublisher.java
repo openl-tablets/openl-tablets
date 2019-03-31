@@ -159,10 +159,12 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
         return runningServices.get(service).getDatabinding();
     }
 
+    @Override
     public Collection<OpenLService> getServices() {
         return new ArrayList<>(runningServices.keySet());
     }
 
+    @Override
     public OpenLService getServiceByName(String name) {
         for (OpenLService service : runningServices.keySet()) {
             if (service.getName().equals(name)) {

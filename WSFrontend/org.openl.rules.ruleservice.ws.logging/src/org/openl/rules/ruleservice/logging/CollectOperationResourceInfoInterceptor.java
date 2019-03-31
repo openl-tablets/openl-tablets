@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.logging;
 
 import java.lang.reflect.Method;
 
-import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.message.Message;

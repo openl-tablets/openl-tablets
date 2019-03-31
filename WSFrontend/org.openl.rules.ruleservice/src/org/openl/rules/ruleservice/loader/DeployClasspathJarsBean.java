@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 
 public class DeployClasspathJarsBean implements InitializingBean {
 
@@ -70,7 +71,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
 
         PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
         Resource[] resources = prpr.getResources(
-            PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+            ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         for (Resource rulesXmlResource : resources) {
             File file;
             try {

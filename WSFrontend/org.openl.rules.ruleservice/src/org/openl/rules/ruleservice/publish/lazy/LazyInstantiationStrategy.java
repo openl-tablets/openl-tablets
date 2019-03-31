@@ -71,6 +71,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
 
     private ClassLoader classLoader = null;
 
+    @Override
     protected ClassLoader initClassLoader() throws RulesInstantiationException {// Required for lazy
         if (classLoader == null) {
             SimpleBundleClassLoader simpleBundleClassLoader = new SimpleBundleClassLoader(
@@ -111,6 +112,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
         }
     }
 
+    @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected LazyEngineFactory<?> getEngineFactory() {
         Class<?> serviceClass = null;

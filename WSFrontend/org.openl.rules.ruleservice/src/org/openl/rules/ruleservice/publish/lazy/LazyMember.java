@@ -172,30 +172,37 @@ public abstract class LazyMember<T extends IOpenMember> implements ILazyMember<T
         return classLoader;
     }
 
+    @Override
     public T getOriginal() {
         return original;
     }
 
+    @Override
     public String getDisplayName(int mode) {
         return getOriginal().getDisplayName(mode);
     }
 
+    @Override
     public String getName() {
         return getOriginal().getName();
     }
 
+    @Override
     public IOpenClass getType() {
         return getOriginal().getType();
     }
 
+    @Override
     public boolean isStatic() {
         return getOriginal().isStatic();
     }
 
+    @Override
     public IMemberMetaInfo getInfo() {
         return getOriginal().getInfo();
     }
 
+    @Override
     public IOpenClass getDeclaringClass() {
         return getOriginal().getDeclaringClass();
     }

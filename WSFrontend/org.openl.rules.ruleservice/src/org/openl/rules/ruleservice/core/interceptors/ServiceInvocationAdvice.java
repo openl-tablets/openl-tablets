@@ -262,6 +262,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         }
     }
 
+    @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
         Method calledMethod = invocation.getMethod();
         Object[] args = invocation.getArguments();
@@ -445,6 +446,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         return sb.toString();
     }
 
+    @Override
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE;
     }
