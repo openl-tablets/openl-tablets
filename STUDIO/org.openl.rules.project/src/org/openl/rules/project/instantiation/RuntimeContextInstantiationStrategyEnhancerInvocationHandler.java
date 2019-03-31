@@ -67,8 +67,6 @@ class RuntimeContextInstantiationStrategyEnhancerInvocationHandler implements IO
             wrapper.setRuntimeContext(context);
         } else {
             log.error("Failed to define rules runtime context for service instance. Service class must be instance one of: IEngineWrapper.class, IRulesRuntimeContextConsumer.class");
-            // throw new
-            // RuntimeException("Cannot define rules runtime context for service instance.");
         }
     }
 

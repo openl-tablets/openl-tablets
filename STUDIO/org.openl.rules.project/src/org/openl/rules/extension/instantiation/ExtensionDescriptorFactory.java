@@ -9,8 +9,7 @@ public final class ExtensionDescriptorFactory {
     private ExtensionDescriptorFactory() {
     }
 
-    public static IExtensionDescriptor getExtensionDescriptor(Extension extension, ClassLoader classLoader) throws
-                                                                                                            ExtensionRuntimeException {
+    public static IExtensionDescriptor getExtensionDescriptor(Extension extension, ClassLoader classLoader) {
         IExtensionDescriptor descriptor;
         try {
             String extensionPackage;

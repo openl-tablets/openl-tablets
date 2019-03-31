@@ -22,7 +22,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 
 public final class JsonUtils {
-    public static final class DefaultObjectMapperHolder {
+    
+    private JsonUtils() {
+    }
+    
+    private static final class DefaultObjectMapperHolder {
         private static final ObjectMapper INSTANCE;
         static {
             JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
@@ -31,7 +35,7 @@ public final class JsonUtils {
             INSTANCE = jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
         }
     }
-    
+
     public static ObjectMapper createJacksonObjectMapper(Class<?>[] types, boolean enableDefaultTyping) {
         if (enableDefaultTyping) {
             return createJacksonObjectMapper(types, DefaultTypingMode.ENABLE);
@@ -78,10 +82,10 @@ public final class JsonUtils {
         return objectMapper.writeValueAsString(value);
     }
 
-    public static Map<String, String> splitJSON(String jsonString) throws IOException, JsonProcessingException {
+    public static Map<String, String> splitJSON(String jsonString) throws IOException {
         ObjectMapper objectMapper = getDefaultJacksonObjectMapper();
         JsonNode rootNode = objectMapper.readTree(jsonString);
-        Map<String, String> splitMap = new HashMap<String, String>();
+        Map<String, String> splitMap = new HashMap<>();
         Iterator<Map.Entry<String, JsonNode>> fieldsIterator = rootNode.fields();
         while (fieldsIterator.hasNext()) {
             Map.Entry<String, JsonNode> field = fieldsIterator.next();
@@ -90,23 +94,22 @@ public final class JsonUtils {
         return splitMap;
     }
 
-    public static <T> T fromJSON(String jsonString, Class<T> readType, ObjectMapper objectMapper) throws IOException, JsonProcessingException {
+    public static <T> T fromJSON(String jsonString, Class<T> readType, ObjectMapper objectMapper) throws IOException {
         return objectMapper.readValue(jsonString, readType);
     }
 
-    public static <T> T fromJSON(String jsonString, Class<T> readType) throws IOException, JsonProcessingException {
+    public static <T> T fromJSON(String jsonString, Class<T> readType) throws IOException {
         return getDefaultJacksonObjectMapper().readValue(jsonString, readType);
     }
-    
-    public static <T> T fromJSON(String jsonString, Class<T> readType, Class<?>[] types) throws IOException,
-                                                                                         JsonProcessingException {
+
+    public static <T> T fromJSON(String jsonString, Class<T> readType, Class<?>[] types) throws IOException {
         return fromJSON(jsonString, readType, types, false);
     }
 
     public static <T> T fromJSON(String jsonString,
             Class<T> readType,
             Class<?>[] types,
-            boolean enableDefaultTyping) throws IOException, JsonProcessingException {
+            boolean enableDefaultTyping) throws IOException {
         if (types == null) {
             types = new Class<?>[0];
         }

@@ -37,7 +37,8 @@ public class JavaCodeGen implements ICodeGen {
     public static final String MULTILINE_COMMENT = " * ";
     public static final String END_MULTILINE_COMMENT = " */\n";
     public static final String START_SINGLELINE_COMMENT = " // ";
-    public static final String ASSIGN_OP = "=", CHAIN_OP = ".";
+    public static final String ASSIGN_OP = "=";
+    public static final String CHAIN_OP = ".";
     public static final String START_METHOD_BRACE = "(";
     public static final String END_METHOD_BRACE = ")";
     public static final String CLASS_SUFFIX = ".class";
@@ -49,11 +50,9 @@ public class JavaCodeGen implements ICodeGen {
     public static final int METHOD_DECLARATION_LEVEL = 1;
     public static final int METHOD_BODY_LEVEL = 2;
 
-    public static int MAX_STR_LEN = 80;
+    public static final int MAX_STR_LEN = 80;
 
     private String jpackage = "org.openl.gen";
-
-    // private String comment;
 
     private int genLevel = 0;
     private int dprecision = 4;
@@ -307,10 +306,7 @@ public class JavaCodeGen implements ICodeGen {
         this.dprecision = dprecision;
         format.setMaximumFractionDigits(dprecision);
 
-        int olddprecision = this.dprecision;
-        this.dprecision = dprecision;
-
-        return olddprecision;
+        return this.dprecision;
     }
 
     public StringBuilder genLiteralLong(Long src, StringBuilder sb) {
@@ -382,7 +378,7 @@ public class JavaCodeGen implements ICodeGen {
         }
 
         PropertyDescriptor[] pdd = info.getPropertyDescriptors();
-        List<PropertyDescriptor> pdlist = new ArrayList<PropertyDescriptor>();
+        List<PropertyDescriptor> pdlist = new ArrayList<>();
 
         for (PropertyDescriptor pd : pdd) {
             if (props != null && !props.contains(pd.getName())) {
@@ -423,7 +419,7 @@ public class JavaCodeGen implements ICodeGen {
             Object value = null;
 
             try {
-                value = propertyDescriptor.getReadMethod().invoke(bean, new Object[] {});
+                value = propertyDescriptor.getReadMethod().invoke(bean);
             } catch (Throwable t) {
                 throw RuntimeExceptionWrapper.wrap(t);
             }

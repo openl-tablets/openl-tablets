@@ -88,7 +88,7 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
 
         log.debug("Creating methods map for classes: {} <-> {}", interfaceClass, serviceClass);
 
-        Map<Method, Method> methodMap = new HashMap<Method, Method>();
+        Map<Method, Method> methodMap = new HashMap<>();
         Method[] serviceMethods = interfaceClass.getDeclaredMethods();
         for (Method serviceMethod : serviceMethods) {
             try {

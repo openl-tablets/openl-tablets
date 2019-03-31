@@ -41,7 +41,7 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
     }
 
     public ProjectDescriptor resolveProject(File folder) throws ProjectResolvingException {
-        Map<String, Module> modules = new TreeMap<String, Module>();
+        Map<String, Module> modules = new TreeMap<>();
         try {
             ProjectDescriptor project = createDescriptor(folder);
             for (File f : folder.listFiles()) {

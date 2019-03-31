@@ -17,7 +17,7 @@ public class AbstractProjection implements Projection {
         this.type = type;
 
         properties = new PropertySet();
-        children = new ArrayList<Projection>();
+        children = new ArrayList<>();
     }
 
 //    @Override

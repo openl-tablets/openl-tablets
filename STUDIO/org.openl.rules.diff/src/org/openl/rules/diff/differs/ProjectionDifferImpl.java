@@ -7,11 +7,10 @@ import org.openl.rules.diff.hierarchy.Projection;
 import org.openl.rules.diff.hierarchy.ProjectionProperty;
 
 public class ProjectionDifferImpl implements ProjectionDiffer {
-//    @Override
+    // @Override
     public boolean compare(Projection original, Projection other) {
-        Map<String, ProjectionProperty> map1, map2;
-        map1 = buildMap(original);
-        map2 = buildMap(other);
+        Map<String, ProjectionProperty> map1 = buildMap(original);
+        Map<String, ProjectionProperty> map2 = buildMap(other);
 
         MergeResult merged = MergeResult.mergeNames(map1.keySet(), map2.keySet());
 
@@ -44,7 +43,7 @@ public class ProjectionDifferImpl implements ProjectionDiffer {
     }
 
     protected static Map<String, ProjectionProperty> buildMap(Projection projection) {
-        Map<String, ProjectionProperty> map = new HashMap<String, ProjectionProperty>();
+        Map<String, ProjectionProperty> map = new HashMap<>();
 
         for (ProjectionProperty property : projection.getProperties()) {
             map.put(property.getName(), property);

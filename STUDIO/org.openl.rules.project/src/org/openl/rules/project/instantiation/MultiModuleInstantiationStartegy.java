@@ -23,8 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * Instantiation strategy that combines several modules into single rules
- * module.
+ * Instantiation strategy that combines several modules into single rules module.
  * <p/>
  * Note: it works only in execution mode.
  *
@@ -35,14 +34,20 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
 
     private Collection<Module> modules;
 
-    public MultiModuleInstantiationStartegy(Collection<Module> modules, IDependencyManager dependencyManager, boolean executionMode) {
+    public MultiModuleInstantiationStartegy(Collection<Module> modules,
+            IDependencyManager dependencyManager,
+            boolean executionMode) {
         this(modules, dependencyManager, null, executionMode);
     }
 
-    public MultiModuleInstantiationStartegy(Collection<Module> modules, IDependencyManager dependencyManager,
-                                            ClassLoader classLoader, boolean executionMode) {
+    public MultiModuleInstantiationStartegy(Collection<Module> modules,
+            IDependencyManager dependencyManager,
+            ClassLoader classLoader,
+            boolean executionMode) {
         // multimodule is only available for execution(execution mode == true)
-        super(executionMode, dependencyManager != null ? dependencyManager : createDependencyManager(modules), classLoader);
+        super(executionMode,
+            dependencyManager != null ? dependencyManager : createDependencyManager(modules),
+            classLoader);
         this.modules = modules;
     }
 
@@ -62,12 +67,12 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
 
     @Override
     protected ClassLoader initClassLoader() throws RulesInstantiationException {
-        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(Thread.currentThread()
-                .getContextClassLoader());
+        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(
+            Thread.currentThread().getContextClassLoader());
         for (Module module : modules) {
             try {
                 CompiledDependency compiledDependency = getDependencyManager().loadDependency(
-                        new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null)));
+                    new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null)));
                 CompiledOpenClass compiledOpenClass = compiledDependency.getCompiledOpenClass();
                 classLoader.addClassLoader(compiledOpenClass.getClassLoader());
             } catch (OpenLCompilationException e) {
@@ -89,24 +94,24 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
     }
 
     /**
-     * @return Special empty virtual {@link IOpenSourceCodeModule} with
-     * dependencies on all modules.
+     * @return Special empty virtual {@link IOpenSourceCodeModule} with dependencies on all modules.
      */
     protected IOpenSourceCodeModule createVirtualSourceCodeModule() {
-        List<IDependency> dependencies = new ArrayList<IDependency>();
+        List<IDependency> dependencies = new ArrayList<>();
 
         for (Module module : getModules()) {
             IDependency dependency = createDependency(module);
             dependencies.add(dependency);
         }
 
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         if (getExternalParameters() != null) {
             params.putAll(getExternalParameters());
         }
         if (params.get(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY) != null) {
             @SuppressWarnings("unchecked")
-            List<IDependency> externalDependencies = (List<IDependency>) params.get(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY);
+            List<IDependency> externalDependencies = (List<IDependency>) params
+                .get(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY);
             dependencies.addAll(externalDependencies);
         }
         params.put(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY, dependencies);

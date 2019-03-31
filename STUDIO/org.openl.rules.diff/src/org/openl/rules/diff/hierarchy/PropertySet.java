@@ -9,7 +9,7 @@ public class PropertySet {
     private Map<String, ProjectionProperty> properties;
 
     public PropertySet() {
-        properties = new HashMap<String, ProjectionProperty>();
+        properties = new HashMap<>();
     }
 
     public ProjectionProperty get(String propertyName) {

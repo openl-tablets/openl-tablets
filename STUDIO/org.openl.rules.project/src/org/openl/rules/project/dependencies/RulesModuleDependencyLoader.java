@@ -18,7 +18,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 
 public class RulesModuleDependencyLoader implements IDependencyLoader {
 
-    private Map<String, Module> modulesMap = new HashMap<String, Module>();
+    private Map<String, Module> modulesMap = new HashMap<>();
     
     public RulesModuleDependencyLoader(Collection<Module> modules) {
         init(modules);

@@ -22,7 +22,7 @@ public class DiffTreeBuilder2 extends DiffTreeBuilderImpl {
         throw new UnsupportedOperationException("Use compare()!");
     }
 
-//    @Override
+    // @Override
     protected void buildTree(DiffTreeNodeImpl root, Projection[] projections) {
         throw new UnsupportedOperationException("It uses own builder! Must not use inherited one!");
     }
@@ -36,16 +36,12 @@ public class DiffTreeBuilder2 extends DiffTreeBuilderImpl {
         return n;
     }
 
-    private Map<String, List<DiffPair>> sheetMap = new LinkedHashMap<String, List<DiffPair>>();
+    private Map<String, List<DiffPair>> sheetMap = new LinkedHashMap<>();
 
     public void add(DiffPair diff) {
-        String sheetName = (diff.getTable1() != null) ? diff.getTable1().getSheetName() : diff.getTable2()
-            .getSheetName();
-        List<DiffPair> list = sheetMap.get(sheetName);
-        if (list == null) {
-            list = new ArrayList<DiffPair>();
-            sheetMap.put(sheetName, list);
-        }
+        String sheetName = (diff.getTable1() != null) ? diff.getTable1().getSheetName()
+                                                      : diff.getTable2().getSheetName();
+        List<DiffPair> list = sheetMap.computeIfAbsent(sheetName, e -> new ArrayList<>());
         list.add(diff);
     }
 
@@ -58,7 +54,8 @@ public class DiffTreeBuilder2 extends DiffTreeBuilderImpl {
             String sheetName = entry.getKey();
             List<DiffPair> diffs = entry.getValue();
 
-            int n1 = 0, n2 = 0;
+            int n1 = 0;
+            int n2 = 0;
             for (DiffPair r : diffs) {
                 if (r.getTable1() != null)
                     n1++;

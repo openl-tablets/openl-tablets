@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @author Marat Kamalov
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
-public class VariationsResultType<T> {
+public class VariationsResultType {
 
     @JsonIgnore
     public String[] getCalculatedVariationIDs() {

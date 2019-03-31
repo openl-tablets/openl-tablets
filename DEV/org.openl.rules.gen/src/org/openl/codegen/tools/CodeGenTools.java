@@ -4,7 +4,10 @@ import java.lang.reflect.Array;
 
 import org.openl.types.java.JavaOpenClass;
 
-public class CodeGenTools {
+public final class CodeGenTools {
+    
+    private CodeGenTools() {
+    }
 
     public static String getClassSourcePathInRulesModule(Class<?> clazz) {
         return CodeGenConstants.RULES_SOURCE_LOCATION + clazz.getName().replace('.', '/') + ".java";

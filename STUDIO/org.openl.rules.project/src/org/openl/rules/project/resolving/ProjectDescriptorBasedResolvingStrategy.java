@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrategy {
 
-    public final static String PROJECT_DESCRIPTOR_FILE_NAME = "rules.xml";
+    public static final String PROJECT_DESCRIPTOR_FILE_NAME = "rules.xml";
     private static final Logger LOG = LoggerFactory.getLogger(ProjectDescriptorBasedResolvingStrategy.class);
 
     public boolean isRulesProject(File folder) {

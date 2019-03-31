@@ -24,20 +24,17 @@ import static org.openl.rules.diff.xls.XlsProjectionType.*;
 
 public final class XlsProjectionBuilder {
 
-    public XlsProjectionBuilder() {
-    }
-
     public static XlsProjection build(XlsMetaInfo xmi, String xlsName) {
         XlsProjection projection = new XlsProjection(xlsName, BOOK);
         XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
 
         // Here we have list of all tables.
-        // But for usability reasons it is good to group tables 
+        // But for usability reasons it is good to group tables
         // as they are located in XLS WorkBook, i.e. on Sheets
         // So here we have a tree:
-        // - 1st level is for Sheets and 
+        // - 1st level is for Sheets and
         // - 2nd for tables.
-        Map<String, XlsProjection> sheetProjections = new TreeMap<String, XlsProjection>();
+        Map<String, XlsProjection> sheetProjections = new TreeMap<>();
 
         TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();
         for (TableSyntaxNode node : nodes) {
@@ -84,10 +81,10 @@ public final class XlsProjectionBuilder {
         }
 
         // ROWS
-        /*for (int i = 1; i < gridTable.getLogicalHeight(); i++) {
-        ILogicalTable row = gridTable.getLogicalRow(i);
-        projection.addChild(buildRow(row, "row" + i));
-        }*/
+        /*
+         * for (int i = 1; i < gridTable.getLogicalHeight(); i++) { ILogicalTable row = gridTable.getLogicalRow(i);
+         * projection.addChild(buildRow(row, "row" + i)); }
+         */
         return projection;
     }
 
@@ -107,21 +104,20 @@ public final class XlsProjectionBuilder {
 
     public static XlsProjection buildCell(ICell cell, String cellName) {
         Object cellValue = cell.getObjectValue();
-        /*int cellHeight = cell.getCellHeight();
-        int cellWidth = cell.getCellWidth();
-        ICellStyle cellStyle = cell.getCellStyle();
-        ICellFont cellFont = cell.getCellInfo().getFont();*/
+        /*
+         * int cellHeight = cell.getCellHeight(); int cellWidth = cell.getCellWidth(); ICellStyle cellStyle =
+         * cell.getCellStyle(); ICellFont cellFont = cell.getCellInfo().getFont();
+         */
         XlsProjection projection = new XlsProjection(cellName, CELL);
         projection.addProperty(new AbstractProperty(CELL_VALUE.name(), cellValue));
-        /*projection.addProperty(new AbstractProperty(CELL_HEIGHT.name(),
-                int.class, cellHeight));
-        projection.addProperty(new AbstractProperty(CELL_WIDTH.name(),
-                int.class, cellWidth));
-        projection.addChild(buildCellStyle(cellStyle));
-        projection.addChild(buildCellFont(cellFont));*/
+        /*
+         * projection.addProperty(new AbstractProperty(CELL_HEIGHT.name(), int.class, cellHeight));
+         * projection.addProperty(new AbstractProperty(CELL_WIDTH.name(), int.class, cellWidth));
+         * projection.addChild(buildCellStyle(cellStyle)); projection.addChild(buildCellFont(cellFont));
+         */
         projection.setData(cell);
-//        AbstractProperty cellProp = new AbstractProperty("cell", ICell.class, cell);
-//        projection.addProperty(cellProp);
+        // AbstractProperty cellProp = new AbstractProperty("cell", ICell.class, cell);
+        // projection.addProperty(cellProp);
         return projection;
     }
 

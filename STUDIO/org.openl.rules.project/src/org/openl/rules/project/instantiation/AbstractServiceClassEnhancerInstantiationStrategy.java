@@ -97,7 +97,7 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
      * @throws Exception
      */
     protected Class<?>[] getProxyInterfaces(Object originalInstance) throws Exception {
-        List<Class<?>> proxyInterfaces = new ArrayList<Class<?>>();
+        List<Class<?>> proxyInterfaces = new ArrayList<>();
         proxyInterfaces.add(getServiceClass());
         Class<?> originalServiceClass = getOriginalInstantiationStrategy().getInstanceClass();
         for (Class<?> interfaceClass : originalInstance.getClass().getInterfaces()) {

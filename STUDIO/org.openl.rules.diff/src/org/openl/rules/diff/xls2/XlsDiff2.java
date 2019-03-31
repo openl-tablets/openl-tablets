@@ -23,12 +23,9 @@ import org.openl.types.IOpenClass;
 import org.openl.xls.sequential.SequentialParser;
 
 /**
- * Find difference between two XLS files.
- * It compares per Table.
+ * Find difference between two XLS files. It compares per Table.
  * <p>
- * Incomplete.
- * Need AxB vs CxD implementation.
- * Need to be optimal.
+ * Incomplete. Need AxB vs CxD implementation. Need to be optimal.
  * 
  * @author Aleh Bykhavets
  * 
@@ -93,17 +90,12 @@ public class XlsDiff2 {
         IOpenSourceCodeModule src1 = new URLSourceCodeModule(url1);
         IOpenSourceCodeModule src2 = new URLSourceCodeModule(url2);
 
-
         tables1 = load(src1);
         tables2 = load(src2);
     }
 
     private void add(String guess, DiffPair r) {
-        List<DiffPair> list = diffGuess.get(guess);
-        if (list == null) {
-            list = new LinkedList<>();
-            diffGuess.put(guess, list);
-        }
+        List<DiffPair> list = diffGuess.computeIfAbsent(guess, e -> new LinkedList<>());
         list.add(r);
     }
 
@@ -204,20 +196,20 @@ public class XlsDiff2 {
         List<ICell> diff2 = new ArrayList<>();
 
         if (grid1.getWidth() == grid2.getWidth() && grid1.getHeight() == grid2.getHeight()) {
-            //Same Size
+            // Same Size
             compareRows(grid1, grid2, diff1);
             compareRows(grid2, grid1, diff2);
         } else if (grid1.getWidth() == grid2.getWidth()) {
-            //Same Width
-            //May be ROWs were changed
+            // Same Width
+            // May be ROWs were changed
             compareRows(grid1, grid2, diff1);
             compareRows(grid2, grid1, diff2);
         } else if (grid1.getHeight() == grid2.getHeight()) {
-            //Same Height
+            // Same Height
             compareCols(grid1, grid2, diff1);
             compareCols(grid2, grid1, diff2);
         } else {
-            //Diff Size
+            // Diff Size
             // TODO Implement AxB vs CxD algorithm
         }
 
@@ -230,11 +222,12 @@ public class XlsDiff2 {
     }
 
     private void compareRows(IGridTable grid1, IGridTable grid2, List<ICell> diff) {
-        //TODO Review the algorithm. Seems like it is not optimal.
+        // TODO Review the algorithm. Seems like it is not optimal.
         boolean matched[] = new boolean[grid1.getHeight()];
         int[] match2 = new int[grid1.getHeight()];
-        // The getDiffsCount() is used instead of map to prevent OutOfMemoryError. Not so fast but less memory-consumptive.
-//        int[][] map = new int[grid1.getHeight()][grid2.getHeight()];
+        // The getDiffsCount() is used instead of map to prevent OutOfMemoryError. Not so fast but less
+        // memory-consumptive.
+        // int[][] map = new int[grid1.getHeight()][grid2.getHeight()];
 
         int y2s = 0;
         for (int y1 = 0; y1 < grid1.getHeight(); y1++) {
@@ -244,10 +237,10 @@ public class XlsDiff2 {
                 if (nDiff == 0) {
                     matched[y1] = true;
                     match2[y1] = y2;
-                    y2s = y2+1;
+                    y2s = y2 + 1;
                     break;
                 }
-//                map[y1][y2] = nDiff;
+                // map[y1][y2] = nDiff;
             }
         }
 
@@ -276,11 +269,11 @@ public class XlsDiff2 {
                     // find best match
                     int i1 = y1;
                     int i2 = y2s;
-//                    int n = map[i1][i2];
+                    // int n = map[i1][i2];
                     int n = getDiffsCount(grid1, grid2, i1, i2);
                     for (int y = y1; y < y1e; y++) {
                         for (int y2 = y2s; y2 < y2e; y2++) {
-//                            int m = map[y][y2];
+                            // int m = map[y][y2];
                             int m = getDiffsCount(grid1, grid2, y, y2);
                             if (m < n) {
                                 n = m;
@@ -311,7 +304,8 @@ public class XlsDiff2 {
         // list unmatched rows
         // just in case
         for (int y1 = 0; y1 < grid1.getHeight(); y1++) {
-            if (matched[y1]) continue;
+            if (matched[y1])
+                continue;
 
             for (int x = 0; x < grid1.getWidth(); x++) {
                 ICell c1 = grid1.getCell(x, y1);

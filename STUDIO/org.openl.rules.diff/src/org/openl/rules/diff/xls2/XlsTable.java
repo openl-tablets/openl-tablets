@@ -18,19 +18,16 @@ public class XlsTable {
 
     public String getSheetName() {
         IOpenSourceCodeModule sheet = node.getModule();
-        String sheetName = ((XlsSheetSourceCodeModule) sheet).getSheetName();
-        return sheetName;
+        return ((XlsSheetSourceCodeModule) sheet).getSheetName();
     }
 
     public String getTableName() {
         String header = table.getGridTable().getCell(0, 0).getStringValue();
-        String tableName = (header == null) ? "" : header;
-        return tableName;
+        return (header == null) ? "" : header;
     }
 
     public GridLocation getLocation() {
-        GridLocation location = node.getGridLocation();
-        return location;
+        return node.getGridLocation();
     }
 
     public IOpenLTable getTable() {

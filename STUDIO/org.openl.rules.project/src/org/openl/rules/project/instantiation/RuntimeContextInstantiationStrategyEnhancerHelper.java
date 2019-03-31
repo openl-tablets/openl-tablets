@@ -135,7 +135,7 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
      */
     private static List<RuleInfo> getRulesDecorated(Method[] methods) {
 
-        List<RuleInfo> rules = new ArrayList<RuleInfo>(methods.length);
+        List<RuleInfo> rules = new ArrayList<>(methods.length);
 
         for (Method method : methods) {
 

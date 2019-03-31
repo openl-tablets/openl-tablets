@@ -72,22 +72,23 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
         }
     }
 
-    @SuppressWarnings("unchecked")
     protected List<Projection> getChildren(Projection p) {
-        if (p == null) return Collections.EMPTY_LIST;
+        if (p == null) {
+            return Collections.emptyList();
+        }
 
         return p.getChildren();
     }
 
     protected List<DiffTreeNode> combineChildren(List<Projection>[] children) {
         int len = children.length;
-        Set<ProjectionKey> uniqKeys = new TreeSet<ProjectionKey>();
+        Set<ProjectionKey> uniqKeys = new TreeSet<>();
 
         @SuppressWarnings("unchecked")
         Map<ProjectionKey, Projection>[] n2p = new HashMap[len];
 
         for (int i = 0; i < len; i++) {
-            Map<ProjectionKey, Projection> map = new HashMap<ProjectionKey, Projection>();
+            Map<ProjectionKey, Projection> map = new HashMap<>();
             n2p[i] = map;
 
             for (Projection p : children[i]) {
@@ -98,7 +99,7 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
             }
         }
 
-        List<DiffTreeNode> result = new ArrayList<DiffTreeNode>(uniqKeys.size());
+        List<DiffTreeNode> result = new ArrayList<>(uniqKeys.size());
         for (ProjectionKey key : uniqKeys) {
             DiffElementImpl[] diffElements = new DiffElementImpl[len];
 

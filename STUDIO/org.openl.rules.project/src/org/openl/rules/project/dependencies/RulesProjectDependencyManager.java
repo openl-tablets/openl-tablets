@@ -9,7 +9,7 @@ import org.openl.dependency.loader.IDependencyLoader;
 
 public class RulesProjectDependencyManager extends DependencyManager {
 
-    private List<IDependencyLoader> loaders = new ArrayList<IDependencyLoader>();
+    private List<IDependencyLoader> loaders = new ArrayList<>();
     
     @Override
     public List<IDependencyLoader> getDependencyLoaders() {

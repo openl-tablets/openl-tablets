@@ -26,19 +26,20 @@ public final class ProjectExternalDependenciesHelper {
     }
 
     public static boolean isProject(String dependencyName) {
-        return dependencyName.indexOf("VIRTUAL_MODULE(") == 0 && dependencyName.lastIndexOf(')') == dependencyName.length() - 1;
+        return dependencyName.indexOf("VIRTUAL_MODULE(") == 0 && dependencyName
+            .lastIndexOf(')') == dependencyName.length() - 1;
     }
 
     public static String getProjectName(String dependencyName) {
-        if (isProject(dependencyName)){
+        if (isProject(dependencyName)) {
             return dependencyName.substring("VIRTUAL_MODULE(".length(), dependencyName.length() - 1);
         }
         return null;
     }
-    
+
     public static Map<String, Object> getExternalParamsWithProjectDependencies(Map<String, Object> externalParams,
             Collection<Module> modules) {
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         if (externalParams != null) {
             parameters.putAll(externalParams);
         }
@@ -46,7 +47,7 @@ public final class ProjectExternalDependenciesHelper {
             parameters.put(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY, null);
             return parameters;
         }
-        Set<String> virtualModules = new HashSet<String>();
+        Set<String> virtualModules = new HashSet<>();
         for (Module module : modules) {
             ProjectDescriptor projectDescriptor = module.getProject();
             if (projectDescriptor.getDependencies() != null) {
@@ -57,23 +58,14 @@ public final class ProjectExternalDependenciesHelper {
                 }
             }
         }
-        List<IDependency> externalDependencies = new ArrayList<IDependency>();
+        List<IDependency> externalDependencies = new ArrayList<>();
         for (String virualModule : virtualModules) {
-            externalDependencies.add(new Dependency(DependencyType.MODULE, new IdentifierNode(null,
-                null,
-                virualModule,
-                null)));
+            externalDependencies
+                .add(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, virualModule, null)));
         }
-        /*
-         * Object ed = parameters.get("external-dependencies"); if (ed != null)
-         * {
-         * 
-         * @SuppressWarnings("unchecked") List<IDependency> dependencies =
-         * (List<IDependency>) ed; externalDependencies.addAll(dependencies); }
-         */
-        // if (!externalDependencies.isEmpty()) {
+
         parameters.put(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY, externalDependencies);
-        // }
+
         return parameters;
     }
 }

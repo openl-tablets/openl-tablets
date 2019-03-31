@@ -28,7 +28,7 @@ public class MethodFilter{
     public void addIncludePattern(String... patterns) {
         if (patterns != null && patterns.length > 0) {
             if (includes == null) {
-                includes = new HashSet<String>();
+                includes = new HashSet<>();
             }
             Collections.addAll(includes, patterns);
         }
@@ -37,7 +37,7 @@ public class MethodFilter{
     public void addExcludePattern(String... patterns) {
         if (patterns != null && patterns.length > 0) {
             if (excludes == null) {
-                excludes = new HashSet<String>();
+                excludes = new HashSet<>();
             }
             Collections.addAll(excludes, patterns);
         }

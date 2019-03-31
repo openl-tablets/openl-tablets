@@ -98,12 +98,12 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
                 source.setParams(prepareExternalParameters());
     
                 String openlName = extensionDescriptor.getOpenLName();
-                engineFactory = new RulesEngineFactory<Object>(openlName, source, serviceClass);
+                engineFactory = new RulesEngineFactory<>(openlName, source, serviceClass);
             } else {
                 IOpenSourceCodeModule source = getSourceCode(getModule());
                 source.setParams(prepareExternalParameters());
 
-                engineFactory = new RulesEngineFactory<Object>(source, serviceClass);
+                engineFactory = new RulesEngineFactory<>(source, serviceClass);
             }
 
             // Information for interface generation, if generation required.

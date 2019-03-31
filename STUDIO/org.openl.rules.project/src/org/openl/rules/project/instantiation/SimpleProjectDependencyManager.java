@@ -67,9 +67,9 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
 
     private synchronized void initDependencyLoaders() {
         if (projectDescriptors == null && dependencyLoaders == null) {
-            dependencyLoaders = new ArrayList<IDependencyLoader>();
-            projectDescriptors = new ArrayList<ProjectDescriptor>();
-            dependencyNames = new HashSet<String>();
+            dependencyLoaders = new ArrayList<>();
+            projectDescriptors = new ArrayList<>();
+            dependencyNames = new HashSet<>();
             for (ProjectDescriptor project : projects) {
                 try {
                     Collection<Module> modulesOfProject = project.getModules();

@@ -47,7 +47,7 @@ public class ProjectResolver {
     }
 
     public List<ProjectDescriptor> resolve(File... files) {
-        ArrayList<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();
+        ArrayList<ProjectDescriptor> projectDescriptors = new ArrayList<>();
         for (File file : files) {
             try {
                 ProjectDescriptor project = resolve(file);

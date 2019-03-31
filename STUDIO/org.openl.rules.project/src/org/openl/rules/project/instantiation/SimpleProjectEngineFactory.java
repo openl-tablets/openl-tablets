@@ -113,7 +113,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             }
             File projectFile = new File(project);
             File workspaceFile = workspace == null ? null : new File(workspace);
-            return new SimpleProjectEngineFactory<T>(projectFile,
+            return new SimpleProjectEngineFactory<>(projectFile,
                 workspaceFile,
                 classLoader,
                 module,
@@ -173,7 +173,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
     private List<ProjectDescriptor> getDependentProjects(ProjectDescriptor project,
                                                          Collection<ProjectDescriptor> projectsInWorkspace) {
-        List<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();
+        List<ProjectDescriptor> projectDescriptors = new ArrayList<>();
         addDependentProjects(projectDescriptors, project, projectsInWorkspace);
         return projectDescriptors;
     }
@@ -200,7 +200,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
     }
 
     protected IDependencyManager buildDependencyManager() throws ProjectResolvingException {
-        Collection<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();
+        Collection<ProjectDescriptor> projectDescriptors = new ArrayList<>();
         ProjectResolver projectResolver = ProjectResolver.instance();
         ProjectDescriptor projectDescriptor = getProjectDescriptor();
         if (workspace != null) {
@@ -272,7 +272,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         return (T) getRulesInstantiationStrategy().instantiate();
     }
 
-    protected synchronized final ProjectDescriptor getProjectDescriptor() throws ProjectResolvingException {
+    protected final synchronized ProjectDescriptor getProjectDescriptor() throws ProjectResolvingException {
         if (this.projectDescriptor == null) {
             ProjectResolver projectResolver = ProjectResolver.instance();
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -296,8 +296,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
     protected RulesInstantiationStrategy instantiationStrategy;
 
     protected final synchronized RulesInstantiationStrategy getRulesInstantiationStrategy() throws RulesInstantiationException,
-            ProjectResolvingException,
-            ClassNotFoundException {
+            ProjectResolvingException {
         if (rulesInstantiationStrategy == null) {
             RulesInstantiationStrategy instantiationStrategy = null;
             if (!isSingleModuleMode()) {
@@ -305,7 +304,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             } else {
                 for (Module module : getProjectDescriptor().getModules()) {
                     if (module.getName().equals(this.module)) {
-                        Collection<Module> modules = new ArrayList<Module>();
+                        Collection<Module> modules = new ArrayList<>();
                         modules.add(module);
                         instantiationStrategy = getStrategy(modules, getDependencyManager());
                         break;
@@ -324,7 +323,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                 instantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(instantiationStrategy);
             }
 
-            Map<String, Object> parameters = new HashMap<String, Object>(externalParameters);
+            Map<String, Object> parameters = new HashMap<>(externalParameters);
             if (!isSingleModuleMode()) {
                 parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(externalParameters,
                         getProjectDescriptor().getModules());

@@ -67,7 +67,7 @@ public class JacksonObjectMapperFactoryBean {
                 mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.PROPERTY);
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 if (getOverrideTypes() != null) {
-                    List<Class<?>> clazzes = new ArrayList<Class<?>>();
+                    List<Class<?>> clazzes = new ArrayList<>();
                     for (String className : getOverrideTypes()) {
                         try {
                             Class<?> clazz = loadClass(className);

@@ -14,6 +14,9 @@ import java.util.List;
  * Created by ymolchan on 17.05.2017.
  */
 public final class GenUtils {
+    
+    private GenUtils() {
+    }
 
     public static String[] getParameterNames(Method method) {
         String[] parameterNames = new String[method.getParameterTypes().length];

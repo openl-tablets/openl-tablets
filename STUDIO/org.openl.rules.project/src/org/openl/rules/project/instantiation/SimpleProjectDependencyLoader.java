@@ -109,7 +109,7 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
 		    rulesInstantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(modules.iterator()
 		            .next(), executionMode, dependencyManager, classLoader);
 		} else {
-		    if (isProject && modules.size() > 0) {
+		    if (isProject && !modules.isEmpty()) {
 		        rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
 		                dependencyManager,
 		                classLoader, executionMode);

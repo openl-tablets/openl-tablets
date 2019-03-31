@@ -18,12 +18,13 @@ import org.openl.rules.project.model.ProjectDescriptor;
 public abstract class SingleModuleInstantiationStrategy extends CommonRulesInstantiationStrategy {
 
     /**
-     * Root <code>Module</code> that is used as start point for Openl
-     * compilation.
+     * Root <code>Module</code> that is used as start point for Openl compilation.
      */
     private Module module;
 
-    public SingleModuleInstantiationStrategy(Module module, boolean executionMode, IDependencyManager dependencyManager) {
+    public SingleModuleInstantiationStrategy(Module module,
+            boolean executionMode,
+            IDependencyManager dependencyManager) {
         this(module, executionMode, dependencyManager, null);
     }
 
@@ -50,8 +51,7 @@ public abstract class SingleModuleInstantiationStrategy extends CommonRulesInsta
 
     protected ClassLoader initClassLoader() {
         ProjectDescriptor project = getModule().getProject();
-        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(project.getClassPathUrls(), Thread.currentThread().getContextClassLoader());
-        return classLoader;
+        return new SimpleBundleClassLoader(project.getClassPathUrls(), Thread.currentThread().getContextClassLoader());
     }
 
     @Override
@@ -60,7 +60,7 @@ public abstract class SingleModuleInstantiationStrategy extends CommonRulesInsta
     }
 
     protected Map<String, Object> prepareExternalParameters() {
-        Map<String, Object> externalProperties = new HashMap<String, Object>();
+        Map<String, Object> externalProperties = new HashMap<>();
         if (getModule().getProperties() != null) {
             externalProperties.putAll(getModule().getProperties());
         }

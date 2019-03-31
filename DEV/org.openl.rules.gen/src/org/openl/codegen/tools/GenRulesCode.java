@@ -80,8 +80,11 @@ public class GenRulesCode {
                 JavaCodeGen jcgen = new JavaCodeGen();
 
                 jcgen.setGenLevel(JavaCodeGen.METHOD_BODY_LEVEL);
-                jcgen.genInitializeBeanArray(CodeGenConstants.DEFINITIONS_ARRAY_NAME, tablePropertyDefinitions,
-                        TablePropertyDefinition.class, null, sb);
+                jcgen.genInitializeBeanArray(CodeGenConstants.DEFINITIONS_ARRAY_NAME,
+                    tablePropertyDefinitions,
+                    TablePropertyDefinition.class,
+                    null,
+                    sb);
             }
 
             public void processEndInsertTag(String line, StringBuilder sb) {
@@ -111,7 +114,7 @@ public class GenRulesCode {
 
     private void generateDefaultRulesRuntimeContextCode() throws IOException {
 
-        Map<String, Object> variables = new HashMap<String, Object>();
+        Map<String, Object> variables = new HashMap<>();
         variables.put("tool", new VelocityTool());
         variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
 
@@ -127,7 +130,7 @@ public class GenRulesCode {
 
     private void generateIRulesRuntimeContextCode() throws IOException {
 
-        Map<String, Object> variables = new HashMap<String, Object>();
+        Map<String, Object> variables = new HashMap<>();
         variables.put("tool", new VelocityTool());
         variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
 
@@ -136,13 +139,11 @@ public class GenRulesCode {
     }
 
     private void generateIRulesRuntimeContextUtils() throws IOException {
-        Map<String, Object> variables = new HashMap<String, Object>();
+        Map<String, Object> variables = new HashMap<>();
         variables.put("tool", new VelocityTool());
         variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
 
-        String sourceFilePath = CodeGenConstants.ACTIVITI_SOURCE_LOCATION
-                + CodeGenConstants.ACTIVITI_IRULESRUNTIMECONTEXTUTILS_PACKAGE_PATH
-                + CodeGenConstants.ACTIVITI_IRULESRUNTIMECONTEXTUTILS_CLASSNAME + ".java";
+        String sourceFilePath = CodeGenConstants.ACTIVITI_SOURCE_LOCATION + CodeGenConstants.ACTIVITI_IRULESRUNTIMECONTEXTUTILS_PACKAGE_PATH + CodeGenConstants.ACTIVITI_IRULESRUNTIMECONTEXTUTILS_CLASSNAME + ".java";
         processSourceCode(sourceFilePath, "IRulesRuntimeContextUtils-properties.vm", variables);
     }
 
@@ -150,7 +151,7 @@ public class GenRulesCode {
 
         List<TablePropertyValidatorsWrapper> propertyValidatorsWrappers = tablePropertyValidatorsWrappers.asList();
 
-        Map<String, Object> variables = new HashMap<String, Object>();
+        Map<String, Object> variables = new HashMap<>();
         variables.put("tool", new VelocityTool());
         variables.put("validatorsDefinitions", propertyValidatorsWrappers);
 
@@ -160,10 +161,10 @@ public class GenRulesCode {
 
     private void generateMatchingOpenMethodDispatcherCode() throws IOException {
 
-        Map<String, Object> variables = new HashMap<String, Object>();
+        Map<String, Object> variables = new HashMap<>();
 
         List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = tablePropertyDefinitionWrappers
-                .getDimensionalPropertiesWithContextVar();
+            .getDimensionalPropertiesWithContextVar();
         variables.put("tool", new VelocityTool());
         variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
 
@@ -172,10 +173,10 @@ public class GenRulesCode {
     }
 
     private void generateDefaultPropertiesContextMatcherCode() throws IOException {
-        Map<String, Object> variables = new HashMap<String, Object>();
+        Map<String, Object> variables = new HashMap<>();
 
         List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = tablePropertyDefinitionWrappers
-                .getDimensionalPropertiesWithMatchExpression();
+            .getDimensionalPropertiesWithMatchExpression();
         variables.put("tool", new VelocityTool());
         variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
         variables.put("contextPropertyDefinitionWrappers", contextPropertyDefinitionWrappers);
@@ -186,10 +187,10 @@ public class GenRulesCode {
 
     private void generateDefaultPropertiesIntersectionFinderCode() throws IOException {
 
-        Map<String, Object> variables = new HashMap<String, Object>();
+        Map<String, Object> variables = new HashMap<>();
 
         List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = tablePropertyDefinitionWrappers
-                .getGapOverlapDimensionalProperties();
+            .getGapOverlapDimensionalProperties();
         variables.put("tool", new VelocityTool());
         variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
 
@@ -199,7 +200,7 @@ public class GenRulesCode {
 
     private void generateDefaultTablePropertiesSorter() throws IOException {
 
-        Map<String, Object> variables = new HashMap<String, Object>();
+        Map<String, Object> variables = new HashMap<>();
 
         variables.put("tool", new VelocityTool());
         variables.put("priorityRuleWrappers", tablePriorityRuleWrappers);
@@ -241,7 +242,8 @@ public class GenRulesCode {
 
     }
 
-    protected void processSourceCode(String sourceFilePath, final String templateName,
+    protected void processSourceCode(String sourceFilePath,
+            final String templateName,
             final Map<String, Object> variables) throws IOException {
 
         FileCodeGen fileGen = new FileCodeGen(sourceFilePath, TMP_FILE);
@@ -275,23 +277,26 @@ public class GenRulesCode {
 
     private TablePropertyDefinition[] loadTablePropertyDefinitions() {
 
-        RulesEngineFactory<ITablePropertyDefinitionLoader> engineFactory = new RulesEngineFactory<ITablePropertyDefinitionLoader>(
-                CodeGenConstants.DEFINITIONS_XLS, ITablePropertyDefinitionLoader.class);
+        RulesEngineFactory<ITablePropertyDefinitionLoader> engineFactory = new RulesEngineFactory<>(
+            CodeGenConstants.DEFINITIONS_XLS,
+            ITablePropertyDefinitionLoader.class);
 
         return engineFactory.newEngineInstance().getDefinitions();
     }
 
     private ContextPropertyDefinition[] loadContextPropertyDefinitions() {
 
-        RulesEngineFactory<IContextPropertyDefinitionLoader> engineFactory = new RulesEngineFactory<IContextPropertyDefinitionLoader>(
-                CodeGenConstants.DEFINITIONS_XLS, IContextPropertyDefinitionLoader.class);
+        RulesEngineFactory<IContextPropertyDefinitionLoader> engineFactory = new RulesEngineFactory<>(
+            CodeGenConstants.DEFINITIONS_XLS,
+            IContextPropertyDefinitionLoader.class);
 
         return engineFactory.newEngineInstance().getContextDefinitions();
     }
 
     private String[] loadTablePriorityRules() {
-        RulesEngineFactory<ITablesPriorityLoader> engineFactory = new RulesEngineFactory<ITablesPriorityLoader>(
-                CodeGenConstants.DEFINITIONS_XLS, ITablesPriorityLoader.class);
+        RulesEngineFactory<ITablesPriorityLoader> engineFactory = new RulesEngineFactory<>(
+            CodeGenConstants.DEFINITIONS_XLS,
+            ITablesPriorityLoader.class);
 
         return engineFactory.newEngineInstance().getTablesPriorityRules();
     }

@@ -4,20 +4,18 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
-import com.thoughtworks.xstream.security.NoTypePermission;
 import org.openl.rules.project.IProjectDescriptorSerializer;
-import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.Property;
+import org.openl.util.CollectionUtils;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
-import org.openl.util.CollectionUtils;
+import com.thoughtworks.xstream.security.NoTypePermission;
 
 /**
  * Project Descriptor serializer/deserializer.

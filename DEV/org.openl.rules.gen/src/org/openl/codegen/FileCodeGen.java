@@ -50,7 +50,7 @@ public class FileCodeGen {
         try (BufferedReader br = new BufferedReader(new FileReader(inFileLocation))) {
             String line = null;
 
-            Deque<String> endInsert = new LinkedList<String>();
+            Deque<String> endInsert = new LinkedList<>();
 
             while ((line = br.readLine()) != null) {
 
@@ -60,7 +60,7 @@ public class FileCodeGen {
                     endInsert.push(getEndInsertTag(line));
                 }
 
-                boolean skipTillEnd = endInsert.size() > 0;
+                boolean skipTillEnd = !endInsert.isEmpty();
 
                 if (skipTillEnd) {
                     String endTag = endInsert.peek();
@@ -75,7 +75,7 @@ public class FileCodeGen {
 
             }
 
-            if (endInsert.size() > 0) {
+            if (!endInsert.isEmpty()) {
                 throw new IllegalStateException("Not processed " + endInsert);
             }
         }
