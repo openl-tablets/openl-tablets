@@ -31,15 +31,15 @@ public class LoggingInfoMapper {
 
     private final Logger log = LoggerFactory.getLogger(LoggingInfoMapper.class);
 
-    private final static Set<Class<?>> CUSTOM_ANNOTATIONS;
-    private final static Set<Class<?>> MAPPING_ANNOTATIONS;
+    private static final Set<Class<?>> CUSTOM_ANNOTATIONS;
+    private static final Set<Class<?>> MAPPING_ANNOTATIONS;
 
     static {
-        Set<Class<?>> customAnnotations = new HashSet<Class<?>>();
+        Set<Class<?>> customAnnotations = new HashSet<>();
         customAnnotations.add(SetterValue.class);
         CUSTOM_ANNOTATIONS = Collections.unmodifiableSet(customAnnotations);
 
-        Set<Class<?>> mappingAnnotations = new HashSet<Class<?>>();
+        Set<Class<?>> mappingAnnotations = new HashSet<>();
         mappingAnnotations.add(SetterPublisher.class);
         mappingAnnotations.add(SetterIncomingTime.class);
         mappingAnnotations.add(SetterOutcomingTime.class);
@@ -62,8 +62,8 @@ public class LoggingInfoMapper {
         LoggingCustomData loggingCustomData = loggingInfo.getLoggingCustomData();
         Class<?> targetClass = target.getClass();
         Class<?> clazz = targetClass;
-        Map<Annotation, Method> customAnnotationMethodMap = new HashMap<Annotation, Method>();
-        Map<Annotation, Method> annotationMethodMap = new HashMap<Annotation, Method>();
+        Map<Annotation, Method> customAnnotationMethodMap = new HashMap<>();
+        Map<Annotation, Method> annotationMethodMap = new HashMap<>();
         while (clazz != Object.class) {
             for (final Method method : clazz.getDeclaredMethods()) {
                 for (final Annotation annotation : method.getAnnotations()) {
@@ -165,7 +165,7 @@ public class LoggingInfoMapper {
             Object value) {
         boolean f = false;
         try {
-            Method publisherTypeMethod = annotation.annotationType().getMethod("publisherTypes", new Class<?>[] {});
+            Method publisherTypeMethod = annotation.annotationType().getMethod("publisherTypes");
             PublisherType[] publisherTypes = (PublisherType[]) publisherTypeMethod.invoke(annotation);
             for (PublisherType publisherType : publisherTypes) {
                 if (publisherType.equals(loggingInfo.getPublisherType())) {
@@ -185,7 +185,7 @@ public class LoggingInfoMapper {
 
         Class<? extends TypeConvertor<?, ?>> typeConvertorClass = null;
         try {
-            Method convertorMethod = annotation.annotationType().getMethod("convertor", new Class<?>[] {});
+            Method convertorMethod = annotation.annotationType().getMethod("convertor");
             typeConvertorClass = (Class<? extends TypeConvertor<?, ?>>) convertorMethod.invoke(annotation);
         } catch (Exception e) {
             throw new IllegalStateException(

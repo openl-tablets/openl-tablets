@@ -46,7 +46,7 @@ public class ComplexVariationType extends BeanType {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Object readObject(MessageReader reader, Context context) throws DatabindingException {
+    public Object readObject(MessageReader reader, Context context) {
         BeanTypeInfo inf = getTypeInfo();
 
         try {

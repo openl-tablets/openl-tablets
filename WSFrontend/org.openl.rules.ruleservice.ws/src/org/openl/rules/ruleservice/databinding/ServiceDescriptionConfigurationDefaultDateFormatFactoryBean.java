@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.databinding;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Set;
 
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;

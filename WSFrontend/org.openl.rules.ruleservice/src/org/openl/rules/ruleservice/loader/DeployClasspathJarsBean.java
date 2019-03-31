@@ -33,9 +33,6 @@ public class DeployClasspathJarsBean implements InitializingBean {
         this.enabled = enabled;
     }
 
-    public DeployClasspathJarsBean() {
-    }
-
     public void setRulesDeployerService(RulesDeployerService rulesDeployerService) {
         this.rulesDeployerService = rulesDeployerService;
     }

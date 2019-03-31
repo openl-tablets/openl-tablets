@@ -19,7 +19,7 @@ public class JAXRSNamespaceMapFactoryBean implements FactoryBean<Map<String, Str
 
     @Override
     public Map<String, String> getObject() throws Exception {
-        Map<String, String> namespaceMap = new HashMap<String, String>();
+        Map<String, String> namespaceMap = new HashMap<>();
         if (ignoredNamespace != null && ignoredNamespace.length() > 0) {
             namespaceMap.put(ignoredNamespace, "");
         }

@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class LoggingCustomData {
        
-    private Map<String, Object> values = new HashMap<String, Object>();
+    private Map<String, Object> values = new HashMap<>();
 
     public Object getValue(String key){
         return values.get(key);

@@ -8,9 +8,6 @@ import javax.ws.rs.ext.ExceptionMapper;
 
 public class JAXRSExceptionMapper implements ExceptionMapper<Exception> {
 
-    public JAXRSExceptionMapper() {
-    }
-
     @Override
     public Response toResponse(Exception e) {
         ExceptionResponseDto dto = ExceptionResponseDto.createFrom(e);

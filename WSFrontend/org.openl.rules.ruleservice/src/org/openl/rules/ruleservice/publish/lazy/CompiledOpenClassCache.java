@@ -5,19 +5,18 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListenerAdapter;
 
 /**
- * Caches compiled modules. Uses EhCache. This is singleton and thread safe
- * implementation.
+ * Caches compiled modules. Uses EhCache. This is singleton and thread safe implementation.
  * 
  * @author Marat Kamalov
  */
@@ -29,8 +28,10 @@ public final class CompiledOpenClassCache {
 
     private CompiledOpenClassCache() {
 
-        OpenLEhCacheHolder.getInstance().getModulesCache().getCacheEventNotificationService().registerListener(
-            new CacheEventListenerAdapter() {
+        OpenLEhCacheHolder.getInstance()
+            .getModulesCache()
+            .getCacheEventNotificationService()
+            .registerListener(new CacheEventListenerAdapter() {
                 @Override
                 public void notifyElementEvicted(Ehcache cache, Element element) {
                     process(element.getObjectKey());
@@ -42,17 +43,17 @@ public final class CompiledOpenClassCache {
                 }
 
                 @Override
-                public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
+                public void notifyElementRemoved(Ehcache cache, Element element) {
                     process(element.getObjectKey());
                 }
 
                 @Override
-                public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
+                public void notifyElementPut(Ehcache cache, Element element) {
                     process(element.getObjectKey());
                 }
 
                 @Override
-                public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
+                public void notifyElementUpdated(Ehcache cache, Element element) {
                     process(element.getObjectKey());
                 }
 
@@ -79,12 +80,8 @@ public final class CompiledOpenClassCache {
     }
 
     public CompiledOpenClass get(DeploymentDescription deploymentDescription, String dependencyName) {
-        if (deploymentDescription == null) {
-            throw new IllegalArgumentException("deploymentDescription must not be null!");
-        }
-        if (dependencyName == null) {
-            throw new IllegalArgumentException("dependencyName must not be null!");
-        }
+        Objects.requireNonNull(deploymentDescription, "deploymentDescription must not be null!");
+        Objects.requireNonNull(dependencyName, "dependencyName must not be null!");
         Key key = new Key(deploymentDescription, dependencyName);
         Cache cache = OpenLEhCacheHolder.getInstance().getModulesCache();
         Element element = cache.get(key);
@@ -97,12 +94,8 @@ public final class CompiledOpenClassCache {
     public void putToCache(DeploymentDescription deploymentDescription,
             String dependencyName,
             CompiledOpenClass compiledOpenClass) {
-        if (deploymentDescription == null) {
-            throw new IllegalArgumentException("deploymentDescription must not be null!");
-        }
-        if (dependencyName == null) {
-            throw new IllegalArgumentException("dependencyName must not be null!");
-        }
+        Objects.requireNonNull(deploymentDescription, "deploymentDescription must not be null!");
+        Objects.requireNonNull(dependencyName, "dependencyName must not be null!");
         Key key = new Key(deploymentDescription, dependencyName);
         Element newElement = new Element(key, compiledOpenClass);
         Cache cache = OpenLEhCacheHolder.getInstance().getModulesCache();
@@ -112,19 +105,11 @@ public final class CompiledOpenClassCache {
     private Map<Key, Collection<Event>> eventsMap = new HashMap<>();
 
     public void registerEvent(DeploymentDescription deploymentDescription, String dependencyName, Event event) {
-        if (deploymentDescription == null) {
-            throw new IllegalArgumentException("deploymentDescription must not be null!");
-        }
-        if (dependencyName == null) {
-            throw new IllegalArgumentException("dependencyName must not be null!");
-        }
+        Objects.requireNonNull(deploymentDescription, "deploymentDescription must not be null!");
+        Objects.requireNonNull(dependencyName, "dependencyName must not be null!");
         Key key = new Key(deploymentDescription, dependencyName);
         synchronized (eventsMap) {
-            Collection<Event> events = eventsMap.get(key);
-            if (events == null) {
-                events = new ArrayList<>();
-                eventsMap.put(key, events);
-            }
+            Collection<Event> events = eventsMap.computeIfAbsent(key, e -> new ArrayList<>());
             events.add(event);
         }
     }

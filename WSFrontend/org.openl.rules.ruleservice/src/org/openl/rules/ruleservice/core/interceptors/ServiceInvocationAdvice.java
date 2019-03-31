@@ -37,8 +37,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 
 /**
- * Advice for processing method intercepting. Exception wrapping. And fix memory
- * leaks.
+ * Advice for processing method intercepting. Exception wrapping. And fix memory leaks.
  * <p/>
  * Only for RuleService internal use.
  *
@@ -50,10 +49,10 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
 
     private static final String MSG_SEPARATOR = "; ";
 
-    private Map<Method, List<ServiceMethodBeforeAdvice>> beforeInterceptors = new HashMap<Method, List<ServiceMethodBeforeAdvice>>();
-    private Map<Method, List<ServiceMethodAfterAdvice<?>>> afterInterceptors = new HashMap<Method, List<ServiceMethodAfterAdvice<?>>>();
-    private Map<Method, ServiceMethodAroundAdvice<?>> aroundInterceptors = new HashMap<Method, ServiceMethodAroundAdvice<?>>();
-    private Map<Method, ServiceExtraMethodHandler<?>> serviceExtraMethodAnnotations = new HashMap<Method, ServiceExtraMethodHandler<?>>();
+    private Map<Method, List<ServiceMethodBeforeAdvice>> beforeInterceptors = new HashMap<>();
+    private Map<Method, List<ServiceMethodAfterAdvice<?>>> afterInterceptors = new HashMap<>();
+    private Map<Method, ServiceMethodAroundAdvice<?>> aroundInterceptors = new HashMap<>();
+    private Map<Method, ServiceExtraMethodHandler<?>> serviceExtraMethodAnnotations = new HashMap<>();
 
     private Object serviceBean;
     private Class<?> serviceClass;
@@ -131,7 +130,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                     .value();
                 List<ServiceMethodBeforeAdvice> interceptors = beforeInterceptors.get(method);
                 if (interceptors == null) {
-                    interceptors = new ArrayList<ServiceMethodBeforeAdvice>();
+                    interceptors = new ArrayList<>();
                     beforeInterceptors.put(method, interceptors);
                 }
                 for (Class<? extends ServiceMethodBeforeAdvice> interceptorClass : interceptorClasses) {
@@ -184,7 +183,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                     .value();
                 List<ServiceMethodAfterAdvice<?>> interceptors = afterInterceptors.get(method);
                 if (interceptors == null) {
-                    interceptors = new ArrayList<ServiceMethodAfterAdvice<?>>();
+                    interceptors = new ArrayList<>();
                     afterInterceptors.put(method, interceptors);
                 }
                 for (Class<? extends ServiceMethodAfterAdvice<?>> interceptorClass : interceptorClasses) {
@@ -211,7 +210,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
 
     protected void beforeInvocation(Method interfaceMethod, Object... args) throws Throwable {
         List<ServiceMethodBeforeAdvice> preInterceptors = beforeInterceptors.get(interfaceMethod);
-        if (preInterceptors != null && preInterceptors.size() > 0) {
+        if (preInterceptors != null && !preInterceptors.isEmpty()) {
             for (ServiceMethodBeforeAdvice interceptor : preInterceptors) {
                 interceptor.before(interfaceMethod, serviceBean, args);
             }
@@ -233,7 +232,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             Exception t,
             Object... args) throws Throwable {
         List<ServiceMethodAfterAdvice<?>> postInterceptors = afterInterceptors.get(interfaceMethod);
-        if (postInterceptors != null && postInterceptors.size() > 0) {
+        if (postInterceptors != null && !postInterceptors.isEmpty()) {
             Object ret = result;
             Exception lastOccuredException = t;
             for (ServiceMethodAfterAdvice<?> interceptor : postInterceptors) {
@@ -380,7 +379,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             }
             if (t.getCause() == null) {
                 f = false;
-            }else {
+            } else {
                 t = t.getCause();
             }
         }

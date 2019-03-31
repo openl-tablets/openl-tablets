@@ -5,7 +5,7 @@ import java.util.concurrent.Semaphore;
 public final class MaxThreadsForCompileSemaphore {
     private Semaphore limitCompilationThreadsSemaphore = new Semaphore(
         RuleServiceStaticConfigurationUtil.getMaxThreadsForCompile());
-    private ThreadLocal<Object> threadsMarker = new ThreadLocal<Object>();
+    private ThreadLocal<Object> threadsMarker = new ThreadLocal<>();
 
     private MaxThreadsForCompileSemaphore() {
     }

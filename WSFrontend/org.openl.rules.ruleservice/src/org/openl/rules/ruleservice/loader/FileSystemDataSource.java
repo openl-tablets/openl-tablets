@@ -117,12 +117,7 @@ public class FileSystemDataSource implements DataSource {
             listOfFiles = new File[1];
             listOfFiles[0] = folder;
         } else {
-            listOfFiles = folder.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File file) {
-                    return file.isDirectory();
-                }
-            });
+            listOfFiles = folder.listFiles(File::isDirectory);
         }
         return listOfFiles;
     }

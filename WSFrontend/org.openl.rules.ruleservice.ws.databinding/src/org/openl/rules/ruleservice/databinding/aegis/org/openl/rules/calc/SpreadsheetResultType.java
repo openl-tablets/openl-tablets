@@ -26,11 +26,10 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.ruleservice.databinding.aegis.WrapperBeanTypeInfo;
 
 /**
- * Custom mapping for {@link SpreadSheetResult} due to it is not usual bean all
- * results should be registered using the special methods.
+ * Custom mapping for {@link SpreadSheetResult} due to it is not usual bean all results should be registered using the
+ * special methods.
  * 
- * This class uses Java Generics and causes one problems that is described in
- * {@link OpenLTypeMapping}.
+ * This class uses Java Generics and causes one problems that is described in {@link OpenLTypeMapping}.
  * 
  * @author Marat Kamalov
  */
@@ -42,13 +41,13 @@ public class SpreadsheetResultType extends BeanType {
     public SpreadsheetResultType() {
         super(new WrapperBeanTypeInfo(TYPE_CLASS,
             QNAME.getNamespaceURI(),
-            Arrays.asList(new String[] { "rowTitles", "columTitles", "height", "width", "logicalTable" })));
+            Arrays.asList("rowTitles", "columTitles", "height", "width", "logicalTable")));
         setTypeClass(TYPE_CLASS);
         setSchemaType(QNAME);
     }
 
     @Override
-    public Object readObject(MessageReader reader, Context context) throws DatabindingException {
+    public Object readObject(MessageReader reader, Context context) {
         BeanTypeInfo inf = getTypeInfo();
 
         try {
@@ -65,9 +64,8 @@ public class SpreadsheetResultType extends BeanType {
                 }
                 QName qName = childReader.getName();
                 AegisType defaultType = inf.getType(qName);
-                AegisType type = TypeUtil.getReadType(childReader.getXMLStreamReader(),
-                    context.getGlobalContext(),
-                    defaultType);
+                AegisType type = TypeUtil
+                    .getReadType(childReader.getXMLStreamReader(), context.getGlobalContext(), defaultType);
                 if (type != null && qName.getLocalPart().equals("columnNames")) {
                     columnNames = (String[]) type.readObject(childReader, context);
                 } else if (type != null && qName.getLocalPart().equals("rowNames")) {

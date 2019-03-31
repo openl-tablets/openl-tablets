@@ -26,8 +26,8 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     private RuleService ruleService;
     private ServiceConfigurer serviceConfigurer;
     private RuleServiceLoader ruleServiceLoader;
-    private Map<String, ServiceDescription> serviceDescriptions = new HashMap<String, ServiceDescription>();
-    private Map<String, ServiceDescription> failedServiceDescriptions = new HashMap<String, ServiceDescription>();
+    private Map<String, ServiceDescription> serviceDescriptions = new HashMap<>();
+    private Map<String, ServiceDescription> failedServiceDescriptions = new HashMap<>();
 
     public void setRuleServiceLoader(RuleServiceLoader ruleServiceLoader) {
         if (this.ruleServiceLoader != null) {
@@ -87,7 +87,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
         try {
             Collection<ServiceDescription> servicesToBeDeployed = serviceConfigurer
                 .getServicesToBeDeployed(ruleServiceLoader);
-            Map<String, ServiceDescription> services = new HashMap<String, ServiceDescription>();
+            Map<String, ServiceDescription> services = new HashMap<>();
             for (ServiceDescription serviceDescription : servicesToBeDeployed) {
                 if (services.containsKey(serviceDescription.getName())) {
                     log.warn(

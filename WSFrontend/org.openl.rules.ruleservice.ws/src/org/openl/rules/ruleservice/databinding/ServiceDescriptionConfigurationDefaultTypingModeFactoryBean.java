@@ -15,7 +15,7 @@ public class ServiceDescriptionConfigurationDefaultTypingModeFactoryBean extends
     private static final String DEFAULT_TYPING_TYPE = "jacksondatabinding.defaultTypingMode";
 
     private DefaultTypingMode defaultValue = DefaultTypingMode.SMART;
-    
+
     @Override
     public boolean isSingleton() {
         return false;
@@ -48,7 +48,9 @@ public class ServiceDescriptionConfigurationDefaultTypingModeFactoryBean extends
                 return getDefaultValue();
             }
             if (value instanceof DefaultTypingMode) {
-                log.info("Service '{}' uses default typing type '{}'.", serviceDescription.getName(), ((DefaultTypingMode) value).name());
+                log.info("Service '{}' uses default typing type '{}'.",
+                    serviceDescription.getName(),
+                    ((DefaultTypingMode) value).name());
                 return (DefaultTypingMode) value;
             }
             if (value != null) {
@@ -61,12 +63,16 @@ public class ServiceDescriptionConfigurationDefaultTypingModeFactoryBean extends
             }
             value = serviceDescription.getConfiguration().get(ENABLE_DEFAULT_TYPING);
             if (value instanceof String) {
-                if ("true".equals(((String) value).trim().toLowerCase())) {
-                    log.info("Service '{}' uses default typing type '{}'.", serviceDescription.getName(), DefaultTypingMode.ENABLE.name());
+                if ("true".equalsIgnoreCase(((String) value).trim())) {
+                    log.info("Service '{}' uses default typing type '{}'.",
+                        serviceDescription.getName(),
+                        DefaultTypingMode.ENABLE.name());
                     return DefaultTypingMode.ENABLE;
                 }
-                if ("false".equals(((String) value).trim().toLowerCase())) {
-                    log.info("Service '{}' uses default typing type '{}'.", serviceDescription.getName(), DefaultTypingMode.SMART.name());
+                if ("false".equalsIgnoreCase(((String) value).trim())) {
+                    log.info("Service '{}' uses default typing type '{}'.",
+                        serviceDescription.getName(),
+                        DefaultTypingMode.SMART.name());
                     return DefaultTypingMode.SMART;
                 }
             }
@@ -90,7 +96,7 @@ public class ServiceDescriptionConfigurationDefaultTypingModeFactoryBean extends
     public DefaultTypingMode getDefaultValue() {
         return defaultValue;
     }
-    
+
     public void setDefaultValue(DefaultTypingMode defaultValue) {
         this.defaultValue = defaultValue;
     }

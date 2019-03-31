@@ -70,11 +70,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
         return dependencyNames;
     }
 
-    private ThreadLocal<Stack<CompilationInfo>> compliationInfoThreadLocal = new ThreadLocal<Stack<CompilationInfo>>() {
-        protected Stack<CompilationInfo> initialValue() {
-            return new Stack<CompilationInfo>();
-        };
-    };
+    private ThreadLocal<Stack<CompilationInfo>> compliationInfoThreadLocal = ThreadLocal.withInitial(Stack::new);
 
     private static class CompilationInfo {
         long time;
@@ -203,9 +199,9 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
 
     private synchronized void initDependencyLoaders() {
         if (projectDescriptors == null && dependencyLoaders == null) {
-            dependencyLoaders = new ArrayList<IDependencyLoader>();
-            projectDescriptors = new ArrayList<ProjectDescriptor>();
-            dependencyNames = new HashSet<String>();
+            dependencyLoaders = new ArrayList<>();
+            projectDescriptors = new ArrayList<>();
+            dependencyNames = new HashSet<>();
             Collection<Deployment> deployments = ruleServiceLoader.getDeployments();
             for (Deployment deployment : deployments) {
                 String deploymentName = deployment.getDeploymentName();
@@ -218,7 +214,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
                             Collection<Module> modulesOfProject = ruleServiceLoader
                                 .resolveModulesForProject(deploymentName, deploymentVersion, projectName);
                             ProjectDescriptor projectDescriptor = null;
-                            Set<String> wildcardPatterns = new HashSet<String>();
+                            Set<String> wildcardPatterns = new HashSet<>();
                             if (!modulesOfProject.isEmpty()) {
                                 Module firstModule = modulesOfProject.iterator().next();
                                 projectDescriptor = firstModule.getProject();

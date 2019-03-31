@@ -84,11 +84,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 // deprecated approach with wrapper: service class is not
                 // interface
                 factory.setTarget(serviceBean);
-                if (!Proxy.isProxyClass(serviceBean.getClass())) {
-                    factory.setProxyTargetClass(true);
-                } else {
-                    factory.setProxyTargetClass(false);
-                }
+                factory.setProxyTargetClass(!Proxy.isProxyClass(serviceBean.getClass()));
             }
 
             Object proxyServiceBean = factory.getProxy();
@@ -133,7 +129,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         service.setServiceClass(serviceClass);
     }
 
-    private void resolveRmiInterface(OpenLService service) throws RuleServiceInstantiationException, RulesInstantiationException, ClassNotFoundException {
+    private void resolveRmiInterface(OpenLService service) throws RuleServiceInstantiationException, ClassNotFoundException {
         String rmiServiceClassName = service.getRmiServiceClassName();
         Class<?> serviceClass = null;
         ClassLoader serviceClassLoader = service.getClassLoader();
@@ -159,7 +155,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             OpenLService service,
             Class<?> serviceClass,
             ClassLoader classLoader) {
-        Class<?> resultClass = processInterceptingTemplateClassConfiguration(serviceDescription, service, serviceClass, classLoader);
+        Class<?> resultClass = processInterceptingTemplateClassConfiguration(serviceDescription, serviceClass, classLoader);
         if (resultClass == null) {
             throw new IllegalStateException("It must not happen!");
         }
@@ -174,7 +170,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     }
 
     private Class<?> processInterceptingTemplateClassConfiguration(ServiceDescription serviceDescription,
-            OpenLService service,
             Class<?> serviceClass,
             ClassLoader classLoader) {
         String clazzName = serviceDescription.getAnnotationTemplateClassName();
@@ -275,7 +270,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         this.externalParameters = externalParameters;
     }
 
-    private Map<DeploymentDescription, RuleServiceDeploymentRelatedDependencyManager> dependencyManagerMap = new HashMap<DeploymentDescription, RuleServiceDeploymentRelatedDependencyManager>();
+    private Map<DeploymentDescription, RuleServiceDeploymentRelatedDependencyManager> dependencyManagerMap = new HashMap<>();
 
     public void clear(DeploymentDescription deploymentDescription) {
         dependencyManagerMap.remove(deploymentDescription);

@@ -18,7 +18,7 @@ import org.openl.rules.lang.xls.prebind.XlsPreBinder;
  * @author NSamatov, Marat Kamalov
  */
 public class LazyBinderInvocationHandler implements InvocationHandler { 
-    private static final ThreadLocal<IPrebindHandler> prebindHandlerHolder = new ThreadLocal<IPrebindHandler>();
+    private static final ThreadLocal<IPrebindHandler> prebindHandlerHolder = new ThreadLocal<>();
 
     private final IOpenBinder originalBinder;
     private final IUserContext ucxt;
@@ -61,12 +61,8 @@ public class LazyBinderInvocationHandler implements InvocationHandler {
         IOpenBinder binder = originalBinder;
         IPrebindHandler prebindHandler = prebindHandlerHolder.get();
         if (prebindHandler != null) {
-            if (binder == originalBinder) {
-                binder = new XlsPreBinder(ucxt, prebindHandler);
-            }
-        } else {
-            binder = originalBinder;
-        }
+            binder = new XlsPreBinder(ucxt, prebindHandler);
+        } 
         try {
             return method.invoke(binder, args);
         } catch (InvocationTargetException e) {

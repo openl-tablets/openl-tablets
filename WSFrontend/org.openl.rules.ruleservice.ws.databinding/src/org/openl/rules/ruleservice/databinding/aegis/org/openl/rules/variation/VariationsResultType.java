@@ -10,7 +10,6 @@ package org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation;
  * #L%
  */
 
-
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,11 +28,10 @@ import org.openl.rules.ruleservice.databinding.aegis.WrapperBeanTypeInfo;
 import org.openl.rules.variation.VariationsResult;
 
 /**
- * Custom mapping for {@link VariationsResultType} due to it is not usual bean
- * all results should be registered using the special methods.
+ * Custom mapping for {@link VariationsResultType} due to it is not usual bean all results should be registered using
+ * the special methods.
  * 
- * This class uses Java Generics and causes one problems that is described in
- * {@link OpenLTypeMapping}.
+ * This class uses Java Generics and causes one problems that is described in {@link OpenLTypeMapping}.
  * 
  * @author PUdalau
  */
@@ -45,14 +43,14 @@ public class VariationsResultType extends BeanType {
     public VariationsResultType() {
         super(new WrapperBeanTypeInfo(TYPE_CLASS,
             QNAME.getNamespaceURI(),
-            Arrays.asList(new String[] { "allProcessedVariationIDs", "calculatedVariationIDs", "failedVariationIDs" })));
+            Arrays.asList("allProcessedVariationIDs", "calculatedVariationIDs", "failedVariationIDs")));
         setTypeClass(TYPE_CLASS);
         setSchemaType(QNAME);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public Object readObject(MessageReader reader, Context context) throws DatabindingException {
+    public Object readObject(MessageReader reader, Context context) {
         BeanTypeInfo inf = getTypeInfo();
 
         try {
@@ -66,9 +64,8 @@ public class VariationsResultType extends BeanType {
                 }
                 QName qName = childReader.getName();
                 AegisType defaultType = inf.getType(qName);
-                AegisType type = TypeUtil.getReadType(childReader.getXMLStreamReader(),
-                    context.getGlobalContext(),
-                    defaultType);
+                AegisType type = TypeUtil
+                    .getReadType(childReader.getXMLStreamReader(), context.getGlobalContext(), defaultType);
                 if (type != null && qName.getLocalPart().equals("variationFailures")) {
                     Map<String, String> variationFailures = (Map<String, String>) type.readObject(childReader, context);
                     for (Entry<String, String> failure : variationFailures.entrySet()) {

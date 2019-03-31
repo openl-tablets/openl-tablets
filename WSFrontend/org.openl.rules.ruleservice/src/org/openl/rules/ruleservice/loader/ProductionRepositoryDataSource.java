@@ -13,7 +13,6 @@ import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FolderRepository;
-import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -61,7 +60,7 @@ public class ProductionRepositoryDataSource implements DataSource {
 
                 if (separatorPosition >= 0) {
                     deploymentName = deploymentFolderName.substring(0, separatorPosition);
-                    int version = Integer.valueOf(deploymentFolderName.substring(separatorPosition + 1));
+                    int version = Integer.parseInt(deploymentFolderName.substring(separatorPosition + 1));
                     commonVersion = new CommonVersionImpl(version);
                 } else {
                     commonVersion = null;
@@ -122,12 +121,7 @@ public class ProductionRepositoryDataSource implements DataSource {
         if (dataSourceListener == null) {
             repository.setListener(null);
         } else {
-            repository.setListener(new Listener() {
-                @Override
-                public void onChange() {
-                    dataSourceListener.onDeploymentAdded();
-                }
-            });
+            repository.setListener(dataSourceListener::onDeploymentAdded);
         }
     }
 

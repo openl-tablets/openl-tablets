@@ -49,11 +49,11 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
         limit = lim;
     }
 
-    public void handleMessage(Message message) throws Fault {
+    public void handleMessage(Message message) {
         store(message);
     }
 
-    protected void store(Message message) throws Fault {
+    protected void store(Message message) {
         if (message.containsKey(ID_KEY)) {
             return;
         }

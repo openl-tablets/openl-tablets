@@ -8,7 +8,6 @@ import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.conf.IOpenLBuilder;
 import org.openl.conf.IUserContext;
-import org.openl.conf.OpenConfigurationException;
 import org.openl.conf.OpenLConfigurator;
 
 /**
@@ -24,7 +23,7 @@ public class LazyOpenLConfigurator extends OpenLConfigurator {
     private static final String BUILD_METHOD_NAME = "build";
 
     @Override
-    public synchronized IOpenLBuilder getBuilder(String openlName, IUserContext ucxt) throws OpenConfigurationException {
+    public synchronized IOpenLBuilder getBuilder(String openlName, IUserContext ucxt) {
         IOpenLBuilder builder = super.getBuilder(openlName, ucxt);
 
         if (!openlName.startsWith(OpenL.OPENL_JAVA_RULE_NAME)) {

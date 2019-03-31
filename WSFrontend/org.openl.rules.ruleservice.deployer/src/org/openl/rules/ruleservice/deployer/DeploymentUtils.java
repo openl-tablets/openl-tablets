@@ -10,6 +10,9 @@ import java.io.File;
 import java.io.InputStream;
 
 class DeploymentUtils {
+    
+    private DeploymentUtils() {
+    }
 
     public static final String API_VERSION_SEPARATOR = "_V";
 

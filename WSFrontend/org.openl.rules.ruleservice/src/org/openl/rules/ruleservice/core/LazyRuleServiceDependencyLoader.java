@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 import org.openl.CompiledOpenClass;
-import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;

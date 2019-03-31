@@ -60,8 +60,7 @@ public final class OpenLEhCacheHolder {
             }
             if (resources == null || resources.length == 0) {
                 throw new IllegalStateException(OPENL_EHCACHE_FILE_NAME + " hasn't been found!");
-            }
-            if (resources != null && resources.length > 1) {
+            } else if (resources.length > 1) {
                 throw new IllegalStateException("Multiple " + OPENL_EHCACHE_FILE_NAME + " exist in classpath!");
             }
 

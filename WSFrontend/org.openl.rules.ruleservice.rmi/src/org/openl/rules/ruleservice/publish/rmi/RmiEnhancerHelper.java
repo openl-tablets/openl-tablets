@@ -21,7 +21,7 @@ import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
  */
 public class RmiEnhancerHelper {
 
-    private static ClassLoader getClassLoader(OpenLService service) throws RuleServiceInstantiationException{
+    private static ClassLoader getClassLoader(OpenLService service) throws RuleServiceInstantiationException {
         ClassLoader classLoader = null;
         if (service != null) {
             classLoader = service.getClassLoader();
@@ -32,10 +32,11 @@ public class RmiEnhancerHelper {
         return classLoader;
     }
 
-    public static DefaultRmiHandler decorateBeanWithDynamicRmiHandler(Object targetBean, OpenLService service) throws Exception {
+    public static DefaultRmiHandler decorateBeanWithDynamicRmiHandler(Object targetBean,
+            OpenLService service) throws Exception {
         Class<?> serviceClass = service.getServiceClass();
         ClassLoader classLoader = getClassLoader(service);
-        Map<String, List<Method>> methodMap = new HashMap<String, List<Method>>();
+        Map<String, List<Method>> methodMap = new HashMap<>();
         for (Method method : serviceClass.getMethods()) {
             List<Method> methods = null;
             if (methodMap.containsKey(method.getName())) {
@@ -55,7 +56,7 @@ public class RmiEnhancerHelper {
     public static Remote decorateBeanWithStaticRmiHandler(Object targetBean, OpenLService service) throws Exception {
         Class<?> serviceClass = service.getServiceClass();
         ClassLoader classLoader = getClassLoader(service);
-        Map<Method, Method> methodMap = new HashMap<Method, Method>();
+        Map<Method, Method> methodMap = new HashMap<>();
 
         for (Method m : service.getRmiServiceClass().getMethods()) {
             boolean found = false;
@@ -78,7 +79,8 @@ public class RmiEnhancerHelper {
                 }
             }
             if (!found) {
-                throw new RuleServiceRuntimeException("Failed to create a proxy for service. RMI interface contains method that hasn't been found in service interface!");
+                throw new RuleServiceRuntimeException(
+                    "Failed to create a proxy for service. RMI interface contains method that hasn't been found in service interface!");
             }
         }
 

@@ -7,10 +7,13 @@ import io.swagger.jaxrs.config.SwaggerConfigLocator;
 import io.swagger.jaxrs.listing.BaseApiListingResource;
 import io.swagger.models.Swagger;
 
-public class SwaggerStaticFieldsWorkaround {
+public final class SwaggerStaticFieldsWorkaround {
+    
+    private SwaggerStaticFieldsWorkaround() {
+    }
 
     @SuppressWarnings("unchecked")
-    public static void reset() throws NoSuchFieldException, SecurityException, IllegalAccessException {
+    public static void reset() throws NoSuchFieldException, IllegalAccessException {
         Field initializedScannerField = BaseApiListingResource.class.getDeclaredField("initializedScanner");
         Field initializedConfigField = BaseApiListingResource.class.getDeclaredField("initializedConfig");
         boolean initializedScannerFieldAccessible = initializedScannerField.isAccessible();

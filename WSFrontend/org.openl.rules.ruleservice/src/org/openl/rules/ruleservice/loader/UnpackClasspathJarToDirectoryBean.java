@@ -29,7 +29,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     private final Logger log = LoggerFactory.getLogger(UnpackClasspathJarToDirectoryBean.class);
 
-    public final static String DEPLOYMENT_DESCRIPTOR_FILE_NAME = "deployment.xml";
+    public static final String DEPLOYMENT_DESCRIPTOR_FILE_NAME = "deployment.xml";
     
     private String destinationDirectory;
 

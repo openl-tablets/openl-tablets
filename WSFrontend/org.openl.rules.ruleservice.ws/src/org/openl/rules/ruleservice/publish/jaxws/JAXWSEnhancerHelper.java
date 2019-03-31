@@ -33,7 +33,10 @@ import org.openl.util.generation.InterfaceTransformer;
  * @author Marat Kamalov
  *
  */
-public class JAXWSEnhancerHelper {
+public final class JAXWSEnhancerHelper {
+    
+    private JAXWSEnhancerHelper() {
+    }
 
     private static class JAXWSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$JAXWSAnnotated";
@@ -209,8 +212,7 @@ public class JAXWSEnhancerHelper {
 
         ClassLoader classLoader = getClassLoader(service);
 
-        Class<?> enchancedClass = ClassUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
-        return enchancedClass;
+        return ClassUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
     }
 
 }

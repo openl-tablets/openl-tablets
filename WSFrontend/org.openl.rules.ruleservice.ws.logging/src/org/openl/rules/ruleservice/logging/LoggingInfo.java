@@ -13,7 +13,7 @@ public class LoggingInfo {
     
     private RuleServiceLogging ruleServiceLogging;
     
-    private Map<String, Object> loggingContext = new HashMap<String, Object>();
+    private Map<String, Object> loggingContext = new HashMap<>();
     
     public LoggingInfo(RuleServiceLogging ruleServiceLoggingInfo) {
         this.ruleServiceLogging = ruleServiceLoggingInfo;

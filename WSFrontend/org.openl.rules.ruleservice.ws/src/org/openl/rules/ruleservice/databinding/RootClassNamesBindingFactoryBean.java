@@ -29,7 +29,7 @@ public class RootClassNamesBindingFactoryBean implements FactoryBean<Set<String>
 
     @Override
     public Set<String> getObject() throws Exception {
-        Set<String> ret = new HashSet<String>();
+        Set<String> ret = new HashSet<>();
         if (rootClassNames == null || rootClassNames.trim().length() == 0) {
             return ret;
         }

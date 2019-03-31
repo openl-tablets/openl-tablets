@@ -269,7 +269,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
             });
 
             IOpenSourceCodeModule mainModule = createMainModule();
-            RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(mainModule,
+            RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(mainModule,
                 AOpenLEngineFactory.DEFAULT_USER_HOME,
                 getOpenlName());// FIXME
             engineFactory.setDependencyManager(dependencyManager);
@@ -282,14 +282,14 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
     }
 
     private IOpenSourceCodeModule createMainModule() {
-        List<IDependency> dependencies = new ArrayList<IDependency>();
+        List<IDependency> dependencies = new ArrayList<>();
 
         for (Module module : modules) {
             IDependency dependency = createDependency(module);
             dependencies.add(dependency);
         }
 
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         if (getExternalParameters() != null) {
             params.putAll(getExternalParameters());
         }

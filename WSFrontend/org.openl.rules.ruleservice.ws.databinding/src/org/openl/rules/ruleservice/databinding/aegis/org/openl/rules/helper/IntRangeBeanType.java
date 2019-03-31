@@ -39,7 +39,7 @@ public class IntRangeBeanType extends BeanType {
     }
 
     @Override
-    public Object readObject(MessageReader reader, Context context) throws DatabindingException {
+    public Object readObject(MessageReader reader, Context context) {
         try {
 
             int min = 0;

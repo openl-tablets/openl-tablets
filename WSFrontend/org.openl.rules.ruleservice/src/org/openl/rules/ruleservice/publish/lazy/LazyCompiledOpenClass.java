@@ -17,8 +17,10 @@ public class LazyCompiledOpenClass extends CompiledOpenClass {
     private LazyRuleServiceDependencyLoader lazyRuleServiceDependencyLoader;
     private RuleServiceDeploymentRelatedDependencyManager dependencyManager;
     private IDependency dependency;
-    
-    public LazyCompiledOpenClass(RuleServiceDeploymentRelatedDependencyManager dependencyManager, LazyRuleServiceDependencyLoader lazyRuleServiceDependencyLoader, IDependency dependency) {
+
+    public LazyCompiledOpenClass(RuleServiceDeploymentRelatedDependencyManager dependencyManager,
+            LazyRuleServiceDependencyLoader lazyRuleServiceDependencyLoader,
+            IDependency dependency) {
         super(null, null, null, null);
         if (lazyRuleServiceDependencyLoader == null) {
             throw new IllegalArgumentException("lazyRuleServiceDependencyLoader must not be null!");
@@ -36,8 +38,7 @@ public class LazyCompiledOpenClass extends CompiledOpenClass {
 
     protected CompiledOpenClass getCompiledOpenClass() {
         try {
-            CompiledOpenClass compiledOpenClass = lazyRuleServiceDependencyLoader.compile(dependency.getNode().getIdentifier(), dependencyManager);
-            return compiledOpenClass;
+            return lazyRuleServiceDependencyLoader.compile(dependency.getNode().getIdentifier(), dependencyManager);
         } catch (OpenLCompilationException e) {
             throw new OpenlNotCheckedException("It must not happen! Compilation validated before!");
         }
@@ -83,7 +84,7 @@ public class LazyCompiledOpenClass extends CompiledOpenClass {
     public Collection<OpenLMessage> getMessages() {
         return getCompiledOpenClass().getMessages();
     }
-    
+
     @Override
     public Collection<IOpenClass> getTypes() {
         return getCompiledOpenClass().getTypes();

@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.publish.jaxrs;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxrs.impl.ResponseImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageContentsList;
@@ -27,12 +26,12 @@ public class JAXRS200StatusOutInterceptor extends AbstractPhaseInterceptor<Messa
     }
 
     @Override
-    public void handleMessage(Message message) throws Fault {
+    public void handleMessage(Message message) {
         if (!enabled) {
             return;
         }
         MessageContentsList objs = MessageContentsList.getContentsList(message);
-        if (objs == null || objs.size() == 0) {
+        if (objs == null || objs.isEmpty()) {
             return;
         }
 
@@ -41,12 +40,9 @@ public class JAXRS200StatusOutInterceptor extends AbstractPhaseInterceptor<Messa
         Response response = null;
         if (responseObj instanceof Response) {
             response = (Response) responseObj;
-            if (response.getStatus() != Status.OK.getStatusCode()) {
-                if (response instanceof ResponseImpl) {
-                    ResponseImpl responseImpl = (ResponseImpl) response;
-                    responseImpl.setStatus(Status.OK.getStatusCode());
-                }
-                return;
+            if (response.getStatus() != Status.OK.getStatusCode() && response instanceof ResponseImpl) {
+                ResponseImpl responseImpl = (ResponseImpl) response;
+                responseImpl.setStatus(Status.OK.getStatusCode());
             }
         }
     }

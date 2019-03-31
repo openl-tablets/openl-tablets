@@ -313,7 +313,7 @@ public final class OpenLService {
 
         public OpenLServiceBuilder setPublishers(Set<String> publishers) {
             if (publishers == null) {
-                this.publishers = new HashSet<String>(0);
+                this.publishers = new HashSet<>(0);
             } else {
                 this.publishers = publishers;
             }
@@ -322,7 +322,7 @@ public final class OpenLService {
 
         public OpenLServiceBuilder addPublishers(Set<String> publishers) {
             if (this.publishers == null) {
-                this.publishers = new HashSet<String>();
+                this.publishers = new HashSet<>();
             }
             if (publishers != null) {
                 this.publishers.addAll(publishers);
@@ -332,7 +332,7 @@ public final class OpenLService {
 
         public OpenLServiceBuilder addPublisher(String publisher) {
             if (this.publishers == null) {
-                this.publishers = new HashSet<String>();
+                this.publishers = new HashSet<>();
             }
             if (publisher != null) {
                 this.publishers.add(publisher);
@@ -406,9 +406,9 @@ public final class OpenLService {
          */
         public OpenLServiceBuilder setModules(Collection<Module> modules) {
             if (modules == null) {
-                this.modules = new ArrayList<Module>(0);
+                this.modules = new ArrayList<>(0);
             } else {
-                this.modules = new ArrayList<Module>(modules);
+                this.modules = new ArrayList<>(modules);
             }
             return this;
         }
@@ -421,7 +421,7 @@ public final class OpenLService {
          */
         public OpenLServiceBuilder addModules(Collection<Module> modules) {
             if (this.modules == null) {
-                this.modules = new ArrayList<Module>();
+                this.modules = new ArrayList<>();
             }
             this.modules.addAll(modules);
             return this;
@@ -435,7 +435,7 @@ public final class OpenLService {
          */
         public OpenLServiceBuilder addModule(Module module) {
             if (this.modules == null) {
-                this.modules = new ArrayList<Module>();
+                this.modules = new ArrayList<>();
             }
             if (module != null) {
                 this.modules.add(module);

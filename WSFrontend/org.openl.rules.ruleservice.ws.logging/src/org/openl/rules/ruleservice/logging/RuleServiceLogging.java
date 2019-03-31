@@ -34,7 +34,7 @@ public class RuleServiceLogging {
     
     private ObjectSerializer objectSerializer;
     
-    private Map<String, Object> context = new HashMap<String, Object>();
+    private Map<String, Object> context = new HashMap<>();
     
     private boolean ignorable = false;
     

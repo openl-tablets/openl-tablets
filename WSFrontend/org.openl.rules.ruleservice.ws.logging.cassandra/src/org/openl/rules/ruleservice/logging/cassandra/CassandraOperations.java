@@ -63,7 +63,7 @@ public class CassandraOperations implements InitializingBean {
         return session;
     }
 
-    private Set<String> alreadyCreatedTableNames = new HashSet<String>();
+    private Set<String> alreadyCreatedTableNames = new HashSet<>();
 
     public void save(Object entity) {
         try {
@@ -86,15 +86,12 @@ public class CassandraOperations implements InitializingBean {
             @SuppressWarnings("unchecked")
             Mapper<Object> mapper = (Mapper<Object>) mappingManager.mapper(entity.getClass());
             final ListenableFuture<Void> listenableFuture = mapper.saveAsync(entity);
-            listenableFuture.addListener(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        listenableFuture.get();
-                    } catch (Exception e) {
-                        if (log.isErrorEnabled()) {
-                            log.error("Save operation was failure!", e);
-                        }
+            listenableFuture.addListener(() -> {
+                try {
+                    listenableFuture.get();
+                } catch (Exception e) {
+                    if (log.isErrorEnabled()) {
+                        log.error("Save operation was failure!", e);
                     }
                 }
             }, sinleThreadExecuror);

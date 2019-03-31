@@ -40,7 +40,7 @@ public class DoubleRangeBeanType extends BeanType {
     }
 
     @Override
-    public Object readObject(MessageReader reader, Context context) throws DatabindingException {
+    public Object readObject(MessageReader reader, Context context) {
         try {
 
             double lowerBound = 0;

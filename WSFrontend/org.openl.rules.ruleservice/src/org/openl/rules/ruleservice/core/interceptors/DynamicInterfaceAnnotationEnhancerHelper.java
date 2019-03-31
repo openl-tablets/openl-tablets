@@ -15,11 +15,12 @@ import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
-public class DynamicInterfaceAnnotationEnhancerHelper {
+public final class DynamicInterfaceAnnotationEnhancerHelper {
+
+    private DynamicInterfaceAnnotationEnhancerHelper() {
+    }
 
     private static class DynamicInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
-        //private static final String DEFAULT_ANNOTATION_VALUE = "value";
-
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$Intercepted";
 
         private Class<?> templateClass;
@@ -27,19 +28,25 @@ public class DynamicInterfaceAnnotationEnhancerHelper {
         public DynamicInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0, Class<?> templateClass) {
             super(Opcodes.ASM5, arg0);
             this.templateClass = templateClass;
-            
+
         }
 
         @Override
-        public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+        public void visit(int version,
+                int access,
+                String name,
+                String signature,
+                String superName,
+                String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces);
             Annotation[] annotations = templateClass.getAnnotations();
-            for (Annotation annotation : annotations){
-                AnnotationVisitor annotationVisitor = this.visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
+            for (Annotation annotation : annotations) {
+                AnnotationVisitor annotationVisitor = this
+                    .visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
                 InterfaceTransformer.processAnnotation(annotation, annotationVisitor);
             }
         }
-        
+
         @Override
         public MethodVisitor visitMethod(int arg0, String arg1, String arg2, String arg3, String[] arg4) {
             if (templateClass != null) {
@@ -78,7 +85,7 @@ public class DynamicInterfaceAnnotationEnhancerHelper {
                                     templateMethod = method;
                                 } else {
                                     throw new RuleServiceRuntimeException(
-                                            "Template class is wrong. It is a non-obvious choice of method. Please, check the template class!");
+                                        "Template class is wrong. It is a non-obvious choice of method. Please, check the template class!");
                                 }
                             }
                         }
@@ -87,15 +94,17 @@ public class DynamicInterfaceAnnotationEnhancerHelper {
                 if (templateMethod != null) {
                     MethodVisitor mv = super.visitMethod(arg0, arg1, arg2, arg3, arg4);
                     Annotation[] annotations = templateMethod.getAnnotations();
-                    for (Annotation annotation : annotations){
-                        AnnotationVisitor annotationVisitor = mv.visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
+                    for (Annotation annotation : annotations) {
+                        AnnotationVisitor annotationVisitor = mv
+                            .visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
                         InterfaceTransformer.processAnnotation(annotation, annotationVisitor);
                     }
                     int i = 0;
                     for (Annotation[] parameterAnnotations : templateMethod.getParameterAnnotations()) {
                         if (parameterAnnotations.length > 0) {
                             for (Annotation annotation : parameterAnnotations) {
-                                AnnotationVisitor annotationVisitor = mv.visitParameterAnnotation(i, Type.getDescriptor(annotation.annotationType()), true);
+                                AnnotationVisitor annotationVisitor = mv
+                                    .visitParameterAnnotation(i, Type.getDescriptor(annotation.annotationType()), true);
                                 InterfaceTransformer.processAnnotation(annotation, annotationVisitor);
                             }
                         }
@@ -111,35 +120,35 @@ public class DynamicInterfaceAnnotationEnhancerHelper {
     private static void processServiceExtraMethods(ClassVisitor classVisitor, Class<?> templateClass) {
         for (Method method : templateClass.getMethods()) {
             if (method.isAnnotationPresent(ServiceExtraMethod.class)) {
-                MethodVisitor mv = classVisitor.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT, 
-                    method.getName(), 
-                    Type.getMethodDescriptor(method), 
-                    null, 
+                MethodVisitor mv = classVisitor.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT,
+                    method.getName(),
+                    Type.getMethodDescriptor(method),
+                    null,
                     null);
             }
         }
     }
-    
-    public static Class<?> decorate(Class<?> originalClass, Class<?> templateClass, ClassLoader classLoader)
-            throws Exception {
+
+    public static Class<?> decorate(Class<?> originalClass,
+            Class<?> templateClass,
+            ClassLoader classLoader) throws Exception {
         if (!templateClass.isInterface()) {
             throw new RuleServiceRuntimeException("Interface is expected!");
         }
-        
+
         ClassWriter cw = new ClassWriter(0);
         DynamicInterfaceAnnotationEnhancerClassVisitor dynamicInterfaceAnnotationEnhancerClassVisitor = new DynamicInterfaceAnnotationEnhancerClassVisitor(
-                cw, templateClass);
-        
+            cw,
+            templateClass);
+
         processServiceExtraMethods(dynamicInterfaceAnnotationEnhancerClassVisitor, templateClass);
-        
-        String enchancedClassName = originalClass.getCanonicalName()
-                + DynamicInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
+
+        String enchancedClassName = originalClass
+            .getCanonicalName() + DynamicInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enchancedClassName);
         transformer.accept(dynamicInterfaceAnnotationEnhancerClassVisitor);
         cw.visitEnd();
-        Class<?> enchancedClass = ClassUtils.defineClass(enchancedClassName, cw.toByteArray(),
-                classLoader);
-        return enchancedClass;
+        return ClassUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
     }
 
     public static Class<?> decorate(Class<?> originalClass, Class<?> templateClass) throws Exception {

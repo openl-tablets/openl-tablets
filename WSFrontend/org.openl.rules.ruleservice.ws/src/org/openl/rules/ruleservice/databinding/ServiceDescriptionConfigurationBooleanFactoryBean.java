@@ -49,25 +49,29 @@ public class ServiceDescriptionConfigurationBooleanFactoryBean extends AbstractF
                     return (Boolean) value;
                 }
                 if (value instanceof String) {
-                    if ("true".equals(((String) value).trim().toLowerCase())) {
+                    if ("true".equalsIgnoreCase(((String) value).trim())) {
                         log.info("Service \"{}\" uses " + getPropertyName().trim() + "=TRUE.",
                             serviceDescription.getName());
                         return Boolean.TRUE;
                     }
-                    if ("false".equals(((String) value).trim().toLowerCase())) {
+                    if ("false".equalsIgnoreCase(((String) value).trim())) {
                         log.info("Service \"{}\" uses " + getPropertyName().trim() + "=FALSE.",
                             serviceDescription.getName());
                         return Boolean.FALSE;
                     }
                     if (log.isErrorEnabled()) {
-                        log.error("Error in service '{}'. Supports only true/false values for " + getPropertyName().trim() + " configuration!", serviceDescription.getName());
+                        log.error(
+                            "Error in service '{}'. Supports only true/false values for " + getPropertyName()
+                                .trim() + " configuration!",
+                            serviceDescription.getName());
                     }
                     return getDefaultValue();
-                }else{
-                    if (value != null){
-                        if (log.isErrorEnabled()) {
-                            log.error("Error in service '{}'. Supports only true/false values for " + getPropertyName().trim() + " configuration! Used default value!", serviceDescription.getName());
-                        }
+                } else {
+                    if (value != null && log.isErrorEnabled()) {
+                        log.error(
+                            "Error in service '{}'. Supports only true/false values for " + getPropertyName()
+                                .trim() + " configuration! Used default value!",
+                            serviceDescription.getName());
                     }
                 }
             }

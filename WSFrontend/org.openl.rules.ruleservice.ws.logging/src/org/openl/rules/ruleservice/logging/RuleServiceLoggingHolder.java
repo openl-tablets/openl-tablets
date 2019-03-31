@@ -8,7 +8,11 @@ package org.openl.rules.ruleservice.logging;
  *
  */
 public final class RuleServiceLoggingHolder {
-    public static final ThreadLocal<RuleServiceLogging> RULESERVICE_LOGGING_HOLDER = new ThreadLocal<RuleServiceLogging>();
+    
+    private RuleServiceLoggingHolder() {
+    }
+    
+    public static final ThreadLocal<RuleServiceLogging> RULESERVICE_LOGGING_HOLDER = new ThreadLocal<>();
 
     public static RuleServiceLogging get() {
         RuleServiceLogging requestData = RULESERVICE_LOGGING_HOLDER.get();

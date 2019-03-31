@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.publish;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -20,33 +19,24 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
 
     private final Logger log = LoggerFactory.getLogger(RuleServiceImpl.class);
 
-    private Map<String, RuleServicePublisher> supportedPublishers = new TreeMap<String, RuleServicePublisher>(new Comparator<String>() {
-        @Override
-        public int compare(String o1, String o2) {
-            return o1.toUpperCase().compareTo(o2.toUpperCase());
-        }
-    });
+    private Map<String, RuleServicePublisher> supportedPublishers = new TreeMap<>(
+        (o1, o2) -> o1.toUpperCase().compareTo(o2.toUpperCase()));
 
     private Collection<RuleServicePublisher> defaultRuleServicePublishers;
 
-    private Map<String, OpenLService> services = new HashMap<String, OpenLService>();
+    private Map<String, OpenLService> services = new HashMap<>();
 
     public Map<String, RuleServicePublisher> getSupportedPublishers() {
         return supportedPublishers;
     }
 
     public void setSupportedPublishers(Map<String, RuleServicePublisher> supportedPublishers) {
-        this.supportedPublishers = new TreeMap<String, RuleServicePublisher>(new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                return o1.toUpperCase().compareTo(o2.toUpperCase());
-            }
-        });
+        this.supportedPublishers = new TreeMap<>((o1, o2) -> o1.toUpperCase().compareTo(o2.toUpperCase()));
         this.supportedPublishers.putAll(supportedPublishers);
     }
 
     protected Collection<RuleServicePublisher> dispatch(OpenLService service) {
-        Collection<RuleServicePublisher> publishers = new ArrayList<RuleServicePublisher>();
+        Collection<RuleServicePublisher> publishers = new ArrayList<>();
         if (service.getPublishers() == null || service.getPublishers().isEmpty()) {
             publishers.addAll(getDefaultRuleServicePublishers());
             return publishers;
@@ -113,7 +103,7 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
 
     @Override
     public Collection<OpenLService> getServices() {
-        return new ArrayList<OpenLService>(services.values());
+        return new ArrayList<>(services.values());
     }
 
     @Override

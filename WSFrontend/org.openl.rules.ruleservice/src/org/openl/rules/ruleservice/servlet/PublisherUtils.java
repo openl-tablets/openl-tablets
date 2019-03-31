@@ -10,7 +10,10 @@ import java.util.TreeMap;
 import org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 
-public class PublisherUtils {
+public final class PublisherUtils {
+    
+    private PublisherUtils() {
+    }
 
     public static Collection<ServiceInfo> getServicesInfo(RuleServicePublisher publisher) {
         Map<String, ServiceInfo> serviceInfos = new TreeMap<>();

@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,34 +22,32 @@ public final class MethodUtil {
     }
 
     public static List<Method> sort(Collection<Method> m) {
-        List<Method> methods = new ArrayList<Method>(m);
-        Collections.sort(methods, new Comparator<Method>() {
-            public int compare(Method o1, Method o2) {
-                if (o1.getName().equals(o2.getName())) {
-                    if (o1.getParameterTypes().length == o2.getParameterTypes().length) {
-                        int i = 0;
-                        while (i < o1.getParameterTypes().length && o1.getParameterTypes()[i]
-                            .equals(o2.getParameterTypes()[i])) {
-                            i++;
-                        }
-                        return o1.getParameterTypes()[i].getName().compareTo(o2.getParameterTypes()[i].getName());
-                    } else {
-                        return o1.getParameterTypes().length - o2.getParameterTypes().length;
+        List<Method> methods = new ArrayList<>(m);
+        Collections.sort(methods, (o1, o2) -> {
+            if (o1.getName().equals(o2.getName())) {
+                if (o1.getParameterTypes().length == o2.getParameterTypes().length) {
+                    int i = 0;
+                    while (i < o1.getParameterTypes().length && o1.getParameterTypes()[i]
+                        .equals(o2.getParameterTypes()[i])) {
+                        i++;
                     }
+                    return o1.getParameterTypes()[i].getName().compareTo(o2.getParameterTypes()[i].getName());
                 } else {
-                    return o1.getName().compareTo(o2.getName());
+                    return o1.getParameterTypes().length - o2.getParameterTypes().length;
                 }
-            };
+            } else {
+                return o1.getName().compareTo(o2.getName());
+            }
         });
         return methods;
     }
 
     private static void validateAndUpdateParameterNames(String[] parameterNames) {
-        Set<String> allNames = new HashSet<String>();
+        Set<String> allNames = new HashSet<>();
         for (String s : parameterNames) {
             allNames.add(s);
         }
-        Set<String> usedNames = new HashSet<String>();
+        Set<String> usedNames = new HashSet<>();
         for (int i = 0; i < parameterNames.length; i++) {
             if (allNames.contains(parameterNames[i])) {
                 allNames.remove(parameterNames[i]);
@@ -73,7 +70,7 @@ public final class MethodUtil {
                 boolean provideVariations = service.isProvideVariations();
                 String[] parameterNames = GenUtils
                     .getParameterNames(method, openClass, provideRuntimeContext, provideVariations);
-    
+
                 int i = 0;
                 for (Annotation[] annotations : method.getParameterAnnotations()) {
                     for (Annotation annotation : annotations) {
@@ -84,21 +81,22 @@ public final class MethodUtil {
                             } else {
                                 Logger log = LoggerFactory.getLogger(MethodUtil.class);
                                 if (log.isWarnEnabled()) {
-                                    log.warn("Invalid parameter name '" + name.value() + "'. Parameter name for '" + method
-                                        .getClass()
-                                        .getCanonicalName() + "#" + method.getName() + "' was skipped!");
+                                    log.warn(
+                                        "Invalid parameter name '" + name.value() + "'. Parameter name for '" + method
+                                            .getClass()
+                                            .getCanonicalName() + "#" + method.getName() + "' was skipped!");
                                 }
                             }
                         }
                     }
                     i++;
                 }
-    
+
                 validateAndUpdateParameterNames(parameterNames);
-    
+
                 return parameterNames;
             }
-        }catch (RuleServiceInstantiationException e) {
+        } catch (RuleServiceInstantiationException e) {
         }
         return GenUtils.getParameterNames(method);
     }

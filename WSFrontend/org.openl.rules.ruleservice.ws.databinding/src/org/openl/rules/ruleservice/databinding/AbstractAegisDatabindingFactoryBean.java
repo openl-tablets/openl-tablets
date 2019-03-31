@@ -148,8 +148,7 @@ public abstract class AbstractAegisDatabindingFactoryBean {
                                                           IllegalAccessException,
                                                           InvocationTargetException {
         Constructor<?> constructor = clazz.getConstructor();
-        AegisType aegisType = (AegisType) constructor.newInstance();
-        return aegisType;
+        return (AegisType) constructor.newInstance();
     }
 
     protected void loadAegisTypeClassAndRegister(Class<?> aegisTypeClass, TypeMapping typeMapping) {
@@ -195,7 +194,7 @@ public abstract class AbstractAegisDatabindingFactoryBean {
     }
     
     protected Set<String> getOverrideTypesWithDefaultOpenLTypes() {
-        Set<String> overrideTypes = new HashSet<String>();
+        Set<String> overrideTypes = new HashSet<>();
         if (getOverrideTypes() != null) {
             for (String className : getOverrideTypes()) {
                 tryToLoadClass(className);

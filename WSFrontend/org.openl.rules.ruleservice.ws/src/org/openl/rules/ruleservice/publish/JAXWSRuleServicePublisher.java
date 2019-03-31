@@ -5,7 +5,6 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -45,9 +44,9 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
     private final Logger log = LoggerFactory.getLogger(JAXWSRuleServicePublisher.class);
 
     private ObjectFactory<?> serverFactory;
-    private Map<OpenLService, ServiceServer> runningServices = new HashMap<OpenLService, ServiceServer>();
+    private Map<OpenLService, ServiceServer> runningServices = new HashMap<>();
     private String baseAddress;
-    private List<ServiceInfo> availableServices = new ArrayList<ServiceInfo>();
+    private List<ServiceInfo> availableServices = new ArrayList<>();
     private boolean loggingStoreEnable = false;
 
     private ObjectFactory<? extends Feature> storeLoggingFeatureFactoryBean;
@@ -125,11 +124,13 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
                 if (isLoggingStoreEnable()) {
                     svrFactory.getFeatures().add(getStoreLoggingFeatureBean());
-                    svrFactory.getInInterceptors().add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
+                    svrFactory.getInInterceptors()
+                        .add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
                     svrFactory.getInInterceptors().add(new CollectOpenLServiceInterceptor(service));
                     svrFactory.getInInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
                     svrFactory.getInInterceptors().add(new CollectOperationResourceInfoInterceptor());
-                    svrFactory.getInFaultInterceptors().add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
+                    svrFactory.getInFaultInterceptors()
+                        .add(new CollectObjectSerializerInterceptor(getObjectSeializer(svrFactory)));
                     svrFactory.getInFaultInterceptors().add(new CollectOpenLServiceInterceptor(service));
                     svrFactory.getInFaultInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
                     svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
@@ -159,7 +160,7 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     public Collection<OpenLService> getServices() {
-        return new ArrayList<OpenLService>(runningServices.keySet());
+        return new ArrayList<>(runningServices.keySet());
     }
 
     public OpenLService getServiceByName(String name) {
@@ -188,27 +189,17 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
 
     @Override
     public List<ServiceInfo> getAvailableServices() {
-        List<ServiceInfo> services = new ArrayList<ServiceInfo>(availableServices);
-        Collections.sort(services, new Comparator<ServiceInfo>() {
-            @Override
-            public int compare(ServiceInfo o1, ServiceInfo o2) {
-                return o1.getName().compareToIgnoreCase(o2.getName());
-            }
-        });
+        List<ServiceInfo> services = new ArrayList<>(availableServices);
+        Collections.sort(services, (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
         return services;
     }
 
     private ServiceInfo createServiceInfo(OpenLService service) throws RuleServiceInstantiationException {
-        List<String> methodNames = new ArrayList<String>();
+        List<String> methodNames = new ArrayList<>();
         for (Method method : service.getServiceClass().getMethods()) {
             methodNames.add(method.getName());
         }
-        Collections.sort(methodNames, new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                return o1.compareToIgnoreCase(o2);
-            }
-        });
+        Collections.sort(methodNames, (o1, o2) -> o1.compareToIgnoreCase(o2));
         String url = processURL(service.getUrl());
         return new ServiceInfo(new Date(), service.getName(), methodNames, url, "SOAP");
     }

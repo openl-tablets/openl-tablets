@@ -51,7 +51,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
             return deployments;
         }
 
-        Map<String, Map<String, Deployment>> latestDeployments = new HashMap<String, Map<String, Deployment>>();
+        Map<String, Map<String, Deployment>> latestDeployments = new HashMap<>();
         for (Deployment deployment : deployments) {
             if (deployment.getCommonVersion() == null) {
                 throw new IllegalArgumentException("Can't detect deployment version. Probably 'version in deployment name' parameter in configuration is incorrect.");
@@ -59,7 +59,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
             String deploymentName = deployment.getDeploymentName();
             Map<String, Deployment> internalMap = latestDeployments.get(deploymentName);
             if (internalMap == null) {
-                internalMap = new HashMap<String, Deployment>();
+                internalMap = new HashMap<>();
                 latestDeployments.put(deploymentName, internalMap);
             }
             boolean hasRulesDeployXML = false;
@@ -117,7 +117,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
             }
         }
 
-        Collection<Deployment> ret = new ArrayList<Deployment>();
+        Collection<Deployment> ret = new ArrayList<>();
         for (String key : latestDeployments.keySet()) {
             for (Deployment d : latestDeployments.get(key).values()) {
                 ret.add(d);
@@ -136,8 +136,8 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         Collection<Deployment> allDeployments = ruleServiceLoader.getDeployments();
         Collection<Deployment> deployments = filterDeployments(allDeployments);
 
-        Collection<ServiceDescription> serviceDescriptions = new HashSet<ServiceDescription>();
-        Set<String> serviceURLs = new HashSet<String>();
+        Collection<ServiceDescription> serviceDescriptions = new HashSet<>();
+        Set<String> serviceURLs = new HashSet<>();
         for (Deployment deployment : deployments) {
             if (!deploymentMatcher.hasMatches(deployment.getDeploymentName())) {
                 continue;
@@ -250,7 +250,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
     private Set<String> getSupportedGroupsSet() {
         if (getSupportedGroups() != null && !getSupportedGroups().trim().isEmpty()) {
             String[] groups = getSupportedGroups().split(",");
-            Set<String> supportedGroupSet = new HashSet<String>();
+            Set<String> supportedGroupSet = new HashSet<>();
             for (String group : groups) {
                 supportedGroupSet.add(group.trim());
             }

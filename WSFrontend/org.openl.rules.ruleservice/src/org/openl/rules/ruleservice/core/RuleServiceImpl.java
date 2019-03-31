@@ -29,7 +29,7 @@ public class RuleServiceImpl implements RuleService {
      */
     private RuleServiceInstantiationFactory ruleServiceInstantiationFactory;
 
-    private Map<String, ServiceDescription> mapping = new HashMap<String, ServiceDescription>();
+    private Map<String, ServiceDescription> mapping = new HashMap<>();
 
     /**
      * {@inheritDoc}
@@ -90,7 +90,7 @@ public class RuleServiceImpl implements RuleService {
      */
     public Collection<OpenLService> getServices() {
         Collection<OpenLService> services = ruleServicePublisher.getServices();
-        return new ArrayList<OpenLService>(services);
+        return new ArrayList<>(services);
     }
 
     /**

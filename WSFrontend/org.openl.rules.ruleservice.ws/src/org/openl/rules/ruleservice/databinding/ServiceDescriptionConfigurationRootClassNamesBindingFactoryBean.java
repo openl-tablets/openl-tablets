@@ -11,7 +11,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean extends AbstractFactoryBean<Set<String>> {
-    private final Logger log = LoggerFactory.getLogger(ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean.class);
+    private final Logger log = LoggerFactory
+        .getLogger(ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean.class);
 
     private static final String ROOT_CLASS_NAMES_BINDING = "rootClassNamesBinding";
 
@@ -37,7 +38,7 @@ public class ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean ext
     protected Set<String> createInstance() throws Exception {
         ServiceDescription serviceDescription = ServiceDescriptionHolder.getInstance().getServiceDescription();
         if (serviceDescription != null && serviceDescription.getConfiguration() != null) {
-            Set<String> ret = new HashSet<String>(getDefaultAdditionalRootClassNames());
+            Set<String> ret = new HashSet<>(getDefaultAdditionalRootClassNames());
             if (serviceDescription.getConfiguration() != null) {
                 Object value = serviceDescription.getConfiguration().get(ROOT_CLASS_NAMES_BINDING);
                 if (value instanceof String) {
@@ -56,13 +57,15 @@ public class ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean ext
                             classes.append(trimmedClassName);
                         }
                     }
-                    log.info("Service '{}' uses root class names for binding. Classes: {}", serviceDescription.getName(), classes);
+                    log.info("Service '{}' uses root class names for binding. Classes: {}",
+                        serviceDescription.getName(),
+                        classes);
                     return Collections.unmodifiableSet(ret);
-                }else{
-                    if (value != null){
-                        if (log.isErrorEnabled()) {
-                            log.error("Error in service '{}' configuration. Unsupported value is used in '" + ROOT_CLASS_NAMES_BINDING + "'! Default value is used!", serviceDescription.getName());
-                        }
+                } else {
+                    if (value != null && log.isErrorEnabled()) {
+                        log.error(
+                            "Error in service '{}' configuration. Unsupported value is used in '" + ROOT_CLASS_NAMES_BINDING + "'! Default value is used!",
+                            serviceDescription.getName());
                     }
                 }
             }

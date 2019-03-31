@@ -45,7 +45,10 @@ import io.swagger.annotations.ApiOperation;
  * @author Marat Kamalov
  *
  */
-public class JAXRSEnhancerHelper {
+public final class JAXRSEnhancerHelper {
+    
+    private JAXRSEnhancerHelper() {
+    }
 
     private static class JAXRSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
 

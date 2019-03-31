@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.conf;
 
 import java.util.Collection;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -12,7 +11,7 @@ public class BeanCollectionFactoryBean<T> extends AbstractFactoryBean<Collection
     private ApplicationContext applicationContext;
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
     
