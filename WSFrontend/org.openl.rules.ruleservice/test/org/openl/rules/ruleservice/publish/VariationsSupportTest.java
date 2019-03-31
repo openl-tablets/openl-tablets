@@ -66,9 +66,9 @@ public class VariationsSupportTest implements ApplicationContextAware {
             "org.openl.rules.tutorial4.Tutorial4WithVariations",
             "driverAgeType",
             new Object[] { driver, variations });
-        assertEquals(resultsDrivers.getResultForVariation("young"), YOUNG);
-        assertEquals(resultsDrivers.getResultForVariation("senior"), SENOIR);
-        assertEquals(resultsDrivers.getResultForVariation(NoVariation.ORIGINAL_CALCULATION), STANDART);
+        assertEquals(YOUNG, resultsDrivers.getResultForVariation("young"));
+        assertEquals(SENOIR, resultsDrivers.getResultForVariation("senior"));
+        assertEquals(STANDART, resultsDrivers.getResultForVariation(NoVariation.ORIGINAL_CALCULATION));
         assertTrue(resultsDrivers.getVariationFailures().isEmpty());
     }
 }
