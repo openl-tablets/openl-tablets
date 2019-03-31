@@ -38,7 +38,7 @@ public class TableDetailsBean {
     private boolean editable;
     private List<PropertyRow> propertyRows;
     private Map<String, List<TableProperty>> groups;
-    private Set<String> propsToRemove = new HashSet<String>();
+    private Set<String> propsToRemove = new HashSet<>();
 
     private String newTableId;
     private String propertyToAdd;
@@ -61,31 +61,37 @@ public class TableDetailsBean {
         }
 
         if (table != null && table.isCanContainProperties()) {
-            editable = WebStudioUtils.getProjectModel().isCanEditTable(uri) && !table.getName().startsWith(
-                    DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
+            editable = WebStudioUtils.getProjectModel()
+                .isCanEditTable(
+                    uri) && !table.getName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
             initPropertyGroups(table, table.getProperties());
         }
     }
 
     public void initPropertyGroups(IOpenLTable table, ITableProperties props) {
-        groups = new LinkedHashMap<String, List<TableProperty>>();
+        groups = new LinkedHashMap<>();
         TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
-                .getDefaultDefinitionsForTable(table.getType());
+            .getDefaultDefinitionsForTable(table.getType());
 
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             Object value = props.getPropertyValue(propDefinition.getName());
-                
-            if (value != null && (table.getProperties().getTableProperties().containsKey(propDefinition.getName()) || 
-                                  table.getProperties().getCategoryProperties().containsKey(propDefinition.getName()) ||
-                                  table.getProperties().getModuleProperties().containsKey(propDefinition.getName()) ||
-                                  table.getProperties().getExternalProperties().containsKey(propDefinition.getName()))) {    
+
+            if (value != null && (table.getProperties()
+                .getTableProperties()
+                .containsKey(propDefinition.getName()) || table.getProperties()
+                    .getCategoryProperties()
+                    .containsKey(propDefinition.getName()) || table.getProperties()
+                        .getModuleProperties()
+                        .containsKey(propDefinition.getName()) || table.getProperties()
+                            .getExternalProperties()
+                            .containsKey(propDefinition.getName()))) {
                 InheritanceLevel inheritanceLevel = props.getPropertyLevelDefinedOn(propDefinition.getName());
 
                 TableProperty prop = new TableProperty(propDefinition);
                 prop.setValue(value);
                 prop.setInheritanceLevel(inheritanceLevel);
-                if (InheritanceLevel.MODULE.equals(inheritanceLevel)
-                        || InheritanceLevel.CATEGORY.equals(inheritanceLevel)) {
+                if (InheritanceLevel.MODULE.equals(inheritanceLevel) || InheritanceLevel.CATEGORY
+                    .equals(inheritanceLevel)) {
                     prop.setInheritedTableId(getProprtiesTableId(inheritanceLevel, props));
                 }
 
@@ -98,7 +104,7 @@ public class TableDetailsBean {
         String group = prop.getGroup();
         List<TableProperty> groupList = groups.get(group);
         if (groupList == null) {
-            groupList = new ArrayList<TableProperty>();
+            groupList = new ArrayList<>();
             groups.put(group, groupList);
         }
         if (!groupList.contains(prop)) {
@@ -122,7 +128,7 @@ public class TableDetailsBean {
         if (groups == null) {
             return null;
         }
-        propertyRows = new ArrayList<PropertyRow>();
+        propertyRows = new ArrayList<>();
 
         for (String group : groups.keySet()) {
             propertyRows.add(new PropertyRow(PropertyRowType.GROUP, group));
@@ -160,9 +166,9 @@ public class TableDetailsBean {
 
     public List<SelectItem> getPropertiesToAdd() {
         IOpenLTable table = getTable();
-        List<SelectItem> propertiesToAdd = new ArrayList<SelectItem>();
+        List<SelectItem> propertiesToAdd = new ArrayList<>();
         TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
-                .getDefaultDefinitionsForTable(table.getType(), InheritanceLevel.TABLE, true);
+            .getDefaultDefinitionsForTable(table.getType(), InheritanceLevel.TABLE, true);
         Collection<String> currentProps = new TreeSet<String>();
         for (PropertyRow row : propertyRows) {
             if (row.getType().equals(PropertyRowType.PROPERTY)) {
@@ -171,15 +177,14 @@ public class TableDetailsBean {
         }
 
         Map<String, List<TablePropertyDefinition>> propGroups = TablePropertyDefinitionUtils
-                .groupProperties(propDefinitions);
+            .groupProperties(propDefinitions);
         for (Map.Entry<String, List<TablePropertyDefinition>> entry : propGroups.entrySet()) {
-            List<SelectItem> items = new ArrayList<SelectItem>();
+            List<SelectItem> items = new ArrayList<>();
 
             for (TablePropertyDefinition propDefinition : entry.getValue()) {
                 String propName = propDefinition.getName();
-                if (!currentProps.contains(propName)
-                        && !"version".equals(propName)
-                        && propDefinition.getDeprecation() == null) {
+                if (!currentProps.contains(propName) && !"version".equals(propName) && propDefinition
+                    .getDeprecation() == null) {
                     items.add(new SelectItem(propName, propDefinition.getDisplayName()));
                 }
             }
@@ -212,7 +217,7 @@ public class TableDetailsBean {
         removeProperty(prop);
         propsToRemove.add(prop.getName());
     }
-    
+
     public boolean isChanged() throws Exception {
         if (propertyRows == null) {
             return false;
@@ -225,9 +230,9 @@ public class TableDetailsBean {
                 Object newValue = property.getValue();
                 Object oldValue = props.getPropertyValue(name);
                 boolean enumArray = property.isEnumArray();
-                if ((enumArray && !Arrays.equals((Enum<?>[]) oldValue, (Enum<?>[]) newValue))
-                        || (!enumArray && ObjectUtils.notEqual(oldValue, newValue))
-                        || (!props.getAllProperties().containsKey(name))) {
+                if ((enumArray && !Arrays.equals((Enum<?>[]) oldValue,
+                    (Enum<?>[]) newValue)) || (!enumArray && ObjectUtils.notEqual(oldValue,
+                        newValue)) || (!props.getAllProperties().containsKey(name))) {
                     return true;
                 }
             }
@@ -259,13 +264,14 @@ public class TableDetailsBean {
                 boolean stringArray = property.isStringArray();
 
                 if (newValue == null && oldValue != null) {
-                    //if value is empty we have to delete it
+                    // if value is empty we have to delete it
                     propsToRemove.add(name);
-                } else if ((enumArray && !Arrays.equals((Enum<?>[]) oldValue, (Enum<?>[]) newValue))
-                        || (stringArray && !Arrays.equals((String[]) oldValue, (String[]) newValue))
-                        || (!enumArray && !stringArray && ObjectUtils.notEqual(oldValue, newValue))) {
+                } else if ((enumArray && !Arrays.equals((Enum<?>[]) oldValue,
+                    (Enum<?>[]) newValue)) || (stringArray && !Arrays.equals((String[]) oldValue,
+                        (String[]) newValue)) || (!enumArray && !stringArray && ObjectUtils.notEqual(oldValue,
+                            newValue))) {
                     tableEditorModel.setProperty(name,
-                            newValue.getClass().isArray() && ArrayUtils.getLength(newValue) == 0 ? null : newValue);
+                        newValue.getClass().isArray() && ArrayUtils.getLength(newValue) == 0 ? null : newValue);
                     toSave = true;
                 }
             }
@@ -278,7 +284,8 @@ public class TableDetailsBean {
 
         if (toSave) {
             if (studio.isUpdateSystemProperties()) {
-                EditHelper.updateSystemProperties(table, tableEditorModel,
+                EditHelper.updateSystemProperties(table,
+                    tableEditorModel,
                     WebStudioUtils.getWebStudio().getSystemConfigManager().getStringProperty("user.mode"));
             }
             this.newTableId = tableEditorModel.save();

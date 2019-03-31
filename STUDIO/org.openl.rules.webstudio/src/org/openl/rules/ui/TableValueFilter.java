@@ -10,7 +10,8 @@ class TableValueFilter extends AGridFilter {
 
     private SpreadsheetResult res;
 
-    private int startX, startY;
+    private int startX;
+    private int startY;
 
     public TableValueFilter(final SpreadsheetResult res) {
         this.res = res;

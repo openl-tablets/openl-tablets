@@ -33,9 +33,9 @@ public class ModulePageBean {
         TableSyntaxNode[] nodes = studio.getModel().getTableSyntaxNodes();
 
         // Creating a list of environment tables. If tables more than 1
-        List<TableSyntaxNode> envNodesTables = new LinkedList<TableSyntaxNode>();
+        List<TableSyntaxNode> envNodesTables = new LinkedList<>();
 
-        Map<String, Set<String>> ret = new HashMap<String, Set<String>>();
+        Map<String, Set<String>> ret = new HashMap<>();
 
         // Filling the envNodesTables List by TableSyntaxNodes
         for (TableSyntaxNode node : nodes) {
@@ -52,7 +52,7 @@ public class ModulePageBean {
                 if (ret.containsKey(key)) {
                     ret.get(key).add(value);
                 } else {
-                    values = new LinkedHashSet<String>();
+                    values = new LinkedHashSet<>();
                     values.add(value);
                     ret.put(key, values);
                 }
@@ -69,7 +69,7 @@ public class ModulePageBean {
     public List<String> getImports() {
         Set<String> imports = getTableSyntaxNodes().get("import");
         if (imports != null) {
-            return new ArrayList<String>(imports);
+            return new ArrayList<>(imports);
         }
         return Collections.emptyList();
     }
@@ -92,7 +92,7 @@ public class ModulePageBean {
         Set<String> dependencies = getTableSyntaxNodes().get("dependency");
 
         if (dependencies != null) {
-            return new ArrayList<String>(dependencies);
+            return new ArrayList<>(dependencies);
         }
         return Collections.emptyList();
     }
@@ -105,7 +105,7 @@ public class ModulePageBean {
      */
     private List<String> removeXLSExtention(Collection<String> lists) {
         String[] dependencyFiles;
-        List<String> dependencyFilesList = new ArrayList<String>();
+        List<String> dependencyFilesList = new ArrayList<>();
 
         for (String dependency : lists) {
             if (dependency != null) {

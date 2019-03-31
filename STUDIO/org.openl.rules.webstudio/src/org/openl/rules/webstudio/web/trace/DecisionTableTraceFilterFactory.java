@@ -23,13 +23,13 @@ public class DecisionTableTraceFilterFactory {
     private final ITracerObject selectedTraceObject;
     private final IColorFilter defaultColorFilter;
 
-    private List<IGridRegion> successfulChecks = new ArrayList<IGridRegion>();
-    private List<IGridRegion> unsuccessfulChecks = new ArrayList<IGridRegion>();
-    private List<IGridRegion> resultRegions = new ArrayList<IGridRegion>();
-    private List<IGridRegion> allCheckedRegions = new ArrayList<IGridRegion>();
-    private List<IGridRegion> successfulSelectedRegions = new ArrayList<IGridRegion>();
-    private List<IGridRegion> unsuccessfulSelectedRegions = new ArrayList<IGridRegion>();
-    private List<IGridRegion> indexedRegions = new ArrayList<IGridRegion>();
+    private List<IGridRegion> successfulChecks = new ArrayList<>();
+    private List<IGridRegion> unsuccessfulChecks = new ArrayList<>();
+    private List<IGridRegion> resultRegions = new ArrayList<>();
+    private List<IGridRegion> allCheckedRegions = new ArrayList<>();
+    private List<IGridRegion> successfulSelectedRegions = new ArrayList<>();
+    private List<IGridRegion> unsuccessfulSelectedRegions = new ArrayList<>();
+    private List<IGridRegion> indexedRegions = new ArrayList<>();
 
     public DecisionTableTraceFilterFactory(ITracerObject selectedTraceObject, IColorFilter defaultColorFilter) {
         this.selectedTraceObject = selectedTraceObject;
@@ -48,7 +48,7 @@ public class DecisionTableTraceFilterFactory {
 
     private ITracerObject getRoot() {
         ITracerObject rootTraceObject = selectedTraceObject;
-        while (rootTraceObject.getParent() != null && rootTraceObject.getParent() instanceof DecisionTableTraceObject) {
+        while (rootTraceObject.getParent() instanceof DecisionTableTraceObject) {
             rootTraceObject = rootTraceObject.getParent();
         }
         return rootTraceObject;
@@ -146,7 +146,7 @@ public class DecisionTableTraceFilterFactory {
                 .setBorderRGB(resultColor)
                 .build();
 
-        List<IGridFilter> filters = new ArrayList<IGridFilter>();
+        List<IGridFilter> filters = new ArrayList<>();
         filters.add(successfulFontFilter);
         filters.add(unsuccessfulFontFilter);
         filters.add(resultFontFilter);
@@ -187,15 +187,7 @@ public class DecisionTableTraceFilterFactory {
     }
 
     private ColorGridFilter createColorFilter(IGridRegion[] region, final short[] rewriteColor, int scope) {
-        IColorFilter colorFilter = new IColorFilter() {
-
-            @Override
-            public short[] filterColor(short[] color) {
-                return rewriteColor;
-            }
-        };
-
-        return new ColorGridFilter(new RegionGridSelector(region, false), colorFilter, scope);
+        return new ColorGridFilter(new RegionGridSelector(region, false), color -> rewriteColor, scope);
     }
 
 }

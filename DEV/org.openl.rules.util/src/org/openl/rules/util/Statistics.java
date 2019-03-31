@@ -53,7 +53,7 @@ public final class Statistics {
         R result();
     }
 
-    static abstract class Result<V, R> implements Processor<V, R> {
+    abstract static class Result<V, R> implements Processor<V, R> {
         R result;
         int counter;
 

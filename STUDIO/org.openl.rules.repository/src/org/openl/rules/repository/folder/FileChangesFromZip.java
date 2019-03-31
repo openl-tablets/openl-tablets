@@ -19,7 +19,6 @@ public class FileChangesFromZip implements Iterable<FileChange> {
         this.folderTo = folderTo;
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public Iterator<FileChange> iterator() {
         return new Iterator<FileChange>() {

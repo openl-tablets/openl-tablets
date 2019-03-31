@@ -20,7 +20,7 @@ public class WebStudioWorkspaceDependencyManagerFactory {
     }
 
     public WebStudioWorkspaceRelatedDependencyManager getDependencyManager(Module module, boolean singleModuleMode) {
-        List<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();
+        List<ProjectDescriptor> projectDescriptors = new ArrayList<>();
         projectDescriptors.add(module.getProject());
         projectDescriptors.addAll(getDependentProjects(module));
 
@@ -35,7 +35,7 @@ public class WebStudioWorkspaceDependencyManagerFactory {
     private List<ProjectDescriptor> getDependentProjects(Module module) {
         ProjectDescriptor project = module.getProject();
 
-        List<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();
+        List<ProjectDescriptor> projectDescriptors = new ArrayList<>();
         addDependentProjects(projectDescriptors, project);
 
         return projectDescriptors;

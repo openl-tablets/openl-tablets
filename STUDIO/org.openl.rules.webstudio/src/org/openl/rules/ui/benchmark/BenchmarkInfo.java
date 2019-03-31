@@ -23,7 +23,7 @@ public class BenchmarkInfo {
     }
 
     public static BenchmarkOrder[] order(BenchmarkInfo[] bi) {
-        ArrayList<BenchmarkOrder> list = new ArrayList<BenchmarkOrder>();
+        ArrayList<BenchmarkOrder> list = new ArrayList<>();
         for (int i = 0; i < bi.length; i++) {
             if (bi[i] != null) {
                 list.add(new BenchmarkOrder(i, bi[i]));
@@ -44,7 +44,7 @@ public class BenchmarkInfo {
         return bores;
     }
 
-    static public String printDouble(double d) {
+    public static String printDouble(double d) {
         if (d >= 1000) {
             DecimalFormat fmt = new DecimalFormat("#,##0");
             return fmt.format(d);
@@ -64,14 +64,14 @@ public class BenchmarkInfo {
         return printDouble(d, 6);
     }
 
-    static public String printDouble(double d, int decimals) {
+    public static String printDouble(double d, int decimals) {
         NumberFormat fmt = NumberFormat.getNumberInstance();
         fmt.setMaximumFractionDigits(decimals);
         fmt.setMinimumFractionDigits(decimals);
         return fmt.format(d);
     }
 
-    static public String printLargeDouble(double d) {
+    public static String printLargeDouble(double d) {
         DecimalFormat fmt = new DecimalFormat("#,##0");
         return fmt.format(d);
     }

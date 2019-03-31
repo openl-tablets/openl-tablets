@@ -11,7 +11,10 @@ import org.openl.rules.table.ui.IGridSelector;
  */
 public class ColorGridFilter extends AGridFilter {
 
-    public static final  int FONT = 1, BACKGROUND = 2, BORDERS = 4, ALL = 0xFF;
+    public static final int FONT = 1;
+    public static final int BACKGROUND = 2;
+    public static final int BORDERS = 4;
+    public static final int ALL = 0xFF;
 
     private int scope = ALL;
 

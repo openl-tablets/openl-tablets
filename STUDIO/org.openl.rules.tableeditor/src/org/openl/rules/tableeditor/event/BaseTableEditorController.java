@@ -12,9 +12,6 @@ import org.openl.rules.tableeditor.util.Constants;
 
 public class BaseTableEditorController {
 
-    public BaseTableEditorController() {
-    }
-
     protected TableEditorModel getEditorModel(String editorId) {
         Map editorModelMap = (Map) FacesUtils.getSessionParam(Constants.TABLE_EDITOR_MODEL_NAME);
         if (editorModelMap != null) {

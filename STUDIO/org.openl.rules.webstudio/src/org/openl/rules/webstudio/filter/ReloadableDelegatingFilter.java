@@ -14,14 +14,14 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * This filter is intended to reload a filter when it's configurations is
- * changed. For example DelegatingFilterProxy has a bug:
- * https://jira.springsource.org/browse/SPR-6228 That's why we should recreate
- * it when we are reloading spring context.
+ * This filter is intended to reload a filter when it's configurations is changed. For example DelegatingFilterProxy has
+ * a bug: https://jira.springsource.org/browse/SPR-6228 That's why we should recreate it when we are reloading spring
+ * context.
  * <p/>
- * In web.xml you should configure filter parameter "delegateClass" and add all
- * parameters for delegate filter. For example:
+ * In web.xml you should configure filter parameter "delegateClass" and add all parameters for delegate filter. For
+ * example:
  * <p/>
+ * 
  * <pre>
  * {@code
  *   <filter>
@@ -38,7 +38,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *           <param-value>filterChainProxy</param-value>
  *       </init-param>
  *   </filter>
- * }</pre>
+ * }
+ * </pre>
  *
  * @author NSamatov
  */
@@ -73,14 +74,12 @@ public class ReloadableDelegatingFilter implements Filter {
      * Schedule configuration reloader to perform reload of configuration and invalidate all sessions.
      */
     public static void reloadApplicationContext(final ServletContext servletContext) {
-        reload(new ConfigurationReloader() {
-            @Override
-            public void reload() {
-                XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils.getWebApplicationContext(servletContext);
-                context.refresh();
+        reload(() -> {
+            XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils
+                .getWebApplicationContext(servletContext);
+            context.refresh();
 
-                SessionListener.getSessionCache(servletContext).invalidateAll();
-            }
+            SessionListener.getSessionCache(servletContext).invalidateAll();
         });
     }
 
@@ -117,7 +116,7 @@ public class ReloadableDelegatingFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException,
-            ServletException {
+                                                                                                    ServletException {
         read.lock();
         try {
             if (delegate != null) {
@@ -199,13 +198,14 @@ public class ReloadableDelegatingFilter implements Filter {
     /**
      * Configuration reloader. For example:
      * <p/>
+     * 
      * <pre>
      *
      * new ConfigurationReloader() {
      *
      *     public void reload() {
      *         XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils
-     *                 .getWebApplicationContext(servletContext);
+     *             .getWebApplicationContext(servletContext);
      *         context.refresh();
      *     }
      * }

@@ -10,9 +10,8 @@ import org.openl.rules.ui.IProjectTypes;
  * Builds tree node for table category.
  */
 public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
-    
+
     private static final String CATEGORY_BUILDER_NAME = "Category Builder";
-    
 
     /**
      * {@inheritDoc}
@@ -39,7 +38,7 @@ public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
      */
     @Override
     public String getType(Object nodeObject) {
-        //return CATEGORY_TYPE;
+        // return CATEGORY_TYPE;
         return IProjectTypes.PT_FOLDER;
     }
 
@@ -78,15 +77,12 @@ public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
         TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
         return tsn.getErrors() != null ? tsn.getErrors() : tsn.getValidationResult();
     }
-    
+
     @Override
     public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
-        if (XlsNodeTypes.XLS_PROPERTIES.toString().equals(tableSyntaxNode.getType())
-                && ModulePropertiesTableNodeBuilder.isModulePropertyTable(tableSyntaxNode)) {
-            //category tree builder skips module properties 
-            return false;
-        }
-        return true;
+        return !(XlsNodeTypes.XLS_PROPERTIES.toString()
+            .equals(
+                tableSyntaxNode.getType()) && ModulePropertiesTableNodeBuilder.isModulePropertyTable(tableSyntaxNode));
     }
 
     /**

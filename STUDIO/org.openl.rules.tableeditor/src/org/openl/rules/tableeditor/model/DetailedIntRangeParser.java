@@ -11,9 +11,6 @@ public class DetailedIntRangeParser extends IntRangeParser {
     private String min;
     private String max;
 
-    public DetailedIntRangeParser() {
-    }
-
     @Override
     public RangeWithBounds parse(String range) {
         try {

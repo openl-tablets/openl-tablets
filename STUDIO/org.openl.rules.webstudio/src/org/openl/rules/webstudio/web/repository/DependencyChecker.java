@@ -1,5 +1,9 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectDescriptor;
@@ -13,10 +17,6 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * @author Aleh Bykhavets
  */
@@ -28,12 +28,12 @@ public class DependencyChecker {
      * <p/>
      * value can be <code>null</code> if such project wasn't found in DTR
      */
-    private Map<String, CommonVersion> projectVersions = new HashMap<String, CommonVersion>();
+    private Map<String, CommonVersion> projectVersions = new HashMap<>();
 
     /**
      * project name -> dependencies list
      */
-    private Map<String, List<ProjectDependencyDescriptor>> projectDependencies = new HashMap<String, List<ProjectDependencyDescriptor>>();
+    private Map<String, List<ProjectDependencyDescriptor>> projectDependencies = new HashMap<>();
 
     private final ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver;
 

@@ -6,7 +6,7 @@ import org.openl.rules.project.model.v5_14.converter.RulesDeployVersionConverter
 import org.openl.rules.project.xml.BaseRulesDeploySerializer;
 
 public class XmlRulesDescriptorSerializer_v5_14 extends BaseRulesDeploySerializer<RulesDeploy_v5_14> {
-    private final static String RULES_DEPLOY_DESCRIPTOR_TAG = "rules-deploy";
+    private static final String RULES_DEPLOY_DESCRIPTOR_TAG = "rules-deploy";
 
     public XmlRulesDescriptorSerializer_v5_14() {
         super(new RulesDeployVersionConverter());

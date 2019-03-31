@@ -10,9 +10,6 @@ public class ProjectHistoryItem {
     private String sourceName;
     private boolean disabled;
 
-    public ProjectHistoryItem() {
-    }
-
     public long getVersion() {
         return version;
     }

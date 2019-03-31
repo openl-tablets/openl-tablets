@@ -74,7 +74,7 @@ public class DomainTreePath {
 
     public void setParameters(List<TypeNamePair> parameters) {
         context = new DomainTreeContext();
-        rootObjects = new ArrayList<String>(parameters.size());
+        rootObjects = new ArrayList<>(parameters.size());
         for (TypeNamePair pair : parameters) {
             context.setObjectType(pair.getName(), pair.getType());
             rootObjects.add(pair.getName());

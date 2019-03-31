@@ -37,19 +37,19 @@ public class RegionsExtractor {
     }
 
     private static List<IGridRegion> getiGridRegions(ResultTraceObject rto) {
-        List<IGridRegion> regions = new ArrayList<IGridRegion>();
+        List<IGridRegion> regions = new ArrayList<>();
         regions.add(rto.getGridRegion());
         return regions;
     }
 
     private static List<IGridRegion> getiGridRegions(TBasicOperationTraceObject tbo) {
-        List<IGridRegion> regions = new ArrayList<IGridRegion>();
+        List<IGridRegion> regions = new ArrayList<>();
         regions.add(tbo.getGridRegion());
         return regions;
     }
 
     private static List<IGridRegion> getiGridRegions(SpreadsheetTracerLeaf stl) {
-        List<IGridRegion> regions = new ArrayList<IGridRegion>();
+        List<IGridRegion> regions = new ArrayList<>();
         regions.add(stl.getSpreadsheetCell().getSourceCell().getAbsoluteRegion());
         return regions;
     }
@@ -57,9 +57,9 @@ public class RegionsExtractor {
     private static List<IGridRegion> getiGridRegions(OverloadedMethodChoiceTraceObject omc) {
         Iterator<ITracerObject> iterator = omc.getChildren().iterator();
         if (iterator.hasNext()) {
-            List<IGridRegion> gridRegions = new ArrayList<IGridRegion>();
+            List<IGridRegion> gridRegions = new ArrayList<>();
             ILogicalTable[] tables = ((DTRuleTracerLeaf) iterator.next()).getRuleTables();
-            for (ILogicalTable table : tables){
+            for (ILogicalTable table : tables) {
                 gridRegions.addAll(GridTableUtils.getGridRegions(table));
             }
             return gridRegions;
@@ -69,7 +69,7 @@ public class RegionsExtractor {
     }
 
     private static List<IGridRegion> getiGridRegions(MethodTableTraceObject mmto) {
-        List<IGridRegion> regions = new ArrayList<IGridRegion>();
+        List<IGridRegion> regions = new ArrayList<>();
         ITable<?> tableBodyGrid = mmto.getTraceObject().getSyntaxNode().getTableBody().getSource();
         ICell cell;
         for (int row = 0; row < tableBodyGrid.getHeight(); row += cell.getHeight()) {
@@ -80,22 +80,22 @@ public class RegionsExtractor {
     }
 
     private static List<IGridRegion> getiGridRegions(MatchTraceObject mto) {
-        List<IGridRegion> regions = new ArrayList<IGridRegion>();
+        List<IGridRegion> regions = new ArrayList<>();
         regions.add(mto.getGridRegion());
         return regions;
     }
 
     private static List<IGridRegion> getiGridRegions(DTRuleTracerLeaf dtr) {
-        List<IGridRegion> gridRegions = new ArrayList<IGridRegion>();
+        List<IGridRegion> gridRegions = new ArrayList<>();
         ILogicalTable[] tables = dtr.getRuleTables();
-        for (ILogicalTable table : tables){
+        for (ILogicalTable table : tables) {
             gridRegions.addAll(GridTableUtils.getGridRegions(table));
         }
         return gridRegions;
     }
 
     private static List<IGridRegion> getiGridRegions(DTRuleTraceObject dti) {
-        List<IGridRegion> regions = new ArrayList<IGridRegion>();
+        List<IGridRegion> regions = new ArrayList<>();
 
         for (int rule : dti.getRules()) {
             ILogicalTable table = dti.getCondition().getValueCell(rule);

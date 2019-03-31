@@ -10,8 +10,6 @@ import java.util.Calendar;
  */
 public class CurrentDateValue implements ISystemValue {
     
-    public CurrentDateValue(){};
-    
     public Object getValue() {
         Calendar cal = Calendar.getInstance();        
         return cal.getTime(); 

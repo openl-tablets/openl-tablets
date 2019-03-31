@@ -12,7 +12,7 @@ import java.util.ArrayList;
  */
 public class TableArtifact {
     private String name;
-    private List<Parameter> parameters = new ArrayList<Parameter>();
+    private List<Parameter> parameters = new ArrayList<>();
     private String logic;
     private boolean dirty;
 

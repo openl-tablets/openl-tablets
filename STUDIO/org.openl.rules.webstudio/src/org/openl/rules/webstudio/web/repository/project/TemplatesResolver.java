@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public abstract class TemplatesResolver {
     protected List<String> categories;
-    protected final Map<String, List<String>> templateNamesCache = new HashMap<String, List<String>>();
+    protected final Map<String, List<String>> templateNamesCache = new HashMap<>();
 
     public List<String> getCategories() {
         if (categories == null) {

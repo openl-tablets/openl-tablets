@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpSession;
 
 public class SessionCache {
-    private Map<String, HttpSession> cache = new ConcurrentHashMap<String, HttpSession>();
+    private Map<String, HttpSession> cache = new ConcurrentHashMap<>();
 
     public void add(HttpSession session) {
         cache.put(session.getId(), session);

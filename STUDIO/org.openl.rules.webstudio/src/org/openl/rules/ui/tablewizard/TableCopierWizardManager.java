@@ -11,16 +11,13 @@ import org.openl.rules.ui.copy.TableNamesCopier;
 @SessionScoped
 public class TableCopierWizardManager extends BaseTableWizardManager {
 
-    static enum CopyType {
+    enum CopyType {
         CHANGE_NAMES,
         CHANGE_DIMENSION,
         CHANGE_VERSION
     }
 
     private CopyType copyType;
-
-    public TableCopierWizardManager () {
-    }
 
     public String getCopyType() {
         return copyType.name();
@@ -36,7 +33,7 @@ public class TableCopierWizardManager extends BaseTableWizardManager {
         reload();
         switch (copyType) {
             case CHANGE_NAMES:
-                wizard = new TableNamesCopier(getTable()); 
+                wizard = new TableNamesCopier(getTable());
                 break;
             case CHANGE_VERSION:
                 wizard = new VersionPropertyTableCopier(getTable());
@@ -49,7 +46,7 @@ public class TableCopierWizardManager extends BaseTableWizardManager {
         }
         wizard.next();
         return wizard.getName();
-    }    
+    }
 
     @Override
     public String cancel() {

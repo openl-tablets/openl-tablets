@@ -17,17 +17,17 @@ import org.springframework.security.core.Authentication;
  * For example needed to easily access user password while filling UserDetails and user authorities in AD.
  */
 public class AuthenticationHolder {
-    private static final ThreadLocal<Authentication> authenticationHolder = new ThreadLocal<>();
+    private static final ThreadLocal<Authentication> AUTHENTICATION_HOLDER = new ThreadLocal<>();
 
     public static void setAuthentication(Authentication authentication) {
-        authenticationHolder.set(authentication);
+        AUTHENTICATION_HOLDER.set(authentication);
     }
 
     public static Authentication getAuthentication() {
-        return authenticationHolder.get();
+        return AUTHENTICATION_HOLDER.get();
     }
 
     public static void clear() {
-        authenticationHolder.remove();
+        AUTHENTICATION_HOLDER.remove();
     }
 }

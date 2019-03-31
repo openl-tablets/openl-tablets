@@ -21,43 +21,43 @@ public class HTMLToExcelStyleCoverter {
     private final static String BOTTOM = "Bottom";
     private final static String LEFT = "Left";
 
-    static public short getBackgroundColor(JSONObject style, Workbook workbook) {
+    public static short getBackgroundColor(JSONObject style, Workbook workbook) {
         return getColorByHtmlStyleName("backgroundColor", style, workbook);
     }
 
-    static public BorderStyle getBorderTop(JSONObject style) {
+    public static BorderStyle getBorderTop(JSONObject style) {
         return getBorder(style, HTMLToExcelStyleCoverter.TOP);
     }
 
-    static public short getTopBorderColor(JSONObject style, Workbook workbook) {
+    public static short getTopBorderColor(JSONObject style, Workbook workbook) {
         return getColorByHtmlStyleName("borderTopColor", style, workbook);
     }
 
-    static public BorderStyle getBorderRight(JSONObject style) {
+    public static BorderStyle getBorderRight(JSONObject style) {
         return getBorder(style, HTMLToExcelStyleCoverter.RIGHT);
     }
 
-    static public short getRightBorderColor(JSONObject style, Workbook workbook) {
+    public static short getRightBorderColor(JSONObject style, Workbook workbook) {
         return getColorByHtmlStyleName("borderRightColor", style, workbook);
     }
 
-    static public BorderStyle getBorderBottom(JSONObject style) {
+    public static BorderStyle getBorderBottom(JSONObject style) {
         return getBorder(style, HTMLToExcelStyleCoverter.BOTTOM);
     }
 
-    static public short getBottomBorderColor(JSONObject style, Workbook workbook) {
+    public static short getBottomBorderColor(JSONObject style, Workbook workbook) {
         return getColorByHtmlStyleName("borderBottomColor", style, workbook);
     }
 
-    static public BorderStyle getBorderLeft(JSONObject style) {
+    public static BorderStyle getBorderLeft(JSONObject style) {
         return getBorder(style, HTMLToExcelStyleCoverter.LEFT);
     }
 
-    static public short getLeftBorderColor(JSONObject style, Workbook workbook) {
+    public static short getLeftBorderColor(JSONObject style, Workbook workbook) {
         return getColorByHtmlStyleName("borderLeftColor", style, workbook);
     }
 
-    static public HorizontalAlignment getAlignment(JSONObject style) {
+    public static HorizontalAlignment getAlignment(JSONObject style) {
         try {
             if (!style.isNull("textAlign")) {
                 String textAlign = style.getString("textAlign");
@@ -79,7 +79,7 @@ public class HTMLToExcelStyleCoverter {
         return HorizontalAlignment.GENERAL;
     }
 
-    static public Font getFont(JSONObject style, Workbook wb) {
+    public static Font getFont(JSONObject style, Workbook wb) {
         boolean boldWeight = false;
         short color = HSSFColor.HSSFColorPredefined.BLACK.getIndex();
         short fontHeight = 10*20;

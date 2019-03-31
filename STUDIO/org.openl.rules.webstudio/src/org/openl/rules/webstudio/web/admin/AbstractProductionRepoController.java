@@ -21,13 +21,13 @@ public abstract class AbstractProductionRepoController {
     private boolean checked = false;
     private String errorMessage = "";
 
-    @ManagedProperty(value="#{productionRepositoryConfigManagerFactory}")
+    @ManagedProperty(value = "#{productionRepositoryConfigManagerFactory}")
     private ConfigurationManagerFactory productionConfigManagerFactory;
 
-    @ManagedProperty(value="#{systemSettingsBean}")
+    @ManagedProperty(value = "#{systemSettingsBean}")
     private SystemSettingsBean systemSettingsBean;
 
-    @ManagedProperty(value="#{productionRepositoryFactoryProxy}")
+    @ManagedProperty(value = "#{productionRepositoryFactoryProxy}")
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
 
     private RepositoryConfiguration defaultRepoConfig;
@@ -48,7 +48,8 @@ public abstract class AbstractProductionRepoController {
         return productionRepositoryConfigurations;
     }
 
-    public void setProductionRepositoryConfigurations(List<RepositoryConfiguration> productionRepositoryConfigurations) {
+    public void setProductionRepositoryConfigurations(
+            List<RepositoryConfiguration> productionRepositoryConfigurations) {
         this.productionRepositoryConfigurations = productionRepositoryConfigurations;
     }
 
@@ -68,8 +69,9 @@ public abstract class AbstractProductionRepoController {
 
     protected RepositoryConfiguration createRepositoryConfiguration() {
         String name = repositoryConfiguration.getName();
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(getConfigurationName(name), getProductionConfigManager(name),
-                RepositoryMode.PRODUCTION);
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(getConfigurationName(name),
+            getProductionConfigManager(name),
+            RepositoryMode.PRODUCTION);
 
         repoConfig.copyContent(repositoryConfiguration);
         repoConfig.commit();
@@ -78,8 +80,9 @@ public abstract class AbstractProductionRepoController {
 
     protected RepositoryConfiguration createAdminRepositoryConfiguration() {
         String name = repositoryConfiguration.getName();
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(name, getProductionConfigManager(name),
-                RepositoryMode.PRODUCTION);
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(name,
+            getProductionConfigManager(name),
+            RepositoryMode.PRODUCTION);
 
         repoConfig.copyContent(repositoryConfiguration);
 
@@ -88,7 +91,7 @@ public abstract class AbstractProductionRepoController {
             CommonRepositorySettings repoSettings = (CommonRepositorySettings) settings;
 
             if (repoSettings.isSecure()) {
-            /*Default Admin credentials for creating new admin user in repo*/
+                /* Default Admin credentials for creating new admin user in repo */
                 repoSettings.setLogin("admin");
                 repoSettings.setPassword("admin");
             }
@@ -103,8 +106,9 @@ public abstract class AbstractProductionRepoController {
     }
 
     private RepositoryConfiguration createDummyRepositoryConfiguration() {
-        RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration("def", getProductionConfigManager("def"),
-                RepositoryMode.PRODUCTION);
+        RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration("def",
+            getProductionConfigManager("def"),
+            RepositoryMode.PRODUCTION);
         repositoryConfiguration.setType(RepositoryType.LOCAL.name().toLowerCase());
         return repositoryConfiguration;
     }
@@ -116,10 +120,9 @@ public abstract class AbstractProductionRepoController {
             RepositorySettings settings = repositoryConfiguration.getSettings();
             if (settings instanceof CommonRepositorySettings) {
                 CommonRepositorySettings s = (CommonRepositorySettings) settings;
-                if (s.isSecure()) {
-                    if (StringUtils.isEmpty(s.getLogin()) || StringUtils.isEmpty(s.getPassword())) {
-                        throw new RepositoryValidationException("Invalid login or password. Please, check login and password");
-                    }
+                if (s.isSecure() && StringUtils.isEmpty(s.getLogin()) || StringUtils.isEmpty(s.getPassword())) {
+                    throw new RepositoryValidationException(
+                        "Invalid login or password. Please, check login and password");
                 }
             }
 

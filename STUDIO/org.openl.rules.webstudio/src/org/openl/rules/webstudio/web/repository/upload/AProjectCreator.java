@@ -40,12 +40,6 @@ public abstract class AProjectCreator {
         try {
             projectBuilder = getProjectBuilder();
             projectBuilder.save();
-
-//            if (projectBuilder.getProject().getArtefacts().size() == 0) {
-//                projectBuilder.getProject().delete();
-//                FacesUtils.addErrorMessage("");
-//            }
-
             projectBuilder.getProject().open();
         } catch (Exception e) {
             log.error("Error creating project.", e);

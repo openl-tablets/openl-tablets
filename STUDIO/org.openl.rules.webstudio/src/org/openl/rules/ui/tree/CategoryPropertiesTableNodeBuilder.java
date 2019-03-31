@@ -9,19 +9,19 @@ import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.util.StringUtils;
 
 /**
- * Builder for category properties table. 
+ * Builder for category properties table.
  * 
  * @author DLiauchuk
  *
  */
 public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
-    
+
     private static final String FOLDER_NAME = "Category Properties";
     private static final String CATEGORY_PROPERTIES_TABLE = "Category Properties Table";
-    
+
     @Override
     public String[] getDisplayValue(Object nodeObject, int i) {
-        TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject;        
+        TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject;
         return TableSyntaxNodeUtils.getTableDisplayValue(tableSyntaxNode, i);
     }
 
@@ -31,7 +31,7 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
     }
 
     @Override
-    public Object getProblems(Object nodeObject) {        
+    public Object getProblems(Object nodeObject) {
         TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
         return tsn.getErrors() != null ? tsn.getErrors() : tsn.getValidationResult();
     }
@@ -48,7 +48,7 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
     }
 
     @Override
-    public int getWeight(Object nodeObject) {        
+    public int getWeight(Object nodeObject) {
         return 0;
     }
 
@@ -56,35 +56,36 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
     protected Object makeObject(TableSyntaxNode tableSyntaxNode) {
         return tableSyntaxNode;
     }
-    
+
     @Override
     public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
-        if (XlsNodeTypes.XLS_PROPERTIES.toString().equals(tableSyntaxNode.getType()) && isCategoryPropertyTable(tableSyntaxNode)) {
-            return true;
-        }
-        return false;
+        return XlsNodeTypes.XLS_PROPERTIES.toString()
+            .equals(tableSyntaxNode.getType()) && isCategoryPropertyTable(tableSyntaxNode);
     }
-    
+
     @Override
     public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
         return makeFolderNode(FOLDER_NAME);
     }
-    
+
     private boolean isCategoryPropertyTable(TableSyntaxNode tableSyntaxNode) {
         boolean result = false;
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
         if (tableProperties != null) {
             String propValue = tableProperties.getScope();
-            if (StringUtils.isNotEmpty(propValue)) {
-                if (InheritanceLevel.CATEGORY.getDisplayName().equals(propValue)) {
-                    result = true;
-                }
-            } 
+            if (StringUtils.isNotEmpty(propValue) && InheritanceLevel.CATEGORY.getDisplayName().equals(propValue)) {
+                result = true;
+            }
         }
         return result;
     }
-    
+
     private ProjectTreeNode makeFolderNode(String folderName) {
-        return new ProjectTreeNode(new String[] { folderName, folderName, folderName }, IProjectTypes.PT_FOLDER, null, null, 0, null);
+        return new ProjectTreeNode(new String[] { folderName, folderName, folderName },
+            IProjectTypes.PT_FOLDER,
+            null,
+            null,
+            0,
+            null);
     }
 }

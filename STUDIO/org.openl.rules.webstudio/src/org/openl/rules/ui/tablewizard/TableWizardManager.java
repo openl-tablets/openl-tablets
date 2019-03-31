@@ -13,7 +13,7 @@ import org.openl.util.StringUtils;
 @SessionScoped
 public class TableWizardManager extends BaseTableWizardManager {
 
-    static enum TableType {
+    enum TableType {
         UNKNOWN,
         DECISION,
         DATATYPE,

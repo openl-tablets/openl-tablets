@@ -434,7 +434,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
         fileData.setName(name);
 
         // It's impossible to calculate zip size if project contains artefacts
-        if (((FolderAPI) project).getArtefacts().size() == 0) {
+        if (((FolderAPI) project).getArtefacts().isEmpty()) {
             fileData.setSize(0);
         }
 

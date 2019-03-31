@@ -14,7 +14,7 @@ import org.richfaces.json.JSONObject;
 public class JSONHolder {
     private JSONObject table;
 
-    public JSONHolder (String json) throws JSONException {
+    public JSONHolder(String json) throws JSONException {
         this.table = new JSONObject(json);
     }
 
@@ -28,17 +28,23 @@ public class JSONHolder {
             for (int i = 0; i < inParam.length(); i++) {
                 JSONObject param = (JSONObject) inParam.get(i);
 
-                result.append((i > 0) ? ", " : "").append(param.getString("type")).append((param.getBoolean("iterable")) ? "[]" : "").append(" ").append(param.getString("name"));
+                result.append((i > 0) ? ", " : "")
+                    .append(param.getString("type"))
+                    .append((param.getBoolean("iterable")) ? "[]" : "")
+                    .append(" ")
+                    .append(param.getString("name"));
             }
 
-            return returnObj.getString("type") + ((returnObj.getBoolean("iterable")) ? "[]" : "") + " " + tableName + "(" + result.toString() + ")";
+            return returnObj.getString(
+                "type") + ((returnObj.getBoolean("iterable")) ? "[]"
+                                                              : "") + " " + tableName + "(" + result.toString() + ")";
         } catch (Exception e) {
             return "";
         }
     }
 
     public List<List<Map<String, Object>>> getDataRows(CellStyleManager styleManager) {
-        List<List<Map<String, Object>>> dataRows = new ArrayList<List<Map<String, Object>>>();
+        List<List<Map<String, Object>>> dataRows = new ArrayList<>();
 
         if (!this.table.isNull("dataRows")) {
             try {
@@ -47,11 +53,11 @@ public class JSONHolder {
                 for (int i = 0; i < dataRow.length(); i++) {
                     JSONArray rowElements = new JSONArray(dataRow.get(i).toString());
 
-                    List<Map<String, Object>> row = new ArrayList<Map<String, Object>>();
-                    for (int j= 0; j < rowElements.length(); j++) {
+                    List<Map<String, Object>> row = new ArrayList<>();
+                    for (int j = 0; j < rowElements.length(); j++) {
                         Object value;
 
-                        JSONObject dataCell = ((JSONObject)rowElements.get(j));
+                        JSONObject dataCell = ((JSONObject) rowElements.get(j));
                         if (dataCell.getString("valueType").equals("DATE")) {
                             String dateString = dataCell.getString("value");
                             String dateFormat = "yyyy-MM-dd'T'HH:mm:ss";
@@ -59,18 +65,19 @@ public class JSONHolder {
                             SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
                             formatter.setLenient(false);
                             formatter.setTimeZone(TimeZone.getDefault());
-                            try{
+                            try {
                                 value = formatter.parse(dateString);
                             } catch (Exception e) {
                                 value = dateString;
                             }
                         } else {
-                            value = ((JSONObject)rowElements.get(j)).getString("value");
+                            value = ((JSONObject) rowElements.get(j)).getString("value");
                         }
 
-                        Map<String, Object> cell = new HashMap<String, Object>();
+                        Map<String, Object> cell = new HashMap<>();
                         cell.put("value", value);
-                        cell.put("style", styleManager.getCellStyle(((JSONObject)rowElements.get(j)).getJSONObject("style")));
+                        cell.put("style",
+                            styleManager.getCellStyle(((JSONObject) rowElements.get(j)).getJSONObject("style")));
 
                         row.add(cell);
                     }
@@ -78,7 +85,7 @@ public class JSONHolder {
                     dataRows.add(row);
                 }
             } catch (Exception e) {
-                return new ArrayList<List<Map<String, Object>>>();
+                return new ArrayList<>();
             }
         }
 
@@ -86,7 +93,7 @@ public class JSONHolder {
     }
 
     public Map<String, Object> getProperties() {
-        Map<String, Object> properties = new LinkedHashMap<String, Object>();
+        Map<String, Object> properties = new LinkedHashMap<>();
 
         try {
             if (!table.isNull("properties")) {
@@ -112,7 +119,7 @@ public class JSONHolder {
                 }
             }
         } catch (JSONException e) {
-            return new HashMap<String, Object>();
+            return new HashMap<>();
         }
 
         return properties;
@@ -121,7 +128,7 @@ public class JSONHolder {
     public int getFieldsCount() {
         try {
             JSONArray inParam = new JSONArray(table.getJSONObject("header").get("inParam").toString());
-            return  inParam.length() + 1;
+            return inParam.length() + 1;
         } catch (Exception e) {
             return 0;
         }
@@ -129,7 +136,7 @@ public class JSONHolder {
 
     public JSONObject getHeaderStyle() {
         try {
-            //FIXME header style saving. At the moment we have a problem with CSS2Properties
+            // FIXME header style saving. At the moment we have a problem with CSS2Properties
             JSONArray style = new JSONArray(table.getJSONObject("header").getString("style"));
 
             return style.getJSONObject(0);

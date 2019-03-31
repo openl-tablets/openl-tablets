@@ -1,6 +1,10 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -9,16 +13,20 @@ import javax.faces.bean.RequestScoped;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
+import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.Point;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
-import org.openl.rules.testmethod.*;
+import org.openl.rules.testmethod.ITestUnit;
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
+import org.openl.rules.testmethod.ProjectHelper;
+import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.ui.ObjectViewer;
-import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.MainBean;
 import org.openl.rules.webstudio.web.util.Constants;
@@ -260,7 +268,7 @@ public class TestBean {
     }
 
     private static Map<String, Point> getAbsoluteSpreadsheetFieldCoordinates(SpreadsheetResult spreadsheetResult) {
-        Map<String, Point> absoluteCoordinates = new HashMap<String, Point>();
+        Map<String, Point> absoluteCoordinates = new HashMap<>();
 
         IGridTable sourceTable = spreadsheetResult.getLogicalTable().getSource();
 

@@ -55,7 +55,7 @@ public class ProjectsInHistoryController {
 
     public List<ProjectBean> getProjects() {
         if (projectBeans == null) {
-            projectBeans = new ArrayList<ProjectBean>();
+            projectBeans = new ArrayList<>();
             File[] projects = new File(getProjectHistoryHome()).listFiles();
             if (projects != null) {
                 for (File f : projects) {

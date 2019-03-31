@@ -39,7 +39,7 @@ public class TreeProductionDProject extends TreeProductFolder {
     @Override
     public Map<Object, TreeNode> getElements() {
         if (elements == null && !isLeafOnly()) {
-            elements = new LinkedHashMap<Object, TreeNode>();
+            elements = new LinkedHashMap<>();
 
             Collection<AProject> prjList = ((Deployment) getData()).getProjects();
             AProjectArtefact[] sortedArtefacts = new AProjectArtefact[prjList.size()];

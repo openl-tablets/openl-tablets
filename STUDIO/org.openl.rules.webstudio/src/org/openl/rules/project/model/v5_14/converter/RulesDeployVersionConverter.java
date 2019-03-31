@@ -21,24 +21,20 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
 
         if (oldVersion.getPublishers() != null) {
             List<RulesDeploy.PublisherType> publishers = CollectionUtils.map(Arrays.asList(oldVersion.getPublishers()),
-                    new CollectionUtils.Mapper<RulesDeploy_v5_14.PublisherType, RulesDeploy.PublisherType>() {
-                        @Override
-                        public RulesDeploy.PublisherType map(RulesDeploy_v5_14.PublisherType oldVersion) {
-                            if (oldVersion == null) {
-                                return null;
-                            }
-
-                            switch (oldVersion) {
-                                case WEBSERVICE:
-                                    return RulesDeploy.PublisherType.WEBSERVICE;
-                                case RESTFUL:
-                                    return RulesDeploy.PublisherType.RESTFUL;
-                                default:
-                                    throw new IllegalArgumentException();
-                            }
-                        }
+                version -> {
+                    if (version == null) {
+                        return null;
                     }
-            );
+
+                    switch (version) {
+                        case WEBSERVICE:
+                            return RulesDeploy.PublisherType.WEBSERVICE;
+                        case RESTFUL:
+                            return RulesDeploy.PublisherType.RESTFUL;
+                        default:
+                            throw new IllegalArgumentException();
+                    }
+                });
             rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy.PublisherType[publishers.size()]));
         }
 
@@ -48,7 +44,6 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
 
         return rulesDeploy;
     }
-
 
     @Override
     public RulesDeploy_v5_14 toOldVersion(RulesDeploy currentVersion) {
@@ -60,28 +55,23 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
         rulesDeploy.setProvideVariations(currentVersion.isProvideVariations());
 
         if (currentVersion.getPublishers() != null) {
-            List<RulesDeploy_v5_14.PublisherType> publishers = CollectionUtils.map(Arrays.asList(currentVersion.getPublishers()),
-                    new CollectionUtils.Mapper<RulesDeploy.PublisherType, RulesDeploy_v5_14.PublisherType>() {
-                        @Override
-                        public RulesDeploy_v5_14.PublisherType map(RulesDeploy.PublisherType oldVersion) {
-                            if (oldVersion == null) {
-                                return null;
-                            }
-
-                            switch (oldVersion) {
-                                case WEBSERVICE:
-                                    return RulesDeploy_v5_14.PublisherType.WEBSERVICE;
-                                case RESTFUL:
-                                    return RulesDeploy_v5_14.PublisherType.RESTFUL;
-                                case RMI:
-                                    throw new UnsupportedOperationException(
-                                            "RMI publisher isn't supported in old version");
-                                default:
-                                    throw new IllegalArgumentException();
-                            }
-                        }
+            List<RulesDeploy_v5_14.PublisherType> publishers = CollectionUtils
+                .map(Arrays.asList(currentVersion.getPublishers()), oldVersion -> {
+                    if (oldVersion == null) {
+                        return null;
                     }
-            );
+
+                    switch (oldVersion) {
+                        case WEBSERVICE:
+                            return RulesDeploy_v5_14.PublisherType.WEBSERVICE;
+                        case RESTFUL:
+                            return RulesDeploy_v5_14.PublisherType.RESTFUL;
+                        case RMI:
+                            throw new UnsupportedOperationException("RMI publisher isn't supported in old version");
+                        default:
+                            throw new IllegalArgumentException();
+                    }
+                });
             rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy_v5_14.PublisherType[publishers.size()]));
         }
 

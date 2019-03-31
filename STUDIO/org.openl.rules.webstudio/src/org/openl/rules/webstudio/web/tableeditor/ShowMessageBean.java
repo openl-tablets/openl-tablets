@@ -15,9 +15,6 @@ import org.openl.util.StringUtils;
 @RequestScoped
 public class ShowMessageBean {
 
-    public ShowMessageBean() {
-    }
-
     public List<OpenLMessage> getMessage() {
         String type = FacesUtils.getRequestParameter("type");
         String summary = FacesUtils.getRequestParameter("summary");

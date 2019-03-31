@@ -16,10 +16,7 @@ public class DomainTreeContext {
     /**
      * Contains object names as keys, and their types as values.
      */
-    private Map<String, String> rootObjects = new HashMap<String, String>();
-
-    public DomainTreeContext() {
-    }
+    private Map<String, String> rootObjects = new HashMap<>();
 
     public boolean containsObject(String name) {
         return rootObjects.containsKey(name);

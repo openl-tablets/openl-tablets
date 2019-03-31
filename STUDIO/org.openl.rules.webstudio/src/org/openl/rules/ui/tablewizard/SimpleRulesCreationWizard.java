@@ -68,7 +68,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
 
     private String returnValueType;
 
-    private List<TypeNamePair> parameters = new ArrayList<TypeNamePair>();
+    private List<TypeNamePair> parameters = new ArrayList<>();
 
     @Override
     protected void onCancel() {
@@ -84,11 +84,11 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     }
 
     private void initDomainType() {
-        List<IOpenClass> types = new ArrayList<IOpenClass>(WizardUtils.getProjectOpenClass().getTypes());
+        List<IOpenClass> types = new ArrayList<>(WizardUtils.getProjectOpenClass().getTypes());
         Collection<IOpenClass> importedClasses = WizardUtils.getImportedClasses();
         types.addAll(importedClasses);
 
-        List<String> datatypes = new ArrayList<String>(types.size());
+        List<String> datatypes = new ArrayList<>(types.size());
         datatypes.add("");
         for (IOpenClass datatype : types) {
             if (Modifier.isFinal(datatype.getInstanceClass().getModifiers())) {
@@ -109,7 +109,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         domainTypes = FacesUtils.createSelectItems(allClasses);
 
         Collection<IOpenClass> classTypes = DomainTree.buildTree(WizardUtils.getProjectOpenClass()).getAllOpenClasses();
-        this.typesList = new ArrayList<DomainTypeHolder>();
+        this.typesList = new ArrayList<>();
 
         for (IOpenClass oc : classTypes) {
             typesList.add(new DomainTypeHolder(oc.getDisplayName(INamedThing.SHORT), oc, false));
@@ -125,18 +125,18 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     }
 
     public List<SelectItem> getPropertyList() {
-        List<SelectItem> propertyNames = new ArrayList<SelectItem>();
+        List<SelectItem> propertyNames = new ArrayList<>();
         TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
-                .getDefaultDefinitionsForTable(TABLE_TYPE, InheritanceLevel.TABLE, true);
+            .getDefaultDefinitionsForTable(TABLE_TYPE, InheritanceLevel.TABLE, true);
 
         SelectItem selectItem = new SelectItem("");
         selectItem.setLabel("");
         propertyNames.add(selectItem);
 
         Map<String, List<TablePropertyDefinition>> propGroups = TablePropertyDefinitionUtils
-                .groupProperties(propDefinitions);
+            .groupProperties(propDefinitions);
         for (Map.Entry<String, List<TablePropertyDefinition>> entry : propGroups.entrySet()) {
-            List<SelectItem> items = new ArrayList<SelectItem>();
+            List<SelectItem> items = new ArrayList<>();
 
             for (TablePropertyDefinition propDefinition : entry.getValue()) {
                 String propName = propDefinition.getName();
@@ -177,7 +177,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     }
 
     public List<DomainTypeHolder> getTypedParameters() {
-        List<DomainTypeHolder> typedParameters = new ArrayList<DomainTypeHolder>();
+        List<DomainTypeHolder> typedParameters = new ArrayList<>();
 
         for (TypeNamePair tnp : this.parameters) {
             DomainTypeHolder gth = getTypedParameterByName(tnp.getType());
@@ -312,22 +312,22 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
                     this.type = "ARRAY";
                 } else if (openClass.toString().equals(Date.class.getCanonicalName())) {
                     this.type = "DATE";
-                } else if (openClass.toString().equals(boolean.class.getCanonicalName()) ||
-                        openClass.toString().equals(Boolean.class.getCanonicalName())) {
+                } else if (openClass.toString().equals(boolean.class.getCanonicalName()) || openClass.toString()
+                    .equals(Boolean.class.getCanonicalName())) {
                     this.type = "BOOLEAN";
                 } else if (IntegerValuesUtils.isIntegerValue(openClass.getInstanceClass())) {
                     this.type = "INT";
-                } else if (openClass.toString().equals(BigDecimal.class.getCanonicalName()) ||
-                        openClass.toString().equals(BigDecimalValue.class.getCanonicalName()) ||
-                        openClass.toString().equals(DoubleValue.class.getCanonicalName()) ||
-                        openClass.toString().equals(Double.class.getCanonicalName()) ||
-                        openClass.toString().equals(FloatValue.class.getCanonicalName()) ||
-                        openClass.toString().equals(Float.class.getCanonicalName()) ||
-                        openClass.toString().equals(double.class.getCanonicalName()) ||
-                        openClass.toString().equals(float.class.getCanonicalName())) {
+                } else if (openClass.toString().equals(BigDecimal.class.getCanonicalName()) || openClass.toString()
+                    .equals(BigDecimalValue.class.getCanonicalName()) || openClass.toString()
+                        .equals(DoubleValue.class.getCanonicalName()) || openClass.toString()
+                            .equals(Double.class.getCanonicalName()) || openClass.toString()
+                                .equals(FloatValue.class.getCanonicalName()) || openClass.toString()
+                                    .equals(Float.class.getCanonicalName()) || openClass.toString()
+                                        .equals(double.class.getCanonicalName()) || openClass.toString()
+                                            .equals(float.class.getCanonicalName())) {
                     this.type = "FLOAT";
-                } else if (openClass.toString().equals(IntRange.class.getCanonicalName()) ||
-                        openClass.toString().equals(DoubleRange.class.getCanonicalName())) {
+                } else if (openClass.toString().equals(IntRange.class.getCanonicalName()) || openClass.toString()
+                    .equals(DoubleRange.class.getCanonicalName())) {
                     this.type = "RANGE";
                 } else {
                     this.type = "STRING";

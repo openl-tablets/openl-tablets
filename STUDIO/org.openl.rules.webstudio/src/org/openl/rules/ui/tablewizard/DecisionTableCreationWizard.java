@@ -31,9 +31,9 @@ public class DecisionTableCreationWizard extends TableCreationWizard {
     private String returnType;
     private boolean vertical;
 
-    private List<TypeNamePair> parameters = new ArrayList<TypeNamePair>();
-    private ListWithSelection<TableCondition> conditions = new ListWithSelection<TableCondition>();
-    private ListWithSelection<TableArtifact> actions = new ListWithSelection<TableArtifact>();
+    private List<TypeNamePair> parameters = new ArrayList<>();
+    private ListWithSelection<TableCondition> conditions = new ListWithSelection<>();
+    private ListWithSelection<TableArtifact> actions = new ListWithSelection<>();
     private TableArtifact returnValue = new TableArtifact();
     private DomainTree domainTree;
 
@@ -379,9 +379,9 @@ public class DecisionTableCreationWizard extends TableCreationWizard {
     @Override
     protected void reset() {
         tableName = returnType = null;
-        parameters = new ArrayList<TypeNamePair>();
-        conditions = new ListWithSelection<TableCondition>();
-        actions = new ListWithSelection<TableArtifact>();
+        parameters = new ArrayList<>();
+        conditions = new ListWithSelection<>();
+        actions = new ListWithSelection<>();
         returnValue = new TableArtifact();
         returnValue.setName("RET1");
         vertical = false;
@@ -416,10 +416,8 @@ public class DecisionTableCreationWizard extends TableCreationWizard {
     public void selectCondition() {
         try {
             int index = Integer.parseInt(FacesUtils.getRequestParameter("index"));
-            if (conditions.get(index) != null) {
-                if (validateAtStep3()) {
-                    conditions.setSelectedIndex(index);
-                }
+            if (conditions.get(index) != null && validateAtStep3()) {
+                conditions.setSelectedIndex(index);
             }
         } catch (Exception e) {
             log.warn("Error while selecting condition", e);

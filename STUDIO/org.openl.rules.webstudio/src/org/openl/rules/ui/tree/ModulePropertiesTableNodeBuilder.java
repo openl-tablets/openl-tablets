@@ -57,10 +57,7 @@ public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
     
     @Override
     public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
-        if (XlsNodeTypes.XLS_PROPERTIES.toString().equals(tableSyntaxNode.getType()) && isModulePropertyTable(tableSyntaxNode)) {
-            return true;
-        }
-        return false;
+        return XlsNodeTypes.XLS_PROPERTIES.toString().equals(tableSyntaxNode.getType()) && isModulePropertyTable(tableSyntaxNode);
     }
     
     @Override

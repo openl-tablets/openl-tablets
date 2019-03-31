@@ -100,9 +100,9 @@ public class CellModel implements ICellModel {
             if ((borderStyle[i] == null || borderStyle[i].getWidth() == 0) && i != 1) {
                 style = (borderStyle[1] == null) ? "none" : borderStyle[1].getStyle();
             } else {
-                if (borderStyle[i] == null){
+                if (borderStyle[i] == null) {
                     style = "none";
-                }else{
+                } else {
                     style = borderStyle[i].getStyle();
                 }
             }
@@ -119,9 +119,9 @@ public class CellModel implements ICellModel {
             if ((borderStyle[i] == null || borderStyle[i].getWidth() == 0) && i != 1) {
                 color = (borderStyle[1] == null) ? "#000" : toHexColor(borderStyle[1].getRgb());
             } else {
-                if (borderStyle[i] == null){
+                if (borderStyle[i] == null) {
                     color = "#000";
-                }else{
+                } else {
                     color = toHexColor(borderStyle[i].getRgb());
                 }
             }
@@ -220,7 +220,10 @@ public class CellModel implements ICellModel {
         }
 
         if (indent > 0) {
-            sb.append("padding-left:").append((Integer) DEFAULT_CELL_STYLES.get("padding") * 0.063 + indent).append("em").append(";");
+            sb.append("padding-left:")
+                .append((Integer) DEFAULT_CELL_STYLES.get("padding") * 0.063 + indent)
+                .append("em")
+                .append(";");
         }
 
         return sb.toString();
@@ -368,19 +371,18 @@ public class CellModel implements ICellModel {
         this.comment = comment;
     }
 
-
     private static String boxCSStoString(String[] values) {
         String result;
 
         boolean evenSame = values[1].equals(values[3]);
         boolean pairSame = evenSame && values[0].equals(values[2]);
-        boolean allSame  = pairSame && values[0].equals(values[1]);
+        boolean allSame = pairSame && values[0].equals(values[1]);
 
         if (allSame) {
             result = values[0];
-        } else if (pairSame){
+        } else if (pairSame) {
             result = values[0] + ' ' + values[1];
-        } else if (evenSame){
+        } else if (evenSame) {
             result = values[0] + ' ' + values[1] + ' ' + values[2];
         } else {
             result = values[0] + ' ' + values[1] + ' ' + values[2] + ' ' + values[3];
@@ -390,12 +392,10 @@ public class CellModel implements ICellModel {
 
     private static String toHex(short x) {
         String s = Integer.toHexString(x);
-
-        switch (s.length()) {
-            case 1:
-                return "0" + s;
-            case 2:
-                return s;
+        if (s.length() == 1) {
+            return "0" + s;
+        } else if (s.length() == 2) {
+            return s;
         }
         return s.substring(s.length() - 2);
     }
@@ -409,10 +409,10 @@ public class CellModel implements ICellModel {
         String hex2 = toHex(x[1]);
         String hex3 = toHex(x[2]);
 
-        boolean dig3hex = (hex1.charAt(0) == hex1.charAt(1))
-                && (hex2.charAt(0) == hex2.charAt(1))
-                && (hex3.charAt(0) == hex3.charAt(1));
+        boolean dig3hex = (hex1.charAt(0) == hex1.charAt(1)) && (hex2.charAt(0) == hex2.charAt(1)) && (hex3
+            .charAt(0) == hex3.charAt(1));
 
-        return "#" + (dig3hex ? hex1.charAt(0) : hex1) + (dig3hex ? hex2.charAt(0) : hex2) + (dig3hex ? hex3.charAt(0) : hex3);
+        return "#" + (dig3hex ? hex1.charAt(0) : hex1) + (dig3hex ? hex2.charAt(0) : hex2) + (dig3hex ? hex3.charAt(0)
+                                                                                                      : hex3);
     }
 }

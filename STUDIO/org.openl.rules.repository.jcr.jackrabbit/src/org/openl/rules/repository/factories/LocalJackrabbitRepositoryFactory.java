@@ -17,8 +17,6 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.utils.UserUtil;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Local Jackrabbit Repository Factory. It handles own instance of Jackrabbit
@@ -27,7 +25,6 @@ import org.slf4j.LoggerFactory;
  * @author Aleh Bykhavets
  */
 public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFactory {
-    private final Logger log = LoggerFactory.getLogger(LocalJackrabbitRepositoryFactory.class);
     private static final String LOCK_FILE = ".lock";
 
     /**

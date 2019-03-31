@@ -59,7 +59,7 @@ public class VersionedTreeNode extends ProjectTreeNode {
     public Map<Object, ITreeNode<Object>> getElements() {
         Map<Object, ITreeNode<Object>> elements = super.getElements();
         if (elements.size() < 2) {
-            return new TreeMap<Object, ITreeNode<Object>>();
+            return new TreeMap<>();
         }
         return elements;
     }

@@ -130,7 +130,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         }
     }
 
-    private void initProperties() throws RepositoryException {
+    private void initProperties() {
         properties.clear();
     }
 
@@ -297,7 +297,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
 
     public List<ProjectVersion> getVersions() {
         // FIXME
-        LinkedList<ProjectVersion> vers = new LinkedList<ProjectVersion>();
+        LinkedList<ProjectVersion> vers = new LinkedList<>();
         try {
             List<RVersion> verHist = getVersionHistory();
 
@@ -320,11 +320,10 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(rv.getCreated(), rv.getCreatedBy()
                 .getUserName(), modifiedAt, modifiedBy);
         String versionComment = "";
-        Map<String, Object> versionProperties = new HashMap<String, Object>();
+        Map<String, Object> versionProperties = new HashMap<>();
 
         try {
             JcrEntityAPI entity = getVersion(rv);
-            versionProperties = getVersionProps(rv);
 
             if (entity.hasProperty(ArtefactProperties.VERSION_COMMENT)) {
                 versionComment = entity.getProperty(ArtefactProperties.VERSION_COMMENT).getString();
@@ -369,13 +368,6 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         }
     }
 
-    private Map<String, Object> getVersionProps(CommonVersion version) throws PropertyException, RepositoryException {
-        Node frozenNode = NodeUtil.getNode4Version(node(), version);
-        Map<String, Object> versProps = new HashMap<String, Object>();
-
-        return versProps;
-    }
-
     public void commit(CommonUser user, int revision) throws ProjectException {
         try {
             Node n = node();
@@ -409,7 +401,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     }
 
     public void removeAllProperties() throws PropertyException {
-        List<String> propertyNames = new ArrayList<String>(properties.keySet());
+        List<String> propertyNames = new ArrayList<>(properties.keySet());
         for (String propertyName : propertyNames) {
             removeProperty(propertyName);
         }
@@ -433,7 +425,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
 
     @Override
     public Map<String, InheritedProperty> getInheritedProps() {
-        Map<String, InheritedProperty> inhProps = new HashMap<String, InheritedProperty>();
+        Map<String, InheritedProperty> inhProps = new HashMap<>();
 
         try {
             if (node().getDepth() > 3 && node().getParent() != null) {
@@ -449,7 +441,7 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     }
 
     private Map<String, InheritedProperty> getParentProps(Node n) {
-        Map<String, InheritedProperty> inhProps = new HashMap<String, InheritedProperty>();
+        Map<String, InheritedProperty> inhProps = new HashMap<>();
 
         try {
             if (n.getDepth() > 3 && n.getParent() != null) {

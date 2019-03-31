@@ -11,9 +11,6 @@ public class DetailedDoubleRangeParser extends DoubleRangeParser {
     private String min;
     private String max;
 
-    public DetailedDoubleRangeParser() {
-    }
-
     @Override
     public RangeWithBounds parse(String range) {
         try {

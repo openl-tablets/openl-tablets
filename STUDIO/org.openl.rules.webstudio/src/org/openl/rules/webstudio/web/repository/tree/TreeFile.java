@@ -15,7 +15,7 @@ import org.openl.rules.webstudio.web.repository.UiConst;
 public class TreeFile extends AbstractTreeNode {
 
     private static final long serialVersionUID = -4563895481021883236L;
-    private static final List<TreeNode> EMPTY_LIST = new LinkedList<TreeNode>();
+    private static final List<TreeNode> EMPTY_LIST = new LinkedList<>();
 
     public TreeFile(String id, String name) {
         // File cannot have children !!!

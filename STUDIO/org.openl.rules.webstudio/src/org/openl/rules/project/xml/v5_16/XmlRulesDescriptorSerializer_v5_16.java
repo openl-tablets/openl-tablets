@@ -6,9 +6,9 @@ import org.openl.rules.project.model.v5_16.converter.RulesDeployVersionConverter
 import org.openl.rules.project.xml.BaseRulesDeploySerializer;
 
 public class XmlRulesDescriptorSerializer_v5_16 extends BaseRulesDeploySerializer<RulesDeploy_v5_16> {
-    private final static String RULES_DEPLOY_DESCRIPTOR_TAG = "rules-deploy";
-    private final static String MODULE_NAME = "module";
-    private final static String LAZY_MODULES_FOR_COMPILATION = "lazy-modules-for-compilation";
+    private static final String RULES_DEPLOY_DESCRIPTOR_TAG = "rules-deploy";
+    private static final String MODULE_NAME = "module";
+    private static final String LAZY_MODULES_FOR_COMPILATION = "lazy-modules-for-compilation";
 
     public XmlRulesDescriptorSerializer_v5_16() {
         super(new RulesDeployVersionConverter());

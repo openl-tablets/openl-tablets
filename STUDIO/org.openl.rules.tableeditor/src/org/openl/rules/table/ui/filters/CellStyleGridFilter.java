@@ -46,12 +46,7 @@ public class CellStyleGridFilter extends AGridFilter {
     }
 
     public CellStyleGridFilter createUpperRowBorderFilter() {
-        IGridSelector upperRowSelector = new IGridSelector() {
-            @Override
-            public boolean selectCoords(int col, int row) {
-                return getGridSelector().selectCoords(col, row + 1) && !getGridSelector().selectCoords(col, row);
-            }
-        };
+        IGridSelector upperRowSelector = (col, row) -> getGridSelector().selectCoords(col, row + 1) && !getGridSelector().selectCoords(col, row);
 
         BorderStyle[] bottomBorderStyle = new BorderStyle[4];
         bottomBorderStyle[ICellStyle.BOTTOM] = BorderStyle.NONE;
@@ -67,12 +62,7 @@ public class CellStyleGridFilter extends AGridFilter {
     }
 
     public CellStyleGridFilter createLefterColumnBorderFilter() {
-        IGridSelector upperRowSelector = new IGridSelector() {
-            @Override
-            public boolean selectCoords(int col, int row) {
-                return getGridSelector().selectCoords(col + 1, row) && !getGridSelector().selectCoords(col, row);
-            }
-        };
+        IGridSelector upperRowSelector = (col, row) -> getGridSelector().selectCoords(col + 1, row) && !getGridSelector().selectCoords(col, row);
 
         BorderStyle[] bottomBorderStyle = new BorderStyle[4];
         bottomBorderStyle[ICellStyle.RIGHT] = BorderStyle.NONE;

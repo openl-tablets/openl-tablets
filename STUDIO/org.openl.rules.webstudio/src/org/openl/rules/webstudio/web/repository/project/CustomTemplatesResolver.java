@@ -43,7 +43,7 @@ public class CustomTemplatesResolver extends TemplatesResolver {
     }
 
     private List<ProjectFile> getProjectFilesRecursively(String baseUrl, final String folder) {
-        List<ProjectFile> templateFiles = new ArrayList<ProjectFile>();
+        List<ProjectFile> templateFiles = new ArrayList<>();
 
         try {
             String locationPattern = folder.isEmpty() ? baseUrl + "/*" : baseUrl + "/" + folder + "/*";
@@ -64,7 +64,7 @@ public class CustomTemplatesResolver extends TemplatesResolver {
     }
 
     private List<String> getFolders(String folderPattern) {
-        List<String> folderNames = new ArrayList<String>();
+        List<String> folderNames = new ArrayList<>();
         try {
             for (Resource folder : resourcePatternResolver.getResources(folderPattern)) {
                 if (folder.getFile().isDirectory()) {

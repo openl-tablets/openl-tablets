@@ -23,7 +23,7 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
 
     public List<org.openl.rules.security.User> getAllUsers() {
         List<User> users = userDao.getAllUsers();
-        List<org.openl.rules.security.User> resultUsers = new ArrayList<org.openl.rules.security.User>();
+        List<org.openl.rules.security.User> resultUsers = new ArrayList<>();
         for (User user : users) {
             org.openl.rules.security.User resultUser = new SimpleUser(user.getFirstName(), user.getSurname(),
                     user.getLoginName(), user.getPasswordHash(), PrivilegesEvaluator.createPrivileges(user));
@@ -34,7 +34,7 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
 
     public List<org.openl.rules.security.User> getUsersByPrivilege(String privilege) {
         List<User> users = userDao.getAllUsers();
-        List<org.openl.rules.security.User> resultUsers = new ArrayList<org.openl.rules.security.User>();
+        List<org.openl.rules.security.User> resultUsers = new ArrayList<>();
         for (User user : users) {
             org.openl.rules.security.User resultUser = new SimpleUser(user.getFirstName(), user.getSurname(),
                     user.getLoginName(), user.getPasswordHash(), PrivilegesEvaluator.createPrivileges(user));
@@ -53,7 +53,7 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
         persistUser.setFirstName(user.getFirstName());
         persistUser.setSurname(user.getLastName());
 
-        Set<Group> groups = new HashSet<Group>();
+        Set<Group> groups = new HashSet<>();
         for (GrantedAuthority auth : user.getAuthorities()) {
             groups.add(groupDao.getGroupByName(auth.getAuthority()));
         }
@@ -68,7 +68,7 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
         persistUser.setFirstName(user.getFirstName());
         persistUser.setSurname(user.getLastName());
 
-        Set<Group> groups = new HashSet<Group>();
+        Set<Group> groups = new HashSet<>();
         for (GrantedAuthority auth : user.getAuthorities()) {
             groups.add(groupDao.getGroupByName(auth.getAuthority()));
         }

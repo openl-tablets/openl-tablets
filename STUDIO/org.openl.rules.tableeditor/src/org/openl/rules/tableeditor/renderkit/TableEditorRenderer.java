@@ -58,7 +58,7 @@ public class TableEditorRenderer extends TableViewerRenderer {
     private List<ActionLink> getActionLinks(UIComponent component) {
         List<ActionLink> links = new ArrayList<>();
         List<UIComponent> children = component.getChildren();
-        for (Object child : children) {
+        for (UIComponent child : children) {
             if (child instanceof HtmlOutputLink) {
                 HtmlOutputLink link = (HtmlOutputLink) child;
                 boolean rendered = link.isRendered();

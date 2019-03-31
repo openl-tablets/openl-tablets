@@ -32,7 +32,7 @@ public class DimensionalPropertiesTableCopier extends TableCopier {
 
     @Override
     public List<TableProperty> getPropertiesToDisplay() {
-        List<TableProperty> properties = new ArrayList<TableProperty>();
+        List<TableProperty> properties = new ArrayList<>();
 
         for (TableProperty property : getPropertiesManager().getProperties()) {
             if (property.isDimensional() && PropertiesChecker.isPropertySuitableForTableType(property.getName(), getTable().getType()) 

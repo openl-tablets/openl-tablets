@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.security;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * Register this bean as managed bean with application scope to get possibility

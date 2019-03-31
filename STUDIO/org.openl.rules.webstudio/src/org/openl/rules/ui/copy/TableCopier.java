@@ -84,7 +84,7 @@ public class TableCopier extends TableCreationWizard {
     }
 
     private void initProperties() {
-        List<TableProperty> definedProperties = new ArrayList<TableProperty>();
+        List<TableProperty> definedProperties = new ArrayList<>();
 
         ITableProperties tableProperties = table.getProperties();
         for (String possiblePropertyName : propertiesManager.getPossibleToAddProperties()) {
@@ -144,7 +144,7 @@ public class TableCopier extends TableCreationWizard {
     }
 
     private List<String> getAllPossibleProperties(String tableType) {
-        List<String> possibleProperties = new ArrayList<String>();
+        List<String> possibleProperties = new ArrayList<>();
         TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             if (!propDefinition.isSystem()) {
@@ -375,7 +375,7 @@ public class TableCopier extends TableCreationWizard {
      * @return new properties
      */
     protected Map<String, Object> buildProperties() {
-        Map<String, Object> newProperties = new LinkedHashMap<String, Object>();
+        Map<String, Object> newProperties = new LinkedHashMap<>();
         if (WebStudioUtils.getWebStudio().isUpdateSystemProperties()) {
             newProperties.putAll(buildSystemProperties());
         }

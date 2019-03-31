@@ -7,7 +7,7 @@ import org.openl.rules.repository.common.RevisionGetter;
 
 public final class FileChangesMonitor implements RevisionGetter {
     private final File baseDir;
-    private ArrayList<FileTimeStamp> timestamps = new ArrayList<FileTimeStamp>(0);
+    private ArrayList<FileTimeStamp> timestamps = new ArrayList<>(0);
     private int revision;
 
     FileChangesMonitor(File baseDir) {
@@ -16,7 +16,7 @@ public final class FileChangesMonitor implements RevisionGetter {
 
     private void collect(File file, ArrayList<FileTimeStamp> result) {
         if (file.isDirectory()) {
-            File filesArray[] = file.listFiles();
+            File[] filesArray = file.listFiles();
             if (filesArray != null) {
                 for (File f : filesArray) {
                     collect(f, result);
@@ -34,7 +34,7 @@ public final class FileChangesMonitor implements RevisionGetter {
         // Allocate memory for scanning the base directory.
         // Usually directory size is not increased extensively from the previous scanning,
         // so 10 free cells is enough for fast expanding.
-        ArrayList<FileTimeStamp> newTimestamps = new ArrayList<FileTimeStamp>(quantity + 10);
+        ArrayList<FileTimeStamp> newTimestamps = new ArrayList<>(quantity + 10);
         // Scanning all files in the base directory
         collect(baseDir, newTimestamps);
         boolean changed = false;

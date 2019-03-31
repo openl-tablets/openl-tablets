@@ -18,7 +18,7 @@ import org.openl.rules.tableeditor.renderkit.TableProperty;
  * @author PUdalau
  */
 public class PropertiesBean {
-    private List<TableProperty> properties = new ArrayList<TableProperty>();
+    private List<TableProperty> properties = new ArrayList<>();
     private String propNameToAdd;
     private TableProperty propToRemove;
     private Set<String> possibleToAddProps;
@@ -30,7 +30,7 @@ public class PropertiesBean {
      *            this bean.
      */
     public PropertiesBean(List<String> possibleProperties) {
-        possibleToAddProps = new TreeSet<String>(possibleProperties);
+        possibleToAddProps = new TreeSet<>(possibleProperties);
     }
 
     public String getPropNameToAdd() {
@@ -73,7 +73,7 @@ public class PropertiesBean {
     }
     
     public List<String> getPossibleToAddProperties() {
-        return new ArrayList<String>(possibleToAddProps);
+        return new ArrayList<>(possibleToAddProps);
     }
 
     /**
@@ -81,7 +81,7 @@ public class PropertiesBean {
      *         can be added to bean.
      */
     public List<SelectItem> getPropertiesThatCanBeAdded() {
-        List<SelectItem> propertyNames = new ArrayList<SelectItem>();
+        List<SelectItem> propertyNames = new ArrayList<>();
         for (String propName : possibleToAddProps) {
             propertyNames.add(new SelectItem(propName, getPropByName(propName).getDisplayName()));
         }

@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @XmlRootElement
 public final class VariationsPack {
-    private List<Variation> variations = new ArrayList<Variation>();
+    private List<Variation> variations = new ArrayList<>();
 
     public VariationsPack() {
     }

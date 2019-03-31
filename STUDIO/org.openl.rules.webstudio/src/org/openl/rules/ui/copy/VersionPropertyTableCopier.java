@@ -48,7 +48,7 @@ public class VersionPropertyTableCopier extends TableCopier {
 
     @Override
     public List<TableProperty> getPropertiesToDisplay() {
-        List<TableProperty> properties = new ArrayList<TableProperty>();
+        List<TableProperty> properties = new ArrayList<>();
         TableProperty versionProperty = getProperty(VERSION_PROP_NAME);
         if (versionProperty != null) {
             // set next min value for version property
@@ -78,7 +78,7 @@ public class VersionPropertyTableCopier extends TableCopier {
     }
 
     private void updateOriginalTable() {
-        Map<String, Object> properties = new HashMap<String, Object>();
+        Map<String, Object> properties = new HashMap<>();
         // set original table property 'active' to false
         //
         properties.put(ACTIVE_PROP_NAME, "false");

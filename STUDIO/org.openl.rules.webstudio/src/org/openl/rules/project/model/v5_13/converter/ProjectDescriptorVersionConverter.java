@@ -26,22 +26,12 @@ public class ProjectDescriptorVersionConverter implements ObjectVersionConverter
         descriptor.setComment(oldVersion.getComment());
         descriptor.setClasspath(oldVersion.getClasspath());
 
-        List<Module> modules = CollectionUtils.map(oldVersion.getModules(),
-            new CollectionUtils.Mapper<Module_v5_13, Module>() {
-                @Override
-                public Module map(Module_v5_13 input) {
-                    return moduleVersionConverter.fromOldVersion(input);
-                }
-            });
+        List<Module> modules = CollectionUtils.map(oldVersion.getModules(), moduleVersionConverter::fromOldVersion);
         descriptor.setModules(modules);
 
         List<ProjectDependencyDescriptor> dependencies = CollectionUtils.map(oldVersion.getDependencies(),
-            new CollectionUtils.Mapper<ProjectDependencyDescriptor_v5_12, ProjectDependencyDescriptor>() {
-                @Override
-                public ProjectDependencyDescriptor map(ProjectDependencyDescriptor_v5_12 input) {
-                    return dependencyConverter.fromOldVersion(input);
-                }
-            });
+            dependencyConverter::fromOldVersion);
+
         if (CollectionUtils.isNotEmpty(dependencies)) {
             descriptor.setDependencies(dependencies);
         }
@@ -61,21 +51,11 @@ public class ProjectDescriptorVersionConverter implements ObjectVersionConverter
         descriptor.setClasspath(currentVersion.getClasspath());
 
         List<Module_v5_13> modules = CollectionUtils.map(currentVersion.getModules(),
-            new CollectionUtils.Mapper<Module, Module_v5_13>() {
-                @Override
-                public Module_v5_13 map(Module input) {
-                    return moduleVersionConverter.toOldVersion(input);
-                }
-            });
+            moduleVersionConverter::toOldVersion);
         descriptor.setModules(modules);
 
         List<ProjectDependencyDescriptor_v5_12> dependencies = CollectionUtils.map(currentVersion.getDependencies(),
-            new CollectionUtils.Mapper<ProjectDependencyDescriptor, ProjectDependencyDescriptor_v5_12>() {
-                @Override
-                public ProjectDependencyDescriptor_v5_12 map(ProjectDependencyDescriptor input) {
-                    return dependencyConverter.toOldVersion(input);
-                }
-            });
+            dependencyConverter::toOldVersion);
         if (CollectionUtils.isNotEmpty(dependencies)) {
             descriptor.setDependencies(dependencies);
         }

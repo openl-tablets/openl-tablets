@@ -11,11 +11,8 @@ import javax.faces.validator.ValidatorException;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SystemSettingsValidator {
-    private final Logger log = LoggerFactory.getLogger(SystemSettingsValidator.class);
     private final SystemSettingsBean systemSettingsBean;
 
     // TODO This class shouldn't depend on SystemSettingsBean
@@ -124,7 +121,7 @@ public class SystemSettingsValidator {
         }
     }
 
-    private void validateNotBlank(String value, String folderType) throws ValidatorException {
+    private void validateNotBlank(String value, String folderType) {
         if (StringUtils.isBlank(value)) {
             String errorMessage = folderType + " could not be empty";
             FacesUtils.addErrorMessage(errorMessage);

@@ -1,6 +1,21 @@
 package org.openl.rules.webstudio.web.repository;
 
-import com.thoughtworks.xstream.XStreamException;
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.CREATE_DEPLOYMENT;
+import static org.openl.rules.security.Privileges.EDIT_DEPLOYMENT;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.ViewScoped;
+import javax.faces.event.AjaxBehaviorEvent;
+
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
@@ -13,9 +28,8 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
-import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.repository.RepositoryMode;
+import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -23,15 +37,7 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
-import javax.faces.event.AjaxBehaviorEvent;
-import java.util.*;
-
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.CREATE_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.EDIT_DEPLOYMENT;
+import com.thoughtworks.xstream.XStreamException;
 
 /**
  * @author Aleh Bykhavets
@@ -224,12 +230,7 @@ public class SmartRedeployController {
                 item.setDisabled(true);
                 item.setMessages("Internal error while reading the project from repository.");
                 item.setStyleForMessages(UiConst.STYLE_ERROR);
-            } catch (ProjectResolvingException e) {
-                log.error(e.getMessage(), e);
-                item.setDisabled(true);
-                item.setMessages("Project descriptor is invalid.");
-                item.setStyleForMessages(UiConst.STYLE_ERROR);
-            } catch (XStreamException e) {
+            }  catch (XStreamException e) {
                 log.error(e.getMessage(), e);
                 item.setDisabled(true);
                 item.setMessages("Project descriptor is invalid.");

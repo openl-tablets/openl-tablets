@@ -28,7 +28,7 @@ public class PredefinedTemplatesResolver extends TemplatesResolver {
     }
 
     protected List<String> resolveTemplates(String category) {
-        List<String> templateNames = new ArrayList<String>();
+        List<String> templateNames = new ArrayList<>();
 
         try {
             for (Resource resource : getFolderResources(TEMPLATES_PATH + category + "/*")) {
@@ -54,7 +54,7 @@ public class PredefinedTemplatesResolver extends TemplatesResolver {
     public ProjectFile[] getProjectFiles(String category, String templateName) {
         String url = TEMPLATES_PATH + category + "/" + templateName;
 
-        List<ProjectFile> templateFiles = new ArrayList<ProjectFile>();
+        List<ProjectFile> templateFiles = new ArrayList<>();
         ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
 
         try {

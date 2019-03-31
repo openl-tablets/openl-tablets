@@ -13,7 +13,7 @@ public class TreeNode<T> implements ITreeNode<T> {
     /**
      * Children of current node.
      */
-    private Map<Object, ITreeNode<T>> elements = new TreeMap<Object, ITreeNode<T>>();
+    private Map<Object, ITreeNode<T>> elements = new TreeMap<>();
 
     /**
      * String that represent the node type.

@@ -45,9 +45,6 @@ public class RepositoryProjectRulesDeployConfig {
     private UserWorkspaceProject lastProject;
     private String lastBranch;
 
-    public RepositoryProjectRulesDeployConfig() {
-    }
-
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
         this.repositoryTreeState = repositoryTreeState;
     }

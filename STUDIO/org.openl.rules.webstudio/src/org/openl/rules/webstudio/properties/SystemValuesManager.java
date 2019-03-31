@@ -13,12 +13,12 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
  */
 public final class SystemValuesManager {
 
-    private Map<String, ISystemValue> systemValues = new HashMap<String, ISystemValue>();
+    private Map<String, ISystemValue> systemValues = new HashMap<>();
 
     private static volatile SystemValuesManager instance;
 
-    public final static String CURRENT_USER_DESCRIPTOR = "currentUser";
-    public final static String CURRENT_DATE_DESCRIPTOR = "currentDate";
+    public static final String CURRENT_USER_DESCRIPTOR = "currentUser";
+    public static final String CURRENT_DATE_DESCRIPTOR = "currentDate";
 
     private SystemValuesManager() {        
         for (TablePropertyDefinition propDef :TablePropertyDefinitionUtils.getSystemProperties()) {

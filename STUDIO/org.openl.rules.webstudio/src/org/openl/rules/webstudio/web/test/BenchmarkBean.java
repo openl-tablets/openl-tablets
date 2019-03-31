@@ -29,7 +29,7 @@ public class BenchmarkBean {
     @ManagedProperty("#{runTestHelper}")
     private RunTestHelper runTestHelper;
 
-    private ArrayList<BenchmarkInfoView> benchmarkResults = new ArrayList<BenchmarkInfoView>();
+    private ArrayList<BenchmarkInfoView> benchmarkResults = new ArrayList<>();
     private BenchmarkInfo[] comparedBenchmarks = new BenchmarkInfo[0];
     private BenchmarkOrder[] benchmarkOrders;
 
@@ -148,7 +148,7 @@ public class BenchmarkBean {
     }
 
     public List<BenchmarkInfo> getComparedBenchmarks() {
-        List<BenchmarkInfo> benchmarks = new ArrayList<BenchmarkInfo>();
+        List<BenchmarkInfo> benchmarks = new ArrayList<>();
         for (BenchmarkInfo comparedBenchmark : comparedBenchmarks) {
             if (comparedBenchmark != null) {
                 benchmarks.add(comparedBenchmark);

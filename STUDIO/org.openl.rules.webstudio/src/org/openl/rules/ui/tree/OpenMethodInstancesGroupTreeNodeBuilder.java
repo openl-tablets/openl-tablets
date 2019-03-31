@@ -104,8 +104,7 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
     private String getFolderName(IOpenMethod method) {
         OverloadedMethodsDictionary openMethodGroupsDictionary = getOpenMethodGroupsDictionary();
         Set<TableSyntaxNodeKey> methodOverloads = openMethodGroupsDictionary.getAllMethodOverloads(method);
-        String folderName = getMajorityName(methodOverloads);
-        return folderName;
+        return getMajorityName(methodOverloads);
     }
 
     /**
@@ -152,7 +151,7 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
      */
     private String getMajorityName(Set<TableSyntaxNodeKey> overloads) {
 
-        Map<String, Integer> map = new HashMap<String, Integer>();
+        Map<String, Integer> map = new HashMap<>();
 
         for (TableSyntaxNodeKey oneOverloadVariant : overloads) {
             String[] names = getDisplayValue(oneOverloadVariant.getTableSyntaxNode(), 0);

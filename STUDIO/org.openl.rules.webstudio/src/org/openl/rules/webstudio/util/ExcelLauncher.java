@@ -44,7 +44,12 @@ public class ExcelLauncher {
 
         String os = System.getProperty("os.name").toLowerCase();
         if (os.contains("win")) {
-            String[] cmdarray = {"wscript", scriptPath, workbookPath, workbookName, worksheetName == null ? "1" : worksheetName, range,};
+            String[] cmdarray = { "wscript",
+                    scriptPath,
+                    workbookPath,
+                    workbookName,
+                    worksheetName == null ? "1" : worksheetName,
+                    range, };
 
             fixEnvironmentForExcel();
             Process process = Runtime.getRuntime().exec(cmdarray);
@@ -63,13 +68,16 @@ public class ExcelLauncher {
         }
     }
 
-    public static void launch(String scriptPath, String wbPath, String wbName, String wsName, String range) throws Exception {
+    public static void launch(String scriptPath,
+            String wbPath,
+            String wbName,
+            String wsName,
+            String range) throws Exception {
         new ExcelLauncher(scriptPath, wbPath, wbName, wsName, range).launch();
     }
 
     /**
-     * Unfortunately this is a hack.
-     * See this link for details:
+     * Unfortunately this is a hack. See this link for details:
      * http://www.codeproject.com/Questions/161160/Using-windows-service-to-open-an-Excel-file
      */
     private void fixEnvironmentForExcel() {
@@ -93,20 +101,17 @@ public class ExcelLauncher {
     }
 
     private Thread createLockDetectorThread(final Process excelLaunchProcess) {
-        return new Thread(new Runnable() {
-            @Override
-            public void run() {
+        return new Thread(() -> {
+            try {
+                Thread.sleep(LOCK_DETECT_TIMEOUT);
                 try {
-                    Thread.sleep(LOCK_DETECT_TIMEOUT);
-                    try {
-                        excelLaunchProcess.exitValue();
-                    } catch (IllegalThreadStateException e) {
-                        log.error("ExcelLauncher is locked. Allow GUI interaction for service."); 
-                        excelLaunchProcess.destroy();
-                    }
-                } catch (InterruptedException e) {
-                    // do nothing
+                    excelLaunchProcess.exitValue();
+                } catch (IllegalThreadStateException e) {
+                    log.error("ExcelLauncher is locked. Allow GUI interaction for service.");
+                    excelLaunchProcess.destroy();
                 }
+            } catch (InterruptedException e) {
+                // do nothing
             }
         });
     }

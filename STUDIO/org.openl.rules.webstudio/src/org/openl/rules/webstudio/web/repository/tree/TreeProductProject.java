@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.repository.tree;
 import java.util.Date;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -27,7 +28,7 @@ public class TreeProductProject extends TreeProductFolder {
     }
 
     public String getStatus() {
-        return "";
+        return StringUtils.EMPTY;
     }
 
     public Date getCreatedAt() {

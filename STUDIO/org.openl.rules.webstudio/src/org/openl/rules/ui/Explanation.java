@@ -107,7 +107,7 @@ public class Explanation {
         return resultValue(value);
     }
 
-    private List<String[]> result = new ArrayList<String[]>();
+    private List<String[]> result = new ArrayList<>();
     private int counter = 0;
 
     private String explain(ExplanationNumberValue<?> explanationValue, int level) {
@@ -123,7 +123,7 @@ public class Explanation {
     }
 
     public List<String[]> build(ExplanationNumberValue<?> root) {
-        result = new ArrayList<String[]>();
+        result = new ArrayList<>();
         explain(root, 0);
         return result;
     }

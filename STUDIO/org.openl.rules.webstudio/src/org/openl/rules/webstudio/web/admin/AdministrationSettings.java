@@ -23,7 +23,7 @@ public final class AdministrationSettings {
     public static final String PRODUCTION_REPOSITORY_CONFIGS = "production-repository-configs";
 
     static {
-        List<String> settingNames = new ArrayList<String>();
+        List<String> settingNames = new ArrayList<>();
 
         for (Field field : AdministrationSettings.class.getFields()) {
             int modifiers = field.getModifiers();

@@ -14,13 +14,10 @@ import java.util.List;
  */
 public class ArtefactPathImpl implements ArtefactPath {
     public static final char SEGMENT_DELIMITER = '/';
-    // private static final String SEGMENT_DELIMITER_STRING = "" +
-    // SEGMENT_DELIMITER;
     private String stringValue = null;
     private List<String> segments = new LinkedList<String>();
 
     public ArtefactPathImpl(ArtefactPath artefactPath) {
-        // this.state = artefactPath.state;
         segments.addAll(artefactPath.getSegments());
     }
 
@@ -38,10 +35,8 @@ public class ArtefactPathImpl implements ArtefactPath {
 
     public ArtefactPathImpl(String pathAsString) {
         if ((pathAsString.length() > 0) && (pathAsString.charAt(0) == SEGMENT_DELIMITER)) {
-            // this.state = State.ABSOLUTE;
             appendToSegments(pathAsString.substring(1));
         } else {
-            // this.state = State.RELATIVE;
             appendToSegments(pathAsString);
         }
     }
@@ -108,9 +103,7 @@ public class ArtefactPathImpl implements ArtefactPath {
         if (stringValue == null) {
             StringBuilder result = new StringBuilder();
 
-            // if (state == State.ABSOLUTE) {
             result.append(SEGMENT_DELIMITER);
-            // }
 
             for (Iterator<String> i = segments.iterator(); i.hasNext();) {
                 String segment = i.next();
@@ -156,7 +149,7 @@ public class ArtefactPathImpl implements ArtefactPath {
     }
 
     public ArtefactPath withoutFirstSegment() {
-        LinkedList<String> relativeSegments = new LinkedList<String>();
+        LinkedList<String> relativeSegments = new LinkedList<>();
         boolean isFisrt = true;
         for (String s : segments) {
             if (isFisrt) {
@@ -170,9 +163,8 @@ public class ArtefactPathImpl implements ArtefactPath {
         return new ArtefactPathImpl(relativeSegments);
     }
 
-
     public ArtefactPath withoutSegment(int segmentIndex) {
-        LinkedList<String> relativeSegments = new LinkedList<String>();
+        LinkedList<String> relativeSegments = new LinkedList<>();
         Iterator<String> segmentIterator = segments.iterator();
         for (int i = 0; segmentIterator.hasNext(); i++) {
             if (i != segmentIndex) {

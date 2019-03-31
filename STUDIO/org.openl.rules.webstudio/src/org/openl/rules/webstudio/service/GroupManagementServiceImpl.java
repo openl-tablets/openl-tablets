@@ -21,7 +21,7 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
     @Override
     public List<org.openl.rules.security.Group> getGroups() {
         List<Group> groups = groupDao.getAllGroups();
-        List<org.openl.rules.security.Group> resultGroups = new ArrayList<org.openl.rules.security.Group>();
+        List<org.openl.rules.security.Group> resultGroups = new ArrayList<>();
 
         for (Group group : groups) {
             resultGroups.add(PrivilegesEvaluator.wrap(group));
@@ -47,8 +47,8 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
         persistGroup.setName(group.getName());
         persistGroup.setDescription(group.getDescription());
 
-        Set<Group> includedGroups = new HashSet<Group>();
-        Set<String> privileges = new HashSet<String>();
+        Set<Group> includedGroups = new HashSet<>();
+        Set<String> privileges = new HashSet<>();
         for (Privilege privilege : group.getPrivileges()) {
             String privilegeName = privilege.getName();
             if (privilege instanceof org.openl.rules.security.Group) {
@@ -73,8 +73,8 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
         persistGroup.setName(group.getName());
         persistGroup.setDescription(group.getDescription());
 
-        Set<Group> includedGroups = new HashSet<Group>();
-        Set<String> privileges = new HashSet<String>();
+        Set<Group> includedGroups = new HashSet<>();
+        Set<String> privileges = new HashSet<>();
         for (Privilege privilege : group.getPrivileges()) {
             String privilegeName = privilege.getName();
             if (privilege instanceof org.openl.rules.security.Group) {

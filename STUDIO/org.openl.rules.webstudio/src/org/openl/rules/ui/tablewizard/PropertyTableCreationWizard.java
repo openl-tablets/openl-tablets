@@ -34,13 +34,13 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
     private PropertiesBean propertiesManager;
 
     private String scopeType;
-    @NotBlank(message="Can not be empty")
+    @NotBlank(message = "Can not be empty")
     @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
     private String tableName;
     private String categoryName;
 
-    private List<SelectItem> scopeTypes = new ArrayList<SelectItem>(Arrays.asList(new SelectItem("Module"),
-            new SelectItem("Category")));
+    private List<SelectItem> scopeTypes = new ArrayList<>(
+        Arrays.asList(new SelectItem("Module"), new SelectItem("Category")));
 
     private String categoryNameSelector = "destination";
 
@@ -60,23 +60,23 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
         this.categoryNameSelector = categoryNameSelector;
     }
 
-    // Not sure, probably method can be removed  
+    // Not sure, probably method can be removed
     public List<SelectItem> getCategoryNamesList() {
-        List<SelectItem> categoryList = new ArrayList<SelectItem>();
+        List<SelectItem> categoryList = new ArrayList<>();
         Set<String> categories = getAllCategories();
         for (String categoryName : categories) {
             categoryList.add(new SelectItem(
-                    // Replace new line by space
-                    categoryName.replaceAll("[\r\n]", " ")));
+                // Replace new line by space
+                categoryName.replaceAll("[\r\n]", " ")));
         }
         return categoryList;
     }
 
-    // Not sure, probably method can be removed 
+    // Not sure, probably method can be removed
     private Set<String> getAllCategories() {
-        Set<String> categories = new TreeSet<String>();
+        Set<String> categories = new TreeSet<>();
         TableSyntaxNode[] syntaxNodes = WizardUtils.getTableSyntaxNodes();
-        
+
         for (TableSyntaxNode node : syntaxNodes) {
             ITableProperties tableProperties = node.getTableProperties();
             if (tableProperties != null) {
@@ -90,19 +90,19 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
     }
 
     public List<SelectItem> getSpecificCategoryNameList() {
-        List<SelectItem> specCategoryList = new ArrayList<SelectItem>();
+        List<SelectItem> specCategoryList = new ArrayList<>();
         Set<String> categories = getAllSpecificCategories();
 
         for (String categoryName : categories) {
             specCategoryList.add(new SelectItem(
-                    // Replace new line by space
-                    categoryName.replaceAll("[\r\n]", " ")));
+                // Replace new line by space
+                categoryName.replaceAll("[\r\n]", " ")));
         }
         return specCategoryList;
     }
-    
+
     private Set<String> getAllSpecificCategories() {
-        Set<String> specificCategories = new TreeSet<String>();
+        Set<String> specificCategories = new TreeSet<>();
         TableSyntaxNode[] syntaxNodes = WizardUtils.getTableSyntaxNodes();
 
         for (TableSyntaxNode node : syntaxNodes) {
@@ -148,7 +148,7 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
 
     @Override
     public String next() {
-        if (getStep() == 1){
+        if (getStep() == 1) {
             // After step two we create PropertiesBean according to specified scope
             propertiesManager = new PropertiesBean(getPropertyNamesList());
         }
@@ -172,9 +172,9 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
     }
 
     public List<String> getPropertyNamesList() {
-        List<String> propertyNames = new ArrayList<String>();
+        List<String> propertyNames = new ArrayList<>();
         TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
-                .getDefaultDefinitionsByInheritanceLevel(InheritanceLevel.valueOf(scopeType.toUpperCase()));
+            .getDefaultDefinitionsByInheritanceLevel(InheritanceLevel.valueOf(scopeType.toUpperCase()));
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             String propName = propDefinition.getName();
             List<String> exceptProperties = getExceptProperties();
@@ -186,7 +186,7 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
     }
 
     private List<String> getExceptProperties() {
-        List<String> exceptProps = new ArrayList<String>();
+        List<String> exceptProps = new ArrayList<>();
         exceptProps.add("scope");
         exceptProps.add("category");
         return exceptProps;
@@ -224,7 +224,7 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
 
     @Override
     protected Map<String, Object> buildProperties() {
-        Map<String, Object> resultProperties = new LinkedHashMap<String, Object>();
+        Map<String, Object> resultProperties = new LinkedHashMap<>();
         resultProperties.put("scope", scopeType);
         if (InheritanceLevel.CATEGORY.getDisplayName().equals(scopeType)) {
             String categoryName = buildCategoryName();

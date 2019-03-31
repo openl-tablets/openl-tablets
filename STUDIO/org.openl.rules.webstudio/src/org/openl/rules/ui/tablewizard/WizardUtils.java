@@ -76,21 +76,16 @@ public final class WizardUtils {
     public static boolean isValidParameter(String s) {
         return REGEXP_PARAMETER.matcher(s).matches();
     }
-    
+
     /**
      * Get imported classes for current project
      * 
      * @return collection, containing an imported classes
      */
     public static Collection<IOpenClass> getImportedClasses() {
-        Set<IOpenClass> classes = new TreeSet<IOpenClass>(new Comparator<IOpenClass>() {
+        Set<IOpenClass> classes = new TreeSet<>(
+            (o1, o2) -> o1.getDisplayName(INamedThing.SHORT).compareToIgnoreCase(o2.getDisplayName(INamedThing.SHORT)));
 
-            @Override
-            public int compare(IOpenClass o1, IOpenClass o2) {
-                return o1.getDisplayName(INamedThing.SHORT).compareToIgnoreCase(o2.getDisplayName(INamedThing.SHORT));
-            }
-        });        
-        
         ClassFinder finder = new ClassFinder();
         for (String packageName : getXlsModuleNode().getImports()) {
             if ("org.openl.rules.enumeration".equals(packageName)) {
@@ -111,17 +106,16 @@ public final class WizardUtils {
                 if (!isValid(openType)) {
                     continue;
                 }
-                
+
                 classes.add(openType);
             }
         }
-                
+
         return classes;
     }
 
     /**
-     * Check if type is valid (for example, it can be used in a DataType tables,
-     * Data tables etc)
+     * Check if type is valid (for example, it can be used in a DataType tables, Data tables etc)
      * 
      * @param openType checked type
      * @return true if class is valid.

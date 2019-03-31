@@ -20,7 +20,7 @@ public class JcrCommonArtefact {
     private Node node;
     private boolean oldVersion;
 
-    protected JcrCommonArtefact(Node node, String name, boolean oldVersion) throws RepositoryException {
+    protected JcrCommonArtefact(Node node, String name, boolean oldVersion) {
         this.node = node;
         this.name = name;
         this.oldVersion = oldVersion;

@@ -50,7 +50,7 @@ public class CreateIfNotExistAuthenticationUserDetailsService implements Authent
                 if (!firstName.equals(StringUtils.trimToEmpty(dbUser.getFirstName()))
                         || !lastName.equals(StringUtils.trimToEmpty(dbUser.getLastName()))) {
                     // Convert authorities to groups. We don't want to loose them.
-                    Collection<Privilege> privileges = new ArrayList<Privilege>();
+                    Collection<Privilege> privileges = new ArrayList<>();
                     for (GrantedAuthority authority : dbUser.getAuthorities()) {
                         Privilege group = groupManagementService.getGroupByName(authority.getAuthority());
                         privileges.add(group);

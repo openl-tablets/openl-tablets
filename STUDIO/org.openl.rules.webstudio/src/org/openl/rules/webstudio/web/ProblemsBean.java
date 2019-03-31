@@ -31,9 +31,6 @@ public class ProblemsBean {
 
     private static MessageHandler messageHandler = new MessageHandler();
 
-    public ProblemsBean() {
-    }
-
     public TreeNode getTree() {
         int nodeCount = 1;
 
@@ -57,7 +54,7 @@ public class ProblemsBean {
             if (!warnMessages.isEmpty()) {
                 TreeNode warningsRoot = createMessagesRoot(WARNINGS_ROOT_NAME, warnMessages.size());
                 addMessageNodes(warningsRoot, WARNING_NODE_NAME, warnMessages, model);
-                root.addChild(nodeCount++, warningsRoot);
+                root.addChild(nodeCount, warningsRoot);
             }
 
             return root;

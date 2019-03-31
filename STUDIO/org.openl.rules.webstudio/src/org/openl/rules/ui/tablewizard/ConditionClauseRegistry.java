@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Set;
 import java.util.HashSet;
 import javax.faces.model.SelectItem;
@@ -17,16 +18,18 @@ public class ConditionClauseRegistry {
     private Map<String, List<ConditionClauseVariant>> registry;
 
     private Map<String, SelectItem[]> selectItems;
-    private Map<Long, ConditionClauseVariant> id2Variant = new HashMap<Long, ConditionClauseVariant>();
+    private Map<Long, ConditionClauseVariant> id2Variant = new HashMap<>();
+
     static {
-        numericClasses = new HashSet<String>();
-        numericClasses.add("int");
-        numericClasses.add("byte");
-        numericClasses.add("short");
-        numericClasses.add("long");
-        numericClasses.add("float");
-        numericClasses.add("double");
-        numericClasses.add("char");
+        Set<String> nc = new HashSet<>();
+        nc.add("int");
+        nc.add("byte");
+        nc.add("short");
+        nc.add("long");
+        nc.add("float");
+        nc.add("double");
+        nc.add("char");
+        numericClasses = Collections.unmodifiableSet(nc);
     }
 
     public static ConditionClauseRegistry getInstance() {
@@ -47,25 +50,25 @@ public class ConditionClauseRegistry {
     }
 
     public ConditionClauseRegistry() {
-        registry = new HashMap<String, List<ConditionClauseVariant>>();
+        registry = new HashMap<>();
 
-        List<ConditionClauseVariant> numericClauses = new ArrayList<ConditionClauseVariant>();
+        List<ConditionClauseVariant> numericClauses = new ArrayList<>();
         numericClauses.add(new ConditionClauseVariant("less", "{0} < {1}"));
         numericClauses.add(new ConditionClauseVariant("more", "{0} > {1}"));
         numericClauses.add(new ConditionClauseVariant("equals", "{0} == {1}"));
         registry.put("numeric", numericClauses);
 
-        List<ConditionClauseVariant> stringClauses = new ArrayList<ConditionClauseVariant>();
+        List<ConditionClauseVariant> stringClauses = new ArrayList<>();
         stringClauses.add(new ConditionClauseVariant("starts", "{0}.startsWith({1})"));
         stringClauses.add(new ConditionClauseVariant("ends", "{0}.endsWith({1})"));
         stringClauses.add(new ConditionClauseVariant("equals", "{0}.equals({1})"));
         registry.put("string", stringClauses);
 
-        List<ConditionClauseVariant> dateClauses = new ArrayList<ConditionClauseVariant>();
+        List<ConditionClauseVariant> dateClauses = new ArrayList<>();
         dateClauses.add(new ConditionClauseVariant("equals", "{0}.equals({1})"));
         registry.put("object", dateClauses);
 
-        List<ConditionClauseVariant> booleanClauses = new ArrayList<ConditionClauseVariant>();
+        List<ConditionClauseVariant> booleanClauses = new ArrayList<>();
         booleanClauses.add(new ConditionClauseVariant("equals", "{0} == {1})"));
         booleanClauses.add(new ConditionClauseVariant("not equal", "{0} != {1})"));
         registry.put("boolean", booleanClauses);
@@ -92,7 +95,7 @@ public class ConditionClauseRegistry {
             }
         }
 
-        selectItems = new HashMap<String, SelectItem[]>();
+        selectItems = new HashMap<>();
         for (Map.Entry<String, List<ConditionClauseVariant>> entry : registry.entrySet()) {
             SelectItem[] items = new SelectItem[entry.getValue().size()];
             int pos = 0;

@@ -473,7 +473,7 @@ public class ProjectBean {
 
         clean(newProjectDescriptor);
 
-        List<ProjectDependencyDescriptor> resultDependencies = new ArrayList<ProjectDependencyDescriptor>();
+        List<ProjectDependencyDescriptor> resultDependencies = new ArrayList<>();
 
         for (ListItem<ProjectDependencyDescriptor> dependency : dependencies) {
             if (dependency.isSelected()) {
@@ -810,11 +810,7 @@ public class ProjectBean {
         // Multiple modules
         List<Module> modules = getModulesMatchingPathPattern(module);
 
-        return CollectionUtils.map(modules, new CollectionUtils.Mapper<Module, String>() {
-            @Override public String map(Module input) {
-                return getModulePath(input);
-            }
-        });
+        return CollectionUtils.map(modules, this::getModulePath);
     }
 
     public void setNewFileName(String newFileName) {
@@ -902,14 +898,14 @@ public class ProjectBean {
         }
 
         if (methodFilter.getIncludes() != null) {
-            ArrayList<String> includes = new ArrayList<String>(methodFilter.getIncludes());
+            ArrayList<String> includes = new ArrayList<>(methodFilter.getIncludes());
             includes.removeAll(Arrays.asList("", null));
             if (!includes.isEmpty()) {
                 return false;
             }
         }
         if (methodFilter.getExcludes() != null) {
-            ArrayList<String> excludes = new ArrayList<String>(methodFilter.getExcludes());
+            ArrayList<String> excludes = new ArrayList<>(methodFilter.getExcludes());
             excludes.removeAll(Arrays.asList("", null));
             if (!excludes.isEmpty()) {
                 return false;

@@ -28,20 +28,17 @@ import org.springframework.util.CollectionUtils;
  */
 public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
 
-    @NotBlank(message="Can not be empty")
+    @NotBlank(message = "Can not be empty")
     @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
     private String technicalName;
 
     private String aliasType;
 
     @Valid
-    private List<AliasValue> values = new ArrayList<AliasValue>();
+    private List<AliasValue> values = new ArrayList<>();
 
     private DomainTree domainTree;
     private SelectItem[] domainTypes;
-
-    public DatatypeAliasTableCreationWizard() {
-    }
 
     public String getTechnicalName() {
         return technicalName;
@@ -87,7 +84,7 @@ public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
         domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass(), false);
         Collection<String> allClasses = domainTree.getAllClasses();
         domainTypes = FacesUtils.createSelectItems(allClasses);
-        
+
         if (!CollectionUtils.isEmpty(allClasses) && CollectionUtils.contains(allClasses.iterator(), "String")) {
             setAliasType("String");
         }
@@ -130,10 +127,8 @@ public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
 
     @Override
     protected void onStepFirstVisit(int step) {
-        switch (step) {
-            case 3:
-                initWorkbooks();
-                break;
+        if (step == 3) {
+            initWorkbooks();
         }
     }
 
@@ -165,7 +160,7 @@ public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
     @Override
     protected void reset() {
         technicalName = null;
-        values = new ArrayList<AliasValue>();
+        values = new ArrayList<>();
 
         domainTree = null;
         domainTypes = null;

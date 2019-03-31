@@ -30,13 +30,13 @@ public class TestTableCreationWizard extends TableCreationWizard {
 
     /**
      * index of the selected item, when selecting table name to test.
-     */        
+     */
     private int selectedTableNameIndex;
 
     /**
      * Technical name of newly created test table.
      */
-    @NotBlank(message="Can not be empty")
+    @NotBlank(message = "Can not be empty")
     @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
     private String technicalName;
 
@@ -57,7 +57,7 @@ public class TestTableCreationWizard extends TableCreationWizard {
     }
 
     /**
-     * @return see {@link TestTableBuilder#getDefaultTechnicalName(TableSyntaxNode)} 
+     * @return see {@link TestTableBuilder#getDefaultTechnicalName(TableSyntaxNode)}
      */
     protected String getDefaultTechnicalName() {
         TableSyntaxNode node = getSelectedNode();
@@ -66,15 +66,14 @@ public class TestTableCreationWizard extends TableCreationWizard {
 
     /**
      * 
-     * @return <code>TableSyntaxNode</code> from model, by the 
-     * technical name of the table we have selected. 
+     * @return <code>TableSyntaxNode</code> from model, by the technical name of the table we have selected.
      */
-    protected TableSyntaxNode getSelectedNode() {   
+    protected TableSyntaxNode getSelectedNode() {
         List<TableSyntaxNode> nodes = getSyntaxNodes();
         if (selectedTableNameIndex < 0 || selectedTableNameIndex >= nodes.size()) {
             throw new IllegalStateException("Not table is selected");
         }
-        return nodes.get(selectedTableNameIndex);          
+        return nodes.get(selectedTableNameIndex);
     }
 
     protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule) throws CreateTableException {
@@ -125,8 +124,8 @@ public class TestTableCreationWizard extends TableCreationWizard {
     private List<TableSyntaxNode> getSyntaxNodes() {
         if (executableTables == null) {
             TableSyntaxNode[] syntaxNodes = WizardUtils.getXlsModuleNode().getXlsTableSyntaxNodesWithoutErrors();
-            
-            executableTables = new ArrayList<TableSyntaxNode>();
+
+            executableTables = new ArrayList<>();
             for (TableSyntaxNode syntaxNode : syntaxNodes) {
                 if (isExecutableAndTestableNode(syntaxNode)) {
                     executableTables.add(syntaxNode);
@@ -147,59 +146,55 @@ public class TestTableCreationWizard extends TableCreationWizard {
         selectedTableNameIndex = 0;
 
         List<TableSyntaxNode> syntaxNodes = getSyntaxNodes();
-        List<SelectItem> result = new ArrayList<SelectItem>();
+        List<SelectItem> result = new ArrayList<>();
         String itemName;
 
         for (int i = 0; i < syntaxNodes.size(); i++) {
             TableSyntaxNode node = syntaxNodes.get(i);
             itemName = node.getMember().getName();
 
-            if (!StringUtils.containsIgnoreCase(itemName, DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME) ) {
+            if (!StringUtils.containsIgnoreCase(itemName, DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME)) {
                 result.add(new SelectItem(i, getNodeName(node)));
             }
         }
 
         tableItems = result.toArray(new SelectItem[result.size()]);
-        Arrays.sort(tableItems, new Comparator<SelectItem>() {
-            public int compare(SelectItem o1, SelectItem o2) {
-                return (o1.getValue().toString()).compareTo(o2.getValue().toString());
-            }
-        });
-    }   
-    private String getNodeName (TableSyntaxNode syntaxNode) {
-         String[] dimensionProps = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
-         ITableProperties tableProps = syntaxNode.getTableProperties();
-         
-         String nodeName = syntaxNode.getMember().getName();
-        StringBuilder dimensionBuilder = new StringBuilder();
-         
-         if (tableProps != null) {
-             for (String dimensionProp : dimensionProps) {
-                 String propValue = tableProps.getPropertyValueAsString(dimensionProp);
-
-                 if (propValue != null && !propValue.isEmpty()) {
-                     dimensionBuilder.append(dimensionBuilder.length() == 0 ? "" : ", ").append(dimensionProp).append(" = ").append(propValue);
-                 }
-             }
-         }
-        if (dimensionBuilder.length() > 0) {
-            return nodeName +"["+ dimensionBuilder.toString() +"]";
-         } else {
-             return nodeName;
-         }
+        Arrays.sort(tableItems, (o1, o2) -> (o1.getValue().toString()).compareTo(o2.getValue().toString()));
     }
-    /**
-     * Checks if it is possible to create test for current table(table is executable at runtime), and checks if
-     * return type of the table is not void.
-     */
-    private boolean isExecutableAndTestableNode(TableSyntaxNode node) {
-        if (node.isExecutableNode()) {
-            if (!void.class.equals(node.getMember().getType().getInstanceClass())) {
-                return true;
+
+    private String getNodeName(TableSyntaxNode syntaxNode) {
+        String[] dimensionProps = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
+        ITableProperties tableProps = syntaxNode.getTableProperties();
+
+        String nodeName = syntaxNode.getMember().getName();
+        StringBuilder dimensionBuilder = new StringBuilder();
+
+        if (tableProps != null) {
+            for (String dimensionProp : dimensionProps) {
+                String propValue = tableProps.getPropertyValueAsString(dimensionProp);
+
+                if (propValue != null && !propValue.isEmpty()) {
+                    dimensionBuilder.append(dimensionBuilder.length() == 0 ? "" : ", ")
+                        .append(dimensionProp)
+                        .append(" = ")
+                        .append(propValue);
+                }
             }
         }
-        return false;
-    }    
+        if (dimensionBuilder.length() > 0) {
+            return nodeName + "[" + dimensionBuilder.toString() + "]";
+        } else {
+            return nodeName;
+        }
+    }
+
+    /**
+     * Checks if it is possible to create test for current table(table is executable at runtime), and checks if return
+     * type of the table is not void.
+     */
+    private boolean isExecutableAndTestableNode(TableSyntaxNode node) {
+        return node.isExecutableNode() && !void.class.equals(node.getMember().getType().getInstanceClass());
+    }
 
     @Override
     protected void onStepFirstVisit(int step) {

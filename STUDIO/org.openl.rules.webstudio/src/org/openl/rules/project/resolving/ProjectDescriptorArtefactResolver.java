@@ -1,8 +1,12 @@
 package org.openl.rules.project.resolving;
 
-import com.thoughtworks.xstream.XStreamException;
+import java.io.InputStream;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
+
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -14,12 +18,6 @@ import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
-
 /**
  * Resolves specified OpenL project revision's dependencies.
  */
@@ -28,12 +26,11 @@ public class ProjectDescriptorArtefactResolver {
     private final IProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
 
     /**
-     * Project descriptors cache.
-     * Replace with ehcache if GC occurs too often.
+     * Project descriptors cache. Replace with ehcache if GC occurs too often.
      */
-    private final Map<String, ProjectDescriptor> cache = new WeakHashMap<String, ProjectDescriptor>();
+    private final Map<String, ProjectDescriptor> cache = new WeakHashMap<>();
 
-    private ProjectDescriptor getProjectDescriptor(AProject project) throws ProjectException, ProjectResolvingException, XStreamException {
+    private ProjectDescriptor getProjectDescriptor(AProject project) throws ProjectException {
         String version = project.getFileData().getVersion();
         String versionName = version == null ? "" : version;
         String key = String.format("%s:%s:%b", project.getName(), versionName, project.isModified());
@@ -49,7 +46,8 @@ public class ProjectDescriptorArtefactResolver {
             return null;
         }
 
-        AProjectArtefact artefact = project.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+        AProjectArtefact artefact = project
+            .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         if (artefact instanceof AProjectResource) {
             InputStream content = null;
             try {
@@ -65,7 +63,7 @@ public class ProjectDescriptorArtefactResolver {
         return null;
     }
 
-    public List<ProjectDependencyDescriptor> getDependencies(AProject project) throws ProjectException, ProjectResolvingException, XStreamException {
+    public List<ProjectDependencyDescriptor> getDependencies(AProject project) throws ProjectException {
         ProjectDescriptor pd = getProjectDescriptor(project);
         return pd != null ? pd.getDependencies() : null;
     }
@@ -76,7 +74,10 @@ public class ProjectDescriptorArtefactResolver {
             pd = getProjectDescriptor(project);
         } catch (Exception e) {
             // Error in user data, not application logic - debug log level will be used
-            log.warn("Can't get project descriptor for project '{}'. Physical project name will be used. Cause: {}", project.getName(), e.getMessage(), e);
+            log.warn("Can't get project descriptor for project '{}'. Physical project name will be used. Cause: {}",
+                project.getName(),
+                e.getMessage(),
+                e);
         }
         return pd != null ? pd.getName() : project.getName();
     }

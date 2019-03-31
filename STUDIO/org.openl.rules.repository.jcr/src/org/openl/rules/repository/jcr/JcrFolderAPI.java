@@ -73,14 +73,14 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
     }
 
     public List<JcrEntityAPI> getFiles() throws RRepositoryException {
-        List<JcrEntityAPI> result = new LinkedList<JcrEntityAPI>();
+        List<JcrEntityAPI> result = new LinkedList<>();
         listNodes(result, true);
         return result;
     }
 
     /** {@inheritDoc} */
     public List<JcrEntityAPI> getFolders() throws RRepositoryException {
-        List<JcrEntityAPI> result = new LinkedList<JcrEntityAPI>();
+        List<JcrEntityAPI> result = new LinkedList<>();
         listNodes(result, false);
         return result;
     }
@@ -162,7 +162,7 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
     }
 
     public Collection<? extends JcrEntityAPI> getArtefacts() {
-        List<JcrEntityAPI> artefacts = new ArrayList<JcrEntityAPI>();
+        List<JcrEntityAPI> artefacts = new ArrayList<>();
         try {
             artefacts.addAll(getFolders());
             artefacts.addAll(getFiles());

@@ -11,19 +11,18 @@ import org.openl.util.tree.ITreeElement;
 
 public class ExplainTreeBuilder extends TreeBuilder {
 
-    private static final String showTablePage = "/faces/pages/modules/explain/showExplainTable.xhtml?";
+    private static final String SHOW_TABLE_PAGE = "/faces/pages/modules/explain/showExplainTable.xhtml?";
 
     @Override
     String getType(ITreeElement<?> element) {
         String type = super.getType(element);
-        String filtered = type
+        return type
                 .replace('.', '_')
                 .replace(Formulas.ADD.toString(), "plus")
                 .replace(Formulas.SUBTRACT.toString(), "minus")
                 .replace(Formulas.MULTIPLY.toString(), "mul")
                 .replace(Formulas.DIVIDE.toString(), "div")
                 .replace(Formulas.REM.toString(), "rem");
-        return filtered;
     }
 
     @Override
@@ -44,11 +43,11 @@ public class ExplainTreeBuilder extends TreeBuilder {
         if (StringUtils.isNotBlank(url)) {
             return getUrlToElement(element, url);
         }
-        return FacesUtils.getContextPath() + showTablePage;
+        return FacesUtils.getContextPath() + SHOW_TABLE_PAGE;
     }
 
     private String getUrlToElement(ITreeElement<?> element, String url) {
-        return FacesUtils.getContextPath() + showTablePage
+        return FacesUtils.getContextPath() + SHOW_TABLE_PAGE
                 + Constants.REQUEST_PARAM_URI + "=" + StringTool.encodeURL("" + url)
                 + "&text=" + StringTool.encodeURL(getDisplayName(element, INamedThing.REGULAR));
     }

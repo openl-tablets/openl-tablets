@@ -270,7 +270,7 @@ public class ProjectModel {
     }
 
     private TableSyntaxNode findNode(XlsUrlParser p1) {
-//        TableSyntaxNode[] nodes = getTableSyntaxNodes();
+        // TableSyntaxNode[] nodes = getTableSyntaxNodes();
         TableSyntaxNode[] nodes = getAllTableSyntaxNodes();
 
         for (int i = 0; i < nodes.length; i++) {
@@ -443,16 +443,14 @@ public class ProjectModel {
     }
 
     /**
-     * Checks that {@link IOpenMethod} object is instance that represents the
-     * given {@link TableSyntaxNode} object. Actually,
-     * {@link IOpenMethod} object must have the same syntax node as given one.
-     * If given method is instance of {@link OpenMethodDispatcher}
-     * <code>false</code> value will be returned.
+     * Checks that {@link IOpenMethod} object is instance that represents the given {@link TableSyntaxNode} object.
+     * Actually, {@link IOpenMethod} object must have the same syntax node as given one. If given method is instance of
+     * {@link OpenMethodDispatcher} <code>false</code> value will be returned.
      *
-     * @param method     method to check
+     * @param method method to check
      * @param syntaxNode syntax node
-     * @return <code>true</code> if {@link IOpenMethod} object represents the
-     * given table syntax node; <code>false</code> - otherwise
+     * @return <code>true</code> if {@link IOpenMethod} object represents the given table syntax node;
+     *         <code>false</code> - otherwise
      */
     private boolean isInstanceOfTable(IOpenMethod method, TableSyntaxNode syntaxNode) {
 
@@ -478,7 +476,7 @@ public class ProjectModel {
         }
         return projectRoot;
     }
-    
+
     public synchronized void resetProjectTree() {
         projectRoot = null;
     }
@@ -536,14 +534,13 @@ public class ProjectModel {
      * Gets all test methods for method by uri.
      *
      * @param tableUri uri for method table
-     * @return all test methods, including tests with test cases, runs with
-     * filled runs, tests without cases(empty), runs without any
-     * parameters and tests without cases and runs.
+     * @return all test methods, including tests with test cases, runs with filled runs, tests without cases(empty),
+     *         runs without any parameters and tests without cases and runs.
      */
     public IOpenMethod[] getTestAndRunMethods(String tableUri) {
         IOpenMethod method = getMethod(tableUri);
         if (method != null) {
-            List<IOpenMethod> res = new ArrayList<IOpenMethod>();
+            List<IOpenMethod> res = new ArrayList<>();
             Collection<IOpenMethod> methods = compiledOpenClass.getOpenClassWithErrors().getMethods();
 
             for (IOpenMethod tester : methods) {
@@ -577,7 +574,8 @@ public class ProjectModel {
             for (WorkbookSyntaxNode node : workbookNodes) {
                 XlsWorkbookSourceCodeModule workbookSourceCodeModule = node.getWorkbookSourceCodeModule();
                 if (workbookSourceCodeModule.isModified()) {
-                    getLocalRepository().getProjectState(workbookSourceCodeModule.getSourceFile().getPath()).notifyModified();
+                    getLocalRepository().getProjectState(workbookSourceCodeModule.getSourceFile().getPath())
+                        .notifyModified();
                     return true;
                 }
             }
@@ -628,10 +626,13 @@ public class ProjectModel {
             return xmi.getXlsModuleNode();
         } else {
             try {
-                Dependency dependency = new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleInfo.getName(), null));
+                Dependency dependency = new Dependency(DependencyType.MODULE,
+                    new IdentifierNode(null, null, moduleInfo.getName(), null));
 
                 XlsMetaInfo xmi = (XlsMetaInfo) dependencyManager.loadDependency(dependency)
-                        .getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
+                    .getCompiledOpenClass()
+                    .getOpenClassWithErrors()
+                    .getMetaInfo();
                 return xmi == null ? null : xmi.getXlsModuleNode();
             } catch (OpenLCompilationException e) {
                 throw new OpenlNotCheckedException(e);
@@ -823,21 +824,20 @@ public class ProjectModel {
             cacheTree(child);
         }
     }
-    
+
     private void updateCacheTree() {
         TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes();
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
             if (tsn.getType().startsWith(XlsNodeTypes.XLS_DT.toString())) {
-                if (!uriTableCache.containsKey(tsn.getUri())){
+                if (!uriTableCache.containsKey(tsn.getUri())) {
                     uriTableCache.put(tsn.getUri(), tsn);
                 }
-                if (!idTableCache.containsKey(tsn.getId())){
+                if (!idTableCache.containsKey(tsn.getId())) {
                     idTableCache.put(tsn.getId(), tsn);
                 }
             }
         }
     }
-
 
     private OverloadedMethodsDictionary makeMethodNodesDictionary(TableSyntaxNode[] tableSyntaxNodes) {
 
@@ -855,11 +855,11 @@ public class ProjectModel {
     }
 
     private ProjectTreeNode makeProjectTreeRoot() {
-        return new ProjectTreeNode(new String[]{null, null, null}, "root", null, null, 0, null);
+        return new ProjectTreeNode(new String[] { null, null, null }, "root", null, null, 0, null);
     }
 
     private List<TableSyntaxNode> getAllExecutableTables(TableSyntaxNode[] nodes) {
-        List<TableSyntaxNode> executableNodes = new ArrayList<TableSyntaxNode>();
+        List<TableSyntaxNode> executableNodes = new ArrayList<>();
         for (TableSyntaxNode node : nodes) {
             if (node.getMember() instanceof IOpenMethod) {
                 executableNodes.add(node);
@@ -876,20 +876,21 @@ public class ProjectModel {
         reset(reloadType, moduleInfo);
     }
 
-    public void reset(ReloadType reloadType, Module moduleToOpen) throws Exception { 
+    public void reset(ReloadType reloadType, Module moduleToOpen) throws Exception {
         switch (reloadType) {
             case FORCED:
                 moduleToOpen = studio.getCurrentModule();
                 // falls through
             case RELOAD:
-                if (webStudioWorkspaceDependencyManager != null){
+                if (webStudioWorkspaceDependencyManager != null) {
                     webStudioWorkspaceDependencyManager.resetAll();
                 }
                 webStudioWorkspaceDependencyManager = null;
                 recentlyVisitedTables.clear();
                 break;
             case SINGLE:
-                webStudioWorkspaceDependencyManager.reset(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleToOpen.getName(), null)));
+                webStudioWorkspaceDependencyManager.reset(new Dependency(DependencyType.MODULE,
+                    new IdentifierNode(null, null, moduleToOpen.getName(), null)));
                 break;
         }
         setModuleInfo(moduleToOpen, reloadType);
@@ -897,7 +898,8 @@ public class ProjectModel {
     }
 
     public TestUnitsResults runTest(TestSuite test) {
-        boolean isParallel = OpenLSystemProperties.isRunTestsInParallel(studio.getSystemConfigManager().getProperties());
+        boolean isParallel = OpenLSystemProperties
+            .isRunTestsInParallel(studio.getSystemConfigManager().getProperties());
         return runTest(test, isParallel);
     }
 
@@ -912,7 +914,7 @@ public class ProjectModel {
 
     public List<IOpenLTable> search(ISelector<TableSyntaxNode> selectors) {
         XlsModuleSyntaxNode xsn = getXlsModuleNode();
-        List<IOpenLTable> searchResults = new ArrayList<IOpenLTable>();
+        List<IOpenLTable> searchResults = new ArrayList<>();
 
         TableSyntaxNode[] tables = xsn.getXlsTableSyntaxNodes();
         for (TableSyntaxNode table : tables) {
@@ -930,16 +932,16 @@ public class ProjectModel {
     public void setProjectTree(ProjectTreeNode projectRoot) {
         this.projectRoot = projectRoot;
     }
-    
+
     public void clearModuleInfo() {
         this.moduleInfo = null;
 
         clearModuleResources(); // prevent memory leak
-        
+
         OpenClassUtil.release(compiledOpenClass);
         compiledOpenClass = null;
-        
-        if (webStudioWorkspaceDependencyManager != null){
+
+        if (webStudioWorkspaceDependencyManager != null) {
             webStudioWorkspaceDependencyManager.resetAll();
         }
         webStudioWorkspaceDependencyManager = null;
@@ -947,13 +949,15 @@ public class ProjectModel {
         allXlsModuleSyntaxNodes.clear();
         projectRoot = null;
     }
-    
+
     private void resetWebStudioWorkspaceDependencyManagerForSingleMode(Module moduleInfo, Module previousModuleInfo) {
         for (Module module : previousModuleInfo.getProject().getModules()) {
-            webStudioWorkspaceDependencyManager.reset(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null)));
+            webStudioWorkspaceDependencyManager
+                .reset(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null)));
         }
         for (Module module : moduleInfo.getProject().getModules()) {
-            webStudioWorkspaceDependencyManager.reset(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null)));
+            webStudioWorkspaceDependencyManager
+                .reset(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null)));
         }
     }
 
@@ -965,14 +969,16 @@ public class ProjectModel {
     public void setModuleInfo(Module moduleInfo, ReloadType reloadType) throws Exception {
         setModuleInfo(moduleInfo, reloadType, shouldOpenInSingleMode(moduleInfo));
     }
-    
-    public synchronized void setModuleInfo(Module moduleInfo, ReloadType reloadType, boolean singleModuleMode) throws Exception {
+
+    public synchronized void setModuleInfo(Module moduleInfo,
+            ReloadType reloadType,
+            boolean singleModuleMode) throws Exception {
         if (moduleInfo == null || (this.moduleInfo == moduleInfo && reloadType == ReloadType.NO)) {
             return;
         }
 
         Module previousModuleInfo = this.moduleInfo;
-        
+
         if (reloadType != ReloadType.NO) {
             uriTableCache.clear();
             idTableCache.clear();
@@ -993,7 +999,6 @@ public class ProjectModel {
         } else {
             this.moduleInfo = moduleInfo;
         }
-        
 
         clearModuleResources(); // prevent memory leak
         if (openedInSingleModuleMode) {
@@ -1003,23 +1008,25 @@ public class ProjectModel {
         projectRoot = null;
         xlsModuleSyntaxNode = null;
         allXlsModuleSyntaxNodes.clear();
-        
+
         prepareWebstudioWorkspaceDependencyManager(singleModuleMode, previousModuleInfo);
-        
+
         Map<String, Object> externalParameters;
         RulesInstantiationStrategy instantiationStrategy;
-        
-        //Create instantiation strategy for opened module
+
+        // Create instantiation strategy for opened module
         if (singleModuleMode) {
-            instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(this.moduleInfo, false, webStudioWorkspaceDependencyManager);
+            instantiationStrategy = RulesInstantiationStrategyFactory
+                .getStrategy(this.moduleInfo, false, webStudioWorkspaceDependencyManager);
             externalParameters = studio.getSystemConfigManager().getProperties();
         } else {
             List<Module> modules = this.moduleInfo.getProject().getModules();
-            instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules, webStudioWorkspaceDependencyManager, false);
+            instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
+                webStudioWorkspaceDependencyManager,
+                false);
 
-            externalParameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(studio.getSystemConfigManager()
-                .getProperties(),
-                modules);
+            externalParameters = ProjectExternalDependenciesHelper
+                .getExternalParamsWithProjectDependencies(studio.getSystemConfigManager().getProperties(), modules);
 
         }
         instantiationStrategy.setExternalParameters(externalParameters);
@@ -1040,7 +1047,9 @@ public class ProjectModel {
 
             for (CompiledDependency dependency : webStudioWorkspaceDependencyManager.getCompiledDependencies()) {
                 if (!dependency.getDependencyName().equals(moduleName)) {
-                    XlsMetaInfo metaInfo = (XlsMetaInfo) dependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
+                    XlsMetaInfo metaInfo = (XlsMetaInfo) dependency.getCompiledOpenClass()
+                        .getOpenClassWithErrors()
+                        .getMetaInfo();
 
                     if (metaInfo != null) {
                         allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
@@ -1051,7 +1060,8 @@ public class ProjectModel {
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(webStudioWorkspaceDependencyManager);
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
             if (!isSingleModuleMode()) {
-                // EPBDS-7629: In multimodule mode xlsModuleSyntaxNode doesn't contain Virtual Module with dispatcher table syntax nodes.
+                // EPBDS-7629: In multimodule mode xlsModuleSyntaxNode doesn't contain Virtual Module with dispatcher
+                // table syntax nodes.
                 // Such dispatcher syntax nodes are needed to show dispatcher tables in Trace.
                 // That's why we should add virtual module to allXlsModuleSyntaxNodes.
                 XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
@@ -1067,8 +1077,10 @@ public class ProjectModel {
                 messages.add(new OpenLMessage(message, Severity.ERROR));
             }
 
-            compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages, new SyntaxNodeException[0],
-                    new SyntaxNodeException[0]);
+            compiledOpenClass = new CompiledOpenClass(NullOpenClass.the,
+                messages,
+                new SyntaxNodeException[0],
+                new SyntaxNodeException[0]);
 
             WorkbookLoaders.resetCurrentFactory();
         }
@@ -1090,7 +1102,7 @@ public class ProjectModel {
                         break;
                     }
                 }
-                if (!found) { 
+                if (!found) {
                     webStudioWorkspaceDependencyManager.resetAll();
                     webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                         .getDependencyManager(this.moduleInfo, singleModuleMode);
@@ -1131,9 +1143,8 @@ public class ProjectModel {
     }
 
     public boolean isProjectCompiledSuccessfully() {
-        return compiledOpenClass != null && compiledOpenClass.getOpenClassWithErrors() != null
-                && !(compiledOpenClass.getOpenClassWithErrors() instanceof NullOpenClass)
-                && xlsModuleSyntaxNode != null;
+        return compiledOpenClass != null && compiledOpenClass.getOpenClassWithErrors() != null && !(compiledOpenClass
+            .getOpenClassWithErrors() instanceof NullOpenClass) && xlsModuleSyntaxNode != null;
     }
 
     public DependencyRulesGraph getDependencyGraph() {
@@ -1155,7 +1166,8 @@ public class ProjectModel {
             }
         }
 
-        // TODO: Consider the case when there is compilation error. In this case sourceFiles will be empty, it can break history manager.
+        // TODO: Consider the case when there is compilation error. In this case sourceFiles will be empty, it can break
+        // history manager.
 
         return sourceFiles;
     }
@@ -1236,8 +1248,9 @@ public class ProjectModel {
 
         for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
             XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
-            if (rulesRootPath != null &&
-                    module.getSourceFile().getName().equals(FileUtils.getName(rulesRootPath.getPath()))) {
+            if (rulesRootPath != null && module.getSourceFile()
+                .getName()
+                .equals(FileUtils.getName(rulesRootPath.getPath()))) {
                 return module;
             }
         }
@@ -1264,10 +1277,7 @@ public class ProjectModel {
     }
 
     /**
-     * Returns true if both are true:
-     * 1) Old project version is opened
-     * and
-     * 2) project isn't modified yet.
+     * Returns true if both are true: 1) Old project version is opened and 2) project isn't modified yet.
      *
      * Otherwise return false
      */
@@ -1326,9 +1336,9 @@ public class ProjectModel {
         clearModuleInfo();
     }
 
-    private void clearModuleResources() { 
+    private void clearModuleResources() {
         removeListeners();
-     }
+    }
 
     /**
      * Remove listeners added in {@link #initProjectHistory()}
@@ -1368,13 +1378,11 @@ public class ProjectModel {
      * @return if true - single module mode, if false - multi module mode
      */
     private boolean shouldOpenInSingleMode(Module module) {
-        if (module != null) {
-            if (moduleInfo != null) {
-                ProjectDescriptor project = moduleInfo.getProject();
-                ProjectDescriptor newProject = module.getProject();
-                if (project.getName().equals(newProject.getName())) {
-                    return openedInSingleModuleMode;
-                }
+        if (module != null && moduleInfo != null) {
+            ProjectDescriptor project = moduleInfo.getProject();
+            ProjectDescriptor newProject = module.getProject();
+            if (project.getName().equals(newProject.getName())) {
+                return openedInSingleModuleMode;
             }
         }
         return studio.isSingleModuleModeByDefault();

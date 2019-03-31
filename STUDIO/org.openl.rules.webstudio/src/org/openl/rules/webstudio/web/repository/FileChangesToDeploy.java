@@ -32,7 +32,6 @@ class FileChangesToDeploy implements Iterable<FileChange>, Closeable {
         this.deploymentPath = deploymentPath;
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public Iterator<FileChange> iterator() {
         return new Iterator<FileChange>() {

@@ -37,7 +37,7 @@ public class TraceService {
     }
 
     private List<TraceNode> createNodes(Iterable<ITracerObject> children, TraceHelper traceHelper) {
-        List<TraceNode> nodes = new ArrayList<TraceNode>(16);
+        List<TraceNode> nodes = new ArrayList<>(16);
         for (ITracerObject child : children) {
             nodes.add(createNode(child, traceHelper));
         }

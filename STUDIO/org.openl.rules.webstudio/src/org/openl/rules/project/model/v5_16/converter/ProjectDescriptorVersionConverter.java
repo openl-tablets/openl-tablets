@@ -26,22 +26,11 @@ public class ProjectDescriptorVersionConverter implements ObjectVersionConverter
         descriptor.setComment(oldVersion.getComment());
         descriptor.setClasspath(oldVersion.getClasspath());
 
-        List<Module> modules = CollectionUtils.map(oldVersion.getModules(),
-            new CollectionUtils.Mapper<Module_v5_16, Module>() {
-                @Override
-                public Module map(Module_v5_16 input) {
-                    return moduleVersionConverter.fromOldVersion(input);
-                }
-            });
+        List<Module> modules = CollectionUtils.map(oldVersion.getModules(), moduleVersionConverter::fromOldVersion);
         descriptor.setModules(modules);
 
         List<ProjectDependencyDescriptor> dependencies = CollectionUtils.map(oldVersion.getDependencies(),
-            new CollectionUtils.Mapper<ProjectDependencyDescriptor_v5_12, ProjectDependencyDescriptor>() {
-                @Override
-                public ProjectDependencyDescriptor map(ProjectDependencyDescriptor_v5_12 input) {
-                    return dependencyConverter.fromOldVersion(input);
-                }
-            });
+            dependencyConverter::fromOldVersion);
         if (CollectionUtils.isNotEmpty(dependencies)) {
             descriptor.setDependencies(dependencies);
         }
@@ -51,7 +40,6 @@ public class ProjectDescriptorVersionConverter implements ObjectVersionConverter
 
         return descriptor;
     }
-
 
     @Override
     public ProjectDescriptor_v5_16 toOldVersion(ProjectDescriptor currentVersion) {

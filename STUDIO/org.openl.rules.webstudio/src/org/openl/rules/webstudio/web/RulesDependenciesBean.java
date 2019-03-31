@@ -21,16 +21,13 @@ import org.openl.types.impl.ExecutableMethod;
 @RequestScoped
 public class RulesDependenciesBean {
 
-    public RulesDependenciesBean() {
-    }
-
     public DependencyRulesGraph getDependencyGraph() {
         ProjectModel projectModel = WebStudioUtils.getProjectModel();
         return projectModel.getDependencyGraph();
     }
 
     public List<Table> getTablesWithDependencies() {
-        List<Table> tables = new ArrayList<Table>();
+        List<Table> tables = new ArrayList<>();
         DependencyRulesGraph graph = getDependencyGraph();
 
         for (ExecutableMethod rulesMethod : graph.vertexSet()) {
@@ -48,7 +45,7 @@ public class RulesDependenciesBean {
                     dependencies.add(depId);
                 }
             }
-            if (outgoingEdges.size() > 0) {
+            if (!outgoingEdges.isEmpty()) {
                 // Tables with dependencies should be in the top of list
                 tables.add(0, table);
             } else {
@@ -64,7 +61,7 @@ public class RulesDependenciesBean {
         private String name;
         private String id;
 
-        private List<String> dependencies = new ArrayList<String>();
+        private List<String> dependencies = new ArrayList<>();
 
         public String getName() {
             return name;

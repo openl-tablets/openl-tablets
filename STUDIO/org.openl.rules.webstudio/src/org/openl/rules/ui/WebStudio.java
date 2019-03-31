@@ -80,17 +80,17 @@ public class WebStudio {
         }
     };
     
-    private final RulesTreeView TYPE_VIEW = new TypeView();
-    private final RulesTreeView FILE_VIEW = new FileView();
-    private final RulesTreeView CATEGORY_VIEW = new CategoryView();
-    private final RulesTreeView CATEGORY_DETAILED_VIEW = new CategoryDetailedView();
-    private final RulesTreeView CATEGORY_INVERSED_VIEW = new CategoryInversedView();
+    private final RulesTreeView typeView = new TypeView();
+    private final RulesTreeView fileView = new FileView();
+    private final RulesTreeView categoryView = new CategoryView();
+    private final RulesTreeView categoryDetailedView = new CategoryDetailedView();
+    private final RulesTreeView categoryInversedView = new CategoryInversedView();
 
-    private final RulesTreeView[] treeViews = { TYPE_VIEW,
-            FILE_VIEW,
-            CATEGORY_VIEW,
-            CATEGORY_DETAILED_VIEW,
-            CATEGORY_INVERSED_VIEW };
+    private final RulesTreeView[] treeViews = { typeView,
+            fileView,
+            categoryView,
+            categoryDetailedView,
+            categoryInversedView };
 
     private static final String USER_SETTINGS_FILENAME = "user-settings.properties";
 
@@ -493,12 +493,7 @@ public class WebStudio {
         if (project == null) {
             return null;
         }
-        return CollectionUtils.findFirst(project.getModules(), new CollectionUtils.Predicate<Module>() {
-            @Override
-            public boolean evaluate(Module module) {
-                return module.getName() != null && module.getName().equals(moduleName);
-            }
-        });
+        return CollectionUtils.findFirst(project.getModules(), module -> module.getName() != null && module.getName().equals(moduleName));
     }
 
     public String updateModule() {
@@ -770,7 +765,7 @@ public class WebStudio {
         return null;
     }
 
-    private String validateProjectName(String projectName) throws ProjectException {
+    private String validateProjectName(String projectName) {
         String msg = null;
         if (StringUtils.isBlank(projectName)) {
             msg = "Project name must not be empty.";
@@ -828,20 +823,12 @@ public class WebStudio {
     }
 
     public ProjectDescriptor getProjectByName(final String name) {
-        return CollectionUtils.findFirst(getAllProjects(), new CollectionUtils.Predicate<ProjectDescriptor>() {
-            public boolean evaluate(ProjectDescriptor project) {
-                return project.getName().equals(name);
-            }
-        });
+        return CollectionUtils.findFirst(getAllProjects(), project -> project.getName().equals(name));
     }
 
     public ProjectDependencyDescriptor getProjectDependency(final String dependencyName) {
         List<ProjectDependencyDescriptor> dependencies = getCurrentProjectDescriptor().getDependencies();
-        return CollectionUtils.findFirst(dependencies, new CollectionUtils.Predicate<ProjectDependencyDescriptor>() {
-            public boolean evaluate(ProjectDependencyDescriptor dependency) {
-                return dependency.getName().equals(dependencyName);
-            }
-        });
+        return CollectionUtils.findFirst(dependencies, dependency -> dependency.getName().equals(dependencyName));
     }
 
     /**
@@ -1021,14 +1008,10 @@ public class WebStudio {
             projectName = getCurrentProjectDescriptor() == null ? null : getCurrentProjectDescriptor().getName();
         } else {
             // Get a project
-            ProjectDescriptor project = CollectionUtils.findFirst(getAllProjects(),
-                new CollectionUtils.Predicate<ProjectDescriptor>() {
-                    @Override
-                    public boolean evaluate(ProjectDescriptor projectDescriptor) {
-                        String projectURI = projectDescriptor.getProjectFolder().toURI().toString();
-                        return tableURI.startsWith(projectURI);
-                    }
-                });
+            ProjectDescriptor project = CollectionUtils.findFirst(getAllProjects(), projectDescriptor -> {
+                String projectURI = projectDescriptor.getProjectFolder().toURI().toString();
+                return tableURI.startsWith(projectURI);
+            });
             if (project == null) {
                 return null;
             }

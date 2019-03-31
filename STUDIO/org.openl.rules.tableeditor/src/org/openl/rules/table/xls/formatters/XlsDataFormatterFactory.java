@@ -18,7 +18,10 @@ import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.EnumFormatter;
 import org.openl.util.formatters.IFormatter;
 
-public class XlsDataFormatterFactory {
+public final class XlsDataFormatterFactory {
+    
+    private XlsDataFormatterFactory() {
+    }
 
     private static Locale locale = Locale.US;
     private static DataFormatter dataFormatter = new DataFormatter(locale);

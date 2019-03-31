@@ -26,7 +26,7 @@ public class RepositoryFileExtensionFilter extends ASelector<AProjectArtefact> i
      */
     public RepositoryFileExtensionFilter(String extensionList) {
         // set of parsed extensions
-        Collection<String> extSet = new HashSet<String>();
+        Collection<String> extSet = new HashSet<>();
         for (String ext : extensionList.split(";")) {
             if (StringUtils.isNotBlank(ext)) {
                 extSet.add(ext.trim());

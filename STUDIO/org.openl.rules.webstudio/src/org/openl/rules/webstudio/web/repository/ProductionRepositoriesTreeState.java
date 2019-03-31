@@ -93,7 +93,7 @@ public class ProductionRepositoriesTreeState {
         try {
             Repository repository = productionRepositoryFactoryProxy.getRepositoryInstance(repoConfig.getConfigName());
             String deploymentsPath = productionRepositoryFactoryProxy.getDeploymentsPath(repoConfig.getConfigName());
-            return new ArrayList<AProjectFolder>(DeployUtils.getLastDeploymentProjects(repository, deploymentsPath));
+            return new ArrayList<>(DeployUtils.getLastDeploymentProjects(repository, deploymentsPath));
         } catch (RRepositoryException e) {
             return new ArrayList<>();
         }

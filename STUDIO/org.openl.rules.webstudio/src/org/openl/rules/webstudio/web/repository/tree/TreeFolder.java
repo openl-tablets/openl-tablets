@@ -54,7 +54,7 @@ public class TreeFolder extends AbstractTreeNode {
 
     public Map<Object, TreeNode> getElements() {
         if (elements == null && !isLeafOnly()) {
-            elements = new LinkedHashMap<Object, TreeNode>();
+            elements = new LinkedHashMap<>();
             if (getData() instanceof AProjectFolder) {
                 AProjectFolder folder = (AProjectFolder) getData();
                 Collection<AProjectArtefact> filteredArtefacts = getFilteredArtefacts(folder);

@@ -22,9 +22,9 @@ import org.openl.rules.table.OpenLArgumentsCloner;
  * In this case we can safely reuse already cloned object in other method invocation if it's not changed since that.
  */
 public class CachingArgumentsCloner extends OpenLArgumentsCloner {
-    private static ThreadLocal<CachingArgumentsCloner> instance = new ThreadLocal<CachingArgumentsCloner>();
+    private static ThreadLocal<CachingArgumentsCloner> instance = new ThreadLocal<>();
 
-    private Map<Object, Object> cache = new HashMap<Object, Object>();
+    private Map<Object, Object> cache = new HashMap<>();
 
     private CachingArgumentsCloner() {
     }

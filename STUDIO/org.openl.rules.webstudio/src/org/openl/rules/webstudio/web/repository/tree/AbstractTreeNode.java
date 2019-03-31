@@ -201,7 +201,7 @@ public abstract class AbstractTreeNode implements TreeNode {
 
     public List<TreeNode> getChildNodes() {
         // elements are sorted already
-        return new ArrayList<TreeNode>(getElements().values());
+        return new ArrayList<>(getElements().values());
     }
 
     public Iterator<Object> getChildrenKeysIterator() {
@@ -296,7 +296,7 @@ public abstract class AbstractTreeNode implements TreeNode {
             Collections.reverse(result);
             return result;
         } else {
-            return new LinkedList<ProjectVersion>();
+            return Collections.emptyList();
         }
     }
 
@@ -312,7 +312,7 @@ public abstract class AbstractTreeNode implements TreeNode {
                     return false;
                 } else {
                     List<ProjectVersion> versions = project.getArtefactVersions(getData().getArtefactPath().withoutFirstSegment());
-                    return versions.size() > 0;
+                    return !versions.isEmpty();
                 }
             } else {
                 return getData().getVersionsCount() > 0;
@@ -329,7 +329,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     public SelectItem[] getSelectedFileVersions() {
         Collection<ProjectVersion> versions = getVersions();
 
-        List<SelectItem> selectItems = new ArrayList<SelectItem>();
+        List<SelectItem> selectItems = new ArrayList<>();
         for (ProjectVersion version : versions) {
             selectItems.add(new SelectItem(version.getVersionName()));
         }

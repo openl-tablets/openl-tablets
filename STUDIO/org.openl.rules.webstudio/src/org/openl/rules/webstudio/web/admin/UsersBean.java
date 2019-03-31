@@ -44,33 +44,33 @@ public class UsersBean {
     public static final String VALIDATION_USERNAME = "Invalid characters (valid: latin letters, numbers, _ and -)";
     public static final String VALIDATION_GROUPS = "Please select at least one group";
 
-    @Size(max=25, message=VALIDATION_MAX)
+    @Size(max = 25, message = VALIDATION_MAX)
     private String firstName;
 
-    @Size(max=25, message=VALIDATION_MAX)
+    @Size(max = 25, message = VALIDATION_MAX)
     private String lastName;
 
-    @NotBlank(message=VALIDATION_EMPTY)
-    @Size(max=25, message=VALIDATION_MAX)
-    @Pattern(regexp="([a-zA-Z0-9-_]*)?", message=VALIDATION_USERNAME)
+    @NotBlank(message = VALIDATION_EMPTY)
+    @Size(max = 25, message = VALIDATION_MAX)
+    @Pattern(regexp = "([a-zA-Z0-9-_]*)?", message = VALIDATION_USERNAME)
     private String username;
 
-    @NotBlank(message=VALIDATION_EMPTY)
-    @Size(max=25, message=VALIDATION_MAX)
+    @NotBlank(message = VALIDATION_EMPTY)
+    @Size(max = 25, message = VALIDATION_MAX)
     private String password;
 
-    @Size(max=25, message=VALIDATION_MAX)
+    @Size(max = 25, message = VALIDATION_MAX)
     private String changedPassword;
 
-    @NotEmpty(message=VALIDATION_GROUPS)
+    @NotEmpty(message = VALIDATION_GROUPS)
     private List<String> groups;
 
     private boolean internalUser = false;
 
-    @ManagedProperty(value="#{userManagementService}")
+    @ManagedProperty(value = "#{userManagementService}")
     protected UserManagementService userManagementService;
 
-    @ManagedProperty(value="#{groupManagementService}")
+    @ManagedProperty(value = "#{groupManagementService}")
     protected GroupManagementService groupManagementService;
 
     @ManagedProperty(value = "#{passwordEncoder}")
@@ -89,11 +89,11 @@ public class UsersBean {
         User user = null;
         try {
             user = userManagementService.loadUserByUsername((String) value);
-        } catch (UsernameNotFoundException ignored) { }
+        } catch (UsernameNotFoundException ignored) {
+        }
 
         if (user != null) {
-            throw new ValidatorException(
-                    new FacesMessage("User with such name already exists"));
+            throw new ValidatorException(new FacesMessage("User with such name already exists"));
         }
     }
 
@@ -102,7 +102,7 @@ public class UsersBean {
     }
 
     public String[] getGroups(Object objUser) {
-        List<String> groups = new ArrayList<String>();
+        List<String> groups = new ArrayList<>();
         @SuppressWarnings("unchecked")
         Collection<Privilege> authorities = (Collection<Privilege>) ((User) objUser).getAuthorities();
         for (Privilege authority : authorities) {
@@ -120,7 +120,7 @@ public class UsersBean {
 
         String adminPrivilege = Privileges.ADMIN.name();
 
-        List<String> groups = new ArrayList<String>();
+        List<String> groups = new ArrayList<>();
         @SuppressWarnings("unchecked")
         Collection<Privilege> authorities = (Collection<Privilege>) ((User) objUser).getAuthorities();
         for (Privilege authority : authorities) {
@@ -136,8 +136,8 @@ public class UsersBean {
     }
 
     private List<Privilege> getSelectedGroups() {
-        List<Privilege> resultGroups = new ArrayList<Privilege>();
-        Map<String, Group> groups = new HashMap<String, Group>();
+        List<Privilege> resultGroups = new ArrayList<>();
+        Map<String, Group> groups = new HashMap<>();
 
         if (this.groups != null) {
             for (String groupName : this.groups) {
@@ -159,8 +159,7 @@ public class UsersBean {
     public void addUser() {
         boolean willBeExternalUser = canCreateExternalUsers && (!internalUser || !canCreateInternalUsers);
         String passwordHash = willBeExternalUser ? null : passwordEncoder.encode(password);
-        userManagementService.addUser(
-                new SimpleUser(firstName, lastName, username, passwordHash, getSelectedGroups()));
+        userManagementService.addUser(new SimpleUser(firstName, lastName, username, passwordHash, getSelectedGroups()));
     }
 
     public void editUser() {
@@ -170,15 +169,14 @@ public class UsersBean {
             lastName = user.getLastName();
         }
         String passwordHash = StringUtils.isBlank(changedPassword) ? null : passwordEncoder.encode(changedPassword);
-        userManagementService.updateUser(
-                new SimpleUser(firstName, lastName, username, passwordHash, getSelectedGroups()));
+        userManagementService
+            .updateUser(new SimpleUser(firstName, lastName, username, passwordHash, getSelectedGroups()));
     }
 
     private void removeIncludedGroups(Group group, Map<String, Group> groups) {
         Set<String> groupNames = new HashSet<String>(groups.keySet());
         for (String checkGroupName : groupNames) {
-            if (!group.getName().equals(checkGroupName) &&
-                    group.hasPrivilege(checkGroupName)) {
+            if (!group.getName().equals(checkGroupName) && group.hasPrivilege(checkGroupName)) {
                 Group includedGroup = groups.get(checkGroupName);
                 if (includedGroup != null) {
                     removeIncludedGroups(includedGroup, groups);
@@ -190,8 +188,8 @@ public class UsersBean {
 
     public boolean isOnlyAdmin(Object objUser) {
         String adminPrivilege = Privileges.ADMIN.name();
-        return ((User) objUser).hasPrivilege(adminPrivilege)
-                && userManagementService.getUsersByPrivilege(adminPrivilege).size() == 1;
+        return ((User) objUser)
+            .hasPrivilege(adminPrivilege) && userManagementService.getUsersByPrivilege(adminPrivilege).size() == 1;
     }
 
     public void deleteUser(String username) {
@@ -255,7 +253,7 @@ public class UsersBean {
     }
 
     public List<SelectItem> getGroupItems() {
-        List<SelectItem> result = new ArrayList<SelectItem>();
+        List<SelectItem> result = new ArrayList<>();
         List<Group> groups = groupManagementService.getGroups();
         for (Group group : groups) {
             result.add(new SelectItem(group.getName(), group.getDisplayName()));
@@ -267,8 +265,7 @@ public class UsersBean {
         this.userManagementService = userManagementService;
     }
 
-    public void setGroupManagementService(
-            GroupManagementService groupManagementService) {
+    public void setGroupManagementService(GroupManagementService groupManagementService) {
         this.groupManagementService = groupManagementService;
     }
 
@@ -293,7 +290,8 @@ public class UsersBean {
     }
 
     /**
-     * Returns true if both internal and external users are supported. Returns false if only internal or only external users are supported.
+     * Returns true if both internal and external users are supported. Returns false if only internal or only external
+     * users are supported.
      */
     public boolean isCanSelectInternalOrExternal() {
         return canCreateInternalUsers && canCreateExternalUsers;

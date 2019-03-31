@@ -32,7 +32,7 @@ final class Settings {
     String copyHistory;
 
     Settings(String databaseCode, int major, int minor) throws IOException {
-        TreeMap<String, String> queries = new TreeMap<String, String>();
+        TreeMap<String, String> queries = new TreeMap<>();
         fillQueries(queries, "/openl-db-repository");
         fillQueries(queries, "/openl-db-repository-" + databaseCode);
         fillQueries(queries, "/openl-db-repository-" + databaseCode + "-v" + major);

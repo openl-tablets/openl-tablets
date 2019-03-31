@@ -32,21 +32,21 @@ import org.openl.rules.webstudio.service.GroupManagementService;
 @ManagedBean
 @RequestScoped
 public class GroupsBean {
-    
+
     public static final String VALIDATION_EMPTY = "Can not be empty";
     public static final String VALIDATION_MAX = "Must be less than ";
 
-    @NotBlank(message=VALIDATION_EMPTY)
-    @Size(max=40, message=VALIDATION_MAX + 40)
+    @NotBlank(message = VALIDATION_EMPTY)
+    @Size(max = 40, message = VALIDATION_MAX + 40)
     private String name;
 
-    /* Used for editing*/
-    @NotBlank(message=VALIDATION_EMPTY)
-    @Size(max=40, message=VALIDATION_MAX + 40)
+    /* Used for editing */
+    @NotBlank(message = VALIDATION_EMPTY)
+    @Size(max = 40, message = VALIDATION_MAX + 40)
     private String newName;
     private String oldName;
 
-    @Size(max=200, message=VALIDATION_MAX + 200)
+    @Size(max = 200, message = VALIDATION_MAX + 200)
     private String description;
     private List<Group> groups;
 
@@ -82,7 +82,7 @@ public class GroupsBean {
         this.description = description;
     }
 
-    @ManagedProperty(value="#{groupManagementService}")
+    @ManagedProperty(value = "#{groupManagementService}")
     private GroupManagementService groupManagementService;
 
     /**
@@ -90,8 +90,7 @@ public class GroupsBean {
      */
     public void validateGroupName(FacesContext context, UIComponent toValidate, Object value) {
         if (groupManagementService.isGroupExist((String) value)) {
-            throw new ValidatorException(
-                    new FacesMessage("Group with such name already exists"));
+            throw new ValidatorException(new FacesMessage("Group with such name already exists"));
         }
     }
 
@@ -100,7 +99,7 @@ public class GroupsBean {
     }
 
     public List<String> getPrivileges(Group group) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         if (group == null) {
             return result;
         }
@@ -116,7 +115,7 @@ public class GroupsBean {
     }
 
     public List<String> getIncludedGroups(Group group) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         if (group == null) {
             return result;
         }
@@ -158,62 +157,59 @@ public class GroupsBean {
     }
 
     private Collection<Privilege> getSelectedAuthorities() {
-        Collection<Privilege> authorities = new ArrayList<Privilege>();
+        Collection<Privilege> authorities = new ArrayList<>();
 
         String[] privilegesParam = FacesUtils.getRequest().getParameterValues("privilege");
-        List<String> privileges = new ArrayList<String>(Arrays.asList(
-                privilegesParam == null ? new String[0] : privilegesParam));
+        List<String> privileges = new ArrayList<>(
+            Arrays.asList(privilegesParam == null ? new String[0] : privilegesParam));
         privileges.add(0, Privileges.VIEW_PROJECTS.name());
 
         // Admin
-            Map<String, Group> groups = new java.util.HashMap<String, Group>();
-            String[] groupNames = FacesUtils.getRequest().getParameterValues("group");
-            if (groupNames != null) {
-                for (String groupName : groupNames) {
-                    if (groupName.equals(oldName)) {
-                        // Persisting group should not include itself
-                        continue;
-                    }
-                    groups.put(groupName, groupManagementService.getGroupByName(groupName));
+        Map<String, Group> groups = new java.util.HashMap<>();
+        String[] groupNames = FacesUtils.getRequest().getParameterValues("group");
+        if (groupNames != null) {
+            for (String groupName : groupNames) {
+                if (groupName.equals(oldName)) {
+                    // Persisting group should not include itself
+                    continue;
                 }
+                groups.put(groupName, groupManagementService.getGroupByName(groupName));
+            }
 
-                for (Group group : new ArrayList<Group>(groups.values())) {
-                    if (!groups.isEmpty()) {
-                        removeIncludedGroups(group, groups);
-                    }
-                }
-
-                removeIncludedPrivileges(privileges, groups);
-
-                for (Group group : groups.values()) {
-                    authorities.add(group);
+            for (Group group : new ArrayList<Group>(groups.values())) {
+                if (!groups.isEmpty()) {
+                    removeIncludedGroups(group, groups);
                 }
             }
 
-            for (String privilegeName : privileges) {
-                authorities.add(Privileges.valueOf(privilegeName));
+            removeIncludedPrivileges(privileges, groups);
+
+            for (Group group : groups.values()) {
+                authorities.add(group);
             }
+        }
+
+        for (String privilegeName : privileges) {
+            authorities.add(Privileges.valueOf(privilegeName));
+        }
 
         return authorities;
     }
 
     public void addGroup() {
-        groupManagementService.addGroup(
-                new SimpleGroup(name, description, getSelectedAuthorities()));
+        groupManagementService.addGroup(new SimpleGroup(name, description, getSelectedAuthorities()));
         groups = null;
     }
 
     public void editGroup() {
-        groupManagementService.updateGroup(oldName,
-                new SimpleGroup(newName, description, getSelectedAuthorities()));
+        groupManagementService.updateGroup(oldName, new SimpleGroup(newName, description, getSelectedAuthorities()));
         groups = null;
     }
 
     private void removeIncludedGroups(Group group, Map<String, Group> groups) {
-        Set<String> groupNames = new HashSet<String>(groups.keySet());
+        Set<String> groupNames = new HashSet<>(groups.keySet());
         for (String checkGroupName : groupNames) {
-            if (!group.getName().equals(checkGroupName) &&
-                    group.hasPrivilege(checkGroupName)) {
+            if (!group.getName().equals(checkGroupName) && group.hasPrivilege(checkGroupName)) {
                 Group includedGroup = groups.get(checkGroupName);
                 if (includedGroup != null) {
                     removeIncludedGroups(includedGroup, groups);

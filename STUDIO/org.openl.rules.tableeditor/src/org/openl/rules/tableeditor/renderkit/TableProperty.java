@@ -97,8 +97,7 @@ public class TableProperty {
      *         level.
      */
     public boolean isCanBeOverridenInTable() {
-        boolean result = PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, name);        
-        return result;
+        return PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, name);        
     }
 
     public boolean isFolderLevelProperty() {
@@ -162,13 +161,11 @@ public class TableProperty {
      * @param value value of the property as String.
      */
     public void setStringValue(String value) {
-        Object result = value;
         if (StringUtils.isNotBlank(value)) {
-            result = FormattersManager.getFormatter(type, getFormat()).parse(value);            
+            this.value = FormattersManager.getFormatter(type, getFormat()).parse(value);            
         } else {
-            result = null;
+            this.value = null;
         }
-        this.value = result;
     }
 
     public String[] getEnumArrayValue() {

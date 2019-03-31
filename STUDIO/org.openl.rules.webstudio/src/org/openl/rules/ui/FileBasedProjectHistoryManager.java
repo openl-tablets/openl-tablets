@@ -27,7 +27,10 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
     private int maxFilesInStorage;
     private boolean unlimitedStorage;
 
-    public FileBasedProjectHistoryManager(ProjectModel projectModel, String storagePath, Integer maxFilesInStorage, boolean unlimitedStorage) {
+    public FileBasedProjectHistoryManager(ProjectModel projectModel,
+            String storagePath,
+            Integer maxFilesInStorage,
+            boolean unlimitedStorage) {
         if (projectModel == null) {
             throw new IllegalArgumentException();
         }
@@ -55,8 +58,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
     }
 
     public File get(long date) {
-        List<File> files = new ArrayList<>(
-                storage.list(new AgeFileFilter(date)));
+        List<File> files = new ArrayList<>(storage.list(new AgeFileFilter(date)));
         if (!files.isEmpty()) {
             for (File file : files) {
                 if (file.lastModified() == date) {
@@ -70,12 +72,11 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
     public File getPrev(long date) {
         File current = get(date);
 
-        List<IOFileFilter> filters = new ArrayList<IOFileFilter>();
+        List<IOFileFilter> filters = new ArrayList<>();
         filters.add(new AgeFileFilter(date));
         filters.add(new NameFileFilter(current.getName()));
 
-        List<File> files = new ArrayList<File>(
-                storage.list(new AndFileFilter(filters)));
+        List<File> files = new ArrayList<>(storage.list(new AndFileFilter(filters)));
         if (files.size() >= 2) {
             return files.get(files.size() - 2);
         }
@@ -84,7 +85,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
     }
 
     public SortedMap<Long, File> get(long... dates) {
-        SortedMap<Long, File> sources = new TreeMap<Long, File>();
+        SortedMap<Long, File> sources = new TreeMap<>();
         for (long date : dates) {
             sources.put(date, get(date));
         }
@@ -98,7 +99,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
         } else {
             files = storage.list(TrueFileFilter.TRUE);
         }
-        SortedMap<Long, File> sources = new TreeMap<Long, File>();
+        SortedMap<Long, File> sources = new TreeMap<>();
         for (File file : files) {
             sources.put(file.lastModified(), file);
         }

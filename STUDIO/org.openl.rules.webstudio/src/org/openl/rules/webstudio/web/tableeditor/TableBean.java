@@ -59,7 +59,7 @@ public class TableBean {
     private IOpenMethod method;
 
     // Test in current table (only for test tables)
-    private TestDescription[] runnableTestMethods = {}; //test units
+    private TestDescription[] runnableTestMethods = {}; // test units
     // All checks and tests for current table (including tests with no cases, run methods).
     private IOpenMethod[] allTests = {};
     private IOpenMethod[] tests = {};
@@ -79,7 +79,7 @@ public class TableBean {
     private List<OpenLMessage> problems;
 
     private boolean targetTablesHasErrors;
-    
+
     public TableBean() {
         id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
 
@@ -88,7 +88,8 @@ public class TableBean {
 
         table = model.getTableById(id);
 
-        // TODO: There is should be a method to get the table by the ID without using URI which is used to generate the ID.
+        // TODO: There is should be a method to get the table by the ID without using URI which is used to generate the
+        // ID.
         if (table == null) {
             table = model.getTable(studio.getTableUri());
         }
@@ -103,13 +104,12 @@ public class TableBean {
 
             editable = model.isEditableTable(uri) && !isDispatcherValidationNode();
             canBeOpenInExcel = model.isEditable() && !isDispatcherValidationNode();
-            copyable = editable && table.isCanContainProperties()
-                    && !XlsNodeTypes.XLS_DATATYPE.toString().equals(table.getType())
-                    && isGranted(CREATE_TABLES);
+            copyable = editable && table.isCanContainProperties() && !XlsNodeTypes.XLS_DATATYPE.toString()
+                .equals(table.getType()) && isGranted(CREATE_TABLES);
 
             String tableType = table.getType();
-            if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD.toString())
-                    || tableType.equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
+            if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD.toString()) || tableType
+                .equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
                 targetTables = model.getTargetTables(uri);
             }
 
@@ -119,8 +119,9 @@ public class TableBean {
             // Save last visited table
             model.getRecentlyVisitedTables().setLastVisitedTable(table);
             // Check the save table parameter
-            boolean saveTable = FacesUtils.getRequestParameterMap().get("saveTable") == null ? true :
-                    Boolean.valueOf(FacesUtils.getRequestParameterMap().get("saveTable"));
+            boolean saveTable = FacesUtils.getRequestParameterMap()
+                .get("saveTable") == null ? true
+                                          : Boolean.valueOf(FacesUtils.getRequestParameterMap().get("saveTable"));
             if (saveTable) {
                 storeTable();
             }
@@ -167,16 +168,17 @@ public class TableBean {
 
     private void initWarnings() {
         warnings = new ArrayList<>();
-        
+
         if (targetTables != null) {
             boolean warningWasAdded = false;
             for (IOpenLTable targetTable : targetTables) {
-                if (targetTable.getMessages().size() > 0) {
-                    if (!warningWasAdded){
+                if (!targetTable.getMessages().isEmpty()) {
+                    if (!warningWasAdded) {
                         warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
                         warningWasAdded = true;
                     }
-                    if (!OpenLMessagesUtils.filterMessagesBySeverity(targetTable.getMessages(), Severity.ERROR).isEmpty()){
+                    if (!OpenLMessagesUtils.filterMessagesBySeverity(targetTable.getMessages(), Severity.ERROR)
+                        .isEmpty()) {
                         targetTablesHasErrors = true;
                     }
                 }
@@ -185,12 +187,14 @@ public class TableBean {
 
         ProjectModel model = WebStudioUtils.getProjectModel();
 
-        Collection<OpenLMessage> warnMessages = OpenLMessagesUtils.filterMessagesBySeverity(model.getModuleMessages(), Severity.WARN);
+        Collection<OpenLMessage> warnMessages = OpenLMessagesUtils.filterMessagesBySeverity(model.getModuleMessages(),
+            Severity.WARN);
         for (OpenLMessage message : warnMessages) {
-            if (message instanceof OpenLWarnMessage) {//there can be simple OpenLMessages with severity WARN
+            if (message instanceof OpenLWarnMessage) {// there can be simple OpenLMessages with severity WARN
                 OpenLWarnMessage warning = (OpenLWarnMessage) message;
                 ISyntaxNode syntaxNode = warning.getSource();
-                if (syntaxNode instanceof TableSyntaxNode && ((TableSyntaxNode) syntaxNode).getUri().equals(table.getUri())) {
+                if (syntaxNode instanceof TableSyntaxNode && ((TableSyntaxNode) syntaxNode).getUri()
+                    .equals(table.getUri())) {
                     warnings.add(warning);
                 } else {
                     String warnUri = warning.getSourceLocation();
@@ -205,7 +209,7 @@ public class TableBean {
         }
     }
 
-    public String getTableName (IOpenLTable table) {
+    public String getTableName(IOpenLTable table) {
         String[] dimensionProps = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
         ITableProperties tableProps = table.getProperties();
         StringBuilder dimensionBuilder = new StringBuilder();
@@ -215,12 +219,15 @@ public class TableBean {
                 String propValue = tableProps.getPropertyValueAsString(dimensionProp);
 
                 if (propValue != null && !propValue.isEmpty()) {
-                    dimensionBuilder.append(dimensionBuilder.length() == 0 ? "" : ", ").append(dimensionProp).append(" = ").append(propValue);
+                    dimensionBuilder.append(dimensionBuilder.length() == 0 ? "" : ", ")
+                        .append(dimensionProp)
+                        .append(" = ")
+                        .append(propValue);
                 }
             }
         }
         if (dimensionBuilder.length() > 0) {
-            return tableName +" ["+ dimensionBuilder.toString() +"]";
+            return tableName + " [" + dimensionBuilder.toString() + "]";
         } else {
             return tableName;
         }
@@ -253,7 +260,7 @@ public class TableBean {
     /**
      * Return test cases for current table.
      * 
-     * @return array of tests for current table. 
+     * @return array of tests for current table.
      */
     public TestDescription[] getTests() {
         return runnableTestMethods;
@@ -262,8 +269,8 @@ public class TableBean {
     public ParameterWithValueDeclaration[] getTestCaseParams(TestDescription testCase) {
         ParameterWithValueDeclaration[] params;
         if (testCase != null) {
-            ParameterWithValueDeclaration[] contextParams = TestUtils.getContextParams(
-                    new TestSuite((TestSuiteMethod) method), testCase);
+            ParameterWithValueDeclaration[] contextParams = TestUtils
+                .getContextParams(new TestSuite((TestSuiteMethod) method), testCase);
             IDataBase db = Utils.getDb(WebStudioUtils.getProjectModel());
             ParameterWithValueDeclaration[] inputParams = testCase.getExecutionParams();
 
@@ -291,13 +298,12 @@ public class TableBean {
 
     public List<TableDescription> getTargetTables() {
         if (targetTables == null) {
-            return  null;
+            return null;
         }
         List<TableDescription> tableDescriptions = new ArrayList<>(targetTables.size());
         for (IOpenLTable targetTable : targetTables) {
-            tableDescriptions.add(new TableDescription(targetTable.getUri(),
-                    targetTable.getId(),
-                    getTableName(targetTable)));
+            tableDescriptions
+                .add(new TableDescription(targetTable.getUri(), targetTable.getId(), getTableName(targetTable)));
         }
         return tableDescriptions;
     }
@@ -342,7 +348,7 @@ public class TableBean {
     public boolean isTestable() {
         return runnableTestMethods.length > 0;
     }
-    
+
     /**
      * Checks if there are tests, including tests with test cases, runs with filled runs, tests without cases(empty),
      * runs without any parameters and tests without cases and runs.
@@ -368,16 +374,11 @@ public class TableBean {
             TableSyntaxNode syntaxNode = (TableSyntaxNode) test.getInfo().getSyntaxNode();
             tableDescriptions.add(new TableDescription(tableUri, syntaxNode.getId(), getTestName(test)));
         }
-        Collections.sort(tableDescriptions, new Comparator<TableDescription>() {
-            @Override
-            public int compare(TableDescription o1, TableDescription o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
+        Collections.sort(tableDescriptions, (o1, o2) -> o1.getName().compareTo(o2.getName()));
         return tableDescriptions.toArray(new TableDescription[0]);
     }
-    
-    public String getTestName(Object testMethod){
+
+    public String getTestName(Object testMethod) {
         IOpenMethod method = (IOpenMethod) testMethod;
         String name = TableSyntaxNodeUtils.getTestName(method);
         String info = ProjectHelper.getTestInfo(method);
@@ -421,11 +422,11 @@ public class TableBean {
     }
 
     public boolean beforeSaveAction() {
-        String editorId = FacesUtils.getRequestParameter(
-                org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
+        String editorId = FacesUtils
+            .getRequestParameter(org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
 
-        Map<?, ?> editorModelMap = (Map<?, ?>) FacesUtils.getSessionParam(
-                org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
+        Map<?, ?> editorModelMap = (Map<?, ?>) FacesUtils
+            .getSessionParam(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
 
         TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);
 
@@ -435,8 +436,9 @@ public class TableBean {
         }
 
         if (WebStudioUtils.getWebStudio().isUpdateSystemProperties()) {
-            return EditHelper.updateSystemProperties(table, editorModel,
-                    WebStudioUtils.getWebStudio().getSystemConfigManager().getStringProperty("user.mode"));
+            return EditHelper.updateSystemProperties(table,
+                editorModel,
+                WebStudioUtils.getWebStudio().getSystemConfigManager().getStringProperty("user.mode"));
         }
         return true;
     }
@@ -487,8 +489,8 @@ public class TableBean {
     public boolean getCanRemove() {
         return isEditable() && isGranted(REMOVE_TABLES);
     }
-    
-    public boolean hasErrorsInTargetTables(){
+
+    public boolean hasErrorsInTargetTables() {
         return targetTablesHasErrors;
     }
 

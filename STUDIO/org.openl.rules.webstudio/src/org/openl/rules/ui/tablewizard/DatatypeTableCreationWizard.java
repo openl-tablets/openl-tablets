@@ -37,15 +37,13 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
     private String technicalName;
 
     @Valid
-    private List<TypeNamePair> parameters = new ArrayList<TypeNamePair>();
+    private List<TypeNamePair> parameters = new ArrayList<>();
 
     private DomainTree domainTree;
     private SelectItem[] definedDatatypes;
     private SelectItem[] domainTypes;
     private String parent;
 
-    public DatatypeTableCreationWizard() {
-    }
 
     public String getTechnicalName() {
         return technicalName;
@@ -94,11 +92,11 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
 
         domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass());
         
-        List<IOpenClass> types = new ArrayList<IOpenClass>(WizardUtils.getProjectOpenClass().getTypes());
+        List<IOpenClass> types = new ArrayList<>(WizardUtils.getProjectOpenClass().getTypes());
         Collection<IOpenClass> importedClasses = WizardUtils.getImportedClasses();
         types.addAll(importedClasses);
         
-        List<String> datatypes = new ArrayList<String>(types.size());
+        List<String> datatypes = new ArrayList<>(types.size());
         for (IOpenClass datatype : types) {
             if (Modifier.isFinal(datatype.getInstanceClass().getModifiers())) {
                 // cannot inherit from final class
@@ -177,7 +175,7 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
     @Override
     protected void reset() {
         technicalName = null;
-        parameters = new ArrayList<TypeNamePair>();
+        parameters = new ArrayList<>();
 
         domainTree = null;
         domainTypes = null;
@@ -194,7 +192,7 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
         super.onFinish();
     }
 
-    public void nameValidator(FacesContext context, UIComponent toValidate, Object value) throws ValidatorException {
+    public void nameValidator(FacesContext context, UIComponent toValidate, Object value) {
         String text = (String) value;
         if (StringUtils.isBlank(text)) {
             throw new ValidatorException(new FacesMessage("Can not be empty"));

@@ -131,7 +131,7 @@ public class JcrVersion implements RVersion {
 
     protected void nextRevision() {
         // only project can call this method
-        int newRevision = Integer.valueOf(version.getRevision());
+        int newRevision = Integer.parseInt(version.getRevision());
         newRevision++;
 
         version = new CommonVersionImpl(newRevision);

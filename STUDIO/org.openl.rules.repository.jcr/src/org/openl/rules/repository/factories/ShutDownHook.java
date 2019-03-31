@@ -20,7 +20,7 @@ public class ShutDownHook extends Thread {
     private WeakReference<Closeable> ref;
 
     public ShutDownHook(Closeable closable) {
-        ref = new WeakReference<Closeable>(closable);
+        ref = new WeakReference<>(closable);
     }
 
     @Override

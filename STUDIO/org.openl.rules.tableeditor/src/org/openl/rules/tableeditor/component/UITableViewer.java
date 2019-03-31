@@ -4,7 +4,4 @@ import javax.faces.component.UIOutput;
 
 public class UITableViewer extends UIOutput {
 
-    public UITableViewer() {
-    }
-
 }

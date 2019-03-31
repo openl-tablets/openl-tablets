@@ -16,9 +16,6 @@ public class TreeViewBean {
 
     private static final String[] usedParams={"title", "treePage", "mainPage", "mainFrame", "relWidth"};
 
-    public TreeViewBean() {
-    }
-
     public String getTreePage() {
         return getPageUrl("treePage");
     }

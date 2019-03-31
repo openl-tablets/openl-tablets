@@ -9,7 +9,7 @@ import javax.faces.model.SelectItem;
  */
 public class TableCondition extends TableArtifact {
     private boolean logicEditor;
-    List<ConditionClause> logicClauses = new ArrayList<ConditionClause>();
+    List<ConditionClause> logicClauses = new ArrayList<>();
 
     public TableCondition() {
         logicClauses.add(new ConditionClause(this));
@@ -38,7 +38,7 @@ public class TableCondition extends TableArtifact {
     }
 
     public SelectItem[] getParamNames() {
-        List<SelectItem> items = new ArrayList<SelectItem>();
+        List<SelectItem> items = new ArrayList<>();
         for (Parameter p : getParameters()) {
             if (WizardUtils.checkParameterName(p.getName()) == null) {
                 items.add(new SelectItem(p.getName()));

@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.ResourceTransformer;

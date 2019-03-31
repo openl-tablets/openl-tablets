@@ -8,7 +8,6 @@ import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.algorithm.WeightAlgorithmExecutor;
 import org.openl.rules.dt.ActionInvoker;
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;

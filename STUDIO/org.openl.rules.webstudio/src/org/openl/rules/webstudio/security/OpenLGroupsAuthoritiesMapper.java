@@ -19,7 +19,7 @@ public class OpenLGroupsAuthoritiesMapper implements GrantedAuthoritiesMapper {
 
     @Override
     public Collection<? extends GrantedAuthority> mapAuthorities(Collection<? extends GrantedAuthority> authorities) {
-        List<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
+        List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
         for (GrantedAuthority authority : authorities) {
             Group group = groupDao.getGroupByName(authority.getAuthority());
             if (group != null) {

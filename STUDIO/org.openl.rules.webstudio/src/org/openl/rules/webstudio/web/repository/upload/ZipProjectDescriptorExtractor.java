@@ -1,6 +1,8 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
-import com.thoughtworks.xstream.XStreamException;
+import java.io.IOException;
+import java.nio.charset.Charset;
+
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.zip.ProjectDescriptorFinder;
@@ -8,9 +10,6 @@ import org.openl.rules.webstudio.web.repository.upload.zip.ZipWalker;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.nio.charset.Charset;
 
 public final class ZipProjectDescriptorExtractor {
     private ZipProjectDescriptorExtractor() {
@@ -26,7 +25,7 @@ public final class ZipProjectDescriptorExtractor {
         }
     }
 
-    public static ProjectDescriptor getProjectDescriptorOrThrow(ProjectFile uploadedFile, PathFilter zipFilter, Charset charset) throws IOException, XStreamException {
+    public static ProjectDescriptor getProjectDescriptorOrThrow(ProjectFile uploadedFile, PathFilter zipFilter, Charset charset) throws IOException {
         ZipWalker zipWalker = new ZipWalker(uploadedFile, zipFilter, charset);
         ProjectDescriptorFinder finder = new ProjectDescriptorFinder();
         zipWalker.iterateEntries(finder);

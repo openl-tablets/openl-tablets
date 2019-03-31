@@ -231,7 +231,7 @@ public class DeploymentController {
         List<SelectItem> selectItems = new ArrayList<SelectItem>();
 
         List<DeploymentDescriptorItem> existingItems = getItems();
-        Set<String> existing = new HashSet<String>();
+        Set<String> existing = new HashSet<>();
         if (existingItems != null) {
             for (DeploymentDescriptorItem ddItem : existingItems) {
                 existing.add(ddItem.getName());
@@ -276,7 +276,7 @@ public class DeploymentController {
             try {
                 AProject project = workspace.getProject(projectName, false);
                 // sort project versions in descending order (1.1 -> 0.0)
-                List<ProjectVersion> versions = new ArrayList<ProjectVersion>(project.getVersions());
+                List<ProjectVersion> versions = new ArrayList<>(project.getVersions());
                 Collections.reverse(versions);
 
                 return versions;
@@ -285,7 +285,7 @@ public class DeploymentController {
             }
         }
 
-        return new ArrayList<ProjectVersion>();
+        return Collections.emptyList();
     }
 
     private ADeploymentProject getSelectedProject() {
@@ -378,7 +378,7 @@ public class DeploymentController {
     }
 
     public Collection<RepositoryConfiguration> getRepositories() {
-        List<RepositoryConfiguration> repos = new ArrayList<RepositoryConfiguration>();
+        List<RepositoryConfiguration> repos = new ArrayList<>();
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
         for (String configName : repositoryConfigNames) {
             ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(configName);

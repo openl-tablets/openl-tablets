@@ -30,7 +30,7 @@ public abstract class SimpleTracerObject implements ITracerObject {
 
     public void addChild(ITracerObject child) {
         if (children == null) {
-            children = new ArrayList<ITracerObject>();
+            children = new ArrayList<>();
         }
 
         children.add(child);
@@ -47,8 +47,6 @@ public abstract class SimpleTracerObject implements ITracerObject {
     public boolean isLeaf() {
         return children == null;
     }
-
-    public abstract String getUri();
 
     @Override
     public Object[] getParameters() {

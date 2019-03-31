@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls2.XlsDiff2;
 
@@ -23,7 +22,7 @@ public class ExcelDiffController extends AbstractDiffController {
     }
 
     public void setFilesToCompare(List<File> filesToCompare) {
-        this.filesToCompare = new ArrayList<File>(filesToCompare);
+        this.filesToCompare = new ArrayList<>(filesToCompare);
     }
 
     public String compare() {

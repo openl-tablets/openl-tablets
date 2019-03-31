@@ -73,7 +73,7 @@ final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePa
                 // The Sun JRE does not return a slash here, but BEA JRockit does.
                 rootEntryPath = rootEntryPath + "/";
             }
-            Set<Resource> result = new LinkedHashSet<Resource>(8);
+            Set<Resource> result = new LinkedHashSet<>(8);
             for (Enumeration<JarEntry> entries = jarFile.entries(); entries.hasMoreElements(); ) {
                 JarEntry entry = entries.nextElement();
                 String entryPath = entry.getName();

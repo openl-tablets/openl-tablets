@@ -56,7 +56,7 @@ public abstract class TableCreationWizard extends BaseWizard {
      */
     private String newTableId;
 
-    private Set<XlsWorkbookSourceCodeModule> modifiedWorkbooks = new HashSet<XlsWorkbookSourceCodeModule>();
+    private Set<XlsWorkbookSourceCodeModule> modifiedWorkbooks = new HashSet<>();
 
     protected XlsSheetSourceCodeModule getDestinationSheet() {
         XlsSheetSourceCodeModule sourceCodeModule;
@@ -104,7 +104,7 @@ public abstract class TableCreationWizard extends BaseWizard {
     }
 
     public List<SelectItem> getWorkbooks() {
-        List<SelectItem> items = new ArrayList<SelectItem>(workbooks.size());
+        List<SelectItem> items = new ArrayList<>(workbooks.size());
         for (String wbURI : workbooks.keySet()) {
             items.add(new SelectItem(wbURI, FileUtils.getBaseName(wbURI)));
         }
@@ -136,17 +136,12 @@ public abstract class TableCreationWizard extends BaseWizard {
         }
 
         Workbook workbook = currentSheet.getWorkbook();
-        List<SelectItem> items = new ArrayList<SelectItem>(workbook.getNumberOfSheets());
+        List<SelectItem> items = new ArrayList<>(workbook.getNumberOfSheets());
         for (int i = 0; i < workbook.getNumberOfSheets(); ++i) {
             items.add(new SelectItem(i, workbook.getSheetName(i)));
         }
 
-        Collections.sort(items, new Comparator<SelectItem>() {
-            @Override
-            public int compare(SelectItem item1, SelectItem item2) {
-                return item1.getLabel().compareToIgnoreCase(item2.getLabel());
-            }
-        });
+        Collections.sort(items, (item1, item2) -> item1.getLabel().compareToIgnoreCase(item2.getLabel()));
 
         return items;
     }
@@ -256,12 +251,13 @@ public abstract class TableCreationWizard extends BaseWizard {
 
     protected Map<String, Object> buildSystemProperties() {
         String userMode = WebStudioUtils.getWebStudio().getSystemConfigManager().getStringProperty("user.mode");
-        Map<String, Object> result = new LinkedHashMap<String, Object>();
+        Map<String, Object> result = new LinkedHashMap<>();
 
         List<TablePropertyDefinition> systemPropDefinitions = TablePropertyDefinitionUtils.getSystemProperties();
         for (TablePropertyDefinition systemPropDef : systemPropDefinitions) {
             String systemValueDescriptor = systemPropDef.getSystemValueDescriptor();
-            if (userMode.equals("single") && systemValueDescriptor.equals(SystemValuesManager.CURRENT_USER_DESCRIPTOR)) {
+            if (userMode.equals("single") && systemValueDescriptor
+                .equals(SystemValuesManager.CURRENT_USER_DESCRIPTOR)) {
                 continue;
             }
             if (systemPropDef.getSystemValuePolicy().equals(SystemValuePolicy.IF_BLANK_ONLY)) {
@@ -276,7 +272,7 @@ public abstract class TableCreationWizard extends BaseWizard {
     }
 
     protected Map<String, Object> buildProperties() {
-        Map<String, Object> properties = new LinkedHashMap<String, Object>();
+        Map<String, Object> properties = new LinkedHashMap<>();
 
         // Put system properties.
         if (WebStudioUtils.getWebStudio().isUpdateSystemProperties()) {

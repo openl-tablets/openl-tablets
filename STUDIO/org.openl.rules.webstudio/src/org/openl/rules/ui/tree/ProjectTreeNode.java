@@ -71,7 +71,7 @@ public class ProjectTreeNode extends TreeNode<Object> implements INamedThing {
 
         TableSyntaxNode table = getTableSyntaxNode();
         if (table != null) {
-            SyntaxNodeException errors[] = table.getErrors();
+            SyntaxNodeException[] errors = table.getErrors();
 
             if (errors != null) {
                 return errors.length;

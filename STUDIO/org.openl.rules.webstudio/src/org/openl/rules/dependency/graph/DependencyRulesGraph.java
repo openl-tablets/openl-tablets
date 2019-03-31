@@ -36,12 +36,12 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
 
     private void createGraph() {
         EdgeFactory<ExecutableMethod, DirectedEdge<ExecutableMethod>> edgeFactory = 
-            new DirectedEdgeFactory<ExecutableMethod>(DirectedEdge.class);
-        graph = new DefaultDirectedGraph<ExecutableMethod, DirectedEdge<ExecutableMethod>>(edgeFactory);
+            new DirectedEdgeFactory<>(DirectedEdge.class);
+        graph = new DefaultDirectedGraph<>(edgeFactory);
     }
 
     private void fill(List<ExecutableMethod> rulesMethods) {
-        if (rulesMethods != null && rulesMethods.size() > 0) {
+        if (rulesMethods != null && !rulesMethods.isEmpty()) {
             for (ExecutableMethod method : rulesMethods) {
                 graph.addVertex(method);
                 BindingDependencies dependencies = method.getDependencies();
@@ -168,8 +168,8 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
      * @return {@link DependencyRulesGraph} graph representing dependencies between executable rules methods. 
      */
     public static DependencyRulesGraph filterAndCreateGraph(Collection<IOpenMethod> methods) {
-        List<ExecutableMethod> rulesMethods = new ArrayList<ExecutableMethod>(); 
-        if (methods != null && methods.size() > 0) {
+        List<ExecutableMethod> rulesMethods = new ArrayList<>(); 
+        if (methods != null && !methods.isEmpty()) {
             for (IOpenMethod method : methods) {
                 if (method instanceof ExecutableMethod) {
                     rulesMethods.add((ExecutableMethod)method);

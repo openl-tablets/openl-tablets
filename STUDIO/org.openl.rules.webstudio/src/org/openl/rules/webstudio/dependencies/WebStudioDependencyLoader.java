@@ -22,6 +22,7 @@ final class WebStudioDependencyLoader extends SimpleProjectDependencyLoader {
         super(dependencyName, modules, singleModuleMode, false, isProject);
     }
 
+    @Override
     protected ClassLoader buildClassLoader(AbstractProjectDependencyManager dependencyManager) {
         ClassLoader projectClassLoader = dependencyManager.getClassLoader(modules.iterator().next().getProject());
         SimpleBundleClassLoader simpleBundleClassLoader = new SimpleBundleClassLoader(null);

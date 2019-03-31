@@ -25,7 +25,7 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
 
     @Override
     public void save() {
-        /*Only local repo can be created*/
+        /* Only local repo can be created */
         getRepositoryConfiguration().setType(PRODUCTION_PEPOSITORY_TYPE);
 
         RepositoryConfiguration repoConfig = createRepositoryConfiguration();
@@ -41,20 +41,18 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
                 CommonRepositorySettings s = (CommonRepositorySettings) settings;
                 RepositoryConfiguration adminConfig = this.createAdminRepositoryConfiguration();
 
-                Repository repository = RepositoryFactoryInstatiator.newFactory(adminConfig.getProperties(), RepositoryMode.PRODUCTION);
+                Repository repository = RepositoryFactoryInstatiator.newFactory(adminConfig.getProperties(),
+                    RepositoryMode.PRODUCTION);
 
                 try {
-                    if (repository instanceof LocalJackrabbitRepositoryFactory) {
-                        if (!((LocalJackrabbitRepositoryFactory) repository).configureJCRForOneUser(s.getLogin(), s.getPassword())) {
-                            setErrorMessage("Repository user creation error");
-                            return;
-                        }
+                    if (repository instanceof LocalJackrabbitRepositoryFactory && !((LocalJackrabbitRepositoryFactory) repository)
+                        .configureJCRForOneUser(s.getLogin(), s.getPassword())) {
+                        setErrorMessage("Repository user creation error");
+                        return;
                     }
                 } finally {
-                    if (repository != null) {
-                        if (repository instanceof Closeable) {
-                            IOUtils.closeQuietly((Closeable) repository);
-                        }
+                    if (repository instanceof Closeable) {
+                        IOUtils.closeQuietly((Closeable) repository);
                     }
                 }
             } else {

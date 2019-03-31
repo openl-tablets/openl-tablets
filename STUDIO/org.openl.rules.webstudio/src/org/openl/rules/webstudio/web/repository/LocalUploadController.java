@@ -61,8 +61,8 @@ public class LocalUploadController {
 
     private List<UploadBean> uploadBeans;
 
-    private void createProject(File baseFolder, RulesUserSession rulesUserSession) throws ProjectException,
-            WorkspaceException, FileNotFoundException {
+    private void createProject(File baseFolder,
+            RulesUserSession rulesUserSession) throws ProjectException, WorkspaceException, FileNotFoundException {
         if (!baseFolder.isDirectory()) {
             throw new FileNotFoundException(baseFolder.getName());
         }
@@ -72,7 +72,7 @@ public class LocalUploadController {
 
     public List<UploadBean> getProjects4Upload() {
         if (uploadBeans == null) {
-            uploadBeans = new ArrayList<UploadBean>();
+            uploadBeans = new ArrayList<>();
             RulesUserSession userRules = getRules();
             WebStudio webStudio = WebStudioUtils.getWebStudio();
             if (webStudio != null && userRules != null) {
@@ -89,7 +89,7 @@ public class LocalUploadController {
                     projects = new File[0];
                 }
                 Arrays.sort(projects, fileNameComparator);
-                 // All OpenL projects folders in workspace
+                // All OpenL projects folders in workspace
                 ProjectResolver projectResolver = webStudio.getProjectResolver();
                 for (File f : projects) {
                     try {
@@ -107,12 +107,10 @@ public class LocalUploadController {
         return uploadBeans;
     }
 
-    private static Comparator<File> fileNameComparator = new Comparator<File>() {
-        @Override public int compare(File f1, File f2) {
-            String name1 = f1.getName();
-            String name2 = f2.getName();
-            return name1.compareToIgnoreCase(name2);
-        }
+    private static Comparator<File> fileNameComparator = (f1, f2) -> {
+        String name1 = f1.getName();
+        String name2 = f2.getName();
+        return name1.compareToIgnoreCase(name2);
     };
 
     private RulesUserSession getRules() {
@@ -132,12 +130,12 @@ public class LocalUploadController {
                 if (bean.isSelected()) {
                     try {
                         createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession);
-                        FacesUtils.addInfoMessage("Project " + bean.getProjectName()
-                                + " was created successfully");
+                        FacesUtils.addInfoMessage("Project " + bean.getProjectName() + " was created successfully");
                     } catch (Exception e) {
                         String msg;
                         if (!NameChecker.checkName(bean.getProjectName())) {
-                            msg = "Failed to create the project '" + bean.getProjectName() + "'! " + NameChecker.BAD_PROJECT_NAME_MSG;
+                            msg = "Failed to create the project '" + bean
+                                .getProjectName() + "'! " + NameChecker.BAD_PROJECT_NAME_MSG;
                         } else if (e.getCause() instanceof FileNotFoundException) {
                             if (e.getMessage().contains(".xls")) {
                                 msg = "Failed to create the project. Please close module Excel file and try again.";
